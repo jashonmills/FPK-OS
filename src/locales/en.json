@@ -12,6 +12,50 @@
     "settings": "Settings",
     "support": "Support & FAQs"
   },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "welcomeModal": {
+      "title": "Welcome to FPK University!",
+      "subtitle": "Hey {{name}}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.",
+      "quickSetup": "Quick Setup",
+      "quickSetupDesc": "Add your learning preferences, goals, and interests to unlock personalized course recommendations.",
+      "completeProfile": "Complete Profile Setup",
+      "remindLater": "Remind me in 24h"
+    },
+    "stats": {
+      "activeCourses": "Active Courses",
+      "hoursThisWeek": "Hours This Week",
+      "certificates": "Certificates",
+      "streakDays": "Streak Days",
+      "totalXP": "Total XP",
+      "level": "Level"
+    },
+    "charts": {
+      "courseProgress": "Course Progress Overview",
+      "weeklyTime": "Weekly Study Time",
+      "noCourseProgress": "No Course Progress Yet",
+      "noCourseProgressDesc": "Start a course to see your progress visualization here",
+      "noStudyTime": "No Study Time Recorded",
+      "noStudyTimeDesc": "Your weekly study time will appear here once you start learning"
+    },
+    "insights": {
+      "aiInsight": "AI Study Insight",
+      "noInsights": "No Insights Yet",
+      "noInsightsDesc": "AI insights will appear here based on your learning patterns",
+      "recommendedGoals": "Recommended Goals",
+      "setFirstGoal": "Set Your First Goal",
+      "setFirstGoalDesc": "AI will suggest personalized learning goals",
+      "createGoal": "Create Goal",
+      "communityActivity": "Community Activity",
+      "joinCommunity": "Join the Community",
+      "joinCommunityDesc": "Connect with fellow learners",
+      "exploreCommunity": "Explore Community"
+    },
+    "badges": {
+      "learner": "Learner",
+      "level1": "Level 1"
+    }
+  },
   "auth": {
     "title": "FPK University",
     "subtitle": "Your Learning Journey Starts Here",
@@ -150,6 +194,9 @@
     "error": "Error",
     "success": "Success",
     "comingSoon": "Coming Soon!",
-    "learnerPortal": "Learner Portal"
+    "learnerPortal": "Learner Portal",
+    "signOut": "Sign Out",
+    "learningDashboard": "Learning Dashboard",
+    "support": "Support"
   }
 }

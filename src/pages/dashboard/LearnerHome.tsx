@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,11 +37,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useTranslation } from 'react-i18next';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const { t } = useTranslation();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Redirect if not authenticated
@@ -114,7 +115,7 @@ const LearnerHome = () => {
   if (authLoading || profileLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-500">{t('common.loading')}</div>
       </div>
     );
   }
@@ -133,11 +134,10 @@ const LearnerHome = () => {
               <div className="w-10 h-10 fpk-gradient rounded-xl flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <DialogTitle className="text-xl">Welcome to FPK University!</DialogTitle>
+              <DialogTitle className="text-xl">{t('dashboard.welcomeModal.title')}</DialogTitle>
             </div>
             <DialogDescription className="text-base leading-relaxed">
-              Hey {getDisplayName()}! Before you dive into your learning journey, please complete your profile 
-              so we can personalize your experience and tailor content just for you.
+              {t('dashboard.welcomeModal.subtitle', { name: getDisplayName() })}
             </DialogDescription>
           </DialogHeader>
           
@@ -145,9 +145,9 @@ const LearnerHome = () => {
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-purple-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-purple-900 mb-1">Quick Setup</h4>
+                <h4 className="font-medium text-purple-900 mb-1">{t('dashboard.welcomeModal.quickSetup')}</h4>
                 <p className="text-sm text-purple-700">
-                  Add your learning preferences, goals, and interests to unlock personalized course recommendations.
+                  {t('dashboard.welcomeModal.quickSetupDesc')}
                 </p>
               </div>
             </div>
@@ -158,14 +158,14 @@ const LearnerHome = () => {
               onClick={handleWelcomeComplete}
               className="fpk-gradient text-white w-full sm:w-auto"
             >
-              Complete Profile Setup
+              {t('dashboard.welcomeModal.completeProfile')}
             </Button>
             <Button 
               variant="outline" 
               onClick={handleRemindLater}
               className="w-full sm:w-auto"
             >
-              Remind me in 24h
+              {t('dashboard.welcomeModal.remindLater')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -183,15 +183,15 @@ const LearnerHome = () => {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Welcome back, {getDisplayName()}!</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.welcome', { name: getDisplayName() })}</h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className="fpk-gradient text-white">Learner</Badge>
-                  <Badge variant="outline" className="border-amber-200 text-amber-700">Level 1</Badge>
+                  <Badge className="fpk-gradient text-white">{t('dashboard.badges.learner')}</Badge>
+                  <Badge variant="outline" className="border-amber-200 text-amber-700">{t('dashboard.badges.level1')}</Badge>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">Total XP</p>
+              <p className="text-sm text-gray-500">{t('dashboard.stats.totalXP')}</p>
               <p className="text-2xl font-bold fpk-text-gradient">0</p>
             </div>
           </div>
@@ -206,7 +206,7 @@ const LearnerHome = () => {
                   <BookOpen className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Active Courses</p>
+                  <p className="text-sm text-gray-500">{t('dashboard.stats.activeCourses')}</p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -220,7 +220,7 @@ const LearnerHome = () => {
                   <Clock className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Hours This Week</p>
+                  <p className="text-sm text-gray-500">{t('dashboard.stats.hoursThisWeek')}</p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -234,7 +234,7 @@ const LearnerHome = () => {
                   <Award className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Certificates</p>
+                  <p className="text-sm text-gray-500">{t('dashboard.stats.certificates')}</p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -248,7 +248,7 @@ const LearnerHome = () => {
                   <TrendingUp className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Streak Days</p>
+                  <p className="text-sm text-gray-500">{t('dashboard.stats.streakDays')}</p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -263,14 +263,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-purple-600" />
-                Course Progress Overview
+                {t('dashboard.charts.courseProgress')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {progressData.length === 0 ? (
                 <EmptyPieChart 
-                  title="No Course Progress Yet" 
-                  description="Start a course to see your progress visualization here"
+                  title={t('dashboard.charts.noCourseProgress')}
+                  description={t('dashboard.charts.noCourseProgressDesc')}
                 />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
@@ -297,14 +297,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-amber-600" />
-                Weekly Study Time
+                {t('dashboard.charts.weeklyTime')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {timeSpentData.length === 0 ? (
                 <EmptyChart 
-                  title="No Study Time Recorded" 
-                  description="Your weekly study time will appear here once you start learning"
+                  title={t('dashboard.charts.noStudyTime')}
+                  description={t('dashboard.charts.noStudyTimeDesc')}
                 />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
@@ -326,14 +326,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-yellow-500" />
-                AI Study Insight
+                {t('dashboard.insights.aiInsight')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Lightbulb className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">No Insights Yet</h3>
-                <p className="text-sm text-gray-500">AI insights will appear here based on your learning patterns</p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.noInsights')}</h3>
+                <p className="text-sm text-gray-500">{t('dashboard.insights.noInsightsDesc')}</p>
               </div>
             </CardContent>
           </Card>
@@ -342,16 +342,16 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-500" />
-                Recommended Goals
+                {t('dashboard.insights.recommendedGoals')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Set Your First Goal</h3>
-                <p className="text-sm text-gray-500 mb-4">AI will suggest personalized learning goals</p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.setFirstGoal')}</h3>
+                <p className="text-sm text-gray-500 mb-4">{t('dashboard.insights.setFirstGoalDesc')}</p>
                 <Button className="fpk-gradient text-white">
-                  Create Goal
+                  {t('dashboard.insights.createGoal')}
                 </Button>
               </div>
             </CardContent>
@@ -361,16 +361,16 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-green-500" />
-                Community Activity
+                {t('dashboard.insights.communityActivity')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Join the Community</h3>
-                <p className="text-sm text-gray-500 mb-4">Connect with fellow learners</p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.joinCommunity')}</h3>
+                <p className="text-sm text-gray-500 mb-4">{t('dashboard.insights.joinCommunityDesc')}</p>
                 <Button variant="outline" className="border-purple-200 text-purple-700">
-                  Explore Community
+                  {t('dashboard.insights.exploreCommunity')}
                 </Button>
               </div>
             </CardContent>

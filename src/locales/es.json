@@ -1,4 +1,3 @@
-
 {
   "nav": {
     "home": "Inicio",
@@ -11,6 +10,50 @@
     "community": "Centro Comunitario",
     "settings": "Configuración",
     "support": "Soporte y FAQs"
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido de vuelta, {{name}}!",
+    "welcomeModal": {
+      "title": "¡Bienvenido a la Universidad FPK!",
+      "subtitle": "¡Hola {{name}}! Antes de sumergirte en tu viaje de aprendizaje, por favor completa tu perfil para que podamos personalizar tu experiencia y adaptar el contenido solo para ti.",
+      "quickSetup": "Configuración Rápida",
+      "quickSetupDesc": "Añade tus preferencias de aprendizaje, objetivos e intereses para desbloquear recomendaciones de cursos personalizadas.",
+      "completeProfile": "Completar Configuración del Perfil",
+      "remindLater": "Recordarme en 24h"
+    },
+    "stats": {
+      "activeCourses": "Cursos Activos",
+      "hoursThisWeek": "Horas Esta Semana",
+      "certificates": "Certificados",
+      "streakDays": "Días de Racha",
+      "totalXP": "XP Total",
+      "level": "Nivel"
+    },
+    "charts": {
+      "courseProgress": "Resumen del Progreso del Curso",
+      "weeklyTime": "Tiempo de Estudio Semanal",
+      "noCourseProgress": "Aún No Hay Progreso del Curso",
+      "noCourseProgressDesc": "Comienza un curso para ver tu visualización de progreso aquí",
+      "noStudyTime": "No Se Ha Registrado Tiempo de Estudio",
+      "noStudyTimeDesc": "Tu tiempo de estudio semanal aparecerá aquí una vez que comiences a aprender"
+    },
+    "insights": {
+      "aiInsight": "Perspectiva de Estudio de IA",
+      "noInsights": "Aún No Hay Perspectivas",
+      "noInsightsDesc": "Las perspectivas de IA aparecerán aquí basadas en tus patrones de aprendizaje",
+      "recommendedGoals": "Objetivos Recomendados",
+      "setFirstGoal": "Establece Tu Primer Objetivo",
+      "setFirstGoalDesc": "La IA sugerirá objetivos de aprendizaje personalizados",
+      "createGoal": "Crear Objetivo",
+      "communityActivity": "Actividad de la Comunidad",
+      "joinCommunity": "Únete a la Comunidad",
+      "joinCommunityDesc": "Conecta con compañeros de aprendizaje",
+      "exploreCommunity": "Explorar Comunidad"
+    },
+    "badges": {
+      "learner": "Estudiante",
+      "level1": "Nivel 1"
+    }
   },
   "auth": {
     "title": "Universidad FPK",
@@ -150,6 +193,9 @@
     "error": "Error",
     "success": "Éxito",
     "comingSoon": "¡Próximamente!",
-    "learnerPortal": "Portal del Estudiante"
+    "learnerPortal": "Portal del Estudiante",
+    "signOut": "Cerrar Sesión",
+    "learningDashboard": "Panel de Aprendizaje",
+    "support": "Soporte"
   }
 }

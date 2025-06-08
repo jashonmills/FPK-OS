@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -28,70 +27,71 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-
-const menuItems = [
-  {
-    title: "Home",
-    url: "/dashboard/learner/home",
-    icon: Home,
-  },
-  {
-    title: "My Courses",
-    url: "/dashboard/learner/courses",
-    icon: Book,
-  },
-  {
-    title: "Learning Analytics",
-    url: "/dashboard/learner/analytics",
-    icon: BarChart,
-  },
-  {
-    title: "Live Learning Hub",
-    url: "/dashboard/learner/live-hub",
-    icon: Compass,
-  },
-  {
-    title: "AI Study Coach",
-    url: "/dashboard/learner/ai-coach",
-    icon: BookUser,
-  },
-  {
-    title: "Goal & XP Tracker",
-    url: "/dashboard/learner/goals",
-    icon: Award,
-  },
-  {
-    title: "Notes & Flashcards",
-    url: "/dashboard/learner/notes",
-    icon: StickyNote,
-  },
-  {
-    title: "Community Hub",
-    url: "/dashboard/learner/community",
-    icon: Users,
-  },
-];
-
-const footerItems = [
-  {
-    title: "Settings",
-    url: "/dashboard/learner/settings",
-    icon: Settings,
-  },
-  {
-    title: "Support & FAQs",
-    url: "/dashboard/learner/support",
-    icon: HelpCircle,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
+  const { t } = useTranslation();
 
-  // Get display name from profile or fallback to email
+  const menuItems = [
+    {
+      title: t('nav.home'),
+      url: "/dashboard/learner/home",
+      icon: Home,
+    },
+    {
+      title: t('nav.courses'),
+      url: "/dashboard/learner/courses",
+      icon: Book,
+    },
+    {
+      title: t('nav.analytics'),
+      url: "/dashboard/learner/analytics",
+      icon: BarChart,
+    },
+    {
+      title: t('nav.liveHub'),
+      url: "/dashboard/learner/live-hub",
+      icon: Compass,
+    },
+    {
+      title: t('nav.aiCoach'),
+      url: "/dashboard/learner/ai-coach",
+      icon: BookUser,
+    },
+    {
+      title: t('nav.goals'),
+      url: "/dashboard/learner/goals",
+      icon: Award,
+    },
+    {
+      title: t('nav.notes'),
+      url: "/dashboard/learner/notes",
+      icon: StickyNote,
+    },
+    {
+      title: t('nav.community'),
+      url: "/dashboard/learner/community",
+      icon: Users,
+    },
+  ];
+
+  const footerItems = [
+    {
+      title: t('nav.settings'),
+      url: "/dashboard/learner/settings",
+      icon: Settings,
+    },
+    {
+      title: t('nav.support'),
+      url: "/dashboard/learner/support",
+      icon: HelpCircle,
+    },
+  ];
+
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
     if (profile?.full_name) return profile.full_name;
@@ -99,12 +99,10 @@ export function AppSidebar() {
     return 'User';
   };
 
-  // Get user email
   const getUserEmail = () => {
     return user?.email || 'user@fpk.edu';
   };
 
-  // Get initials for avatar
   const getInitials = () => {
     const displayName = getDisplayName();
     return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -132,7 +130,7 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
-            <p className="text-xs text-sidebar-foreground/70">Learner Portal</p>
+            <p className="text-xs text-sidebar-foreground/70">{t('common.learnerPortal')}</p>
           </div>
         </div>
       </SidebarHeader>
@@ -140,7 +138,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            Learning Dashboard
+            {t('common.learningDashboard')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -170,7 +168,7 @@ export function AppSidebar() {
 
         <SidebarGroup className="mt-8">
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            Support
+            {t('common.support')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -218,7 +216,7 @@ export function AppSidebar() {
           size="sm" 
           className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
         >
-          Sign Out
+          {t('common.signOut')}
         </Button>
       </SidebarFooter>
     </Sidebar>
