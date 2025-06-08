@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,8 @@ import {
   Save, 
   Loader2,
   Upload,
-  HelpCircle
+  HelpCircle,
+  Check
 } from 'lucide-react';
 import AccessibilitySettings from '@/components/settings/AccessibilitySettings';
 import PasswordChangeForm from '@/components/settings/PasswordChangeForm';
@@ -32,6 +34,12 @@ const Settings = () => {
   const { profile, loading: profileLoading, saving, updateProfile, changePassword } = useUserProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Refs to track state and prevent infinite loops
+  const isInitializing = useRef(true);
+  const lastSavedData = useRef<any>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSaving = useRef(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -74,14 +82,20 @@ const Settings = () => {
     }
   });
 
-  // Update form data when profile loads
+  // Deep comparison function to check if data has changed
+  const hasDataChanged = (newData: any, savedData: any) => {
+    if (!savedData) return true;
+    return JSON.stringify(newData) !== JSON.stringify(savedData);
+  };
+
+  // Update form data when profile loads (only initially)
   useEffect(() => {
-    if (profile) {
+    if (profile && isInitializing.current) {
       const emailNotifications = profile.email_notifications as any || {};
       const appReminders = profile.app_reminders as any || {};
       const calendarSync = profile.calendar_sync as any || {};
 
-      setFormData({
+      const newFormData = {
         full_name: profile.full_name || '',
         display_name: profile.display_name || '',
         bio: profile.bio || '',
@@ -112,47 +126,75 @@ const Settings = () => {
           google: calendarSync.google ?? false,
           outlook: calendarSync.outlook ?? false
         }
-      });
+      };
+
+      setFormData(newFormData);
+      lastSavedData.current = newFormData;
+      isInitializing.current = false;
     }
   }, [profile]);
 
-  // Auto-save when form data changes
+  // Auto-save with debouncing and change detection
   useEffect(() => {
-    if (!profile) return;
+    if (isInitializing.current || !profile || isSaving.current) return;
 
-    const timeoutId = setTimeout(() => {
-      handleSave();
-    }, 1000);
+    // Check if data has actually changed
+    if (!hasDataChanged(formData, lastSavedData.current)) return;
 
-    return () => clearTimeout(timeoutId);
-  }, [formData]);
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
 
-  const handleSave = async () => {
-    if (!profile) return;
+    // Set new timeout for auto-save
+    saveTimeoutRef.current = setTimeout(() => {
+      handleAutoSave();
+    }, 2000);
 
-    await updateProfile({
-      full_name: formData.full_name,
-      display_name: formData.display_name,
-      bio: formData.bio,
-      primary_language: formData.primary_language,
-      avatar_url: formData.avatar_url,
-      learning_styles: formData.learning_styles,
-      comfort_mode: formData.comfort_mode,
-      time_format: formData.time_format,
-      date_format: formData.date_format,
-      font_family: formData.font_family,
-      color_contrast: formData.color_contrast,
-      dual_language_enabled: formData.dual_language_enabled,
-      text_size: formData.text_size,
-      line_spacing: formData.line_spacing,
-      push_notifications_enabled: formData.push_notifications_enabled,
-      two_factor_enabled: formData.two_factor_enabled,
-      speech_to_text_enabled: formData.speech_to_text_enabled,
-      email_notifications: formData.email_notifications,
-      app_reminders: formData.app_reminders,
-      calendar_sync: formData.calendar_sync,
-      updated_at: new Date().toISOString()
-    });
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, profile]);
+
+  const handleAutoSave = async () => {
+    if (!profile || isSaving.current) return;
+
+    isSaving.current = true;
+    
+    try {
+      await updateProfile({
+        full_name: formData.full_name,
+        display_name: formData.display_name,
+        bio: formData.bio,
+        primary_language: formData.primary_language,
+        avatar_url: formData.avatar_url,
+        learning_styles: formData.learning_styles,
+        comfort_mode: formData.comfort_mode,
+        time_format: formData.time_format,
+        date_format: formData.date_format,
+        font_family: formData.font_family,
+        color_contrast: formData.color_contrast,
+        dual_language_enabled: formData.dual_language_enabled,
+        text_size: formData.text_size,
+        line_spacing: formData.line_spacing,
+        push_notifications_enabled: formData.push_notifications_enabled,
+        two_factor_enabled: formData.two_factor_enabled,
+        speech_to_text_enabled: formData.speech_to_text_enabled,
+        email_notifications: formData.email_notifications,
+        app_reminders: formData.app_reminders,
+        calendar_sync: formData.calendar_sync,
+        updated_at: new Date().toISOString()
+      }, true); // Pass true for silent auto-save
+
+      // Update last saved data
+      lastSavedData.current = { ...formData };
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      isSaving.current = false;
+    }
   };
 
   const handleEmailNotificationChange = (key: string, value: boolean) => {
@@ -192,6 +234,9 @@ const Settings = () => {
     }));
   };
 
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = hasDataChanged(formData, lastSavedData.current);
+
   if (authLoading || profileLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
@@ -211,12 +256,26 @@ const Settings = () => {
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
           <p className="text-gray-600 mt-1">Manage your account and preferences</p>
         </div>
-        {saving && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Auto-saving...
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {saving && (
+            <div className="flex items-center gap-2 text-sm text-blue-600">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Saving...
+            </div>
+          )}
+          {!saving && hasUnsavedChanges && (
+            <div className="flex items-center gap-2 text-sm text-amber-600">
+              <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
+              Auto-save pending
+            </div>
+          )}
+          {!saving && !hasUnsavedChanges && !isInitializing.current && (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <Check className="h-4 w-4" />
+              All changes saved
+            </div>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">

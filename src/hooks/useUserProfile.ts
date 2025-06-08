@@ -84,7 +84,7 @@ export const useUserProfile = () => {
     }
   };
 
-  const updateProfile = async (updates: ProfileUpdate) => {
+  const updateProfile = async (updates: ProfileUpdate, silent: boolean = false) => {
     if (!profile) return;
 
     setSaving(true);
@@ -107,10 +107,14 @@ export const useUserProfile = () => {
       }
 
       setProfile(data);
-      toast({
-        title: "Settings saved",
-        description: "Your preferences have been updated successfully.",
-      });
+      
+      // Only show success toast for manual saves, not auto-saves
+      if (!silent) {
+        toast({
+          title: "Settings saved",
+          description: "Your preferences have been updated successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error in updateProfile:', error);
       toast({
