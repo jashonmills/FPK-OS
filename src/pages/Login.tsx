@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,12 +8,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard/learner/home');
+    }
+  }, [user, loading, navigate]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -33,12 +43,16 @@ const Login = () => {
     setError('');
 
     try {
-      // TODO: Implement Supabase authentication
-      console.log('Sign in attempt:', signInData);
-      
-      // Simulate authentication - replace with Supabase auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { error } = await supabase.auth.signInWithPassword({
+        email: signInData.email,
+        password: signInData.password,
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -46,7 +60,7 @@ const Login = () => {
       
       navigate('/dashboard/learner/home');
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -63,25 +77,50 @@ const Login = () => {
       return;
     }
 
+    if (signUpData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // TODO: Implement Supabase authentication
-      console.log('Sign up attempt:', signUpData);
-      
-      // Simulate authentication - replace with Supabase auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { error } = await supabase.auth.signUp({
+        email: signUpData.email,
+        password: signUpData.password,
+        options: {
+          data: {
+            full_name: signUpData.displayName,
+            display_name: signUpData.displayName,
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard/learner/home`
+        }
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
       toast({
         title: "Account created!",
-        description: "Welcome to FPK University. Your learning journey begins now.",
+        description: "Please check your email to verify your account.",
       });
       
-      navigate('/dashboard/learner/home');
     } catch (err) {
-      setError('Unable to create account. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber p-4">

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,18 +36,31 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
 
   // Check if this is first time user
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('fpk_welcome_shown');
-    if (!hasSeenWelcome) {
-      setShowWelcomeModal(true);
+    if (user && !profileLoading) {
+      const hasSeenWelcome = localStorage.getItem('fpk_welcome_shown');
+      if (!hasSeenWelcome) {
+        setShowWelcomeModal(true);
+      }
     }
-  }, []);
+  }, [user, profileLoading]);
 
   const handleWelcomeComplete = () => {
     localStorage.setItem('fpk_welcome_shown', 'true');
@@ -58,6 +72,20 @@ const LearnerHome = () => {
     const remindTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours from now
     localStorage.setItem('fpk_welcome_remind', remindTime.toString());
     setShowWelcomeModal(false);
+  };
+
+  // Get display name from profile or fallback to email
+  const getDisplayName = () => {
+    if (profile?.display_name) return profile.display_name;
+    if (profile?.full_name) return profile.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
+  };
+
+  // Get initials for avatar
+  const getInitials = () => {
+    const displayName = getDisplayName();
+    return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   // Empty state data - will be replaced with real Supabase data
@@ -83,6 +111,18 @@ const LearnerHome = () => {
     </div>
   );
 
+  if (authLoading || profileLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       {/* Welcome Modal */}
@@ -96,7 +136,7 @@ const LearnerHome = () => {
               <DialogTitle className="text-xl">Welcome to FPK University!</DialogTitle>
             </div>
             <DialogDescription className="text-base leading-relaxed">
-              Hey there! Before you dive into your learning journey, please complete your profile 
+              Hey {getDisplayName()}! Before you dive into your learning journey, please complete your profile 
               so we can personalize your experience and tailor content just for you.
             </DialogDescription>
           </DialogHeader>
@@ -137,15 +177,15 @@ const LearnerHome = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src="" alt="Beta Learner" />
+                <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
                 <AvatarFallback className="fpk-gradient text-white text-xl font-bold">
-                  BL
+                  {getInitials()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Welcome back, Beta Learner!</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Welcome back, {getDisplayName()}!</h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className="fpk-gradient text-white">Beta Learner</Badge>
+                  <Badge className="fpk-gradient text-white">Learner</Badge>
                   <Badge variant="outline" className="border-amber-200 text-amber-700">Level 1</Badge>
                 </div>
               </div>

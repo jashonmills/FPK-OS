@@ -26,6 +26,8 @@ import {
   Compass
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const menuItems = [
   {
@@ -86,11 +88,35 @@ const footerItems = [
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const { profile } = useUserProfile();
 
-  const handleLogout = () => {
-    // TODO: Implement Supabase logout
-    console.log('Logging out...');
-    navigate('/login');
+  // Get display name from profile or fallback to email
+  const getDisplayName = () => {
+    if (profile?.display_name) return profile.display_name;
+    if (profile?.full_name) return profile.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
+  };
+
+  // Get user email
+  const getUserEmail = () => {
+    return user?.email || 'user@fpk.edu';
+  };
+
+  // Get initials for avatar
+  const getInitials = () => {
+    const displayName = getDisplayName();
+    return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const isActive = (url: string) => {
@@ -176,14 +202,14 @@ export function AppSidebar() {
       <SidebarFooter className="p-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt="User" />
+            <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
             <AvatarFallback className="fpk-gradient text-white text-sm font-semibold">
-              BL
+              {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">Beta Learner</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">learner@fpk.edu</p>
+            <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">{getUserEmail()}</p>
           </div>
         </div>
         <Button 

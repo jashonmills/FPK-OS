@@ -45,14 +45,16 @@ export const useUserProfile = () => {
       if (!data) {
         // Create default profile if it doesn't exist
         const defaultProfile: ProfileUpdate = {
-          id: user.id,
           full_name: user.user_metadata?.full_name || '',
-          display_name: user.user_metadata?.display_name || '',
+          display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '',
         };
 
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert(defaultProfile)
+          .insert({
+            id: user.id,
+            ...defaultProfile
+          })
           .select()
           .single();
 
