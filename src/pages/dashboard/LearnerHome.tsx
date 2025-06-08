@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,13 +38,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useTranslation } from 'react-i18next';
+import { useDualLanguage } from '@/hooks/useDualLanguage';
+import DualLanguageText from '@/components/DualLanguageText';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
-  const { t } = useTranslation();
+  const { t } = useDualLanguage();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Redirect if not authenticated
@@ -89,33 +91,49 @@ const LearnerHome = () => {
     return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  // Helper function to render dual language text
+  const renderDualText = (translationKey: string, fallback?: string, className?: string) => {
+    const text = t(translationKey, fallback);
+    
+    if (typeof text === 'string') {
+      return <span className={className}>{text}</span>;
+    }
+    
+    return (
+      <span className={className}>
+        <span className="block font-medium">{text.primary}</span>
+        <span className="block text-sm text-gray-500 italic">{text.english}</span>
+      </span>
+    );
+  };
+
   // Empty state data - will be replaced with real Supabase data
   const timeSpentData = [];
   const progressData = [];
   const courseData = [];
   
-  const EmptyChart = ({ title, description }: { title: string; description: string }) => (
+  const EmptyChart = ({ titleKey, descKey }: { titleKey: string; descKey: string }) => (
     <div className="h-64 flex flex-col items-center justify-center text-center p-6">
       <BarChart className="h-12 w-12 text-gray-300 mb-4" />
-      <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
+      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-2')}
+      {renderDualText(descKey, '', 'text-sm text-gray-500')}
     </div>
   );
 
-  const EmptyPieChart = ({ title, description }: { title: string; description: string }) => (
+  const EmptyPieChart = ({ titleKey, descKey }: { titleKey: string; descKey: string }) => (
     <div className="h-64 flex flex-col items-center justify-center text-center p-6">
       <div className="w-16 h-16 rounded-full border-4 border-gray-200 border-dashed mb-4 flex items-center justify-center">
         <Target className="h-6 w-6 text-gray-300" />
       </div>
-      <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
+      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-2')}
+      {renderDualText(descKey, '', 'text-sm text-gray-500')}
     </div>
   );
 
   if (authLoading || profileLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className="text-gray-500">{t('common.loading')}</div>
+        <div className="text-gray-500">{renderDualText('common.loading')}</div>
       </div>
     );
   }
@@ -134,10 +152,15 @@ const LearnerHome = () => {
               <div className="w-10 h-10 fpk-gradient rounded-xl flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <DialogTitle className="text-xl">{t('dashboard.welcomeModal.title')}</DialogTitle>
+              <DialogTitle className="text-xl">
+                <DualLanguageText translationKey="dashboard.welcomeModal.title" />
+              </DialogTitle>
             </div>
             <DialogDescription className="text-base leading-relaxed">
-              {t('dashboard.welcomeModal.subtitle', { name: getDisplayName() })}
+              <DualLanguageText 
+                translationKey="dashboard.welcomeModal.subtitle" 
+                fallback={`Hey ${getDisplayName()}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.`}
+              />
             </DialogDescription>
           </DialogHeader>
           
@@ -145,9 +168,11 @@ const LearnerHome = () => {
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-purple-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-purple-900 mb-1">{t('dashboard.welcomeModal.quickSetup')}</h4>
+                <h4 className="font-medium text-purple-900 mb-1">
+                  <DualLanguageText translationKey="dashboard.welcomeModal.quickSetup" />
+                </h4>
                 <p className="text-sm text-purple-700">
-                  {t('dashboard.welcomeModal.quickSetupDesc')}
+                  <DualLanguageText translationKey="dashboard.welcomeModal.quickSetupDesc" />
                 </p>
               </div>
             </div>
@@ -158,14 +183,14 @@ const LearnerHome = () => {
               onClick={handleWelcomeComplete}
               className="fpk-gradient text-white w-full sm:w-auto"
             >
-              {t('dashboard.welcomeModal.completeProfile')}
+              <DualLanguageText translationKey="dashboard.welcomeModal.completeProfile" />
             </Button>
             <Button 
               variant="outline" 
               onClick={handleRemindLater}
               className="w-full sm:w-auto"
             >
-              {t('dashboard.welcomeModal.remindLater')}
+              <DualLanguageText translationKey="dashboard.welcomeModal.remindLater" />
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -183,15 +208,23 @@ const LearnerHome = () => {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.welcome', { name: getDisplayName() })}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {renderDualText('dashboard.welcome', `Welcome back, ${getDisplayName()}!`)}
+                </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className="fpk-gradient text-white">{t('dashboard.badges.learner')}</Badge>
-                  <Badge variant="outline" className="border-amber-200 text-amber-700">{t('dashboard.badges.level1')}</Badge>
+                  <Badge className="fpk-gradient text-white">
+                    <DualLanguageText translationKey="dashboard.badges.learner" />
+                  </Badge>
+                  <Badge variant="outline" className="border-amber-200 text-amber-700">
+                    <DualLanguageText translationKey="dashboard.badges.level1" />
+                  </Badge>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">{t('dashboard.stats.totalXP')}</p>
+              <p className="text-sm text-gray-500">
+                <DualLanguageText translationKey="dashboard.stats.totalXP" />
+              </p>
               <p className="text-2xl font-bold fpk-text-gradient">0</p>
             </div>
           </div>
@@ -206,7 +239,9 @@ const LearnerHome = () => {
                   <BookOpen className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{t('dashboard.stats.activeCourses')}</p>
+                  <p className="text-sm text-gray-500">
+                    <DualLanguageText translationKey="dashboard.stats.activeCourses" />
+                  </p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -220,7 +255,9 @@ const LearnerHome = () => {
                   <Clock className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{t('dashboard.stats.hoursThisWeek')}</p>
+                  <p className="text-sm text-gray-500">
+                    <DualLanguageText translationKey="dashboard.stats.hoursThisWeek" />
+                  </p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -234,7 +271,9 @@ const LearnerHome = () => {
                   <Award className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{t('dashboard.stats.certificates')}</p>
+                  <p className="text-sm text-gray-500">
+                    <DualLanguageText translationKey="dashboard.stats.certificates" />
+                  </p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -248,7 +287,9 @@ const LearnerHome = () => {
                   <TrendingUp className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{t('dashboard.stats.streakDays')}</p>
+                  <p className="text-sm text-gray-500">
+                    <DualLanguageText translationKey="dashboard.stats.streakDays" />
+                  </p>
                   <p className="text-xl font-bold">0</p>
                 </div>
               </div>
@@ -263,14 +304,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-purple-600" />
-                {t('dashboard.charts.courseProgress')}
+                <DualLanguageText translationKey="dashboard.charts.courseProgress" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               {progressData.length === 0 ? (
                 <EmptyPieChart 
-                  title={t('dashboard.charts.noCourseProgress')}
-                  description={t('dashboard.charts.noCourseProgressDesc')}
+                  titleKey="dashboard.charts.noCourseProgress"
+                  descKey="dashboard.charts.noCourseProgressDesc"
                 />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
@@ -297,14 +338,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-amber-600" />
-                {t('dashboard.charts.weeklyTime')}
+                <DualLanguageText translationKey="dashboard.charts.weeklyTime" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               {timeSpentData.length === 0 ? (
                 <EmptyChart 
-                  title={t('dashboard.charts.noStudyTime')}
-                  description={t('dashboard.charts.noStudyTimeDesc')}
+                  titleKey="dashboard.charts.noStudyTime"
+                  descKey="dashboard.charts.noStudyTimeDesc"
                 />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
@@ -326,14 +367,14 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-yellow-500" />
-                {t('dashboard.insights.aiInsight')}
+                <DualLanguageText translationKey="dashboard.insights.aiInsight" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Lightbulb className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.noInsights')}</h3>
-                <p className="text-sm text-gray-500">{t('dashboard.insights.noInsightsDesc')}</p>
+                {renderDualText('dashboard.insights.noInsights', '', 'font-semibold text-gray-900 mb-2')}
+                {renderDualText('dashboard.insights.noInsightsDesc', '', 'text-sm text-gray-500')}
               </div>
             </CardContent>
           </Card>
@@ -342,16 +383,18 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-500" />
-                {t('dashboard.insights.recommendedGoals')}
+                <DualLanguageText translationKey="dashboard.insights.recommendedGoals" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.setFirstGoal')}</h3>
-                <p className="text-sm text-gray-500 mb-4">{t('dashboard.insights.setFirstGoalDesc')}</p>
+                {renderDualText('dashboard.insights.setFirstGoal', '', 'font-semibold text-gray-900 mb-2')}
+                <p className="text-sm text-gray-500 mb-4">
+                  <DualLanguageText translationKey="dashboard.insights.setFirstGoalDesc" />
+                </p>
                 <Button className="fpk-gradient text-white">
-                  {t('dashboard.insights.createGoal')}
+                  <DualLanguageText translationKey="dashboard.insights.createGoal" />
                 </Button>
               </div>
             </CardContent>
@@ -361,16 +404,18 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-green-500" />
-                {t('dashboard.insights.communityActivity')}
+                <DualLanguageText translationKey="dashboard.insights.communityActivity" />
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.insights.joinCommunity')}</h3>
-                <p className="text-sm text-gray-500 mb-4">{t('dashboard.insights.joinCommunityDesc')}</p>
+                {renderDualText('dashboard.insights.joinCommunity', '', 'font-semibold text-gray-900 mb-2')}
+                <p className="text-sm text-gray-500 mb-4">
+                  <DualLanguageText translationKey="dashboard.insights.joinCommunityDesc" />
+                </p>
                 <Button variant="outline" className="border-purple-200 text-purple-700">
-                  {t('dashboard.insights.exploreCommunity')}
+                  <DualLanguageText translationKey="dashboard.insights.exploreCommunity" />
                 </Button>
               </div>
             </CardContent>

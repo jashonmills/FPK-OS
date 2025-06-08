@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -27,53 +28,54 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useTranslation } from "react-i18next";
+import { useDualLanguage } from "@/hooks/useDualLanguage";
+import DualLanguageText from "@/components/DualLanguageText";
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
-  const { t } = useTranslation();
+  const { t } = useDualLanguage();
 
   const menuItems = [
     {
-      title: t('nav.home'),
+      title: 'nav.home',
       url: "/dashboard/learner/home",
       icon: Home,
     },
     {
-      title: t('nav.courses'),
+      title: 'nav.courses',
       url: "/dashboard/learner/courses",
       icon: Book,
     },
     {
-      title: t('nav.analytics'),
+      title: 'nav.analytics',
       url: "/dashboard/learner/analytics",
       icon: BarChart,
     },
     {
-      title: t('nav.liveHub'),
+      title: 'nav.liveHub',
       url: "/dashboard/learner/live-hub",
       icon: Compass,
     },
     {
-      title: t('nav.aiCoach'),
+      title: 'nav.aiCoach',
       url: "/dashboard/learner/ai-coach",
       icon: BookUser,
     },
     {
-      title: t('nav.goals'),
+      title: 'nav.goals',
       url: "/dashboard/learner/goals",
       icon: Award,
     },
     {
-      title: t('nav.notes'),
+      title: 'nav.notes',
       url: "/dashboard/learner/notes",
       icon: StickyNote,
     },
     {
-      title: t('nav.community'),
+      title: 'nav.community',
       url: "/dashboard/learner/community",
       icon: Users,
     },
@@ -81,12 +83,12 @@ export function AppSidebar() {
 
   const footerItems = [
     {
-      title: t('nav.settings'),
+      title: 'nav.settings',
       url: "/dashboard/learner/settings",
       icon: Settings,
     },
     {
-      title: t('nav.support'),
+      title: 'nav.support',
       url: "/dashboard/learner/support",
       icon: HelpCircle,
     },
@@ -121,6 +123,22 @@ export function AppSidebar() {
     return location.pathname === url;
   };
 
+  // Helper function to render dual language text
+  const renderDualText = (translationKey: string, className?: string) => {
+    const text = t(translationKey);
+    
+    if (typeof text === 'string') {
+      return <span className={className}>{text}</span>;
+    }
+    
+    return (
+      <span className={className}>
+        <span className="block">{text.primary}</span>
+        <span className="block text-xs text-sidebar-foreground/50 italic">{text.english}</span>
+      </span>
+    );
+  };
+
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
@@ -130,7 +148,9 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
-            <p className="text-xs text-sidebar-foreground/70">{t('common.learnerPortal')}</p>
+            <p className="text-xs text-sidebar-foreground/70">
+              <DualLanguageText translationKey="common.learnerPortal" />
+            </p>
           </div>
         </div>
       </SidebarHeader>
@@ -138,7 +158,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            {t('common.learningDashboard')}
+            <DualLanguageText translationKey="common.learningDashboard" />
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -156,8 +176,8 @@ export function AppSidebar() {
                       onClick={() => navigate(item.url)}
                       className="flex items-center gap-3 w-full text-left"
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {renderDualText(item.title)}
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -168,7 +188,7 @@ export function AppSidebar() {
 
         <SidebarGroup className="mt-8">
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            {t('common.support')}
+            <DualLanguageText translationKey="common.support" />
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -186,8 +206,8 @@ export function AppSidebar() {
                       onClick={() => navigate(item.url)}
                       className="flex items-center gap-3 w-full text-left"
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {renderDualText(item.title)}
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -216,7 +236,7 @@ export function AppSidebar() {
           size="sm" 
           className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
         >
-          {t('common.signOut')}
+          <DualLanguageText translationKey="common.signOut" />
         </Button>
       </SidebarFooter>
     </Sidebar>
