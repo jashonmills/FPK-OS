@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -18,13 +18,24 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 const LanguageSwitcher = () => {
   const { i18n, t } = useTranslation();
   const { profile, updateProfile } = useUserProfile();
-  const [dualLanguageEnabled, setDualLanguageEnabled] = useState(
-    profile?.dual_language_enabled || false
-  );
+  const [dualLanguageEnabled, setDualLanguageEnabled] = useState(false);
 
   const currentLanguage = supportedLanguages.find(
     (lang) => lang.code === i18n.language
   ) || supportedLanguages[0];
+
+  // Sync state with profile when it loads
+  useEffect(() => {
+    if (profile) {
+      setDualLanguageEnabled(profile.dual_language_enabled || false);
+    } else {
+      // Fallback to localStorage if profile isn't loaded yet
+      const savedDualLanguage = localStorage.getItem('fpk-dual-language');
+      if (savedDualLanguage) {
+        setDualLanguageEnabled(savedDualLanguage === 'true');
+      }
+    }
+  }, [profile]);
 
   const handleLanguageChange = async (languageCode: string) => {
     // Update i18n
@@ -51,17 +62,24 @@ const LanguageSwitcher = () => {
   const handleDualLanguageToggle = async (enabled: boolean) => {
     setDualLanguageEnabled(enabled);
     
-    // Save to localStorage
+    // Save to localStorage immediately
     localStorage.setItem('fpk-dual-language', enabled.toString());
     
     // Update user profile if available
     if (profile) {
-      await updateProfile(
-        { 
-          dual_language_enabled: enabled 
-        },
-        true // silent update
-      );
+      try {
+        await updateProfile(
+          { 
+            dual_language_enabled: enabled 
+          },
+          true // silent update
+        );
+      } catch (error) {
+        console.error('Failed to update dual language setting:', error);
+        // Revert local state if update fails
+        setDualLanguageEnabled(!enabled);
+        localStorage.setItem('fpk-dual-language', (!enabled).toString());
+      }
     }
   };
 

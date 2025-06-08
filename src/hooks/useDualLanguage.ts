@@ -1,13 +1,25 @@
 
 import { useTranslation } from 'react-i18next';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useEffect, useState } from 'react';
 
 export const useDualLanguage = () => {
   const { t, i18n } = useTranslation();
   const { profile } = useUserProfile();
+  const [isDualLanguageEnabled, setIsDualLanguageEnabled] = useState(false);
   
-  const isDualLanguageEnabled = profile?.dual_language_enabled || false;
   const isEnglish = i18n.language === 'en';
+
+  // Sync dual language state from profile or localStorage
+  useEffect(() => {
+    if (profile) {
+      setIsDualLanguageEnabled(profile.dual_language_enabled || false);
+    } else {
+      // Fallback to localStorage
+      const savedDualLanguage = localStorage.getItem('fpk-dual-language');
+      setIsDualLanguageEnabled(savedDualLanguage === 'true');
+    }
+  }, [profile]);
 
   const getDualText = (key: string, fallback?: string) => {
     const primaryText = t(key, fallback);
