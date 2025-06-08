@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -123,7 +124,7 @@ const Settings = () => {
         dual_language_enabled: profile.dual_language_enabled || false,
         text_size: profile.text_size || 2,
         line_spacing: profile.line_spacing || 2,
-        timezone: profile.timezone || 'UTC',
+        timezone: (profile as any).timezone || 'UTC',
         push_notifications_enabled: profile.push_notifications_enabled || false,
         two_factor_enabled: profile.two_factor_enabled || false,
         speech_to_text_enabled: profile.speech_to_text_enabled || false,
@@ -201,7 +202,7 @@ const Settings = () => {
         app_reminders: formData.app_reminders,
         calendar_sync: formData.calendar_sync,
         updated_at: new Date().toISOString()
-      }, true); // Pass true for silent auto-save
+      } as any, true); // Pass true for silent auto-save
 
       // Update last saved data
       lastSavedData.current = { ...formData };
