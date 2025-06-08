@@ -142,6 +142,8 @@ const LearnerHome = () => {
     return null;
   }
 
+  const displayName = getDisplayName();
+
   return (
     <>
       {/* Welcome Modal */}
@@ -159,7 +161,7 @@ const LearnerHome = () => {
             <DialogDescription className="text-base leading-relaxed">
               <DualLanguageText 
                 translationKey="dashboard.welcomeModal.subtitle" 
-                fallback={`Hey ${getDisplayName()}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.`}
+                fallback={`Hey ${displayName}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.`}
               />
             </DialogDescription>
           </DialogHeader>
@@ -202,14 +204,14 @@ const LearnerHome = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
+                <AvatarImage src={profile?.avatar_url || ""} alt={displayName} />
                 <AvatarFallback className="fpk-gradient text-white text-xl font-bold">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {renderDualText('dashboard.welcome', `Welcome back, ${getDisplayName()}!`)}
+                  Welcome back, {displayName}!
                 </h1>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge className="fpk-gradient text-white">
