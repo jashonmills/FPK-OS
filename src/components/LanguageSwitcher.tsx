@@ -37,6 +37,33 @@ const LanguageSwitcher = () => {
     }
   }, [profile]);
 
+  // Listen for changes from settings page
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'fpk-dual-language') {
+        const newValue = e.newValue === 'true';
+        console.log('LanguageSwitcher: Storage changed, updating to:', newValue);
+        setDualLanguageEnabled(newValue);
+      }
+    };
+
+    const handleCustomStorageChange = (e: CustomEvent) => {
+      if (e.detail.key === 'fpk-dual-language') {
+        const newValue = e.detail.newValue === 'true';
+        console.log('LanguageSwitcher: Custom storage event, updating to:', newValue);
+        setDualLanguageEnabled(newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    };
+  }, []);
+
   const handleLanguageChange = async (languageCode: string) => {
     console.log('Changing language to:', languageCode);
     
@@ -62,21 +89,20 @@ const LanguageSwitcher = () => {
   };
 
   const handleDualLanguageToggle = async (enabled: boolean) => {
-    console.log('Toggling dual language to:', enabled);
+    console.log('LanguageSwitcher: Toggling dual language to:', enabled);
     
     setDualLanguageEnabled(enabled);
     
     // Save to localStorage immediately
     localStorage.setItem('fpk-dual-language', enabled.toString());
     
-    // Trigger both storage event and custom event for better component sync
+    // Trigger events for better component sync
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'fpk-dual-language',
       newValue: enabled.toString(),
       oldValue: localStorage.getItem('fpk-dual-language')
     }));
 
-    // Also dispatch a custom event for more reliable component communication
     window.dispatchEvent(new CustomEvent('dual-language-change', {
       detail: {
         key: 'fpk-dual-language',
@@ -93,7 +119,7 @@ const LanguageSwitcher = () => {
           },
           true // silent update
         );
-        console.log('Profile updated with dual language:', enabled);
+        console.log('LanguageSwitcher: Profile updated with dual language:', enabled);
       } catch (error) {
         console.error('Failed to update dual language setting:', error);
         // Revert local state if update fails
@@ -138,7 +164,7 @@ const LanguageSwitcher = () => {
         <div className="px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="dual-language" className="text-sm font-medium">
+              <Label htmlFor="dual-language-switcher" className="text-sm font-medium">
                 {t('settings.language.dualLanguageMode')}
               </Label>
               <p className="text-xs text-gray-500">
@@ -146,7 +172,7 @@ const LanguageSwitcher = () => {
               </p>
             </div>
             <Switch
-              id="dual-language"
+              id="dual-language-switcher"
               checked={dualLanguageEnabled}
               onCheckedChange={handleDualLanguageToggle}
             />
