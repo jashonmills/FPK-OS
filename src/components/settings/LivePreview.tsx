@@ -28,6 +28,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({
         return 'font-arial';
       case 'Georgia':
         return 'font-georgia';
+      case 'System':
+        return 'font-system';
       default:
         return 'font-system';
     }
@@ -44,23 +46,36 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   };
 
   const getBackgroundClasses = () => {
-    if (comfortMode === 'Low-Stimulus') {
-      return 'bg-gray-50 border-gray-200';
-    } else if (comfortMode === 'Focus Mode') {
-      return 'bg-blue-50 border-blue-200 shadow-lg';
+    switch (comfortMode) {
+      case 'Low-Stimulus':
+        return 'bg-gray-50 border-gray-200';
+      case 'Focus Mode':
+        return 'bg-blue-50 border-blue-200 shadow-lg';
+      default:
+        return 'bg-white border-gray-200';
     }
-    return 'bg-white border-gray-200';
   };
 
   const getTextClasses = () => {
-    if (colorContrast === 'High Contrast') {
-      return 'text-black';
+    switch (colorContrast) {
+      case 'High Contrast':
+        return 'text-black';
+      default:
+        return 'text-gray-800';
     }
-    return 'text-gray-800';
   };
 
+  console.log('LivePreview props:', { fontFamily, textSize, lineSpacing, colorContrast, comfortMode });
+  console.log('Applied classes:', {
+    font: getFontClass(),
+    textSize: getTextSize(),
+    lineHeight: getLineHeight(),
+    background: getBackgroundClasses(),
+    textColor: getTextClasses()
+  });
+
   return (
-    <Card className={`${getBackgroundClasses()} transition-all duration-300`}>
+    <Card className={`${getBackgroundClasses()} transition-all duration-300 border-2`}>
       <CardHeader>
         <CardTitle className={`${getTextSize()} ${getTextClasses()} ${getFontClass()}`}>
           {t('preview.title')}
