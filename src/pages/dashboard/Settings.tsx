@@ -123,7 +123,7 @@ const Settings = () => {
         dual_language_enabled: profile.dual_language_enabled || false,
         text_size: profile.text_size || 2,
         line_spacing: profile.line_spacing || 2,
-        timezone: 'UTC', // Default since timezone field may not exist yet
+        timezone: profile.timezone || 'UTC',
         push_notifications_enabled: profile.push_notifications_enabled || false,
         two_factor_enabled: profile.two_factor_enabled || false,
         speech_to_text_enabled: profile.speech_to_text_enabled || false,
@@ -193,6 +193,7 @@ const Settings = () => {
         dual_language_enabled: formData.dual_language_enabled,
         text_size: formData.text_size,
         line_spacing: formData.line_spacing,
+        timezone: formData.timezone,
         push_notifications_enabled: formData.push_notifications_enabled,
         two_factor_enabled: formData.two_factor_enabled,
         speech_to_text_enabled: formData.speech_to_text_enabled,

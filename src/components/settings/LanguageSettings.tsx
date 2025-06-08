@@ -26,16 +26,51 @@ const LANGUAGES = [
 ];
 
 const TIMEZONES = [
-  'UTC',
-  'America/New_York',
-  'America/Chicago',
-  'America/Denver',
-  'America/Los_Angeles',
-  'Europe/London',
-  'Europe/Paris',
-  'Asia/Tokyo',
-  'Asia/Shanghai',
-  'Asia/Kolkata',
+  // UTC
+  { value: 'UTC', label: 'UTC (Coordinated Universal Time)', region: 'UTC' },
+  
+  // United States
+  { value: 'America/New_York', label: 'Eastern Time (New York)', region: 'United States' },
+  { value: 'America/Chicago', label: 'Central Time (Chicago)', region: 'United States' },
+  { value: 'America/Denver', label: 'Mountain Time (Denver)', region: 'United States' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (Los Angeles)', region: 'United States' },
+  { value: 'America/Anchorage', label: 'Alaska Time (Anchorage)', region: 'United States' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii Time (Honolulu)', region: 'United States' },
+  
+  // Ireland & UK
+  { value: 'Europe/Dublin', label: 'Ireland Time (Dublin)', region: 'Ireland' },
+  { value: 'Europe/London', label: 'Greenwich Mean Time (London)', region: 'United Kingdom' },
+  
+  // Europe
+  { value: 'Europe/Paris', label: 'Central European Time (Paris)', region: 'Europe' },
+  { value: 'Europe/Berlin', label: 'Central European Time (Berlin)', region: 'Europe' },
+  { value: 'Europe/Rome', label: 'Central European Time (Rome)', region: 'Europe' },
+  { value: 'Europe/Madrid', label: 'Central European Time (Madrid)', region: 'Europe' },
+  { value: 'Europe/Amsterdam', label: 'Central European Time (Amsterdam)', region: 'Europe' },
+  { value: 'Europe/Stockholm', label: 'Central European Time (Stockholm)', region: 'Europe' },
+  { value: 'Europe/Warsaw', label: 'Central European Time (Warsaw)', region: 'Europe' },
+  
+  // Asia
+  { value: 'Asia/Tokyo', label: 'Japan Standard Time (Tokyo)', region: 'Asia' },
+  { value: 'Asia/Shanghai', label: 'China Standard Time (Shanghai)', region: 'Asia' },
+  { value: 'Asia/Seoul', label: 'Korea Standard Time (Seoul)', region: 'Asia' },
+  { value: 'Asia/Hong_Kong', label: 'Hong Kong Time', region: 'Asia' },
+  { value: 'Asia/Singapore', label: 'Singapore Time', region: 'Asia' },
+  { value: 'Asia/Kolkata', label: 'India Standard Time (Mumbai)', region: 'Asia' },
+  { value: 'Asia/Dubai', label: 'Gulf Standard Time (Dubai)', region: 'Asia' },
+  
+  // Australia & Oceania
+  { value: 'Australia/Sydney', label: 'Australian Eastern Time (Sydney)', region: 'Australia' },
+  { value: 'Australia/Melbourne', label: 'Australian Eastern Time (Melbourne)', region: 'Australia' },
+  { value: 'Australia/Perth', label: 'Australian Western Time (Perth)', region: 'Australia' },
+  { value: 'Pacific/Auckland', label: 'New Zealand Time (Auckland)', region: 'New Zealand' },
+  
+  // Americas (Others)
+  { value: 'America/Toronto', label: 'Eastern Time (Toronto)', region: 'Canada' },
+  { value: 'America/Vancouver', label: 'Pacific Time (Vancouver)', region: 'Canada' },
+  { value: 'America/Mexico_City', label: 'Central Time (Mexico City)', region: 'Mexico' },
+  { value: 'America/Sao_Paulo', label: 'Brasília Time (São Paulo)', region: 'Brazil' },
+  { value: 'America/Buenos_Aires', label: 'Argentina Time (Buenos Aires)', region: 'Argentina' },
 ];
 
 const LanguageSettings: React.FC<LanguageSettingsProps> = ({
@@ -62,13 +97,26 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
       timeZone: timezone,
     };
 
-    const time = now.toLocaleTimeString('en-US', timeOptions);
-    const date = dateFormat === 'US' 
-      ? now.toLocaleDateString('en-US', dateOptions)
-      : now.toLocaleDateString('en-GB', dateOptions);
-    
-    return `${date} ${time}`;
+    try {
+      const time = now.toLocaleTimeString('en-US', timeOptions);
+      const date = dateFormat === 'US' 
+        ? now.toLocaleDateString('en-US', dateOptions)
+        : now.toLocaleDateString('en-GB', dateOptions);
+      
+      return `${date} ${time}`;
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return 'Invalid timezone';
+    }
   };
+
+  const groupedTimezones = TIMEZONES.reduce((acc, tz) => {
+    if (!acc[tz.region]) {
+      acc[tz.region] = [];
+    }
+    acc[tz.region].push(tz);
+    return acc;
+  }, {} as Record<string, typeof TIMEZONES>);
 
   return (
     <Card className="fpk-card border-0 shadow-lg">
@@ -145,13 +193,20 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
           <Label>Timezone</Label>
           <Select value={timezone} onValueChange={(value) => onChange('timezone', value)}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select timezone" />
             </SelectTrigger>
-            <SelectContent>
-              {TIMEZONES.map((tz) => (
-                <SelectItem key={tz} value={tz}>
-                  {tz}
-                </SelectItem>
+            <SelectContent className="max-h-96">
+              {Object.entries(groupedTimezones).map(([region, timezones]) => (
+                <div key={region}>
+                  <div className="px-2 py-1.5 text-sm font-semibold text-gray-500 bg-gray-50">
+                    {region}
+                  </div>
+                  {timezones.map((tz) => (
+                    <SelectItem key={tz.value} value={tz.value}>
+                      {tz.label}
+                    </SelectItem>
+                  ))}
+                </div>
               ))}
             </SelectContent>
           </Select>
