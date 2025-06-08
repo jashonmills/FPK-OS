@@ -139,7 +139,31 @@ const Settings = () => {
         }
         setProfile(newProfile as UserProfile);
       } else {
-        setProfile(data);
+        // Transform the Supabase data to match our interface
+        const transformedProfile: UserProfile = {
+          id: data.id,
+          full_name: data.full_name || undefined,
+          display_name: data.display_name || undefined,
+          bio: data.bio || undefined,
+          learning_styles: data.learning_styles || undefined,
+          avatar_url: data.avatar_url || undefined,
+          primary_language: data.primary_language || 'English',
+          dual_language_enabled: data.dual_language_enabled || false,
+          time_format: data.time_format || '12h',
+          date_format: data.date_format || 'US',
+          font_family: data.font_family || 'System',
+          color_contrast: data.color_contrast || 'Standard',
+          comfort_mode: data.comfort_mode || 'Normal',
+          text_size: data.text_size || 2,
+          line_spacing: data.line_spacing || 2,
+          email_notifications: (data.email_notifications as any) || defaultProfile.email_notifications,
+          app_reminders: (data.app_reminders as any) || defaultProfile.app_reminders,
+          push_notifications_enabled: data.push_notifications_enabled || false,
+          two_factor_enabled: data.two_factor_enabled || false,
+          calendar_sync: (data.calendar_sync as any) || defaultProfile.calendar_sync,
+          speech_to_text_enabled: data.speech_to_text_enabled || false,
+        };
+        setProfile(transformedProfile);
       }
     } catch (error) {
       console.error('Error:', error);
