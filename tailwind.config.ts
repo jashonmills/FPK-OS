@@ -69,11 +69,21 @@ export default {
 				'fpk-card': '#FBF6F0',
 			},
 			fontFamily: {
-				// Accessibility fonts
-				'opendyslexic': ['OpenDyslexic', 'Comic Sans MS', 'cursive'],
-				'arial': ['Arial', 'Helvetica', 'sans-serif'],
-				'georgia': ['Georgia', 'Times New Roman', 'serif'],
-				'system': ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				// Accessibility fonts with proper fallbacks
+				'opendyslexic': ['OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', 'cursive'],
+				'arial': ['Arial', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
+				'georgia': ['Georgia', 'Times New Roman', 'Times', 'serif'],
+				'system': [
+					'system-ui', 
+					'-apple-system', 
+					'BlinkMacSystemFont', 
+					'Segoe UI', 
+					'Roboto', 
+					'Oxygen', 
+					'Ubuntu', 
+					'Cantarell', 
+					'sans-serif'
+				],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

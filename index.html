@@ -20,10 +20,29 @@
     <!-- Accessibility Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- OpenDyslexic Font -->
+    <!-- System and Standard Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OpenDyslexic Font for accessibility -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/opendyslexic-regular.css">
+    
+    <!-- Additional accessibility fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Arial&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Ensure smooth font transitions */
+      * {
+        font-display: swap;
+        transition: font-family 0.3s ease, font-size 0.3s ease, line-height 0.3s ease;
+      }
+      
+      /* Preload accessibility font classes */
+      .font-opendyslexic { font-family: 'OpenDyslexic', 'Comic Sans MS', cursive; }
+      .font-arial { font-family: 'Arial', 'Helvetica', sans-serif; }
+      .font-georgia { font-family: 'Georgia', 'Times New Roman', serif; }
+      .font-system { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    </style>
   </head>
 
   <body>

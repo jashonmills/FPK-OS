@@ -51,6 +51,11 @@
     --fpk-secondary: 38 95% 48%;
     --fpk-card: 33 50% 96%;
     --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+
+    /* Accessibility Variables */
+    --accessibility-bg: var(--background);
+    --accessibility-text: var(--foreground);
+    --accessibility-border: var(--border);
   }
 
   .dark {
@@ -100,6 +105,32 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  /* Accessibility font support */
+  .font-opendyslexic {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+  }
+
+  .font-arial {
+    font-family: 'Arial', 'Helvetica', sans-serif !important;
+  }
+
+  .font-georgia {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+  }
+
+  .font-system {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+
+  /* Global accessibility classes */
+  .accessibility-container {
+    font-family: var(--accessibility-font-family, system-ui);
+    background-color: var(--accessibility-bg);
+    color: var(--accessibility-text);
+    border-color: var(--accessibility-border);
   }
 }
 
@@ -117,5 +148,18 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Accessibility utilities */
+  .accessibility-text {
+    font-size: var(--accessibility-text-size, 1rem);
+    line-height: var(--accessibility-line-height, 1.5);
+    color: var(--accessibility-text);
+  }
+
+  .accessibility-card {
+    background-color: var(--accessibility-bg);
+    color: var(--accessibility-text);
+    border-color: var(--accessibility-border);
   }
 }
