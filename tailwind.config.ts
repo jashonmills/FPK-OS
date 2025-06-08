@@ -68,6 +68,13 @@ export default {
 				'fpk-amber': '#F59E0B',
 				'fpk-card': '#FBF6F0',
 			},
+			fontFamily: {
+				// Accessibility fonts
+				'opendyslexic': ['OpenDyslexic', 'Comic Sans MS', 'cursive'],
+				'arial': ['Arial', 'Helvetica', 'sans-serif'],
+				'georgia': ['Georgia', 'Times New Roman', 'serif'],
+				'system': ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

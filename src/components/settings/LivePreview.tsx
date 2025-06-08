@@ -20,16 +20,16 @@ const LivePreview: React.FC<LivePreviewProps> = ({
 }) => {
   const { t } = useTranslation();
   
-  const getFontFamily = () => {
+  const getFontClass = () => {
     switch (fontFamily) {
       case 'OpenDyslexic':
-        return 'OpenDyslexic, sans-serif';
+        return 'font-opendyslexic';
       case 'Arial':
-        return 'Arial, sans-serif';
+        return 'font-arial';
       case 'Georgia':
-        return 'Georgia, serif';
+        return 'font-georgia';
       default:
-        return 'system-ui, sans-serif';
+        return 'font-system';
     }
   };
 
@@ -62,14 +62,13 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   return (
     <Card className={`${getBackgroundClasses()} transition-all duration-300`}>
       <CardHeader>
-        <CardTitle className={`${getTextSize()} ${getTextClasses()}`}>
+        <CardTitle className={`${getTextSize()} ${getTextClasses()} ${getFontClass()}`}>
           {t('preview.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div
-          className={`${getTextSize()} ${getLineHeight()} ${getTextClasses()} transition-all duration-300`}
-          style={{ fontFamily: getFontFamily() }}
+          className={`${getTextSize()} ${getLineHeight()} ${getTextClasses()} ${getFontClass()} transition-all duration-300`}
         >
           <p className="mb-3">
             {t('preview.description')}
