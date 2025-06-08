@@ -12,6 +12,50 @@
     "settings": "Paramètres",
     "support": "Support et FAQs"
   },
+  "dashboard": {
+    "welcome": "Bon retour, {{name}} !",
+    "welcomeModal": {
+      "title": "Bienvenue à l'Université FPK !",
+      "subtitle": "Salut {{name}} ! Avant de vous lancer dans votre parcours d'apprentissage, veuillez compléter votre profil pour que nous puissions personnaliser votre expérience et adapter le contenu juste pour vous.",
+      "quickSetup": "Configuration Rapide",
+      "quickSetupDesc": "Ajoutez vos préférences d'apprentissage, objectifs et intérêts pour débloquer des recommandations de cours personnalisées.",
+      "completeProfile": "Compléter la Configuration du Profil",
+      "remindLater": "Me rappeler dans 24h"
+    },
+    "stats": {
+      "activeCourses": "Cours Actifs",
+      "hoursThisWeek": "Heures Cette Semaine",
+      "certificates": "Certificats",
+      "streakDays": "Jours de Série",
+      "totalXP": "XP Total",
+      "level": "Niveau"
+    },
+    "charts": {
+      "courseProgress": "Aperçu des Progrès de Cours",
+      "weeklyTime": "Temps d'Étude Hebdomadaire",
+      "noCourseProgress": "Aucun Progrès de Cours Encore",
+      "noCourseProgressDesc": "Commencez un cours pour voir votre visualisation de progrès ici",
+      "noStudyTime": "Aucun Temps d'Étude Enregistré",
+      "noStudyTimeDesc": "Votre temps d'étude hebdomadaire apparaîtra ici une fois que vous commencerez à apprendre"
+    },
+    "insights": {
+      "aiInsight": "Aperçu d'Étude IA",
+      "noInsights": "Aucun Aperçu Encore",
+      "noInsightsDesc": "Les aperçus IA apparaîtront ici basés sur vos modèles d'apprentissage",
+      "recommendedGoals": "Objectifs Recommandés",
+      "setFirstGoal": "Définissez Votre Premier Objectif",
+      "setFirstGoalDesc": "L'IA suggérera des objectifs d'apprentissage personnalisés",
+      "createGoal": "Créer un Objectif",
+      "communityActivity": "Activité Communautaire",
+      "joinCommunity": "Rejoindre la Communauté",
+      "joinCommunityDesc": "Connectez-vous avec d'autres apprenants",
+      "exploreCommunity": "Explorer la Communauté"
+    },
+    "badges": {
+      "learner": "Apprenant",
+      "level1": "Niveau 1"
+    }
+  },
   "auth": {
     "title": "Université FPK",
     "subtitle": "Votre Parcours d'Apprentissage Commence Ici",
@@ -120,6 +164,11 @@
     },
     "security": {
       "title": "Paramètres de Sécurité",
+      "changePassword": "Changer le Mot de Passe",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmNewPassword": "Confirmer le nouveau mot de passe",
+      "updatePassword": "Mettre à Jour le Mot de Passe",
       "twoFactor": "Authentification à Deux Facteurs",
       "twoFactorDesc": "Ajouter une couche de sécurité supplémentaire"
     },
@@ -150,6 +199,9 @@
     "error": "Erreur",
     "success": "Succès",
     "comingSoon": "Bientôt Disponible !",
-    "learnerPortal": "Portail Apprenant"
+    "learnerPortal": "Portail Apprenant",
+    "signOut": "Se Déconnecter",
+    "learningDashboard": "Tableau de Bord d'Apprentissage",
+    "support": "Support"
   }
 }

@@ -12,6 +12,50 @@
     "settings": "Einstellungen",
     "support": "Support und FAQs"
   },
+  "dashboard": {
+    "welcome": "Willkommen zurück, {{name}}!",
+    "welcomeModal": {
+      "title": "Willkommen an der FPK Universität!",
+      "subtitle": "Hallo {{name}}! Bevor Sie sich in Ihre Lernreise stürzen, vervollständigen Sie bitte Ihr Profil, damit wir Ihre Erfahrung personalisieren und Inhalte speziell für Sie anpassen können.",
+      "quickSetup": "Schnelle Einrichtung",
+      "quickSetupDesc": "Fügen Sie Ihre Lernpräferenzen, Ziele und Interessen hinzu, um personalisierte Kursempfehlungen freizuschalten.",
+      "completeProfile": "Profil-Einrichtung Vervollständigen",
+      "remindLater": "In 24h erinnern"
+    },
+    "stats": {
+      "activeCourses": "Aktive Kurse",
+      "hoursThisWeek": "Stunden Diese Woche",
+      "certificates": "Zertifikate",
+      "streakDays": "Streak-Tage",
+      "totalXP": "Gesamt XP",
+      "level": "Level"
+    },
+    "charts": {
+      "courseProgress": "Kursfortschritt Übersicht",
+      "weeklyTime": "Wöchentliche Lernzeit",
+      "noCourseProgress": "Noch Kein Kursfortschritt",
+      "noCourseProgressDesc": "Starten Sie einen Kurs, um Ihre Fortschrittsvisualisierung hier zu sehen",
+      "noStudyTime": "Keine Lernzeit Aufgezeichnet",
+      "noStudyTimeDesc": "Ihre wöchentliche Lernzeit wird hier erscheinen, sobald Sie mit dem Lernen beginnen"
+    },
+    "insights": {
+      "aiInsight": "KI-Lern-Einblick",
+      "noInsights": "Noch Keine Einblicke",
+      "noInsightsDesc": "KI-Einblicke werden hier basierend auf Ihren Lernmustern erscheinen",
+      "recommendedGoals": "Empfohlene Ziele",
+      "setFirstGoal": "Setzen Sie Ihr Erstes Ziel",
+      "setFirstGoalDesc": "KI wird personalisierte Lernziele vorschlagen",
+      "createGoal": "Ziel Erstellen",
+      "communityActivity": "Community-Aktivität",
+      "joinCommunity": "Der Community Beitreten",
+      "joinCommunityDesc": "Verbinden Sie sich mit anderen Lernenden",
+      "exploreCommunity": "Community Erkunden"
+    },
+    "badges": {
+      "learner": "Lerner",
+      "level1": "Level 1"
+    }
+  },
   "auth": {
     "title": "FPK Universität",
     "subtitle": "Ihre Lernreise beginnt hier",
@@ -120,6 +164,11 @@
     },
     "security": {
       "title": "Sicherheitseinstellungen",
+      "changePassword": "Passwort Ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "updatePassword": "Passwort Aktualisieren",
       "twoFactor": "Zwei-Faktor-Authentifizierung",
       "twoFactorDesc": "Eine zusätzliche Sicherheitsebene hinzufügen"
     },
@@ -150,6 +199,9 @@
     "error": "Fehler",
     "success": "Erfolg",
     "comingSoon": "Bald verfügbar!",
-    "learnerPortal": "Lerner-Portal"
+    "learnerPortal": "Lerner-Portal",
+    "signOut": "Abmelden",
+    "learningDashboard": "Lern-Dashboard",
+    "support": "Support"
   }
 }

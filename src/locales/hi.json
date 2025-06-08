@@ -12,6 +12,50 @@
     "settings": "सेटिंग्स",
     "support": "सहायता और FAQs"
   },
+  "dashboard": {
+    "welcome": "वापस स्वागत है, {{name}}!",
+    "welcomeModal": {
+      "title": "FPK विश्वविद्यालय में आपका स्वागत है!",
+      "subtitle": "हैलो {{name}}! आपकी सीखने की यात्रा शुरू करने से पहले, कृपया अपनी प्रोफाइल पूरी करें ताकि हम आपके अनुभव को व्यक्तिगत बना सकें और आपके लिए सामग्री तैयार कर सकें।",
+      "quickSetup": "त्वरित सेटअप",
+      "quickSetupDesc": "व्यक्तिगत कोर्स सुझावों को अनलॉक करने के लिए अपनी सीखने की प्राथमिकताएं, लक्ष्य और रुचियां जोड़ें।",
+      "completeProfile": "प्रोफाइल सेटअप पूरा करें",
+      "remindLater": "24 घंटे बाद याद दिलाएं"
+    },
+    "stats": {
+      "activeCourses": "सक्रिय कोर्स",
+      "hoursThisWeek": "इस सप्ताह के घंटे",
+      "certificates": "प्रमाणपत्र",
+      "streakDays": "लगातार दिन",
+      "totalXP": "कुल XP",
+      "level": "स्तर"
+    },
+    "charts": {
+      "courseProgress": "कोर्स प्रगति अवलोकन",
+      "weeklyTime": "साप्ताहिक अध्ययन समय",
+      "noCourseProgress": "अभी तक कोई कोर्स प्रगति नहीं",
+      "noCourseProgressDesc": "यहां अपनी प्रगति का विज़ुअलाइज़ेशन देखने के लिए एक कोर्स शुरू करें",
+      "noStudyTime": "कोई अध्ययन समय रिकॉर्ड नहीं",
+      "noStudyTimeDesc": "एक बार जब आप सीखना शुरू करेंगे तो आपका साप्ताहिक अध्ययन समय यहां दिखाई देगा"
+    },
+    "insights": {
+      "aiInsight": "AI अध्ययन अंतर्दृष्टि",
+      "noInsights": "अभी तक कोई अंतर्दृष्टि नहीं",
+      "noInsightsDesc": "AI अंतर्दृष्टि आपके सीखने के पैटर्न के आधार पर यहां दिखाई देगी",
+      "recommendedGoals": "सुझाए गए लक्ष्य",
+      "setFirstGoal": "अपना पहला लक्ष्य सेट करें",
+      "setFirstGoalDesc": "AI व्यक्तिगत सीखने के लक्ष्य सुझाएगा",
+      "createGoal": "लक्ष्य बनाएं",
+      "communityActivity": "समुदाय गतिविधि",
+      "joinCommunity": "समुदाय में शामिल हों",
+      "joinCommunityDesc": "साथी शिक्षार्थियों से जुड़ें",
+      "exploreCommunity": "समुदाय का अन्वेषण करें"
+    },
+    "badges": {
+      "learner": "शिक्षार्थी",
+      "level1": "स्तर 1"
+    }
+  },
   "auth": {
     "title": "FPK विश्वविद्यालय",
     "subtitle": "आपकी सीखने की यात्रा यहाँ से शुरू होती है",
@@ -120,6 +164,11 @@
     },
     "security": {
       "title": "सुरक्षा सेटिंग्स",
+      "changePassword": "पासवर्ड बदलें",
+      "currentPassword": "वर्तमान पासवर्ड",
+      "newPassword": "नया पासवर्ड",
+      "confirmNewPassword": "नए पासवर्ड की पुष्टि करें",
+      "updatePassword": "पासवर्ड अपडेट करें",
       "twoFactor": "दो-कारक प्रमाणीकरण",
       "twoFactorDesc": "सुरक्षा की एक अतिरिक्त परत जोड़ें"
     },
@@ -150,6 +199,9 @@
     "error": "त्रुटि",
     "success": "सफलता",
     "comingSoon": "जल्द आ रहा है!",
-    "learnerPortal": "शिक्षार्थी पोर्टल"
+    "learnerPortal": "शिक्षार्थी पोर्टल",
+    "signOut": "साइन आउट",
+    "learningDashboard": "लर्निंग डैशबोर्ड",
+    "support": "सहायता"
   }
 }
