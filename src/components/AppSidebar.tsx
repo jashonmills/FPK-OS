@@ -19,7 +19,7 @@ import {
   BarChart, 
   Users, 
   Award, 
-  Note, 
+  StickyNote, 
   Settings, 
   HelpCircle,
   BookUser,
@@ -61,7 +61,7 @@ const menuItems = [
   {
     title: "Notes & Flashcards",
     url: "/dashboard/learner/notes",
-    icon: Note,
+    icon: StickyNote,
   },
   {
     title: "Community Hub",
