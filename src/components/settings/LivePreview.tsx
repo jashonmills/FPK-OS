@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 interface LivePreviewProps {
   fontFamily: string;
@@ -17,6 +18,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   colorContrast,
   comfortMode
 }) => {
+  const { t } = useTranslation();
+  
   const getFontFamily = () => {
     switch (fontFamily) {
       case 'OpenDyslexic':
@@ -60,7 +63,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({
     <Card className={`${getBackgroundClasses()} transition-all duration-300`}>
       <CardHeader>
         <CardTitle className={`${getTextSize()} ${getTextClasses()}`}>
-          Live Preview
+          {t('preview.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -69,17 +72,16 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           style={{ fontFamily: getFontFamily() }}
         >
           <p className="mb-3">
-            This is how your text will appear with the current settings. 
-            You can see the changes to font family, size, line spacing, and contrast in real-time.
+            {t('preview.description')}
           </p>
           <p className="mb-3">
-            <strong>Font:</strong> {fontFamily} <br />
-            <strong>Size:</strong> Level {textSize} <br />
-            <strong>Spacing:</strong> Level {lineSpacing} <br />
-            <strong>Contrast:</strong> {colorContrast}
+            <strong>{t('preview.fontLabel')}:</strong> {fontFamily} <br />
+            <strong>{t('preview.sizeLabel')}:</strong> {textSize} <br />
+            <strong>{t('preview.spacingLabel')}:</strong> {lineSpacing} <br />
+            <strong>{t('preview.contrastLabel')}:</strong> {colorContrast}
           </p>
           <p>
-            Comfort Mode: <em>{comfortMode}</em> - This affects the overall visual treatment of the interface.
+            {t('preview.comfortLabel')}: <em>{comfortMode}</em>
           </p>
         </div>
       </CardContent>

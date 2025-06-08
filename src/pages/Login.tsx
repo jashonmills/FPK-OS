@@ -10,8 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -54,8 +57,8 @@ const Login = () => {
       }
 
       toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
+        title: t('auth.welcomeBack'),
+        description: t('auth.signInSuccess'),
       });
       
       navigate('/dashboard/learner/home');
@@ -102,8 +105,8 @@ const Login = () => {
       }
 
       toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
+        title: t('auth.accountCreated'),
+        description: t('auth.checkEmail'),
       });
       
     } catch (err) {
@@ -117,7 +120,7 @@ const Login = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber">
-        <div className="text-white">Loading...</div>
+        <div className="text-white">{t('common.loading')}</div>
       </div>
     );
   }
@@ -126,21 +129,28 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">FPK University</h1>
-          <p className="text-white/80">Your Learning Journey Starts Here</p>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-white mb-2">{t('auth.title')}</h1>
+              <p className="text-white/80">{t('auth.subtitle')}</p>
+            </div>
+            <div className="ml-4">
+              <LanguageSwitcher />
+            </div>
+          </div>
         </div>
 
         <Card className="fpk-card shadow-2xl border-0">
           <CardHeader className="text-center pb-4">
             <CardTitle className="fpk-text-gradient text-2xl font-bold">
-              Learner Portal
+              {t('auth.portalTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">{t('auth.signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('auth.signUp')}</TabsTrigger>
               </TabsList>
 
               {error && (
@@ -154,11 +164,11 @@ const Login = () => {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
-                      placeholder="your.email@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={signInData.email}
                       onChange={(e) => setSignInData({...signInData, email: e.target.value})}
                       required
@@ -166,11 +176,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={signInData.password}
                       onChange={(e) => setSignInData({...signInData, password: e.target.value})}
                       required
@@ -182,7 +192,7 @@ const Login = () => {
                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Signing In...' : 'Sign In'}
+                    {isLoading ? t('auth.signingIn') : t('auth.signInButton')}
                   </Button>
                 </form>
               </TabsContent>
@@ -190,11 +200,11 @@ const Login = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Display Name</Label>
+                    <Label htmlFor="signup-name">{t('auth.displayName')}</Label>
                     <Input
                       id="signup-name"
                       type="text"
-                      placeholder="Your full name"
+                      placeholder={t('auth.fullNamePlaceholder')}
                       value={signUpData.displayName}
                       onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
                       required
@@ -202,11 +212,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t('auth.email')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="your.email@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={signUpData.email}
                       onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
                       required
@@ -214,11 +224,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t('auth.password')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a password"
+                      placeholder={t('auth.createPassword')}
                       value={signUpData.password}
                       onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
                       required
@@ -226,11 +236,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm">Confirm Password</Label>
+                    <Label htmlFor="signup-confirm">{t('auth.confirmPassword')}</Label>
                     <Input
                       id="signup-confirm"
                       type="password"
-                      placeholder="Confirm your password"
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
                       value={signUpData.confirmPassword}
                       onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
                       required
@@ -242,7 +252,7 @@ const Login = () => {
                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                    {isLoading ? t('auth.creatingAccount') : t('auth.signUpButton')}
                   </Button>
                 </form>
               </TabsContent>
@@ -252,7 +262,7 @@ const Login = () => {
 
         <div className="text-center mt-6">
           <p className="text-white/60 text-sm">
-            Beta Version - Live Data Integration Ready
+            {t('auth.betaVersion')}
           </p>
         </div>
       </div>

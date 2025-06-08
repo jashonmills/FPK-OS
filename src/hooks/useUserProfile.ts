@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import type { Database } from '@/integrations/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -11,10 +13,31 @@ export const useUserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     loadProfile();
   }, []);
+
+  // Sync language when profile loads
+  useEffect(() => {
+    if (profile && profile.primary_language) {
+      const languageMap: { [key: string]: string } = {
+        'English': 'en',
+        'Spanish': 'es',
+        'Chinese': 'zh',
+        'Hindi': 'hi',
+        'French': 'fr',
+        'German': 'de',
+      };
+      
+      const languageCode = languageMap[profile.primary_language] || 'en';
+      if (languageCode !== i18n.language) {
+        i18n.changeLanguage(languageCode);
+        localStorage.setItem('fpk-language', languageCode);
+      }
+    }
+  }, [profile, i18n]);
 
   const loadProfile = async () => {
     try {
