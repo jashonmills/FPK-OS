@@ -6,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Globe, Clock, Calendar } from 'lucide-react';
+import { useDualLanguage } from '@/hooks/useDualLanguage';
+import DualLanguageText from '@/components/DualLanguageText';
 
 interface LanguageSettingsProps {
   primaryLanguage: string;
@@ -81,6 +83,8 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
   timezone,
   onChange
 }) => {
+  const { t } = useDualLanguage();
+
   const formatCurrentTime = () => {
     const now = new Date();
     const timeOptions: Intl.DateTimeFormatOptions = {
@@ -118,17 +122,32 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
     return acc;
   }, {} as Record<string, typeof TIMEZONES>);
 
+  const renderDualLanguageText = (translationKey: string, fallback?: string) => {
+    const translatedText = t(translationKey, fallback);
+    
+    if (typeof translatedText === 'object' && translatedText.primary && translatedText.english) {
+      return (
+        <span>
+          <span className="block font-medium">{translatedText.primary}</span>
+          <span className="block text-sm text-gray-500 italic">{translatedText.english}</span>
+        </span>
+      );
+    }
+    
+    return <span>{translatedText}</span>;
+  };
+
   return (
     <Card className="fpk-card border-0 shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-blue-600" />
-          Language & Localization
+          {renderDualLanguageText('settings.language.title', 'Language & Localization')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label>Primary Language</Label>
+          <Label>{renderDualLanguageText('settings.language.primaryLanguage', 'Primary Language')}</Label>
           <Select value={primaryLanguage} onValueChange={(value) => onChange('primary_language', value)}>
             <SelectTrigger>
               <SelectValue />
@@ -145,8 +164,8 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
 
         <div className="flex items-center justify-between">
           <div>
-            <Label htmlFor="dual-language">Dual Language Mode</Label>
-            <p className="text-sm text-gray-500">Show content in Primary + English side-by-side</p>
+            <Label htmlFor="dual-language">{renderDualLanguageText('settings.language.dualLanguageMode', 'Dual Language Mode')}</Label>
+            <p className="text-sm text-gray-500">{renderDualLanguageText('settings.language.dualLanguageDescription', 'Show content in Primary + English side-by-side')}</p>
           </div>
           <Switch
             id="dual-language"
@@ -158,16 +177,16 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
         <div className="space-y-3">
           <Label className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Time Format
+            {renderDualLanguageText('settings.language.timeFormat', 'Time Format')}
           </Label>
           <RadioGroup value={timeFormat} onValueChange={(value) => onChange('time_format', value)}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="12h" id="12h" />
-              <Label htmlFor="12h">12-hour (AM/PM)</Label>
+              <Label htmlFor="12h">{renderDualLanguageText('settings.language.12hour', '12-hour (AM/PM)')}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="24h" id="24h" />
-              <Label htmlFor="24h">24-hour</Label>
+              <Label htmlFor="24h">{renderDualLanguageText('settings.language.24hour', '24-hour')}</Label>
             </div>
           </RadioGroup>
         </div>
@@ -175,22 +194,22 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
         <div className="space-y-3">
           <Label className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Date Format
+            {renderDualLanguageText('settings.language.dateFormat', 'Date Format')}
           </Label>
           <RadioGroup value={dateFormat} onValueChange={(value) => onChange('date_format', value)}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="US" id="us-date" />
-              <Label htmlFor="us-date">US (MM/DD/YYYY)</Label>
+              <Label htmlFor="us-date">{renderDualLanguageText('settings.language.usDate', 'US (MM/DD/YYYY)')}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="International" id="intl-date" />
-              <Label htmlFor="intl-date">International (DD/MM/YYYY)</Label>
+              <Label htmlFor="intl-date">{renderDualLanguageText('settings.language.intlDate', 'International (DD/MM/YYYY)')}</Label>
             </div>
           </RadioGroup>
         </div>
 
         <div className="space-y-2">
-          <Label>Timezone</Label>
+          <Label>{renderDualLanguageText('settings.language.timezone', 'Timezone')}</Label>
           <Select value={timezone} onValueChange={(value) => onChange('timezone', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select timezone" />
@@ -214,7 +233,7 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
 
         <div className="p-3 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600">
-            <strong>Preview:</strong> {formatCurrentTime()}
+            <strong>{renderDualLanguageText('settings.language.preview', 'Preview')}:</strong> {formatCurrentTime()}
           </p>
         </div>
       </CardContent>
