@@ -43,13 +43,32 @@ const DualLanguageText: React.FC<DualLanguageTextProps> = ({
       }
     };
 
+    // Listen for custom events as well
+    const handleCustomStorageChange = (e: CustomEvent) => {
+      if (e.detail.key === 'fpk-dual-language') {
+        const newValue = e.detail.newValue === 'true';
+        console.log('DualLanguageText: Custom storage event, updating to:', newValue);
+        setIsDualLanguageEnabled(newValue);
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    };
   }, []);
   
   const primaryText = t(translationKey, fallback);
   
-  console.log('DualLanguageText render:', { translationKey, isDualLanguageEnabled, isEnglish });
+  console.log('DualLanguageText render:', { 
+    translationKey, 
+    isDualLanguageEnabled, 
+    isEnglish, 
+    primaryText 
+  });
   
   if (!isDualLanguageEnabled || isEnglish) {
     return <span className={className}>{primaryText}</span>;

@@ -38,6 +38,8 @@ const LanguageSwitcher = () => {
   }, [profile]);
 
   const handleLanguageChange = async (languageCode: string) => {
+    console.log('Changing language to:', languageCode);
+    
     // Update i18n
     await i18n.changeLanguage(languageCode);
     
@@ -67,11 +69,19 @@ const LanguageSwitcher = () => {
     // Save to localStorage immediately
     localStorage.setItem('fpk-dual-language', enabled.toString());
     
-    // Trigger a storage event to notify other components
+    // Trigger both storage event and custom event for better component sync
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'fpk-dual-language',
       newValue: enabled.toString(),
       oldValue: localStorage.getItem('fpk-dual-language')
+    }));
+
+    // Also dispatch a custom event for more reliable component communication
+    window.dispatchEvent(new CustomEvent('dual-language-change', {
+      detail: {
+        key: 'fpk-dual-language',
+        newValue: enabled.toString()
+      }
     }));
     
     // Update user profile if available
@@ -101,7 +111,7 @@ const LanguageSwitcher = () => {
           <span className="hidden sm:inline">{currentLanguage.native}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg">
         <div className="px-3 py-2">
           <h4 className="font-medium text-sm">{t('settings.language.primaryLanguage')}</h4>
         </div>
@@ -109,7 +119,7 @@ const LanguageSwitcher = () => {
           <DropdownMenuItem
             key={language.code}
             onClick={() => handleLanguageChange(language.code)}
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100"
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col">

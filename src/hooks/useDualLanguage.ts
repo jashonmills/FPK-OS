@@ -26,19 +26,38 @@ export const useDualLanguage = () => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'fpk-dual-language') {
         const newValue = e.newValue === 'true';
-        console.log('Storage changed, updating dual language to:', newValue);
+        console.log('useDualLanguage: Storage changed, updating to:', newValue);
+        setIsDualLanguageEnabled(newValue);
+      }
+    };
+
+    // Listen for custom events as well
+    const handleCustomStorageChange = (e: CustomEvent) => {
+      if (e.detail.key === 'fpk-dual-language') {
+        const newValue = e.detail.newValue === 'true';
+        console.log('useDualLanguage: Custom storage event, updating to:', newValue);
         setIsDualLanguageEnabled(newValue);
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    };
   }, []);
 
   const getDualText = (key: string, fallback?: string) => {
     const primaryText = t(key, fallback);
     
-    console.log('getDualText called with:', { key, isDualLanguageEnabled, isEnglish });
+    console.log('getDualText called with:', { 
+      key, 
+      isDualLanguageEnabled, 
+      isEnglish,
+      primaryText 
+    });
     
     if (!isDualLanguageEnabled || isEnglish) {
       return primaryText;
