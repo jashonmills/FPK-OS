@@ -56,7 +56,6 @@ export const useUserProfile = () => {
           dual_language_enabled: false,
           text_size: 2,
           line_spacing: 2,
-          timezone: 'UTC',
           push_notifications_enabled: false,
           two_factor_enabled: false,
           speech_to_text_enabled: false,
@@ -73,7 +72,7 @@ export const useUserProfile = () => {
             google: false,
             outlook: false
           },
-          learning_style_tags: [],
+          learning_styles: [],
           external_integrations: {}
         };
 

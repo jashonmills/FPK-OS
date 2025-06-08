@@ -22,21 +22,24 @@ const PRESET_STYLES = [
 ];
 
 const LearningStyleTags: React.FC<LearningStyleTagsProps> = ({
-  selectedStyles,
+  selectedStyles = [], // Default to empty array to prevent undefined errors
   onChange
 }) => {
   const [newStyle, setNewStyle] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
+  // Ensure selectedStyles is always an array
+  const safeSelectedStyles = Array.isArray(selectedStyles) ? selectedStyles : [];
+
   const addStyle = (style: string) => {
     const trimmedStyle = style.trim();
-    if (trimmedStyle && !selectedStyles.includes(trimmedStyle)) {
-      onChange([...selectedStyles, trimmedStyle]);
+    if (trimmedStyle && !safeSelectedStyles.includes(trimmedStyle)) {
+      onChange([...safeSelectedStyles, trimmedStyle]);
     }
   };
 
   const removeStyle = (style: string) => {
-    onChange(selectedStyles.filter(s => s !== style));
+    onChange(safeSelectedStyles.filter(s => s !== style));
   };
 
   const handleAddCustom = () => {
@@ -52,7 +55,7 @@ const LearningStyleTags: React.FC<LearningStyleTagsProps> = ({
       <Label>Learning Styles</Label>
       
       <div className="flex flex-wrap gap-2">
-        {selectedStyles.map((style) => (
+        {safeSelectedStyles.map((style) => (
           <Badge key={style} variant="secondary" className="gap-1">
             {style}
             <button
@@ -92,7 +95,7 @@ const LearningStyleTags: React.FC<LearningStyleTagsProps> = ({
               <div>
                 <Label>Quick Add</Label>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {PRESET_STYLES.filter(style => !selectedStyles.includes(style)).map((style) => (
+                  {PRESET_STYLES.filter(style => !safeSelectedStyles.includes(style)).map((style) => (
                     <Button
                       key={style}
                       variant="ghost"
