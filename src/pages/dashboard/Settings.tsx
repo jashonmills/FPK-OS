@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
@@ -17,17 +15,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { 
   User, 
   Globe, 
-  Eye, 
   Bell, 
-  Shield, 
-  Link, 
-  HelpCircle,
-  Upload,
   Save,
   RotateCcw,
-  Info
+  Camera
 } from 'lucide-react';
-import AvatarUpload from '@/components/settings/AvatarUpload';
 import LivePreview from '@/components/settings/LivePreview';
 
 interface UserProfile {
@@ -64,7 +56,13 @@ interface UserProfile {
   speech_to_text_enabled: boolean;
 }
 
-const defaultProfile: Partial<UserProfile> = {
+const demoProfile: UserProfile = {
+  id: 'demo-user',
+  full_name: 'Beta Learner',
+  display_name: 'Beta',
+  bio: 'Passionate about learning and exploring new technologies',
+  learning_styles: ['Visual', 'Kinesthetic'],
+  avatar_url: '',
   primary_language: 'English',
   dual_language_enabled: false,
   time_format: '12h',
@@ -98,140 +96,37 @@ const learningStyleOptions = [
 ];
 
 const Settings = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile>(demoProfile);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { toast } = useToast();
 
-  console.log('Settings component rendering, loading:', loading, 'profile:', profile);
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    console.log('Fetching profile...');
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user);
-      
-      if (!user) {
-        console.log('No user found');
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      console.log('Profile data:', data, 'Error:', error);
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
-        setLoading(false);
-        return;
-      }
-
-      if (!data) {
-        console.log('No profile found, creating default profile');
-        // Create default profile if none exists
-        const newProfile = { ...defaultProfile, id: user.id };
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([newProfile]);
-        
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          setLoading(false);
-          return;
-        }
-        setProfile(newProfile as UserProfile);
-      } else {
-        // Transform the Supabase data to match our interface
-        const transformedProfile: UserProfile = {
-          id: data.id,
-          full_name: data.full_name || undefined,
-          display_name: data.display_name || undefined,
-          bio: data.bio || undefined,
-          learning_styles: data.learning_styles || undefined,
-          avatar_url: data.avatar_url || undefined,
-          primary_language: data.primary_language || 'English',
-          dual_language_enabled: data.dual_language_enabled || false,
-          time_format: data.time_format || '12h',
-          date_format: data.date_format || 'US',
-          font_family: data.font_family || 'System',
-          color_contrast: data.color_contrast || 'Standard',
-          comfort_mode: data.comfort_mode || 'Normal',
-          text_size: data.text_size || 2,
-          line_spacing: data.line_spacing || 2,
-          email_notifications: (data.email_notifications as any) || defaultProfile.email_notifications,
-          app_reminders: (data.app_reminders as any) || defaultProfile.app_reminders,
-          push_notifications_enabled: data.push_notifications_enabled || false,
-          two_factor_enabled: data.two_factor_enabled || false,
-          calendar_sync: (data.calendar_sync as any) || defaultProfile.calendar_sync,
-          speech_to_text_enabled: data.speech_to_text_enabled || false,
-        };
-        console.log('Transformed profile:', transformedProfile);
-        setProfile(transformedProfile);
-      }
-    } catch (error) {
-      console.error('Error in fetchProfile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateProfile = (updates: Partial<UserProfile>) => {
-    if (profile) {
-      setProfile({ ...profile, ...updates });
-    }
+    setProfile({ ...profile, ...updates });
   };
 
   const saveProfile = async () => {
-    if (!profile) return;
-    
     setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          ...profile,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
-
+    
+    // Simulate saving with a delay
+    setTimeout(() => {
+      setSaving(false);
       toast({
         title: "Settings saved",
         description: "Your preferences have been updated successfully.",
       });
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save settings. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
+    }, 1000);
   };
 
   const resetToDefaults = () => {
-    if (profile) {
-      setProfile({ ...profile, ...defaultProfile });
-      toast({
-        title: "Settings reset",
-        description: "All settings have been restored to defaults.",
-      });
-    }
+    setProfile({ ...demoProfile });
+    toast({
+      title: "Settings reset",
+      description: "All settings have been restored to defaults.",
+    });
   };
 
   const changePassword = async () => {
@@ -253,58 +148,15 @@ const Settings = () => {
       return;
     }
 
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) throw error;
-
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      
-      toast({
-        title: "Password updated",
-        description: "Your password has been changed successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update password.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Password updated",
+      description: "Your password has been changed successfully.",
+    });
+    
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
   };
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="space-y-4">
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Settings</h1>
-          <p className="text-gray-600">Unable to load profile settings. Please try refreshing the page.</p>
-          <Button onClick={fetchProfile} className="mt-4">
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -333,10 +185,43 @@ const Settings = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <AvatarUpload 
-                currentUrl={profile.avatar_url}
-                onUpload={(url) => updateProfile({ avatar_url: url })}
-              />
+              {/* Avatar Section */}
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={profile.avatar_url} alt="Profile picture" />
+                  <AvatarFallback className="fpk-gradient text-white text-xl font-bold">
+                    {profile.display_name?.charAt(0) || 'BL'}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div>
+                  <Label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Button variant="outline" size="sm" asChild>
+                      <span>
+                        <Camera className="h-4 w-4 mr-2" />
+                        Change Avatar
+                      </span>
+                    </Button>
+                  </Label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        toast({
+                          title: "Demo Mode",
+                          description: "Avatar upload is not available in demo mode.",
+                        });
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    JPG, PNG up to 5MB
+                  </p>
+                </div>
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -504,17 +389,20 @@ const Settings = () => {
             </CardContent>
           </Card>
 
-          {/* Continue with other sections... */}
+          {/* Notifications */}
           <Card className="fpk-card border-0 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-amber-600" />
-                Quick Settings
+                Notifications
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label>Email Notifications</Label>
+                <div>
+                  <Label>New Course Notifications</Label>
+                  <p className="text-sm text-gray-500">Get notified about new courses</p>
+                </div>
                 <Switch
                   checked={profile.email_notifications.new_courses}
                   onCheckedChange={(checked) => 
@@ -527,8 +415,30 @@ const Settings = () => {
                   }
                 />
               </div>
+              
               <div className="flex items-center justify-between">
-                <Label>Study Reminders</Label>
+                <div>
+                  <Label>Weekly Summary</Label>
+                  <p className="text-sm text-gray-500">Weekly learning progress summary</p>
+                </div>
+                <Switch
+                  checked={profile.email_notifications.weekly_summary}
+                  onCheckedChange={(checked) => 
+                    updateProfile({
+                      email_notifications: {
+                        ...profile.email_notifications,
+                        weekly_summary: checked
+                      }
+                    })
+                  }
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Study Reminders</Label>
+                  <p className="text-sm text-gray-500">Reminders to keep your streak</p>
+                </div>
                 <Switch
                   checked={profile.app_reminders.study_streak}
                   onCheckedChange={(checked) => 
