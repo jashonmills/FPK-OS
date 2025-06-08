@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -393,17 +392,12 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value="accessibility" className="space-y-6">
-          <AccessibilitySettings
-            settings={{
-              dual_language_enabled: formData.dual_language_enabled,
-              text_size: formData.text_size,
-              line_spacing: formData.line_spacing,
-              font_family: formData.font_family,
-              color_contrast: formData.color_contrast,
-              speech_to_text_enabled: formData.speech_to_text_enabled
-            }}
-            onChange={handleAccessibilityChange}
-          />
+          {profile && (
+            <AccessibilitySettings
+              profile={profile}
+              onUpdate={(updates) => updateProfile(updates)}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
