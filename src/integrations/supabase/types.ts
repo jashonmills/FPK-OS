@@ -32,6 +32,7 @@ export type Database = {
           speech_to_text_enabled: boolean | null
           text_size: number | null
           time_format: string | null
+          timezone: string | null
           two_factor_enabled: boolean | null
           updated_at: string | null
         }
@@ -57,6 +58,7 @@ export type Database = {
           speech_to_text_enabled?: boolean | null
           text_size?: number | null
           time_format?: string | null
+          timezone?: string | null
           two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
@@ -82,6 +84,7 @@ export type Database = {
           speech_to_text_enabled?: boolean | null
           text_size?: number | null
           time_format?: string | null
+          timezone?: string | null
           two_factor_enabled?: boolean | null
           updated_at?: string | null
         }

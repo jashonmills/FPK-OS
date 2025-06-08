@@ -124,7 +124,7 @@ const Settings = () => {
         dual_language_enabled: profile.dual_language_enabled || false,
         text_size: profile.text_size || 2,
         line_spacing: profile.line_spacing || 2,
-        timezone: (profile as any).timezone || 'UTC',
+        timezone: profile.timezone || 'UTC',
         push_notifications_enabled: profile.push_notifications_enabled || false,
         two_factor_enabled: profile.two_factor_enabled || false,
         speech_to_text_enabled: profile.speech_to_text_enabled || false,
@@ -586,6 +586,20 @@ const Settings = () => {
                       <span>{t('settings.accessibility.airy')}</span>
                     </div>
                   </div>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="speech_to_text">{t('settings.accessibility.speechToText')}</Label>
+                      <p className="text-sm text-gray-500">{t('settings.accessibility.speechToTextDesc')}</p>
+                    </div>
+                    <Switch
+                      id="speech_to_text"
+                      checked={formData.speech_to_text_enabled}
+                      onCheckedChange={(checked) => handleFormChange('speech_to_text_enabled', checked)}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -657,6 +671,20 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
+                    <Label htmlFor="push_notifications">{t('settings.notifications.pushNotifications')}</Label>
+                    <p className="text-sm text-gray-500">{t('settings.notifications.pushNotificationsDesc')}</p>
+                  </div>
+                  <Switch
+                    id="push_notifications"
+                    checked={formData.push_notifications_enabled}
+                    onCheckedChange={(checked) => handleFormChange('push_notifications_enabled', checked)}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div>
                     <Label htmlFor="study_streak">{t('settings.notifications.studyStreak')}</Label>
                     <p className="text-sm text-gray-500">{t('settings.notifications.studyStreakDesc')}</p>
                   </div>
@@ -684,15 +712,6 @@ const Settings = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="accessibility" className="space-y-6">
-            {profile && (
-              <AccessibilitySettings
-                profile={profile}
-                onUpdate={(updates) => updateProfile(updates)}
-              />
-            )}
-          </TabsContent>
-
           <TabsContent value="security" className="space-y-6">
             <Card className="fpk-card border-0 shadow-lg">
               <CardHeader>
@@ -714,7 +733,7 @@ const Settings = () => {
                   <Switch
                     id="two_factor"
                     checked={formData.two_factor_enabled}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, two_factor_enabled: checked }))}
+                    onCheckedChange={(checked) => handleFormChange('two_factor_enabled', checked)}
                   />
                 </div>
               </CardContent>
