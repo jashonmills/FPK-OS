@@ -164,6 +164,11 @@
     },
     "security": {
       "title": "Security Settings",
+      "changePassword": "Change Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "updatePassword": "Update Password",
       "twoFactor": "Two-Factor Authentication",
       "twoFactorDesc": "Add an extra layer of security"
     },
