@@ -47,6 +47,34 @@ export const useUserProfile = () => {
         const defaultProfile: ProfileUpdate = {
           full_name: user.user_metadata?.full_name || '',
           display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '',
+          primary_language: 'English',
+          comfort_mode: 'Normal',
+          time_format: '12h',
+          date_format: 'US',
+          font_family: 'System',
+          color_contrast: 'Standard',
+          dual_language_enabled: false,
+          text_size: 2,
+          line_spacing: 2,
+          timezone: 'UTC',
+          push_notifications_enabled: false,
+          two_factor_enabled: false,
+          speech_to_text_enabled: false,
+          email_notifications: {
+            new_courses: true,
+            weekly_summary: true,
+            ai_prompts: false
+          },
+          app_reminders: {
+            study_streak: true,
+            module_nudges: true
+          },
+          calendar_sync: {
+            google: false,
+            outlook: false
+          },
+          learning_style_tags: [],
+          external_integrations: {}
         };
 
         const { data: newProfile, error: createError } = await supabase
