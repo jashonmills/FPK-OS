@@ -10,6 +10,7 @@ import LearnerHome from "./pages/dashboard/LearnerHome";
 import MyCourses from "./pages/dashboard/MyCourses";
 import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
 import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
+import Settings from "./pages/dashboard/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,14 @@ const App = () => (
               </DashboardLayout>
             } 
           />
+          <Route 
+            path="/dashboard/learner/settings" 
+            element={
+              <DashboardLayout>
+                <Settings />
+              </DashboardLayout>
+            } 
+          />
           
           {/* Placeholder routes for remaining pages */}
           <Route 
@@ -102,17 +111,6 @@ const App = () => (
                 <div className="p-6">
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">Community Hub</h1>
                   <p className="text-gray-600">Connect with fellow learners - Coming Soon!</p>
-                </div>
-              </DashboardLayout>
-            } 
-          />
-          <Route 
-            path="/dashboard/learner/settings" 
-            element={
-              <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-4">Settings</h1>
-                  <p className="text-gray-600">Manage your account preferences - Coming Soon!</p>
                 </div>
               </DashboardLayout>
             } 

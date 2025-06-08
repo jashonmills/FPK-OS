@@ -9,7 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          app_reminders: Json | null
+          avatar_url: string | null
+          bio: string | null
+          calendar_sync: Json | null
+          color_contrast: string | null
+          comfort_mode: string | null
+          created_at: string | null
+          date_format: string | null
+          display_name: string | null
+          dual_language_enabled: boolean | null
+          email_notifications: Json | null
+          font_family: string | null
+          full_name: string | null
+          id: string
+          learning_styles: string[] | null
+          line_spacing: number | null
+          primary_language: string | null
+          push_notifications_enabled: boolean | null
+          speech_to_text_enabled: boolean | null
+          text_size: number | null
+          time_format: string | null
+          two_factor_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          app_reminders?: Json | null
+          avatar_url?: string | null
+          bio?: string | null
+          calendar_sync?: Json | null
+          color_contrast?: string | null
+          comfort_mode?: string | null
+          created_at?: string | null
+          date_format?: string | null
+          display_name?: string | null
+          dual_language_enabled?: boolean | null
+          email_notifications?: Json | null
+          font_family?: string | null
+          full_name?: string | null
+          id: string
+          learning_styles?: string[] | null
+          line_spacing?: number | null
+          primary_language?: string | null
+          push_notifications_enabled?: boolean | null
+          speech_to_text_enabled?: boolean | null
+          text_size?: number | null
+          time_format?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          app_reminders?: Json | null
+          avatar_url?: string | null
+          bio?: string | null
+          calendar_sync?: Json | null
+          color_contrast?: string | null
+          comfort_mode?: string | null
+          created_at?: string | null
+          date_format?: string | null
+          display_name?: string | null
+          dual_language_enabled?: boolean | null
+          email_notifications?: Json | null
+          font_family?: string | null
+          full_name?: string | null
+          id?: string
+          learning_styles?: string[] | null
+          line_spacing?: number | null
+          primary_language?: string | null
+          push_notifications_enabled?: boolean | null
+          speech_to_text_enabled?: boolean | null
+          text_size?: number | null
+          time_format?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
