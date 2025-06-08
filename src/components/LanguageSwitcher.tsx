@@ -60,10 +60,19 @@ const LanguageSwitcher = () => {
   };
 
   const handleDualLanguageToggle = async (enabled: boolean) => {
+    console.log('Toggling dual language to:', enabled);
+    
     setDualLanguageEnabled(enabled);
     
     // Save to localStorage immediately
     localStorage.setItem('fpk-dual-language', enabled.toString());
+    
+    // Trigger a storage event to notify other components
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'fpk-dual-language',
+      newValue: enabled.toString(),
+      oldValue: localStorage.getItem('fpk-dual-language')
+    }));
     
     // Update user profile if available
     if (profile) {
@@ -74,6 +83,7 @@ const LanguageSwitcher = () => {
           },
           true // silent update
         );
+        console.log('Profile updated with dual language:', enabled);
       } catch (error) {
         console.error('Failed to update dual language setting:', error);
         // Revert local state if update fails

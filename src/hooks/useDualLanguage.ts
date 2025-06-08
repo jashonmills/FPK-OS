@@ -21,8 +21,24 @@ export const useDualLanguage = () => {
     }
   }, [profile]);
 
+  // Listen for storage events to sync across components
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'fpk-dual-language') {
+        const newValue = e.newValue === 'true';
+        console.log('Storage changed, updating dual language to:', newValue);
+        setIsDualLanguageEnabled(newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const getDualText = (key: string, fallback?: string) => {
     const primaryText = t(key, fallback);
+    
+    console.log('getDualText called with:', { key, isDualLanguageEnabled, isEnglish });
     
     if (!isDualLanguageEnabled || isEnglish) {
       return primaryText;
