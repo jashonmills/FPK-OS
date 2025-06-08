@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -72,8 +71,7 @@ export const useUserProfile = () => {
             google: false,
             outlook: false
           },
-          learning_styles: [],
-          external_integrations: {}
+          learning_styles: []
         };
 
         const { data: newProfile, error: createError } = await supabase
