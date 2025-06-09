@@ -1,188 +1,208 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  BookOpen, 
-  Heart, 
-  Briefcase, 
-  Trophy, 
-  Calendar,
-  CheckCircle,
-  Edit,
-  Trash2,
-  Play,
-  Pause
-} from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
-
-type Goal = Database['public']['Tables']['goals']['Row'];
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { MoreHorizontal, CheckCircle, Pause, Play, Trash2, Calendar, Clock } from 'lucide-react';
+import { format } from 'date-fns';
+import { useDualLanguage } from '@/hooks/useDualLanguage';
+import DualLanguageText from '@/components/DualLanguageText';
+import { useGoals } from '@/hooks/useGoals';
 
 interface GoalCardProps {
-  goal: Goal;
-  onComplete: (id: string) => void;
-  onUpdate: (id: string, updates: any) => void;
-  onDelete: (id: string) => void;
+  goal: {
+    id: string;
+    title: string;
+    description?: string;
+    priority: 'low' | 'medium' | 'high';
+    status: 'active' | 'completed' | 'paused';
+    progress: number;
+    target_date?: string;
+    created_at: string;
+  };
 }
 
-const GoalCard = ({ goal, onComplete, onUpdate, onDelete }: GoalCardProps) => {
-  const categoryIcons = {
-    learning: BookOpen,
-    health: Heart,
-    career: Briefcase,
-    personal: Trophy,
+const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
+  const { t } = useDualLanguage();
+  const { updateGoal, deleteGoal } = useGoals();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleStatusChange = async (newStatus: 'active' | 'completed' | 'paused') => {
+    try {
+      await updateGoal(goal.id, { 
+        status: newStatus,
+        progress: newStatus === 'completed' ? 100 : goal.progress
+      });
+    } catch (error) {
+      console.error('Error updating goal status:', error);
+    }
   };
 
-  const categoryColors = {
-    learning: 'bg-purple-100 text-purple-700',
-    health: 'bg-red-100 text-red-700',
-    career: 'bg-blue-100 text-blue-700',
-    personal: 'bg-green-100 text-green-700',
+  const handleDelete = async () => {
+    try {
+      await deleteGoal(goal.id);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+    }
   };
 
-  const priorityColors = {
-    low: 'bg-gray-100 text-gray-700',
-    medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-red-100 text-red-700',
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const statusColors = {
-    active: 'bg-blue-100 text-blue-700',
-    completed: 'bg-green-100 text-green-700',
-    paused: 'bg-gray-100 text-gray-700',
-    cancelled: 'bg-red-100 text-red-700',
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'paused': return 'bg-yellow-100 text-yellow-800';
+      case 'active': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
-
-  const Icon = categoryIcons[goal.category as keyof typeof categoryIcons] || BookOpen;
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  const isOverdue = goal.target_date && goal.status === 'active' && 
-    new Date(goal.target_date) < new Date();
 
   return (
-    <Card className="fpk-card border-0 shadow-md hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-3 flex-1">
-            <div className={`p-2 rounded-lg ${categoryColors[goal.category as keyof typeof categoryColors]}`}>
-              <Icon className="h-5 w-5" />
-            </div>
+    <>
+      <Card className="fpk-card border-0 shadow-md hover:shadow-lg transition-shadow">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1 leading-tight">
+              <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
                 {goal.title}
-              </h3>
-              {goal.description && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {goal.description}
-                </p>
-              )}
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Badge 
-                  variant="secondary" 
-                  className={priorityColors[goal.priority as keyof typeof priorityColors]}
-                >
-                  {goal.priority} priority
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge className={getPriorityColor(goal.priority)}>
+                  <DualLanguageText 
+                    translationKey={`goals.priority.${goal.priority}`} 
+                    fallback={goal.priority} 
+                  />
                 </Badge>
-                <Badge 
-                  variant="secondary"
-                  className={statusColors[goal.status as keyof typeof statusColors]}
-                >
-                  {goal.status}
+                <Badge className={getStatusColor(goal.status)}>
+                  <DualLanguageText 
+                    translationKey={`goals.status.${goal.status}`} 
+                    fallback={goal.status} 
+                  />
                 </Badge>
-                {goal.target_date && (
-                  <Badge 
-                    variant="outline" 
-                    className={`${isOverdue ? 'border-red-500 text-red-700' : 'border-gray-300'}`}
-                  >
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {formatDate(goal.target_date)}
-                  </Badge>
-                )}
               </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {goal.status !== 'completed' && (
+                  <DropdownMenuItem onClick={() => handleStatusChange('completed')}>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <DualLanguageText translationKey="goals.actions.markComplete" fallback="Mark Complete" />
+                  </DropdownMenuItem>
+                )}
+                {goal.status === 'active' && (
+                  <DropdownMenuItem onClick={() => handleStatusChange('paused')}>
+                    <Pause className="h-4 w-4 mr-2" />
+                    <DualLanguageText translationKey="goals.actions.pause" fallback="Pause" />
+                  </DropdownMenuItem>
+                )}
+                {goal.status === 'paused' && (
+                  <DropdownMenuItem onClick={() => handleStatusChange('active')}>
+                    <Play className="h-4 w-4 mr-2" />
+                    <DualLanguageText translationKey="goals.actions.resume" fallback="Resume" />
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem 
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  <DualLanguageText translationKey="goals.actions.delete" fallback="Delete" />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm text-gray-600">{goal.progress}%</span>
-          </div>
-          <Progress value={goal.progress} className="h-2" />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 justify-end">
-          {goal.status === 'active' && goal.progress < 100 && (
-            <Button
-              onClick={() => onComplete(goal.id)}
-              size="sm"
-              className="fpk-gradient text-white"
-            >
-              <CheckCircle className="h-4 w-4 mr-1" />
-              Complete
-            </Button>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          {goal.description && (
+            <p className="text-sm text-gray-600">{goal.description}</p>
           )}
           
-          {goal.status === 'active' && (
-            <Button
-              onClick={() => onUpdate(goal.id, { status: 'paused' })}
-              size="sm"
-              variant="outline"
-            >
-              <Pause className="h-4 w-4 mr-1" />
-              Pause
-            </Button>
-          )}
-          
-          {goal.status === 'paused' && (
-            <Button
-              onClick={() => onUpdate(goal.id, { status: 'active' })}
-              size="sm"
-              variant="outline"
-            >
-              <Play className="h-4 w-4 mr-1" />
-              Resume
-            </Button>
-          )}
-
-          <Button
-            onClick={() => onDelete(goal.id)}
-            size="sm"
-            variant="outline"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Celebration for completed goals */}
-        {goal.status === 'completed' && (
-          <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-            <div className="flex items-center gap-2 text-green-800">
-              <Trophy className="h-5 w-5" />
-              <span className="font-medium">Goal Completed! 🎉</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">
+                <DualLanguageText translationKey="goals.progress" fallback="Progress" />
+              </span>
+              <span className="font-medium">{goal.progress}%</span>
             </div>
-            {goal.completed_at && (
-              <p className="text-sm text-green-700 mt-1">
-                Completed on {formatDate(goal.completed_at)}
-              </p>
+            <Progress value={goal.progress} className="h-2" />
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>
+                <DualLanguageText translationKey="goals.created" fallback="Created" />{' '}
+                {format(new Date(goal.created_at), 'MMM dd')}
+              </span>
+            </div>
+            {goal.target_date && (
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                <span>
+                  <DualLanguageText translationKey="goals.due" fallback="Due" />{' '}
+                  {format(new Date(goal.target_date), 'MMM dd')}
+                </span>
+              </div>
             )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              <DualLanguageText translationKey="goals.deleteDialog.title" fallback="Delete Goal" />
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <DualLanguageText 
+                translationKey="goals.deleteDialog.description" 
+                fallback="Are you sure you want to delete this goal? This action cannot be undone." 
+              />
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              <DualLanguageText translationKey="common.cancel" fallback="Cancel" />
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              <DualLanguageText translationKey="common.delete" fallback="Delete" />
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
