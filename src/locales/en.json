@@ -3,122 +3,108 @@
   "nav": {
     "home": "Home",
     "courses": "My Courses",
-    "goals": "Goal & XP Tracker",
-    "liveHub": "Live Learning Hub",
     "analytics": "Learning Analytics",
-    "settings": "Settings"
+    "liveHub": "Live Learning Hub",
+    "aiCoach": "AI Study Coach",
+    "goals": "Goal & XP Tracker",
+    "notes": "Notes & Flashcards",
+    "community": "Community Hub",
+    "settings": "Settings",
+    "support": "Support & FAQs",
+    "dashboard": "Dashboard"
   },
-  "common": {
-    "loading": "Loading...",
-    "learnerPortal": "Learner Portal",
-    "userMenu": "User Menu",
-    "tryAgain": "Try Again",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close"
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "welcomeModal": {
+      "title": "Welcome to FPK University!",
+      "subtitle": "Hey {{name}}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.",
+      "quickSetup": "Quick Setup",
+      "quickSetupDesc": "Add your learning preferences, goals, and interests to unlock personalized course recommendations.",
+      "completeProfile": "Complete Profile Setup",
+      "remindLater": "Remind me in 24h"
+    },
+    "stats": {
+      "activeCourses": "Active Courses",
+      "hoursThisWeek": "Hours This Week",
+      "certificates": "Certificates",
+      "streakDays": "Streak Days",
+      "totalXP": "Total XP",
+      "level": "Level"
+    },
+    "charts": {
+      "courseProgress": "Course Progress Overview",
+      "weeklyTime": "Weekly Study Time",
+      "noCourseProgress": "No Course Progress Yet",
+      "noCourseProgressDesc": "Start a course to see your progress visualization here",
+      "noStudyTime": "No Study Time Recorded",
+      "noStudyTimeDesc": "Your weekly study time will appear here once you start learning"
+    },
+    "insights": {
+      "aiInsight": "AI Study Insight",
+      "noInsights": "No Insights Yet",
+      "noInsightsDesc": "AI insights will appear here based on your learning patterns",
+      "recommendedGoals": "Recommended Goals",
+      "setFirstGoal": "Set Your First Goal",
+      "setFirstGoalDesc": "AI will suggest personalized learning goals",
+      "createGoal": "Create Goal",
+      "communityActivity": "Community Activity",
+      "joinCommunity": "Join the Community",
+      "joinCommunityDesc": "Connect with fellow learners",
+      "exploreCommunity": "Explore Community",
+      "personalGoals": "Personal Goals"
+    },
+    "badges": {
+      "learner": "Learner",
+      "level1": "Level 1"
+    }
   },
   "courses": {
     "title": "My Courses",
-    "subtitle": "Continue your learning journey",
-    "noCourses": "No courses yet",
-    "noCoursesDesc": "You haven't enrolled in any courses yet. Start your learning journey today!",
-    "browseCourses": "Browse Courses",
+    "subtitle": "Manage your enrolled courses and track progress",
     "enrollButton": "Enroll in Course",
-    "searchPlaceholder": "Search your courses...",
-    "errorTitle": "Error loading courses",
+    "searchPlaceholder": "Search courses...",
+    "errorTitle": "Error Loading Courses",
+    "noCourses": "No Courses Yet",
+    "noCoursesDesc": "You haven't enrolled in any courses. Start your learning journey today!",
+    "browseCourses": "Browse Courses",
     "beginCourse": "Begin Course",
-    "continue": "Continue"
+    "continue": "Continue",
+    "backToCourses": "Back to Courses",
+    "courseOutline": "Course Outline",
+    "learningState": {
+      "title": "Learning State",
+      "description": "Master your learning mindset and develop effective study strategies with our flagship beta course.",
+      "playerTitle": "Learning State Course Player",
+      "outline": {
+        "intro": "Introduction to Learning State",
+        "cognitiveLoad": "Cognitive Load Theory",
+        "attention": "Attention and Focus",
+        "memory": "Memory and Retention",
+        "metacognition": "Metacognition"
+      }
+    }
+  },
+  "liveHub": {
+    "title": "Live Learning Hub",
+    "subtitle": "Join live sessions, webinars, and interactive learning experiences",
+    "liveSessions": "Live Sessions",
+    "noSessions": "No Live Sessions",
+    "noSessionsDesc": "Live learning sessions will appear here",
+    "scheduleSession": "Schedule Session",
+    "upcomingEvents": "Upcoming Events",
+    "noEvents": "No Events Scheduled",
+    "noEventsDesc": "Upcoming learning events will be shown here"
   },
   "goals": {
-    "title": "Goal & XP Tracker",
-    "subtitle": "Track your progress and earn XP as you learn",
-    "heroLevel": "Level",
-    "heroXP": "XP",
-    "nextMilestone": "Next milestone",
-    "currentStreak": "Day Streak",
     "myGoals": "My Goals",
     "createNew": "Create Goal",
     "createFirst": "Create Your First Goal",
     "description": "Track your learning objectives and celebrate your progress",
-    "sections": {
-      "activeGoals": "Active Learning Goals",
-      "achievements": "Achievements & Rewards",
-      "reminders": "Goal Reminders"
-    },
-    "activeGoalsList": {
-      "completeIntro": "Complete Introduction Module",
-      "studyHour": "Study for 1 hour",
-      "cognitiveLoad": "Complete Cognitive Load Theory",
-      "studyStreak": "Maintain 3-day study streak",
-      "flashcards": "Master 10 flashcards",
-      "weeklyGoal": "Complete weekly learning goal"
-    },
-    "goalDescriptions": {
-      "completeIntro": "Finish the Introduction to Learning State course module",
-      "studyHour": "Dedicate focused study time to your Learning State course",
-      "cognitiveLoad": "Master the principles of cognitive load theory",
-      "studyStreak": "Build consistent learning habits with daily study",
-      "flashcards": "Review and master key concepts through spaced repetition",
-      "weeklyGoal": "Stay on track with your weekly learning objectives"
-    },
-    "goalTypes": {
-      "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly"
-    },
-    "achievements": {
-      "firstModule": "First Module Completed",
-      "studyStreak3": "Study Streak 3 Days",
-      "xp500": "500 XP Earned",
-      "learningStateBeginner": "Learning State Beginner",
-      "consistentLearner": "Consistent Learner",
-      "fastLearner": "Fast Learner"
-    },
-    "achievementDescriptions": {
-      "firstModule": "Completed your first course module - great start!",
-      "studyStreak3": "Maintained a 3-day study streak - building habits!",
-      "xp500": "Earned your first 500 XP - you're on fire!",
-      "learningStateBeginner": "Successfully started the Learning State course",
-      "consistentLearner": "Studied for 7 consecutive days",
-      "fastLearner": "Completed 3 modules in one week"
-    },
-    "reminders": {
-      "dailyCheckIn": "Daily Check-in",
-      "weeklyReview": "Weekly Progress Review",
-      "studyReminder": "Time to Study!",
-      "streakReminder": "Don't Break Your Streak!",
-      "goalReview": "Review Your Goals"
-    },
-    "reminderDescriptions": {
-      "dailyCheckIn": "Take 2 minutes to log your learning progress",
-      "weeklyReview": "Reflect on your week's learning achievements",
-      "studyReminder": "Your brain is ready for some Learning State concepts",
-      "streakReminder": "Keep your momentum going with today's study session",
-      "goalReview": "Update your learning goals and celebrate progress"
-    },
-    "reminderActions": {
-      "checkIn": "Check In Now",
-      "review": "Start Review",
-      "study": "Begin Study",
-      "maintain": "Study Now",
-      "update": "Update Goals"
-    },
-    "xpRewards": {
-      "small": "+50 XP",
-      "medium": "+100 XP",
-      "large": "+150 XP",
-      "bonus": "+200 XP"
-    },
     "stats": {
       "totalGoals": "Total Goals",
       "activeGoals": "Active Goals",
       "completedGoals": "Completed",
-      "completionRate": "Completion Rate",
-      "totalXP": "Total XP",
-      "currentLevel": "Current Level",
-      "nextLevel": "Next Level"
+      "completionRate": "Completion Rate"
     },
     "tabs": {
       "all": "All",
@@ -130,22 +116,220 @@
       "allTitle": "No goals found",
       "allDescription": "Start by creating your first goal to track your learning progress",
       "activeTitle": "No active goals",
-      "activeDescription": "Create a new goal to start tracking your learning progress",
+      "activeDescription": "Create a new goal to start tracking your progress",
       "completedTitle": "No completed goals yet",
-      "completedDescription": "Complete some goals to see them here",
+      "completedDescription": "Complete your active goals to see them here",
       "pausedTitle": "No paused goals",
-      "pausedDescription": "Goals you pause will appear here"
+      "pausedDescription": "Paused goals will appear here"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "progress": "Progress",
+    "created": "Created",
+    "due": "Due",
+    "actions": {
+      "markComplete": "Mark Complete",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete Goal",
+      "description": "Are you sure you want to delete this goal? This action cannot be undone."
     }
   },
-  "liveHub": {
-    "title": "Live Learning Hub",
-    "subtitle": "Connect with instructors and peers in real-time",
-    "liveSessions": "Live Sessions",
-    "upcomingEvents": "Upcoming Events",
-    "noSessions": "No live sessions",
-    "noSessionsDesc": "There are currently no live sessions scheduled",
-    "scheduleSession": "Schedule Session",
-    "noEvents": "No upcoming events",
-    "noEventsDesc": "Stay tuned for upcoming learning events"
+  "auth": {
+    "title": "FPK University",
+    "subtitle": "Your Learning Journey Starts Here",
+    "portalTitle": "Learner Portal",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display Name",
+    "confirmPassword": "Confirm Password",
+    "emailPlaceholder": "your.email@example.com",
+    "passwordPlaceholder": "Enter your password",
+    "createPassword": "Create a password",
+    "fullNamePlaceholder": "Your full name",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "signInButton": "Sign In",
+    "signUpButton": "Create Account",
+    "signingIn": "Signing In...",
+    "creatingAccount": "Creating Account...",
+    "welcomeBack": "Welcome back!",
+    "signInSuccess": "You have successfully signed in.",
+    "accountCreated": "Account created!",
+    "checkEmail": "Please check your email to verify your account.",
+    "betaVersion": "Beta Version - Live Data Integration Ready"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "saving": "Saving...",
+    "autoSavePending": "Auto-save pending",
+    "allChangesSaved": "All changes saved",
+    "restoreDefaults": "Restore Defaults",
+    "settingsRestored": "Settings restored",
+    "defaultsMessage": "All settings have been restored to defaults.",
+    "learningStyles": "Learning Styles",
+    "addStyle": "Add Style",
+    "addCustomStyle": "Add Custom Style",
+    "customStylePlaceholder": "e.g., Collaborative",
+    "quickAdd": "Quick Add",
+    "avatarUpdated": "Avatar updated",
+    "avatarUpdatedDesc": "Your profile picture has been updated successfully.",
+    "avatarUploadError": "Failed to upload avatar.",
+    "profilePicture": "Profile picture",
+    "uploading": "Uploading...",
+    "changeAvatar": "Change Avatar",
+    "avatarFileInfo": "JPG, PNG up to 5MB",
+    "previewAvatar": "Preview Avatar",
+    "avatarPreview": "Avatar preview",
+    "password": {
+      "fillAllFields": "Please fill in all password fields.",
+      "passwordMismatch": "New passwords do not match.",
+      "minLength": "Password must be at least 6 characters long.",
+      "changePassword": "Change Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "updating": "Updating...",
+      "updatePassword": "Update Password"
+    },
+    "tabs": {
+      "profile": "Profile",
+      "language": "Language",
+      "accessibility": "Accessibility",
+      "notifications": "Notifications",
+      "security": "Security",
+      "integrations": "Integrations"
+    },
+    "profile": {
+      "title": "Personal Information",
+      "fullName": "Full Name",
+      "displayName": "Display Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "displayNamePlaceholder": "How others see your name",
+      "email": "Email Address",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself...",
+      "learningStyles": "Learning Styles",
+      "addStyle": "Add Style",
+      "customStylePlaceholder": "e.g., Collaborative",
+      "quickAdd": "Quick Add"
+    },
+    "language": {
+      "title": "Language & Localization",
+      "primaryLanguage": "Primary Language",
+      "dualLanguageMode": "Dual Language Mode",
+      "dualLanguageDescription": "Show content in Primary + English side-by-side",
+      "timeFormat": "Time Format",
+      "12hour": "12-hour (AM/PM)",
+      "24hour": "24-hour",
+      "dateFormat": "Date Format",
+      "usDate": "US (MM/DD/YYYY)",
+      "intlDate": "International (DD/MM/YYYY)",
+      "timezone": "Timezone",
+      "preview": "Preview"
+    },
+    "accessibility": {
+      "title": "Accessibility & Display",
+      "fontFamily": "Font Family",
+      "fontHelp": "OpenDyslexic is designed to help with dyslexia",
+      "systemDefault": "System Default",
+      "openDyslexic": "OpenDyslexic",
+      "arial": "Arial",
+      "georgia": "Georgia",
+      "colorContrast": "Color Contrast",
+      "standard": "Standard",
+      "highContrast": "High Contrast",
+      "comfortMode": "Comfort Mode",
+      "comfortHelp": "Low-Stimulus reduces visual distractions\nFocus Mode highlights content",
+      "normal": "Normal",
+      "lowStimulus": "Low-Stimulus",
+      "focusMode": "Focus Mode",
+      "textSize": "Text Size",
+      "lineSpacing": "Line Spacing",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "compact": "Compact",
+      "comfortable": "Comfortable",
+      "airy": "Airy"
+    },
+    "notifications": {
+      "emailTitle": "Email Notifications",
+      "newCourses": "New Course Announcements",
+      "newCoursesDesc": "Get notified about new courses",
+      "weeklySum": "Weekly Progress Summary",
+      "weeklySumDesc": "Weekly learning progress reports",
+      "aiPrompts": "AI Study Prompts",
+      "aiPromptsDesc": "Smart study reminders from AI",
+      "appTitle": "App Reminders",
+      "studyStreak": "Study Streak Reminders",
+      "studyStreakDesc": "Keep your learning streak alive",
+      "moduleNudges": "Module Completion Nudges",
+      "moduleNudgesDesc": "Gentle reminders to complete modules"
+    },
+    "security": {
+      "title": "Security Settings",
+      "changePassword": "Change Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "updatePassword": "Update Password",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorDesc": "Add an extra layer of security"
+    },
+    "integrations": {
+      "title": "Calendar Sync",
+      "googleCalendar": "Google Calendar",
+      "googleDesc": "Sync study sessions with Google Calendar",
+      "outlookCalendar": "Outlook Calendar",
+      "outlookDesc": "Sync study sessions with Outlook Calendar"
+    }
+  },
+  "preview": {
+    "title": "Live Preview",
+    "description": "This is how your text will appear with the current settings. You can see the changes to font family, size, line spacing, and contrast in real-time.",
+    "fontLabel": "Font",
+    "sizeLabel": "Size",
+    "spacingLabel": "Spacing",
+    "contrastLabel": "Contrast",
+    "comfortLabel": "Comfort Mode"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "comingSoon": "Coming Soon!",
+    "learnerPortal": "Learner Portal",
+    "signOut": "Sign Out",
+    "learningDashboard": "Learning Dashboard",
+    "support": "Support",
+    "searchPlaceholder": "Search courses, goals...",
+    "userMenu": "User Menu",
+    "myAccount": "My Account",
+    "profileSettings": "Profile Settings",
+    "preferences": "Preferences",
+    "tryAgain": "Try Again",
+    "back": "Back",
+    "beta": "Beta",
+    "user": "User",
+    "confirm": "Confirm"
   }
 }
