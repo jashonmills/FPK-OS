@@ -6,81 +6,71 @@ import { Progress } from '@/components/ui/progress';
 import { Target, Trophy, Flame, Calendar, CheckSquare, Bell } from 'lucide-react';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
+import { useGoals } from '@/hooks/useGoals';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Goals = () => {
   const { t } = useDualLanguage();
+  const { goals, loading: goalsLoading } = useGoals();
+  const { user } = useAuth();
 
-  // Learning State specific goals
-  const activeGoals = [
-    {
-      id: 1,
-      title: "Complete 1 course module",
-      progress: 75,
-      frequency: "Daily",
-      type: "learning"
+  // Fetch user profile data for XP and streak
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('total_xp, current_streak')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return { total_xp: 0, current_streak: 0 };
+      }
+      return data || { total_xp: 0, current_streak: 0 };
     },
-    {
-      id: 2,
-      title: "Earn 500 XP this week",
-      progress: 60,
-      frequency: "Daily",
-      type: "xp"
-    },
-    {
-      id: 3,
-      title: "Study for 5 hours",
-      progress: 80,
-      frequency: "Daily",
-      type: "time"
-    },
-    {
-      id: 4,
-      title: "Master 10 flashcards",
-      progress: 90,
-      frequency: "Daily",
-      type: "practice"
-    },
-    {
-      id: 5,
-      title: "Finish 3 quizzes",
-      progress: 45,
-      frequency: "Daily",
-      type: "assessment"
-    }
-  ];
+    enabled: !!user,
+  });
 
-  const achievements = [
-    {
-      id: 1,
-      title: "First Course Completed",
-      icon: "🎓",
-      earned: true
+  // Fetch achievements data
+  const { data: achievements = [] } = useQuery({
+    queryKey: ['achievements', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('unlocked_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching achievements:', error);
+        return [];
+      }
+      return data || [];
     },
-    {
-      id: 2,
-      title: "500 XP Earned",
-      icon: "🏆",
-      earned: true
-    },
-    {
-      id: 3,
-      title: "Study Streak 7 Days",
-      icon: "🔥",
-      earned: true
-    }
-  ];
+    enabled: !!user,
+  });
 
+  // Filter active goals
+  const activeGoals = goals.filter(goal => goal.status === 'active') || [];
+
+  // Calculate progress data from real goals
+  const totalXP = profile?.total_xp || 0;
+  const targetXP = 4000; // This could be made dynamic based on user level
+  const currentStreak = profile?.current_streak || 0;
+  const xpProgress = totalXP > 0 ? Math.round((totalXP / targetXP) * 100) : 0;
+
+  // Goal reminders - these could be stored in database later
   const reminders = [
     { id: 1, title: "Daily check-in", enabled: true },
     { id: 2, title: "Weekly progress update", enabled: true },
     { id: 3, title: "Motivational messages", enabled: false }
   ];
-
-  // XP and streak data
-  const totalXP = 3500;
-  const targetXP = 4000;
-  const currentStreak = 10;
-  const xpProgress = Math.round((totalXP / targetXP) * 100);
 
   return (
     <div className="p-6 space-y-6">
@@ -123,22 +113,40 @@ const Goals = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {activeGoals.map((goal) => (
-                <div key={goal.id} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-900">{goal.title}</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {goal.frequency}
-                    </Badge>
-                  </div>
-                  <div className="w-full">
-                    <Progress 
-                      value={goal.progress} 
-                      className="h-3 bg-gray-200"
-                    />
-                  </div>
+              {goalsLoading ? (
+                <div className="text-center py-8 text-gray-500">
+                  Loading goals...
                 </div>
-              ))}
+              ) : activeGoals.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Target className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-medium mb-2">No active goals yet</p>
+                  <p className="text-sm">Create your first learning goal to get started!</p>
+                </div>
+              ) : (
+                activeGoals.map((goal) => (
+                  <div key={goal.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-900">{goal.title}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {goal.category}
+                      </Badge>
+                    </div>
+                    <div className="w-full">
+                      <Progress 
+                        value={goal.progress} 
+                        className="h-3 bg-gray-200"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>{goal.progress}% complete</span>
+                        {goal.target_date && (
+                          <span>Due: {new Date(goal.target_date).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
@@ -154,17 +162,24 @@ const Goals = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {achievements.map((achievement) => (
-                <div key={achievement.id} className="flex items-center gap-3">
-                  <span className="text-xl">{achievement.icon}</span>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{achievement.title}</p>
-                  </div>
-                  {achievement.earned && (
-                    <span className="text-gray-500 text-xs">✓</span>
-                  )}
+              {achievements.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  <Trophy className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">No achievements yet</p>
+                  <p className="text-xs">Complete goals to earn rewards!</p>
                 </div>
-              ))}
+              ) : (
+                achievements.slice(0, 5).map((achievement) => (
+                  <div key={achievement.id} className="flex items-center gap-3">
+                    <span className="text-xl">🏆</span>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{achievement.achievement_name}</p>
+                      <p className="text-xs text-gray-500">+{achievement.xp_reward} XP</p>
+                    </div>
+                    <span className="text-gray-500 text-xs">✓</span>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
 
@@ -205,6 +220,9 @@ const Goals = () => {
                 <span className="text-2xl font-bold text-amber-800">{totalXP.toLocaleString()}</span>
               </div>
               <p className="text-amber-700 font-medium">Total XP</p>
+              {totalXP === 0 && (
+                <p className="text-xs text-amber-600 mt-1">Complete activities to earn XP!</p>
+              )}
             </div>
 
             {/* Day Streak */}
@@ -214,6 +232,9 @@ const Goals = () => {
                 <span className="text-2xl font-bold text-red-800">{currentStreak}</span>
               </div>
               <p className="text-red-700 font-medium">Day Streak</p>
+              {currentStreak === 0 && (
+                <p className="text-xs text-red-600 mt-1">Start your learning streak today!</p>
+              )}
             </div>
           </div>
 
@@ -226,6 +247,11 @@ const Goals = () => {
               <span className="text-sm font-bold text-gray-900">{xpProgress}%</span>
             </div>
             <Progress value={xpProgress} className="h-4 bg-gray-200" />
+            {totalXP === 0 && (
+              <p className="text-xs text-gray-500 text-center">
+                Complete Learning State modules and activities to start earning XP!
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
