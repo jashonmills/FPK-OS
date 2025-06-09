@@ -188,7 +188,19 @@ export const GoalsDashboard = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {getFilteredGoals().map((goal) => (
-                    <GoalCard key={goal.id} goal={goal} />
+                    <GoalCard 
+                      key={goal.id} 
+                      goal={{
+                        id: goal.id,
+                        title: goal.title,
+                        description: goal.description,
+                        priority: goal.priority as 'low' | 'medium' | 'high',
+                        status: goal.status as 'active' | 'completed' | 'paused',
+                        progress: goal.progress,
+                        target_date: goal.target_date,
+                        created_at: goal.created_at
+                      }} 
+                    />
                   ))}
                 </div>
               )}
@@ -199,7 +211,23 @@ export const GoalsDashboard = () => {
 
       {/* Create Goal Form Modal */}
       {showCreateForm && (
-        <GoalCreateForm onClose={() => setShowCreateForm(false)} />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">
+                <DualLanguageText translationKey="goals.createNew" fallback="Create New Goal" />
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowCreateForm(false)}
+              >
+                ×
+              </Button>
+            </div>
+            <GoalCreateForm />
+          </div>
+        </div>
       )}
     </div>
   );
