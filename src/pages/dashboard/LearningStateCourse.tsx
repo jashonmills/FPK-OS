@@ -50,9 +50,9 @@ const LearningStateCourse = () => {
     <SidebarProvider>
       <div className={`min-h-screen flex w-full ${getAccessibilityClasses('container')}`}>
         <AppSidebar />
-        <div className="flex-1 flex flex-col bg-background">
+        <div className="flex-1 flex flex-col bg-background overflow-hidden">
           {/* Sticky Header Bar - always visible */}
-          <div className="sticky top-0 z-20 fpk-gradient h-12">
+          <div className="sticky top-0 z-20 fpk-gradient h-12 flex-shrink-0">
             <div className="flex items-center justify-between px-3 sm:px-6 h-full">
               <div className="flex items-center gap-2 sm:gap-3">
                 <SidebarTrigger className="text-white hover:bg-white/20" />
@@ -88,102 +88,94 @@ const LearningStateCourse = () => {
             </div>
           </div>
 
-          {/* Course Overview Section - slides behind header when scrolled */}
-          <div 
-            ref={overviewRef}
-            className="bg-white border-b relative z-10 transition-all duration-300 ease-in-out"
-            style={{
-              opacity: isCollapsed ? 0 : 1,
-              transform: isCollapsed ? 'translateY(-100%)' : 'translateY(0)',
-              pointerEvents: isCollapsed ? 'none' : 'auto',
-            }}
-          >
-            <div className="max-w-4xl mx-auto p-3 sm:p-6">
-              {/* Navigation breadcrumb - hidden on mobile */}
-              {!isMobile && (
-                <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleDashboard}
-                    className="text-gray-500 hover:text-gray-700 p-0 h-auto"
-                  >
-                    Dashboard
-                  </Button>
-                  <span>/</span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleBackToCourses}
-                    className="text-gray-500 hover:text-gray-700 p-0 h-auto"
-                  >
-                    My Courses
-                  </Button>
-                  <span>/</span>
-                  <span className="text-gray-900 font-medium">Learning State</span>
-                </div>
-              )}
+          {/* Scrollable container for the rest of the content */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Course Overview Section - scrolls behind header */}
+            <div 
+              ref={overviewRef}
+              className="bg-white border-b relative z-10"
+            >
+              <div className="max-w-4xl mx-auto p-3 sm:p-6">
+                {/* Navigation breadcrumb - hidden on mobile */}
+                {!isMobile && (
+                  <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleDashboard}
+                      className="text-gray-500 hover:text-gray-700 p-0 h-auto"
+                    >
+                      Dashboard
+                    </Button>
+                    <span>/</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleBackToCourses}
+                      className="text-gray-500 hover:text-gray-700 p-0 h-auto"
+                    >
+                      My Courses
+                    </Button>
+                    <span>/</span>
+                    <span className="text-gray-900 font-medium">Learning State</span>
+                  </div>
+                )}
 
-              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg">
-                  <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg">
+                    <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+                  </div>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Learning State</h1>
+                    <Badge className="fpk-gradient text-white text-xs">Beta</Badge>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Learning State</h1>
-                  <Badge className="fpk-gradient text-white text-xs">Beta</Badge>
+                
+                <p className="text-sm sm:text-lg text-gray-600 mb-4 sm:mb-6">
+                  Master your learning mindset and develop effective study strategies with our flagship beta course.
+                </p>
+                
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Course Outline</h2>
+                  <ul className="space-y-1 sm:space-y-2 text-sm sm:text-base text-gray-700">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
+                      Introduction to Learning State
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
+                      Cognitive Load Theory
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
+                      Attention and Focus
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
+                      Memory and Retention
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
+                      Metacognition
+                    </li>
+                  </ul>
                 </div>
-              </div>
-              
-              <p className="text-sm sm:text-lg text-gray-600 mb-4 sm:mb-6">
-                Master your learning mindset and develop effective study strategies with our flagship beta course.
-              </p>
-              
-              <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Course Outline</h2>
-                <ul className="space-y-1 sm:space-y-2 text-sm sm:text-base text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
-                    Introduction to Learning State
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
-                    Cognitive Load Theory
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
-                    Attention and Focus
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
-                    Memory and Retention
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full flex-shrink-0"></div>
-                    Metacognition
-                  </li>
-                </ul>
               </div>
             </div>
-          </div>
 
-          {/* Embedded Course Player - fills remaining viewport space and adapts to mobile */}
-          <div 
-            className="relative flex-1 w-full overflow-hidden"
-            style={{
-              height: isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)',
-              maxHeight: isMobile ? 'calc(100vh - 48px)' : 'none'
-            }}
-          >
-            <iframe
-              src="https://preview--course-start-kit-react.lovable.app/"
-              title="Learning State Course Player"
-              className="w-full h-full border-0"
-              style={{
-                minHeight: isMobile ? '400px' : '600px',
-                maxWidth: '100%'
-              }}
-              allowFullScreen
-            />
+            {/* Embedded Course Player - takes remaining space */}
+            <div className="w-full" style={{ minHeight: isMobile ? '70vh' : '80vh' }}>
+              <iframe
+                src="https://preview--course-start-kit-react.lovable.app/"
+                title="Learning State Course Player"
+                className="w-full h-full border-0"
+                style={{ 
+                  minHeight: isMobile ? '70vh' : '80vh',
+                  height: '100%'
+                }}
+                allowFullScreen
+              />
+            </div>
           </div>
         </div>
       </div>
