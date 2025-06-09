@@ -17,8 +17,8 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
     <div className={`min-h-screen flex w-full ${getAccessibilityClasses('container')}`}>
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header that extends to sidebar edge */}
-        <div className="sticky top-0 z-50 w-full">
+        {/* Header that spans full width with no gap */}
+        <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className={`
             transition-all duration-200 ease-linear
             ${state === "expanded" 
@@ -26,7 +26,36 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
               : "pl-0"
             }
           `}>
-            <GlobalHeader />
+            <div className="flex h-16 items-center justify-between px-4">
+              {/* Left side - Sidebar trigger and brand */}
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="hover:text-primary" />
+                <div className="hidden sm:flex items-center gap-3">
+                  <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">FPK</span>
+                  </div>
+                  <span className="font-semibold text-lg">Learner Portal</span>
+                </div>
+              </div>
+
+              {/* Header content from GlobalHeader */}
+              <div className="flex-1 max-w-md mx-4 hidden md:block">
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground">
+                    🔍
+                  </div>
+                  <input
+                    placeholder="Search courses, goals..."
+                    className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-input rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Right side - placeholder for now */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">User Menu</span>
+              </div>
+            </div>
           </div>
         </div>
         
