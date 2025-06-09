@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
@@ -42,16 +43,19 @@ const GlobalHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        {/* Logo and Brand */}
+    <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center justify-between px-4">
+        {/* Left side - Sidebar trigger and brand */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">FPK</span>
+          <SidebarTrigger className="hover:text-primary" />
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">FPK</span>
+            </div>
+            <span className="font-semibold text-lg">
+              <DualLanguageText translationKey="common.learnerPortal" />
+            </span>
           </div>
-          <span className="font-semibold text-lg hidden sm:block">
-            <DualLanguageText translationKey="common.learnerPortal" />
-          </span>
         </div>
 
         {/* Search Bar */}
