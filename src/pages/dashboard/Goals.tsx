@@ -4,8 +4,38 @@ import { XPTracker } from '@/components/goals/XPTracker';
 import { ActiveGoalsList } from '@/components/goals/ActiveGoalsList';
 import { AchievementsList } from '@/components/goals/AchievementsList';
 import { GoalReminders } from '@/components/goals/GoalReminders';
+import { useAuth } from '@/hooks/useAuth';
 
 const Goals = () => {
+  const { user, loading } = useAuth();
+
+  console.log('Goals page - User:', user);
+  console.log('Goals page - Loading:', loading);
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="fpk-gradient text-white p-6 rounded-lg mb-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-white/20 rounded mb-4"></div>
+            <div className="h-4 bg-white/20 rounded mb-2"></div>
+            <div className="h-6 bg-white/20 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Please log in to view your goals and XP tracker.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {/* Hero Section with XP Tracker */}
