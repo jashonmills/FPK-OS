@@ -1,15 +1,57 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen } from 'lucide-react';
 
 const LearningStateCourse = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const iframeRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (iframeRef.current && headerRef.current) {
+        const iframeTop = iframeRef.current.getBoundingClientRect().top;
+        const headerHeight = headerRef.current.scrollHeight;
+        
+        // Collapse when iframe reaches the top of viewport
+        setIsCollapsed(iframeTop <= 48);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <div className="h-screen flex flex-col">
-      {/* Course Overview Section */}
-      <div className="bg-white border-b p-6">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen flex flex-col">
+      {/* Sticky Header Bar */}
+      <div 
+        className="sticky top-0 z-10 fpk-gradient transition-all duration-300 ease-in-out"
+        style={{
+          height: isCollapsed ? '48px' : '0px',
+          opacity: isCollapsed ? 1 : 0,
+        }}
+      >
+        <div className="flex items-center gap-3 px-6 h-full">
+          <div className="p-1.5 bg-white/20 rounded-lg">
+            <BookOpen className="h-4 w-4 text-white" />
+          </div>
+          <h1 className="text-lg font-bold text-white">Learning State</h1>
+          <Badge className="bg-white/20 text-white border-white/30">Beta</Badge>
+        </div>
+      </div>
+
+      {/* Course Overview Section - Collapsible */}
+      <div 
+        ref={headerRef}
+        className="bg-white border-b transition-all duration-300 ease-in-out overflow-hidden"
+        style={{
+          height: isCollapsed ? '0px' : '200px',
+        }}
+      >
+        <div className="max-w-4xl mx-auto p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-purple-100 rounded-lg">
               <BookOpen className="h-6 w-6 text-purple-600" />
@@ -53,7 +95,7 @@ const LearningStateCourse = () => {
       </div>
 
       {/* Embedded Course Player */}
-      <div className="flex-1 relative">
+      <div ref={iframeRef} className="flex-1 relative">
         <iframe
           src="https://preview--course-start-kit-react.lovable.app/"
           title="Learning State Course Player"
