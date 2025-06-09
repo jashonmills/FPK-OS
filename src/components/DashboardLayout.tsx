@@ -16,21 +16,28 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
   return (
     <div className={`min-h-screen flex w-full ${getAccessibilityClasses('container')}`}>
       <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        {/* Responsive Global Header */}
-        <div className={`
-          sticky top-0 z-50 w-full 
-          transition-all duration-200 ease-linear
-          ${state === "collapsed" 
-            ? "ml-0" 
-            : "ml-0 md:ml-[var(--sidebar-width)]"
-          }
-        `}>
-          <GlobalHeader />
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header that extends to sidebar edge */}
+        <div className="sticky top-0 z-50 w-full">
+          <div className={`
+            transition-all duration-200 ease-linear
+            ${state === "expanded" 
+              ? "pl-[var(--sidebar-width)]" 
+              : "pl-0"
+            }
+          `}>
+            <GlobalHeader />
+          </div>
         </div>
         
         {/* Main content area */}
-        <main className="flex-1 overflow-auto">
+        <main className={`
+          flex-1 overflow-auto transition-all duration-200 ease-linear
+          ${state === "expanded" 
+            ? "pl-[var(--sidebar-width)]" 
+            : "pl-0"
+          }
+        `}>
           {children}
         </main>
       </div>
