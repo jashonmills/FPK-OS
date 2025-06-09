@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -159,10 +158,7 @@ const LearnerHome = () => {
               </DialogTitle>
             </div>
             <DialogDescription className="text-base leading-relaxed">
-              <DualLanguageText 
-                translationKey="dashboard.welcomeModal.subtitle" 
-                fallback={`Hey ${displayName}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.`}
-              />
+              Hey {displayName}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.
             </DialogDescription>
           </DialogHeader>
           
