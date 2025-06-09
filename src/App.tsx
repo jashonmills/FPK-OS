@@ -63,14 +63,12 @@ const AppContent = () => {
           </DashboardLayout>
         } 
       />
+      {/* Learning State Course - Full viewport control */}
       <Route 
         path="/dashboard/learner/courses/learning-state" 
-        element={
-          <DashboardLayout>
-            <LearningStateCourse />
-          </DashboardLayout>
-        } 
+        element={<LearningStateCourse />} 
       />
+      
       <Route 
         path="/dashboard/learner/analytics" 
         element={

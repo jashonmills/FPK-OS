@@ -2,11 +2,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BookOpen, ArrowLeft, Menu } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LearningStateCourse = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const overviewRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const overview = overviewRef.current;
@@ -26,8 +29,16 @@ const LearningStateCourse = () => {
     return () => observer.disconnect();
   }, []);
 
+  const handleBackToCourses = () => {
+    navigate('/dashboard/learner/courses');
+  };
+
+  const handleDashboard = () => {
+    navigate('/dashboard/learner/home');
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Sticky Header Bar - always visible when collapsed */}
       <div 
         className="sticky top-0 z-20 fpk-gradient transition-all duration-300 ease-in-out"
@@ -37,12 +48,34 @@ const LearningStateCourse = () => {
           visibility: isCollapsed ? 'visible' : 'hidden',
         }}
       >
-        <div className="flex items-center gap-3 px-6 h-full">
-          <div className="p-1.5 bg-white/20 rounded-lg">
-            <BookOpen className="h-4 w-4 text-white" />
+        <div className="flex items-center justify-between px-6 h-full">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-white/20 rounded-lg">
+              <BookOpen className="h-4 w-4 text-white" />
+            </div>
+            <h1 className="text-lg font-bold text-white">Learning State</h1>
+            <Badge className="bg-white/20 text-white border-white/30">Beta</Badge>
           </div>
-          <h1 className="text-lg font-bold text-white">Learning State</h1>
-          <Badge className="bg-white/20 text-white border-white/30">Beta</Badge>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleBackToCourses}
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to Courses
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleDashboard}
+              className="text-white hover:bg-white/20"
+            >
+              <Menu className="h-4 w-4 mr-1" />
+              Dashboard
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -57,6 +90,29 @@ const LearningStateCourse = () => {
         }}
       >
         <div className="max-w-4xl mx-auto p-6">
+          {/* Navigation breadcrumb */}
+          <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleDashboard}
+              className="text-gray-500 hover:text-gray-700 p-0 h-auto"
+            >
+              Dashboard
+            </Button>
+            <span>/</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleBackToCourses}
+              className="text-gray-500 hover:text-gray-700 p-0 h-auto"
+            >
+              My Courses
+            </Button>
+            <span>/</span>
+            <span className="text-gray-900 font-medium">Learning State</span>
+          </div>
+
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-purple-100 rounded-lg">
               <BookOpen className="h-6 w-6 text-purple-600" />
