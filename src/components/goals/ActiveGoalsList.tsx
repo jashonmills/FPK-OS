@@ -24,12 +24,12 @@ export const ActiveGoalsList = () => {
   const { unlockAchievement } = useAchievements();
   const { t } = useTranslation();
 
-  // Sample Learning State course goals
+  // Learning State specific goals
   const activeGoals: ActiveGoal[] = [
     {
       id: '1',
-      title: 'goals.activeGoalsList.completeIntro',
-      description: 'goals.goalDescriptions.completeIntro',
+      title: 'Complete Learning State Introduction',
+      description: 'Finish the introduction module to understand cognitive load theory',
       progress: 75,
       type: 'daily',
       xpReward: 100,
@@ -37,8 +37,8 @@ export const ActiveGoalsList = () => {
     },
     {
       id: '2',
-      title: 'goals.activeGoalsList.studyHour',
-      description: 'goals.goalDescriptions.studyHour',
+      title: 'Study for 1 hour today',
+      description: 'Spend focused time learning about cognitive processes',
       progress: 60,
       type: 'daily',
       xpReward: 50,
@@ -46,8 +46,8 @@ export const ActiveGoalsList = () => {
     },
     {
       id: '3',
-      title: 'goals.activeGoalsList.cognitiveLoad',
-      description: 'goals.goalDescriptions.cognitiveLoad',
+      title: 'Master cognitive load concepts',
+      description: 'Complete all cognitive load theory modules this week',
       progress: 30,
       type: 'weekly',
       xpReward: 150,
@@ -55,12 +55,21 @@ export const ActiveGoalsList = () => {
     },
     {
       id: '4',
-      title: 'goals.activeGoalsList.studyStreak',
-      description: 'goals.goalDescriptions.studyStreak',
+      title: 'Maintain 7-day study streak',
+      description: 'Study consistently for a full week',
       progress: 100,
       type: 'weekly',
       xpReward: 200,
       completed: true
+    },
+    {
+      id: '5',
+      title: 'Complete 3 Learning State quizzes',
+      description: 'Test your understanding with interactive quizzes',
+      progress: 66,
+      type: 'weekly',
+      xpReward: 120,
+      completed: false
     }
   ];
 
@@ -92,7 +101,7 @@ export const ActiveGoalsList = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5 text-purple-600" />
-          {t('goals.sections.activeGoals')}
+          Active Learning Goals
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -103,19 +112,19 @@ export const ActiveGoalsList = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-semibold text-sm">
-                      {t(goal.title)}
+                      {goal.title}
                     </h4>
                     <Badge variant={getBadgeVariant(goal.type)} className="text-xs">
-                      {t(`goals.goalTypes.${goal.type}`)}
+                      {goal.type.charAt(0).toUpperCase() + goal.type.slice(1)}
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600 mb-2">
-                    {t(goal.description)}
+                    {goal.description}
                   </p>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-purple-600 font-semibold">
-                    {t(goal.xpReward >= 150 ? "goals.xpRewards.large" : goal.xpReward >= 100 ? "goals.xpRewards.medium" : "goals.xpRewards.small")}
+                    +{goal.xpReward} XP
                   </div>
                 </div>
               </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,46 +16,46 @@ export interface AchievementTemplate {
 
 export const predefinedAchievements: AchievementTemplate[] = [
   {
-    type: 'first_module',
-    name: 'goals.achievements.firstModule',
-    description: 'goals.achievementDescriptions.firstModule',
+    type: 'learning_state_beginner',
+    name: 'Learning State Beginner',
+    description: 'Complete your first Learning State module',
     xpReward: 100,
     icon: '🎯'
   },
   {
-    type: 'study_streak_3',
-    name: 'goals.achievements.studyStreak3',
-    description: 'goals.achievementDescriptions.studyStreak3',
-    xpReward: 150,
+    type: 'cognitive_load_master',
+    name: 'Cognitive Load Master',
+    description: 'Complete all cognitive load theory modules',
+    xpReward: 250,
+    icon: '🧠'
+  },
+  {
+    type: 'study_streak_7',
+    name: 'Study Streak 7 Days',
+    description: 'Study consistently for 7 days in a row',
+    xpReward: 200,
     icon: '🔥'
   },
   {
-    type: 'xp_500',
-    name: 'goals.achievements.xp500',
-    description: 'goals.achievementDescriptions.xp500',
-    xpReward: 50,
+    type: 'quiz_champion',
+    name: 'Quiz Champion',
+    description: 'Complete 10 Learning State quizzes',
+    xpReward: 150,
+    icon: '🏆'
+  },
+  {
+    type: 'knowledge_seeker',
+    name: 'Knowledge Seeker',
+    description: 'Earn 500 XP in Learning State course',
+    xpReward: 75,
     icon: '⭐'
   },
   {
-    type: 'learning_state_beginner',
-    name: 'goals.achievements.learningStateBeginner',
-    description: 'goals.achievementDescriptions.learningStateBeginner',
-    xpReward: 200,
-    icon: '🌟'
-  },
-  {
-    type: 'consistent_learner',
-    name: 'goals.achievements.consistentLearner',
-    description: 'goals.achievementDescriptions.consistentLearner',
+    type: 'learning_enthusiast',
+    name: 'Learning Enthusiast',
+    description: 'Study for 10 hours total',
     xpReward: 300,
-    icon: '💪'
-  },
-  {
-    type: 'fast_learner',
-    name: 'goals.achievements.fastLearner',
-    description: 'goals.achievementDescriptions.fastLearner',
-    xpReward: 250,
-    icon: '⚡'
+    icon: '📚'
   }
 ];
 
