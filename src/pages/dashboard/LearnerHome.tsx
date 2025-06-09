@@ -42,6 +42,8 @@ import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import GoalCreateForm from '@/components/goals/GoalCreateForm';
 import { useGoals } from '@/hooks/useGoals';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
@@ -50,6 +52,26 @@ const LearnerHome = () => {
   const { goals, loading: goalsLoading, refetch } = useGoals();
   const { t } = useDualLanguage();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  // Fetch user profile data for XP and streak - same as Goals page
+  const { data: profileData } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('total_xp, current_streak')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return { total_xp: 0, current_streak: 0 };
+      }
+      return data || { total_xp: 0, current_streak: 0 };
+    },
+    enabled: !!user,
+  });
 
   // Debug logging
   console.log('Goals data:', goals);
@@ -121,13 +143,17 @@ const LearnerHome = () => {
     );
   };
 
-  // Get active goals for display
-  const activeGoals = goals.filter(goal => goal.status === 'active');
-  const completedGoals = goals.filter(goal => goal.status === 'completed');
+  // Filter active goals - same logic as Goals page
+  const activeGoals = goals.filter(goal => goal.status === 'active') || [];
+  const completedGoals = goals.filter(goal => goal.status === 'completed') || [];
   const goalCompletionRate = goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0;
 
   console.log('Active goals:', activeGoals);
   console.log('All goals:', goals);
+
+  // Get XP data - same as Goals page
+  const totalXP = profileData?.total_xp || 0;
+  const currentStreak = profileData?.current_streak || 0;
 
   // Empty state data - will be replaced with real Supabase data
   const timeSpentData = [];
@@ -246,7 +272,7 @@ const LearnerHome = () => {
               <p className="text-sm text-gray-500">
                 <DualLanguageText translationKey="dashboard.stats.totalXP" />
               </p>
-              <p className="text-2xl font-bold fpk-text-gradient">0</p>
+              <p className="text-2xl font-bold fpk-text-gradient">{totalXP.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -263,7 +289,7 @@ const LearnerHome = () => {
                   <p className="text-sm text-gray-500">
                     <DualLanguageText translationKey="dashboard.stats.activeCourses" />
                   </p>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">1</p>
                 </div>
               </div>
             </CardContent>
@@ -277,9 +303,9 @@ const LearnerHome = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">
-                    <DualLanguageText translationKey="dashboard.stats.hoursThisWeek" />
+                    Current Streak
                   </p>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{currentStreak}</p>
                 </div>
               </div>
             </CardContent>
@@ -413,7 +439,7 @@ const LearnerHome = () => {
                   <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="font-semibold text-gray-900 mb-2">No active goals</h3>
                   <p className="text-sm text-gray-500 mb-4">
-                    Create your first goal to start tracking your progress
+                    Create your first Learning State goal to start tracking your progress
                   </p>
                   <GoalCreateForm />
                 </div>
@@ -428,7 +454,12 @@ const LearnerHome = () => {
                       <div key={goal.id} className="p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium truncate flex-1">{goal.title}</span>
-                          <span className="text-xs text-gray-500">{goal.progress}%</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {goal.category}
+                            </Badge>
+                            <span className="text-xs text-gray-500">{goal.progress}%</span>
+                          </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-1">
                           <div 
@@ -436,6 +467,11 @@ const LearnerHome = () => {
                             style={{ width: `${goal.progress}%` }}
                           />
                         </div>
+                        {goal.target_date && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Due: {new Date(goal.target_date).toLocaleDateString()}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

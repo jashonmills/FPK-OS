@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger 
 } from '@/components/ui/dialog';
-import { Target, Calendar, Flag, BookOpen, Heart, Trophy, Briefcase } from 'lucide-react';
+import { Target, Calendar, Flag, BookOpen, Heart, Trophy, Briefcase, Brain } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import DualLanguageText from '@/components/DualLanguageText';
 
@@ -29,11 +29,12 @@ const GoalCreateForm = () => {
     target_date: '',
   });
 
+  // Updated categories to be relevant to Learning State course
   const categories = [
-    { id: 'learning', label: 'Learning & Skills', icon: BookOpen, color: 'bg-purple-100 text-purple-700' },
-    { id: 'health', label: 'Health & Wellness', icon: Heart, color: 'bg-red-100 text-red-700' },
-    { id: 'career', label: 'Career & Work', icon: Briefcase, color: 'bg-blue-100 text-blue-700' },
-    { id: 'personal', label: 'Personal Growth', icon: Trophy, color: 'bg-green-100 text-green-700' },
+    { id: 'learning', label: 'Learning State Mastery', icon: Brain, color: 'bg-purple-100 text-purple-700' },
+    { id: 'skills', label: 'Cognitive Skills', icon: BookOpen, color: 'bg-blue-100 text-blue-700' },
+    { id: 'wellness', label: 'Mental Wellness', icon: Heart, color: 'bg-red-100 text-red-700' },
+    { id: 'achievement', label: 'Achievement Goals', icon: Trophy, color: 'bg-green-100 text-green-700' },
   ];
 
   const priorities = [
@@ -83,7 +84,7 @@ const GoalCreateForm = () => {
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-600" />
-            Create a New Goal
+            Create a New Learning Goal
             <span className="text-sm font-normal text-gray-500">
               (Step {step} of 4)
             </span>
@@ -108,7 +109,7 @@ const GoalCreateForm = () => {
             <div className="space-y-4">
               <div className="text-center py-4">
                 <Target className="h-12 w-12 text-purple-600 mx-auto mb-3" />
-                <h3 className="text-lg font-semibold mb-2">What's your goal?</h3>
+                <h3 className="text-lg font-semibold mb-2">What's your Learning State goal?</h3>
                 <p className="text-gray-600 text-sm">Keep it simple and clear!</p>
               </div>
               
@@ -118,7 +119,7 @@ const GoalCreateForm = () => {
                 </Label>
                 <Input
                   id="title"
-                  placeholder="e.g., Learn Spanish basics, Read 10 books this year..."
+                  placeholder="e.g., Complete all Learning State modules, Master focus techniques..."
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="text-base p-3 h-12"
@@ -143,7 +144,7 @@ const GoalCreateForm = () => {
           {step === 2 && (
             <div className="space-y-4">
               <div className="text-center py-4">
-                <h3 className="text-lg font-semibold mb-2">What type of goal is this?</h3>
+                <h3 className="text-lg font-semibold mb-2">What type of Learning State goal is this?</h3>
                 <p className="text-gray-600 text-sm">This helps us give you better suggestions</p>
               </div>
 
@@ -240,7 +241,7 @@ const GoalCreateForm = () => {
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Tell us more about your goal and why it's important to you..."
+                    placeholder="Describe your Learning State goal and why it's important for your development..."
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="mt-2 min-h-20"
@@ -275,7 +276,7 @@ const GoalCreateForm = () => {
                   disabled={saving}
                   className="flex-1 fpk-gradient text-white"
                 >
-                  {saving ? 'Creating...' : 'Create Goal! 🎯'}
+                  {saving ? 'Creating...' : 'Create Learning Goal! 🎯'}
                 </Button>
               </div>
             </div>
