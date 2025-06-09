@@ -31,6 +31,7 @@ export function useEnrolledCourses() {
   useEffect(() => {
     async function fetchCourses() {
       if (!user?.id) {
+        console.log('No user found, skipping course fetch');
         setLoading(false);
         return;
       }
@@ -41,7 +42,7 @@ export function useEnrolledCourses() {
 
         console.log('Fetching enrolled courses for user:', user.id);
 
-        // Join enrollments → courses
+        // Join enrollments with courses
         const { data, error: fetchError } = await supabase
           .from('enrollments')
           .select(`
@@ -50,7 +51,7 @@ export function useEnrolledCourses() {
             course_id,
             enrolled_at,
             progress,
-            courses!inner (
+            courses (
               id,
               title,
               description,
@@ -60,24 +61,39 @@ export function useEnrolledCourses() {
               updated_at
             )
           `)
-          .eq('user_id', user.id)
-          .order('courses.featured', { ascending: false }); // featured courses first
+          .eq('user_id', user.id);
 
         if (fetchError) {
           console.error('Failed to fetch courses:', fetchError);
-          setError('Failed to load courses');
+          setError(`Failed to load courses: ${fetchError.message}`);
           return;
         }
 
-        console.log('Fetched enrollments:', data);
+        console.log('Raw enrollment data:', data);
 
-        // Extract courses from the enrollment data
-        const enrolledCourses = (data as EnrollmentWithCourse[])?.map((enrollment) => enrollment.courses) || [];
+        if (!data || data.length === 0) {
+          console.log('No enrollments found for user');
+          setCourses([]);
+          return;
+        }
+
+        // Extract courses from the enrollment data and ensure they have the correct structure
+        const enrolledCourses = data
+          .filter((enrollment: any) => enrollment.courses) // Filter out any enrollments without course data
+          .map((enrollment: any) => enrollment.courses)
+          .sort((a: Course, b: Course) => {
+            // Sort featured courses first
+            if (a.featured && !b.featured) return -1;
+            if (!a.featured && b.featured) return 1;
+            return 0;
+          });
+
+        console.log('Processed courses:', enrolledCourses);
         setCourses(enrolledCourses);
 
       } catch (err) {
         console.error('Error in fetchCourses:', err);
-        setError('An unexpected error occurred');
+        setError('An unexpected error occurred while loading courses');
       } finally {
         setLoading(false);
       }
@@ -86,10 +102,13 @@ export function useEnrolledCourses() {
     fetchCourses();
   }, [user?.id]);
 
-  return { courses, loading, error, refetch: () => {
+  const refetch = async () => {
     if (user?.id) {
       setLoading(true);
-      // Re-run the effect by updating a dependency
+      // Re-trigger the effect by updating the dependency
+      // The useEffect will handle the actual fetching
     }
-  }};
+  };
+
+  return { courses, loading, error, refetch };
 }
