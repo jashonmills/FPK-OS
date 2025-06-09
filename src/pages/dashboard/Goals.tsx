@@ -1,26 +1,33 @@
 
 import React from 'react';
-import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
-import { useDualLanguage } from '@/hooks/useDualLanguage';
-import DualLanguageText from '@/components/DualLanguageText';
+import { XPTracker } from '@/components/goals/XPTracker';
+import { ActiveGoalsList } from '@/components/goals/ActiveGoalsList';
+import { AchievementsList } from '@/components/goals/AchievementsList';
+import { GoalReminders } from '@/components/goals/GoalReminders';
 
 const Goals = () => {
-  const { t } = useDualLanguage();
-
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          <DualLanguageText translationKey="nav.goals" fallback="Goals" />
-        </h1>
-        <p className="text-gray-600">
-          <DualLanguageText 
-            translationKey="goals.description" 
-            fallback="Track your learning objectives and celebrate your progress" 
-          />
-        </p>
+      {/* Hero Section with XP Tracker */}
+      <XPTracker />
+      
+      {/* Three Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Active Learning Goals */}
+        <div className="lg:col-span-1">
+          <ActiveGoalsList />
+        </div>
+        
+        {/* Center Column - Achievements & Rewards */}
+        <div className="lg:col-span-1">
+          <AchievementsList />
+        </div>
+        
+        {/* Right Column - Goal Reminders */}
+        <div className="lg:col-span-1">
+          <GoalReminders />
+        </div>
       </div>
-      <GoalsDashboard />
     </div>
   );
 };
