@@ -9,6 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      courses: {
+        Row: {
+          asset_path: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          asset_path?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          asset_path?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      enrollments: {
+        Row: {
+          course_id: string
+          enrolled_at: string | null
+          id: string
+          progress: Json | null
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          enrolled_at?: string | null
+          id?: string
+          progress?: Json | null
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          enrolled_at?: string | null
+          id?: string
+          progress?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           app_reminders: Json | null
