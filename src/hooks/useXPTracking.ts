@@ -20,8 +20,11 @@ export const useXPTracking = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('useXPTracking - User changed:', user);
     if (user) {
       loadXPData();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -37,6 +40,7 @@ export const useXPTracking = () => {
   };
 
   const loadXPData = async () => {
+    console.log('useXPTracking - Loading XP data for user:', user?.id);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -44,19 +48,36 @@ export const useXPTracking = () => {
         .eq('id', user!.id)
         .single();
 
+      console.log('useXPTracking - Query result:', { data, error });
+
       if (error) {
         console.error('Error loading XP data:', error);
+        // If no profile exists, create default data
+        if (error.code === 'PGRST116') {
+          console.log('useXPTracking - No profile found, using defaults');
+          setXpData({
+            totalXP: 0,
+            currentStreak: 0,
+            level: 1,
+            xpToNextLevel: 1000,
+            lastActivityDate: null
+          });
+        }
+        setLoading(false);
         return;
       }
 
       const totalXP = data?.total_xp || 0;
-      setXpData({
+      const newXpData = {
         totalXP,
         currentStreak: data?.current_streak || 0,
         level: calculateLevel(totalXP),
         xpToNextLevel: calculateXPToNextLevel(totalXP),
         lastActivityDate: data?.last_activity_date
-      });
+      };
+      
+      console.log('useXPTracking - Setting XP data:', newXpData);
+      setXpData(newXpData);
     } catch (error) {
       console.error('Error in loadXPData:', error);
     } finally {

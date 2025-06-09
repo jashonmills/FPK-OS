@@ -36,6 +36,8 @@ const Goals = () => {
     );
   }
 
+  console.log('Goals page - Rendering main content for user:', user.id);
+
   return (
     <div className="p-6">
       {/* Hero Section with XP Tracker */}
