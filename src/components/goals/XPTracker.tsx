@@ -2,12 +2,13 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import DualLanguageText from '@/components/DualLanguageText';
 import { useXPTracking } from '@/hooks/useXPTracking';
+import { useTranslation } from 'react-i18next';
 import { Trophy, Zap, Target } from 'lucide-react';
 
 export const XPTracker = () => {
   const { xpData, loading } = useXPTracking();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
@@ -28,17 +29,17 @@ export const XPTracker = () => {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">
-            <DualLanguageText translationKey="goals.title" />
+            {t('goals.title')}
           </h1>
           <p className="text-white/80">
-            <DualLanguageText translationKey="goals.subtitle" />
+            {t('goals.subtitle')}
           </p>
         </div>
         <div className="text-right">
           <div className="flex items-center gap-2 mb-1">
             <Trophy className="h-5 w-5" />
             <span className="text-sm">
-              <DualLanguageText translationKey="goals.heroLevel" />
+              {t('goals.heroLevel')}
             </span>
             <span className="text-2xl font-bold">{xpData.level}</span>
           </div>
@@ -46,7 +47,7 @@ export const XPTracker = () => {
             <Zap className="h-4 w-4" />
             <span className="text-lg font-semibold">{xpData.totalXP.toLocaleString()}</span>
             <span className="text-sm">
-              <DualLanguageText translationKey="goals.heroXP" />
+              {t('goals.heroXP')}
             </span>
           </div>
         </div>
@@ -58,7 +59,7 @@ export const XPTracker = () => {
             <div className="flex items-center gap-2 mb-2">
               <Target className="h-4 w-4" />
               <span className="text-sm">
-                <DualLanguageText translationKey="goals.nextMilestone" />
+                {t('goals.nextMilestone')}
               </span>
             </div>
             <div className="space-y-2">
@@ -78,7 +79,7 @@ export const XPTracker = () => {
           <CardContent className="p-4 text-center">
             <div className="text-3xl font-bold mb-1">{xpData.currentStreak}</div>
             <div className="text-sm">
-              <DualLanguageText translationKey="goals.currentStreak" />
+              {t('goals.currentStreak')}
             </div>
             <div className="mt-2 text-xl">🔥</div>
           </CardContent>
@@ -88,7 +89,7 @@ export const XPTracker = () => {
           <CardContent className="p-4 text-center">
             <div className="text-2xl mb-2">🎯</div>
             <div className="text-sm">
-              <DualLanguageText translationKey="goals.stats.totalXP" />
+              {t('goals.stats.totalXP')}
             </div>
             <div className="text-xl font-bold">{xpData.totalXP.toLocaleString()}</div>
           </CardContent>

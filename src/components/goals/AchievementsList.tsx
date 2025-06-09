@@ -2,12 +2,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import DualLanguageText from '@/components/DualLanguageText';
+import { useTranslation } from 'react-i18next';
 import { Trophy, Lock, Star } from 'lucide-react';
 import { useAchievements, predefinedAchievements } from '@/hooks/useAchievements';
 
 export const AchievementsList = () => {
   const { achievements, loading, hasAchievement } = useAchievements();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
@@ -28,7 +29,7 @@ export const AchievementsList = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-amber-600" />
-          <DualLanguageText translationKey="goals.sections.achievements" />
+          {t('goals.sections.achievements')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -46,19 +47,19 @@ export const AchievementsList = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className={`font-semibold text-sm ${isUnlocked ? 'text-amber-800' : 'text-gray-600'}`}>
-                        <DualLanguageText translationKey={achievement.name} />
+                        {t(achievement.name)}
                       </h4>
                       {isUnlocked ? (
                         <Badge variant="secondary" className="bg-amber-100 text-amber-800 text-xs">
                           <Star className="h-3 w-3 mr-1" />
-                          <DualLanguageText translationKey="goals.xpRewards.medium" />
+                          {t('goals.xpRewards.medium')}
                         </Badge>
                       ) : (
                         <Lock className="h-3 w-3 text-gray-400" />
                       )}
                     </div>
                     <p className={`text-xs ${isUnlocked ? 'text-amber-700' : 'text-gray-500'}`}>
-                      <DualLanguageText translationKey={achievement.description} />
+                      {t(achievement.description)}
                     </p>
                   </div>
                   

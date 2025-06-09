@@ -5,9 +5,11 @@ import { ActiveGoalsList } from '@/components/goals/ActiveGoalsList';
 import { AchievementsList } from '@/components/goals/AchievementsList';
 import { GoalReminders } from '@/components/goals/GoalReminders';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 const Goals = () => {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
 
   console.log('Goals page - User:', user);
   console.log('Goals page - Loading:', loading);

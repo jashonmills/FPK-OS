@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import DualLanguageText from '@/components/DualLanguageText';
+import { useTranslation } from 'react-i18next';
 import { Bell, Calendar, BookOpen, Flame, Target } from 'lucide-react';
 import { useXPTracking } from '@/hooks/useXPTracking';
 
@@ -17,6 +17,7 @@ interface Reminder {
 
 export const GoalReminders = () => {
   const { addXP } = useXPTracking();
+  const { t } = useTranslation();
 
   const reminders: Reminder[] = [
     {
@@ -90,7 +91,7 @@ export const GoalReminders = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-blue-600" />
-          <DualLanguageText translationKey="goals.sections.reminders" />
+          {t('goals.sections.reminders')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -104,10 +105,10 @@ export const GoalReminders = () => {
                 
                 <div className="flex-1">
                   <h4 className={`font-semibold text-sm mb-1 ${getPriorityTextColor(reminder.priority)}`}>
-                    <DualLanguageText translationKey={reminder.title} />
+                    {t(reminder.title)}
                   </h4>
                   <p className="text-xs text-gray-600 mb-2">
-                    <DualLanguageText translationKey={reminder.description} />
+                    {t(reminder.description)}
                   </p>
                   
                   <Button
@@ -116,7 +117,7 @@ export const GoalReminders = () => {
                     className="h-6 text-xs"
                     onClick={() => handleReminderAction(reminder)}
                   >
-                    <DualLanguageText translationKey={reminder.action} />
+                    {t(reminder.action)}
                   </Button>
                 </div>
               </div>

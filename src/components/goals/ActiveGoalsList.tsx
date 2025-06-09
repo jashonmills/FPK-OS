@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import DualLanguageText from '@/components/DualLanguageText';
+import { useTranslation } from 'react-i18next';
 import { Target, Clock, CheckCircle } from 'lucide-react';
 import { useXPTracking } from '@/hooks/useXPTracking';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -22,6 +22,7 @@ interface ActiveGoal {
 export const ActiveGoalsList = () => {
   const { addXP } = useXPTracking();
   const { unlockAchievement } = useAchievements();
+  const { t } = useTranslation();
 
   // Sample Learning State course goals
   const activeGoals: ActiveGoal[] = [
@@ -91,7 +92,7 @@ export const ActiveGoalsList = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5 text-purple-600" />
-          <DualLanguageText translationKey="goals.sections.activeGoals" />
+          {t('goals.sections.activeGoals')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -102,19 +103,19 @@ export const ActiveGoalsList = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-semibold text-sm">
-                      <DualLanguageText translationKey={goal.title} />
+                      {t(goal.title)}
                     </h4>
                     <Badge variant={getBadgeVariant(goal.type)} className="text-xs">
-                      <DualLanguageText translationKey={`goals.goalTypes.${goal.type}`} />
+                      {t(`goals.goalTypes.${goal.type}`)}
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600 mb-2">
-                    <DualLanguageText translationKey={goal.description} />
+                    {t(goal.description)}
                   </p>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-purple-600 font-semibold">
-                    <DualLanguageText translationKey={goal.xpReward >= 150 ? "goals.xpRewards.large" : goal.xpReward >= 100 ? "goals.xpRewards.medium" : "goals.xpRewards.small"} />
+                    {t(goal.xpReward >= 150 ? "goals.xpRewards.large" : goal.xpReward >= 100 ? "goals.xpRewards.medium" : "goals.xpRewards.small")}
                   </div>
                 </div>
               </div>
