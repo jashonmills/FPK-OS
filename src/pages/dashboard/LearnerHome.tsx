@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,9 +47,13 @@ const LearnerHome = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
-  const { goals, loading: goalsLoading } = useGoals();
+  const { goals, loading: goalsLoading, refetch } = useGoals();
   const { t } = useDualLanguage();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  // Debug logging
+  console.log('Goals data:', goals);
+  console.log('Goals loading:', goalsLoading);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -66,6 +71,13 @@ const LearnerHome = () => {
       }
     }
   }, [user, profileLoading]);
+
+  // Refetch goals when component mounts or user changes
+  useEffect(() => {
+    if (user && !goalsLoading) {
+      refetch();
+    }
+  }, [user, refetch]);
 
   const handleWelcomeComplete = () => {
     localStorage.setItem('fpk_welcome_shown', 'true');
@@ -114,6 +126,9 @@ const LearnerHome = () => {
   const completedGoals = goals.filter(goal => goal.status === 'completed');
   const goalCompletionRate = goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0;
 
+  console.log('Active goals:', activeGoals);
+  console.log('All goals:', goals);
+
   // Empty state data - will be replaced with real Supabase data
   const timeSpentData = [];
   const progressData = [];
@@ -137,7 +152,7 @@ const LearnerHome = () => {
     </div>
   );
 
-  if (authLoading || profileLoading || goalsLoading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
         <div className="text-gray-500">{renderDualText('common.loading')}</div>
@@ -389,7 +404,11 @@ const LearnerHome = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {activeGoals.length === 0 ? (
+              {goalsLoading ? (
+                <div className="text-center py-8">
+                  <div className="text-sm text-gray-500">Loading goals...</div>
+                </div>
+              ) : activeGoals.length === 0 ? (
                 <div className="text-center py-8">
                   <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="font-semibold text-gray-900 mb-2">No active goals</h3>
