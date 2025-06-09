@@ -6,17 +6,17 @@ import { BookOpen } from 'lucide-react';
 
 const LearningStateCourse = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const overviewRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (iframeRef.current && headerRef.current) {
-        const iframeTop = iframeRef.current.getBoundingClientRect().top;
-        const headerHeight = headerRef.current.scrollHeight;
+      if (overviewRef.current) {
+        const overviewRect = overviewRef.current.getBoundingClientRect();
+        const stickyHeaderHeight = 48;
         
-        // Collapse when iframe reaches the top of viewport
-        setIsCollapsed(iframeTop <= 48);
+        // Collapse when the overview section scrolls up behind where the sticky header will be
+        setIsCollapsed(overviewRect.bottom <= stickyHeaderHeight);
       }
     };
 
@@ -26,9 +26,9 @@ const LearningStateCourse = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Sticky Header Bar */}
+      {/* Sticky Header Bar - appears when collapsed */}
       <div 
-        className="sticky top-0 z-10 fpk-gradient transition-all duration-300 ease-in-out"
+        className="sticky top-0 z-20 fpk-gradient transition-all duration-300 ease-in-out"
         style={{
           height: isCollapsed ? '48px' : '0px',
           opacity: isCollapsed ? 1 : 0,
@@ -43,13 +43,10 @@ const LearningStateCourse = () => {
         </div>
       </div>
 
-      {/* Course Overview Section - Collapsible */}
+      {/* Course Overview Section - Natural height, slides behind header */}
       <div 
-        ref={headerRef}
-        className="bg-white border-b transition-all duration-300 ease-in-out overflow-hidden"
-        style={{
-          height: isCollapsed ? '0px' : '200px',
-        }}
+        ref={overviewRef}
+        className="bg-white border-b relative z-10"
       >
         <div className="max-w-4xl mx-auto p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -94,7 +91,7 @@ const LearningStateCourse = () => {
         </div>
       </div>
 
-      {/* Embedded Course Player */}
+      {/* Embedded Course Player - fills remaining space */}
       <div ref={iframeRef} className="flex-1 relative">
         <iframe
           src="https://preview--course-start-kit-react.lovable.app/"
