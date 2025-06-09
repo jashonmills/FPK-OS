@@ -7,31 +7,34 @@ import { BookOpen } from 'lucide-react';
 const LearningStateCourse = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const overviewRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (overviewRef.current) {
-        const overviewRect = overviewRef.current.getBoundingClientRect();
-        const stickyHeaderHeight = 48;
-        
-        // Collapse when the overview section scrolls up behind where the sticky header will be
-        setIsCollapsed(overviewRect.bottom <= stickyHeaderHeight);
-      }
-    };
+    const overview = overviewRef.current;
+    if (!overview) return;
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsCollapsed(!entry.isIntersecting);
+      },
+      { 
+        rootMargin: '-48px 0px 0px 0px' // Matches sticky header height
+      }
+    );
+
+    observer.observe(overview);
+
+    return () => observer.disconnect();
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Sticky Header Bar - appears when collapsed */}
+      {/* Sticky Header Bar - always visible when collapsed */}
       <div 
         className="sticky top-0 z-20 fpk-gradient transition-all duration-300 ease-in-out"
         style={{
-          height: isCollapsed ? '48px' : '0px',
+          height: '48px',
           opacity: isCollapsed ? 1 : 0,
+          visibility: isCollapsed ? 'visible' : 'hidden',
         }}
       >
         <div className="flex items-center gap-3 px-6 h-full">
@@ -43,10 +46,15 @@ const LearningStateCourse = () => {
         </div>
       </div>
 
-      {/* Course Overview Section - Natural height, slides behind header */}
+      {/* Course Overview Section - slides behind header when scrolled */}
       <div 
         ref={overviewRef}
-        className="bg-white border-b relative z-10"
+        className="bg-white border-b relative z-10 transition-all duration-300 ease-in-out"
+        style={{
+          opacity: isCollapsed ? 0 : 1,
+          transform: isCollapsed ? 'translateY(-100%)' : 'translateY(0)',
+          pointerEvents: isCollapsed ? 'none' : 'auto',
+        }}
       >
         <div className="max-w-4xl mx-auto p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -91,8 +99,14 @@ const LearningStateCourse = () => {
         </div>
       </div>
 
-      {/* Embedded Course Player - fills remaining space */}
-      <div ref={iframeRef} className="flex-1 relative">
+      {/* Embedded Course Player - fills remaining viewport space */}
+      <div 
+        className="relative"
+        style={{
+          height: 'calc(100vh - 48px)', // Account for sticky header
+          width: '100%'
+        }}
+      >
         <iframe
           src="https://preview--course-start-kit-react.lovable.app/"
           title="Learning State Course Player"
