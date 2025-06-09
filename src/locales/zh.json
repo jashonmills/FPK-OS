@@ -49,11 +49,63 @@
       "communityActivity": "社区活动",
       "joinCommunity": "加入社区",
       "joinCommunityDesc": "与学习伙伴建立联系",
-      "exploreCommunity": "探索社区"
+      "exploreCommunity": "探索社区",
+      "personalGoals": "个人目标"
     },
     "badges": {
       "learner": "学习者",
       "level1": "1级"
+    }
+  },
+  "goals": {
+    "myGoals": "我的目标",
+    "createNew": "创建目标",
+    "createFirst": "创建你的第一个目标",
+    "description": "跟踪你的学习目标并庆祝你的进步",
+    "stats": {
+      "totalGoals": "总目标",
+      "activeGoals": "活跃目标",
+      "completedGoals": "已完成",
+      "completionRate": "完成率"
+    },
+    "tabs": {
+      "all": "全部",
+      "active": "活跃",
+      "completed": "已完成",
+      "paused": "已暂停"
+    },
+    "empty": {
+      "allTitle": "未找到目标",
+      "allDescription": "首先创建你的第一个目标来跟踪学习进度",
+      "activeTitle": "没有活跃目标",
+      "activeDescription": "创建一个新目标来开始跟踪你的进度",
+      "completedTitle": "还没有完成的目标",
+      "completedDescription": "完成你的活跃目标以在这里看到它们",
+      "pausedTitle": "没有暂停的目标",
+      "pausedDescription": "暂停的目标将显示在这里"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "status": {
+      "active": "活跃",
+      "completed": "已完成",
+      "paused": "已暂停"
+    },
+    "progress": "进度",
+    "created": "创建于",
+    "due": "截止",
+    "actions": {
+      "markComplete": "标记完成",
+      "pause": "暂停",
+      "resume": "恢复",
+      "delete": "删除"
+    },
+    "deleteDialog": {
+      "title": "删除目标",
+      "description": "你确定要删除这个目标吗？此操作无法撤销。"
     }
   },
   "auth": {

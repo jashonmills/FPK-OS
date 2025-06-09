@@ -49,11 +49,63 @@
       "communityActivity": "Community Activity",
       "joinCommunity": "Join the Community",
       "joinCommunityDesc": "Connect with fellow learners",
-      "exploreCommunity": "Explore Community"
+      "exploreCommunity": "Explore Community",
+      "personalGoals": "Personal Goals"
     },
     "badges": {
       "learner": "Learner",
       "level1": "Level 1"
+    }
+  },
+  "goals": {
+    "myGoals": "My Goals",
+    "createNew": "Create Goal",
+    "createFirst": "Create Your First Goal",
+    "description": "Track your learning objectives and celebrate your progress",
+    "stats": {
+      "totalGoals": "Total Goals",
+      "activeGoals": "Active Goals",
+      "completedGoals": "Completed",
+      "completionRate": "Completion Rate"
+    },
+    "tabs": {
+      "all": "All",
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "empty": {
+      "allTitle": "No goals found",
+      "allDescription": "Start by creating your first goal to track your learning progress",
+      "activeTitle": "No active goals",
+      "activeDescription": "Create a new goal to start tracking your progress",
+      "completedTitle": "No completed goals yet",
+      "completedDescription": "Complete your active goals to see them here",
+      "pausedTitle": "No paused goals",
+      "pausedDescription": "Paused goals will appear here"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "progress": "Progress",
+    "created": "Created",
+    "due": "Due",
+    "actions": {
+      "markComplete": "Mark Complete",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete Goal",
+      "description": "Are you sure you want to delete this goal? This action cannot be undone."
     }
   },
   "auth": {
