@@ -39,15 +39,8 @@ const LearningStateCourse = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Sticky Header Bar - always visible when collapsed */}
-      <div 
-        className="sticky top-0 z-20 fpk-gradient transition-all duration-300 ease-in-out"
-        style={{
-          height: '48px',
-          opacity: isCollapsed ? 1 : 0,
-          visibility: isCollapsed ? 'visible' : 'hidden',
-        }}
-      >
+      {/* Sticky Header Bar - always visible */}
+      <div className="sticky top-0 z-20 fpk-gradient h-12">
         <div className="flex items-center justify-between px-6 h-full">
           <div className="flex items-center gap-3">
             <div className="p-1.5 bg-white/20 rounded-lg">
