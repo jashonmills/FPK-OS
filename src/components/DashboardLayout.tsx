@@ -59,7 +59,7 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
           </div>
         </div>
         
-        {/* Main content area */}
+        {/* Main content area - also extends to sidebar edge */}
         <main className={`
           flex-1 overflow-auto transition-all duration-200 ease-linear
           ${state === "expanded" 
