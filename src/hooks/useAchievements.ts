@@ -69,24 +69,34 @@ export const useAchievements = () => {
   useEffect(() => {
     if (user) {
       loadAchievements();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
   const loadAchievements = async () => {
+    if (!user?.id) {
+      console.log('useAchievements - No user ID available');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('achievements')
         .select('*')
+        .eq('user_id', user.id)
         .order('unlocked_at', { ascending: false });
 
       if (error) {
         console.error('Error loading achievements:', error);
-        return;
+        setAchievements([]);
+      } else {
+        setAchievements(data || []);
       }
-
-      setAchievements(data || []);
     } catch (error) {
       console.error('Error in loadAchievements:', error);
+      setAchievements([]);
     } finally {
       setLoading(false);
     }

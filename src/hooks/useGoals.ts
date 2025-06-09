@@ -19,29 +19,39 @@ export const useGoals = () => {
   useEffect(() => {
     if (user) {
       loadGoals();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
   const loadGoals = async () => {
+    if (!user?.id) {
+      console.log('useGoals - No user ID available');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('goals')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error loading goals:', error);
+        setGoals([]);
         toast({
           title: "Error",
           description: "Failed to load goals.",
           variant: "destructive",
         });
-        return;
+      } else {
+        setGoals(data || []);
       }
-
-      setGoals(data || []);
     } catch (error) {
       console.error('Error in loadGoals:', error);
+      setGoals([]);
       toast({
         title: "Error",
         description: "Failed to load goals.",

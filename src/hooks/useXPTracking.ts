@@ -40,40 +40,50 @@ export const useXPTracking = () => {
   };
 
   const loadXPData = async () => {
-    console.log('useXPTracking - Loading XP data for user:', user?.id);
+    if (!user?.id) {
+      console.log('useXPTracking - No user ID available');
+      setLoading(false);
+      return;
+    }
+
+    console.log('useXPTracking - Loading XP data for user:', user.id);
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('total_xp, current_streak, last_activity_date')
-        .eq('id', user!.id)
-        .single();
+        .eq('id', user.id)
+        .maybeSingle();
 
       console.log('useXPTracking - Query result:', { data, error });
 
       if (error) {
         console.error('Error loading XP data:', error);
-        // If no profile exists, create default data
-        if (error.code === 'PGRST116') {
-          console.log('useXPTracking - No profile found, using defaults');
-          setXpData({
-            totalXP: 0,
-            currentStreak: 0,
-            level: 1,
-            xpToNextLevel: 1000,
-            lastActivityDate: null
-          });
-        }
+        // If error, use default values but still set loading to false
+        setXpData({
+          totalXP: 0,
+          currentStreak: 0,
+          level: 1,
+          xpToNextLevel: 1000,
+          lastActivityDate: null
+        });
         setLoading(false);
         return;
       }
 
-      const totalXP = data?.total_xp || 0;
+      // If no profile exists, create one with default values
+      if (!data) {
+        console.log('useXPTracking - No profile found, creating default profile');
+        await createDefaultProfile();
+        return;
+      }
+
+      const totalXP = data.total_xp || 0;
       const newXpData = {
         totalXP,
-        currentStreak: data?.current_streak || 0,
+        currentStreak: data.current_streak || 0,
         level: calculateLevel(totalXP),
         xpToNextLevel: calculateXPToNextLevel(totalXP),
-        lastActivityDate: data?.last_activity_date
+        lastActivityDate: data.last_activity_date
       };
       
       console.log('useXPTracking - Setting XP data:', newXpData);
@@ -82,6 +92,31 @@ export const useXPTracking = () => {
       console.error('Error in loadXPData:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createDefaultProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          total_xp: 0,
+          current_streak: 0,
+          last_activity_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (error) {
+        console.error('Error creating default profile:', error);
+      } else {
+        console.log('useXPTracking - Created default profile');
+        // Reload data after creating profile
+        await loadXPData();
+      }
+    } catch (error) {
+      console.error('Error in createDefaultProfile:', error);
     }
   };
 
