@@ -50,9 +50,9 @@ const LearningStateCourse = () => {
     <SidebarProvider>
       <div className={`min-h-screen flex w-full ${getAccessibilityClasses('container')}`}>
         <AppSidebar />
-        <div className="flex-1 flex flex-col bg-background overflow-hidden">
-          {/* Sticky Header Bar - always visible */}
-          <div className="sticky top-0 z-20 fpk-gradient h-12 flex-shrink-0">
+        <div className="flex-1 flex flex-col bg-background">
+          {/* Sticky Header Bar - always visible with higher z-index */}
+          <div className="sticky top-0 z-30 fpk-gradient h-12 flex-shrink-0">
             <div className="flex items-center justify-between px-3 sm:px-6 h-full">
               <div className="flex items-center gap-2 sm:gap-3">
                 <SidebarTrigger className="text-white hover:bg-white/20" />
@@ -88,8 +88,8 @@ const LearningStateCourse = () => {
             </div>
           </div>
 
-          {/* Scrollable container for the rest of the content */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Main content area with proper scrolling */}
+          <div className="flex-1 relative">
             {/* Course Overview Section - scrolls behind header */}
             <div 
               ref={overviewRef}
@@ -163,14 +163,14 @@ const LearningStateCourse = () => {
               </div>
             </div>
 
-            {/* Embedded Course Player - takes remaining space */}
-            <div className="w-full" style={{ minHeight: isMobile ? '70vh' : '80vh' }}>
+            {/* Embedded Course Player - positioned to start after overview */}
+            <div className="relative z-20 bg-white" style={{ minHeight: isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)' }}>
               <iframe
                 src="https://preview--course-start-kit-react.lovable.app/"
                 title="Learning State Course Player"
                 className="w-full h-full border-0"
                 style={{ 
-                  minHeight: isMobile ? '70vh' : '80vh',
+                  minHeight: isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)',
                   height: '100%'
                 }}
                 allowFullScreen
