@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_name: string
+          achievement_type: string
+          created_at: string
+          id: string
+          unlocked_at: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          achievement_name: string
+          achievement_type: string
+          created_at?: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          achievement_name?: string
+          achievement_type?: string
+          created_at?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           asset_path: string | null
@@ -128,6 +158,7 @@ export type Database = {
           color_contrast: string | null
           comfort_mode: string | null
           created_at: string | null
+          current_streak: number | null
           date_format: string | null
           display_name: string | null
           dual_language_enabled: boolean | null
@@ -135,6 +166,7 @@ export type Database = {
           font_family: string | null
           full_name: string | null
           id: string
+          last_activity_date: string | null
           learning_styles: string[] | null
           line_spacing: number | null
           primary_language: string | null
@@ -143,6 +175,7 @@ export type Database = {
           text_size: number | null
           time_format: string | null
           timezone: string | null
+          total_xp: number | null
           two_factor_enabled: boolean | null
           updated_at: string | null
         }
@@ -154,6 +187,7 @@ export type Database = {
           color_contrast?: string | null
           comfort_mode?: string | null
           created_at?: string | null
+          current_streak?: number | null
           date_format?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
@@ -161,6 +195,7 @@ export type Database = {
           font_family?: string | null
           full_name?: string | null
           id: string
+          last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           primary_language?: string | null
@@ -169,6 +204,7 @@ export type Database = {
           text_size?: number | null
           time_format?: string | null
           timezone?: string | null
+          total_xp?: number | null
           two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
@@ -180,6 +216,7 @@ export type Database = {
           color_contrast?: string | null
           comfort_mode?: string | null
           created_at?: string | null
+          current_streak?: number | null
           date_format?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
@@ -187,6 +224,7 @@ export type Database = {
           font_family?: string | null
           full_name?: string | null
           id?: string
+          last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           primary_language?: string | null
@@ -195,6 +233,7 @@ export type Database = {
           text_size?: number | null
           time_format?: string | null
           timezone?: string | null
+          total_xp?: number | null
           two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
