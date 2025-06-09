@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sid
 import { AppSidebar } from '@/components/AppSidebar';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import GlobalHeader from '@/components/GlobalHeader';
+import DualLanguageText from '@/components/DualLanguageText';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,7 +28,9 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
                 <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">FPK</span>
                 </div>
-                <span className="font-semibold text-lg">Learner Portal</span>
+                <span className="font-semibold text-lg">
+                  <DualLanguageText translationKey="common.learnerPortal" />
+                </span>
               </div>
             </div>
 
@@ -46,7 +49,9 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
 
             {/* Right side - placeholder for now */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">User Menu</span>
+              <span className="text-sm text-muted-foreground">
+                <DualLanguageText translationKey="common.userMenu" />
+              </span>
             </div>
           </div>
         </div>

@@ -10,7 +10,8 @@
     "notes": "Notes & Flashcards",
     "community": "Community Hub",
     "settings": "Settings",
-    "support": "Support & FAQs"
+    "support": "Support & FAQs",
+    "dashboard": "Dashboard"
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
@@ -56,6 +57,43 @@
       "learner": "Learner",
       "level1": "Level 1"
     }
+  },
+  "courses": {
+    "title": "My Courses",
+    "subtitle": "Manage your enrolled courses and track progress",
+    "enrollButton": "Enroll in Course",
+    "searchPlaceholder": "Search courses...",
+    "errorTitle": "Error Loading Courses",
+    "noCourses": "No Courses Yet",
+    "noCoursesDesc": "You haven't enrolled in any courses. Start your learning journey today!",
+    "browseCourses": "Browse Courses",
+    "beginCourse": "Begin Course",
+    "continue": "Continue",
+    "backToCourses": "Back to Courses",
+    "courseOutline": "Course Outline",
+    "learningState": {
+      "title": "Learning State",
+      "description": "Master your learning mindset and develop effective study strategies with our flagship beta course.",
+      "playerTitle": "Learning State Course Player",
+      "outline": {
+        "intro": "Introduction to Learning State",
+        "cognitiveLoad": "Cognitive Load Theory",
+        "attention": "Attention and Focus",
+        "memory": "Memory and Retention",
+        "metacognition": "Metacognition"
+      }
+    }
+  },
+  "liveHub": {
+    "title": "Live Learning Hub",
+    "subtitle": "Join live sessions, webinars, and interactive learning experiences",
+    "liveSessions": "Live Sessions",
+    "noSessions": "No Live Sessions",
+    "noSessionsDesc": "Live learning sessions will appear here",
+    "scheduleSession": "Schedule Session",
+    "upcomingEvents": "Upcoming Events",
+    "noEvents": "No Events Scheduled",
+    "noEventsDesc": "Upcoming learning events will be shown here"
   },
   "goals": {
     "myGoals": "My Goals",
@@ -142,6 +180,31 @@
     "restoreDefaults": "Restore Defaults",
     "settingsRestored": "Settings restored",
     "defaultsMessage": "All settings have been restored to defaults.",
+    "learningStyles": "Learning Styles",
+    "addStyle": "Add Style",
+    "addCustomStyle": "Add Custom Style",
+    "customStylePlaceholder": "e.g., Collaborative",
+    "quickAdd": "Quick Add",
+    "avatarUpdated": "Avatar updated",
+    "avatarUpdatedDesc": "Your profile picture has been updated successfully.",
+    "avatarUploadError": "Failed to upload avatar.",
+    "profilePicture": "Profile picture",
+    "uploading": "Uploading...",
+    "changeAvatar": "Change Avatar",
+    "avatarFileInfo": "JPG, PNG up to 5MB",
+    "previewAvatar": "Preview Avatar",
+    "avatarPreview": "Avatar preview",
+    "password": {
+      "fillAllFields": "Please fill in all password fields.",
+      "passwordMismatch": "New passwords do not match.",
+      "minLength": "Password must be at least 6 characters long.",
+      "changePassword": "Change Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "updating": "Updating...",
+      "updatePassword": "Update Password"
+    },
     "tabs": {
       "profile": "Profile",
       "language": "Language",
@@ -179,10 +242,13 @@
       "preview": "Preview"
     },
     "accessibility": {
-      "title": "Display Settings",
+      "title": "Accessibility & Display",
       "fontFamily": "Font Family",
       "fontHelp": "OpenDyslexic is designed to help with dyslexia",
-      "systemFont": "System Default",
+      "systemDefault": "System Default",
+      "openDyslexic": "OpenDyslexic",
+      "arial": "Arial",
+      "georgia": "Georgia",
       "colorContrast": "Color Contrast",
       "standard": "Standard",
       "highContrast": "High Contrast",
@@ -254,6 +320,16 @@
     "learnerPortal": "Learner Portal",
     "signOut": "Sign Out",
     "learningDashboard": "Learning Dashboard",
-    "support": "Support"
+    "support": "Support",
+    "searchPlaceholder": "Search courses, goals...",
+    "userMenu": "User Menu",
+    "myAccount": "My Account",
+    "profileSettings": "Profile Settings",
+    "preferences": "Preferences",
+    "tryAgain": "Try Again",
+    "back": "Back",
+    "beta": "Beta",
+    "user": "User",
+    "confirm": "Confirm"
   }
 }

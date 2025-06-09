@@ -19,11 +19,13 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const GlobalHeader = () => {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
@@ -63,7 +65,7 @@ const GlobalHeader = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search courses, goals..."
+              placeholder={t('common.searchPlaceholder')}
               className="pl-10 bg-muted/50"
             />
           </div>
@@ -96,19 +98,21 @@ const GlobalHeader = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <DualLanguageText translationKey="common.myAccount" />
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
                 <User className="mr-2 h-4 w-4" />
-                Profile Settings
+                <DualLanguageText translationKey="common.profileSettings" />
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
-                Preferences
+                <DualLanguageText translationKey="common.preferences" />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                Sign Out
+                <DualLanguageText translationKey="common.signOut" />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
