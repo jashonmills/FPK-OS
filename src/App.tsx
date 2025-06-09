@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import MyCourses from "./pages/dashboard/MyCourses";
 import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
 import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
 import Settings from "./pages/dashboard/Settings";
+import LearningStateCourse from "./pages/dashboard/LearningStateCourse";
 import NotFound from "./pages/NotFound";
 import { useTranslation } from "react-i18next";
 import { Suspense, useEffect } from "react";
@@ -60,6 +60,14 @@ const AppContent = () => {
         element={
           <DashboardLayout>
             <MyCourses />
+          </DashboardLayout>
+        } 
+      />
+      <Route 
+        path="/dashboard/learner/courses/learning-state" 
+        element={
+          <DashboardLayout>
+            <LearningStateCourse />
           </DashboardLayout>
         } 
       />

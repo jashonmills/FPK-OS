@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ const MyCourses = () => {
   const handleCourseClick = (courseId: string) => {
     if (courseId === 'learning-state-beta') {
       // Navigate to the Learning State beta course
-      navigate(`/dashboard/learner/courses/${courseId}`);
+      navigate('/dashboard/learner/courses/learning-state');
     } else {
       // Handle other courses
       navigate(`/dashboard/learner/courses/${courseId}`);
