@@ -39,11 +39,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
+import GoalCreateForm from '@/components/goals/GoalCreateForm';
+import { useGoals } from '@/hooks/useGoals';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
+  const { goals, loading: goalsLoading } = useGoals();
   const { t } = useDualLanguage();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
@@ -106,6 +109,11 @@ const LearnerHome = () => {
     );
   };
 
+  // Get active goals for display
+  const activeGoals = goals.filter(goal => goal.status === 'active');
+  const completedGoals = goals.filter(goal => goal.status === 'completed');
+  const goalCompletionRate = goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0;
+
   // Empty state data - will be replaced with real Supabase data
   const timeSpentData = [];
   const progressData = [];
@@ -129,7 +137,7 @@ const LearnerHome = () => {
     </div>
   );
 
-  if (authLoading || profileLoading) {
+  if (authLoading || profileLoading || goalsLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
         <div className="text-gray-500">{renderDualText('common.loading')}</div>
@@ -266,13 +274,11 @@ const LearnerHome = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <Award className="h-5 w-5 text-green-600" />
+                  <Target className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">
-                    <DualLanguageText translationKey="dashboard.stats.certificates" />
-                  </p>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-sm text-gray-500">Active Goals</p>
+                  <p className="text-xl font-bold">{activeGoals.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -285,10 +291,8 @@ const LearnerHome = () => {
                   <TrendingUp className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">
-                    <DualLanguageText translationKey="dashboard.stats.streakDays" />
-                  </p>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-sm text-gray-500">Goal Progress</p>
+                  <p className="text-xl font-bold">{goalCompletionRate}%</p>
                 </div>
               </div>
             </CardContent>
@@ -381,20 +385,50 @@ const LearnerHome = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-500" />
-                <DualLanguageText translationKey="dashboard.insights.recommendedGoals" />
+                Personal Goals
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                {renderDualText('dashboard.insights.setFirstGoal', '', 'font-semibold text-gray-900 mb-2')}
-                <p className="text-sm text-gray-500 mb-4">
-                  <DualLanguageText translationKey="dashboard.insights.setFirstGoalDesc" />
-                </p>
-                <Button className="fpk-gradient text-white">
-                  <DualLanguageText translationKey="dashboard.insights.createGoal" />
-                </Button>
-              </div>
+              {activeGoals.length === 0 ? (
+                <div className="text-center py-8">
+                  <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="font-semibold text-gray-900 mb-2">No active goals</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Create your first goal to start tracking your progress
+                  </p>
+                  <GoalCreateForm />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Active Goals</span>
+                    <span className="text-sm text-gray-600">{activeGoals.length} total</span>
+                  </div>
+                  <div className="space-y-2">
+                    {activeGoals.slice(0, 3).map((goal) => (
+                      <div key={goal.id} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium truncate flex-1">{goal.title}</span>
+                          <span className="text-xs text-gray-500">{goal.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1">
+                          <div 
+                            className="fpk-gradient h-1 rounded-full transition-all" 
+                            style={{ width: `${goal.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4"
+                    onClick={() => navigate('/dashboard/learner/goals')}
+                  >
+                    View All Goals
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
