@@ -53,6 +53,7 @@ function App() {
                   <Route path="learner/study" element={<StudyPage />} />
                   <Route path="learner/ai-coach" element={<AIStudyCoach />} />
                   <Route path="learner/live-hub" element={<LiveLearningHub />} />
+                  <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
                   <Route path="learner/settings" element={<Settings />} />
                   
                   {/* Admin Routes */}
