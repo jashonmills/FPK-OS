@@ -3,21 +3,31 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Star, CheckCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { BookOpen, Star, CheckCircle, Clock } from 'lucide-react';
 import type { Course } from '@/hooks/useEnrolledCourses';
 
 interface CourseCardProps {
   course: Course;
   buttonLabel?: string;
   onButtonClick: () => void;
+  progress?: {
+    completion_percentage: number;
+    completed_modules: string[];
+    completed: boolean;
+  };
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({ 
   course, 
   buttonLabel = "Continue", 
-  onButtonClick 
+  onButtonClick,
+  progress 
 }) => {
   const isBetaCourse = course.id === 'learning-state-beta';
+  const completionPercentage = progress?.completion_percentage || 0;
+  const completedModules = progress?.completed_modules?.length || 0;
+  const isCompleted = progress?.completed || false;
 
   return (
     <Card className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">
@@ -41,6 +51,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
                     Beta
                   </Badge>
                 )}
+                {isCompleted && (
+                  <Badge className="bg-green-100 text-green-700">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Completed
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -53,11 +69,45 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {course.description}
           </p>
         )}
+
+        {/* Progress Section */}
+        {isBetaCourse && completionPercentage > 0 && (
+          <div className="mb-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Progress</span>
+              <span className="font-medium">{completionPercentage}%</span>
+            </div>
+            <Progress value={completionPercentage} className="h-2" />
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span>{completedModules} modules completed</span>
+              {completionPercentage > 0 && (
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {Math.round(completedModules * 45)} min studied
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500 flex items-center gap-1">
             {isBetaCourse ? (
-              'Ready to begin'
+              completionPercentage > 0 ? (
+                isCompleted ? (
+                  <>
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                    Course completed!
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-3 w-3 text-blue-500" />
+                    {completionPercentage}% complete
+                  </>
+                )
+              ) : (
+                'Ready to begin'
+              )
             ) : (
               <>
                 <CheckCircle className="h-3 w-3 text-green-500" />
@@ -69,7 +119,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             onClick={onButtonClick}
             className={isBetaCourse ? "fpk-gradient text-white" : ""}
           >
-            {buttonLabel}
+            {isCompleted ? "Review" : buttonLabel}
           </Button>
         </div>
       </CardContent>

@@ -6,6 +6,7 @@ import { BookOpen, Plus, Search, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
 import { useEnrolledCourses } from '@/hooks/useEnrolledCourses';
+import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import CourseCard from '@/components/CourseCard';
 import { useNavigate } from 'react-router-dom';
 import DualLanguageText from '@/components/DualLanguageText';
@@ -18,8 +19,11 @@ const MyCourses = () => {
   // Auto-enroll user in Learning State beta course
   useAutoEnrollLearningState();
   
-  // Fetch enrolled courses
-  const { courses, loading, error, refetch } = useEnrolledCourses();
+  // Fetch enrolled courses and progress
+  const { courses, loading: coursesLoading, error, refetch } = useEnrolledCourses();
+  const { getCourseProgress, refetch: refetchProgress } = useEnrollmentProgress();
+
+  const loading = coursesLoading;
 
   const handleCourseClick = (courseId: string) => {
     if (courseId === 'learning-state-beta') {
@@ -33,6 +37,7 @@ const MyCourses = () => {
 
   const handleRefresh = () => {
     refetch();
+    refetchProgress();
   };
 
   const renderCoursesList = () => {
@@ -100,14 +105,26 @@ const MyCourses = () => {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            buttonLabel={course.id === 'learning-state-beta' ? t('courses.beginCourse') : t('courses.continue')}
-            onButtonClick={() => handleCourseClick(course.id)}
-          />
-        ))}
+        {courses.map((course) => {
+          const progress = getCourseProgress(course.id);
+          return (
+            <CourseCard
+              key={course.id}
+              course={course}
+              progress={progress}
+              buttonLabel={
+                progress.completed
+                  ? t('courses.reviewCourse')
+                  : course.id === 'learning-state-beta' 
+                    ? progress.completion_percentage > 0
+                      ? t('courses.continue')
+                      : t('courses.beginCourse')
+                    : t('courses.continue')
+              }
+              onButtonClick={() => handleCourseClick(course.id)}
+            />
+          );
+        })}
       </div>
     );
   };

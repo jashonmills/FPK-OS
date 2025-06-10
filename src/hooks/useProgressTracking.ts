@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPSystem } from '@/hooks/useXPSystem';
 
 interface ProgressUpdate {
   type: 'module_complete' | 'course_complete' | 'progress_update';
@@ -29,6 +30,7 @@ export function useProgressTracking(courseId: string) {
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { awardXP, calculateModuleXP, calculateProgressXP } = useXPSystem();
 
   // Fetch current progress on mount
   useEffect(() => {
@@ -71,12 +73,18 @@ export function useProgressTracking(courseId: string) {
 
     try {
       let newProgress = { ...currentProgress };
+      let xpAwarded = false;
 
       switch (update.type) {
         case 'module_complete':
           if (update.moduleId && !newProgress.completed_modules.includes(update.moduleId)) {
             newProgress.completed_modules = [...newProgress.completed_modules, update.moduleId];
             newProgress.current_module = update.moduleId;
+            
+            // Award XP for module completion
+            const moduleXP = calculateModuleXP(update.moduleId);
+            await awardXP(moduleXP, `Completed ${update.moduleId.replace('-', ' ')}`);
+            xpAwarded = true;
           }
           break;
 
@@ -86,11 +94,27 @@ export function useProgressTracking(courseId: string) {
           if (update.completedAt) {
             newProgress.completed_at = update.completedAt;
           }
+          
+          // Award course completion XP
+          if (!currentProgress.completed) {
+            await awardXP(200, 'Completed Learning State Course!');
+            xpAwarded = true;
+          }
           break;
 
         case 'progress_update':
           if (update.completionPercentage !== undefined) {
+            const oldPercentage = newProgress.completion_percentage;
             newProgress.completion_percentage = update.completionPercentage;
+            
+            // Award XP for milestone progress
+            const progressXP = calculateProgressXP(update.completionPercentage);
+            const oldProgressXP = calculateProgressXP(oldPercentage);
+            
+            if (progressXP > oldProgressXP) {
+              await awardXP(progressXP - oldProgressXP, `Reached ${update.completionPercentage}% progress`);
+              xpAwarded = true;
+            }
           }
           break;
       }
@@ -110,6 +134,15 @@ export function useProgressTracking(courseId: string) {
       // Update local state
       setCurrentProgress(newProgress);
       console.log('Progress updated successfully:', newProgress);
+
+      if (xpAwarded) {
+        // Trigger a brief delay to allow XP toast to show
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('progressUpdated', { detail: newProgress }));
+        }, 1000);
+      } else {
+        window.dispatchEvent(new CustomEvent('progressUpdated', { detail: newProgress }));
+      }
 
     } catch (error) {
       console.error('Failed to update progress:', error);
