@@ -24,7 +24,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
-      navigate('/dashboard/learner/home');
+      navigate('/dashboard/learner');
     }
   }, [user, loading, navigate]);
 
@@ -61,7 +61,7 @@ const Login = () => {
         description: t('auth.signInSuccess'),
       });
       
-      navigate('/dashboard/learner/home');
+      navigate('/dashboard/learner');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -95,7 +95,7 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard/learner/home`
+          emailRedirectTo: `${window.location.origin}/dashboard/learner`
         }
       });
 
