@@ -37,6 +37,7 @@ function App() {
                   <Route path="learner/my-courses" element={<MyCourses />} />
                   <Route path="learner/learning-analytics" element={<LearningAnalytics />} />
                   <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
+                  <Route path="learner/ai-study-coach" element={<AIStudyCoach />} />
                   <Route path="learner/goals" element={<Goals />} />
                   <Route path="learner/notes" element={<Notes />} />
                   <Route path="learner/settings" element={<Settings />} />
