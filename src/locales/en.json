@@ -41,6 +41,17 @@
     "settings": "Settings",
     "liveHub": "Live Learning Hub"
   },
+  "liveHub": {
+    "title": "Live Learning Hub",
+    "subtitle": "Connect with instructors and peers in real-time learning sessions",
+    "liveSessions": "Live Sessions",
+    "upcomingEvents": "Upcoming Events",
+    "noSessions": "No Active Sessions",
+    "noSessionsDesc": "There are currently no live sessions available. Schedule one to get started!",
+    "noEvents": "No Upcoming Events",
+    "noEventsDesc": "No events are scheduled at this time.",
+    "scheduleSession": "Schedule Session"
+  },
   "auth": {
     "login": "Login",
     "logout": "Logout",

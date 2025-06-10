@@ -41,6 +41,17 @@
     "settings": "设置",
     "liveHub": "实时学习中心"
   },
+  "liveHub": {
+    "title": "实时学习中心",
+    "subtitle": "与讲师和同学实时连接进行学习会话",
+    "liveSessions": "实时会话",
+    "upcomingEvents": "即将到来的活动",
+    "noSessions": "暂无活动会话",
+    "noSessionsDesc": "目前没有可用的实时会话。安排一个会话开始吧！",
+    "noEvents": "暂无即将到来的活动",
+    "noEventsDesc": "目前没有安排活动。",
+    "scheduleSession": "安排会话"
+  },
   "auth": {
     "login": "登录",
     "logout": "登出",

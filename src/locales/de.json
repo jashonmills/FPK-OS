@@ -41,6 +41,17 @@
     "settings": "Einstellungen",
     "liveHub": "Live-Lern-Hub"
   },
+  "liveHub": {
+    "title": "Live-Lern-Hub",
+    "subtitle": "Verbinden Sie sich in Echtzeit mit Lehrern und Mitschülern in Lernsitzungen",
+    "liveSessions": "Live-Sitzungen",
+    "upcomingEvents": "Bevorstehende Veranstaltungen",
+    "noSessions": "Keine aktiven Sitzungen",
+    "noSessionsDesc": "Es sind derzeit keine Live-Sitzungen verfügbar. Planen Sie eine, um loszulegen!",
+    "noEvents": "Keine bevorstehenden Veranstaltungen",
+    "noEventsDesc": "Derzeit sind keine Veranstaltungen geplant.",
+    "scheduleSession": "Sitzung planen"
+  },
   "auth": {
     "login": "Anmelden",
     "logout": "Abmelden",

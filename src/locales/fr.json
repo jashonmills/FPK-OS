@@ -41,6 +41,17 @@
     "settings": "Paramètres",
     "liveHub": "Hub d'Apprentissage en Direct"
   },
+  "liveHub": {
+    "title": "Hub d'Apprentissage en Direct",
+    "subtitle": "Connectez-vous avec les instructeurs et les pairs dans des sessions d'apprentissage en temps réel",
+    "liveSessions": "Sessions en Direct",
+    "upcomingEvents": "Événements à Venir",
+    "noSessions": "Aucune Session Active",
+    "noSessionsDesc": "Il n'y a actuellement aucune session en direct disponible. Programmez-en une pour commencer!",
+    "noEvents": "Aucun Événement à Venir",
+    "noEventsDesc": "Aucun événement n'est programmé pour le moment.",
+    "scheduleSession": "Programmer une Session"
+  },
   "auth": {
     "login": "Se Connecter",
     "logout": "Se Déconnecter",

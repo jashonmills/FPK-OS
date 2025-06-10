@@ -41,6 +41,17 @@
     "settings": "Configuración",
     "liveHub": "Hub de Aprendizaje en Vivo"
   },
+  "liveHub": {
+    "title": "Hub de Aprendizaje en Vivo",
+    "subtitle": "Conéctate con instructores y compañeros en sesiones de aprendizaje en tiempo real",
+    "liveSessions": "Sesiones en Vivo",
+    "upcomingEvents": "Eventos Próximos",
+    "noSessions": "Sin Sesiones Activas",
+    "noSessionsDesc": "Actualmente no hay sesiones en vivo disponibles. ¡Programa una para comenzar!",
+    "noEvents": "Sin Eventos Próximos",
+    "noEventsDesc": "No hay eventos programados en este momento.",
+    "scheduleSession": "Programar Sesión"
+  },
   "auth": {
     "login": "Iniciar Sesión",
     "logout": "Cerrar Sesión",
