@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +18,56 @@ const FileUploadSection: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
+
+  // Set up real-time subscription to file_uploads table
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('file-uploads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'file_uploads',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('File upload updated:', payload);
+          
+          if (payload.new.processing_status === 'completed') {
+            setProcessingProgress(prev => {
+              const newState = { ...prev };
+              delete newState[payload.new.id];
+              return newState;
+            });
+            
+            toast({
+              title: "Flashcards generated!",
+              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
+            });
+          } else if (payload.new.processing_status === 'failed') {
+            setProcessingProgress(prev => {
+              const newState = { ...prev };
+              delete newState[payload.new.id];
+              return newState;
+            });
+            
+            toast({
+              title: "Processing failed",
+              description: payload.new.error_message || "Failed to generate flashcards",
+              variant: "destructive"
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -75,14 +126,6 @@ const FileUploadSection: React.FC = () => {
 
       if (currentStep >= steps) {
         clearInterval(progressInterval);
-        // Clean up progress state after completion
-        setTimeout(() => {
-          setProcessingProgress(prev => {
-            const newState = { ...prev };
-            delete newState[uploadId];
-            return newState;
-          });
-        }, 1000);
       }
     }, interval);
   };
@@ -168,25 +211,10 @@ const FileUploadSection: React.FC = () => {
             });
 
             // Start progress animation
-            simulateProgress(uploadRecord.id, 5000); // 5 seconds for AI processing
+            simulateProgress(uploadRecord.id, 8000); // 8 seconds for AI processing
 
             // Process file with AI
-            const flashcardCount = await processFileForFlashcards(file, uploadRecord.id, filePath);
-            
-            // The edge function handles updating the record, but we'll also refresh here
-            setTimeout(() => {
-              toast({
-                title: "Flashcards generated!",
-                description: `Generated ${flashcardCount} flashcards from ${file.name} using AI`,
-              });
-              
-              // Clean up progress state
-              setProcessingProgress(prev => {
-                const newState = { ...prev };
-                delete newState[uploadRecord.id];
-                return newState;
-              });
-            }, 5000);
+            await processFileForFlashcards(file, uploadRecord.id, filePath);
 
           } catch (error) {
             console.error('AI processing error:', error);
@@ -338,7 +366,7 @@ const FileUploadSection: React.FC = () => {
                     <p className="text-xs text-gray-600 break-words">
                       {processingProgress[upload.id] >= 100 
                         ? 'Finalizing flashcards...' 
-                        : 'Generating flashcards...'
+                        : 'Generating flashcards with AI...'
                       }
                     </p>
                   </div>
