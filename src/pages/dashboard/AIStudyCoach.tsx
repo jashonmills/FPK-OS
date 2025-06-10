@@ -16,7 +16,8 @@ import {
   Clock,
   BookOpen,
   Zap,
-  Trophy
+  Trophy,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudySessions } from '@/hooks/useStudySessions';
@@ -37,6 +38,7 @@ const AIStudyCoach = () => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [chatError, setChatError] = useState('');
 
   // Calculate live stats
   const completedSessions = sessions?.filter(s => s.completed_at) || [];
@@ -69,6 +71,106 @@ const AIStudyCoach = () => {
     return streak;
   }
 
+  // Generate real focus areas from user data
+  const generateTodaysFocus = () => {
+    // First try to use insights recommendations
+    const insightRecommendations = insights
+      .filter(insight => insight.type === 'recommendation')
+      .slice(0, 2)
+      .map(insight => insight.title);
+
+    if (insightRecommendations.length > 0) {
+      return insightRecommendations;
+    }
+
+    // If no insights, generate from flashcard categories and session patterns
+    const focusAreas = [];
+    
+    if (flashcards && flashcards.length > 0) {
+      // Get cards that haven't been reviewed recently
+      const unreviewed = flashcards.filter(card => 
+        !card.last_reviewed_at || 
+        new Date(card.last_reviewed_at) < new Date(Date.now() - 24 * 60 * 60 * 1000)
+      );
+      
+      if (unreviewed.length > 0) {
+        focusAreas.push(`Review ${Math.min(5, unreviewed.length)} flashcards`);
+      }
+
+      // Get cards with low accuracy (if review data exists)
+      const difficultCards = flashcards.filter(card => 
+        card.times_reviewed > 0 && 
+        (card.times_correct / card.times_reviewed) < 0.7
+      );
+      
+      if (difficultCards.length > 0) {
+        focusAreas.push(`Practice ${difficultCards.length} challenging concepts`);
+      }
+    }
+
+    if (completedSessions.length > 0) {
+      const recentAccuracy = completedSessions.slice(0, 5).reduce((sum, s) => {
+        const total = s.total_cards || 1;
+        return sum + (s.correct_answers || 0) / total;
+      }, 0) / Math.min(5, completedSessions.length);
+
+      if (recentAccuracy < 0.75) {
+        focusAreas.push('Focus on accuracy improvement');
+      }
+    }
+
+    return focusAreas.slice(0, 2);
+  };
+
+  // Generate dynamic challenges based on user data
+  const generateQuickChallenges = () => {
+    const challenges = [];
+
+    if (flashcards && flashcards.length >= 3) {
+      challenges.push({
+        text: `Quick review: 3 random flashcards`,
+        icon: BookOpen,
+        action: () => console.log('Starting flashcard review')
+      });
+    }
+
+    if (completedSessions.length > 0) {
+      const avgAccuracy = completedSessions.reduce((sum, s) => {
+        const total = s.total_cards || 1;
+        return sum + (s.correct_answers || 0) / total;
+      }, 0) / completedSessions.length;
+
+      if (avgAccuracy < 0.8) {
+        challenges.push({
+          text: 'Accuracy challenge: Score 90%+ on 5 cards',
+          icon: Target,
+          action: () => console.log('Starting accuracy challenge')
+        });
+      }
+    }
+
+    if (flashcards && flashcards.length >= 5) {
+      challenges.push({
+        text: 'Speed test: Answer 5 cards in 2 minutes',
+        icon: Zap,
+        action: () => console.log('Starting speed test')
+      });
+    }
+
+    // Default challenges if no specific data
+    if (challenges.length === 0) {
+      challenges.push(
+        {
+          text: 'Create your first flashcard to unlock challenges',
+          icon: Brain,
+          action: () => console.log('Navigate to create flashcard')
+        }
+      );
+    }
+
+    return challenges.slice(0, 3);
+  };
+
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
 
@@ -76,6 +178,7 @@ const AIStudyCoach = () => {
     setChatMessage('');
     setChatHistory(prev => [...prev, { role: 'user', message: userMessage }]);
     setIsLoading(true);
+    setChatError('');
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
@@ -98,6 +201,7 @@ const AIStudyCoach = () => {
       }]);
     } catch (error) {
       console.error('Chat error:', error);
+      setChatError("I apologize for the inconvenience. I'm experiencing technical difficulties. Please try asking your question again.");
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
         message: "I apologize for the inconvenience. I'm experiencing technical difficulties. Please try asking your question again."
@@ -107,16 +211,8 @@ const AIStudyCoach = () => {
     }
   };
 
-  const quickChallenges = [
-    { text: "Solve 3 algebra problems in 5 minutes", icon: Target },
-    { text: "Summarize today's lesson in one sentence", icon: BookOpen },
-    { text: "Explain a concept in your own words", icon: Brain }
-  ];
-
-  const todaysFocus = insights
-    .filter(insight => insight.type === 'recommendation')
-    .slice(0, 2)
-    .map(insight => insight.title);
+  const todaysFocus = generateTodaysFocus();
+  const quickChallenges = generateQuickChallenges();
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -185,15 +281,15 @@ const AIStudyCoach = () => {
                 )}
               </div>
 
-              {/* Error Message */}
-              <div className="px-4 py-2 text-center">
-                <p className="text-sm text-red-600">
-                  Connection issue detected. Please check your network and try again.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Error: Failed to send a request to the Edge Function
-                </p>
-              </div>
+              {/* Error Message - Only show when there's an actual error */}
+              {chatError && (
+                <div className="px-4 py-2 text-center border-t bg-red-50">
+                  <div className="flex items-center justify-center gap-2 text-red-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    <p className="text-sm">{chatError}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Chat Input */}
               <div className="border-t p-4">
@@ -259,16 +355,12 @@ const AIStudyCoach = () => {
                       <span className="text-sm">{focus}</span>
                     </div>
                   )) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm">Mathematics - Algebra ({Math.min(45, completedSessions.length * 5 + 15)} mins)</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Target className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm">Science - Physics Concepts ({Math.min(50, completedSessions.length * 3 + 20)} mins)</span>
-                      </div>
-                    </>
+                    <div className="text-center py-4">
+                      <Brain className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm text-muted-foreground">
+                        Complete a study session to get personalized recommendations
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -289,10 +381,7 @@ const AIStudyCoach = () => {
                   key={index}
                   variant="outline" 
                   className="w-full justify-start text-left h-auto p-3"
-                  onClick={() => {
-                    // This would integrate with your existing study system
-                    console.log('Starting challenge:', challenge.text);
-                  }}
+                  onClick={challenge.action}
                 >
                   <challenge.icon className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="text-sm">{challenge.text}</span>
