@@ -1,15 +1,25 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import { TrendingUp, Target, Clock, Award } from 'lucide-react';
 
 const ProgressSection: React.FC = () => {
   const { sessions } = useStudySessions();
   const { flashcards } = useFlashcards();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Invalidate insights when sessions change to trigger refresh
+  React.useEffect(() => {
+    if (sessions.length > 0 && user) {
+      queryClient.invalidateQueries({ queryKey: ['study-insights', user.id] });
+    }
+  }, [sessions.length, user, queryClient]);
 
   // Calculate today's progress
   const today = new Date().toDateString();

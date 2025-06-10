@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +43,7 @@ import GoalCreateForm from '@/components/goals/GoalCreateForm';
 import { useGoals } from '@/hooks/useGoals';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import AIInsightsSection from '@/components/insights/AIInsightsSection';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
@@ -406,21 +406,7 @@ const LearnerHome = () => {
 
         {/* AI Insights */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="fpk-card border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
-                <DualLanguageText translationKey="dashboard.insights.aiInsight" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <Lightbulb className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                {renderDualText('dashboard.insights.noInsights', '', 'font-semibold text-gray-900 mb-2')}
-                {renderDualText('dashboard.insights.noInsightsDesc', '', 'text-sm text-gray-500')}
-              </div>
-            </CardContent>
-          </Card>
+          <AIInsightsSection />
 
           <Card className="fpk-card border-0 shadow-lg">
             <CardHeader>
