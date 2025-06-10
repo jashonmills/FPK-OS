@@ -62,7 +62,7 @@ export function useCourses(options?: {
   });
 
   const createCourseMutation = useMutation({
-    mutationFn: async (courseData: Omit<Course, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (courseData: Omit<Course, 'created_at' | 'updated_at'> & { id?: string }) => {
       const { data, error } = await supabase
         .from('courses')
         .insert(courseData)
