@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -38,56 +39,69 @@ serve(async (req) => {
       );
     }
 
-    // Simple context prompt - keep it minimal for faster processing
-    const contextPrompt = `You are a helpful study coach. Be encouraging and provide brief, actionable advice. Keep responses under 50 words.`;
+    // Very simple and short system prompt for faster response
+    const systemPrompt = `You are a study assistant. Give brief, helpful answers in 20 words or less.`;
 
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
-    });
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-    // Make the OpenAI request with timeout
-    const openAIPromise = fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: contextPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 100 // Reduced for faster response
-      }),
-    });
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: message }
+          ],
+          temperature: 0.3,
+          max_tokens: 50 // Very short responses
+        }),
+        signal: controller.signal
+      });
 
-    const response = await Promise.race([openAIPromise, timeoutPromise]);
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.choices[0]?.message?.content || "I'm here to help with your studies!";
+      
+      console.log('AI response generated successfully');
+
+      return new Response(
+        JSON.stringify({ response: aiResponse }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
-
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
-    
-    console.log('AI response generated successfully');
-
-    return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
 
   } catch (error) {
     console.error('Error in AI chat:', error);
     
-    // Quick fallback response
-    const fallbackResponse = "I'm here to help! While I'm having a moment of technical difficulty, you can still create flashcards, review notes, and track your study progress. What would you like to work on?";
+    // Quick, helpful fallback responses based on common study queries
+    const fallbackResponses = [
+      "Try breaking your study session into 25-minute focused blocks with 5-minute breaks!",
+      "Active recall works better than just re-reading. Test yourself regularly!",
+      "Space out your review sessions over time for better retention.",
+      "Create connections between new concepts and what you already know.",
+      "Practice explaining concepts out loud to check your understanding."
+    ];
+    
+    const randomFallback = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
     
     return new Response(
-      JSON.stringify({ response: fallbackResponse }),
+      JSON.stringify({ response: randomFallback }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
