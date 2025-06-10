@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,9 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, CheckCircle, AlertCircle, X, Clock } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, X, Clock, RefreshCw } from 'lucide-react';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
@@ -33,9 +31,9 @@ const FileUploadSection: React.FC = () => {
     'application/rtf'
   ];
 
-  const maxFileSize = 50 * 1024 * 1024; // Increased to 50MB
+  const maxFileSize = 100 * 1024 * 1024; // Increased to 100MB
 
-  // Set up real-time subscription to file_uploads table
+  // Set up real-time subscription
   useEffect(() => {
     if (!user) return;
 
@@ -71,8 +69,8 @@ const FileUploadSection: React.FC = () => {
             });
             
             toast({
-              title: "✅ Flashcards generated!",
-              description: `Successfully created ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
+              title: "✅ Success!",
+              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
             });
           } else if (payload.new.processing_status === 'failed') {
             // Clear timeout and progress
@@ -132,7 +130,6 @@ const FileUploadSection: React.FC = () => {
     try {
       console.log('Starting enhanced AI processing for file:', file.name);
       
-      // Call the edge function to process the file
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
           uploadId,
@@ -157,14 +154,14 @@ const FileUploadSection: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 3000) => {
-    const steps = 30;
+  const simulateProgress = (uploadId: string, duration: number = 5000) => {
+    const steps = 40;
     const interval = duration / steps;
     let currentStep = 0;
 
     const progressInterval = setInterval(() => {
       currentStep++;
-      const progress = Math.min((currentStep / steps) * 100, 90); // Cap at 90% until real completion
+      const progress = Math.min((currentStep / steps) * 85, 85); // Cap at 85% until completion
       
       setProcessingProgress(prev => ({
         ...prev,
@@ -218,7 +215,6 @@ const FileUploadSection: React.FC = () => {
         continue;
       }
 
-      // Increased file size limit
       if (file.size > maxFileSize) {
         toast({
           title: "❌ File too large",
@@ -257,13 +253,12 @@ const FileUploadSection: React.FC = () => {
 
         toast({
           title: "✅ File uploaded",
-          description: `${file.name} (${formatFileSize(file.size)}) uploaded successfully. AI processing started...`,
+          description: `${file.name} uploaded successfully. Starting AI processing...`,
         });
 
-        // Process with AI immediately after upload
+        // Process with AI after upload
         setTimeout(async () => {
           try {
-            // Find the upload record
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
               .select('*')
@@ -275,23 +270,20 @@ const FileUploadSection: React.FC = () => {
               throw new Error('Upload record not found');
             }
 
-            // Update status to processing
-            updateUpload({
-              id: uploadRecord.id,
-              processing_status: 'processing'
-            });
+            // Start progress animation
+            simulateProgress(uploadRecord.id, 6000);
 
-            // Start enhanced progress animation
-            simulateProgress(uploadRecord.id, 5000);
+            // Set smart timeout based on file size (3-8 minutes)
+            const baseTimeout = 180000; // 3 minutes base
+            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5); // Up to 2.5x for large files
+            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000); // Max 8 minutes
 
-            // Set extended timeout for larger files (2 minutes)
-            const timeoutDuration = Math.min(120000, Math.max(60000, file.size / 1000)); // Dynamic timeout based on file size
             const timeoutId = setTimeout(() => {
               console.log('Processing timeout for upload:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Processing timeout - the file may be too complex. Try breaking it into smaller sections.'
+                error_message: 'Processing timeout - file may be too complex. Try breaking it into smaller sections or use simpler content.'
               });
 
               setProcessingProgress(prev => {
@@ -318,7 +310,6 @@ const FileUploadSection: React.FC = () => {
           } catch (error) {
             console.error('AI processing error:', error);
             
-            // Find and update the upload record with error status
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
               .select('*')
@@ -330,10 +321,9 @@ const FileUploadSection: React.FC = () => {
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Failed to process file with AI - please try again'
+                error_message: 'Failed to process file - please try again or use a simpler file'
               });
 
-              // Clean up progress state and timeout on error
               setProcessingProgress(prev => {
                 const newState = { ...prev };
                 delete newState[uploadRecord.id];
@@ -351,12 +341,12 @@ const FileUploadSection: React.FC = () => {
             }
 
             toast({
-              title: "❌ AI processing failed",
-              description: "Failed to generate flashcards. Please try again or use a simpler file.",
+              title: "❌ Processing failed",
+              description: "Failed to generate flashcards. Please try again with a simpler file.",
               variant: "destructive"
             });
           }
-        }, 500);
+        }, 1000);
 
       } catch (error) {
         console.error('File upload error:', error);
@@ -388,7 +378,6 @@ const FileUploadSection: React.FC = () => {
   };
 
   const removeUpload = (id: string) => {
-    // Clear any associated timeout
     if (processingTimeouts[id]) {
       clearTimeout(processingTimeouts[id]);
       setProcessingTimeouts(prev => {
@@ -398,7 +387,6 @@ const FileUploadSection: React.FC = () => {
       });
     }
     
-    // Clear progress state
     setProcessingProgress(prev => {
       const newState = { ...prev };
       delete newState[id];
@@ -410,17 +398,14 @@ const FileUploadSection: React.FC = () => {
 
   const retryProcessing = async (upload: any) => {
     try {
-      // Update status to processing
       updateUpload({
         id: upload.id,
         processing_status: 'processing',
         error_message: null
       });
 
-      // Start progress animation
-      simulateProgress(upload.id, 5000);
+      simulateProgress(upload.id, 6000);
 
-      // Set timeout
       const timeoutId = setTimeout(() => {
         updateUpload({
           id: upload.id,
@@ -433,14 +418,13 @@ const FileUploadSection: React.FC = () => {
           delete newState[upload.id];
           return newState;
         });
-      }, 120000);
+      }, 300000); // 5 minutes for retry
 
       setProcessingTimeouts(prev => ({
         ...prev,
         [upload.id]: timeoutId
       }));
 
-      // Process file with AI
       await processFileForFlashcards(
         new File([], upload.file_name, { type: upload.file_type }),
         upload.id,
@@ -482,9 +466,10 @@ const FileUploadSection: React.FC = () => {
             Drop your files here or click to browse
           </h3>
           <div className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed space-y-2">
-            <p><strong>📁 Supported formats:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF</p>
-            <p><strong>📏 Size limit:</strong> Up to {formatFileSize(maxFileSize)} per file</p>
-            <p><strong>⚡ Processing:</strong> Enhanced AI with dynamic timeout (1-2 minutes)</p>
+            <p><strong>📁 Supported:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF</p>
+            <p><strong>📏 Size limit:</strong> Up to {formatFileSize(maxFileSize)}</p>
+            <p><strong>⚡ Processing:</strong> Smart timeout (3-8 minutes based on file size)</p>
+            <p><strong>🔄 Chunked processing:</strong> Handles large files efficiently</p>
           </div>
           <input
             type="file"
@@ -542,7 +527,7 @@ const FileUploadSection: React.FC = () => {
                         className="flex-shrink-0 h-8 w-8 p-0"
                         title="Retry processing"
                       >
-                        <Clock className="h-4 w-4" />
+                        <RefreshCw className="h-4 w-4" />
                       </Button>
                     )}
                     <Button
@@ -563,8 +548,8 @@ const FileUploadSection: React.FC = () => {
                       className="h-2" 
                     />
                     <p className="text-xs text-gray-600 break-words">
-                      {processingProgress[upload.id] >= 85 
-                        ? '🧠 AI is finalizing flashcards...' 
+                      {processingProgress[upload.id] >= 70 
+                        ? '🧠 AI is generating flashcards...' 
                         : '📖 AI is analyzing content...'
                       }
                     </p>
@@ -581,8 +566,8 @@ const FileUploadSection: React.FC = () => {
                 )}
                 
                 {upload.processing_status === 'failed' && (
-                  <div className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <div className="flex items-start gap-2 text-red-600">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                     <span className="text-xs sm:text-sm break-words">
                       ❌ {upload.error_message || 'Processing failed'}
                     </span>
