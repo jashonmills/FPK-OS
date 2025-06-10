@@ -1,10 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp, MoreVertical, RotateCcw, Download, Archive, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
@@ -33,9 +35,30 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
   
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+  }, [chatHistory, isAtBottom]);
+
+  // Handle scroll to detect if user is at bottom
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+    const isBottom = scrollHeight - scrollTop === clientHeight;
+    setIsAtBottom(isBottom);
+  };
 
   // Generate personalized greeting based on user data
   useEffect(() => {
@@ -86,7 +109,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setConnectionStatus('good');
 
     try {
-      // Start with a 5-second timeout for Claude
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
@@ -118,7 +140,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       console.error('Chat error:', error);
       setConnectionStatus('error');
       
-      // Educational coaching fallback
       const coachingTips = [
         "Remember: consistency beats intensity! Even 15 minutes of focused study daily builds stronger neural pathways than cramming.",
         "I notice you're engaging with your studies! Try the Pomodoro Technique: 25 minutes focused work, 5 minute break to optimize retention.",
@@ -175,6 +196,56 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
+  const handleResetChat = () => {
+    setChatHistory([]);
+    toast({
+      title: "Chat reset",
+      description: "Your conversation has been cleared.",
+    });
+  };
+
+  const handleSaveChat = () => {
+    const chatData = {
+      timestamp: new Date().toISOString(),
+      messages: chatHistory,
+      user: user?.email || 'unknown'
+    };
+    
+    const dataStr = JSON.stringify(chatData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ai-coach-chat-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Chat saved",
+      description: "Your conversation has been downloaded.",
+    });
+  };
+
+  const handleArchiveChat = () => {
+    // Store in localStorage for now - could be extended to database
+    const archiveKey = `ai-coach-archive-${Date.now()}`;
+    const chatData = {
+      timestamp: new Date().toISOString(),
+      messages: chatHistory,
+      user: user?.email || 'unknown'
+    };
+    
+    localStorage.setItem(archiveKey, JSON.stringify(chatData));
+    
+    toast({
+      title: "Chat archived",
+      description: "Your conversation has been saved to local archive.",
+    });
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -216,51 +287,87 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="ml-auto flex items-center gap-2">
             {getStatusIcon()}
             <span className="text-xs">{getStatusText()}</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleResetChat} className="flex items-center gap-2">
+                  <RotateCcw className="h-4 w-4" />
+                  Reset Chat
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSaveChat} className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Save Chat
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleArchiveChat} className="flex items-center gap-2">
+                  <Archive className="h-4 w-4" />
+                  Archive Chat
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0">
+      <CardContent className="flex-1 flex flex-col p-0 relative">
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {chatHistory.map((msg, index) => (
-            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-3 rounded-lg ${
-                msg.role === 'user' 
-                  ? 'bg-purple-600 text-white ml-4' 
-                  : 'bg-muted text-foreground mr-4'
-              }`}>
-                {msg.role === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <Brain className="h-4 w-4 text-purple-600" />
-                    <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
-                  </div>
-                )}
-                <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                {msg.timestamp && (
-                  <p className="text-xs opacity-70 mt-1">
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-muted text-foreground p-3 rounded-lg mr-4">
-                <div className="flex items-center gap-2">
-                  <div className="animate-pulse flex space-x-1">
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {isAnalyzing ? 'Analyzing your learning data...' : 'Claude is thinking...'}
-                  </span>
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
+          <div className="space-y-4">
+            {chatHistory.map((msg, index) => (
+              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-3 rounded-lg ${
+                  msg.role === 'user' 
+                    ? 'bg-purple-600 text-white ml-4' 
+                    : 'bg-muted text-foreground mr-4'
+                }`}>
+                  {msg.role === 'assistant' && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Brain className="h-4 w-4 text-purple-600" />
+                      <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
+                    </div>
+                  )}
+                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                  {msg.timestamp && (
+                    <p className="text-xs opacity-70 mt-1">
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-muted text-foreground p-3 rounded-lg mr-4">
+                  <div className="flex items-center gap-2">
+                    <div className="animate-pulse flex space-x-1">
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {isAnalyzing ? 'Analyzing your learning data...' : 'Claude is thinking...'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+
+        {/* Scroll to Bottom Button */}
+        {!isAtBottom && (
+          <Button
+            onClick={scrollToBottom}
+            size="icon"
+            variant="outline"
+            className="absolute bottom-20 right-4 rounded-full shadow-lg z-10"
+          >
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        )}
 
         {/* Chat Input */}
         <div className="border-t p-4">
