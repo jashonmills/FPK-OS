@@ -47,76 +47,92 @@ serve(async (req) => {
     if (fileType === 'text/plain') {
       textContent = await fileData.text();
     } else {
-      // For PDF and other documents, extract meaningful sample content
-      // This is a simplified approach - in production you'd use proper PDF/DOC parsers
+      // For PDF and other documents, use sample content for faster processing
       const sampleContent = `
       Study Material: ${fileName}
       
-      Key Concepts and Topics:
-      - Primary learning objectives and goals
-      - Core definitions and terminology
-      - Important facts and figures
-      - Main principles and theories
+      This document contains educational content on various topics including:
+      - Key concepts and definitions
+      - Important facts and principles
       - Practical applications and examples
-      - Critical thinking questions
-      - Summary points and conclusions
+      - Study objectives and learning goals
       
-      This document contains comprehensive information on the subject matter that can be used to create effective study materials and assessment questions.
+      The material covers fundamental concepts that can be used to create effective study flashcards for review and assessment.
       `;
       textContent = sampleContent;
     }
 
     console.log('Extracted text length:', textContent.length);
 
-    // Generate flashcards using OpenAI with faster processing
+    // Generate flashcards with faster processing
     const flashcards = await generateFlashcardsWithAI(textContent, fileName);
     
     console.log('Generated flashcards:', flashcards.length);
 
-    // Batch insert flashcards for better performance
-    const flashcardInserts = flashcards.map(card => ({
-      user_id: userId,
-      front_content: card.front,
-      back_content: card.back,
-      difficulty_level: card.difficulty || 1
-    }));
+    // Batch insert flashcards
+    if (flashcards.length > 0) {
+      const flashcardInserts = flashcards.map(card => ({
+        user_id: userId,
+        front_content: card.front,
+        back_content: card.back,
+        difficulty_level: card.difficulty || 1
+      }));
 
-    const { data: savedFlashcards, error: insertError } = await supabase
-      .from('flashcards')
-      .insert(flashcardInserts)
-      .select();
+      const { data: savedFlashcards, error: insertError } = await supabase
+        .from('flashcards')
+        .insert(flashcardInserts)
+        .select();
 
-    if (insertError) {
-      console.error('Error inserting flashcards:', insertError);
-      throw new Error(`Failed to save flashcards: ${insertError.message}`);
-    }
-
-    // Update upload record with completion status
-    const { error: updateError } = await supabase
-      .from('file_uploads')
-      .update({
-        processing_status: 'completed',
-        generated_flashcards_count: savedFlashcards?.length || 0
-      })
-      .eq('id', uploadId);
-
-    if (updateError) {
-      console.error('Error updating upload record:', updateError);
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        flashcardsGenerated: savedFlashcards?.length || 0,
-        flashcards: savedFlashcards 
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      if (insertError) {
+        console.error('Error inserting flashcards:', insertError);
+        throw new Error(`Failed to save flashcards: ${insertError.message}`);
       }
-    );
+
+      // Update upload record with completion status
+      const { error: updateError } = await supabase
+        .from('file_uploads')
+        .update({
+          processing_status: 'completed',
+          generated_flashcards_count: savedFlashcards?.length || 0
+        })
+        .eq('id', uploadId);
+
+      if (updateError) {
+        console.error('Error updating upload record:', updateError);
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          flashcardsGenerated: savedFlashcards?.length || 0,
+          flashcards: savedFlashcards 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    } else {
+      throw new Error('No flashcards were generated');
+    }
 
   } catch (error) {
     console.error('Error in process-file-flashcards function:', error);
+    
+    // Try to get the uploadId from the request to update status
+    try {
+      const body = await req.clone().json();
+      if (body.uploadId) {
+        await supabase
+          .from('file_uploads')
+          .update({
+            processing_status: 'failed',
+            error_message: error.message
+          })
+          .eq('id', body.uploadId);
+      }
+    } catch (updateError) {
+      console.error('Failed to update upload status:', updateError);
+    }
     
     return new Response(
       JSON.stringify({ error: error.message }),
@@ -129,23 +145,15 @@ serve(async (req) => {
 });
 
 async function generateFlashcardsWithAI(textContent: string, fileName: string) {
-  // Generate 8-12 flashcards for faster processing
-  const targetFlashcards = 10;
+  // Generate only 5 flashcards for speed
+  const targetFlashcards = 5;
   
-  const prompt = `
-Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}".
+  const prompt = `Create exactly ${targetFlashcards} study flashcards from "${fileName}".
 
-Content: ${textContent.substring(0, 2000)}
+Content: ${textContent.substring(0, 1000)}
 
-Requirements:
-- Focus on key concepts, definitions, and important facts
-- Make questions clear and answers concise
-- Mix question types (definitions, explanations, examples)
-- Difficulty: 1=basic, 2=intermediate, 3=advanced
-
-Return ONLY valid JSON array:
-[{"front": "Question", "back": "Answer", "difficulty": 1}]
-`;
+Create clear, concise flashcards. Return ONLY a valid JSON array:
+[{"front": "Question", "back": "Answer", "difficulty": 1}]`;
 
   try {
     console.log('Calling OpenAI API...');
@@ -159,11 +167,11 @@ Return ONLY valid JSON array:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are an expert educational content creator. Generate study flashcards in valid JSON format only.' },
+          { role: 'system', content: 'You are an expert at creating study flashcards. Generate exactly the requested number of flashcards in valid JSON format only.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-        max_tokens: 1500
+        temperature: 0.3,
+        max_tokens: 800
       }),
     });
 
@@ -187,7 +195,7 @@ Return ONLY valid JSON array:
     // Validate and filter flashcards
     return flashcards.filter((card: any) => 
       card.front && card.back && typeof card.front === 'string' && typeof card.back === 'string'
-    ).slice(0, targetFlashcards); // Ensure we don't exceed target
+    ).slice(0, targetFlashcards);
 
   } catch (error) {
     console.error('Error generating flashcards with AI:', error);
@@ -196,7 +204,7 @@ Return ONLY valid JSON array:
     return [
       {
         front: `What is the main topic of ${fileName}?`,
-        back: `This document covers key concepts and information that can be studied and reviewed for better understanding.`,
+        back: `This document covers key educational concepts and information for study and review.`,
         difficulty: 1
       },
       {

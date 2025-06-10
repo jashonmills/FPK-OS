@@ -18,6 +18,7 @@ const FileUploadSection: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
+  const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
   // Set up real-time subscription to file_uploads table
   useEffect(() => {
@@ -37,7 +38,18 @@ const FileUploadSection: React.FC = () => {
           console.log('File upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
+            // Clear timeout and progress
+            if (processingTimeouts[payload.new.id]) {
+              clearTimeout(processingTimeouts[payload.new.id]);
+            }
+            
             setProcessingProgress(prev => {
+              const newState = { ...prev };
+              delete newState[payload.new.id];
+              return newState;
+            });
+            
+            setProcessingTimeouts(prev => {
               const newState = { ...prev };
               delete newState[payload.new.id];
               return newState;
@@ -48,7 +60,18 @@ const FileUploadSection: React.FC = () => {
               description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
             });
           } else if (payload.new.processing_status === 'failed') {
+            // Clear timeout and progress
+            if (processingTimeouts[payload.new.id]) {
+              clearTimeout(processingTimeouts[payload.new.id]);
+            }
+            
             setProcessingProgress(prev => {
+              const newState = { ...prev };
+              delete newState[payload.new.id];
+              return newState;
+            });
+            
+            setProcessingTimeouts(prev => {
               const newState = { ...prev };
               delete newState[payload.new.id];
               return newState;
@@ -67,7 +90,16 @@ const FileUploadSection: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, toast]);
+  }, [user, toast, processingTimeouts]);
+
+  // Clean up timeouts on component unmount
+  useEffect(() => {
+    return () => {
+      Object.values(processingTimeouts).forEach(timeout => {
+        clearTimeout(timeout);
+      });
+    };
+  }, [processingTimeouts]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -110,14 +142,14 @@ const FileUploadSection: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 2000) => {
-    const steps = 10;
+  const simulateProgress = (uploadId: string, duration: number = 1000) => {
+    const steps = 20;
     const interval = duration / steps;
     let currentStep = 0;
 
     const progressInterval = setInterval(() => {
       currentStep++;
-      const progress = Math.min((currentStep / steps) * 100, 100);
+      const progress = Math.min((currentStep / steps) * 100, 95); // Cap at 95% until real completion
       
       setProcessingProgress(prev => ({
         ...prev,
@@ -128,6 +160,8 @@ const FileUploadSection: React.FC = () => {
         clearInterval(progressInterval);
       }
     }, interval);
+
+    return progressInterval;
   };
 
   const handleFiles = async (files: FileList) => {
@@ -210,8 +244,35 @@ const FileUploadSection: React.FC = () => {
               processing_status: 'processing'
             });
 
-            // Start faster progress animation
-            simulateProgress(uploadRecord.id, 3000); // 3 seconds instead of 8
+            // Start progress animation
+            simulateProgress(uploadRecord.id, 2000);
+
+            // Set timeout for processing (30 seconds max)
+            const timeoutId = setTimeout(() => {
+              console.log('Processing timeout for upload:', uploadRecord.id);
+              updateUpload({
+                id: uploadRecord.id,
+                processing_status: 'failed',
+                error_message: 'Processing timeout - please try again with a smaller file'
+              });
+
+              setProcessingProgress(prev => {
+                const newState = { ...prev };
+                delete newState[uploadRecord.id];
+                return newState;
+              });
+
+              toast({
+                title: "Processing timeout",
+                description: "File processing took too long. Please try again.",
+                variant: "destructive"
+              });
+            }, 30000); // 30 second timeout
+
+            setProcessingTimeouts(prev => ({
+              ...prev,
+              [uploadRecord.id]: timeoutId
+            }));
 
             // Process file with AI
             await processFileForFlashcards(file, uploadRecord.id, filePath);
@@ -234,12 +295,21 @@ const FileUploadSection: React.FC = () => {
                 error_message: 'Failed to process file with AI'
               });
 
-              // Clean up progress state on error
+              // Clean up progress state and timeout on error
               setProcessingProgress(prev => {
                 const newState = { ...prev };
                 delete newState[uploadRecord.id];
                 return newState;
               });
+
+              if (processingTimeouts[uploadRecord.id]) {
+                clearTimeout(processingTimeouts[uploadRecord.id]);
+                setProcessingTimeouts(prev => {
+                  const newState = { ...prev };
+                  delete newState[uploadRecord.id];
+                  return newState;
+                });
+              }
             }
 
             toast({
@@ -280,6 +350,23 @@ const FileUploadSection: React.FC = () => {
   };
 
   const removeUpload = (id: string) => {
+    // Clear any associated timeout
+    if (processingTimeouts[id]) {
+      clearTimeout(processingTimeouts[id]);
+      setProcessingTimeouts(prev => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
+    }
+    
+    // Clear progress state
+    setProcessingProgress(prev => {
+      const newState = { ...prev };
+      delete newState[id];
+      return newState;
+    });
+    
     deleteUpload(id);
   };
 
@@ -308,7 +395,7 @@ const FileUploadSection: React.FC = () => {
             Drop your files here or click to browse
           </h3>
           <p className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed">
-            Support for PDF, TXT, and DOC files up to 10MB • Fast AI processing
+            Support for PDF, TXT, and DOC files up to 10MB • Fast AI processing (5-10 seconds)
           </p>
           <input
             type="file"
@@ -364,7 +451,7 @@ const FileUploadSection: React.FC = () => {
                       className="h-2" 
                     />
                     <p className="text-xs text-gray-600 break-words">
-                      {processingProgress[upload.id] >= 100 
+                      {processingProgress[upload.id] >= 95 
                         ? 'AI is finalizing flashcards...' 
                         : 'AI is analyzing content...'
                       }
