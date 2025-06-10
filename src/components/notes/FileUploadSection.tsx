@@ -12,7 +12,6 @@ import { Upload, FileText, CheckCircle, AlertCircle, X } from 'lucide-react';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
-  const { createFlashcard } = useFlashcards();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
@@ -29,25 +28,35 @@ const FileUploadSection: React.FC = () => {
     }
   }, []);
 
-  const processFileForFlashcards = async (file: File, uploadId: string) => {
-    // Simulate AI processing - in real implementation, this would call an AI service
-    const sampleFlashcards = [
-      {
-        front_content: `Key concept from ${file.name}`,
-        back_content: `Important definition or explanation related to the uploaded content.`
-      },
-      {
-        front_content: `Main idea from the document`,
-        back_content: `Detailed explanation of the main concept discussed in the file.`
+  const processFileForFlashcards = async (file: File, uploadId: string, filePath: string) => {
+    if (!user) return 0;
+
+    try {
+      console.log('Starting AI processing for file:', file.name);
+      
+      // Call the edge function to process the file
+      const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
+        body: {
+          uploadId,
+          filePath,
+          fileName: file.name,
+          fileType: file.type,
+          userId: user.id
+        }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
       }
-    ];
 
-    // Create flashcards
-    for (const card of sampleFlashcards) {
-      createFlashcard(card);
+      console.log('Edge function response:', data);
+      return data.flashcardsGenerated || 0;
+
+    } catch (error) {
+      console.error('Error processing file with AI:', error);
+      throw error;
     }
-
-    return sampleFlashcards.length;
   };
 
   const simulateProgress = (uploadId: string, duration: number = 3000) => {
@@ -134,13 +143,13 @@ const FileUploadSection: React.FC = () => {
 
         toast({
           title: "File uploaded",
-          description: `${file.name} uploaded successfully. Processing flashcards...`,
+          description: `${file.name} uploaded successfully. Processing with AI...`,
         });
 
-        // Simulate processing and generate flashcards
+        // Process with AI after a short delay to ensure upload record exists
         setTimeout(async () => {
           try {
-            // Find the upload record by file name and storage path
+            // Find the upload record
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
               .select('*')
@@ -148,35 +157,39 @@ const FileUploadSection: React.FC = () => {
               .eq('storage_path', filePath)
               .single();
 
-            if (!uploadRecord) return;
+            if (!uploadRecord) {
+              throw new Error('Upload record not found');
+            }
 
-            // Update status to processing and start progress simulation
+            // Update status to processing
             updateUpload({
               id: uploadRecord.id,
               processing_status: 'processing'
             });
 
             // Start progress animation
-            simulateProgress(uploadRecord.id);
+            simulateProgress(uploadRecord.id, 5000); // 5 seconds for AI processing
 
-            const flashcardCount = await processFileForFlashcards(file, uploadRecord.id);
+            // Process file with AI
+            const flashcardCount = await processFileForFlashcards(file, uploadRecord.id, filePath);
             
-            // Update upload status to completed after progress finishes
+            // The edge function handles updating the record, but we'll also refresh here
             setTimeout(() => {
-              updateUpload({
-                id: uploadRecord.id,
-                processing_status: 'completed',
-                generated_flashcards_count: flashcardCount
-              });
-
               toast({
-                title: "Flashcards generated",
-                description: `Generated ${flashcardCount} flashcards from ${file.name}`,
+                title: "Flashcards generated!",
+                description: `Generated ${flashcardCount} flashcards from ${file.name} using AI`,
               });
-            }, 3000);
+              
+              // Clean up progress state
+              setProcessingProgress(prev => {
+                const newState = { ...prev };
+                delete newState[uploadRecord.id];
+                return newState;
+              });
+            }, 5000);
 
           } catch (error) {
-            console.error('Processing error:', error);
+            console.error('AI processing error:', error);
             
             // Find and update the upload record with error status
             const { data: uploadRecord } = await supabase
@@ -190,7 +203,7 @@ const FileUploadSection: React.FC = () => {
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Failed to process file'
+                error_message: 'Failed to process file with AI'
               });
 
               // Clean up progress state on error
@@ -202,8 +215,8 @@ const FileUploadSection: React.FC = () => {
             }
 
             toast({
-              title: "Processing failed",
-              description: "Failed to generate flashcards from the file.",
+              title: "AI processing failed",
+              description: "Failed to generate flashcards. Please try again.",
               variant: "destructive"
             });
           }
