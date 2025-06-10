@@ -10,7 +10,10 @@
     "save": "Speichern",
     "delete": "Löschen",
     "edit": "Bearbeiten",
-    "search": "Suchen"
+    "search": "Suchen",
+    "learningDashboard": "Lern-Dashboard",
+    "support": "Support",
+    "signOut": "Abmelden"
   },
   "dashboard": {
     "myCourses": {
@@ -28,6 +31,15 @@
       "liveHub": "Live-Lern-Hub",
       "settings": "Einstellungen"
     }
+  },
+  "nav": {
+    "home": "Startseite",
+    "courses": "Meine Kurse",
+    "analytics": "Lernanalyse",
+    "goals": "Ziele",
+    "notes": "Notizen",
+    "settings": "Einstellungen",
+    "liveHub": "Live-Lern-Hub"
   },
   "auth": {
     "login": "Anmelden",

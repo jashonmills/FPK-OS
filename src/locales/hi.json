@@ -10,7 +10,10 @@
     "save": "सहेजें",
     "delete": "हटाएं",
     "edit": "संपादित करें",
-    "search": "खोजें"
+    "search": "खोजें",
+    "learningDashboard": "शिक्षण डैशबोर्ड",
+    "support": "सहायता",
+    "signOut": "लॉगआउट"
   },
   "dashboard": {
     "myCourses": {
@@ -28,6 +31,15 @@
       "liveHub": "लाइव लर्निंग हब",
       "settings": "सेटिंग्स"
     }
+  },
+  "nav": {
+    "home": "होम",
+    "courses": "मेरे कोर्स",
+    "analytics": "शिक्षण विश्लेषण",
+    "goals": "लक्ष्य",
+    "notes": "नोट्स",
+    "settings": "सेटिंग्स",
+    "liveHub": "लाइव लर्निंग हब"
   },
   "auth": {
     "login": "लॉगिन",

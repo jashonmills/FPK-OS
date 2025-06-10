@@ -10,7 +10,10 @@
     "save": "保存",
     "delete": "删除",
     "edit": "编辑",
-    "search": "搜索"
+    "search": "搜索",
+    "learningDashboard": "学习仪表板",
+    "support": "支持",
+    "signOut": "登出"
   },
   "dashboard": {
     "myCourses": {
@@ -28,6 +31,15 @@
       "liveHub": "实时学习中心",
       "settings": "设置"
     }
+  },
+  "nav": {
+    "home": "首页",
+    "courses": "我的课程",
+    "analytics": "学习分析",
+    "goals": "目标",
+    "notes": "笔记",
+    "settings": "设置",
+    "liveHub": "实时学习中心"
   },
   "auth": {
     "login": "登录",

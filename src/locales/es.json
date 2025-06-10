@@ -10,7 +10,10 @@
     "save": "Guardar",
     "delete": "Eliminar",
     "edit": "Editar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "learningDashboard": "Panel de Aprendizaje",
+    "support": "Soporte",
+    "signOut": "Cerrar Sesión"
   },
   "dashboard": {
     "myCourses": {
@@ -28,6 +31,15 @@
       "liveHub": "Hub de Aprendizaje en Vivo",
       "settings": "Configuración"
     }
+  },
+  "nav": {
+    "home": "Inicio",
+    "courses": "Mis Cursos",
+    "analytics": "Análisis de Aprendizaje",
+    "goals": "Objetivos",
+    "notes": "Notas",
+    "settings": "Configuración",
+    "liveHub": "Hub de Aprendizaje en Vivo"
   },
   "auth": {
     "login": "Iniciar Sesión",
