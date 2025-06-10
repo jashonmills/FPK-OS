@@ -7,6 +7,7 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import GlobalHeader from '@/components/GlobalHeader';
 import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import GlobalChatWidget from '@/components/GlobalChatWidget';
 
 const DashboardContent = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -62,6 +63,9 @@ const DashboardContent = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Global Chat Widget */}
+      <GlobalChatWidget />
     </div>
   );
 };
