@@ -26,8 +26,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 const AIStudyCoach = () => {
   const { user } = useAuth();
-  const { data: sessions } = useStudySessions();
-  const { data: flashcards } = useFlashcards();
+  const { sessions } = useStudySessions();
+  const { flashcards } = useFlashcards();
   const { insights, refetch: refetchInsights } = useStudyInsights();
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
