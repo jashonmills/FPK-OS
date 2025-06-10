@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, AlertTriangle } from 'lucide-react';
+import { Bot, Send, AlertTriangle, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
@@ -33,7 +33,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [chatError, setChatError] = useState('');
+  const [connectionError, setConnectionError] = useState(false);
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
@@ -42,7 +42,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setChatMessage('');
     setChatHistory(prev => [...prev, { role: 'user', message: userMessage }]);
     setIsLoading(true);
-    setChatError('');
+    setConnectionError(false);
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
@@ -57,22 +57,30 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: data.response || "I'm sorry, I'm having trouble responding right now. Please try again."
+        message: data.response || "I'm sorry, I didn't receive a proper response. Could you please try asking your question again?"
       }]);
     } catch (error) {
       console.error('Chat error:', error);
-      setChatError("I apologize for the inconvenience. I'm experiencing technical difficulties. Please try asking your question again.");
+      setConnectionError(true);
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: "I apologize for the inconvenience. I'm experiencing technical difficulties. Please try asking your question again."
+        message: "I'm having trouble connecting right now. This might be because the AI service needs to be configured. You can still use the study features on this page while we work on getting the chat back online!"
       }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setConnectionError(false);
+    handleSendMessage();
   };
 
   return (
@@ -82,7 +90,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <Bot className="h-5 w-5" />
           Learning Assistant
           <Badge variant="secondary" className="ml-auto bg-white/20 text-white">
-            Here to help with your studies
+            AI Study Coach
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -112,12 +120,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           )}
         </div>
 
-        {/* Error Message */}
-        {chatError && (
-          <div className="px-4 py-2 text-center border-t bg-red-50">
-            <div className="flex items-center justify-center gap-2 text-red-600">
-              <AlertTriangle className="h-4 w-4" />
-              <p className="text-sm">{chatError}</p>
+        {/* Connection Error Banner */}
+        {connectionError && (
+          <div className="px-4 py-2 border-t bg-amber-50 border-amber-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-700">
+                <AlertTriangle className="h-4 w-4" />
+                <p className="text-sm">Connection issue - chat may be temporarily unavailable</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRetry}
+                className="text-amber-700 hover:text-amber-800"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Retry
+              </Button>
             </div>
           </div>
         )}

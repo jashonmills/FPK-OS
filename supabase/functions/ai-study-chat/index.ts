@@ -10,7 +10,7 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -27,6 +27,17 @@ serve(async (req) => {
     }
 
     console.log('AI Chat request for user:', userId, 'Message:', message);
+
+    // Check if OpenAI API key is available
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not found');
+      return new Response(
+        JSON.stringify({ 
+          response: "I'm sorry, but the AI chat service is not properly configured. Please contact your administrator to set up the OpenAI API key." 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Build context about user's learning
     const contextPrompt = `
@@ -61,6 +72,8 @@ You are a helpful AI study coach. Keep responses concise (2-3 sentences max), en
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
@@ -77,10 +90,13 @@ You are a helpful AI study coach. Keep responses concise (2-3 sentences max), en
   } catch (error) {
     console.error('Error in AI chat:', error);
     
+    // Provide a helpful fallback response
+    const fallbackResponse = "I'm here to help with your studies! While I'm experiencing some technical issues right now, you can try asking me about study techniques, flashcard strategies, or learning tips. Please try your question again in a moment.";
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ response: fallbackResponse }),
       {
-        status: 500,
+        status: 200, // Return 200 instead of 500 to avoid fetch errors
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
