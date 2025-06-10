@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { RotateCcw, Check, X, ArrowRight } from 'lucide-react';
+import { RotateCcw, Check, X, ArrowLeft } from 'lucide-react';
 import type { StudySession } from '@/hooks/useStudySessions';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
@@ -141,7 +140,18 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
     <div className="max-w-2xl mx-auto p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-xl font-bold">Memory Test</h1>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onComplete}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Exit
+            </Button>
+            <h1 className="text-xl font-bold">Memory Test</h1>
+          </div>
           <span className="text-sm text-gray-600">
             {currentIndex + 1} of {flashcards.length}
           </span>

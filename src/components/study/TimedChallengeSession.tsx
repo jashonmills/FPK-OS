@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { Clock, Check, X } from 'lucide-react';
+import { Clock, Check, X, ArrowLeft } from 'lucide-react';
 import type { StudySession } from '@/hooks/useStudySessions';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
@@ -161,7 +160,18 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
     <div className="max-w-2xl mx-auto p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-xl font-bold">Timed Challenge</h1>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onComplete}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Exit
+            </Button>
+            <h1 className="text-xl font-bold">Timed Challenge</h1>
+          </div>
           <div className={`flex items-center gap-2 ${isLowTime ? 'text-red-600' : 'text-gray-600'}`}>
             <Clock className="h-4 w-4" />
             <span className="font-mono text-lg">{timeLeft}s</span>
