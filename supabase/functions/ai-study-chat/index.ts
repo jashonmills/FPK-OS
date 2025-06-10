@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -26,30 +25,29 @@ serve(async (req) => {
       throw new Error('Message and user ID are required');
     }
 
-    console.log('AI Chat request for user:', userId, 'Message:', message);
+    console.log('AI Chat request for user:', userId);
 
     // Check if OpenAI API key is available
     if (!openAIApiKey) {
-      console.error('OpenAI API key not found');
+      console.log('OpenAI API key not found, returning fallback');
       return new Response(
         JSON.stringify({ 
-          response: "I'm sorry, but the AI chat service is not properly configured. Please contact your administrator to set up the OpenAI API key." 
+          response: "I'm here to help with your studies! While the AI service is being configured, you can still use all the other study features on this page. Try creating flashcards or reviewing your notes!" 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Build context about user's learning
-    const contextPrompt = `
-Student Context:
-- Total completed study sessions: ${context?.totalSessions || 0}
-- Total flashcards created: ${context?.totalCards || 0}
-- Recent insights: ${context?.recentInsights?.map(i => i.title).join(', ') || 'None yet'}
+    // Simple context prompt - keep it minimal for faster processing
+    const contextPrompt = `You are a helpful study coach. Be encouraging and provide brief, actionable advice. Keep responses under 50 words.`;
 
-You are an AI study coach helping a student with their learning. Be encouraging, specific, and provide actionable advice.
-`;
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 8000); // 8 second timeout
+    });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Make the OpenAI request with timeout
+    const openAIPromise = fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
@@ -58,22 +56,17 @@ You are an AI study coach helping a student with their learning. Be encouraging,
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: `${contextPrompt}
-
-You are a helpful AI study coach. Keep responses concise (2-3 sentences max), encouraging, and actionable. Focus on study strategies, learning techniques, and motivation.` 
-          },
+          { role: 'system', content: contextPrompt },
           { role: 'user', content: message }
         ],
         temperature: 0.7,
-        max_tokens: 200
+        max_tokens: 100 // Reduced for faster response
       }),
     });
 
+    const response = await Promise.race([openAIPromise, timeoutPromise]);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
@@ -90,13 +83,13 @@ You are a helpful AI study coach. Keep responses concise (2-3 sentences max), en
   } catch (error) {
     console.error('Error in AI chat:', error);
     
-    // Provide a helpful fallback response
-    const fallbackResponse = "I'm here to help with your studies! While I'm experiencing some technical issues right now, you can try asking me about study techniques, flashcard strategies, or learning tips. Please try your question again in a moment.";
+    // Quick fallback response
+    const fallbackResponse = "I'm here to help! While I'm having a moment of technical difficulty, you can still create flashcards, review notes, and track your study progress. What would you like to work on?";
     
     return new Response(
       JSON.stringify({ response: fallbackResponse }),
       {
-        status: 200, // Return 200 instead of 500 to avoid fetch errors
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

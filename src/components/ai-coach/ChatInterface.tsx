@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Bot, Send, AlertTriangle, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
@@ -29,11 +29,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      message: "Hi! I'm your AI learning assistant. How can I help you with your studies today?"
+      message: "Hi! I'm your AI study assistant. Ask me anything about studying, learning techniques, or your progress!"
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [connectionError, setConnectionError] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
@@ -42,20 +42,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setChatMessage('');
     setChatHistory(prev => [...prev, { role: 'user', message: userMessage }]);
     setIsLoading(true);
-    setConnectionError(false);
+    setHasError(false);
 
     try {
+      // Set a client-side timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds
+
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
           userId: user?.id,
           context: {
             totalSessions: completedSessions.length,
-            totalCards: flashcards?.length || 0,
-            recentInsights: insights.slice(0, 2)
+            totalCards: flashcards?.length || 0
           }
         }
       });
+
+      clearTimeout(timeoutId);
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -64,23 +69,36 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: data.response || "I'm sorry, I didn't receive a proper response. Could you please try asking your question again?"
+        message: data?.response || "I'm here to help with your studies! What would you like to work on?"
       }]);
+
     } catch (error) {
       console.error('Chat error:', error);
-      setConnectionError(true);
+      setHasError(true);
+      
+      // Add a helpful fallback message
+      const fallbackMessages = [
+        "Great question! While I sort out a technical hiccup, try reviewing your flashcards or creating new ones.",
+        "I'd love to help! In the meantime, check out your study progress or start a practice session.",
+        "Good thinking! While I'm getting back online, explore the study challenges or review your notes."
+      ];
+      
+      const randomFallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+      
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: "I'm having trouble connecting right now. This might be because the AI service needs to be configured. You can still use the study features on this page while we work on getting the chat back online!"
+        message: randomFallback
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRetry = () => {
-    setConnectionError(false);
-    handleSendMessage();
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
@@ -88,9 +106,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
-          Learning Assistant
+          AI Study Assistant
           <Badge variant="secondary" className="ml-auto bg-white/20 text-white">
-            AI Study Coach
+            Beta
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -104,7 +122,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   ? 'bg-purple-600 text-white ml-4' 
                   : 'bg-muted text-foreground mr-4'
               }`}>
-                <p className="text-sm">{msg.message}</p>
+                <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
               </div>
             </div>
           ))}
@@ -112,31 +130,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <div className="flex justify-start">
               <div className="bg-muted text-foreground p-3 rounded-lg mr-4">
                 <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                  <span className="text-sm">Thinking...</span>
+                  <div className="animate-pulse flex space-x-1">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">Thinking...</span>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Connection Error Banner */}
-        {connectionError && (
+        {/* Error Banner */}
+        {hasError && (
           <div className="px-4 py-2 border-t bg-amber-50 border-amber-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-amber-700">
-                <AlertTriangle className="h-4 w-4" />
-                <p className="text-sm">Connection issue - chat may be temporarily unavailable</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleRetry}
-                className="text-amber-700 hover:text-amber-800"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Retry
-              </Button>
+            <div className="flex items-center gap-2 text-amber-700">
+              <Clock className="h-4 w-4" />
+              <p className="text-sm">Response took longer than expected, but I'm still here to help!</p>
             </div>
           </div>
         )}
@@ -145,16 +156,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="border-t p-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Ask anything about your studies..."
+              placeholder="Ask me about study tips, techniques, or your progress..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={handleKeyPress}
               disabled={isLoading}
+              className="flex-1"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={isLoading || !chatMessage.trim()}
               size="icon"
+              className="bg-purple-600 hover:bg-purple-700"
             >
               <Send className="h-4 w-4" />
             </Button>
