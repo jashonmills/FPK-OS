@@ -30,6 +30,70 @@
       "aiCoach": "Coach d'Étude IA",
       "liveHub": "Hub d'Apprentissage en Direct",
       "settings": "Paramètres"
+    },
+    "stats": {
+      "activeCourses": "Cours Actifs",
+      "currentStreak": "Série Actuelle",
+      "activeGoals": "Objectifs Actifs",
+      "goalProgress": "Progrès des Objectifs",
+      "completedCourses": "Cours Terminés",
+      "totalXP": "XP Total",
+      "studyTime": "Temps d'Étude",
+      "achievements": "Réalisations"
+    },
+    "charts": {
+      "courseProgress": "Progrès du Cours",
+      "weeklyTime": "Temps d'Étude Hebdomadaire",
+      "noCourseProgress": "Aucune donnée de progrès de cours disponible",
+      "noWeeklyTime": "Aucune donnée de temps d'étude disponible",
+      "hours": "heures",
+      "minutes": "minutes",
+      "week": "Semaine"
+    },
+    "insights": {
+      "personalGoals": "Objectifs Personnels",
+      "communityActivity": "Activité de la Communauté",
+      "aiInsights": "Aperçus IA",
+      "studyPattern": "Modèle d'Étude"
+    },
+    "welcomeModal": {
+      "title": "Bienvenue dans votre Parcours d'Apprentissage",
+      "quickSetup": "Configuration Rapide",
+      "skipForNow": "Ignorer pour l'instant",
+      "getStarted": "Commencer"
+    },
+    "badges": {
+      "learner": "Apprenant",
+      "level1": "Niveau 1",
+      "newbie": "Débutant",
+      "beginner": "Novice"
+    }
+  },
+  "goals": {
+    "myGoals": "Mes Objectifs",
+    "createNew": "Créer un Objectif",
+    "createFirst": "Créez votre Premier Objectif",
+    "tabs": {
+      "all": "Tous",
+      "active": "Actifs",
+      "completed": "Terminés",
+      "paused": "En Pause"
+    },
+    "stats": {
+      "totalGoals": "Objectifs Totaux",
+      "activeGoals": "Objectifs Actifs",
+      "completedGoals": "Terminés",
+      "completionRate": "Taux de Réalisation"
+    },
+    "empty": {
+      "allTitle": "Aucun objectif trouvé",
+      "allDescription": "Commencez par créer votre premier objectif pour suivre votre progrès d'apprentissage",
+      "activeTitle": "Aucun objectif actif",
+      "activeDescription": "Créez un nouvel objectif pour commencer à suivre votre progrès",
+      "completedTitle": "Aucun objectif terminé encore",
+      "completedDescription": "Terminez quelques objectifs pour les voir ici",
+      "pausedTitle": "Aucun objectif en pause",
+      "pausedDescription": "Les objectifs que vous mettez en pause apparaîtront ici"
     }
   },
   "nav": {

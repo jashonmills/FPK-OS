@@ -30,6 +30,70 @@
       "aiCoach": "AI अध्ययन कोच",
       "liveHub": "लाइव लर्निंग हब",
       "settings": "सेटिंग्स"
+    },
+    "stats": {
+      "activeCourses": "सक्रिय कोर्स",
+      "currentStreak": "वर्तमान स्ट्रीक",
+      "activeGoals": "सक्रिय लक्ष्य",
+      "goalProgress": "लक्ष्य प्रगति",
+      "completedCourses": "पूर्ण कोर्स",
+      "totalXP": "कुल XP",
+      "studyTime": "अध्ययन समय",
+      "achievements": "उपलब्धियां"
+    },
+    "charts": {
+      "courseProgress": "कोर्स प्रगति",
+      "weeklyTime": "साप्ताहिक अध्ययन समय",
+      "noCourseProgress": "कोई कोर्स प्रगति डेटा उपलब्ध नहीं",
+      "noWeeklyTime": "कोई अध्ययन समय डेटा उपलब्ध नहीं",
+      "hours": "घंटे",
+      "minutes": "मिनट",
+      "week": "सप्ताह"
+    },
+    "insights": {
+      "personalGoals": "व्यक्तिगत लक्ष्य",
+      "communityActivity": "समुदायिक गतिविधि",
+      "aiInsights": "AI अंतर्दृष्टि",
+      "studyPattern": "अध्ययन पैटर्न"
+    },
+    "welcomeModal": {
+      "title": "अपनी सीखने की यात्रा में आपका स्वागत है",
+      "quickSetup": "त्वरित सेटअप",
+      "skipForNow": "अभी के लिए छोड़ें",
+      "getStarted": "शुरू करें"
+    },
+    "badges": {
+      "learner": "शिक्षार्थी",
+      "level1": "स्तर 1",
+      "newbie": "नया",
+      "beginner": "शुरुआती"
+    }
+  },
+  "goals": {
+    "myGoals": "मेरे लक्ष्य",
+    "createNew": "लक्ष्य बनाएं",
+    "createFirst": "अपना पहला लक्ष्य बनाएं",
+    "tabs": {
+      "all": "सभी",
+      "active": "सक्रिय",
+      "completed": "पूर्ण",
+      "paused": "रोका गया"
+    },
+    "stats": {
+      "totalGoals": "कुल लक्ष्य",
+      "activeGoals": "सक्रिय लक्ष्य",
+      "completedGoals": "पूर्ण",
+      "completionRate": "पूर्णता दर"
+    },
+    "empty": {
+      "allTitle": "कोई लक्ष्य नहीं मिला",
+      "allDescription": "अपनी सीखने की प्रगति को ट्रैक करने के लिए अपना पहला लक्ष्य बनाकर शुरू करें",
+      "activeTitle": "कोई सक्रिय लक्ष्य नहीं",
+      "activeDescription": "अपनी प्रगति को ट्रैक करना शुरू करने के लिए एक नया लक्ष्य बनाएं",
+      "completedTitle": "अभी तक कोई पूर्ण लक्ष्य नहीं",
+      "completedDescription": "उन्हें यहां देखने के लिए कुछ लक्ष्य पूरे करें",
+      "pausedTitle": "कोई रोका गया लक्ष्य नहीं",
+      "pausedDescription": "जो लक्ष्य आप रोकते हैं वे यहां दिखाई देंगे"
     }
   },
   "nav": {

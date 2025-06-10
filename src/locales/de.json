@@ -30,6 +30,70 @@
       "aiCoach": "KI-Lerncoach",
       "liveHub": "Live-Lern-Hub",
       "settings": "Einstellungen"
+    },
+    "stats": {
+      "activeCourses": "Aktive Kurse",
+      "currentStreak": "Aktuelle Serie",
+      "activeGoals": "Aktive Ziele",
+      "goalProgress": "Zielfortschritt",
+      "completedCourses": "Abgeschlossene Kurse",
+      "totalXP": "Gesamt-XP",
+      "studyTime": "Lernzeit",
+      "achievements": "Erfolge"
+    },
+    "charts": {
+      "courseProgress": "Kursfortschritt",
+      "weeklyTime": "Wöchentliche Lernzeit",
+      "noCourseProgress": "Keine Kursfortschrittsdaten verfügbar",
+      "noWeeklyTime": "Keine Lernzeitdaten verfügbar",
+      "hours": "Stunden",
+      "minutes": "Minuten",
+      "week": "Woche"
+    },
+    "insights": {
+      "personalGoals": "Persönliche Ziele",
+      "communityActivity": "Community-Aktivität",
+      "aiInsights": "KI-Erkenntnisse",
+      "studyPattern": "Lernmuster"
+    },
+    "welcomeModal": {
+      "title": "Willkommen zu Ihrer Lernreise",
+      "quickSetup": "Schnelle Einrichtung",
+      "skipForNow": "Vorerst überspringen",
+      "getStarted": "Loslegen"
+    },
+    "badges": {
+      "learner": "Lerner",
+      "level1": "Level 1",
+      "newbie": "Neuling",
+      "beginner": "Anfänger"
+    }
+  },
+  "goals": {
+    "myGoals": "Meine Ziele",
+    "createNew": "Ziel erstellen",
+    "createFirst": "Erstellen Sie Ihr erstes Ziel",
+    "tabs": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "paused": "Pausiert"
+    },
+    "stats": {
+      "totalGoals": "Gesamtziele",
+      "activeGoals": "Aktive Ziele",
+      "completedGoals": "Abgeschlossen",
+      "completionRate": "Abschlussrate"
+    },
+    "empty": {
+      "allTitle": "Keine Ziele gefunden",
+      "allDescription": "Erstellen Sie Ihr erstes Ziel, um Ihren Lernfortschritt zu verfolgen",
+      "activeTitle": "Keine aktiven Ziele",
+      "activeDescription": "Erstellen Sie ein neues Ziel, um Ihren Fortschritt zu verfolgen",
+      "completedTitle": "Noch keine abgeschlossenen Ziele",
+      "completedDescription": "Schließen Sie einige Ziele ab, um sie hier zu sehen",
+      "pausedTitle": "Keine pausierten Ziele",
+      "pausedDescription": "Pausierte Ziele erscheinen hier"
     }
   },
   "nav": {

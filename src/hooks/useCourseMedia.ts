@@ -2,22 +2,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
 
-interface CourseMedia {
-  id: string;
-  module_id: string;
-  media_type: 'video' | 'audio' | 'document' | 'image';
-  file_name: string;
-  file_path: string;
-  file_size?: number;
-  mime_type?: string;
-  duration_seconds?: number;
-  thumbnail_url?: string;
-  captions_url?: string;
-  metadata: any;
-  created_at: string;
-  updated_at: string;
-}
+type CourseMedia = Database['public']['Tables']['course_media']['Row'];
 
 export const useCourseMedia = (moduleId?: string) => {
   const [media, setMedia] = useState<CourseMedia[]>([]);
@@ -52,7 +39,7 @@ export const useCourseMedia = (moduleId?: string) => {
   };
 
   // Upload media file
-  const uploadMedia = async (file: File, mediaType: CourseMedia['media_type']) => {
+  const uploadMedia = async (file: File, mediaType: 'video' | 'audio' | 'document' | 'image') => {
     if (!moduleId) {
       toast({
         title: "Error",

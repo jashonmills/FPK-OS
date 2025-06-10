@@ -30,6 +30,70 @@
       "aiCoach": "AI学习教练",
       "liveHub": "实时学习中心",
       "settings": "设置"
+    },
+    "stats": {
+      "activeCourses": "活跃课程",
+      "currentStreak": "当前连击",
+      "activeGoals": "活跃目标",
+      "goalProgress": "目标进度",
+      "completedCourses": "已完成课程",
+      "totalXP": "总经验值",
+      "studyTime": "学习时间",
+      "achievements": "成就"
+    },
+    "charts": {
+      "courseProgress": "课程进度",
+      "weeklyTime": "每周学习时间",
+      "noCourseProgress": "无课程进度数据",
+      "noWeeklyTime": "无学习时间数据",
+      "hours": "小时",
+      "minutes": "分钟",
+      "week": "周"
+    },
+    "insights": {
+      "personalGoals": "个人目标",
+      "communityActivity": "社区活动",
+      "aiInsights": "AI洞察",
+      "studyPattern": "学习模式"
+    },
+    "welcomeModal": {
+      "title": "欢迎开始您的学习之旅",
+      "quickSetup": "快速设置",
+      "skipForNow": "暂时跳过",
+      "getStarted": "开始"
+    },
+    "badges": {
+      "learner": "学习者",
+      "level1": "1级",
+      "newbie": "新手",
+      "beginner": "初学者"
+    }
+  },
+  "goals": {
+    "myGoals": "我的目标",
+    "createNew": "创建目标",
+    "createFirst": "创建您的第一个目标",
+    "tabs": {
+      "all": "全部",
+      "active": "活跃",
+      "completed": "已完成",
+      "paused": "已暂停"
+    },
+    "stats": {
+      "totalGoals": "总目标",
+      "activeGoals": "活跃目标",
+      "completedGoals": "已完成",
+      "completionRate": "完成率"
+    },
+    "empty": {
+      "allTitle": "未找到目标",
+      "allDescription": "创建您的第一个目标来跟踪学习进度",
+      "activeTitle": "无活跃目标",
+      "activeDescription": "创建新目标开始跟踪进度",
+      "completedTitle": "尚无已完成目标",
+      "completedDescription": "完成一些目标后将在此显示",
+      "pausedTitle": "无已暂停目标",
+      "pausedDescription": "暂停的目标将在此显示"
     }
   },
   "nav": {
