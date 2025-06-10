@@ -286,6 +286,24 @@ const CourseManager = () => {
                     Featured
                   </Badge>
                 )}
+                <div className="pt-2 space-y-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => window.open(`/dashboard/admin/courses/${course.slug}/modules`, '_blank')}
+                  >
+                    Manage Modules
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => window.open(`/dashboard/learner/course/${course.slug}`, '_blank')}
+                  >
+                    Preview Course
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -22,6 +21,7 @@ import AIStudyCoach from "./pages/dashboard/AIStudyCoach";
 import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
 import Settings from "./pages/dashboard/Settings";
 import CourseManager from "./pages/admin/CourseManager";
+import ModuleManager from "./pages/admin/ModuleManager";
 import "./i18n";
 
 const queryClient = new QueryClient();
@@ -60,6 +60,7 @@ function App() {
                   
                   {/* Admin Routes */}
                   <Route path="admin/courses" element={<CourseManager />} />
+                  <Route path="admin/courses/:slug/modules" element={<ModuleManager />} />
                   
                   {/* Default redirects */}
                   <Route index element={<Navigate to="learner" replace />} />
