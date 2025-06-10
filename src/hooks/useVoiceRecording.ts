@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useVoiceRecording = () => {
@@ -8,81 +8,77 @@ export const useVoiceRecording = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 16000
-        } 
-      });
-      
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
-      
+
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
-      
-      mediaRecorder.start(250); // Collect data every 250ms
+
+      mediaRecorder.start();
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      throw error;
+      throw new Error('Could not access microphone');
     }
-  }, []);
+  };
 
-  const stopRecording = useCallback((): Promise<string> => {
+  const stopRecording = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (!mediaRecorderRef.current || !isRecording) {
-        reject(new Error('No active recording'));
+      if (!mediaRecorderRef.current) {
+        reject(new Error('No recording in progress'));
         return;
       }
 
       mediaRecorderRef.current.onstop = async () => {
+        setIsRecording(false);
+        setIsProcessing(true);
+
         try {
-          setIsProcessing(true);
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
           
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          
-          // Convert to base64
+          // Convert blob to base64
           const reader = new FileReader();
           reader.onloadend = async () => {
             try {
-              const base64Audio = (reader.result as string).split(',')[1];
+              const base64Audio = reader.result?.toString().split(',')[1];
               
-              // Send to Whisper API
+              if (!base64Audio) {
+                throw new Error('Failed to convert audio to base64');
+              }
+
+              // Call speech-to-text edge function
               const { data, error } = await supabase.functions.invoke('speech-to-text', {
                 body: { audio: base64Audio }
               });
 
               if (error) {
-                throw error;
+                console.error('Speech-to-text error:', error);
+                throw new Error('Failed to transcribe audio');
               }
 
-              resolve(data.text);
-            } catch (error) {
-              reject(error);
-            } finally {
+              const transcription = data?.transcription || '';
               setIsProcessing(false);
+              resolve(transcription);
+            } catch (error) {
+              console.error('Transcription error:', error);
+              setIsProcessing(false);
+              reject(error);
             }
           };
-          
-          reader.onerror = () => reject(new Error('Failed to read audio file'));
+
+          reader.onerror = () => {
+            setIsProcessing(false);
+            reject(new Error('Failed to read audio file'));
+          };
+
           reader.readAsDataURL(audioBlob);
-          
-          // Stop all tracks
-          const stream = mediaRecorderRef.current?.stream;
-          if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-          }
         } catch (error) {
           setIsProcessing(false);
           reject(error);
@@ -90,9 +86,12 @@ export const useVoiceRecording = () => {
       };
 
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
+      
+      // Stop all tracks to release microphone
+      const stream = mediaRecorderRef.current.stream;
+      stream.getTracks().forEach(track => track.stop());
     });
-  }, [isRecording]);
+  };
 
   return {
     isRecording,
