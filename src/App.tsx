@@ -18,6 +18,7 @@ import Goals from '@/pages/dashboard/Goals';
 import Notes from '@/pages/dashboard/Notes';
 import Settings from '@/pages/dashboard/Settings';
 import LearningStateCourse from '@/pages/dashboard/LearningStateCourse';
+import LearningStateEmbed from '@/pages/dashboard/LearningStateEmbed';
 import StudyPage from '@/pages/study/StudyPage';
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
                   <Route path="learner/notes" element={<Notes />} />
                   <Route path="learner/settings" element={<Settings />} />
                   <Route path="learner/course/:courseId" element={<LearningStateCourse />} />
+                  <Route path="learner/course/learning-state-embed" element={<LearningStateEmbed />} />
                 </Route>
 
                 {/* Study Routes */}

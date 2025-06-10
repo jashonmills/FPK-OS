@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Star } from 'lucide-react';
+import { BookOpen, Star, CheckCircle } from 'lucide-react';
 import type { Course } from '@/hooks/useEnrolledCourses';
 
 interface CourseCardProps {
@@ -55,8 +55,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
         )}
         
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            {isBetaCourse ? 'Ready to begin' : 'In progress'}
+          <div className="text-sm text-gray-500 flex items-center gap-1">
+            {isBetaCourse ? (
+              'Ready to begin'
+            ) : (
+              <>
+                <CheckCircle className="h-3 w-3 text-green-500" />
+                In progress
+              </>
+            )}
           </div>
           <Button 
             onClick={onButtonClick}

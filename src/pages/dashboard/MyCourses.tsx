@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,8 +23,8 @@ const MyCourses = () => {
 
   const handleCourseClick = (courseId: string) => {
     if (courseId === 'learning-state-beta') {
-      // Navigate to the Learning State beta course - fix path to match route
-      navigate('/dashboard/learner/course/learning-state');
+      // Navigate to the new embedded Learning State course
+      navigate('/dashboard/learner/course/learning-state-embed');
     } else {
       // Handle other courses - fix path to match route
       navigate(`/dashboard/learner/course/${courseId}`);
