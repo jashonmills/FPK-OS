@@ -56,7 +56,7 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
     if (messagesEndRef.current && open) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, open]);
+  }, [messages, open, isSending]);
 
   // Focus input when chat opens
   useEffect(() => {
@@ -68,18 +68,29 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
   const handleSendMessage = async () => {
     if (!message.trim() || isSending) return;
     
+    console.log('Handling send message...', { message, currentSessionId });
+    
     let sessionId = currentSessionId;
     
     // Create new session if none exists
     if (!sessionId) {
+      console.log('Creating new session...');
       const newSession = await createSession('Study Coach');
-      if (!newSession) return;
+      if (!newSession) {
+        console.error('Failed to create new session');
+        return;
+      }
       sessionId = newSession.id;
+      console.log('New session created:', sessionId);
     }
     
     const context = getPageContext();
-    await sendMessage(message, context);
-    setMessage('');
+    console.log('Sending message with context:', { context, sessionId });
+    
+    const messageToSend = message;
+    setMessage(''); // Clear input immediately for better UX
+    
+    await sendMessage(messageToSend, context);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -90,9 +101,11 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
   };
 
   const handleNewChat = async () => {
+    console.log('Creating new chat session...');
     const newSession = await createSession('Study Coach');
     if (newSession) {
       switchToSession(newSession.id);
+      console.log('Switched to new session:', newSession.id);
     }
   };
 

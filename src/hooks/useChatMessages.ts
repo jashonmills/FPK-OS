@@ -35,7 +35,17 @@ export const useChatMessages = (sessionId: string | null) => {
         .order('timestamp', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Type-safe conversion with proper role casting
+      const typedMessages: ChatMessage[] = (data || []).map(msg => ({
+        id: msg.id,
+        session_id: msg.session_id,
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+      
+      setMessages(typedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -66,8 +76,17 @@ export const useChatMessages = (sessionId: string | null) => {
 
       if (error) throw error;
 
-      setMessages(prev => [...prev, data]);
-      return data;
+      // Type-safe message addition
+      const newMessage: ChatMessage = {
+        id: data.id,
+        session_id: data.session_id,
+        role: data.role as 'user' | 'assistant',
+        content: data.content,
+        timestamp: data.timestamp
+      };
+
+      setMessages(prev => [...prev, newMessage]);
+      return newMessage;
     } catch (error) {
       console.error('Error adding message:', error);
       toast({
@@ -83,13 +102,20 @@ export const useChatMessages = (sessionId: string | null) => {
   const sendMessage = async (content: string, context?: string) => {
     if (!sessionId || !user || isSending) return;
 
+    console.log('Starting sendMessage flow...', { sessionId, content });
     setIsSending(true);
     
     try {
-      // Add user message
-      await addMessage(content, 'user');
+      // Add user message first
+      console.log('Adding user message...');
+      const userMessage = await addMessage(content, 'user');
+      if (!userMessage) {
+        throw new Error('Failed to save user message');
+      }
 
-      // Get AI response
+      console.log('User message saved, calling AI function...');
+      
+      // Call AI function with proper parameters
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: `${context ? `Context: ${context}\n\n` : ''}${content}`,
@@ -98,12 +124,23 @@ export const useChatMessages = (sessionId: string | null) => {
         }
       });
 
-      if (error) throw error;
+      console.log('AI function response:', { data, error });
+
+      if (error) {
+        console.error('AI function error:', error);
+        throw error;
+      }
 
       const aiResponse = data?.response || "I'm here to help guide your learning journey!";
+      console.log('AI response received:', aiResponse);
       
       // Add AI response
-      await addMessage(aiResponse, 'assistant');
+      const assistantMessage = await addMessage(aiResponse, 'assistant');
+      if (!assistantMessage) {
+        throw new Error('Failed to save AI response');
+      }
+
+      console.log('AI message saved successfully');
 
       // Update session title if this is the first user message
       if (messages.length === 0) {
@@ -116,6 +153,8 @@ export const useChatMessages = (sessionId: string | null) => {
 
     } catch (error) {
       console.error('Error in sendMessage:', error);
+      
+      // Provide fallback message for better UX
       const fallbackMessage = "I'm having trouble connecting right now, but I'm still here to help! Try asking about study strategies or platform features.";
       await addMessage(fallbackMessage, 'assistant');
       
