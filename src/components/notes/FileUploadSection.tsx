@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ const FileUploadSection: React.FC = () => {
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -48,6 +48,34 @@ const FileUploadSection: React.FC = () => {
     }
 
     return sampleFlashcards.length;
+  };
+
+  const simulateProgress = (uploadId: string, duration: number = 3000) => {
+    const steps = 20;
+    const interval = duration / steps;
+    let currentStep = 0;
+
+    const progressInterval = setInterval(() => {
+      currentStep++;
+      const progress = Math.min((currentStep / steps) * 100, 100);
+      
+      setProcessingProgress(prev => ({
+        ...prev,
+        [uploadId]: progress
+      }));
+
+      if (currentStep >= steps) {
+        clearInterval(progressInterval);
+        // Clean up progress state after completion
+        setTimeout(() => {
+          setProcessingProgress(prev => {
+            const newState = { ...prev };
+            delete newState[uploadId];
+            return newState;
+          });
+        }, 1000);
+      }
+    }, interval);
   };
 
   const handleFiles = async (files: FileList) => {
@@ -122,25 +150,30 @@ const FileUploadSection: React.FC = () => {
 
             if (!uploadRecord) return;
 
-            // Update status to processing
+            // Update status to processing and start progress simulation
             updateUpload({
               id: uploadRecord.id,
               processing_status: 'processing'
             });
 
+            // Start progress animation
+            simulateProgress(uploadRecord.id);
+
             const flashcardCount = await processFileForFlashcards(file, uploadRecord.id);
             
-            // Update upload status to completed
-            updateUpload({
-              id: uploadRecord.id,
-              processing_status: 'completed',
-              generated_flashcards_count: flashcardCount
-            });
+            // Update upload status to completed after progress finishes
+            setTimeout(() => {
+              updateUpload({
+                id: uploadRecord.id,
+                processing_status: 'completed',
+                generated_flashcards_count: flashcardCount
+              });
 
-            toast({
-              title: "Flashcards generated",
-              description: `Generated ${flashcardCount} flashcards from ${file.name}`,
-            });
+              toast({
+                title: "Flashcards generated",
+                description: `Generated ${flashcardCount} flashcards from ${file.name}`,
+              });
+            }, 3000);
 
           } catch (error) {
             console.error('Processing error:', error);
@@ -159,6 +192,13 @@ const FileUploadSection: React.FC = () => {
                 processing_status: 'failed',
                 error_message: 'Failed to process file'
               });
+
+              // Clean up progress state on error
+              setProcessingProgress(prev => {
+                const newState = { ...prev };
+                delete newState[uploadRecord.id];
+                return newState;
+              });
             }
 
             toast({
@@ -167,7 +207,7 @@ const FileUploadSection: React.FC = () => {
               variant: "destructive"
             });
           }
-        }, 3000); // Simulate 3 second processing time
+        }, 1000);
 
       } catch (error) {
         console.error('File upload error:', error);
@@ -278,8 +318,16 @@ const FileUploadSection: React.FC = () => {
                 
                 {upload.processing_status === 'processing' && (
                   <div className="space-y-2">
-                    <Progress value={66} className="h-2" />
-                    <p className="text-xs text-gray-600 break-words">Generating flashcards...</p>
+                    <Progress 
+                      value={processingProgress[upload.id] || 0} 
+                      className="h-2" 
+                    />
+                    <p className="text-xs text-gray-600 break-words">
+                      {processingProgress[upload.id] >= 100 
+                        ? 'Finalizing flashcards...' 
+                        : 'Generating flashcards...'
+                      }
+                    </p>
                   </div>
                 )}
                 
