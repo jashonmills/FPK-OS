@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -41,28 +40,23 @@ export function AppSidebar() {
   const menuItems = [
     {
       title: 'nav.home',
-      url: "/dashboard/learner/home",
+      url: "/dashboard/learner",
       icon: Home,
     },
     {
       title: 'nav.courses',
-      url: "/dashboard/learner/courses",
+      url: "/dashboard/learner/my-courses",
       icon: Book,
     },
     {
       title: 'nav.analytics',
-      url: "/dashboard/learner/analytics",
+      url: "/dashboard/learner/learning-analytics",
       icon: BarChart,
     },
     {
       title: 'nav.liveHub',
-      url: "/dashboard/learner/live-hub",
+      url: "/dashboard/learner/live-learning-hub",
       icon: Compass,
-    },
-    {
-      title: 'nav.aiCoach',
-      url: "/dashboard/learner/ai-coach",
-      icon: BookUser,
     },
     {
       title: 'nav.goals',
@@ -74,11 +68,6 @@ export function AppSidebar() {
       url: "/dashboard/learner/notes",
       icon: StickyNote,
     },
-    {
-      title: 'nav.community',
-      url: "/dashboard/learner/community",
-      icon: Users,
-    },
   ];
 
   const footerItems = [
@@ -86,11 +75,6 @@ export function AppSidebar() {
       title: 'nav.settings',
       url: "/dashboard/learner/settings",
       icon: Settings,
-    },
-    {
-      title: 'nav.support',
-      url: "/dashboard/learner/support",
-      icon: HelpCircle,
     },
   ];
 
