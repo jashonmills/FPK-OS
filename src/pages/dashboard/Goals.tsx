@@ -10,6 +10,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 
 const Goals = () => {
   const { t } = useDualLanguage();
@@ -101,6 +102,9 @@ const Goals = () => {
           </p>
         </CardContent>
       </Card>
+
+      {/* Goals Dashboard Component - This is the main goals management interface */}
+      <GoalsDashboard />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Active Learning Goals */}
