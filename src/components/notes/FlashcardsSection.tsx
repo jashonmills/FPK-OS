@@ -76,25 +76,25 @@ const FlashcardsSection: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Study Mode Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {studyModes.map((mode) => (
             <div key={mode.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`p-2 rounded-lg ${mode.color} text-white`}>
+                <div className={`p-2 rounded-lg ${mode.color} text-white flex-shrink-0`}>
                   <mode.icon className="h-5 w-5" />
                 </div>
-                <div>
-                  <h3 className="font-medium">{mode.title}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-medium text-sm sm:text-base truncate">{mode.title}</h3>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mb-4">{mode.description}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed break-words">{mode.description}</p>
               <Button
                 size="sm"
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 onClick={() => handleStartStudyMode(mode.id)}
                 disabled={flashcards.length === 0 || isCreating}
               >
-                <Play className="h-4 w-4 mr-2" />
+                <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 {isCreating ? 'Starting...' : 'Start Mode'}
               </Button>
             </div>
@@ -105,26 +105,30 @@ const FlashcardsSection: React.FC = () => {
         {flashcards.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">Recent Flashcards</h3>
-              <Button size="sm" variant="outline">
-                <RotateCcw className="h-4 w-4 mr-2" />
+              <h3 className="font-medium text-sm sm:text-base">Recent Flashcards</h3>
+              <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+                <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 Review All
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {flashcards.slice(0, 4).map((card) => (
-                <div key={card.id} className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700">Front:</div>
-                    <div className="text-gray-900">{card.front_content}</div>
-                    <div className="text-sm font-medium text-gray-700 mt-3">Back:</div>
-                    <div className="text-gray-900">{card.back_content}</div>
+                <div key={card.id} className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Front:</div>
+                      <div className="text-sm sm:text-base text-gray-900 break-words leading-relaxed">{card.front_content}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Back:</div>
+                      <div className="text-sm sm:text-base text-gray-900 break-words leading-relaxed">{card.back_content}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                    <Badge variant="outline" className="text-xs">
+                  <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-gray-500">
+                    <Badge variant="outline" className="text-xs px-2 py-1">
                       Level {card.difficulty_level}
                     </Badge>
-                    <span>Reviewed {card.times_reviewed} times</span>
+                    <span className="break-words">Reviewed {card.times_reviewed} times</span>
                   </div>
                 </div>
               ))}
@@ -133,8 +137,8 @@ const FlashcardsSection: React.FC = () => {
         ) : (
           <div className="text-center py-8 text-gray-500">
             <Brain className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium mb-2">No flashcards yet</p>
-            <p className="text-sm">Upload files or create notes to generate flashcards!</p>
+            <p className="text-base sm:text-lg font-medium mb-2">No flashcards yet</p>
+            <p className="text-sm px-4 break-words">Upload files or create notes to generate flashcards!</p>
           </div>
         )}
       </CardContent>
