@@ -59,6 +59,11 @@ export function AppSidebar() {
       icon: Compass,
     },
     {
+      title: 'AI Study Coach',
+      url: "/dashboard/learner/ai-study-coach",
+      icon: BookUser,
+    },
+    {
       title: 'nav.goals',
       url: "/dashboard/learner/goals",
       icon: Award,

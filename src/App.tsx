@@ -13,6 +13,7 @@ import LearnerHome from '@/pages/dashboard/LearnerHome';
 import MyCourses from '@/pages/dashboard/MyCourses';
 import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
 import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
+import AIStudyCoach from '@/pages/dashboard/AIStudyCoach';
 import Goals from '@/pages/dashboard/Goals';
 import Notes from '@/pages/dashboard/Notes';
 import Settings from '@/pages/dashboard/Settings';
