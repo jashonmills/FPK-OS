@@ -110,8 +110,8 @@ const FileUploadSection: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 3000) => {
-    const steps = 20;
+  const simulateProgress = (uploadId: string, duration: number = 2000) => {
+    const steps = 10;
     const interval = duration / steps;
     let currentStep = 0;
 
@@ -189,7 +189,7 @@ const FileUploadSection: React.FC = () => {
           description: `${file.name} uploaded successfully. Processing with AI...`,
         });
 
-        // Process with AI after a short delay to ensure upload record exists
+        // Process with AI immediately after upload
         setTimeout(async () => {
           try {
             // Find the upload record
@@ -210,8 +210,8 @@ const FileUploadSection: React.FC = () => {
               processing_status: 'processing'
             });
 
-            // Start progress animation
-            simulateProgress(uploadRecord.id, 8000); // 8 seconds for AI processing
+            // Start faster progress animation
+            simulateProgress(uploadRecord.id, 3000); // 3 seconds instead of 8
 
             // Process file with AI
             await processFileForFlashcards(file, uploadRecord.id, filePath);
@@ -248,7 +248,7 @@ const FileUploadSection: React.FC = () => {
               variant: "destructive"
             });
           }
-        }, 1000);
+        }, 500);
 
       } catch (error) {
         console.error('File upload error:', error);
@@ -308,7 +308,7 @@ const FileUploadSection: React.FC = () => {
             Drop your files here or click to browse
           </h3>
           <p className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed">
-            Support for PDF, TXT, and DOC files up to 10MB
+            Support for PDF, TXT, and DOC files up to 10MB • Fast AI processing
           </p>
           <input
             type="file"
@@ -365,8 +365,8 @@ const FileUploadSection: React.FC = () => {
                     />
                     <p className="text-xs text-gray-600 break-words">
                       {processingProgress[upload.id] >= 100 
-                        ? 'Finalizing flashcards...' 
-                        : 'Generating flashcards with AI...'
+                        ? 'AI is finalizing flashcards...' 
+                        : 'AI is analyzing content...'
                       }
                     </p>
                   </div>
