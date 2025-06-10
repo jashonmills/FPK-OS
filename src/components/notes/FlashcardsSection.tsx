@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,24 +23,29 @@ const FlashcardsSection: React.FC = () => {
     const shuffledCards = [...flashcards].sort(() => Math.random() - 0.5);
     const studyCards = shuffledCards.slice(0, Math.min(10, flashcards.length));
     
-    // Create the session first, then navigate
-    createSession({
-      session_type: mode,
-      flashcard_ids: studyCards.map(card => card.id),
-      total_cards: studyCards.length
-    });
+    try {
+      // Create the session and wait for it to complete
+      const session = await createSession({
+        session_type: mode,
+        flashcard_ids: studyCards.map(card => card.id),
+        total_cards: studyCards.length
+      });
 
-    // Navigate immediately to the study session
-    const routeMode = mode.replace('_', '-');
-    // We'll create a simple study route pattern
-    setTimeout(() => {
+      console.log('Session created:', session);
+
+      // Navigate to the study session with the session data
+      const routeMode = mode.replace('_', '-');
       navigate(`/study/${routeMode}`, { 
         state: { 
           flashcards: studyCards,
-          mode 
+          mode,
+          session
         }
       });
-    }, 100);
+    } catch (error) {
+      console.error('Error creating session:', error);
+      alert('Failed to start study session. Please try again.');
+    }
   };
 
   const studyModes = [

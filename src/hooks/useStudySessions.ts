@@ -36,6 +36,7 @@ export const useStudySessions = () => {
         throw error;
       }
 
+      console.log('Fetched study sessions:', data);
       return data as StudySession[];
     },
     enabled: !!user,
@@ -49,6 +50,8 @@ export const useStudySessions = () => {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
+      console.log('Creating session with data:', sessionData);
+
       const { data, error } = await supabase
         .from('study_sessions')
         .insert({
@@ -60,7 +63,12 @@ export const useStudySessions = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating session:', error);
+        throw error;
+      }
+
+      console.log('Created session:', data);
       return data;
     },
     onSuccess: () => {
@@ -80,6 +88,13 @@ export const useStudySessions = () => {
       incorrect_answers: number;
       session_duration_seconds: number;
     }) => {
+      console.log('Completing session:', {
+        id,
+        correct_answers,
+        incorrect_answers,
+        session_duration_seconds
+      });
+
       const { data, error } = await supabase
         .from('study_sessions')
         .update({
@@ -92,10 +107,16 @@ export const useStudySessions = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error completing session:', error);
+        throw error;
+      }
+
+      console.log('Session completed:', data);
       return data;
     },
     onSuccess: () => {
+      console.log('Session completion successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['study-sessions', user?.id] });
     },
   });
@@ -103,8 +124,8 @@ export const useStudySessions = () => {
   return {
     sessions,
     isLoading,
-    createSession: createSessionMutation.mutate,
-    completeSession: completeSessionMutation.mutate,
+    createSession: createSessionMutation.mutateAsync,
+    completeSession: completeSessionMutation.mutateAsync,
     isCreating: createSessionMutation.isPending,
     isCompleting: completeSessionMutation.isPending,
   };

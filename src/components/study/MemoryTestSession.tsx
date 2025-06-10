@@ -24,24 +24,29 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [startTime] = useState(Date.now());
+  const [isCompleting, setIsCompleting] = useState(false);
   const { completeSession } = useStudySessions();
   const { updateFlashcard } = useFlashcards();
 
   const currentCard = flashcards[currentIndex];
   const progress = ((currentIndex + (answers.length > currentIndex ? 1 : 0)) / flashcards.length) * 100;
 
-  const handleAnswer = (correct: boolean) => {
+  const handleAnswer = async (correct: boolean) => {
     const newAnswers = [...answers];
     newAnswers[currentIndex] = correct;
     setAnswers(newAnswers);
 
     // Update flashcard statistics
-    updateFlashcard({
-      id: currentCard.id,
-      times_reviewed: currentCard.times_reviewed + 1,
-      times_correct: correct ? currentCard.times_correct + 1 : currentCard.times_correct,
-      last_reviewed_at: new Date().toISOString()
-    });
+    try {
+      await updateFlashcard({
+        id: currentCard.id,
+        times_reviewed: currentCard.times_reviewed + 1,
+        times_correct: correct ? currentCard.times_correct + 1 : currentCard.times_correct,
+        last_reviewed_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating flashcard:', error);
+    }
 
     // Move to next card or complete session
     if (currentIndex < flashcards.length - 1) {
@@ -50,23 +55,41 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
         setIsFlipped(false);
       }, 500);
     } else {
-      handleComplete(newAnswers);
+      await handleComplete(newAnswers);
     }
   };
 
-  const handleComplete = (finalAnswers: boolean[]) => {
+  const handleComplete = async (finalAnswers: boolean[]) => {
+    if (isCompleting) return;
+    
+    setIsCompleting(true);
     const correctCount = finalAnswers.filter(Boolean).length;
     const incorrectCount = finalAnswers.length - correctCount;
     const duration = Math.round((Date.now() - startTime) / 1000);
 
-    completeSession({
+    console.log('Completing session with:', {
       id: session.id,
       correct_answers: correctCount,
       incorrect_answers: incorrectCount,
       session_duration_seconds: duration
     });
 
-    setTimeout(onComplete, 1000);
+    try {
+      await completeSession({
+        id: session.id,
+        correct_answers: correctCount,
+        incorrect_answers: incorrectCount,
+        session_duration_seconds: duration
+      });
+      
+      console.log('Session completed successfully');
+      
+      // Wait a bit for the data to propagate before navigating
+      setTimeout(onComplete, 1500);
+    } catch (error) {
+      console.error('Error completing session:', error);
+      setIsCompleting(false);
+    }
   };
 
   if (currentIndex >= flashcards.length && answers.length === flashcards.length) {
@@ -98,9 +121,16 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
               </div>
             </div>
 
-            <Button onClick={onComplete} className="w-full">
-              Return to Notes
-            </Button>
+            {isCompleting ? (
+              <div className="text-center">
+                <p className="text-gray-600 mb-4">Saving your progress...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              </div>
+            ) : (
+              <Button onClick={onComplete} className="w-full">
+                Return to Notes
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -163,6 +193,7 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
             size="lg"
             className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
             onClick={() => handleAnswer(false)}
+            disabled={isCompleting}
           >
             <X className="h-5 w-5 mr-2" />
             Incorrect
@@ -171,6 +202,7 @@ const MemoryTestSession: React.FC<MemoryTestSessionProps> = ({
             size="lg"
             className="flex-1 bg-green-600 hover:bg-green-700"
             onClick={() => handleAnswer(true)}
+            disabled={isCompleting}
           >
             <Check className="h-5 w-5 mr-2" />
             Correct

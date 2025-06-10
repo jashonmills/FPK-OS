@@ -6,19 +6,24 @@ import MemoryTestSession from '@/components/study/MemoryTestSession';
 import MultipleChoiceSession from '@/components/study/MultipleChoiceSession';
 import TimedChallengeSession from '@/components/study/TimedChallengeSession';
 import type { Flashcard } from '@/hooks/useFlashcards';
+import type { StudySession } from '@/hooks/useStudySessions';
 
 const StudyPage: React.FC = () => {
   const { mode } = useParams<{ mode: string }>();
   const location = useLocation();
   const navigate = useNavigate();
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [session, setSession] = useState<StudySession | null>(null);
 
   useEffect(() => {
-    // Get flashcards from navigation state
-    if (location.state?.flashcards) {
+    // Get flashcards and session from navigation state
+    if (location.state?.flashcards && location.state?.session) {
       setFlashcards(location.state.flashcards);
+      setSession(location.state.session);
+      console.log('StudyPage loaded with session:', location.state.session);
     } else {
-      // If no flashcards in state, redirect back to notes
+      // If no data in state, redirect back to notes
+      console.log('No session data found, redirecting to notes');
       navigate('/dashboard/learner/notes');
     }
   }, [location.state, navigate]);
@@ -27,7 +32,7 @@ const StudyPage: React.FC = () => {
     navigate('/dashboard/learner/notes');
   };
 
-  if (flashcards.length === 0) {
+  if (!session || flashcards.length === 0) {
     return (
       <div className="p-6 text-center">
         <h2 className="text-xl font-bold mb-4">Loading study session...</h2>
@@ -35,22 +40,8 @@ const StudyPage: React.FC = () => {
     );
   }
 
-  // Create a mock session object for the components
-  const mockSession = {
-    id: 'temp-session',
-    user_id: '',
-    session_type: location.state?.mode || 'memory_test',
-    flashcard_ids: flashcards.map(card => card.id),
-    total_cards: flashcards.length,
-    correct_answers: 0,
-    incorrect_answers: 0,
-    session_duration_seconds: null,
-    completed_at: null,
-    created_at: new Date().toISOString()
-  };
-
   const commonProps = {
-    session: mockSession,
+    session,
     flashcards,
     onComplete: handleComplete
   };
