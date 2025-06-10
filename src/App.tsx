@@ -13,6 +13,7 @@ import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
 import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
 import Settings from "./pages/dashboard/Settings";
 import Goals from "./pages/dashboard/Goals";
+import Notes from "./pages/dashboard/Notes";
 import LearningStateCourse from "./pages/dashboard/LearningStateCourse";
 import NotFound from "./pages/NotFound";
 import { useTranslation } from "react-i18next";
@@ -96,6 +97,14 @@ const AppContent = () => {
         } 
       />
       <Route 
+        path="/dashboard/learner/notes" 
+        element={
+          <DashboardLayout>
+            <Notes />
+          </DashboardLayout>
+        } 
+      />
+      <Route 
         path="/dashboard/learner/settings" 
         element={
           <DashboardLayout>
@@ -111,17 +120,6 @@ const AppContent = () => {
           <DashboardLayout>
             <div className="p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('nav.aiCoach')}</h1>
-              <p className="text-gray-600">{t('common.comingSoon')}</p>
-            </div>
-          </DashboardLayout>
-        } 
-      />
-      <Route 
-        path="/dashboard/learner/notes" 
-        element={
-          <DashboardLayout>
-            <div className="p-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('nav.notes')}</h1>
               <p className="text-gray-600">{t('common.comingSoon')}</p>
             </div>
           </DashboardLayout>

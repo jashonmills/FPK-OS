@@ -101,6 +101,98 @@ export type Database = {
           },
         ]
       }
+      file_uploads: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          generated_flashcards_count: number | null
+          id: string
+          processing_status: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          generated_flashcards_count?: number | null
+          id?: string
+          processing_status?: string
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          generated_flashcards_count?: number | null
+          id?: string
+          processing_status?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          back_content: string
+          created_at: string
+          difficulty_level: number | null
+          front_content: string
+          id: string
+          last_reviewed_at: string | null
+          note_id: string | null
+          times_correct: number | null
+          times_reviewed: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back_content: string
+          created_at?: string
+          difficulty_level?: number | null
+          front_content: string
+          id?: string
+          last_reviewed_at?: string | null
+          note_id?: string | null
+          times_correct?: number | null
+          times_reviewed?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back_content?: string
+          created_at?: string
+          difficulty_level?: number | null
+          front_content?: string
+          id?: string
+          last_reviewed_at?: string | null
+          note_id?: string | null
+          times_correct?: number | null
+          times_reviewed?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           category: string
@@ -143,6 +235,39 @@ export type Database = {
           progress?: number
           status?: string
           target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -236,6 +361,45 @@ export type Database = {
           total_xp?: number | null
           two_factor_enabled?: boolean | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      study_sessions: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number | null
+          created_at: string
+          flashcard_ids: string[]
+          id: string
+          incorrect_answers: number | null
+          session_duration_seconds: number | null
+          session_type: string
+          total_cards: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string
+          flashcard_ids: string[]
+          id?: string
+          incorrect_answers?: number | null
+          session_duration_seconds?: number | null
+          session_type: string
+          total_cards: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string
+          flashcard_ids?: string[]
+          id?: string
+          incorrect_answers?: number | null
+          session_duration_seconds?: number | null
+          session_type?: string
+          total_cards?: number
+          user_id?: string
         }
         Relationships: []
       }
