@@ -52,7 +52,9 @@ export function useProgressTracking(courseId: string) {
         }
 
         if (data?.progress) {
-          setCurrentProgress(data.progress as CourseProgress);
+          // Safely handle the Json type conversion
+          const progressData = data.progress as unknown as CourseProgress;
+          setCurrentProgress(progressData);
         }
       } catch (error) {
         console.error('Error in fetchProgress:', error);
