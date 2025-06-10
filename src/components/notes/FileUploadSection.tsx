@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, X, Clock } from 'lucide-react';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
@@ -19,6 +19,21 @@ const FileUploadSection: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+
+  // Enhanced file type support
+  const allowedTypes = [
+    'application/pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/markdown',
+    'text/csv',
+    'application/rtf'
+  ];
+
+  const maxFileSize = 50 * 1024 * 1024; // Increased to 50MB
 
   // Set up real-time subscription to file_uploads table
   useEffect(() => {
@@ -56,8 +71,8 @@ const FileUploadSection: React.FC = () => {
             });
             
             toast({
-              title: "Flashcards generated!",
-              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
+              title: "✅ Flashcards generated!",
+              description: `Successfully created ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
             });
           } else if (payload.new.processing_status === 'failed') {
             // Clear timeout and progress
@@ -78,7 +93,7 @@ const FileUploadSection: React.FC = () => {
             });
             
             toast({
-              title: "Processing failed",
+              title: "❌ Processing failed",
               description: payload.new.error_message || "Failed to generate flashcards",
               variant: "destructive"
             });
@@ -115,7 +130,7 @@ const FileUploadSection: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('Starting AI processing for file:', file.name);
+      console.log('Starting enhanced AI processing for file:', file.name);
       
       // Call the edge function to process the file
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
@@ -142,14 +157,14 @@ const FileUploadSection: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 1000) => {
-    const steps = 20;
+  const simulateProgress = (uploadId: string, duration: number = 3000) => {
+    const steps = 30;
     const interval = duration / steps;
     let currentStep = 0;
 
     const progressInterval = setInterval(() => {
       currentStep++;
-      const progress = Math.min((currentStep / steps) * 100, 95); // Cap at 95% until real completion
+      const progress = Math.min((currentStep / steps) * 100, 90); // Cap at 90% until real completion
       
       setProcessingProgress(prev => ({
         ...prev,
@@ -164,28 +179,50 @@ const FileUploadSection: React.FC = () => {
     return progressInterval;
   };
 
+  const getFileTypeLabel = (fileType: string) => {
+    const typeMap: Record<string, string> = {
+      'application/pdf': 'PDF',
+      'text/plain': 'TXT',
+      'application/msword': 'DOC',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+      'application/vnd.ms-powerpoint': 'PPT',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
+      'text/markdown': 'MD',
+      'text/csv': 'CSV',
+      'application/rtf': 'RTF'
+    };
+    return typeMap[fileType] || 'FILE';
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleFiles = async (files: FileList) => {
     if (!user || files.length === 0) return;
 
     setUploading(true);
     
     for (const file of Array.from(files)) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      // Enhanced file validation
       if (!allowedTypes.includes(file.type)) {
         toast({
-          title: "File type not supported",
-          description: `File type ${file.type} is not supported. Please upload PDF, TXT, or DOC files.`,
+          title: "❌ File type not supported",
+          description: `${getFileTypeLabel(file.type)} files are not supported. Please upload PDF, DOC, PPT, TXT, MD, CSV, or RTF files.`,
           variant: "destructive"
         });
         continue;
       }
 
-      // Check file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
+      // Increased file size limit
+      if (file.size > maxFileSize) {
         toast({
-          title: "File too large",
-          description: "File size must be less than 10MB.",
+          title: "❌ File too large",
+          description: `File size must be less than ${formatFileSize(maxFileSize)}. Your file is ${formatFileSize(file.size)}.`,
           variant: "destructive"
         });
         continue;
@@ -203,7 +240,7 @@ const FileUploadSection: React.FC = () => {
         if (uploadError) {
           console.error('Upload error:', uploadError);
           toast({
-            title: "Upload failed",
+            title: "❌ Upload failed",
             description: "Failed to upload file to storage.",
             variant: "destructive"
           });
@@ -219,8 +256,8 @@ const FileUploadSection: React.FC = () => {
         });
 
         toast({
-          title: "File uploaded",
-          description: `${file.name} uploaded successfully. Processing with AI...`,
+          title: "✅ File uploaded",
+          description: `${file.name} (${formatFileSize(file.size)}) uploaded successfully. AI processing started...`,
         });
 
         // Process with AI immediately after upload
@@ -244,16 +281,17 @@ const FileUploadSection: React.FC = () => {
               processing_status: 'processing'
             });
 
-            // Start progress animation
-            simulateProgress(uploadRecord.id, 2000);
+            // Start enhanced progress animation
+            simulateProgress(uploadRecord.id, 5000);
 
-            // Set timeout for processing (30 seconds max)
+            // Set extended timeout for larger files (2 minutes)
+            const timeoutDuration = Math.min(120000, Math.max(60000, file.size / 1000)); // Dynamic timeout based on file size
             const timeoutId = setTimeout(() => {
               console.log('Processing timeout for upload:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Processing timeout - please try again with a smaller file'
+                error_message: 'Processing timeout - the file may be too complex. Try breaking it into smaller sections.'
               });
 
               setProcessingProgress(prev => {
@@ -263,11 +301,11 @@ const FileUploadSection: React.FC = () => {
               });
 
               toast({
-                title: "Processing timeout",
-                description: "File processing took too long. Please try again.",
+                title: "⏱️ Processing timeout",
+                description: "File processing took too long. Try uploading smaller sections or simpler content.",
                 variant: "destructive"
               });
-            }, 30000); // 30 second timeout
+            }, timeoutDuration);
 
             setProcessingTimeouts(prev => ({
               ...prev,
@@ -292,7 +330,7 @@ const FileUploadSection: React.FC = () => {
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Failed to process file with AI'
+                error_message: 'Failed to process file with AI - please try again'
               });
 
               // Clean up progress state and timeout on error
@@ -313,8 +351,8 @@ const FileUploadSection: React.FC = () => {
             }
 
             toast({
-              title: "AI processing failed",
-              description: "Failed to generate flashcards. Please try again.",
+              title: "❌ AI processing failed",
+              description: "Failed to generate flashcards. Please try again or use a simpler file.",
               variant: "destructive"
             });
           }
@@ -323,7 +361,7 @@ const FileUploadSection: React.FC = () => {
       } catch (error) {
         console.error('File upload error:', error);
         toast({
-          title: "Upload error",
+          title: "❌ Upload error",
           description: "An unexpected error occurred during upload.",
           variant: "destructive"
         });
@@ -370,15 +408,64 @@ const FileUploadSection: React.FC = () => {
     deleteUpload(id);
   };
 
+  const retryProcessing = async (upload: any) => {
+    try {
+      // Update status to processing
+      updateUpload({
+        id: upload.id,
+        processing_status: 'processing',
+        error_message: null
+      });
+
+      // Start progress animation
+      simulateProgress(upload.id, 5000);
+
+      // Set timeout
+      const timeoutId = setTimeout(() => {
+        updateUpload({
+          id: upload.id,
+          processing_status: 'failed',
+          error_message: 'Processing timeout - please try a smaller file'
+        });
+
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[upload.id];
+          return newState;
+        });
+      }, 120000);
+
+      setProcessingTimeouts(prev => ({
+        ...prev,
+        [upload.id]: timeoutId
+      }));
+
+      // Process file with AI
+      await processFileForFlashcards(
+        new File([], upload.file_name, { type: upload.file_type }),
+        upload.id,
+        upload.storage_path
+      );
+
+    } catch (error) {
+      console.error('Retry processing error:', error);
+      toast({
+        title: "❌ Retry failed",
+        description: "Failed to retry processing. Please try uploading again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <Card className="fpk-card border-0 shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-          📤 Upload to Generate Flashcards
+          📤 Enhanced File Upload & AI Processing
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Upload Area */}
+        {/* Enhanced Upload Area */}
         <div
           className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center transition-colors ${
             dragActive 
@@ -394,15 +481,17 @@ const FileUploadSection: React.FC = () => {
           <h3 className="text-base sm:text-lg font-medium mb-2 break-words px-2">
             Drop your files here or click to browse
           </h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed">
-            Support for PDF, TXT, and DOC files up to 10MB • Fast AI processing (5-10 seconds)
-          </p>
+          <div className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed space-y-2">
+            <p><strong>📁 Supported formats:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF</p>
+            <p><strong>📏 Size limit:</strong> Up to {formatFileSize(maxFileSize)} per file</p>
+            <p><strong>⚡ Processing:</strong> Enhanced AI with dynamic timeout (1-2 minutes)</p>
+          </div>
           <input
             type="file"
             id="file-upload"
             className="hidden"
             multiple
-            accept=".pdf,.txt,.doc,.docx"
+            accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.md,.csv,.rtf"
             onChange={handleFileInput}
             disabled={uploading}
           />
@@ -414,16 +503,26 @@ const FileUploadSection: React.FC = () => {
           </Button>
         </div>
 
-        {/* Upload Progress */}
+        {/* Enhanced Upload Progress */}
         {uploads.length > 0 && (
           <div className="space-y-4">
-            <h3 className="font-medium text-sm sm:text-base">Recent Uploads</h3>
+            <h3 className="font-medium text-sm sm:text-base">File Processing Status</h3>
             {uploads.map((upload) => (
               <div key={upload.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-start sm:items-center justify-between mb-2 gap-2">
                   <div className="flex items-start sm:items-center gap-2 min-w-0 flex-1">
                     <FileText className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
-                    <span className="font-medium text-sm sm:text-base break-words leading-tight">{upload.file_name}</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-sm sm:text-base break-words leading-tight block">
+                        {upload.file_name}
+                      </span>
+                      <div className="text-xs text-gray-500 flex flex-wrap items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs px-1 py-0">
+                          {getFileTypeLabel(upload.file_type)}
+                        </Badge>
+                        <span>{formatFileSize(upload.file_size)}</span>
+                      </div>
+                    </div>
                     <Badge 
                       variant={
                         upload.processing_status === 'completed' ? 'default' :
@@ -434,14 +533,27 @@ const FileUploadSection: React.FC = () => {
                       {upload.processing_status}
                     </Badge>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeUpload(upload.id)}
-                    className="flex-shrink-0 h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    {upload.processing_status === 'failed' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => retryProcessing(upload)}
+                        className="flex-shrink-0 h-8 w-8 p-0"
+                        title="Retry processing"
+                      >
+                        <Clock className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeUpload(upload.id)}
+                      className="flex-shrink-0 h-8 w-8 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 
                 {upload.processing_status === 'processing' && (
@@ -451,9 +563,9 @@ const FileUploadSection: React.FC = () => {
                       className="h-2" 
                     />
                     <p className="text-xs text-gray-600 break-words">
-                      {processingProgress[upload.id] >= 95 
-                        ? 'AI is finalizing flashcards...' 
-                        : 'AI is analyzing content...'
+                      {processingProgress[upload.id] >= 85 
+                        ? '🧠 AI is finalizing flashcards...' 
+                        : '📖 AI is analyzing content...'
                       }
                     </p>
                   </div>
@@ -463,7 +575,7 @@ const FileUploadSection: React.FC = () => {
                   <div className="flex items-center gap-2 text-green-600">
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />
                     <span className="text-xs sm:text-sm break-words">
-                      Generated {upload.generated_flashcards_count} flashcards
+                      ✅ Generated {upload.generated_flashcards_count} flashcards
                     </span>
                   </div>
                 )}
@@ -472,7 +584,7 @@ const FileUploadSection: React.FC = () => {
                   <div className="flex items-center gap-2 text-red-600">
                     <AlertCircle className="h-4 w-4 flex-shrink-0" />
                     <span className="text-xs sm:text-sm break-words">
-                      {upload.error_message || 'Processing failed'}
+                      ❌ {upload.error_message || 'Processing failed'}
                     </span>
                   </div>
                 )}
