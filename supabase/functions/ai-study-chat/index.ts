@@ -92,19 +92,39 @@ async function getUserLearningContext(userId: string) {
   }
 }
 
+// Get recent chat history for context
+async function getChatHistory(sessionId: string, limit: number = 10) {
+  try {
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('role, content')
+      .eq('session_id', sessionId)
+      .order('timestamp', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    
+    // Return messages in chronological order
+    return (data || []).reverse();
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    return [];
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, userId } = await req.json();
+    const { message, userId, sessionId } = await req.json();
     
     if (!message || !userId) {
       throw new Error('Message and user ID are required');
     }
 
-    console.log('Optimized AI Coach request for user:', userId);
+    console.log('Optimized AI Coach request for user:', userId, 'session:', sessionId);
 
     // Check if Anthropic API key is available
     if (!anthropicApiKey) {
@@ -122,8 +142,18 @@ serve(async (req) => {
       );
     }
 
-    // Fetch optimized user learning context
-    const learningContext = await getUserLearningContext(userId);
+    // Fetch optimized user learning context and chat history in parallel
+    const [learningContext, chatHistory] = await Promise.all([
+      getUserLearningContext(userId),
+      sessionId ? getChatHistory(sessionId, 8) : Promise.resolve([])
+    ]);
+
+    // Build conversation context
+    let conversationContext = '';
+    if (chatHistory.length > 0) {
+      conversationContext = '\n\nRecent conversation:\n' + 
+        chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
+    }
 
     // Streamlined coaching prompt for faster processing
     let coachingPrompt = `You are an AI Learning Coach. Be encouraging and provide specific guidance in 2-3 sentences.
@@ -137,22 +167,19 @@ Accuracy: ${learningContext.performance.overallAccuracy}% overall, ${learningCon
 Streak: ${learningContext.performance.currentStreak} days
 Cards: ${learningContext.profile.totalCards} total, ${learningContext.profile.strugglingCards} need practice
 
-Trend: ${learningContext.performance.improvementTrend > 5 ? 'Improving!' : learningContext.performance.improvementTrend > 0 ? 'Steady' : 'Needs focus'}
+Trend: ${learningContext.performance.improvementTrend > 5 ? 'Improving!' : learningContext.performance.improvementTrend > 0 ? 'Steady' : 'Needs focus'}`;
+    }
 
-Question: "${message}"
+    coachingPrompt += conversationContext;
+    coachingPrompt += `\nLatest question: "${message}"\n\nProvide specific, encouraging guidance based on their data and conversation history.`;
 
-Provide specific, encouraging guidance based on their data.`;
-    } else {
-      coachingPrompt += `
-
-New learner asking: "${message}"
-
-Encourage them to start studying so you can provide personalized guidance.`;
+    if (!learningContext || learningContext.performance.totalSessions === 0) {
+      coachingPrompt += ' Encourage them to start studying so you can provide personalized guidance.';
     }
 
     // Reduced timeout for faster user feedback
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // Reduced from 10s to 6s
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
     try {
       const startTime = Date.now();
@@ -166,8 +193,8 @@ Encourage them to start studying so you can provide personalized guidance.`;
           'x-api-key': anthropicApiKey,
         },
         body: JSON.stringify({
-          model: 'claude-3-5-haiku-20241022', // Using the fastest available model
-          max_tokens: 200, // Reduced for faster responses
+          model: 'claude-3-5-haiku-20241022',
+          max_tokens: 200,
           messages: [
             {
               role: 'user',
