@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +35,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [responseTime, setResponseTime] = useState<number | null>(null);
   
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { toast } = useToast();
@@ -107,13 +107,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsLoading(true);
     setIsAnalyzing(true);
     setConnectionStatus('good');
+    setResponseTime(null);
+
+    const startTime = Date.now();
 
     try {
+      // Reduced timeout for faster user feedback
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
         setConnectionStatus('slow');
-      }, 8000);
+      }, 5000); // Reduced from 8s to 5s
 
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
@@ -123,6 +127,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       });
 
       clearTimeout(timeoutId);
+      const endTime = Date.now();
+      const responseTimeMs = endTime - startTime;
+      setResponseTime(responseTimeMs);
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -135,6 +142,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         message: data?.response || "I'm here to guide your learning journey!",
         timestamp: new Date()
       }]);
+
+      // Log performance for monitoring
+      console.log(`AI response time: ${responseTimeMs}ms`);
 
     } catch (error) {
       console.error('Chat error:', error);
@@ -198,6 +208,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const handleResetChat = () => {
     setChatHistory([]);
+    setResponseTime(null);
     toast({
       title: "Chat reset",
       description: "Your conversation has been cleared.",
@@ -230,7 +241,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   const handleArchiveChat = () => {
-    // Store in localStorage for now - could be extended to database
     const archiveKey = `ai-coach-archive-${Date.now()}`;
     const chatData = {
       timestamp: new Date().toISOString(),
@@ -263,7 +273,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const getStatusText = () => {
     switch (connectionStatus) {
-      case 'good': return 'AI Coach Connected';
+      case 'good': return responseTime ? `AI Coach Connected (${responseTime}ms)` : 'AI Coach Connected';
       case 'slow': return 'Analyzing your data...';
       case 'error': return 'Coaching mode';
     }
@@ -347,7 +357,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {isAnalyzing ? 'Analyzing your learning data...' : 'Claude is thinking...'}
+                      {isAnalyzing ? 'Claude is analyzing...' : 'Claude is thinking...'}
                     </span>
                   </div>
                 </div>
@@ -417,6 +427,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {completedSessions.length > 0 && (
             <p className="text-xs text-purple-600 mt-2 text-center">
               💡 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
+            </p>
+          )}
+          {responseTime && (
+            <p className="text-xs text-muted-foreground mt-1 text-center">
+              Response time: {responseTime}ms
             </p>
           )}
         </div>
