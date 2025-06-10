@@ -21,6 +21,9 @@ export interface Course {
   updated_at?: string;
 }
 
+// Type for creating a new course (without id, created_at, updated_at)
+type CreateCourseData = Omit<Course, 'id' | 'created_at' | 'updated_at'>;
+
 export function useCourses(options?: { 
   featured?: boolean; 
   status?: string;
@@ -62,7 +65,7 @@ export function useCourses(options?: {
   });
 
   const createCourseMutation = useMutation({
-    mutationFn: async (courseData: Omit<Course, 'created_at' | 'updated_at'> & { id?: string }) => {
+    mutationFn: async (courseData: CreateCourseData) => {
       const { data, error } = await supabase
         .from('courses')
         .insert(courseData)
