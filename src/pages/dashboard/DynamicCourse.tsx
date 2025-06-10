@@ -24,7 +24,7 @@ const DynamicCourse = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
 
   const course = courses.find(c => c.slug === slug);
-  const { modules, loading: modulesLoading } = useModules(course?.id || '');
+  const { modules, isLoading: modulesLoading } = useModules(course?.id || '');
   const { getCourseProgress, refetch: refetchProgress } = useEnrollmentProgress();
 
   const progress = course ? getCourseProgress(course.id) : null;

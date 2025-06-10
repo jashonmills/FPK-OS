@@ -1,6 +1,7 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Course {
   id: string;
@@ -25,6 +26,9 @@ export function useCourses(options?: {
   status?: string;
   limit?: number;
 }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: courses = [], isLoading, error, refetch } = useQuery({
     queryKey: ['courses', options],
     queryFn: async () => {
@@ -57,11 +61,101 @@ export function useCourses(options?: {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  const createCourseMutation = useMutation({
+    mutationFn: async (courseData: Omit<Course, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('courses')
+        .insert(courseData)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Success",
+        description: "Course created successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error creating course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create course.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateCourseMutation = useMutation({
+    mutationFn: async (courseData: Partial<Course> & { id: string }) => {
+      const { id, ...updateData } = courseData;
+      const { data, error } = await supabase
+        .from('courses')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Success",
+        description: "Course updated successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error updating course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update course.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteCourseMutation = useMutation({
+    mutationFn: async (courseId: string) => {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Success",
+        description: "Course deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete course.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     courses,
     isLoading,
     error,
-    refetch
+    refetch,
+    createCourse: createCourseMutation.mutate,
+    updateCourse: updateCourseMutation.mutate,
+    deleteCourse: deleteCourseMutation.mutate,
+    isCreating: createCourseMutation.isPending,
+    isUpdating: updateCourseMutation.isPending,
+    isDeleting: deleteCourseMutation.isPending,
   };
 }
 

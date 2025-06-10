@@ -16,7 +16,7 @@ import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
   const { t } = useTranslation();
-  const { courses, loading, error } = useCourses();
+  const { courses, isLoading, error } = useCourses();
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
@@ -39,7 +39,14 @@ const MyCourses = () => {
     });
   };
 
-  if (loading) {
+  const switchToAvailableTab = () => {
+    const tabElement = document.querySelector('[data-state="inactive"][value="available"]') as HTMLElement;
+    if (tabElement) {
+      tabElement.click();
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
@@ -191,7 +198,7 @@ const MyCourses = () => {
                 }
               </p>
               {!searchTerm && (
-                <Button onClick={() => document.querySelector('[value="available"]')?.click()}>
+                <Button onClick={switchToAvailableTab}>
                   Browse Available Courses
                 </Button>
               )}

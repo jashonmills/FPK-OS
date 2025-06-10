@@ -9,16 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit2, Trash2, Eye, Upload } from 'lucide-react';
+import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useToast } from '@/hooks/use-toast';
 
 const CourseManager = () => {
   const { t } = useTranslation();
-  const { toast } = useToast();
-  const { isAdmin, loading: roleLoading } = useUserRole();
-  const { courses, loading, error, createCourse, updateCourse, deleteCourse } = useCourses();
+  const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { courses, isLoading, error, createCourse, updateCourse, deleteCourse } = useCourses();
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -30,7 +28,7 @@ const CourseManager = () => {
     difficulty_level: 'beginner',
     duration_minutes: 0,
     featured: false,
-    status: 'draft' as const
+    status: 'draft' as 'draft' | 'published' | 'archived'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,26 +37,13 @@ const CourseManager = () => {
     try {
       if (editingCourse) {
         await updateCourse({ id: editingCourse.id, ...formData });
-        toast({
-          title: "Course updated",
-          description: "Course has been updated successfully.",
-        });
       } else {
         await createCourse(formData);
-        toast({
-          title: "Course created",
-          description: "Course has been created successfully.",
-        });
       }
       
       resetForm();
     } catch (error) {
       console.error('Error saving course:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save course. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -96,17 +81,8 @@ const CourseManager = () => {
     if (window.confirm('Are you sure you want to delete this course?')) {
       try {
         await deleteCourse(courseId);
-        toast({
-          title: "Course deleted",
-          description: "Course has been deleted successfully.",
-        });
       } catch (error) {
         console.error('Error deleting course:', error);
-        toast({
-          title: "Error",
-          description: "Failed to delete course. Please try again.",
-          variant: "destructive",
-        });
       }
     }
   };
@@ -126,7 +102,7 @@ const CourseManager = () => {
     );
   }
 
-  if (loading) {
+  if (isLoading) {
     return <div className="flex items-center justify-center p-8">Loading courses...</div>;
   }
 
