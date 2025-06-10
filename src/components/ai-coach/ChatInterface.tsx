@@ -29,7 +29,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      message: "Hi! I'm your AI study assistant. Ask me anything about studying, learning techniques, or your progress!"
+      message: "Hi! I'm your AI study assistant powered by Claude. Ask me anything about studying, learning techniques, or your progress!"
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,12 +45,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setConnectionStatus('good');
 
     try {
-      // Start with a 3-second timeout
+      // Start with a 5-second timeout for Claude
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
         setConnectionStatus('slow');
-      }, 3000);
+      }, 5000);
 
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
@@ -117,7 +117,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const getStatusText = () => {
     switch (connectionStatus) {
-      case 'good': return 'Connected';
+      case 'good': return 'Claude AI Connected';
       case 'slow': return 'Slow connection';
       case 'error': return 'Offline mode';
     }
@@ -129,6 +129,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
           AI Study Assistant
+          <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+            Claude
+          </Badge>
           <div className="ml-auto flex items-center gap-2">
             {getStatusIcon()}
             <span className="text-xs">{getStatusText()}</span>
@@ -158,7 +161,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                     <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                  <span className="text-sm text-muted-foreground">Claude is thinking...</span>
                 </div>
               </div>
             </div>
@@ -169,7 +172,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="border-t p-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Ask me about study tips, techniques, or your progress..."
+              placeholder="Ask Claude about study tips, techniques, or your progress..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}

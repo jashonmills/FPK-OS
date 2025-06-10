@@ -10,7 +10,7 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -28,9 +28,9 @@ serve(async (req) => {
 
     console.log('AI Chat request for user:', userId);
 
-    // Check if OpenAI API key is available
-    if (!openAIApiKey) {
-      console.log('OpenAI API key not found, returning fallback');
+    // Check if Anthropic API key is available
+    if (!anthropicApiKey) {
+      console.log('Anthropic API key not found, returning fallback');
       return new Response(
         JSON.stringify({ 
           response: "I'm here to help with your studies! While the AI service is being configured, you can still use all the other study features on this page. Try creating flashcards or reviewing your notes!" 
@@ -39,28 +39,28 @@ serve(async (req) => {
       );
     }
 
-    // Very simple and short system prompt for faster response
-    const systemPrompt = `You are a study assistant. Give brief, helpful answers in 20 words or less.`;
-
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
+          'Authorization': `Bearer ${anthropicApiKey}`,
           'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'x-api-key': anthropicApiKey,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'claude-3-5-haiku-20241022',
+          max_tokens: 150,
           messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: message }
-          ],
-          temperature: 0.3,
-          max_tokens: 50 // Very short responses
+            {
+              role: 'user',
+              content: `You are a helpful study assistant. Give brief, encouraging advice in 30 words or less. Question: ${message}`
+            }
+          ]
         }),
         signal: controller.signal
       });
@@ -68,13 +68,15 @@ serve(async (req) => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`Anthropic API error: ${response.status} - ${errorText}`);
+        throw new Error(`Anthropic API error: ${response.status}`);
       }
 
       const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content || "I'm here to help with your studies!";
+      const aiResponse = data.content?.[0]?.text || "I'm here to help with your studies!";
       
-      console.log('AI response generated successfully');
+      console.log('Claude response generated successfully');
 
       return new Response(
         JSON.stringify({ response: aiResponse }),
