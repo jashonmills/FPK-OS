@@ -1,13 +1,14 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/useAuth';
-import { AccessibilityProvider } from '@/hooks/useAccessibility';
+import AccessibilityProvider from '@/components/AccessibilityProvider';
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
-import DashboardLayout from '@/layouts/DashboardLayout';
+import DashboardLayout from '@/components/DashboardLayout';
 import LearnerHome from '@/pages/dashboard/LearnerHome';
 import MyCourses from '@/pages/dashboard/MyCourses';
 import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';

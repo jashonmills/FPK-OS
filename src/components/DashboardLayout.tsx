@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/AppSidebar';
 import { useAccessibility } from '@/hooks/useAccessibility';
@@ -7,11 +8,7 @@ import GlobalHeader from '@/components/GlobalHeader';
 import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-const DashboardContent = ({ children }: DashboardLayoutProps) => {
+const DashboardContent = () => {
   const { getAccessibilityClasses } = useAccessibility();
   const { state } = useSidebar();
   
@@ -62,17 +59,17 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
         
         {/* Main content area - no padding, direct adjacency to sidebar */}
         <main className="flex-1 overflow-auto">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
   );
 };
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = () => {
   return (
     <SidebarProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <DashboardContent />
     </SidebarProvider>
   );
 };
