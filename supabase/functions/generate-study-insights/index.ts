@@ -26,43 +26,48 @@ serve(async (req) => {
       throw new Error('User ID is required');
     }
 
-    console.log('Generating insights for user:', userId);
+    console.log('Generating proactive insights for user:', userId);
 
-    // Fetch user's study sessions
-    const { data: sessions, error: sessionsError } = await supabase
-      .from('study_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .not('completed_at', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(20);
+    // Fetch comprehensive user data
+    const [sessionsData, flashcardsData, profileData, goalsData] = await Promise.all([
+      supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .not('completed_at', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(30),
+      
+      supabase
+        .from('flashcards')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }),
+      
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single(),
+      
+      supabase
+        .from('goals')
+        .select('*')
+        .eq('user_id', userId)
+    ]);
 
-    if (sessionsError) {
-      throw new Error(`Failed to fetch sessions: ${sessionsError.message}`);
-    }
+    const sessions = sessionsData.data || [];
+    const flashcards = flashcardsData.data || [];
+    const profile = profileData.data;
+    const goals = goalsData.data || [];
 
-    // Fetch user's flashcards
-    const { data: flashcards, error: flashcardsError } = await supabase
-      .from('flashcards')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (flashcardsError) {
-      throw new Error(`Failed to fetch flashcards: ${flashcardsError.message}`);
-    }
-
-    // Calculate study statistics
-    const totalSessions = sessions?.length || 0;
-    const totalCards = flashcards?.length || 0;
-    
-    if (totalSessions === 0) {
+    if (sessions.length === 0) {
       return new Response(
         JSON.stringify({ 
           insights: [{
             type: 'motivation',
-            title: 'Start Your Learning Journey',
-            message: 'Begin studying to unlock personalized AI insights about your learning patterns and performance.',
+            title: 'Ready to Begin Your Learning Journey?',
+            message: 'Start your first study session to unlock personalized AI insights about your learning patterns, strengths, and areas for improvement. Your AI coach is ready to analyze your progress!',
             priority: 'high'
           }]
         }),
@@ -70,12 +75,13 @@ serve(async (req) => {
       );
     }
 
-    const completedSessions = sessions?.filter(s => s.completed_at) || [];
+    // Detailed analytics
+    const completedSessions = sessions.filter(s => s.completed_at);
     const totalCorrect = completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0);
     const totalAnswered = completedSessions.reduce((sum, s) => sum + (s.total_cards || 0), 0);
-    const averageAccuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+    const overallAccuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
     
-    // Calculate weekly performance
+    // Weekly performance analysis
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const recentSessions = completedSessions.filter(s => new Date(s.created_at) >= weekAgo);
@@ -83,45 +89,106 @@ serve(async (req) => {
     const recentTotal = recentSessions.reduce((sum, s) => sum + (s.total_cards || 0), 0);
     const recentAccuracy = recentTotal > 0 ? Math.round((recentCorrect / recentTotal) * 100) : 0;
 
-    // Calculate study time patterns
+    // Learning patterns
     const studyTimes = completedSessions.map(s => new Date(s.created_at).getHours());
     const avgStudyTime = studyTimes.length > 0 ? Math.round(studyTimes.reduce((a, b) => a + b, 0) / studyTimes.length) : 12;
+    
+    // Session consistency
+    const sessionsThisWeek = recentSessions.length;
+    const consistency = sessionsThisWeek >= 5 ? 'excellent' : sessionsThisWeek >= 3 ? 'good' : sessionsThisWeek >= 1 ? 'moderate' : 'needs_improvement';
 
-    // Prepare data for AI analysis
+    // Difficulty analysis
+    const strugglingCards = flashcards.filter(card => {
+      const successRate = card.times_reviewed > 0 ? (card.times_correct / card.times_reviewed) : 0;
+      return card.times_reviewed >= 2 && successRate < 0.5;
+    });
+
+    // Performance trend
+    const performanceTrend = recentAccuracy - overallAccuracy;
+    const trendText = performanceTrend > 10 ? 'rapidly improving' : 
+                     performanceTrend > 5 ? 'improving steadily' :
+                     performanceTrend > -5 ? 'stable performance' :
+                     performanceTrend > -10 ? 'slight decline' : 'needs attention';
+
+    // Goal progress analysis
+    const activeGoals = goals.filter(g => g.status === 'active');
+    const goalProgress = activeGoals.reduce((sum, g) => sum + g.progress, 0) / Math.max(activeGoals.length, 1);
+
+    // Enhanced prompt for more insightful analysis
     const analysisData = {
-      totalSessions,
-      totalCards,
-      averageAccuracy,
-      recentAccuracy,
-      recentSessions: recentSessions.length,
-      avgStudyTime,
-      sessionTypes: [...new Set(completedSessions.map(s => s.session_type))],
-      improvementTrend: recentAccuracy - averageAccuracy,
-      studyConsistency: recentSessions.length >= 3 ? 'consistent' : 'inconsistent'
+      profile: {
+        name: profile?.display_name || 'Student',
+        totalSessions: completedSessions.length,
+        totalCards: flashcards.length,
+        currentStreak: profile?.current_streak || 0,
+        totalXP: profile?.total_xp || 0
+      },
+      performance: {
+        overallAccuracy,
+        recentAccuracy,
+        performanceTrend,
+        trendText,
+        sessionsThisWeek,
+        consistency
+      },
+      patterns: {
+        avgStudyTime,
+        strugglingCardsCount: strugglingCards.length,
+        sessionTypes: [...new Set(completedSessions.map(s => s.session_type))],
+        mostStudiedHour: studyTimes.length > 0 ? studyTimes.sort((a,b) => 
+          studyTimes.filter(v => v === a).length - studyTimes.filter(v => v === b).length
+        ).pop() : 12
+      },
+      goals: {
+        activeCount: activeGoals.length,
+        averageProgress: Math.round(goalProgress),
+        categories: [...new Set(activeGoals.map(g => g.category))]
+      }
     };
 
-    // Generate AI insights
-    const prompt = `Analyze this student's learning data and provide 2-3 personalized study insights:
+    const prompt = `As an AI Learning Coach, analyze this student's comprehensive learning data and provide 3-4 personalized, actionable insights:
 
-Study Statistics:
-- Total study sessions: ${analysisData.totalSessions}
-- Total flashcards: ${analysisData.totalCards}
-- Overall accuracy: ${analysisData.averageAccuracy}%
-- Recent week accuracy: ${analysisData.recentAccuracy}%
-- Recent sessions this week: ${analysisData.recentSessions}
-- Preferred study time: ${analysisData.avgStudyTime}:00
-- Session types used: ${analysisData.sessionTypes.join(', ')}
-- Performance trend: ${analysisData.improvementTrend > 0 ? 'improving' : analysisData.improvementTrend < 0 ? 'declining' : 'stable'}
+STUDENT PROFILE:
+- Name: ${analysisData.profile.name}
+- Study Sessions Completed: ${analysisData.profile.totalSessions}
+- Flashcards Created: ${analysisData.profile.totalCards}
+- Current Streak: ${analysisData.profile.currentStreak} days
+- Total XP Earned: ${analysisData.profile.totalXP}
 
-Provide insights as JSON array with format:
+PERFORMANCE ANALYSIS:
+- Overall Accuracy: ${analysisData.performance.overallAccuracy}%
+- Recent Week Accuracy: ${analysisData.performance.recentAccuracy}%
+- Performance Trend: ${analysisData.performance.trendText}
+- Study Sessions This Week: ${analysisData.performance.sessionsThisWeek}
+- Study Consistency: ${analysisData.performance.consistency}
+
+LEARNING PATTERNS:
+- Preferred Study Time: ${analysisData.patterns.avgStudyTime}:00
+- Cards Needing Extra Practice: ${analysisData.patterns.strugglingCardsCount}
+- Session Types Used: ${analysisData.patterns.sessionTypes.join(', ')}
+- Most Active Study Hour: ${analysisData.patterns.mostStudiedHour}:00
+
+GOALS & OBJECTIVES:
+- Active Goals: ${analysisData.goals.activeCount}
+- Average Goal Progress: ${analysisData.goals.averageProgress}%
+- Focus Areas: ${analysisData.goals.categories.join(', ') || 'No specific categories'}
+
+Provide insights as JSON array with this format:
 [{
   "type": "performance|pattern|recommendation|motivation",
-  "title": "Short descriptive title",
-  "message": "Detailed insight with actionable advice",
+  "title": "Specific, actionable title",
+  "message": "Detailed insight with specific strategies and encouragement based on their data",
   "priority": "high|medium|low"
 }]
 
-Focus on actionable advice for improving learning effectiveness.`;
+Focus on:
+1. Celebrating their achievements and progress
+2. Identifying specific improvement opportunities
+3. Providing actionable study strategies
+4. Encouraging consistency and growth mindset
+5. Connecting insights to their goals and patterns
+
+Be encouraging, specific, and reference their actual data points.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -134,12 +201,12 @@ Focus on actionable advice for improving learning effectiveness.`;
         messages: [
           { 
             role: 'system', 
-            content: 'You are an AI learning coach that provides personalized study insights. Always respond with valid JSON only.' 
+            content: 'You are an AI Learning Coach that provides personalized, encouraging, and actionable study insights. Always respond with valid JSON only.' 
           },
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: 800
       }),
     });
 
@@ -150,7 +217,7 @@ Focus on actionable advice for improving learning effectiveness.`;
     const data = await response.json();
     const generatedText = data.choices[0].message.content;
     
-    console.log('AI response:', generatedText);
+    console.log('AI coaching insights response:', generatedText);
     
     let insights;
     try {
@@ -162,12 +229,18 @@ Focus on actionable advice for improving learning effectiveness.`;
       }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      // Fallback insights
+      // Enhanced fallback insights based on actual data
       insights = [
         {
           type: 'performance',
-          title: 'Study Progress Update',
-          message: `You've completed ${totalSessions} study sessions with ${averageAccuracy}% accuracy. Keep up the great work!`,
+          title: `${analysisData.performance.overallAccuracy >= 80 ? 'Excellent' : analysisData.performance.overallAccuracy >= 60 ? 'Good' : 'Improving'} Study Performance`,
+          message: `You've completed ${analysisData.profile.totalSessions} study sessions with ${analysisData.performance.overallAccuracy}% accuracy! ${analysisData.performance.performanceTrend > 0 ? 'Your recent performance shows improvement - keep up the momentum!' : 'Focus on consistent practice to build stronger retention patterns.'}`,
+          priority: 'high'
+        },
+        {
+          type: 'pattern',
+          title: 'Study Timing Optimization',
+          message: `You typically study around ${analysisData.patterns.avgStudyTime}:00. ${analysisData.performance.sessionsThisWeek >= 3 ? 'Your consistency this week is great!' : 'Try to establish a more regular study schedule for better retention.'}`,
           priority: 'medium'
         }
       ];
@@ -179,7 +252,7 @@ Focus on actionable advice for improving learning effectiveness.`;
     );
 
   } catch (error) {
-    console.error('Error generating insights:', error);
+    console.error('Error generating coaching insights:', error);
     
     return new Response(
       JSON.stringify({ error: error.message }),

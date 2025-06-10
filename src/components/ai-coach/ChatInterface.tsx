@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, Wifi, WifiOff, Mic, MicOff } from 'lucide-react';
+import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface ChatMessage {
   role: 'user' | 'assistant';
   message: string;
+  timestamp?: Date;
 }
 
 interface ChatInterfaceProps {
@@ -27,25 +29,60 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   insights
 }) => {
   const [chatMessage, setChatMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      message: "Hi! I'm your AI study assistant powered by Claude. Ask me anything about studying, learning techniques, or your progress!"
-    }
-  ]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { toast } = useToast();
+
+  // Generate personalized greeting based on user data
+  useEffect(() => {
+    if (user && chatHistory.length === 0) {
+      const userName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'there';
+      const totalSessions = completedSessions.length;
+      const totalCards = flashcards?.length || 0;
+      
+      let personalizedGreeting = `Hi ${userName}! I'm Claude, your AI Learning Coach. `;
+      
+      if (totalSessions > 0) {
+        const accuracy = completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0) / 
+                        completedSessions.reduce((sum, s) => sum + (s.total_cards || 0), 1) * 100;
+        
+        personalizedGreeting += `I've been analyzing your ${totalSessions} study sessions and ${totalCards} flashcards. Your overall accuracy is ${Math.round(accuracy)}%! `;
+        
+        if (accuracy >= 80) {
+          personalizedGreeting += "You're doing excellent work! Let's discuss strategies to maintain this momentum.";
+        } else if (accuracy >= 60) {
+          personalizedGreeting += "You're making solid progress! I have some specific suggestions to help boost your performance.";
+        } else {
+          personalizedGreeting += "I see opportunities to strengthen your learning approach. Let's work together to identify what methods work best for you.";
+        }
+      } else {
+        personalizedGreeting += "I'm here to help guide your learning journey with personalized insights and strategies. Take a few study sessions and I'll analyze your learning patterns to provide tailored coaching!";
+      }
+
+      setChatHistory([{
+        role: 'assistant',
+        message: personalizedGreeting,
+        timestamp: new Date()
+      }]);
+    }
+  }, [user, completedSessions, flashcards]);
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
 
     const userMessage = chatMessage;
     setChatMessage('');
-    setChatHistory(prev => [...prev, { role: 'user', message: userMessage }]);
+    setChatHistory(prev => [...prev, { 
+      role: 'user', 
+      message: userMessage,
+      timestamp: new Date()
+    }]);
     setIsLoading(true);
+    setIsAnalyzing(true);
     setConnectionStatus('good');
 
     try {
@@ -54,16 +91,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       const timeoutId = setTimeout(() => {
         controller.abort();
         setConnectionStatus('slow');
-      }, 5000);
+      }, 8000);
 
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
-          userId: user?.id,
-          context: {
-            totalSessions: completedSessions.length,
-            totalCards: flashcards?.length || 0
-          }
+          userId: user?.id
         }
       });
 
@@ -77,30 +110,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setConnectionStatus('good');
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: data?.response || "I'm here to help with your studies!"
+        message: data?.response || "I'm here to guide your learning journey!",
+        timestamp: new Date()
       }]);
 
     } catch (error) {
       console.error('Chat error:', error);
       setConnectionStatus('error');
       
-      // Immediate helpful fallback
-      const quickTips = [
-        "Try the Pomodoro Technique: 25 minutes focused study, 5 minute break!",
-        "Active recall beats passive reading. Quiz yourself!",
-        "Space out your reviews for better long-term retention.",
-        "Teach someone else - it's a great way to test understanding!",
-        "Mix up your study topics to improve retention."
+      // Educational coaching fallback
+      const coachingTips = [
+        "Remember: consistency beats intensity! Even 15 minutes of focused study daily builds stronger neural pathways than cramming.",
+        "I notice you're engaging with your studies! Try the Pomodoro Technique: 25 minutes focused work, 5 minute break to optimize retention.",
+        "Active recall is your superpower! Instead of re-reading, quiz yourself on what you've learned to strengthen memory pathways.",
+        "Growth mindset moment: Every mistake is data for improvement. Review what you got wrong to turn weaknesses into strengths!",
+        "Spaced repetition works wonders! Review material at increasing intervals to move knowledge from short-term to long-term memory."
       ];
       
-      const randomTip = quickTips[Math.floor(Math.random() * quickTips.length)];
+      const randomTip = coachingTips[Math.floor(Math.random() * coachingTips.length)];
       
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: randomTip
+        message: randomTip,
+        timestamp: new Date()
       }]);
     } finally {
       setIsLoading(false);
+      setIsAnalyzing(false);
     }
   };
 
@@ -156,9 +192,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const getStatusText = () => {
     switch (connectionStatus) {
-      case 'good': return 'Claude AI Connected';
-      case 'slow': return 'Slow connection';
-      case 'error': return 'Offline mode';
+      case 'good': return 'AI Coach Connected';
+      case 'slow': return 'Analyzing your data...';
+      case 'error': return 'Coaching mode';
     }
   };
 
@@ -166,11 +202,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
-          <Bot className="h-5 w-5" />
-          AI Study Assistant
+          <Brain className="h-5 w-5" />
+          AI Learning Coach
           <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
             Claude
           </Badge>
+          {completedSessions.length > 0 && (
+            <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              Analyzing your data
+            </Badge>
+          )}
           <div className="ml-auto flex items-center gap-2">
             {getStatusIcon()}
             <span className="text-xs">{getStatusText()}</span>
@@ -187,7 +229,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   ? 'bg-purple-600 text-white ml-4' 
                   : 'bg-muted text-foreground mr-4'
               }`}>
+                {msg.role === 'assistant' && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Brain className="h-4 w-4 text-purple-600" />
+                    <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
+                  </div>
+                )}
                 <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                {msg.timestamp && (
+                  <p className="text-xs opacity-70 mt-1">
+                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -200,7 +253,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                     <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
-                  <span className="text-sm text-muted-foreground">Claude is thinking...</span>
+                  <span className="text-sm text-muted-foreground">
+                    {isAnalyzing ? 'Analyzing your learning data...' : 'Claude is thinking...'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -211,7 +266,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="border-t p-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Ask Claude about study tips, techniques, or your progress..."
+              placeholder="Ask about your progress, study strategies, or get personalized guidance..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -250,6 +305,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {isProcessing && (
             <p className="text-xs text-muted-foreground mt-2 text-center">
               Processing your voice...
+            </p>
+          )}
+          {completedSessions.length > 0 && (
+            <p className="text-xs text-purple-600 mt-2 text-center">
+              💡 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
             </p>
           )}
         </div>
