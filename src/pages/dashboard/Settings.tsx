@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Settings = () => {
   const { t } = useTranslation();
@@ -47,6 +47,7 @@ const Settings = () => {
   const { profile, loading: profileLoading, saving, updateProfile, changePassword } = useUserProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Refs to track state and prevent infinite loops
   const isInitializing = useRef(true);
@@ -309,15 +310,15 @@ const Settings = () => {
 
   return (
     <TooltipProvider>
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-3 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent">
               {t('settings.title')}
             </h1>
-            <p className="text-gray-600 mt-1">{t('settings.subtitle')}</p>
+            <p className="text-gray-600 mt-1 text-sm md:text-base">{t('settings.subtitle')}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
             {saving && (
               <div className="flex items-center gap-2 text-sm text-blue-600">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -338,9 +339,9 @@ const Settings = () => {
             )}
             <Button
               variant="outline"
-              size="sm"
+              size={isMobile ? "default" : "sm"}
               onClick={handleRestoreDefaults}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <RotateCcw className="h-4 w-4" />
               {t('settings.restoreDefaults')}
@@ -348,36 +349,54 @@ const Settings = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+        <Tabs defaultValue="profile" className="w-full" orientation={isMobile ? "vertical" : "horizontal"}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''}`}>
+            <TabsTrigger 
+              value="profile" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <User className="h-4 w-4" />
-              {t('settings.tabs.profile')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.profile')}</span>
             </TabsTrigger>
-            <TabsTrigger value="language" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="language" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <Globe className="h-4 w-4" />
-              {t('settings.tabs.language')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.language')}</span>
             </TabsTrigger>
-            <TabsTrigger value="accessibility" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="accessibility" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <Eye className="h-4 w-4" />
-              {t('settings.tabs.accessibility')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.accessibility')}</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="notifications" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <Bell className="h-4 w-4" />
-              {t('settings.tabs.notifications')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.notifications')}</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="security" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <Shield className="h-4 w-4" />
-              {t('settings.tabs.security')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.security')}</span>
             </TabsTrigger>
-            <TabsTrigger value="integrations" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="integrations" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+            >
               <Link className="h-4 w-4" />
-              {t('settings.tabs.integrations')}
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.integrations')}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="profile" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <Card className="fpk-card border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -392,7 +411,7 @@ const Settings = () => {
                     userName={formData.full_name || formData.display_name || 'User'}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="full_name">{t('settings.profile.fullName')}</Label>
                       <Input
@@ -451,7 +470,7 @@ const Settings = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="language" className="space-y-6">
+          <TabsContent value="language" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <LanguageSettings
               primaryLanguage={formData.primary_language}
               dualLanguageEnabled={formData.dual_language_enabled}
@@ -462,8 +481,8 @@ const Settings = () => {
             />
           </TabsContent>
 
-          <TabsContent value="accessibility" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <Card className="fpk-card border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -613,7 +632,7 @@ const Settings = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="notifications" className="space-y-6">
+          <TabsContent value="notifications" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <Card className="fpk-card border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -712,7 +731,7 @@ const Settings = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="security" className="space-y-6">
+          <TabsContent value="security" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <Card className="fpk-card border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -740,7 +759,7 @@ const Settings = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="integrations" className="space-y-6">
+          <TabsContent value="integrations" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <Card className="fpk-card border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
