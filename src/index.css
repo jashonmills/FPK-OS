@@ -56,6 +56,7 @@
     --accessibility-bg: var(--background);
     --accessibility-text: var(--foreground);
     --accessibility-border: var(--border);
+    --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   .dark {
@@ -104,24 +105,60 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--accessibility-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
     transition: all 0.3s ease;
   }
 
-  /* Accessibility font support */
+  /* Enhanced accessibility font support with mobile optimization */
   .font-opendyslexic {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+    font-display: swap;
+  }
+
+  .font-opendyslexic *,
+  .font-opendyslexic input,
+  .font-opendyslexic textarea,
+  .font-opendyslexic button,
+  .font-opendyslexic select {
     font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
   }
 
   .font-arial {
     font-family: 'Arial', 'Helvetica', sans-serif !important;
+    font-display: swap;
+  }
+
+  .font-arial *,
+  .font-arial input,
+  .font-arial textarea,
+  .font-arial button,
+  .font-arial select {
+    font-family: 'Arial', 'Helvetica', sans-serif !important;
   }
 
   .font-georgia {
     font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-display: swap;
+  }
+
+  .font-georgia *,
+  .font-georgia input,
+  .font-georgia textarea,
+  .font-georgia button,
+  .font-georgia select {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
   }
 
   .font-system {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-display: swap;
+  }
+
+  .font-system *,
+  .font-system input,
+  .font-system textarea,
+  .font-system button,
+  .font-system select {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
 
@@ -131,6 +168,54 @@
     background-color: var(--accessibility-bg);
     color: var(--accessibility-text);
     border-color: var(--accessibility-border);
+  }
+
+  /* Mobile-specific enhancements */
+  @media (max-width: 768px) {
+    body {
+      font-family: var(--accessibility-font-family, system-ui) !important;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Force font inheritance on mobile for all form elements */
+    input, textarea, select, button {
+      font-family: inherit !important;
+    }
+
+    /* Enhanced mobile accessibility font classes */
+    .font-opendyslexic {
+      font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+    }
+
+    .font-arial {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+    }
+
+    .font-georgia {
+      font-family: 'Georgia', 'Times New Roman', serif !important;
+    }
+
+    .font-system {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+
+    /* Ensure all child elements inherit the font on mobile */
+    .font-opendyslexic *,
+    .font-arial *,
+    .font-georgia *,
+    .font-system * {
+      font-family: inherit !important;
+    }
+  }
+
+  /* iOS specific font fixes */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      -webkit-text-size-adjust: 100%;
+      font-family: var(--accessibility-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif) !important;
+    }
   }
 }
 
@@ -150,16 +235,26 @@
     background-clip: text;
   }
 
-  /* Accessibility utilities */
+  /* Enhanced accessibility utilities with mobile support */
   .accessibility-text {
     font-size: var(--accessibility-text-size, 1rem);
     line-height: var(--accessibility-line-height, 1.5);
     color: var(--accessibility-text);
+    font-family: var(--accessibility-font-family, system-ui) !important;
   }
 
   .accessibility-card {
     background-color: var(--accessibility-bg);
     color: var(--accessibility-text);
     border-color: var(--accessibility-border);
+    font-family: var(--accessibility-font-family, system-ui) !important;
+  }
+
+  /* Mobile-specific accessibility utilities */
+  @media (max-width: 768px) {
+    .accessibility-text,
+    .accessibility-card {
+      font-family: var(--accessibility-font-family, system-ui) !important;
+    }
   }
 }
