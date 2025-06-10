@@ -7,24 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useFileUploads } from '@/hooks/useFileUploads';
+import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X } from 'lucide-react';
-
-interface FileUpload {
-  id: string;
-  file_name: string;
-  file_size: number;
-  file_type: string;
-  processing_status: 'pending' | 'processing' | 'completed' | 'failed';
-  generated_flashcards_count: number;
-  error_message: string | null;
-  created_at: string;
-}
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
   const { createFlashcard } = useFlashcards();
+  const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
+  const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
-  const [uploads, setUploads] = useState<FileUpload[]>([]);
   const [uploading, setUploading] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -37,7 +29,7 @@ const FileUploadSection: React.FC = () => {
     }
   }, []);
 
-  const processFileForFlashcards = async (file: File) => {
+  const processFileForFlashcards = async (file: File, uploadId: string) => {
     // Simulate AI processing - in real implementation, this would call an AI service
     const sampleFlashcards = [
       {
@@ -67,7 +59,21 @@ const FileUploadSection: React.FC = () => {
       // Validate file type
       const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
-        alert(`File type ${file.type} is not supported. Please upload PDF, TXT, or DOC files.`);
+        toast({
+          title: "File type not supported",
+          description: `File type ${file.type} is not supported. Please upload PDF, TXT, or DOC files.`,
+          variant: "destructive"
+        });
+        continue;
+      }
+
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "File size must be less than 10MB.",
+          variant: "destructive"
+        });
         continue;
       }
 
@@ -82,73 +88,94 @@ const FileUploadSection: React.FC = () => {
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload file to storage.",
+            variant: "destructive"
+          });
           continue;
         }
 
         // Record upload in database
-        const { data: uploadRecord, error: dbError } = await supabase
-          .from('file_uploads')
-          .insert({
-            user_id: user.id,
-            file_name: file.name,
-            file_size: file.size,
-            file_type: file.type,
-            storage_path: filePath,
-            processing_status: 'processing'
-          })
-          .select()
-          .single();
+        createUpload({
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type,
+          storage_path: filePath
+        });
 
-        if (dbError) {
-          console.error('Database error:', dbError);
-          continue;
-        }
-
-        setUploads(prev => [...prev, uploadRecord]);
+        toast({
+          title: "File uploaded",
+          description: `${file.name} uploaded successfully. Processing flashcards...`,
+        });
 
         // Simulate processing and generate flashcards
         setTimeout(async () => {
           try {
-            const flashcardCount = await processFileForFlashcards(file);
-            
-            // Update upload status
-            await supabase
+            // Find the upload record by file name and storage path
+            const { data: uploadRecord } = await supabase
               .from('file_uploads')
-              .update({
-                processing_status: 'completed',
-                generated_flashcards_count: flashcardCount
-              })
-              .eq('id', uploadRecord.id);
+              .select('*')
+              .eq('user_id', user.id)
+              .eq('storage_path', filePath)
+              .single();
 
-            setUploads(prev => 
-              prev.map(upload => 
-                upload.id === uploadRecord.id 
-                  ? { ...upload, processing_status: 'completed', generated_flashcards_count: flashcardCount }
-                  : upload
-              )
-            );
+            if (!uploadRecord) return;
+
+            // Update status to processing
+            updateUpload({
+              id: uploadRecord.id,
+              processing_status: 'processing'
+            });
+
+            const flashcardCount = await processFileForFlashcards(file, uploadRecord.id);
+            
+            // Update upload status to completed
+            updateUpload({
+              id: uploadRecord.id,
+              processing_status: 'completed',
+              generated_flashcards_count: flashcardCount
+            });
+
+            toast({
+              title: "Flashcards generated",
+              description: `Generated ${flashcardCount} flashcards from ${file.name}`,
+            });
+
           } catch (error) {
             console.error('Processing error:', error);
-            await supabase
+            
+            // Find and update the upload record with error status
+            const { data: uploadRecord } = await supabase
               .from('file_uploads')
-              .update({
+              .select('*')
+              .eq('user_id', user.id)
+              .eq('storage_path', filePath)
+              .single();
+
+            if (uploadRecord) {
+              updateUpload({
+                id: uploadRecord.id,
                 processing_status: 'failed',
                 error_message: 'Failed to process file'
-              })
-              .eq('id', uploadRecord.id);
+              });
+            }
 
-            setUploads(prev => 
-              prev.map(upload => 
-                upload.id === uploadRecord.id 
-                  ? { ...upload, processing_status: 'failed', error_message: 'Failed to process file' }
-                  : upload
-              )
-            );
+            toast({
+              title: "Processing failed",
+              description: "Failed to generate flashcards from the file.",
+              variant: "destructive"
+            });
           }
         }, 3000); // Simulate 3 second processing time
 
       } catch (error) {
         console.error('File upload error:', error);
+        toast({
+          title: "Upload error",
+          description: "An unexpected error occurred during upload.",
+          variant: "destructive"
+        });
       }
     }
     
@@ -172,7 +199,7 @@ const FileUploadSection: React.FC = () => {
   };
 
   const removeUpload = (id: string) => {
-    setUploads(prev => prev.filter(upload => upload.id !== id));
+    deleteUpload(id);
   };
 
   return (
