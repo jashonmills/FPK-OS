@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,11 +39,12 @@ const LearningStateCourse = () => {
   }, []);
 
   const handleBackToCourses = () => {
-    navigate('/dashboard/learner/courses');
+    // Fix back navigation to match the actual route
+    navigate('/dashboard/learner/my-courses');
   };
 
   const handleDashboard = () => {
-    navigate('/dashboard/learner/home');
+    navigate('/dashboard/learner');
   };
 
   return (
