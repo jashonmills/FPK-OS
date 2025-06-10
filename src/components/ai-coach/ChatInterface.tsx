@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, Wifi, WifiOff } from 'lucide-react';
+import { Bot, Send, Wifi, WifiOff, Mic, MicOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -34,6 +35,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
+  
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  const { toast } = useToast();
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
@@ -97,6 +101,41 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVoiceRecording = async () => {
+    if (isRecording) {
+      try {
+        const transcribedText = await stopRecording();
+        setChatMessage(transcribedText);
+        toast({
+          title: "Voice recorded",
+          description: "Your message has been transcribed successfully.",
+        });
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+        toast({
+          title: "Recording error",
+          description: "Failed to process your voice recording. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      try {
+        await startRecording();
+        toast({
+          title: "Recording started",
+          description: "Speak your message now...",
+        });
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        toast({
+          title: "Microphone error",
+          description: "Could not access microphone. Please check permissions.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -176,18 +215,43 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              disabled={isLoading}
+              disabled={isLoading || isRecording}
               className="flex-1"
             />
             <Button 
+              onClick={handleVoiceRecording}
+              disabled={isLoading || isProcessing}
+              size="icon"
+              variant={isRecording ? "destructive" : "outline"}
+              className={isRecording ? "animate-pulse" : ""}
+            >
+              {isProcessing ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : isRecording ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </Button>
+            <Button 
               onClick={handleSendMessage}
-              disabled={isLoading || !chatMessage.trim()}
+              disabled={isLoading || !chatMessage.trim() || isRecording}
               size="icon"
               className="bg-purple-600 hover:bg-purple-700"
             >
               <Send className="h-4 w-4" />
             </Button>
           </div>
+          {isRecording && (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Recording... Click the microphone again to stop
+            </p>
+          )}
+          {isProcessing && (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Processing your voice...
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
