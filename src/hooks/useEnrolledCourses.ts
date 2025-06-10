@@ -33,6 +33,7 @@ export function useEnrolledCourses() {
       if (!user?.id) {
         console.log('No user found, skipping course fetch');
         setLoading(false);
+        setCourses([]);
         return;
       }
 
@@ -42,7 +43,7 @@ export function useEnrolledCourses() {
 
         console.log('Fetching enrolled courses for user:', user.id);
 
-        // Join enrollments with courses
+        // Join enrollments with courses - the RLS policies will automatically filter for the current user
         const { data, error: fetchError } = await supabase
           .from('enrollments')
           .select(`
@@ -72,7 +73,7 @@ export function useEnrolledCourses() {
         console.log('Raw enrollment data:', data);
 
         if (!data || data.length === 0) {
-          console.log('No enrollments found for user');
+          console.log('No enrollments found for user - this may be normal for new users');
           setCourses([]);
           return;
         }
@@ -105,6 +106,7 @@ export function useEnrolledCourses() {
   const refetch = async () => {
     if (user?.id) {
       setLoading(true);
+      setError(null);
       // Re-trigger the effect by updating the dependency
       // The useEffect will handle the actual fetching
     }

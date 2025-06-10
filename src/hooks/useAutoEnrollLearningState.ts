@@ -35,6 +35,12 @@ async function ensureLearningStateEnrollment(userId: string) {
       
       if (insertError) {
         console.error('Failed to auto-enroll:', insertError);
+        // If the error is due to duplicate enrollment, that's actually fine
+        if (insertError.code !== '23505') { // 23505 is unique violation
+          console.error('Unexpected enrollment error:', insertError);
+        } else {
+          console.log('User already enrolled (duplicate key), this is expected');
+        }
       } else {
         console.log('Successfully auto-enrolled user:', insertData);
       }

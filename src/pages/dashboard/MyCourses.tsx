@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Search } from 'lucide-react';
+import { BookOpen, Plus, Search, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
 import { useEnrolledCourses } from '@/hooks/useEnrolledCourses';
@@ -19,7 +19,7 @@ const MyCourses = () => {
   useAutoEnrollLearningState();
   
   // Fetch enrolled courses
-  const { courses, loading, error } = useEnrolledCourses();
+  const { courses, loading, error, refetch } = useEnrolledCourses();
 
   const handleCourseClick = (courseId: string) => {
     if (courseId === 'learning-state-beta') {
@@ -29,6 +29,10 @@ const MyCourses = () => {
       // Handle other courses
       navigate(`/dashboard/learner/courses/${courseId}`);
     }
+  };
+
+  const handleRefresh = () => {
+    refetch();
   };
 
   const renderCoursesList = () => {
@@ -58,9 +62,12 @@ const MyCourses = () => {
               <DualLanguageText translationKey="courses.errorTitle" />
             </h3>
             <p className="text-gray-500 mb-4">{error}</p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              <DualLanguageText translationKey="common.tryAgain" />
-            </Button>
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                <DualLanguageText translationKey="common.tryAgain" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       );
@@ -77,9 +84,15 @@ const MyCourses = () => {
             <p className="text-gray-500 mb-4">
               <DualLanguageText translationKey="courses.noCoursesDesc" />
             </p>
-            <Button className="fpk-gradient text-white">
-              <DualLanguageText translationKey="courses.browseCourses" />
-            </Button>
+            <div className="flex gap-2 justify-center">
+              <Button 
+                className="fpk-gradient text-white" 
+                onClick={handleRefresh}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                <DualLanguageText translationKey="courses.refreshCourses" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       );
@@ -110,10 +123,16 @@ const MyCourses = () => {
             <DualLanguageText translationKey="courses.subtitle" />
           </p>
         </div>
-        <Button className="fpk-gradient text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          <DualLanguageText translationKey="courses.enrollButton" />
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button className="fpk-gradient text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            <DualLanguageText translationKey="courses.enrollButton" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-4">
