@@ -5,6 +5,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import GlobalHeader from '@/components/GlobalHeader';
 import DualLanguageText from '@/components/DualLanguageText';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -47,8 +48,11 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
               </div>
             </div>
 
-            {/* Right side - placeholder for now */}
+            {/* Right side - Language switcher and user menu */}
             <div className="flex items-center gap-2">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+              
               <span className="text-sm text-muted-foreground">
                 <DualLanguageText translationKey="common.userMenu" />
               </span>
