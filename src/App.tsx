@@ -51,7 +51,9 @@ function App() {
                   <Route path="learner/goals" element={<Goals />} />
                   <Route path="learner/notes" element={<Notes />} />
                   <Route path="learner/study" element={<StudyPage />} />
+                  <Route path="learner/study/:mode" element={<StudyPage />} />
                   <Route path="learner/ai-coach" element={<AIStudyCoach />} />
+                  <Route path="learner/ai-study-coach" element={<AIStudyCoach />} />
                   <Route path="learner/live-hub" element={<LiveLearningHub />} />
                   <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
                   <Route path="learner/settings" element={<Settings />} />
