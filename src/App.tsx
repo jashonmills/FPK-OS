@@ -47,6 +47,7 @@ function App() {
                   <Route path="learner/course/learning-state-embed" element={<LearningStateEmbed />} />
                   <Route path="learner/course/learning-state-beta" element={<LearningStateCourse />} />
                   <Route path="learner/analytics" element={<LearningAnalytics />} />
+                  <Route path="learner/learning-analytics" element={<LearningAnalytics />} />
                   <Route path="learner/goals" element={<Goals />} />
                   <Route path="learner/notes" element={<Notes />} />
                   <Route path="learner/study" element={<StudyPage />} />
