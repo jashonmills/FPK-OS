@@ -15,6 +15,11 @@ export interface Module {
   sort_order?: number;
   created_at: string;
   updated_at: string;
+  video_url?: string;
+  audio_url?: string;
+  pdf_url?: string;
+  word_url?: string;
+  image_url?: string;
 }
 
 export function useModules(courseId: string) {

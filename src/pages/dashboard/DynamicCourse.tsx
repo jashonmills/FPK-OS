@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import EnhancedModuleViewer from '@/components/admin/EnhancedModuleViewer';
 
 const DynamicCourse = () => {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const selectedModuleNumber = searchParams.get('module');
   
@@ -15,7 +17,6 @@ const DynamicCourse = () => {
   const { modules, isLoading: modulesLoading } = useModules(course?.id || '');
   
   const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
-  const location = useLocation();
 
   // Set initial module based on URL parameter
   useEffect(() => {
