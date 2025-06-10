@@ -205,14 +205,14 @@ const FileUploadSection: React.FC = () => {
   return (
     <Card className="fpk-card border-0 shadow-md">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
           📤 Upload to Generate Flashcards
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Upload Area */}
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center transition-colors ${
             dragActive 
               ? 'border-primary bg-primary/5' 
               : 'border-gray-300 hover:border-gray-400'
@@ -222,11 +222,11 @@ const FileUploadSection: React.FC = () => {
           onDragOver={handleDrag}
           onDrop={handleDrop}
         >
-          <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <h3 className="text-lg font-medium mb-2">
+          <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-400" />
+          <h3 className="text-base sm:text-lg font-medium mb-2 break-words px-2">
             Drop your files here or click to browse
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed">
             Support for PDF, TXT, and DOC files up to 10MB
           </p>
           <input
@@ -238,9 +238,9 @@ const FileUploadSection: React.FC = () => {
             onChange={handleFileInput}
             disabled={uploading}
           />
-          <Button asChild disabled={uploading}>
+          <Button asChild disabled={uploading} size="sm" className="text-xs sm:text-sm">
             <label htmlFor="file-upload" className="cursor-pointer">
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               {uploading ? 'Processing...' : 'Choose Files'}
             </label>
           </Button>
@@ -249,19 +249,19 @@ const FileUploadSection: React.FC = () => {
         {/* Upload Progress */}
         {uploads.length > 0 && (
           <div className="space-y-4">
-            <h3 className="font-medium">Recent Uploads</h3>
+            <h3 className="font-medium text-sm sm:text-base">Recent Uploads</h3>
             {uploads.map((upload) => (
-              <div key={upload.id} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">{upload.file_name}</span>
+              <div key={upload.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-start sm:items-center justify-between mb-2 gap-2">
+                  <div className="flex items-start sm:items-center gap-2 min-w-0 flex-1">
+                    <FileText className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="font-medium text-sm sm:text-base break-words leading-tight">{upload.file_name}</span>
                     <Badge 
                       variant={
                         upload.processing_status === 'completed' ? 'default' :
                         upload.processing_status === 'failed' ? 'destructive' : 'secondary'
                       }
-                      className="text-xs"
+                      className="text-xs flex-shrink-0"
                     >
                       {upload.processing_status}
                     </Badge>
@@ -270,6 +270,7 @@ const FileUploadSection: React.FC = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => removeUpload(upload.id)}
+                    className="flex-shrink-0 h-8 w-8 p-0"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -278,14 +279,14 @@ const FileUploadSection: React.FC = () => {
                 {upload.processing_status === 'processing' && (
                   <div className="space-y-2">
                     <Progress value={66} className="h-2" />
-                    <p className="text-xs text-gray-600">Generating flashcards...</p>
+                    <p className="text-xs text-gray-600 break-words">Generating flashcards...</p>
                   </div>
                 )}
                 
                 {upload.processing_status === 'completed' && (
                   <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span className="text-sm">
+                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm break-words">
                       Generated {upload.generated_flashcards_count} flashcards
                     </span>
                   </div>
@@ -293,8 +294,8 @@ const FileUploadSection: React.FC = () => {
                 
                 {upload.processing_status === 'failed' && (
                   <div className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-sm">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm break-words">
                       {upload.error_message || 'Processing failed'}
                     </span>
                   </div>
