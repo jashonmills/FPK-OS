@@ -39,13 +39,79 @@ export type Database = {
         }
         Relationships: []
       }
+      course_assets: {
+        Row: {
+          asset_type: string
+          course_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          metadata: Json | null
+          mime_type: string | null
+          module_id: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          asset_type: string
+          course_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          module_id?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          asset_type?: string
+          course_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          module_id?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_assets_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_assets_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           asset_path: string | null
           created_at: string | null
           description: string | null
+          difficulty_level: string | null
+          duration_minutes: number | null
           featured: boolean | null
           id: string
+          instructor_name: string | null
+          is_free: boolean | null
+          price: number | null
+          slug: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
           title: string
           updated_at: string | null
         }
@@ -53,8 +119,17 @@ export type Database = {
           asset_path?: string | null
           created_at?: string | null
           description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
           featured?: boolean | null
           id: string
+          instructor_name?: string | null
+          is_free?: boolean | null
+          price?: number | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string | null
         }
@@ -62,8 +137,17 @@ export type Database = {
           asset_path?: string | null
           created_at?: string | null
           description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
           featured?: boolean | null
           id?: string
+          instructor_name?: string | null
+          is_free?: boolean | null
+          price?: number | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -241,6 +325,59 @@ export type Database = {
         }
         Relationships: []
       }
+      modules: {
+        Row: {
+          content_type: string | null
+          course_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          metadata: Json | null
+          module_number: number
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type?: string | null
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          metadata?: Json | null
+          module_number: number
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string | null
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          metadata?: Json | null
+          module_number?: number
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           category: string | null
@@ -403,15 +540,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "instructor" | "learner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -526,6 +690,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "instructor", "learner"],
+    },
   },
 } as const

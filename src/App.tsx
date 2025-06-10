@@ -1,61 +1,73 @@
 
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/hooks/useAuth';
-import AccessibilityProvider from '@/components/AccessibilityProvider';
-import Index from '@/pages/Index';
-import Login from '@/pages/Login';
-import NotFound from '@/pages/NotFound';
-import DashboardLayout from '@/components/DashboardLayout';
-import LearnerHome from '@/pages/dashboard/LearnerHome';
-import MyCourses from '@/pages/dashboard/MyCourses';
-import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
-import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
-import AIStudyCoach from '@/pages/dashboard/AIStudyCoach';
-import Goals from '@/pages/dashboard/Goals';
-import Notes from '@/pages/dashboard/Notes';
-import Settings from '@/pages/dashboard/Settings';
-import LearningStateCourse from '@/pages/dashboard/LearningStateCourse';
-import LearningStateEmbed from '@/pages/dashboard/LearningStateEmbed';
-import StudyPage from '@/pages/study/StudyPage';
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import DashboardLayout from "./components/DashboardLayout";
+import LearnerHome from "./pages/dashboard/LearnerHome";
+import MyCourses from "./pages/dashboard/MyCourses";
+import DynamicCourse from "./pages/dashboard/DynamicCourse";
+import LearningStateEmbed from "./pages/dashboard/LearningStateEmbed";
+import LearningStateCourse from "./pages/dashboard/LearningStateCourse";
+import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
+import Goals from "./pages/dashboard/Goals";
+import Notes from "./pages/dashboard/Notes";
+import StudyPage from "./pages/study/StudyPage";
+import AIStudyCoach from "./pages/dashboard/AIStudyCoach";
+import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
+import Settings from "./pages/dashboard/Settings";
+import CourseManager from "./pages/admin/CourseManager";
+import "./i18n";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } })}>
-      <AuthProvider>
-        <AccessibilityProvider>
-          <BrowserRouter>
-            <div className="min-h-screen bg-background font-sans antialiased">
+    <QueryClientProvider client={queryClient}>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 
                 {/* Dashboard Routes */}
-                <Route path="/dashboard/*" element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  {/* Learner Routes */}
                   <Route path="learner" element={<LearnerHome />} />
                   <Route path="learner/my-courses" element={<MyCourses />} />
-                  <Route path="learner/learning-analytics" element={<LearningAnalytics />} />
-                  <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
-                  <Route path="learner/ai-study-coach" element={<AIStudyCoach />} />
+                  <Route path="learner/course/:slug" element={<DynamicCourse />} />
+                  <Route path="learner/course/learning-state-embed" element={<LearningStateEmbed />} />
+                  <Route path="learner/course/learning-state-beta" element={<LearningStateCourse />} />
+                  <Route path="learner/analytics" element={<LearningAnalytics />} />
                   <Route path="learner/goals" element={<Goals />} />
                   <Route path="learner/notes" element={<Notes />} />
+                  <Route path="learner/study" element={<StudyPage />} />
+                  <Route path="learner/ai-coach" element={<AIStudyCoach />} />
+                  <Route path="learner/live-hub" element={<LiveLearningHub />} />
                   <Route path="learner/settings" element={<Settings />} />
-                  <Route path="learner/course/:courseId" element={<LearningStateCourse />} />
-                  <Route path="learner/course/learning-state-embed" element={<LearningStateEmbed />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="admin/courses" element={<CourseManager />} />
+                  
+                  {/* Default redirects */}
+                  <Route index element={<Navigate to="learner" replace />} />
                 </Route>
 
-                {/* Study Routes */}
-                <Route path="/study/:mode" element={<StudyPage />} />
-                
+                {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Toaster />
-            </div>
-          </BrowserRouter>
-        </AccessibilityProvider>
-      </AuthProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </AccessibilityProvider>
     </QueryClientProvider>
   );
 }
