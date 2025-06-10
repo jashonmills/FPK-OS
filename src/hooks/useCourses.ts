@@ -1,7 +1,7 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Course {
   id: string;
@@ -66,9 +66,12 @@ export function useCourses(options?: {
 
   const createCourseMutation = useMutation({
     mutationFn: async (courseData: CreateCourseData) => {
+      // Generate a new id so the Insert type matches
+      const newCourse = { ...courseData, id: uuidv4() };
+
       const { data, error } = await supabase
         .from('courses')
-        .insert(courseData)
+        .insert(newCourse)
         .select()
         .single();
 
