@@ -1,270 +1,225 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Search, RefreshCw } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
-import { useEnrolledCourses } from '@/hooks/useEnrolledCourses';
-import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
-import { useCourses } from '@/hooks/useCourses';
-import CourseCard from '@/components/CourseCard';
-import { useNavigate } from 'react-router-dom';
-import DualLanguageText from '@/components/DualLanguageText';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BookOpen, Clock, User, Search, Filter } from 'lucide-react';
+import { useCourses } from '@/hooks/useCourses';
+import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
+import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
+import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const { courses, loading, error } = useCourses();
+  const { enrollments, getCourseProgress } = useEnrollmentProgress();
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Auto-enroll user in Learning State beta course
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+
+  // Auto-enroll in Learning State beta course
   useAutoEnrollLearningState();
-  
-  // Fetch enrolled courses and progress
-  const { courses: enrolledCourses, loading: enrolledLoading, error: enrolledError, refetch: refetchEnrolled } = useEnrolledCourses();
-  const { getCourseProgress, refetch: refetchProgress } = useEnrollmentProgress();
-  
-  // Fetch all available courses
-  const { courses: allCourses, isLoading: allCoursesLoading, error: allCoursesError, refetch: refetchAllCourses } = useCourses({
-    status: 'published'
-  });
 
-  const loading = enrolledLoading || allCoursesLoading;
+  const enrolledCourseIds = enrollments.map(e => e.course_id);
+  const enrolledCourses = courses.filter(course => enrolledCourseIds.includes(course.id));
+  const availableCourses = courses.filter(course => 
+    !enrolledCourseIds.includes(course.id) && course.status === 'published'
+  );
 
-  const handleCourseClick = (courseId: string, courseSlug?: string) => {
-    if (courseId === 'learning-state-beta') {
-      // Navigate to the new embedded Learning State course
-      navigate('/dashboard/learner/course/learning-state-embed');
-    } else {
-      // Navigate using slug if available, otherwise use ID
-      const identifier = courseSlug || courseId;
-      navigate(`/dashboard/learner/course/${identifier}`);
-    }
+  const filteredCourses = (courseList: typeof courses) => {
+    return courseList.filter(course => {
+      const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
+      return matchesSearch && matchesDifficulty;
+    });
   };
 
-  const handleRefresh = () => {
-    refetchEnrolled();
-    refetchProgress();
-    refetchAllCourses();
-  };
-
-  // Filter courses based on search term
-  const filterCourses = (courses: any[]) => {
-    if (!searchTerm) return courses;
-    return courses.filter(course => 
-      course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  };
-
-  const filteredEnrolledCourses = filterCourses(enrolledCourses);
-  const filteredAvailableCourses = filterCourses(allCourses.filter(course => 
-    !enrolledCourses.some(enrolled => enrolled.id === course.id)
-  ));
-
-  const renderCoursesList = (courses: any[], showEnrollButton = false) => {
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="fpk-card border-0 shadow-lg animate-pulse">
-              <CardContent className="p-8">
-                <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your courses...</p>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    if (enrolledError || allCoursesError) {
-      return (
-        <Card className="fpk-card border-0 shadow-lg">
-          <CardContent className="p-8 text-center">
-            <BookOpen className="h-16 w-16 text-red-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              <DualLanguageText translationKey="courses.errorTitle" />
-            </h3>
-            <p className="text-gray-500 mb-4">{enrolledError || allCoursesError}</p>
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={handleRefresh}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                <DualLanguageText translationKey="common.tryAgain" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600">Error</h2>
+          <p className="text-gray-600">{error.message || 'Failed to load courses'}</p>
+        </div>
+      </div>
+    );
+  }
 
-    if (courses.length === 0) {
-      return (
-        <Card className="fpk-card border-0 shadow-lg">
-          <CardContent className="p-8 text-center">
-            <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {showEnrollButton ? (
-                <DualLanguageText translationKey="courses.noAvailableCourses" />
-              ) : (
-                <DualLanguageText translationKey="courses.noCourses" />
-              )}
-            </h3>
-            <p className="text-gray-500 mb-4">
-              {showEnrollButton ? (
-                <DualLanguageText translationKey="courses.noAvailableCoursesDesc" />
-              ) : (
-                <DualLanguageText translationKey="courses.noCoursesDesc" />
-              )}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Button 
-                className="fpk-gradient text-white" 
-                onClick={handleRefresh}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                <DualLanguageText translationKey="courses.refreshCourses" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
+  const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
+    const progress = isEnrolled ? getCourseProgress(course.id) : null;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => {
-          const progress = showEnrollButton ? null : getCourseProgress(course.id);
-          
-          return (
-            <Card key={course.id} className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                {course.thumbnail_url && (
-                  <img 
-                    src={course.thumbnail_url} 
-                    alt={course.title}
-                    className="w-full h-32 object-cover rounded-lg mb-4"
-                  />
-                )}
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                      {course.title}
-                    </h3>
-                    {course.featured && (
-                      <Badge variant="secondary" className="ml-2">Featured</Badge>
-                    )}
-                  </div>
-                  
-                  {course.description && (
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {course.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    {course.instructor_name && (
-                      <span>By {course.instructor_name}</span>
-                    )}
-                    {course.duration_minutes && (
-                      <span>• {course.duration_minutes} min</span>
-                    )}
-                    {course.difficulty_level && (
-                      <Badge variant="outline" className="text-xs">
-                        {course.difficulty_level}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {progress && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{progress.completion_percentage}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full" 
-                          style={{ width: `${progress.completion_percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button
-                    className="w-full fpk-gradient text-white"
-                    onClick={() => handleCourseClick(course.id, course.slug)}
-                  >
-                    {showEnrollButton ? (
-                      'Enroll Now'
-                    ) : progress?.completed ? (
-                      t('courses.reviewCourse')
-                    ) : course.id === 'learning-state-beta' ? (
-                      progress?.completion_percentage > 0
-                        ? t('courses.continue')
-                        : t('courses.beginCourse')
-                    ) : (
-                      t('courses.continue')
-                    )}
-                  </Button>
+      <Card className="h-full hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <CardTitle className="text-lg">{course.title}</CardTitle>
+              <CardDescription className="mt-2 line-clamp-2">
+                {course.description}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col items-end space-y-1 ml-4">
+              {course.featured && (
+                <Badge variant="default" className="fpk-gradient text-white">
+                  Featured
+                </Badge>
+              )}
+              <Badge variant="outline">
+                {course.difficulty_level}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+              {course.instructor_name && (
+                <div className="flex items-center space-x-1">
+                  <User className="h-4 w-4" />
+                  <span>{course.instructor_name}</span>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              )}
+              {course.duration_minutes && (
+                <div className="flex items-center space-x-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{course.duration_minutes} mins</span>
+                </div>
+              )}
+            </div>
+
+            {isEnrolled && progress && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Progress</span>
+                  <span className="text-sm text-gray-600">{progress.completion_percentage}%</span>
+                </div>
+                <Progress value={progress.completion_percentage} className="h-2" />
+                {progress.completed && (
+                  <Badge variant="default" className="w-full justify-center bg-green-600">
+                    Completed
+                  </Badge>
+                )}
+              </div>
+            )}
+
+            <Link to={`/dashboard/learner/course/${course.slug}`}>
+              <Button className="w-full fpk-gradient text-white">
+                {isEnrolled ? 'Continue Learning' : 'View Course'}
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            <DualLanguageText translationKey="courses.title" />
-          </h1>
-          <p className="text-gray-600">
-            <DualLanguageText translationKey="courses.subtitle" />
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.myCourses.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('dashboard.myCourses.description')}</p>
       </div>
 
-      <div className="flex gap-4">
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
           <Input
-            placeholder={t('courses.searchPlaceholder')}
-            className="pl-10 bg-white"
+            placeholder="Search courses..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
           />
         </div>
+        <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+          <SelectTrigger className="w-full sm:w-48">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Filter by difficulty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Levels</SelectItem>
+            <SelectItem value="beginner">Beginner</SelectItem>
+            <SelectItem value="intermediate">Intermediate</SelectItem>
+            <SelectItem value="advanced">Advanced</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <Tabs defaultValue="enrolled" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="enrolled">My Courses ({filteredEnrolledCourses.length})</TabsTrigger>
-          <TabsTrigger value="available">Available Courses ({filteredAvailableCourses.length})</TabsTrigger>
+      <Tabs defaultValue="enrolled" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="enrolled">
+            My Courses ({enrolledCourses.length})
+          </TabsTrigger>
+          <TabsTrigger value="available">
+            Available Courses ({availableCourses.length})
+          </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="enrolled" className="mt-6">
-          {renderCoursesList(filteredEnrolledCourses, false)}
+
+        <TabsContent value="enrolled" className="space-y-6">
+          {filteredCourses(enrolledCourses).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCourses(enrolledCourses).map((course) => (
+                <CourseCard key={course.id} course={course} isEnrolled={true} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchTerm ? 'No courses match your search' : 'No enrolled courses yet'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {searchTerm 
+                  ? 'Try adjusting your search terms or filters'
+                  : 'Discover and enroll in courses to start your learning journey.'
+                }
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => document.querySelector('[value="available"]')?.click()}>
+                  Browse Available Courses
+                </Button>
+              )}
+            </div>
+          )}
         </TabsContent>
-        
-        <TabsContent value="available" className="mt-6">
-          {renderCoursesList(filteredAvailableCourses, true)}
+
+        <TabsContent value="available" className="space-y-6">
+          {filteredCourses(availableCourses).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCourses(availableCourses).map((course) => (
+                <CourseCard key={course.id} course={course} isEnrolled={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {searchTerm ? 'No courses match your search' : 'No available courses'}
+              </h3>
+              <p className="text-gray-600">
+                {searchTerm 
+                  ? 'Try adjusting your search terms or filters'
+                  : 'New courses will appear here when they become available.'
+                }
+              </p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

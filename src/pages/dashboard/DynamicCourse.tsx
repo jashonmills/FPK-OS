@@ -1,318 +1,286 @@
 
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Play, Book, Clock, User, CheckCircle } from 'lucide-react';
-import { useCourse } from '@/hooks/useCourses';
+import { Play, CheckCircle, Clock, User, BookOpen } from 'lucide-react';
+import { useCourses } from '@/hooks/useCourses';
 import { useModules } from '@/hooks/useModules';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
-import { useProgressTracking } from '@/hooks/useProgressTracking';
-import DualLanguageText from '@/components/DualLanguageText';
+import { useXPSystem } from '@/hooks/useXPSystem';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const DynamicCourse = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const [selectedModule, setSelectedModule] = useState<number | null>(null);
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const { courses } = useCourses();
+  const { awardXP } = useXPSystem();
+  const [currentModule, setCurrentModule] = useState<number>(1);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
-  const { course, isLoading: courseLoading, error: courseError } = useCourse(slug || '');
-  const { modules, isLoading: modulesLoading } = useModules(course?.id || '');
-  const { getCourseProgress } = useEnrollmentProgress();
-  const { updateProgress } = useProgressTracking(course?.id || '');
+  const course = courses.find(c => c.slug === slug);
+  const { modules, loading: modulesLoading } = useModules(course?.id || '');
+  const { getCourseProgress, refetch: refetchProgress } = useEnrollmentProgress();
 
   const progress = course ? getCourseProgress(course.id) : null;
-  const loading = courseLoading || modulesLoading;
 
-  const handleBackToCourses = () => {
-    navigate('/dashboard/learner/my-courses');
+  useEffect(() => {
+    if (course && user) {
+      checkEnrollment();
+    }
+  }, [course, user]);
+
+  const checkEnrollment = async () => {
+    if (!course || !user) return;
+
+    const { data } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('course_id', course.id)
+      .single();
+
+    setIsEnrolled(!!data);
   };
 
-  const handleModuleClick = async (moduleNumber: number) => {
-    if (selectedModule === moduleNumber) {
-      setSelectedModule(null);
-      return;
-    }
+  const handleEnroll = async () => {
+    if (!course || !user) return;
 
-    setSelectedModule(moduleNumber);
-    
-    // Update progress when module is started
-    if (course) {
-      await updateProgress({
-        type: 'module_start',
-        moduleId: `module-${moduleNumber}`,
-        timestamp: new Date().toISOString()
-      });
+    try {
+      const { error } = await supabase
+        .from('enrollments')
+        .insert({
+          user_id: user.id,
+          course_id: course.id
+        });
+
+      if (error) throw error;
+
+      setIsEnrolled(true);
+      await awardXP(25, 'Enrolled in a new course!');
+      refetchProgress();
+    } catch (error) {
+      console.error('Error enrolling in course:', error);
     }
   };
 
-  const renderModuleContent = (module: any) => {
-    const metadata = module.metadata || {};
-    
-    switch (module.content_type) {
-      case 'interactive':
-        if (metadata.embed_url) {
-          return (
-            <div className="w-full h-96 border rounded-lg overflow-hidden">
-              <iframe
-                src={metadata.embed_url}
-                title={module.title}
-                className="w-full h-full border-0"
-                allow="clipboard-write; encrypted-media; fullscreen"
-                sandbox="allow-scripts allow-same-origin allow-forms"
-              />
-            </div>
-          );
-        }
-        break;
-      
-      case 'video':
-        if (metadata.video_url) {
-          return (
-            <div className="w-full h-96 border rounded-lg overflow-hidden">
-              <video 
-                controls 
-                className="w-full h-full"
-                src={metadata.video_url}
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          );
-        }
-        break;
-      
-      case 'pdf':
-        if (metadata.pdf_url) {
-          return (
-            <div className="w-full h-96 border rounded-lg overflow-hidden">
-              <iframe
-                src={metadata.pdf_url}
-                title={module.title}
-                className="w-full h-full border-0"
-              />
-            </div>
-          );
-        }
-        break;
-      
-      case 'text':
-        return (
-          <div className="prose max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: metadata.content || module.description }} />
-          </div>
-        );
-      
-      default:
-        return (
-          <div className="text-center py-8 text-gray-500">
-            <Book className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>Content type "{module.content_type}" not yet supported</p>
-          </div>
-        );
-    }
+  const handleModuleComplete = async (moduleNumber: number) => {
+    if (!course || !user || !progress) return;
 
+    const completedModules = progress.completed_modules || [];
+    const moduleId = `module-${moduleNumber}`;
+
+    if (completedModules.includes(moduleId)) return;
+
+    const newCompletedModules = [...completedModules, moduleId];
+    const completionPercentage = Math.round((newCompletedModules.length / modules.length) * 100);
+    const isCompleted = completionPercentage >= 100;
+
+    try {
+      const { error } = await supabase
+        .from('enrollments')
+        .update({
+          progress: {
+            completed: isCompleted,
+            current_module: isCompleted ? null : `module-${moduleNumber + 1}`,
+            completion_percentage: completionPercentage,
+            completed_modules: newCompletedModules,
+            ...(isCompleted && { completed_at: new Date().toISOString() })
+          }
+        })
+        .eq('user_id', user.id)
+        .eq('course_id', course.id);
+
+      if (error) throw error;
+
+      // Award XP for module completion
+      await awardXP(50, `Completed ${course.title} - Module ${moduleNumber}`);
+
+      // Award bonus XP for course completion
+      if (isCompleted) {
+        await awardXP(100, `Completed entire course: ${course.title}`);
+      }
+
+      refetchProgress();
+
+      // Send progress event for any listening components
+      window.dispatchEvent(new CustomEvent('progress_update', {
+        detail: {
+          courseId: course.id,
+          moduleNumber,
+          completed: true,
+          completionPercentage
+        }
+      }));
+
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    }
+  };
+
+  if (!slug) {
+    return <Navigate to="/dashboard/learner/my-courses" replace />;
+  }
+
+  if (!course) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <Book className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <p>No content available for this module</p>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={handleBackToCourses}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Courses
-          </Button>
-        </div>
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 h-64 bg-gray-200 rounded"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Course Not Found</h2>
+          <p className="text-gray-600">The course you're looking for doesn't exist.</p>
         </div>
       </div>
     );
   }
 
-  if (courseError || !course) {
-    return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={handleBackToCourses}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Courses
-          </Button>
-        </div>
-        <Card className="fpk-card border-0 shadow-lg">
-          <CardContent className="p-8 text-center">
-            <Book className="h-16 w-16 text-red-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Course Not Found</h3>
-            <p className="text-gray-500 mb-4">
-              The course you're looking for doesn't exist or isn't available.
-            </p>
-            <Button onClick={handleBackToCourses}>
-              Return to Courses
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (modulesLoading) {
+    return <div className="flex items-center justify-center p-8">Loading course content...</div>;
   }
+
+  const completedModules = progress?.completed_modules || [];
+  const completionPercentage = progress?.completion_percentage || 0;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={handleBackToCourses}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          <DualLanguageText translationKey="courses.backToCourses" />
-        </Button>
-      </div>
-
-      {/* Course Info */}
-      <div className="space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-            {course.description && (
-              <p className="text-gray-600 text-lg">{course.description}</p>
-            )}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              {course.instructor_name && (
-                <div className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  <span>{course.instructor_name}</span>
-                </div>
+    <div className="space-y-6">
+      {/* Course Header */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-2xl">{course.title}</CardTitle>
+              <CardDescription className="text-lg mt-2">
+                {course.description}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col items-end space-y-2">
+              {course.featured && (
+                <Badge variant="default">Featured</Badge>
               )}
-              {course.duration_minutes && (
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{course.duration_minutes} min</span>
-                </div>
-              )}
-              {course.difficulty_level && (
-                <Badge variant="outline">{course.difficulty_level}</Badge>
-              )}
+              <Badge variant="outline">
+                {course.difficulty_level}
+              </Badge>
             </div>
           </div>
-          {course.featured && (
-            <Badge className="fpk-gradient text-white">Featured</Badge>
-          )}
-        </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {course.instructor_name && (
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{course.instructor_name}</span>
+              </div>
+            )}
+            {course.duration_minutes && (
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{course.duration_minutes} minutes</span>
+              </div>
+            )}
+            <div className="flex items-center space-x-2">
+              <BookOpen className="h-4 w-4 text-gray-500" />
+              <span className="text-sm">{modules.length} modules</span>
+            </div>
+          </div>
 
-        {progress && (
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Course Progress</span>
-                  <span>{progress.completion_percentage}%</span>
+          {isEnrolled ? (
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Progress</span>
+                  <span className="text-sm text-gray-600">{completionPercentage}%</span>
                 </div>
-                <Progress value={progress.completion_percentage} className="h-2" />
-                <p className="text-xs text-gray-500">
-                  {progress.completed_modules?.length || 0} of {modules.length} modules completed
-                </p>
+                <Progress value={completionPercentage} className="h-2" />
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Course Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content Area */}
-        <div className="lg:col-span-2">
-          {selectedModule !== null ? (
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span>Module {selectedModule}</span>
-                  <span>•</span>
-                  <span>{modules.find(m => m.module_number === selectedModule)?.title}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderModuleContent(modules.find(m => m.module_number === selectedModule))}
-              </CardContent>
-            </Card>
+            </div>
           ) : (
-            <Card className="border-0 shadow-lg">
-              <CardContent className="p-8 text-center">
-                <Play className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Select a Module to Begin
-                </h3>
-                <p className="text-gray-500">
-                  Choose a module from the sidebar to start learning.
-                </p>
-              </CardContent>
-            </Card>
+            <Button onClick={handleEnroll} className="fpk-gradient text-white">
+              Enroll in Course
+            </Button>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Module List Sidebar */}
+      {/* Modules List */}
+      {isEnrolled && (
         <div className="space-y-4">
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>Course Modules</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-1">
-                {modules.map((module) => {
-                  const isCompleted = progress?.completed_modules?.includes(`module-${module.module_number}`);
-                  const isSelected = selectedModule === module.module_number;
-                  
-                  return (
-                    <button
-                      key={module.id}
-                      onClick={() => handleModuleClick(module.module_number)}
-                      className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                        isSelected ? 'bg-purple-50 border-purple-200' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold">Course Modules</h2>
+          {modules.map((module, index) => {
+            const moduleId = `module-${module.module_number}`;
+            const isCompleted = completedModules.includes(moduleId);
+            const isAccessible = index === 0 || completedModules.includes(`module-${modules[index - 1]?.module_number}`);
+
+            return (
+              <Card key={module.id} className={`${isCompleted ? 'bg-green-50 border-green-200' : ''}`}>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-lg flex items-center space-x-2">
                         {isCompleted ? (
-                          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                          <CheckCircle className="h-5 w-5 text-green-600" />
                         ) : (
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-xs font-medium">
+                            {module.module_number}
+                          </span>
                         )}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium text-gray-900">
-                            Module {module.module_number}: {module.title}
-                          </div>
-                          {module.description && (
-                            <div className="text-sm text-gray-500 truncate">
-                              {module.description}
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {module.content_type}
-                            </Badge>
-                            {module.duration_minutes > 0 && (
-                              <span className="text-xs text-gray-500">
-                                {module.duration_minutes} min
-                              </span>
-                            )}
-                          </div>
+                        <span>{module.title}</span>
+                      </CardTitle>
+                      {module.description && (
+                        <CardDescription className="mt-1">
+                          {module.description}
+                        </CardDescription>
+                      )}
+                    </div>
+                    {isAccessible && !isCompleted && (
+                      <Button
+                        size="sm"
+                        onClick={() => setCurrentModule(module.module_number)}
+                        variant={currentModule === module.module_number ? "default" : "outline"}
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        {currentModule === module.module_number ? 'Current' : 'Start'}
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                {currentModule === module.module_number && isAccessible && (
+                  <CardContent>
+                    <div className="bg-gray-100 rounded-lg p-4 mb-4">
+                      {module.metadata?.embed_url ? (
+                        <iframe
+                          src={module.metadata.embed_url}
+                          className="w-full h-96 rounded border-0"
+                          title={module.title}
+                          onLoad={() => {
+                            // Handle iframe load for interactive content
+                            console.log(`Module ${module.module_number} loaded`);
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-600">Module content will be available soon.</p>
                         </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                      )}
+                    </div>
+                    {!isCompleted && (
+                      <Button
+                        onClick={() => handleModuleComplete(module.module_number)}
+                        className="w-full"
+                      >
+                        Mark as Complete
+                      </Button>
+                    )}
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 };
