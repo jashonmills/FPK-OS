@@ -1,207 +1,37 @@
 
 {
-  "nav": {
-    "home": "Accueil",
-    "courses": "Mes Cours",
-    "analytics": "Analyses d'Apprentissage",
-    "liveHub": "Hub d'Apprentissage en Direct",
-    "aiCoach": "Coach d'Étude IA",
-    "goals": "Suivi des Objectifs et XP",
-    "notes": "Notes et Cartes Mémoire",
-    "community": "Hub Communauté",
-    "settings": "Paramètres",
-    "support": "Support et FAQs"
-  },
-  "dashboard": {
-    "welcome": "Bon retour, {{name}} !",
-    "welcomeModal": {
-      "title": "Bienvenue à l'Université FPK !",
-      "subtitle": "Salut {{name}} ! Avant de vous lancer dans votre parcours d'apprentissage, veuillez compléter votre profil pour que nous puissions personnaliser votre expérience et adapter le contenu juste pour vous.",
-      "quickSetup": "Configuration Rapide",
-      "quickSetupDesc": "Ajoutez vos préférences d'apprentissage, objectifs et intérêts pour débloquer des recommandations de cours personnalisées.",
-      "completeProfile": "Compléter la Configuration du Profil",
-      "remindLater": "Me rappeler dans 24h"
-    },
-    "stats": {
-      "activeCourses": "Cours Actifs",
-      "hoursThisWeek": "Heures Cette Semaine",
-      "certificates": "Certificats",
-      "streakDays": "Jours de Série",
-      "totalXP": "XP Total",
-      "level": "Niveau"
-    },
-    "charts": {
-      "courseProgress": "Aperçu des Progrès de Cours",
-      "weeklyTime": "Temps d'Étude Hebdomadaire",
-      "noCourseProgress": "Aucun Progrès de Cours Encore",
-      "noCourseProgressDesc": "Commencez un cours pour voir votre visualisation de progrès ici",
-      "noStudyTime": "Aucun Temps d'Étude Enregistré",
-      "noStudyTimeDesc": "Votre temps d'étude hebdomadaire apparaîtra ici une fois que vous commencerez à apprendre"
-    },
-    "insights": {
-      "aiInsight": "Aperçu d'Étude IA",
-      "noInsights": "Aucun Aperçu Encore",
-      "noInsightsDesc": "Les aperçus IA apparaîtront ici basés sur vos modèles d'apprentissage",
-      "recommendedGoals": "Objectifs Recommandés",
-      "setFirstGoal": "Définissez Votre Premier Objectif",
-      "setFirstGoalDesc": "L'IA suggérera des objectifs d'apprentissage personnalisés",
-      "createGoal": "Créer un Objectif",
-      "communityActivity": "Activité Communautaire",
-      "joinCommunity": "Rejoindre la Communauté",
-      "joinCommunityDesc": "Connectez-vous avec d'autres apprenants",
-      "exploreCommunity": "Explorer la Communauté"
-    },
-    "badges": {
-      "learner": "Apprenant",
-      "level1": "Niveau 1"
-    }
-  },
-  "auth": {
-    "title": "Université FPK",
-    "subtitle": "Votre Parcours d'Apprentissage Commence Ici",
-    "portalTitle": "Portail Apprenant",
-    "signIn": "Se Connecter",
-    "signUp": "S'Inscrire",
-    "email": "Email",
-    "password": "Mot de Passe",
-    "displayName": "Nom d'Affichage",
-    "confirmPassword": "Confirmer le Mot de Passe",
-    "emailPlaceholder": "votre.email@exemple.com",
-    "passwordPlaceholder": "Entrez votre mot de passe",
-    "createPassword": "Créer un mot de passe",
-    "fullNamePlaceholder": "Votre nom complet",
-    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
-    "signInButton": "Se Connecter",
-    "signUpButton": "Créer un Compte",
-    "signingIn": "Connexion...",
-    "creatingAccount": "Création du Compte...",
-    "welcomeBack": "Bon retour !",
-    "signInSuccess": "Vous vous êtes connecté avec succès.",
-    "accountCreated": "Compte créé !",
-    "checkEmail": "Veuillez vérifier votre email pour valider votre compte.",
-    "betaVersion": "Version Bêta - Intégration de Données en Direct Prête"
-  },
-  "settings": {
-    "title": "Paramètres",
-    "subtitle": "Gérez votre compte et vos préférences",
-    "saving": "Sauvegarde...",
-    "autoSavePending": "Sauvegarde automatique en attente",
-    "allChangesSaved": "Tous les changements sauvegardés",
-    "restoreDefaults": "Restaurer les Défauts",
-    "settingsRestored": "Paramètres restaurés",
-    "defaultsMessage": "Tous les paramètres ont été restaurés aux valeurs par défaut.",
-    "tabs": {
-      "profile": "Profil",
-      "language": "Langue",
-      "accessibility": "Accessibilité",
-      "notifications": "Notifications",
-      "security": "Sécurité",
-      "integrations": "Intégrations"
-    },
-    "profile": {
-      "title": "Informations Personnelles",
-      "fullName": "Nom Complet",
-      "displayName": "Nom d'Affichage",
-      "fullNamePlaceholder": "Entrez votre nom complet",
-      "displayNamePlaceholder": "Comment les autres voient votre nom",
-      "email": "Adresse Email",
-      "bio": "Bio",
-      "bioPlaceholder": "Parlez-nous de vous...",
-      "learningStyles": "Styles d'Apprentissage",
-      "addStyle": "Ajouter un Style",
-      "customStylePlaceholder": "ex., Collaboratif",
-      "quickAdd": "Ajout Rapide"
-    },
-    "language": {
-      "title": "Langue et Localisation",
-      "primaryLanguage": "Langue Principale",
-      "dualLanguageMode": "Mode Bilingue",
-      "dualLanguageDescription": "Afficher le contenu en Langue Principale + Anglais côte à côte",
-      "timeFormat": "Format d'Heure",
-      "12hour": "12 heures (AM/PM)",
-      "24hour": "24 heures",
-      "dateFormat": "Format de Date",
-      "usDate": "US (MM/JJ/AAAA)",
-      "intlDate": "International (JJ/MM/AAAA)",
-      "timezone": "Fuseau Horaire",
-      "preview": "Aperçu"
-    },
-    "accessibility": {
-      "title": "Paramètres d'Affichage",
-      "fontFamily": "Famille de Police",
-      "fontHelp": "OpenDyslexic est conçu pour aider avec la dyslexie",
-      "systemFont": "Défaut du Système",
-      "colorContrast": "Contraste des Couleurs",
-      "standard": "Standard",
-      "highContrast": "Contraste Élevé",
-      "comfortMode": "Mode Confort",
-      "comfortHelp": "Faible Stimulus réduit les distractions visuelles\nMode Focus met en évidence le contenu",
-      "normal": "Normal",
-      "lowStimulus": "Faible Stimulus",
-      "focusMode": "Mode Focus",
-      "textSize": "Taille du Texte",
-      "lineSpacing": "Espacement des Lignes",
-      "small": "Petit",
-      "medium": "Moyen",
-      "large": "Grand",
-      "compact": "Compact",
-      "comfortable": "Confortable",
-      "airy": "Aéré"
-    },
-    "notifications": {
-      "emailTitle": "Notifications Email",
-      "newCourses": "Annonces de Nouveaux Cours",
-      "newCoursesDesc": "Recevoir des notifications sur les nouveaux cours",
-      "weeklySum": "Résumé Hebdomadaire des Progrès",
-      "weeklySumDesc": "Rapports hebdomadaires des progrès d'apprentissage",
-      "aiPrompts": "Rappels d'Étude IA",
-      "aiPromptsDesc": "Rappels d'étude intelligents de l'IA",
-      "appTitle": "Rappels de l'App",
-      "studyStreak": "Rappels de Série d'Étude",
-      "studyStreakDesc": "Maintenez votre série d'apprentissage en vie",
-      "moduleNudges": "Rappels de Complétion de Module",
-      "moduleNudgesDesc": "Rappels doux pour compléter les modules"
-    },
-    "security": {
-      "title": "Paramètres de Sécurité",
-      "changePassword": "Changer le Mot de Passe",
-      "currentPassword": "Mot de passe actuel",
-      "newPassword": "Nouveau mot de passe",
-      "confirmNewPassword": "Confirmer le nouveau mot de passe",
-      "updatePassword": "Mettre à Jour le Mot de Passe",
-      "twoFactor": "Authentification à Deux Facteurs",
-      "twoFactorDesc": "Ajouter une couche de sécurité supplémentaire"
-    },
-    "integrations": {
-      "title": "Synchronisation de Calendrier",
-      "googleCalendar": "Google Calendar",
-      "googleDesc": "Synchroniser les sessions d'étude avec Google Calendar",
-      "outlookCalendar": "Outlook Calendar",
-      "outlookDesc": "Synchroniser les sessions d'étude avec Outlook Calendar"
-    }
-  },
-  "preview": {
-    "title": "Aperçu en Direct",
-    "description": "Voici comment votre texte apparaîtra avec les paramètres actuels. Vous pouvez voir les changements de famille de police, taille, espacement des lignes et contraste en temps réel.",
-    "fontLabel": "Police",
-    "sizeLabel": "Taille",
-    "spacingLabel": "Espacement",
-    "contrastLabel": "Contraste",
-    "comfortLabel": "Mode Confort"
-  },
   "common": {
-    "save": "Sauvegarder",
-    "cancel": "Annuler",
-    "add": "Ajouter",
-    "edit": "Modifier",
-    "delete": "Supprimer",
+    "learnerPortal": "Portail d'Apprentissage",
+    "userMenu": "Menu Utilisateur",
     "loading": "Chargement...",
     "error": "Erreur",
     "success": "Succès",
-    "comingSoon": "Bientôt Disponible !",
-    "learnerPortal": "Portail Apprenant",
-    "signOut": "Se Déconnecter",
-    "learningDashboard": "Tableau de Bord d'Apprentissage",
-    "support": "Support"
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "search": "Rechercher"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "Mes Cours",
+      "description": "Gérez et continuez votre parcours d'apprentissage avec des cours personnalisés"
+    },
+    "navigation": {
+      "home": "Accueil",
+      "courses": "Mes Cours",
+      "analytics": "Analyses d'Apprentissage",
+      "goals": "Objectifs",
+      "notes": "Notes",
+      "study": "Étudier",
+      "aiCoach": "Coach d'Étude IA",
+      "liveHub": "Hub d'Apprentissage en Direct",
+      "settings": "Paramètres"
+    }
+  },
+  "auth": {
+    "login": "Se Connecter",
+    "logout": "Se Déconnecter",
+    "register": "S'Inscrire"
   }
 }

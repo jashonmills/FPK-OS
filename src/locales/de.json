@@ -1,207 +1,37 @@
 
 {
-  "nav": {
-    "home": "Startseite",
-    "courses": "Meine Kurse",
-    "analytics": "Lernanalyse",
-    "liveHub": "Live-Lern-Hub",
-    "aiCoach": "KI-Lern-Coach",
-    "goals": "Ziel- und XP-Tracker",
-    "notes": "Notizen und Karteikarten",
-    "community": "Community-Hub",
-    "settings": "Einstellungen",
-    "support": "Support und FAQs"
+  "common": {
+    "learnerPortal": "Lerner Portal",
+    "userMenu": "Benutzermenü",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen"
   },
   "dashboard": {
-    "welcome": "Willkommen zurück, {{name}}!",
-    "welcomeModal": {
-      "title": "Willkommen an der FPK Universität!",
-      "subtitle": "Hallo {{name}}! Bevor Sie sich in Ihre Lernreise stürzen, vervollständigen Sie bitte Ihr Profil, damit wir Ihre Erfahrung personalisieren und Inhalte speziell für Sie anpassen können.",
-      "quickSetup": "Schnelle Einrichtung",
-      "quickSetupDesc": "Fügen Sie Ihre Lernpräferenzen, Ziele und Interessen hinzu, um personalisierte Kursempfehlungen freizuschalten.",
-      "completeProfile": "Profil-Einrichtung Vervollständigen",
-      "remindLater": "In 24h erinnern"
+    "myCourses": {
+      "title": "Meine Kurse",
+      "description": "Verwalten und setzen Sie Ihre Lernreise mit personalisierten Kursen fort"
     },
-    "stats": {
-      "activeCourses": "Aktive Kurse",
-      "hoursThisWeek": "Stunden Diese Woche",
-      "certificates": "Zertifikate",
-      "streakDays": "Streak-Tage",
-      "totalXP": "Gesamt XP",
-      "level": "Level"
-    },
-    "charts": {
-      "courseProgress": "Kursfortschritt Übersicht",
-      "weeklyTime": "Wöchentliche Lernzeit",
-      "noCourseProgress": "Noch Kein Kursfortschritt",
-      "noCourseProgressDesc": "Starten Sie einen Kurs, um Ihre Fortschrittsvisualisierung hier zu sehen",
-      "noStudyTime": "Keine Lernzeit Aufgezeichnet",
-      "noStudyTimeDesc": "Ihre wöchentliche Lernzeit wird hier erscheinen, sobald Sie mit dem Lernen beginnen"
-    },
-    "insights": {
-      "aiInsight": "KI-Lern-Einblick",
-      "noInsights": "Noch Keine Einblicke",
-      "noInsightsDesc": "KI-Einblicke werden hier basierend auf Ihren Lernmustern erscheinen",
-      "recommendedGoals": "Empfohlene Ziele",
-      "setFirstGoal": "Setzen Sie Ihr Erstes Ziel",
-      "setFirstGoalDesc": "KI wird personalisierte Lernziele vorschlagen",
-      "createGoal": "Ziel Erstellen",
-      "communityActivity": "Community-Aktivität",
-      "joinCommunity": "Der Community Beitreten",
-      "joinCommunityDesc": "Verbinden Sie sich mit anderen Lernenden",
-      "exploreCommunity": "Community Erkunden"
-    },
-    "badges": {
-      "learner": "Lerner",
-      "level1": "Level 1"
+    "navigation": {
+      "home": "Startseite",
+      "courses": "Meine Kurse",
+      "analytics": "Lernanalyse",
+      "goals": "Ziele",
+      "notes": "Notizen",
+      "study": "Lernen",
+      "aiCoach": "KI-Lerncoach",
+      "liveHub": "Live-Lern-Hub",
+      "settings": "Einstellungen"
     }
   },
   "auth": {
-    "title": "FPK Universität",
-    "subtitle": "Ihre Lernreise beginnt hier",
-    "portalTitle": "Lerner-Portal",
-    "signIn": "Anmelden",
-    "signUp": "Registrieren",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "displayName": "Anzeigename",
-    "confirmPassword": "Passwort bestätigen",
-    "emailPlaceholder": "ihre.email@beispiel.com",
-    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
-    "createPassword": "Ein Passwort erstellen",
-    "fullNamePlaceholder": "Ihr vollständiger Name",
-    "confirmPasswordPlaceholder": "Bestätigen Sie Ihr Passwort",
-    "signInButton": "Anmelden",
-    "signUpButton": "Konto erstellen",
-    "signingIn": "Anmeldung...",
-    "creatingAccount": "Konto wird erstellt...",
-    "welcomeBack": "Willkommen zurück!",
-    "signInSuccess": "Sie haben sich erfolgreich angemeldet.",
-    "accountCreated": "Konto erstellt!",
-    "checkEmail": "Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu verifizieren.",
-    "betaVersion": "Beta-Version - Live-Datenintegration bereit"
-  },
-  "settings": {
-    "title": "Einstellungen",
-    "subtitle": "Verwalten Sie Ihr Konto und Ihre Einstellungen",
-    "saving": "Speichern...",
-    "autoSavePending": "Auto-Speichern ausstehend",
-    "allChangesSaved": "Alle Änderungen gespeichert",
-    "restoreDefaults": "Standards wiederherstellen",
-    "settingsRestored": "Einstellungen wiederhergestellt",
-    "defaultsMessage": "Alle Einstellungen wurden auf die Standardwerte zurückgesetzt.",
-    "tabs": {
-      "profile": "Profil",
-      "language": "Sprache",
-      "accessibility": "Barrierefreiheit",
-      "notifications": "Benachrichtigungen",
-      "security": "Sicherheit",
-      "integrations": "Integrationen"
-    },
-    "profile": {
-      "title": "Persönliche Informationen",
-      "fullName": "Vollständiger Name",
-      "displayName": "Anzeigename",
-      "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
-      "displayNamePlaceholder": "Wie andere Ihren Namen sehen",
-      "email": "E-Mail-Adresse",
-      "bio": "Biografie",
-      "bioPlaceholder": "Erzählen Sie uns von sich...",
-      "learningStyles": "Lernstile",
-      "addStyle": "Stil hinzufügen",
-      "customStylePlaceholder": "z.B., Kollaborativ",
-      "quickAdd": "Schnell hinzufügen"
-    },
-    "language": {
-      "title": "Sprache und Lokalisierung",
-      "primaryLanguage": "Hauptsprache",
-      "dualLanguageMode": "Zweisprachiger Modus",
-      "dualLanguageDescription": "Inhalte in Hauptsprache + Englisch nebeneinander anzeigen",
-      "timeFormat": "Zeitformat",
-      "12hour": "12-Stunden (AM/PM)",
-      "24hour": "24-Stunden",
-      "dateFormat": "Datumsformat",
-      "usDate": "US (MM/TT/JJJJ)",
-      "intlDate": "International (TT/MM/JJJJ)",
-      "timezone": "Zeitzone",
-      "preview": "Vorschau"
-    },
-    "accessibility": {
-      "title": "Anzeigeeinstellungen",
-      "fontFamily": "Schriftfamilie",
-      "fontHelp": "OpenDyslexic ist für die Hilfe bei Legasthenie entwickelt",
-      "systemFont": "System-Standard",
-      "colorContrast": "Farbkontrast",
-      "standard": "Standard",
-      "highContrast": "Hoher Kontrast",
-      "comfortMode": "Komfortmodus",
-      "comfortHelp": "Niedriger Stimulus reduziert visuelle Ablenkungen\nFokus-Modus hebt Inhalte hervor",
-      "normal": "Normal",
-      "lowStimulus": "Niedriger Stimulus",
-      "focusMode": "Fokus-Modus",
-      "textSize": "Textgröße",
-      "lineSpacing": "Zeilenabstand",
-      "small": "Klein",
-      "medium": "Mittel",
-      "large": "Groß",
-      "compact": "Kompakt",
-      "comfortable": "Komfortabel",
-      "airy": "Luftig"
-    },
-    "notifications": {
-      "emailTitle": "E-Mail-Benachrichtigungen",
-      "newCourses": "Neue Kurs-Ankündigungen",
-      "newCoursesDesc": "Benachrichtigungen über neue Kurse erhalten",
-      "weeklySum": "Wöchentliche Fortschrittszusammenfassung",
-      "weeklySumDesc": "Wöchentliche Lernfortschrittsberichte",
-      "aiPrompts": "KI-Lern-Erinnerungen",
-      "aiPromptsDesc": "Intelligente Lernerinnerungen von KI",
-      "appTitle": "App-Erinnerungen",
-      "studyStreak": "Lern-Serien-Erinnerungen",
-      "studyStreakDesc": "Halten Sie Ihre Lernserie am Leben",
-      "moduleNudges": "Modul-Vervollständigungsanstöße",
-      "moduleNudgesDesc": "Sanfte Erinnerungen zum Abschließen von Modulen"
-    },
-    "security": {
-      "title": "Sicherheitseinstellungen",
-      "changePassword": "Passwort Ändern",
-      "currentPassword": "Aktuelles Passwort",
-      "newPassword": "Neues Passwort",
-      "confirmNewPassword": "Neues Passwort bestätigen",
-      "updatePassword": "Passwort Aktualisieren",
-      "twoFactor": "Zwei-Faktor-Authentifizierung",
-      "twoFactorDesc": "Eine zusätzliche Sicherheitsebene hinzufügen"
-    },
-    "integrations": {
-      "title": "Kalender-Synchronisation",
-      "googleCalendar": "Google Kalender",
-      "googleDesc": "Lernsitzungen mit Google Kalender synchronisieren",
-      "outlookCalendar": "Outlook Kalender",
-      "outlookDesc": "Lernsitzungen mit Outlook Kalender synchronisieren"
-    }
-  },
-  "preview": {
-    "title": "Live-Vorschau",
-    "description": "So wird Ihr Text mit den aktuellen Einstellungen angezeigt. Sie können Änderungen an Schriftfamilie, Größe, Zeilenabstand und Kontrast in Echtzeit sehen.",
-    "fontLabel": "Schrift",
-    "sizeLabel": "Größe",
-    "spacingLabel": "Abstand",
-    "contrastLabel": "Kontrast",
-    "comfortLabel": "Komfortmodus"
-  },
-  "common": {
-    "save": "Speichern",
-    "cancel": "Abbrechen",
-    "add": "Hinzufügen",
-    "edit": "Bearbeiten",
-    "delete": "Löschen",
-    "loading": "Laden...",
-    "error": "Fehler",
-    "success": "Erfolg",
-    "comingSoon": "Bald verfügbar!",
-    "learnerPortal": "Lerner-Portal",
-    "signOut": "Abmelden",
-    "learningDashboard": "Lern-Dashboard",
-    "support": "Support"
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren"
   }
 }

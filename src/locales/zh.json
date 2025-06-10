@@ -1,259 +1,37 @@
 
 {
-  "nav": {
-    "home": "首页",
-    "courses": "我的课程",
-    "analytics": "学习分析",
-    "liveHub": "实时学习中心",
-    "aiCoach": "AI学习教练",
-    "goals": "目标和经验跟踪",
-    "notes": "笔记和卡片",
-    "community": "社区中心",
-    "settings": "设置",
-    "support": "支持和常见问题"
-  },
-  "dashboard": {
-    "welcome": "欢迎回来，{{name}}！",
-    "welcomeModal": {
-      "title": "欢迎来到FPK大学！",
-      "subtitle": "你好{{name}}！在你开始学习之旅之前，请完善你的个人资料，这样我们就可以为你个性化体验并为你量身定制内容。",
-      "quickSetup": "快速设置",
-      "quickSetupDesc": "添加你的学习偏好、目标和兴趣，解锁个性化课程推荐。",
-      "completeProfile": "完成个人资料设置",
-      "remindLater": "24小时后提醒我"
-    },
-    "stats": {
-      "activeCourses": "活跃课程",
-      "hoursThisWeek": "本周小时数",
-      "certificates": "证书",
-      "streakDays": "连续天数",
-      "totalXP": "总经验值",
-      "level": "等级"
-    },
-    "charts": {
-      "courseProgress": "课程进度概览",
-      "weeklyTime": "每周学习时间",
-      "noCourseProgress": "暂无课程进度",
-      "noCourseProgressDesc": "开始一门课程，在这里查看你的进度可视化",
-      "noStudyTime": "未记录学习时间",
-      "noStudyTimeDesc": "一旦你开始学习，你的每周学习时间将在这里显示"
-    },
-    "insights": {
-      "aiInsight": "AI学习洞察",
-      "noInsights": "暂无洞察",
-      "noInsightsDesc": "AI洞察将根据你的学习模式在这里显示",
-      "recommendedGoals": "推荐目标",
-      "setFirstGoal": "设置你的第一个目标",
-      "setFirstGoalDesc": "AI将建议个性化学习目标",
-      "createGoal": "创建目标",
-      "communityActivity": "社区活动",
-      "joinCommunity": "加入社区",
-      "joinCommunityDesc": "与学习伙伴建立联系",
-      "exploreCommunity": "探索社区",
-      "personalGoals": "个人目标"
-    },
-    "badges": {
-      "learner": "学习者",
-      "level1": "1级"
-    }
-  },
-  "goals": {
-    "myGoals": "我的目标",
-    "createNew": "创建目标",
-    "createFirst": "创建你的第一个目标",
-    "description": "跟踪你的学习目标并庆祝你的进步",
-    "stats": {
-      "totalGoals": "总目标",
-      "activeGoals": "活跃目标",
-      "completedGoals": "已完成",
-      "completionRate": "完成率"
-    },
-    "tabs": {
-      "all": "全部",
-      "active": "活跃",
-      "completed": "已完成",
-      "paused": "已暂停"
-    },
-    "empty": {
-      "allTitle": "未找到目标",
-      "allDescription": "首先创建你的第一个目标来跟踪学习进度",
-      "activeTitle": "没有活跃目标",
-      "activeDescription": "创建一个新目标来开始跟踪你的进度",
-      "completedTitle": "还没有完成的目标",
-      "completedDescription": "完成你的活跃目标以在这里看到它们",
-      "pausedTitle": "没有暂停的目标",
-      "pausedDescription": "暂停的目标将显示在这里"
-    },
-    "priority": {
-      "low": "低",
-      "medium": "中",
-      "high": "高"
-    },
-    "status": {
-      "active": "活跃",
-      "completed": "已完成",
-      "paused": "已暂停"
-    },
-    "progress": "进度",
-    "created": "创建于",
-    "due": "截止",
-    "actions": {
-      "markComplete": "标记完成",
-      "pause": "暂停",
-      "resume": "恢复",
-      "delete": "删除"
-    },
-    "deleteDialog": {
-      "title": "删除目标",
-      "description": "你确定要删除这个目标吗？此操作无法撤销。"
-    }
-  },
-  "auth": {
-    "title": "FPK大学",
-    "subtitle": "你的学习之旅从这里开始",
-    "portalTitle": "学习者门户",
-    "signIn": "登录",
-    "signUp": "注册",
-    "email": "邮箱",
-    "password": "密码",
-    "displayName": "显示名称",
-    "confirmPassword": "确认密码",
-    "emailPlaceholder": "your.email@example.com",
-    "passwordPlaceholder": "输入你的密码",
-    "createPassword": "创建密码",
-    "fullNamePlaceholder": "你的全名",
-    "confirmPasswordPlaceholder": "确认你的密码",
-    "signInButton": "登录",
-    "signUpButton": "创建账户",
-    "signingIn": "登录中...",
-    "creatingAccount": "创建账户中...",
-    "welcomeBack": "欢迎回来！",
-    "signInSuccess": "你已成功登录。",
-    "accountCreated": "账户已创建！",
-    "checkEmail": "请检查你的邮箱以验证你的账户。",
-    "betaVersion": "测试版 - 实时数据集成已准备就绪"
-  },
-  "settings": {
-    "title": "设置",
-    "subtitle": "管理你的账户和偏好",
-    "saving": "保存中...",
-    "autoSavePending": "自动保存待定",
-    "allChangesSaved": "所有更改已保存",
-    "restoreDefaults": "恢复默认值",
-    "settingsRestored": "设置已恢复",
-    "defaultsMessage": "所有设置已恢复为默认值。",
-    "tabs": {
-      "profile": "个人资料",
-      "language": "语言",
-      "accessibility": "辅助功能",
-      "notifications": "通知",
-      "security": "安全",
-      "integrations": "集成"
-    },
-    "profile": {
-      "title": "个人信息",
-      "fullName": "全名",
-      "displayName": "显示名称",
-      "fullNamePlaceholder": "输入你的全名",
-      "displayNamePlaceholder": "其他人看到的你的名字",
-      "email": "邮箱地址",
-      "bio": "个人简介",
-      "bioPlaceholder": "告诉我们关于你的信息...",
-      "learningStyles": "学习风格",
-      "addStyle": "添加风格",
-      "customStylePlaceholder": "例如，协作式",
-      "quickAdd": "快速添加"
-    },
-    "language": {
-      "title": "语言和本地化",
-      "primaryLanguage": "主要语言",
-      "dualLanguageMode": "双语模式",
-      "dualLanguageDescription": "并排显示主要语言+英语内容",
-      "timeFormat": "时间格式",
-      "12hour": "12小时制 (上午/下午)",
-      "24hour": "24小时制",
-      "dateFormat": "日期格式",
-      "usDate": "美式 (月/日/年)",
-      "intlDate": "国际 (日/月/年)",
-      "timezone": "时区",
-      "preview": "预览"
-    },
-    "accessibility": {
-      "title": "显示设置",
-      "fontFamily": "字体系列",
-      "fontHelp": "OpenDyslexic专为帮助阅读障碍而设计",
-      "systemFont": "系统默认",
-      "colorContrast": "颜色对比度",
-      "standard": "标准",
-      "highContrast": "高对比度",
-      "comfortMode": "舒适模式",
-      "comfortHelp": "低刺激减少视觉干扰\n专注模式突出内容",
-      "normal": "正常",
-      "lowStimulus": "低刺激",
-      "focusMode": "专注模式",
-      "textSize": "文字大小",
-      "lineSpacing": "行间距",
-      "small": "小",
-      "medium": "中",
-      "large": "大",
-      "compact": "紧凑",
-      "comfortable": "舒适",
-      "airy": "宽松"
-    },
-    "notifications": {
-      "emailTitle": "邮件通知",
-      "newCourses": "新课程公告",
-      "newCoursesDesc": "获取新课程通知",
-      "weeklySum": "每周进度摘要",
-      "weeklySumDesc": "每周学习进度报告",
-      "aiPrompts": "AI学习提示",
-      "aiPromptsDesc": "来自AI的智能学习提醒",
-      "appTitle": "应用提醒",
-      "studyStreak": "学习连续提醒",
-      "studyStreakDesc": "保持你的学习连续",
-      "moduleNudges": "模块完成提醒",
-      "moduleNudgesDesc": "温和提醒完成模块"
-    },
-    "security": {
-      "title": "安全设置",
-      "changePassword": "更改密码",
-      "currentPassword": "当前密码",
-      "newPassword": "新密码",
-      "confirmNewPassword": "确认新密码",
-      "updatePassword": "更新密码",
-      "twoFactor": "双因素认证",
-      "twoFactorDesc": "添加额外的安全层"
-    },
-    "integrations": {
-      "title": "日历同步",
-      "googleCalendar": "谷歌日历",
-      "googleDesc": "与谷歌日历同步学习会话",
-      "outlookCalendar": "Outlook日历",
-      "outlookDesc": "与Outlook日历同步学习会话"
-    }
-  },
-  "preview": {
-    "title": "实时预览",
-    "description": "这是你的文本在当前设置下的显示方式。你可以实时看到字体系列、大小、行间距和对比度的变化。",
-    "fontLabel": "字体",
-    "sizeLabel": "大小",
-    "spacingLabel": "间距",
-    "contrastLabel": "对比度",
-    "comfortLabel": "舒适模式"
-  },
   "common": {
-    "save": "保存",
-    "cancel": "取消",
-    "add": "添加",
-    "edit": "编辑",
-    "delete": "删除",
+    "learnerPortal": "学习者门户",
+    "userMenu": "用户菜单",
     "loading": "加载中...",
     "error": "错误",
     "success": "成功",
-    "comingSoon": "即将推出！",
-    "learnerPortal": "学习者门户",
-    "signOut": "登出",
-    "learningDashboard": "学习仪表板",
-    "support": "支持"
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "我的课程",
+      "description": "管理并继续您的个性化课程学习之旅"
+    },
+    "navigation": {
+      "home": "首页",
+      "courses": "我的课程",
+      "analytics": "学习分析",
+      "goals": "目标",
+      "notes": "笔记",
+      "study": "学习",
+      "aiCoach": "AI学习教练",
+      "liveHub": "实时学习中心",
+      "settings": "设置"
+    }
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "登出",
+    "register": "注册"
   }
 }
