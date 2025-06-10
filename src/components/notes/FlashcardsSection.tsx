@@ -96,7 +96,7 @@ const FlashcardsSection: React.FC = () => {
         {/* Study Mode Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {studyModes.map((mode) => (
-            <div key={mode.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+            <div key={mode.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
               <div className="flex items-center gap-3 mb-3">
                 <div className={`p-2 rounded-lg ${mode.color} text-white flex-shrink-0`}>
                   <mode.icon className="h-5 w-5" />
@@ -105,10 +105,10 @@ const FlashcardsSection: React.FC = () => {
                   <h3 className="font-medium text-sm sm:text-base truncate">{mode.title}</h3>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed break-words">{mode.description}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed break-words flex-grow">{mode.description}</p>
               <Button
                 size="sm"
-                className="w-full text-xs sm:text-sm"
+                className="w-full text-xs sm:text-sm mt-auto"
                 onClick={() => handleStartStudyMode(mode.id)}
                 disabled={flashcards.length === 0 || isCreating}
               >
