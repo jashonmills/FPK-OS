@@ -155,6 +155,62 @@ export type Database = {
           },
         ]
       }
+      course_media: {
+        Row: {
+          captions_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          media_type: string
+          metadata: Json | null
+          mime_type: string | null
+          module_id: string | null
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          captions_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          media_type: string
+          metadata?: Json | null
+          mime_type?: string | null
+          module_id?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          captions_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          media_type?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          module_id?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_media_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           asset_path: string | null
@@ -465,6 +521,45 @@ export type Database = {
           id?: string
           tags?: string[] | null
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          read_status: boolean
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          read_status?: boolean
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read_status?: boolean
+          title?: string
+          type?: string
           updated_at?: string
           user_id?: string
         }

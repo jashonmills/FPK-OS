@@ -8,6 +8,7 @@ import GlobalHeader from '@/components/GlobalHeader';
 import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GlobalChatWidget from '@/components/GlobalChatWidget';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
 const DashboardContent = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -46,8 +47,11 @@ const DashboardContent = () => {
               </div>
             </div>
 
-            {/* Right side - Language switcher and user menu */}
+            {/* Right side - Notifications, Language switcher and user menu */}
             <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <NotificationDropdown />
+              
               {/* Language Switcher */}
               <LanguageSwitcher />
               
