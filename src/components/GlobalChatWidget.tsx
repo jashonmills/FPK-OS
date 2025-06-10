@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MessageCircle, Send, Brain, X, MoreVertical, RotateCcw, Minimize2, Maximize2 } from 'lucide-react';
+import { MessageCircle, Send, Brain, X, MoreVertical, RotateCcw, Minimize2, Maximize2, Mic, MicOff } from 'lucide-react';
 import { useGlobalChat } from '@/hooks/useGlobalChat';
 import { usePageContext } from '@/hooks/usePageContext';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const GlobalChatWidget = () => {
@@ -24,6 +26,8 @@ const GlobalChatWidget = () => {
     toggleChat 
   } = useGlobalChat();
   const { getPageContext, getQuickActions } = usePageContext();
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -58,6 +62,41 @@ const GlobalChatWidget = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleVoiceToggle = async () => {
+    if (isRecording) {
+      try {
+        const transcribedText = await stopRecording();
+        setMessage(transcribedText);
+        toast({
+          title: "Voice recorded",
+          description: "Your voice has been transcribed. You can edit it before sending.",
+        });
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+        toast({
+          title: "Recording failed",
+          description: "There was an error processing your voice. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      try {
+        await startRecording();
+        toast({
+          title: "Recording started",
+          description: "Speak clearly into your microphone. Click the mic button again to stop.",
+        });
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        toast({
+          title: "Microphone access denied",
+          description: "Please allow microphone access to use voice input.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -197,6 +236,26 @@ const GlobalChatWidget = () => {
 
             {/* Chat Input */}
             <div className="border-t p-3">
+              {/* Voice Recording Status */}
+              {(isRecording || isProcessing) && (
+                <div className="mb-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center gap-2">
+                    {isRecording && (
+                      <>
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-purple-700 font-medium">Recording...</span>
+                      </>
+                    )}
+                    {isProcessing && (
+                      <>
+                        <div className="animate-spin w-3 h-3 border border-purple-600 border-t-transparent rounded-full"></div>
+                        <span className="text-xs text-purple-700 font-medium">Processing voice...</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <Input
                   ref={inputRef}
@@ -204,12 +263,27 @@ const GlobalChatWidget = () => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  disabled={isLoading}
+                  disabled={isLoading || isRecording || isProcessing}
                   className="text-sm"
                 />
+                
+                {/* Voice Recording Button */}
+                <Button
+                  onClick={handleVoiceToggle}
+                  disabled={isLoading || isProcessing}
+                  size="icon"
+                  variant={isRecording ? "destructive" : "outline"}
+                  className={cn(
+                    "transition-all duration-200",
+                    isRecording && "animate-pulse bg-red-500 hover:bg-red-600"
+                  )}
+                >
+                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+
                 <Button 
                   onClick={handleSendMessage}
-                  disabled={isLoading || !message.trim()}
+                  disabled={isLoading || !message.trim() || isRecording || isProcessing}
                   size="icon"
                   className="bg-purple-600 hover:bg-purple-700"
                 >
@@ -217,7 +291,7 @@ const GlobalChatWidget = () => {
                 </Button>
               </div>
               <p className="text-xs text-purple-600 mt-1 text-center">
-                💡 I provide context-aware help based on your current page
+                💡 I provide context-aware help based on your current page • 🎤 Click mic to speak
               </p>
             </div>
           </CardContent>
