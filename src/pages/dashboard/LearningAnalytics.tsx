@@ -28,19 +28,22 @@ const LearningAnalytics = () => {
   }, []);
 
   // Find the Learning State course
-  const learningStateCourse = courses.find(course => 
-    course.title.toLowerCase().includes('learning state')
+  const learningStateCourse = courses?.find(course => 
+    course?.title?.toLowerCase().includes('learning state')
   );
 
-  const learningStateProgress = enrollments.find(e => e.course_id === 'learning-state-beta')?.progress;
+  const learningStateProgress = enrollments?.find(e => e.course_id === 'learning-state-beta')?.progress;
 
   // Real weekly engagement data based on completed modules
+  const completedModules = learningStateProgress?.completed_modules?.length || 0;
   const weeklyEngagementData = [
     { day: 'Mon', completedModules: 0, studyTime: 0 },
     { day: 'Tue', completedModules: 0, studyTime: 0 },
     { day: 'Wed', completedModules: 0, studyTime: 0 },
-    { day: 'Thu', completedModules: learningStateProgress?.completed_modules.length || 0, studyTime: 45 },
+    { day: 'Thu', completedModules: completedModules, studyTime: completedModules * 45 },
     { day: 'Fri', completedModules: 0, studyTime: 0 },
+    { day: 'Sat', completedModules: 0, studyTime: 0 },
+    { day: 'Sun', completedModules: 0, studyTime: 0 },
   ];
 
   // Real progress data based on Learning State modules
@@ -54,7 +57,7 @@ const LearningAnalytics = () => {
   const progressData = moduleTopics.map((topic, index) => {
     const modulesPerTopic = 3.5; // 14 modules / 4 topics
     const completedInTopic = Math.min(
-      Math.max(0, (learningStateProgress?.completed_modules.length || 0) - (index * modulesPerTopic)),
+      Math.max(0, (completedModules) - (index * modulesPerTopic)),
       modulesPerTopic
     );
     const progress = Math.round((completedInTopic / modulesPerTopic) * 100);
@@ -67,12 +70,12 @@ const LearningAnalytics = () => {
   });
 
   // Activity distribution based on real progress
-  const totalModules = learningStateProgress?.completed_modules.length || 0;
-  const activityDistribution = [
-    { name: 'Video Lectures', value: totalModules * 60, color: '#8B5CF6' }, // Assume 60 min per module
-    { name: 'Interactive Content', value: totalModules * 20, color: '#F59E0B' },
-    { name: 'Practice & Review', value: totalModules * 15, color: '#3B82F6' },
-  ];
+  const totalStudyTime = completedModules * 95; // 95 min per module average
+  const activityDistribution = totalStudyTime > 0 ? [
+    { name: 'Video Lectures', value: Math.round(totalStudyTime * 0.6), color: '#8B5CF6' },
+    { name: 'Interactive Content', value: Math.round(totalStudyTime * 0.25), color: '#F59E0B' },
+    { name: 'Practice & Review', value: Math.round(totalStudyTime * 0.15), color: '#3B82F6' },
+  ] : [];
 
   const chartConfig = {
     completedModules: {
@@ -95,14 +98,16 @@ const LearningAnalytics = () => {
           <p className="text-gray-600">Loading your learning analytics...</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="fpk-card border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
-              </div>
-            </CardContent>
-          </Card>
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="fpk-card border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="animate-pulse space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-32 bg-gray-200 rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
@@ -120,7 +125,6 @@ const LearningAnalytics = () => {
   }
 
   const overallProgress = learningStateProgress?.completion_percentage || 0;
-  const completedModules = learningStateProgress?.completed_modules.length || 0;
 
   return (
     <div className="p-6 space-y-6">
@@ -206,7 +210,7 @@ const LearningAnalytics = () => {
               <div className="text-4xl font-bold text-purple-600 mb-2">{profile?.total_xp || 0}</div>
               <p className="text-gray-500">Total XP</p>
               <p className="text-sm text-gray-400 mt-2">
-                {profile?.total_xp > 0 
+                {(profile?.total_xp || 0) > 0 
                   ? "Keep learning to earn more XP!" 
                   : "Complete lessons and quizzes to earn XP"
                 }
@@ -227,7 +231,7 @@ const LearningAnalytics = () => {
               <div className="text-4xl font-bold text-amber-600 mb-2">{profile?.current_streak || 0}</div>
               <p className="text-gray-500">Day Streak</p>
               <p className="text-sm text-gray-400 mt-2">
-                {profile?.current_streak > 0 
+                {(profile?.current_streak || 0) > 0 
                   ? "Keep up the great work!" 
                   : "Study daily to build your streak"
                 }
@@ -313,7 +317,7 @@ const LearningAnalytics = () => {
                 Last 7 Days • Total: {activityDistribution.reduce((sum, item) => sum + item.value, 0)} minutes
               </p>
             </div>
-            {activityDistribution.some(item => item.value > 0) ? (
+            {activityDistribution.length > 0 ? (
               <>
                 <div className="h-[200px]">
                   <ResponsiveContainer width="100%" height="100%">
