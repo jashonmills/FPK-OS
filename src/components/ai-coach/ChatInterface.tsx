@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -321,24 +322,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0 relative">
+      <CardContent className="flex-1 flex flex-col p-0 relative overflow-hidden">
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             {chatHistory.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-3 rounded-lg ${
+              <div key={index} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] min-w-0 p-3 rounded-lg ${
                   msg.role === 'user' 
                     ? 'bg-purple-600 text-white ml-4' 
                     : 'bg-muted text-foreground mr-4'
                 }`}>
                   {msg.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2">
-                      <Brain className="h-4 w-4 text-purple-600" />
+                      <Brain className="h-4 w-4 text-purple-600 flex-shrink-0" />
                       <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
                     </div>
                   )}
-                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                  <p className="text-sm break-words overflow-wrap-anywhere min-w-0">{msg.message}</p>
                   {msg.timestamp && (
                     <p className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -348,15 +349,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted text-foreground p-3 rounded-lg mr-4">
+              <div className="flex justify-start min-w-0">
+                <div className="bg-muted text-foreground p-3 rounded-lg mr-4 min-w-0">
                   <div className="flex items-center gap-2">
-                    <div className="animate-pulse flex space-x-1">
+                    <div className="animate-pulse flex space-x-1 flex-shrink-0">
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-muted-foreground min-w-0">
                       {isAnalyzing ? 'Claude is analyzing...' : 'Claude is thinking...'}
                     </span>
                   </div>
@@ -380,7 +381,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
 
         {/* Chat Input */}
-        <div className="border-t p-4">
+        <div className="border-t p-4 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               placeholder="Ask about your progress, study strategies, or get personalized guidance..."
@@ -388,14 +389,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading || isRecording}
-              className="flex-1"
+              className="flex-1 min-w-0"
             />
             <Button 
               onClick={handleVoiceRecording}
               disabled={isLoading || isProcessing}
               size="icon"
               variant={isRecording ? "destructive" : "outline"}
-              className={isRecording ? "animate-pulse" : ""}
+              className={`flex-shrink-0 ${isRecording ? "animate-pulse" : ""}`}
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -409,7 +410,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleSendMessage}
               disabled={isLoading || !chatMessage.trim() || isRecording}
               size="icon"
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0"
             >
               <Send className="h-4 w-4" />
             </Button>
