@@ -1,18 +1,21 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { Brain, Target, Clock, Play, RotateCcw } from 'lucide-react';
+import FlashcardReview from '../study/FlashcardReview';
 
 const FlashcardsSection: React.FC = () => {
   const { flashcards, isLoading } = useFlashcards();
   const { createSession, isCreating } = useStudySessions();
-  const [selectedMode, setSelectedMode] = useState<'memory_test' | 'multiple_choice' | 'timed_challenge' | null>(null);
+  const [showReview, setShowReview] = useState(false);
+  const navigate = useNavigate();
 
-  const handleStartStudyMode = (mode: 'memory_test' | 'multiple_choice' | 'timed_challenge') => {
+  const handleStartStudyMode = async (mode: 'memory_test' | 'multiple_choice' | 'timed_challenge') => {
     if (flashcards.length === 0) {
       alert('Create some flashcards first!');
       return;
@@ -21,13 +24,24 @@ const FlashcardsSection: React.FC = () => {
     const shuffledCards = [...flashcards].sort(() => Math.random() - 0.5);
     const studyCards = shuffledCards.slice(0, Math.min(10, flashcards.length));
     
+    // Create the session first, then navigate
     createSession({
       session_type: mode,
       flashcard_ids: studyCards.map(card => card.id),
       total_cards: studyCards.length
     });
 
-    setSelectedMode(mode);
+    // Navigate immediately to the study session
+    const routeMode = mode.replace('_', '-');
+    // We'll create a simple study route pattern
+    setTimeout(() => {
+      navigate(`/study/${routeMode}`, { 
+        state: { 
+          flashcards: studyCards,
+          mode 
+        }
+      });
+    }, 100);
   };
 
   const studyModes = [
@@ -53,6 +67,10 @@ const FlashcardsSection: React.FC = () => {
       color: 'bg-orange-500'
     }
   ];
+
+  if (showReview) {
+    return <FlashcardReview onClose={() => setShowReview(false)} />;
+  }
 
   if (isLoading) {
     return (
@@ -106,7 +124,12 @@ const FlashcardsSection: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-sm sm:text-base">Recent Flashcards</h3>
-              <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-xs sm:text-sm"
+                onClick={() => setShowReview(true)}
+              >
                 <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 Review All
               </Button>
