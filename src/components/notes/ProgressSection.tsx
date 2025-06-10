@@ -30,6 +30,26 @@ const ProgressSection: React.FC = () => {
 
   const studyTimeMinutes = Math.round(todayStats.studyTime / 60);
 
+  // Calculate weekly progress (last 7 days)
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  
+  const weeklySessions = sessions.filter(session => 
+    new Date(session.created_at) >= weekAgo && session.completed_at
+  );
+
+  const weeklyStats = weeklySessions.reduce((acc, session) => {
+    acc.totalCards += session.total_cards;
+    acc.correctAnswers += session.correct_answers;
+    acc.studyTime += session.session_duration_seconds || 0;
+    return acc;
+  }, { totalCards: 0, correctAnswers: 0, studyTime: 0 });
+
+  const weeklyStudyTimeMinutes = Math.round(weeklyStats.studyTime / 60);
+  const weeklyAccuracy = weeklyStats.totalCards > 0 
+    ? Math.round((weeklyStats.correctAnswers / weeklyStats.totalCards) * 100) 
+    : 0;
+
   // Weekly goals (could be made dynamic from goals table)
   const weeklyGoals = {
     cardsTarget: 50,
@@ -37,8 +57,8 @@ const ProgressSection: React.FC = () => {
     accuracyTarget: 80
   };
 
-  const cardsProgress = Math.min(100, (todayStats.totalCards / weeklyGoals.cardsTarget) * 100);
-  const timeProgress = Math.min(100, (studyTimeMinutes / weeklyGoals.studyTimeTarget) * 100);
+  const cardsProgress = Math.min(100, (weeklyStats.totalCards / weeklyGoals.cardsTarget) * 100);
+  const timeProgress = Math.min(100, (weeklyStudyTimeMinutes / weeklyGoals.studyTimeTarget) * 100);
 
   return (
     <Card className="fpk-card border-0 shadow-md">
@@ -95,7 +115,7 @@ const ProgressSection: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Cards Studied</span>
-                <span>{todayStats.totalCards} / {weeklyGoals.cardsTarget}</span>
+                <span>{weeklyStats.totalCards} / {weeklyGoals.cardsTarget}</span>
               </div>
               <Progress value={cardsProgress} className="h-2" />
             </div>
@@ -103,7 +123,7 @@ const ProgressSection: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Study Time</span>
-                <span>{studyTimeMinutes} / {weeklyGoals.studyTimeTarget} min</span>
+                <span>{weeklyStudyTimeMinutes} / {weeklyGoals.studyTimeTarget} min</span>
               </div>
               <Progress value={timeProgress} className="h-2" />
             </div>
@@ -111,10 +131,10 @@ const ProgressSection: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Accuracy Goal</span>
-                <span>{accuracy}% / {weeklyGoals.accuracyTarget}%</span>
+                <span>{weeklyAccuracy}% / {weeklyGoals.accuracyTarget}%</span>
               </div>
               <Progress 
-                value={Math.min(100, (accuracy / weeklyGoals.accuracyTarget) * 100)} 
+                value={Math.min(100, (weeklyAccuracy / weeklyGoals.accuracyTarget) * 100)} 
                 className="h-2" 
               />
             </div>
