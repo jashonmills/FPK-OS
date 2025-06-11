@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -45,9 +46,17 @@ const Settings = () => {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, saving, updateProfile, changePassword } = useUserProfile();
+  const { getAccessibilityClasses } = useAccessibility();
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Apply accessibility classes throughout the component
+  const containerClasses = getAccessibilityClasses('container');
+  const textClasses = getAccessibilityClasses('text');
+  const cardClasses = getAccessibilityClasses('card');
+
+  console.log('🎨 Settings: Applied accessibility classes:', { containerClasses, textClasses, cardClasses });
 
   // Refs to track state and prevent infinite loops
   const isInitializing = useRef(true);
@@ -298,7 +307,7 @@ const Settings = () => {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="p-6 flex items-center justify-center">
+      <div className={`p-6 flex items-center justify-center ${containerClasses}`}>
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -310,29 +319,29 @@ const Settings = () => {
 
   return (
     <TooltipProvider>
-      <div className="p-3 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6">
+      <div className={`p-3 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6 ${containerClasses} accessibility-mobile-override`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent">
+            <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
               {t('settings.title')}
             </h1>
-            <p className="text-gray-600 mt-1 text-sm md:text-base">{t('settings.subtitle')}</p>
+            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>{t('settings.subtitle')}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
             {saving && (
-              <div className="flex items-center gap-2 text-sm text-blue-600">
+              <div className={`flex items-center gap-2 text-sm text-blue-600 ${textClasses}`}>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 {t('settings.saving')}
               </div>
             )}
             {!saving && hasUnsavedChanges && (
-              <div className="flex items-center gap-2 text-sm text-amber-600">
+              <div className={`flex items-center gap-2 text-sm text-amber-600 ${textClasses}`}>
                 <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
                 {t('settings.autoSavePending')}
               </div>
             )}
             {!saving && !hasUnsavedChanges && !isInitializing.current && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
+              <div className={`flex items-center gap-2 text-sm text-green-600 ${textClasses}`}>
                 <Check className="h-4 w-4" />
                 {t('settings.allChangesSaved')}
               </div>
@@ -341,7 +350,7 @@ const Settings = () => {
               variant="outline"
               size={isMobile ? "default" : "sm"}
               onClick={handleRestoreDefaults}
-              className="gap-2 w-full sm:w-auto"
+              className={`gap-2 w-full sm:w-auto ${textClasses}`}
             >
               <RotateCcw className="h-4 w-4" />
               {t('settings.restoreDefaults')}
@@ -349,46 +358,46 @@ const Settings = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full" orientation={isMobile ? "vertical" : "horizontal"}>
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''}`}>
+        <Tabs defaultValue="profile" className={`w-full ${containerClasses}`} orientation={isMobile ? "vertical" : "horizontal"}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''} ${textClasses}`}>
             <TabsTrigger 
               value="profile" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <User className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.profile')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="language" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <Globe className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.language')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="accessibility" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <Eye className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.accessibility')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="notifications" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <Bell className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.notifications')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <Shield className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.security')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="integrations" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
             >
               <Link className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.integrations')}</span>
@@ -397,9 +406,9 @@ const Settings = () => {
 
           <TabsContent value="profile" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              <Card className="fpk-card border-0 shadow-lg">
+              <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                     <User className="h-5 w-5 text-purple-600" />
                     {t('settings.profile.title')}
                   </CardTitle>
@@ -413,43 +422,46 @@ const Settings = () => {
 
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="full_name">{t('settings.profile.fullName')}</Label>
+                      <Label htmlFor="full_name" className={textClasses}>{t('settings.profile.fullName')}</Label>
                       <Input
                         id="full_name"
                         value={formData.full_name}
                         onChange={(e) => handleFormChange('full_name', e.target.value)}
                         placeholder={t('settings.profile.fullNamePlaceholder')}
+                        className={textClasses}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="display_name">{t('settings.profile.displayName')}</Label>
+                      <Label htmlFor="display_name" className={textClasses}>{t('settings.profile.displayName')}</Label>
                       <Input
                         id="display_name"
                         value={formData.display_name}
                         onChange={(e) => handleFormChange('display_name', e.target.value)}
                         placeholder={t('settings.profile.displayNamePlaceholder')}
+                        className={textClasses}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">{t('settings.profile.email')}</Label>
+                    <Label htmlFor="email" className={textClasses}>{t('settings.profile.email')}</Label>
                     <Input
                       id="email"
                       value={user?.email || ''}
                       readOnly
-                      className="bg-gray-50"
+                      className={`bg-gray-50 ${textClasses}`}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">{t('settings.profile.bio')}</Label>
+                    <Label htmlFor="bio" className={textClasses}>{t('settings.profile.bio')}</Label>
                     <Textarea
                       id="bio"
                       value={formData.bio}
                       onChange={(e) => handleFormChange('bio', e.target.value)}
                       placeholder={t('settings.profile.bioPlaceholder')}
                       rows={3}
+                      className={textClasses}
                     />
                   </div>
 
@@ -483,9 +495,9 @@ const Settings = () => {
 
           <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              <Card className="fpk-card border-0 shadow-lg">
+              <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                     <Eye className="h-5 w-5 text-green-600" />
                     {t('settings.accessibility.title')}
                   </CardTitle>
@@ -493,13 +505,13 @@ const Settings = () => {
                 <CardContent className="space-y-6">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Label>{t('settings.accessibility.fontFamily')}</Label>
+                      <Label className={textClasses}>{t('settings.accessibility.fontFamily')}</Label>
                       <Tooltip>
                         <TooltipTrigger>
                           <HelpCircle className="h-4 w-4 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{t('settings.accessibility.fontHelp')}</p>
+                          <p className={textClasses}>{t('settings.accessibility.fontHelp')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -509,49 +521,49 @@ const Settings = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="System" id="system-font" />
-                        <Label htmlFor="system-font">{t('settings.accessibility.systemFont')}</Label>
+                        <Label htmlFor="system-font" className={textClasses}>{t('settings.accessibility.systemFont')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="OpenDyslexic" id="opendyslexic-font" />
-                        <Label htmlFor="opendyslexic-font">OpenDyslexic</Label>
+                        <Label htmlFor="opendyslexic-font" className={textClasses}>OpenDyslexic</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Arial" id="arial-font" />
-                        <Label htmlFor="arial-font">Arial</Label>
+                        <Label htmlFor="arial-font" className={textClasses}>Arial</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Georgia" id="georgia-font" />
-                        <Label htmlFor="georgia-font">Georgia</Label>
+                        <Label htmlFor="georgia-font" className={textClasses}>Georgia</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <div className="space-y-3">
-                    <Label>{t('settings.accessibility.colorContrast')}</Label>
+                    <Label className={textClasses}>{t('settings.accessibility.colorContrast')}</Label>
                     <RadioGroup 
                       value={formData.color_contrast} 
                       onValueChange={(value) => handleFormChange('color_contrast', value)}
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Standard" id="standard-contrast" />
-                        <Label htmlFor="standard-contrast">{t('settings.accessibility.standard')}</Label>
+                        <Label htmlFor="standard-contrast" className={textClasses}>{t('settings.accessibility.standard')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="High Contrast" id="high-contrast" />
-                        <Label htmlFor="high-contrast">{t('settings.accessibility.highContrast')}</Label>
+                        <Label htmlFor="high-contrast" className={textClasses}>{t('settings.accessibility.highContrast')}</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Label>{t('settings.accessibility.comfortMode')}</Label>
+                      <Label className={textClasses}>{t('settings.accessibility.comfortMode')}</Label>
                       <Tooltip>
                         <TooltipTrigger>
                           <HelpCircle className="h-4 w-4 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{t('settings.accessibility.comfortHelp')}</p>
+                          <p className={textClasses}>{t('settings.accessibility.comfortHelp')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -561,21 +573,21 @@ const Settings = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Normal" id="normal-comfort" />
-                        <Label htmlFor="normal-comfort">{t('settings.accessibility.normal')}</Label>
+                        <Label htmlFor="normal-comfort" className={textClasses}>{t('settings.accessibility.normal')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Low-Stimulus" id="low-stimulus" />
-                        <Label htmlFor="low-stimulus">{t('settings.accessibility.lowStimulus')}</Label>
+                        <Label htmlFor="low-stimulus" className={textClasses}>{t('settings.accessibility.lowStimulus')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Focus Mode" id="focus-mode" />
-                        <Label htmlFor="focus-mode">{t('settings.accessibility.focusMode')}</Label>
+                        <Label htmlFor="focus-mode" className={textClasses}>{t('settings.accessibility.focusMode')}</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <div className="space-y-3">
-                    <Label>{t('settings.accessibility.textSize')}: {formData.text_size}</Label>
+                    <Label className={textClasses}>{t('settings.accessibility.textSize')}: {formData.text_size}</Label>
                     <Slider
                       value={[formData.text_size]}
                       onValueChange={(value) => handleFormChange('text_size', value[0])}
@@ -583,7 +595,7 @@ const Settings = () => {
                       min={1}
                       step={1}
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
                       <span>{t('settings.accessibility.small')}</span>
                       <span>{t('settings.accessibility.medium')}</span>
                       <span>{t('settings.accessibility.large')}</span>
@@ -591,7 +603,7 @@ const Settings = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label>{t('settings.accessibility.lineSpacing')}: {formData.line_spacing}</Label>
+                    <Label className={textClasses}>{t('settings.accessibility.lineSpacing')}: {formData.line_spacing}</Label>
                     <Slider
                       value={[formData.line_spacing]}
                       onValueChange={(value) => handleFormChange('line_spacing', value[0])}
@@ -599,7 +611,7 @@ const Settings = () => {
                       min={1}
                       step={1}
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
                       <span>{t('settings.accessibility.compact')}</span>
                       <span>{t('settings.accessibility.comfortable')}</span>
                       <span>{t('settings.accessibility.airy')}</span>
@@ -610,8 +622,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="speech_to_text">{t('settings.accessibility.speechToText')}</Label>
-                      <p className="text-sm text-gray-500">{t('settings.accessibility.speechToTextDesc')}</p>
+                      <Label htmlFor="speech_to_text" className={textClasses}>{t('settings.accessibility.speechToText')}</Label>
+                      <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.accessibility.speechToTextDesc')}</p>
                     </div>
                     <Switch
                       id="speech_to_text"
@@ -633,9 +645,9 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-            <Card className="fpk-card border-0 shadow-lg">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Bell className="h-5 w-5 text-amber-600" />
                   {t('settings.notifications.emailTitle')}
                 </CardTitle>
@@ -643,8 +655,8 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="new_courses">{t('settings.notifications.newCourses')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.newCoursesDesc')}</p>
+                    <Label htmlFor="new_courses" className={textClasses}>{t('settings.notifications.newCourses')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.newCoursesDesc')}</p>
                   </div>
                   <Switch
                     id="new_courses"
@@ -657,8 +669,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="weekly_summary">{t('settings.notifications.weeklySum')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.weeklySumDesc')}</p>
+                    <Label htmlFor="weekly_summary" className={textClasses}>{t('settings.notifications.weeklySum')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.weeklySumDesc')}</p>
                   </div>
                   <Switch
                     id="weekly_summary"
@@ -671,8 +683,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="ai_prompts">{t('settings.notifications.aiPrompts')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.aiPromptsDesc')}</p>
+                    <Label htmlFor="ai_prompts" className={textClasses}>{t('settings.notifications.aiPrompts')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.aiPromptsDesc')}</p>
                   </div>
                   <Switch
                     id="ai_prompts"
@@ -683,15 +695,15 @@ const Settings = () => {
               </CardContent>
             </Card>
 
-            <Card className="fpk-card border-0 shadow-lg">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
               <CardHeader>
-                <CardTitle>{t('settings.notifications.appTitle')}</CardTitle>
+                <CardTitle className={textClasses}>{t('settings.notifications.appTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="push_notifications">{t('settings.notifications.pushNotifications')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.pushNotificationsDesc')}</p>
+                    <Label htmlFor="push_notifications" className={textClasses}>{t('settings.notifications.pushNotifications')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.pushNotificationsDesc')}</p>
                   </div>
                   <Switch
                     id="push_notifications"
@@ -704,8 +716,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="study_streak">{t('settings.notifications.studyStreak')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.studyStreakDesc')}</p>
+                    <Label htmlFor="study_streak" className={textClasses}>{t('settings.notifications.studyStreak')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.studyStreakDesc')}</p>
                   </div>
                   <Switch
                     id="study_streak"
@@ -718,8 +730,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="module_nudges">{t('settings.notifications.moduleNudges')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.notifications.moduleNudgesDesc')}</p>
+                    <Label htmlFor="module_nudges" className={textClasses}>{t('settings.notifications.moduleNudges')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.moduleNudgesDesc')}</p>
                   </div>
                   <Switch
                     id="module_nudges"
@@ -732,9 +744,9 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-            <Card className="fpk-card border-0 shadow-lg">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Shield className="h-5 w-5 text-red-600" />
                   {t('settings.security.title')}
                 </CardTitle>
@@ -746,8 +758,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="two_factor">{t('settings.security.twoFactor')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.security.twoFactorDesc')}</p>
+                    <Label htmlFor="two_factor" className={textClasses}>{t('settings.security.twoFactor')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.security.twoFactorDesc')}</p>
                   </div>
                   <Switch
                     id="two_factor"
@@ -760,9 +772,9 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="integrations" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-            <Card className="fpk-card border-0 shadow-lg">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Link className="h-5 w-5 text-blue-600" />
                   {t('settings.integrations.title')}
                 </CardTitle>
@@ -770,8 +782,8 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="google_calendar">{t('settings.integrations.googleCalendar')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.integrations.googleDesc')}</p>
+                    <Label htmlFor="google_calendar" className={textClasses}>{t('settings.integrations.googleCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.googleDesc')}</p>
                   </div>
                   <Switch
                     id="google_calendar"
@@ -784,8 +796,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="outlook_calendar">{t('settings.integrations.outlookCalendar')}</Label>
-                    <p className="text-sm text-gray-500">{t('settings.integrations.outlookDesc')}</p>
+                    <Label htmlFor="outlook_calendar" className={textClasses}>{t('settings.integrations.outlookCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.outlookDesc')}</p>
                   </div>
                   <Switch
                     id="outlook_calendar"
