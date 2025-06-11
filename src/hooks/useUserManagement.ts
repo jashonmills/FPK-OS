@@ -146,18 +146,19 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
   const handleAssignRole = (userId: string, role: string) => {
     console.log('handleAssignRole called with:', { userId, role });
     
-    if (isValidRole(role)) {
-      console.log('Role is valid, proceeding with assignment');
-      // Use explicit type assertion after validation
-      assignRoleMutation.mutate({ userId, role: role as UserRole });
-    } else {
+    if (!isValidRole(role)) {
       console.error('Invalid role provided:', role);
       toast({
         title: "Invalid role",
         description: "Please select a valid role.",
         variant: "destructive",
       });
+      return;
     }
+    
+    console.log('Role is valid, proceeding with assignment');
+    // TypeScript now knows role is UserRole after the early return
+    assignRoleMutation.mutate({ userId, role });
   };
 
   const handleRemoveRole = (userId: string, role: string) => {
