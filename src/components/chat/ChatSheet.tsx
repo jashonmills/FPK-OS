@@ -6,12 +6,13 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircle, Plus, Brain, Mic, MicOff, X } from 'lucide-react';
+import { Send, MessageCircle, Plus, Brain, Mic, MicOff, X, Menu, ChevronLeft } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { usePageContext } from '@/hooks/usePageContext';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import ChatSessionsList from './ChatSessionsList';
 import ChatMessagesPane from './ChatMessagesPane';
@@ -25,6 +26,9 @@ interface ChatSheetProps {
 const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
   const [message, setMessage] = useState('');
   const [internalOpen, setInternalOpen] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const isMobile = useIsMobile();
+  
   const { 
     sessions, 
     currentSessionId, 
@@ -64,6 +68,13 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
       inputRef.current.focus();
     }
   }, [open]);
+
+  // Close sidebar when switching sessions on mobile
+  useEffect(() => {
+    if (isMobile && currentSessionId) {
+      setShowSidebar(false);
+    }
+  }, [currentSessionId, isMobile]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || isSending) return;
@@ -106,6 +117,16 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
     if (newSession) {
       switchToSession(newSession.id);
       console.log('Switched to new session:', newSession.id);
+      if (isMobile) {
+        setShowSidebar(false);
+      }
+    }
+  };
+
+  const handleSessionSelect = (sessionId: string) => {
+    switchToSession(sessionId);
+    if (isMobile) {
+      setShowSidebar(false);
     }
   };
 
@@ -160,15 +181,49 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
       </SheetTrigger>
       <SheetContent 
         side="bottom" 
-        className="h-[100vh] w-full p-0 sm:h-[80vh] sm:max-w-4xl sm:mx-auto"
+        className={cn(
+          "h-[100vh] w-full p-0",
+          isMobile ? "h-[100vh]" : "sm:h-[85vh] sm:max-w-5xl sm:mx-auto"
+        )}
       >
         <div className="flex h-full">
+          {/* Mobile Sidebar Overlay */}
+          {isMobile && showSidebar && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-40"
+              onClick={() => setShowSidebar(false)}
+            />
+          )}
+
           {/* Left Sidebar - Sessions List */}
-          <div className="w-80 border-r bg-muted/20 flex flex-col">
-            <div className="p-4 border-b">
+          <div className={cn(
+            "border-r bg-muted/20 flex flex-col transition-all duration-300",
+            isMobile 
+              ? cn(
+                  "fixed left-0 top-0 h-full z-50 w-80 transform",
+                  showSidebar ? "translate-x-0" : "-translate-x-full"
+                )
+              : "w-80"
+          )}>
+            {/* Mobile sidebar header */}
+            {isMobile && (
+              <div className="p-4 border-b flex items-center justify-between">
+                <h3 className="font-semibold">Chat Sessions</h3>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setShowSidebar(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            
+            <div className={cn("p-4 border-b", isMobile && "pt-2")}>
               <Button 
                 onClick={handleNewChat}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                size={isMobile ? "default" : "default"}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Chat
@@ -179,20 +234,30 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
               sessions={sessions}
               currentSessionId={currentSessionId}
               isLoading={sessionsLoading}
-              onSessionSelect={switchToSession}
+              onSessionSelect={handleSessionSelect}
               onSessionDelete={deleteSession}
               onSessionRename={updateSessionTitle}
             />
           </div>
 
           {/* Main Chat Area */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             {/* Header */}
-            <div className="p-4 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <div className="p-3 md:p-4 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  <span className="font-semibold">AI Learning Coach</span>
+                  {isMobile && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setShowSidebar(true)}
+                      className="text-white hover:bg-white/20 mr-2"
+                    >
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Brain className="h-5 w-5 flex-shrink-0" />
+                  <span className="font-semibold text-sm md:text-base truncate">AI Learning Coach</span>
                   <Badge variant="secondary" className="bg-white/20 text-white text-xs">
                     Online
                   </Badge>
@@ -201,7 +266,7 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-0">
               <ChatMessagesPane
                 messages={messages}
                 isLoading={messagesLoading}
@@ -210,7 +275,7 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
               />
 
               {/* Input Area */}
-              <div className="border-t p-4 bg-background">
+              <div className="border-t p-3 md:p-4 bg-background">
                 {/* Voice Recording Status */}
                 {(isRecording || isProcessing) && (
                   <div className="mb-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
@@ -234,12 +299,12 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
                 <div className="flex gap-2">
                   <Input
                     ref={inputRef}
-                    placeholder="Ask for help, study tips, or platform guidance..."
+                    placeholder={isMobile ? "Ask me anything..." : "Ask for help, study tips, or platform guidance..."}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isSending || isRecording || isProcessing}
-                    className="flex-1"
+                    className="flex-1 text-sm md:text-base"
                   />
                   
                   {/* Voice Recording Button */}
@@ -249,7 +314,7 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
                     size="icon"
                     variant={isRecording ? "destructive" : "outline"}
                     className={cn(
-                      "transition-all duration-200",
+                      "transition-all duration-200 flex-shrink-0",
                       isRecording && "animate-pulse bg-red-500 hover:bg-red-600"
                     )}
                   >
@@ -260,13 +325,16 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange }: ChatSheetProps) => {
                     onClick={handleSendMessage}
                     disabled={isSending || !message.trim() || isRecording || isProcessing}
                     size="icon"
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-purple-600 hover:bg-purple-700 flex-shrink-0"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
                 
-                <p className="text-xs text-purple-600 mt-2 text-center">
+                <p className={cn(
+                  "text-purple-600 mt-2 text-center",
+                  isMobile ? "text-xs" : "text-xs"
+                )}>
                   💡 I provide context-aware help based on your current page • 🎤 Click mic to speak
                 </p>
               </div>
