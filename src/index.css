@@ -110,28 +110,36 @@
     transition: all 0.2s ease;
   }
 
-  /* Enhanced accessibility font support with mobile optimization */
+  /* Strong font family declarations with mobile priority */
   .font-opendyslexic,
-  .font-opendyslexic * {
+  .font-opendyslexic *,
+  body.font-opendyslexic,
+  body.font-opendyslexic * {
     font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
   }
 
   .font-arial,
-  .font-arial * {
+  .font-arial *,
+  body.font-arial,
+  body.font-arial * {
     font-family: 'Arial', 'Helvetica', sans-serif !important;
   }
 
   .font-georgia,
-  .font-georgia * {
+  .font-georgia *,
+  body.font-georgia,
+  body.font-georgia * {
     font-family: 'Georgia', 'Times New Roman', serif !important;
   }
 
   .font-system,
-  .font-system * {
+  .font-system *,
+  body.font-system,
+  body.font-system * {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
 
-  /* Global accessibility classes with mobile enhancements */
+  /* Global accessibility classes with stronger mobile specificity */
   .accessibility-container {
     font-family: var(--accessibility-font-family, system-ui) !important;
     background-color: var(--accessibility-bg) !important;
@@ -139,34 +147,48 @@
     border-color: var(--accessibility-border) !important;
   }
 
-  /* Mobile-specific accessibility overrides */
-  @media (max-width: 768px) {
-    body.accessibility-active {
+  /* Mobile-first accessibility overrides with maximum specificity */
+  @media screen and (max-width: 768px) {
+    body.accessibility-active,
+    body.accessibility-active *,
+    .accessibility-mobile-override,
+    .accessibility-mobile-override * {
       -webkit-text-size-adjust: 100% !important;
       text-size-adjust: 100% !important;
-    }
-    
-    .accessibility-text-size-override,
-    .accessibility-text-size-override * {
       font-size: var(--mobile-text-size) !important;
-    }
-    
-    .accessibility-line-height-override,
-    .accessibility-line-height-override * {
       line-height: var(--mobile-line-height) !important;
     }
     
-    /* Override mobile browser defaults */
-    .text-sm { font-size: 0.875rem !important; }
-    .text-base { font-size: 1rem !important; }
-    .text-lg { font-size: 1.125rem !important; }
-    .text-xl { font-size: 1.25rem !important; }
-    .text-2xl { font-size: 1.5rem !important; }
+    /* Force text size overrides on mobile */
+    body.accessibility-active .text-sm,
+    body.accessibility-active .text-sm * { font-size: 0.875rem !important; }
+    body.accessibility-active .text-base,
+    body.accessibility-active .text-base * { font-size: 1rem !important; }
+    body.accessibility-active .text-lg,
+    body.accessibility-active .text-lg * { font-size: 1.125rem !important; }
+    body.accessibility-active .text-xl,
+    body.accessibility-active .text-xl * { font-size: 1.25rem !important; }
+    body.accessibility-active .text-2xl,
+    body.accessibility-active .text-2xl * { font-size: 1.5rem !important; }
     
-    .leading-tight { line-height: 1.25 !important; }
-    .leading-normal { line-height: 1.5 !important; }
-    .leading-relaxed { line-height: 1.625 !important; }
-    .leading-loose { line-height: 2 !important; }
+    /* Force line height overrides on mobile */
+    body.accessibility-active .leading-tight,
+    body.accessibility-active .leading-tight * { line-height: 1.25 !important; }
+    body.accessibility-active .leading-normal,
+    body.accessibility-active .leading-normal * { line-height: 1.5 !important; }
+    body.accessibility-active .leading-relaxed,
+    body.accessibility-active .leading-relaxed * { line-height: 1.625 !important; }
+    body.accessibility-active .leading-loose,
+    body.accessibility-active .leading-loose * { line-height: 2 !important; }
+
+    /* Mobile accessibility text size utility */
+    .accessibility-text-size-override,
+    .accessibility-text-size-override *,
+    .accessibility-line-height-override,
+    .accessibility-line-height-override * {
+      font-size: var(--mobile-text-size) !important;
+      line-height: var(--mobile-line-height) !important;
+    }
   }
 }
 
@@ -186,7 +208,7 @@
     background-clip: text;
   }
 
-  /* Enhanced accessibility utilities with mobile support */
+  /* Enhanced accessibility utilities with maximum mobile priority */
   .accessibility-text {
     font-size: var(--accessibility-text-size, 1rem) !important;
     line-height: var(--accessibility-line-height, 1.5) !important;
@@ -199,9 +221,15 @@
     border-color: var(--accessibility-border) !important;
   }
   
-  /* Mobile accessibility utilities */
-  @media (max-width: 768px) {
-    .accessibility-mobile-text {
+  /* Strong mobile accessibility utilities */
+  .accessibility-mobile-text {
+    font-size: var(--mobile-text-size) !important;
+    line-height: var(--mobile-line-height) !important;
+  }
+
+  /* Mobile accessibility force override */
+  @media screen and (max-width: 768px) {
+    .accessibility-mobile-override * {
       font-size: var(--mobile-text-size) !important;
       line-height: var(--mobile-line-height) !important;
     }
