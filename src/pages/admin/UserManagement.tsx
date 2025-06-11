@@ -122,7 +122,7 @@ const UserManagement = () => {
   const handleAssignRole = (userId: string, role: string) => {
     // Type guard to ensure role is valid
     if (role === 'admin' || role === 'instructor' || role === 'learner') {
-      assignRoleMutation.mutate({ userId, role });
+      assignRoleMutation.mutate({ userId, role: role as UserRole });
     } else {
       toast({
         title: "Invalid role",
