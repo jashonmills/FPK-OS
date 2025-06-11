@@ -148,7 +148,7 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
     if (isValidRole(role)) {
       console.log('Role is valid, proceeding with assignment');
       // TypeScript now knows that role is of type UserRole after the isValidRole check
-      assignRoleMutation.mutate({ userId, role: role as UserRole });
+      assignRoleMutation.mutate({ userId, role });
     } else {
       console.error('Invalid role provided:', role);
       toast({
