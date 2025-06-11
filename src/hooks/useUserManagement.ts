@@ -146,7 +146,7 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
   const handleAssignRole = (userId: string, role: UserRole) => {
     console.log('handleAssignRole called with:', { userId, role });
     console.log('Role is valid, proceeding with assignment');
-    assignRoleMutation.mutate({ userId, role });
+    assignRoleMutation.mutate({ userId, role: role as UserRole });
   };
 
   const handleRemoveRole = (userId: string, role: string) => {
