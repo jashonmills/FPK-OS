@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus, AlertCircle } from 'lucide-react';
 import { useUserManagement } from '@/hooks/useUserManagement';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,18 +60,35 @@ const UserManagement = () => {
           {isLoading ? (
             <div className="text-center py-8">Loading users...</div>
           ) : users.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No users found.</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Check the browser console for debugging information.
-              </p>
+            <div className="space-y-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  No users found with the current filters. Check the browser console (F12) for debugging information.
+                </AlertDescription>
+              </Alert>
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No users found.</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Current filter: {roleFilter === 'all' ? 'All roles' : roleFilter}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Search query: {searchQuery || 'None'}
+                </p>
+              </div>
             </div>
           ) : (
-            <UserManagementTable
-              users={users}
-              onAssignRole={handleAssignRole}
-              onRemoveRole={handleRemoveRole}
-            />
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Found {users.length} user{users.length !== 1 ? 's' : ''}
+                {roleFilter !== 'all' && ` with role: ${roleFilter}`}
+              </div>
+              <UserManagementTable
+                users={users}
+                onAssignRole={handleAssignRole}
+                onRemoveRole={handleRemoveRole}
+              />
+            </div>
           )}
         </CardContent>
       </Card>
