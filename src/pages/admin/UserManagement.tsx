@@ -5,15 +5,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, UserPlus, AlertCircle } from 'lucide-react';
-import { useUserManagement } from '@/hooks/useUserManagement';
-import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useUsers } from '@/hooks/useUsers';
+import { UsersTable } from '@/components/admin/UsersTable';
+import { AVAILABLE_ROLES } from '@/types/user';
 
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   
-  const { users, isLoading, handleAssignRole, handleRemoveRole } = useUserManagement(searchQuery, roleFilter);
+  const { users, isLoading, error, assignRole, removeRole, isAssigning, isRemoving } = useUsers(searchQuery, roleFilter);
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load users: {error.message}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -49,9 +63,11 @@ const UserManagement = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="instructor">Instructor</SelectItem>
-                <SelectItem value="learner">Learner</SelectItem>
+                {AVAILABLE_ROLES.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -60,22 +76,11 @@ const UserManagement = () => {
           {isLoading ? (
             <div className="text-center py-8">Loading users...</div>
           ) : users.length === 0 ? (
-            <div className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  No users found with the current filters. Check the browser console (F12) for debugging information.
-                </AlertDescription>
-              </Alert>
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No users found.</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Current filter: {roleFilter === 'all' ? 'All roles' : roleFilter}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Search query: {searchQuery || 'None'}
-                </p>
-              </div>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No users found.</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Current filter: {roleFilter === 'all' ? 'All roles' : roleFilter}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -83,10 +88,12 @@ const UserManagement = () => {
                 Found {users.length} user{users.length !== 1 ? 's' : ''}
                 {roleFilter !== 'all' && ` with role: ${roleFilter}`}
               </div>
-              <UserManagementTable
+              <UsersTable
                 users={users}
-                onAssignRole={handleAssignRole}
-                onRemoveRole={handleRemoveRole}
+                onAssignRole={assignRole}
+                onRemoveRole={removeRole}
+                isAssigning={isAssigning}
+                isRemoving={isRemoving}
               />
             </div>
           )}
