@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from '@/components/AppSidebar';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { useIsMobile } from '@/hooks/use-mobile';
 import GlobalHeader from '@/components/GlobalHeader';
 import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -13,6 +14,7 @@ import NotificationDropdown from '@/components/notifications/NotificationDropdow
 const DashboardContent = () => {
   const { getAccessibilityClasses } = useAccessibility();
   const { state } = useSidebar();
+  const isMobile = useIsMobile();
   
   // Apply accessibility classes to the entire dashboard
   const dashboardClasses = getAccessibilityClasses('container');
@@ -24,42 +26,53 @@ const DashboardContent = () => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header that spans full width */}
         <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-          <div className={`flex h-16 items-center justify-between px-4 ${getAccessibilityClasses('container')}`}>
+          <div className={`flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 ${getAccessibilityClasses('container')}`}>
             {/* Left side - Sidebar trigger and brand */}
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="hover:text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <SidebarTrigger className="hover:text-primary h-8 w-8 sm:h-auto sm:w-auto" />
               <div className="hidden sm:flex items-center gap-3">
-                <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">FPK</span>
+                <div className="w-6 h-6 sm:w-8 sm:h-8 fpk-gradient rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xs sm:text-sm">FPK</span>
                 </div>
-                <span className={`font-semibold text-lg ${getAccessibilityClasses('text')}`}>
+                <span className={`font-semibold text-base sm:text-lg ${getAccessibilityClasses('text')}`}>
                   <DualLanguageText translationKey="common.learnerPortal" />
+                </span>
+              </div>
+              {/* Mobile brand */}
+              <div className="sm:hidden flex items-center gap-2">
+                <div className="w-6 h-6 fpk-gradient rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">FPK</span>
+                </div>
+                <span className={`font-semibold text-sm ${getAccessibilityClasses('text')}`}>
+                  Learner Portal
                 </span>
               </div>
             </div>
 
-            {/* Header content from GlobalHeader */}
-            <div className="flex-1 max-w-md mx-4 hidden md:block">
+            {/* Header content from GlobalHeader - Hidden on mobile */}
+            <div className="flex-1 max-w-sm mx-3 sm:mx-4 hidden md:block">
               <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground">
                   🔍
                 </div>
                 <input
                   placeholder="Search courses, goals..."
-                  className={`w-full pl-10 pr-4 py-2 bg-muted/50 border border-input rounded-md text-sm ${getAccessibilityClasses('text')}`}
+                  className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border border-input rounded-md text-xs sm:text-sm ${getAccessibilityClasses('text')}`}
                 />
               </div>
             </div>
 
             {/* Right side - Notifications, Language switcher and user menu */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {/* Notifications */}
               <NotificationDropdown />
               
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+              {/* Language Switcher - Hidden on mobile */}
+              <div className="hidden sm:block">
+                <LanguageSwitcher />
+              </div>
               
-              <span className={`text-sm text-muted-foreground ${getAccessibilityClasses('text')}`}>
+              <span className={`text-xs sm:text-sm text-muted-foreground hidden sm:inline ${getAccessibilityClasses('text')}`}>
                 <DualLanguageText translationKey="common.userMenu" />
               </span>
             </div>

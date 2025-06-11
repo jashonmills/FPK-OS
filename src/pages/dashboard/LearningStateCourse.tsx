@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { useIsMobile } from '@/hooks/use-mobile';
 import CourseHeader from '@/components/course/CourseHeader';
 import CourseOverview from '@/components/course/CourseOverview';
 import CoursePlayer from '@/components/course/CoursePlayer';
@@ -11,6 +12,7 @@ const LearningStateCourse = () => {
   const overviewRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { getAccessibilityClasses } = useAccessibility();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const overview = overviewRef.current;
@@ -21,14 +23,14 @@ const LearningStateCourse = () => {
         setIsCollapsed(!entry.isIntersecting);
       },
       { 
-        rootMargin: '-48px 0px 0px 0px' // Matches sticky header height
+        rootMargin: isMobile ? '-56px 0px 0px 0px' : '-48px 0px 0px 0px' // Adjust for mobile header height
       }
     );
 
     observer.observe(overview);
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const handleBackToCourses = () => {
     navigate('/dashboard/learner/my-courses');
