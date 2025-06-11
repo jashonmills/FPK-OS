@@ -10,9 +10,9 @@ export interface UserProfile {
 
 export type UserRole = 'admin' | 'instructor' | 'learner';
 
-export const isValidRole = (role: string): role is UserRole => {
-  return ['admin', 'instructor', 'learner'].includes(role);
-};
+export function isValidRole(role: string): role is UserRole {
+  return (role === 'admin' || role === 'instructor' || role === 'learner');
+}
 
 export const getRoleBadgeVariant = (role: string) => {
   switch (role) {
