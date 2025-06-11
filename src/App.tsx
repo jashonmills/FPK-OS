@@ -1,3 +1,4 @@
+
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -5,7 +6,23 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import AccessibilityProvider from "@/components/AccessibilityProvider";
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import NotFound from "@/pages/NotFound";
+import DashboardLayout from "@/components/DashboardLayout";
+import LearnerHome from "@/pages/dashboard/LearnerHome";
+import MyCourses from "@/pages/dashboard/MyCourses";
+import LearningAnalytics from "@/pages/dashboard/LearningAnalytics";
+import LiveLearningHub from "@/pages/dashboard/LiveLearningHub";
+import AIStudyCoach from "@/pages/dashboard/AIStudyCoach";
+import Goals from "@/pages/dashboard/Goals";
+import Notes from "@/pages/dashboard/Notes";
+import Settings from "@/pages/dashboard/Settings";
+import DynamicCourse from "@/pages/dashboard/DynamicCourse";
+import LearningStateCourse from "@/pages/dashboard/LearningStateCourse";
+import LearningStateEmbed from "@/pages/dashboard/LearningStateEmbed";
+import StudyPage from "@/pages/study/StudyPage";
 import "./App.css";
 
 // Admin components
