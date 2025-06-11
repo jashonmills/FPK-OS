@@ -1,9 +1,10 @@
 
 import React, { useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
+import MediaPlayerDisplay from './MediaPlayerDisplay';
+import MediaPlayerProgress from './MediaPlayerProgress';
+import MediaPlayerControls from './MediaPlayerControls';
+import MediaPlayerVolume from './MediaPlayerVolume';
 
 interface MediaPlayerProps {
   src: string;
@@ -92,12 +93,6 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     mediaRef.current.playbackRate = nextRate;
   };
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   const enterFullscreen = () => {
     if (type === 'video' && mediaRef.current) {
       if (mediaRef.current.requestFullscreen) {
@@ -109,120 +104,42 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
   return (
     <Card className="w-full">
       <CardContent className="p-0">
-        {type === 'video' ? (
-          <video
-            ref={mediaRef as React.RefObject<HTMLVideoElement>}
-            src={src}
-            className="w-full h-auto"
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-          >
-            {captions && <track kind="subtitles" src={captions} srcLang="en" label="English" />}
-          </video>
-        ) : (
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white text-center">
-            <h3 className="text-lg font-semibold mb-2">{title || 'Audio Content'}</h3>
-            <div className="text-sm opacity-80">🎵 Audio Player</div>
-            <audio
-              ref={mediaRef as React.RefObject<HTMLAudioElement>}
-              src={src}
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              className="hidden"
-            />
-          </div>
-        )}
+        <MediaPlayerDisplay
+          type={type}
+          src={src}
+          title={title}
+          captions={captions}
+          mediaRef={mediaRef}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnterFullscreen={enterFullscreen}
+        />
         
-        {/* Controls */}
         <div className="p-4 bg-background">
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <Slider
-              value={progress}
-              onValueChange={handleProgressChange}
-              max={100}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>{formatTime((progress[0] / 100) * duration)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+          <MediaPlayerProgress
+            progress={progress}
+            duration={duration}
+            onProgressChange={handleProgressChange}
+          />
           
-          {/* Control Buttons */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => skip(-10)}
-                disabled={!duration}
-              >
-                <SkipBack className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={togglePlay}
-                disabled={!duration}
-              >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => skip(10)}
-                disabled={!duration}
-              >
-                <SkipForward className="h-4 w-4" />
-              </Button>
-            </div>
+            <MediaPlayerControls
+              isPlaying={isPlaying}
+              duration={duration}
+              playbackRate={playbackRate}
+              onTogglePlay={togglePlay}
+              onSkip={skip}
+              onChangePlaybackRate={changePlaybackRate}
+            />
             
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={changePlaybackRate}
-                className="text-xs"
-              >
-                {playbackRate}x
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleMute}
-                >
-                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </Button>
-                
-                <Slider
-                  value={volume}
-                  onValueChange={handleVolumeChange}
-                  max={100}
-                  step={1}
-                  className="w-20"
-                />
-              </div>
-              
-              {type === 'video' && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={enterFullscreen}
-                >
-                  <Maximize className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <MediaPlayerVolume
+              isMuted={isMuted}
+              volume={volume}
+              onToggleMute={toggleMute}
+              onVolumeChange={handleVolumeChange}
+            />
           </div>
         </div>
       </CardContent>
