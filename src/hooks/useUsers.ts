@@ -13,10 +13,15 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
     queryFn: async () => {
       console.log('Fetching users with filters:', { searchQuery, roleFilter });
       
-      // Get user profiles
+      // Get user profiles with auth user data
       let profileQuery = supabase
         .from('profiles')
-        .select('id, full_name, display_name, created_at');
+        .select(`
+          id, 
+          full_name, 
+          display_name, 
+          created_at
+        `);
 
       if (searchQuery) {
         profileQuery = profileQuery.or(`full_name.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`);
@@ -24,6 +29,13 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
 
       const { data: profiles, error: profilesError } = await profileQuery;
       if (profilesError) throw profilesError;
+
+      // Get auth users data to get real emails
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      if (authError) {
+        console.error('Error fetching auth users:', authError);
+        // Fall back to mock emails if we can't fetch auth data
+      }
 
       // Get user roles
       const { data: roles, error: rolesError } = await supabase
@@ -34,10 +46,11 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
       // Combine data
       const usersWithRoles: User[] = profiles?.map(profile => {
         const userRoles = roles?.filter(role => role.user_id === profile.id) || [];
+        const authUser = authUsers?.users?.find(user => user.id === profile.id);
         
         return {
           id: profile.id,
-          email: `user-${profile.id.slice(0, 8)}@example.com`, // Mock email for now
+          email: authUser?.email || `user-${profile.id.slice(0, 8)}@example.com`,
           full_name: profile.full_name || 'No name',
           display_name: profile.display_name || 'No display name',
           created_at: profile.created_at,
