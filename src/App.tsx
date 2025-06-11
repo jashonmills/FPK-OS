@@ -1,4 +1,3 @@
-
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -29,6 +28,8 @@ import "./App.css";
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const CourseManager = lazy(() => import("@/pages/admin/CourseManager"));
 const ModuleManagerPage = lazy(() => import("@/pages/admin/ModuleManagerPage"));
+const UserManagement = lazy(() => import("@/pages/admin/UserManagement"));
+const Analytics = lazy(() => import("@/pages/admin/Analytics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +70,8 @@ function App() {
                     <Route path="admin" element={<AdminDashboard />} />
                     <Route path="admin/courses" element={<CourseManager />} />
                     <Route path="admin/modules" element={<ModuleManagerPage />} />
+                    <Route path="admin/users" element={<UserManagement />} />
+                    <Route path="admin/analytics" element={<Analytics />} />
                     
                     {/* Default redirect */}
                     <Route path="" element={<Navigate to="learner" replace />} />
