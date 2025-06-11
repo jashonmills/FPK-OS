@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +26,11 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Type guard function
+  const isValidRole = (role: string): role is UserRole => {
+    return ['admin', 'instructor', 'learner'].includes(role);
+  };
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users', searchQuery, roleFilter],
@@ -121,13 +125,7 @@ const UserManagement = () => {
   });
 
   const handleAssignRole = (userId: string, role: string) => {
-    // Type guard to validate the role
-    const isValidRole = (role: string): role is UserRole => {
-      return ['admin', 'instructor', 'learner'].includes(role);
-    };
-
     if (isValidRole(role)) {
-      // TypeScript now knows role is of type UserRole
       assignRoleMutation.mutate({ userId, role });
     } else {
       toast({
