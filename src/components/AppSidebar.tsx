@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -22,11 +23,14 @@ import {
   Settings, 
   HelpCircle,
   BookUser,
-  Compass
+  Compass,
+  GraduationCap,
+  Shield
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useDualLanguage } from "@/hooks/useDualLanguage";
 import DualLanguageText from "@/components/DualLanguageText";
 
@@ -35,9 +39,10 @@ export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
+  const { isAdmin, isInstructor } = useUserRole();
   const { t } = useDualLanguage();
 
-  const menuItems = [
+  const learnerMenuItems = [
     {
       title: 'nav.home',
       url: "/dashboard/learner",
@@ -72,6 +77,29 @@ export function AppSidebar() {
       title: 'nav.notes',
       url: "/dashboard/learner/notes",
       icon: StickyNote,
+    },
+  ];
+
+  const adminMenuItems = [
+    {
+      title: 'Admin Dashboard',
+      url: "/dashboard/admin",
+      icon: Shield,
+    },
+    {
+      title: 'Course Manager',
+      url: "/dashboard/admin/courses",
+      icon: GraduationCap,
+    },
+    {
+      title: 'Module Manager',
+      url: "/dashboard/admin/modules",
+      icon: Book,
+    },
+    {
+      title: 'User Management',
+      url: "/dashboard/admin/users",
+      icon: Users,
     },
   ];
 
@@ -139,19 +167,52 @@ export function AppSidebar() {
             <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
             <p className="text-xs text-sidebar-foreground/70">
               <DualLanguageText translationKey="common.learnerPortal" />
+              {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
             </p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-2">
+        {(isAdmin || isInstructor) && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+              Administration
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`w-full transition-colors ${
+                        isActive(item.url) 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }`}
+                    >
+                      <button
+                        onClick={() => navigate(item.url)}
+                        className="flex items-center gap-3 w-full text-left"
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
             <DualLanguageText translationKey="common.learningDashboard" />
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {learnerMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 

@@ -1,79 +1,69 @@
-
-import { Toaster } from "@/components/ui/sonner";
+import { Suspense, lazy } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import AccessibilityProvider from "@/components/AccessibilityProvider";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import DashboardLayout from "./components/DashboardLayout";
-import LearnerHome from "./pages/dashboard/LearnerHome";
-import MyCourses from "./pages/dashboard/MyCourses";
-import DynamicCourse from "./pages/dashboard/DynamicCourse";
-import LearningStateEmbed from "./pages/dashboard/LearningStateEmbed";
-import LearningStateCourse from "./pages/dashboard/LearningStateCourse";
-import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
-import Goals from "./pages/dashboard/Goals";
-import Notes from "./pages/dashboard/Notes";
-import StudyPage from "./pages/study/StudyPage";
-import AIStudyCoach from "./pages/dashboard/AIStudyCoach";
-import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
-import Settings from "./pages/dashboard/Settings";
-import CourseManager from "./pages/admin/CourseManager";
-import ModuleManagerPage from "./pages/admin/ModuleManagerPage";
-import "./i18n";
+import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import "./App.css";
 
-const queryClient = new QueryClient();
+// Admin components
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const CourseManager = lazy(() => import("@/pages/admin/CourseManager"));
+const ModuleManagerPage = lazy(() => import("@/pages/admin/ModuleManagerPage"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessibilityProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <AccessibilityProvider>
           <TooltipProvider>
             <Toaster />
+            <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                
-                {/* Dashboard Routes */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  {/* Learner Routes */}
-                  <Route path="learner" element={<LearnerHome />} />
-                  <Route path="learner/my-courses" element={<MyCourses />} />
-                  <Route path="learner/course/:slug" element={<DynamicCourse />} />
-                  <Route path="learner/course/learning-state-embed" element={<LearningStateEmbed />} />
-                  <Route path="learner/course/learning-state-beta" element={<LearningStateCourse />} />
-                  <Route path="learner/analytics" element={<LearningAnalytics />} />
-                  <Route path="learner/learning-analytics" element={<LearningAnalytics />} />
-                  <Route path="learner/goals" element={<Goals />} />
-                  <Route path="learner/notes" element={<Notes />} />
-                  <Route path="learner/study" element={<StudyPage />} />
-                  <Route path="learner/study/:mode" element={<StudyPage />} />
-                  <Route path="learner/ai-coach" element={<AIStudyCoach />} />
-                  <Route path="learner/ai-study-coach" element={<AIStudyCoach />} />
-                  <Route path="learner/live-hub" element={<LiveLearningHub />} />
-                  <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
-                  <Route path="learner/settings" element={<Settings />} />
-                  
-                  {/* Admin Routes */}
-                  <Route path="admin/courses" element={<CourseManager />} />
-                  <Route path="admin/courses/:slug/modules" element={<ModuleManagerPage />} />
-                  
-                  {/* Default redirects */}
-                  <Route index element={<Navigate to="learner" replace />} />
-                </Route>
-
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div>Loading...</div></div>}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/dashboard" element={<DashboardLayout />}>
+                    {/* Learner routes */}
+                    <Route path="learner" element={<LearnerHome />} />
+                    <Route path="learner/my-courses" element={<MyCourses />} />
+                    <Route path="learner/learning-analytics" element={<LearningAnalytics />} />
+                    <Route path="learner/live-learning-hub" element={<LiveLearningHub />} />
+                    <Route path="learner/ai-study-coach" element={<AIStudyCoach />} />
+                    <Route path="learner/goals" element={<Goals />} />
+                    <Route path="learner/notes" element={<Notes />} />
+                    <Route path="learner/settings" element={<Settings />} />
+                    <Route path="learner/course/:courseId" element={<DynamicCourse />} />
+                    <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
+                    <Route path="learner/learning-state-embed/:courseId" element={<LearningStateEmbed />} />
+                    
+                    {/* Admin routes */}
+                    <Route path="admin" element={<AdminDashboard />} />
+                    <Route path="admin/courses" element={<CourseManager />} />
+                    <Route path="admin/modules" element={<ModuleManagerPage />} />
+                    
+                    {/* Default redirect */}
+                    <Route path="" element={<Navigate to="learner" replace />} />
+                  </Route>
+                  <Route path="/study/:sessionType" element={<StudyPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
-        </AuthProvider>
-      </AccessibilityProvider>
+        </AccessibilityProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
