@@ -7,12 +7,12 @@ interface AccessibilityProviderProps {
 }
 
 const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children }) => {
-  const { classes, getAccessibilityClasses, profile } = useAccessibility();
+  const { classes, profile } = useAccessibility();
 
   useEffect(() => {
     if (!profile) return;
 
-    console.log('🔧 AccessibilityProvider: Applying settings', {
+    console.log('🔧 AccessibilityProvider: Applying global accessibility settings', {
       fontFamily: profile.font_family,
       textSize: profile.text_size,
       lineSpacing: profile.line_spacing,
@@ -20,35 +20,56 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       comfortMode: profile.comfort_mode
     });
 
-    // Apply accessibility classes to the body element with maximum mobile specificity
     const body = document.body;
     const root = document.documentElement;
     
-    // Remove existing accessibility classes
-    body.className = body.className.replace(/font-\w+|text-\w+|leading-\w+|bg-\w+-?\w*|accessibility-\w+/g, '').trim();
+    // Remove all existing accessibility classes
+    body.classList.remove(
+      'accessibility-active',
+      'font-opendyslexic', 'font-arial', 'font-georgia', 'font-system',
+      'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl',
+      'leading-tight', 'leading-normal', 'leading-relaxed', 'leading-loose',
+      'high-contrast', 'focus-mode', 'low-stimulus'
+    );
     
-    // Add accessibility active class for stronger CSS targeting
+    // Add the accessibility-active class to enable global overrides
     body.classList.add('accessibility-active');
-    body.classList.add('accessibility-mobile-override');
     
-    // Add font family class to body for stronger inheritance
+    // Add font family class
     body.classList.add(classes.fontFamily);
+    
+    // Add text size class
     body.classList.add(classes.textSize);
+    
+    // Add line height class
     body.classList.add(classes.lineHeight);
     
-    // Add new accessibility classes to body with stronger specificity
-    const containerClasses = getAccessibilityClasses('container');
-    body.className = `${body.className} ${containerClasses} accessibility-text-size-override accessibility-line-height-override`.trim();
-
-    // Set CSS custom properties for advanced styling including mobile overrides
-    root.style.setProperty('--accessibility-bg', classes.backgroundColor);
-    root.style.setProperty('--accessibility-text', classes.textColor);
-    root.style.setProperty('--accessibility-border', classes.borderColor);
+    // Add color contrast mode
+    if (profile.color_contrast === 'High Contrast') {
+      body.classList.add('high-contrast');
+    }
     
-    // Mobile-specific CSS custom properties with more granular sizing
+    // Add comfort mode classes
+    switch (profile.comfort_mode) {
+      case 'Focus Mode':
+        body.classList.add('focus-mode');
+        break;
+      case 'Low-Stimulus':
+        body.classList.add('low-stimulus');
+        break;
+    }
+    
+    // Set CSS custom properties for more granular control
+    const fontFamilyMap = {
+      'font-opendyslexic': "'OpenDyslexic', 'Comic Sans MS', cursive",
+      'font-arial': "'Arial', 'Helvetica', sans-serif",
+      'font-georgia': "'Georgia', 'Times New Roman', serif",
+      'font-system': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    };
+    
     const textSizeMap = {
       'text-sm': '0.875rem',
-      'text-base': '1rem', 
+      'text-base': '1rem',
       'text-lg': '1.125rem',
       'text-xl': '1.25rem',
       'text-2xl': '1.5rem'
@@ -61,47 +82,30 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       'leading-loose': '2'
     };
     
-    const currentTextSize = textSizeMap[classes.textSize as keyof typeof textSizeMap] || '1rem';
-    const currentLineHeight = lineHeightMap[classes.lineHeight as keyof typeof lineHeightMap] || '1.5';
+    // Apply CSS custom properties
+    root.style.setProperty('--accessibility-font-family', fontFamilyMap[classes.fontFamily as keyof typeof fontFamilyMap] || fontFamilyMap['font-system']);
+    root.style.setProperty('--accessibility-font-size', textSizeMap[classes.textSize as keyof typeof textSizeMap] || '1rem');
+    root.style.setProperty('--accessibility-line-height', lineHeightMap[classes.lineHeight as keyof typeof lineHeightMap] || '1.5');
     
-    root.style.setProperty('--mobile-text-size', currentTextSize);
-    root.style.setProperty('--mobile-line-height', currentLineHeight);
-    
-    console.log('📱 Mobile CSS properties set:', {
-      textSize: currentTextSize,
-      lineHeight: currentLineHeight,
-      fontFamily: classes.fontFamily
+    console.log('✅ Applied global accessibility classes:', {
+      fontFamily: classes.fontFamily,
+      textSize: classes.textSize,
+      lineHeight: classes.lineHeight,
+      customProperties: {
+        fontFamily: fontFamilyMap[classes.fontFamily as keyof typeof fontFamilyMap],
+        fontSize: textSizeMap[classes.textSize as keyof typeof textSizeMap],
+        lineHeight: lineHeightMap[classes.lineHeight as keyof typeof lineHeightMap]
+      }
     });
     
-    // Force mobile repaint with stronger DOM manipulation
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      console.log('📱 Mobile device detected, forcing repaint...');
-      
-      // Use multiple methods to force mobile update
-      requestAnimationFrame(() => {
-        // Force style recalculation
-        body.style.transform = 'translateZ(0)';
-        body.offsetHeight; // Trigger reflow
-        body.style.transform = '';
-        
-        // Add mobile-specific classes
-        body.classList.add('accessibility-mobile-text');
-        
-        // Force another repaint
-        setTimeout(() => {
-          const elements = document.querySelectorAll('*');
-          elements.forEach(el => {
-            if (el instanceof HTMLElement) {
-              el.style.fontFamily = ''; // Clear inline styles
-              el.offsetHeight; // Trigger reflow
-            }
-          });
-        }, 100);
-      });
-    }
+    // Force repaint for better browser compatibility
+    requestAnimationFrame(() => {
+      body.style.transform = 'translateZ(0)';
+      body.offsetHeight; // Trigger reflow
+      body.style.transform = '';
+    });
     
-  }, [classes, getAccessibilityClasses, profile]);
+  }, [classes, profile]);
 
   return <>{children}</>;
 };
