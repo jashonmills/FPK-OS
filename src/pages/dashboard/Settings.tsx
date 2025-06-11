@@ -497,7 +497,12 @@ const Settings = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <AccessibilitySettings
                 profile={profile}
-                onUpdate={handleFormChange}
+                onUpdate={(updates) => {
+                  // Update form data for each changed field
+                  Object.entries(updates).forEach(([key, value]) => {
+                    handleFormChange(key, value);
+                  });
+                }}
               />
 
               <LivePreview
@@ -681,3 +686,5 @@ const Settings = () => {
 };
 
 export default Settings;
+
+}
