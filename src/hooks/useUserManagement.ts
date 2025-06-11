@@ -143,20 +143,10 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
     },
   });
 
-  const handleAssignRole = (userId: string, role: string) => {
+  const handleAssignRole = (userId: string, role: UserRole) => {
     console.log('handleAssignRole called with:', { userId, role });
-    
-    if (isValidRole(role)) {
-      console.log('Role is valid, proceeding with assignment');
-      assignRoleMutation.mutate({ userId, role });
-    } else {
-      console.error('Invalid role:', role);
-      toast({
-        title: "Invalid role",
-        description: "Please select a valid role.",
-        variant: "destructive",
-      });
-    }
+    console.log('Role is valid, proceeding with assignment');
+    assignRoleMutation.mutate({ userId, role });
   };
 
   const handleRemoveRole = (userId: string, role: string) => {

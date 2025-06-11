@@ -4,17 +4,19 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Mail } from 'lucide-react';
-import { UserProfile, getRoleBadgeVariant } from '@/types/userManagement';
+import { UserProfile, UserRole, getRoleBadgeVariant, isValidRole } from '@/types/userManagement';
 
 interface UserManagementRowProps {
   user: UserProfile;
-  onAssignRole: (userId: string, role: string) => void;
+  onAssignRole: (userId: string, role: UserRole) => void;
   onRemoveRole: (userId: string, role: string) => void;
 }
 
 export const UserManagementRow = ({ user, onAssignRole, onRemoveRole }: UserManagementRowProps) => {
   const handleRoleSelection = (value: string) => {
-    onAssignRole(user.id, value);
+    if (isValidRole(value)) {
+      onAssignRole(user.id, value);
+    }
   };
 
   return (
