@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -16,6 +17,13 @@ import enPreview from '@/locales/en/preview.json';
 // Keep legacy imports for other languages (to be refactored separately)
 import zh from '@/locales/zh.json';
 import de from '@/locales/de.json';
+
+// Export supported languages for LanguageSwitcher
+export const supportedLanguages = [
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'zh', name: 'Chinese', native: '中文' },
+  { code: 'de', name: 'German', native: 'Deutsch' },
+];
 
 const resources = {
   en: {
