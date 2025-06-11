@@ -11,7 +11,7 @@ export interface UserProfile {
 export type UserRole = 'admin' | 'instructor' | 'learner';
 
 export function isValidRole(role: string): role is UserRole {
-  return (role === 'admin' || role === 'instructor' || role === 'learner');
+  return role === 'admin' || role === 'instructor' || role === 'learner';
 }
 
 export const getRoleBadgeVariant = (role: string) => {
