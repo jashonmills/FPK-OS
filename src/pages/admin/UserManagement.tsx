@@ -29,36 +29,38 @@ const UserManagement = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users', searchQuery, roleFilter],
     queryFn: async () => {
-      // Get user profiles with their roles
-      let query = supabase
+      // Get user profiles
+      let profileQuery = supabase
         .from('profiles')
-        .select(`
-          id,
-          full_name,
-          display_name,
-          created_at,
-          user_roles!inner(role)
-        `);
+        .select('id, full_name, display_name, created_at');
 
       if (searchQuery) {
-        query = query.or(`full_name.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`);
+        profileQuery = profileQuery.or(`full_name.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`);
       }
 
-      const { data: profilesData, error } = await query;
+      const { data: profilesData, error: profilesError } = await profileQuery;
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      // Get user emails from auth.users (this requires service role key in a real app)
-      const userIds = profilesData?.map(p => p.id) || [];
-      
-      const transformedUsers: UserProfile[] = profilesData?.map(profile => ({
-        id: profile.id,
-        email: `user-${profile.id.slice(0, 8)}@example.com`, // Mock email since we can't access auth.users directly
-        full_name: profile.full_name || 'No name',
-        display_name: profile.display_name || 'No display name',
-        created_at: profile.created_at,
-        roles: profile.user_roles?.map((r: any) => r.role) || []
-      })) || [];
+      // Get user roles separately
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Combine the data
+      const transformedUsers: UserProfile[] = profilesData?.map(profile => {
+        const userRoles = rolesData?.filter(role => role.user_id === profile.id) || [];
+        return {
+          id: profile.id,
+          email: `user-${profile.id.slice(0, 8)}@example.com`, // Mock email since we can't access auth.users directly
+          full_name: profile.full_name || 'No name',
+          display_name: profile.display_name || 'No display name',
+          created_at: profile.created_at,
+          roles: userRoles.map(r => r.role)
+        };
+      }) || [];
 
       return transformedUsers.filter(user => 
         roleFilter === 'all' || user.roles.includes(roleFilter)
@@ -67,7 +69,7 @@ const UserManagement = () => {
   });
 
   const assignRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'instructor' | 'learner' }) => {
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: userId, role });
@@ -117,7 +119,9 @@ const UserManagement = () => {
   });
 
   const handleAssignRole = (userId: string, role: string) => {
-    assignRoleMutation.mutate({ userId, role });
+    if (role === 'admin' || role === 'instructor' || role === 'learner') {
+      assignRoleMutation.mutate({ userId, role });
+    }
   };
 
   const handleRemoveRole = (userId: string, role: string) => {

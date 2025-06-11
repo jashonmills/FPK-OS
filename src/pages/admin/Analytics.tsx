@@ -7,9 +7,38 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Users, BookOpen, TrendingUp, Award, Clock, Target } from 'lucide-react';
 
+interface UserStats {
+  totalUsers: number;
+  newUsersThisWeek: number;
+  roleDistribution: Record<string, number>;
+  activeUsers: number;
+  retentionRate: number;
+}
+
+interface CourseStats {
+  totalCourses: number;
+  publishedCourses: number;
+  totalEnrollments: number;
+  avgEnrollmentsPerCourse: number;
+  completionRate: number;
+}
+
+interface StudyStats {
+  totalSessions: number;
+  avgSessionDuration: number;
+  accuracyRate: number;
+  studyStreak: number;
+}
+
 const Analytics = () => {
   // User statistics
-  const { data: userStats = {} } = useQuery({
+  const { data: userStats = {
+    totalUsers: 0,
+    newUsersThisWeek: 0,
+    roleDistribution: {},
+    activeUsers: 0,
+    retentionRate: 0
+  } as UserStats } = useQuery({
     queryKey: ['admin-user-stats'],
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
@@ -27,7 +56,7 @@ const Analytics = () => {
         new Date(p.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       ).length || 0;
 
-      const roleDistribution = roles?.reduce((acc: any, r) => {
+      const roleDistribution = roles?.reduce((acc: Record<string, number>, r) => {
         acc[r.role] = (acc[r.role] || 0) + 1;
         return acc;
       }, {}) || {};
@@ -38,12 +67,18 @@ const Analytics = () => {
         roleDistribution,
         activeUsers: Math.floor(totalUsers * 0.75), // Mock active users
         retentionRate: 85, // Mock retention rate
-      };
+      } as UserStats;
     },
   });
 
   // Course statistics
-  const { data: courseStats = {} } = useQuery({
+  const { data: courseStats = {
+    totalCourses: 0,
+    publishedCourses: 0,
+    totalEnrollments: 0,
+    avgEnrollmentsPerCourse: 0,
+    completionRate: 0
+  } as CourseStats } = useQuery({
     queryKey: ['admin-course-stats'],
     queryFn: async () => {
       const { data: courses, error: coursesError } = await supabase
@@ -67,12 +102,17 @@ const Analytics = () => {
         totalEnrollments,
         avgEnrollmentsPerCourse,
         completionRate: 68, // Mock completion rate
-      };
+      } as CourseStats;
     },
   });
 
   // Study sessions data
-  const { data: studyStats = {} } = useQuery({
+  const { data: studyStats = {
+    totalSessions: 0,
+    avgSessionDuration: 0,
+    accuracyRate: 0,
+    studyStreak: 0
+  } as StudyStats } = useQuery({
     queryKey: ['admin-study-stats'],
     queryFn: async () => {
       const { data: sessions, error } = await supabase
@@ -92,7 +132,7 @@ const Analytics = () => {
         avgSessionDuration: Math.round(avgSessionDuration / 60), // Convert to minutes
         accuracyRate,
         studyStreak: 12, // Mock study streak
-      };
+      } as StudyStats;
     },
   });
 
@@ -116,9 +156,9 @@ const Analytics = () => {
     { month: 'Jun', enrollments: 350 },
   ];
 
-  const roleDistributionData = Object.entries(userStats.roleDistribution || {}).map(([role, count]) => ({
+  const roleDistributionData = Object.entries(userStats.roleDistribution).map(([role, count]) => ({
     name: role,
-    value: count as number,
+    value: count,
   }));
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -126,29 +166,29 @@ const Analytics = () => {
   const statCards = [
     {
       title: 'Total Users',
-      value: userStats.totalUsers || 0,
-      change: `+${userStats.newUsersThisWeek || 0} this week`,
+      value: userStats.totalUsers,
+      change: `+${userStats.newUsersThisWeek} this week`,
       icon: Users,
       color: 'text-blue-600',
     },
     {
       title: 'Published Courses',
-      value: courseStats.publishedCourses || 0,
-      change: `${courseStats.totalCourses || 0} total courses`,
+      value: courseStats.publishedCourses,
+      change: `${courseStats.totalCourses} total courses`,
       icon: BookOpen,
       color: 'text-green-600',
     },
     {
       title: 'Study Sessions',
-      value: studyStats.totalSessions || 0,
-      change: `${studyStats.avgSessionDuration || 0} min avg`,
+      value: studyStats.totalSessions,
+      change: `${studyStats.avgSessionDuration} min avg`,
       icon: Clock,
       color: 'text-purple-600',
     },
     {
       title: 'Overall Accuracy',
-      value: `${studyStats.accuracyRate || 0}%`,
-      change: `${userStats.retentionRate || 0}% retention`,
+      value: `${studyStats.accuracyRate}%`,
+      change: `${userStats.retentionRate}% retention`,
       icon: Target,
       color: 'text-orange-600',
     },
@@ -254,19 +294,19 @@ const Analytics = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm">Course Completion Rate</span>
-              <Badge variant="secondary">{courseStats.completionRate || 0}%</Badge>
+              <Badge variant="secondary">{courseStats.completionRate}%</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Avg Enrollments per Course</span>
-              <Badge variant="outline">{courseStats.avgEnrollmentsPerCourse || 0}</Badge>
+              <Badge variant="outline">{courseStats.avgEnrollmentsPerCourse}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Active Users</span>
-              <Badge variant="default">{userStats.activeUsers || 0}</Badge>
+              <Badge variant="default">{userStats.activeUsers}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Average Study Streak</span>
-              <Badge className="fpk-gradient text-white">{studyStats.studyStreak || 0} days</Badge>
+              <Badge className="fpk-gradient text-white">{studyStats.studyStreak} days</Badge>
             </div>
           </CardContent>
         </Card>
