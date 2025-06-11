@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -121,8 +120,9 @@ const UserManagement = () => {
   });
 
   const handleAssignRole = (userId: string, role: string) => {
-    // Type guard to ensure role is valid and cast to UserRole
-    if (role === 'admin' || role === 'instructor' || role === 'learner') {
+    // Type guard to ensure role is valid
+    const validRoles: UserRole[] = ['admin', 'instructor', 'learner'];
+    if (validRoles.includes(role as UserRole)) {
       assignRoleMutation.mutate({ userId, role: role as UserRole });
     } else {
       toast({
