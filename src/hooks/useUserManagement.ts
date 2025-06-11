@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -157,8 +156,8 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
     }
     
     console.log('Role is valid, proceeding with assignment');
-    // TypeScript now knows role is UserRole after the early return
-    assignRoleMutation.mutate({ userId, role });
+    // Use explicit type assertion after validation
+    assignRoleMutation.mutate({ userId, role: role as UserRole });
   };
 
   const handleRemoveRole = (userId: string, role: string) => {
