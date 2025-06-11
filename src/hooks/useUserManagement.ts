@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -143,10 +142,21 @@ export const useUserManagement = (searchQuery: string, roleFilter: string) => {
     },
   });
 
-  const handleAssignRole = (userId: string, role: UserRole) => {
+  const handleAssignRole = (userId: string, role: string) => {
     console.log('handleAssignRole called with:', { userId, role });
-    console.log('Role is valid, proceeding with assignment');
-    assignRoleMutation.mutate({ userId, role: role as UserRole });
+    
+    if (isValidRole(role)) {
+      console.log('Role is valid, proceeding with assignment');
+      // TypeScript now knows that role is of type UserRole after the isValidRole check
+      assignRoleMutation.mutate({ userId, role: role as UserRole });
+    } else {
+      console.error('Invalid role provided:', role);
+      toast({
+        title: "Invalid role",
+        description: "Please select a valid role.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRemoveRole = (userId: string, role: string) => {
