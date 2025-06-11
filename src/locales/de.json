@@ -117,8 +117,38 @@
     "scheduleSession": "Sitzung planen"
   },
   "auth": {
+    "title": "Willkommen zum Lernen",
+    "subtitle": "Ihre personalisierte Lernreise beginnt hier",
+    "portalTitle": "Lernportal",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "displayName": "Anzeigename",
+    "confirmPassword": "Passwort bestätigen",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
+    "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+    "createPassword": "Erstellen Sie ein Passwort",
+    "confirmPasswordPlaceholder": "Bestätigen Sie Ihr Passwort",
+    "signInButton": "Anmelden",
+    "signUpButton": "Konto erstellen",
+    "signingIn": "Anmelden...",
+    "creatingAccount": "Konto wird erstellt...",
+    "welcomeBack": "Willkommen zurück!",
+    "signInSuccess": "Sie wurden erfolgreich angemeldet.",
+    "accountCreated": "Konto erstellt!",
+    "checkEmail": "Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu verifizieren.",
+    "betaVersion": "Beta-Version - Ihr Feedback hilft uns bei der Verbesserung",
     "login": "Anmelden",
     "logout": "Abmelden",
     "register": "Registrieren"
+  },
+  "settings": {
+    "language": {
+      "primaryLanguage": "Hauptsprache",
+      "dualLanguageMode": "Zweisprachiger Modus",
+      "dualLanguageDescription": "Englisch neben Ihrer Sprache anzeigen"
+    }
   }
 }

@@ -117,8 +117,38 @@
     "scheduleSession": "Programmer une Session"
   },
   "auth": {
+    "title": "Bienvenue à l'Apprentissage",
+    "subtitle": "Votre parcours d'apprentissage personnalisé commence ici",
+    "portalTitle": "Portail d'Apprentissage",
+    "signIn": "Se Connecter",
+    "signUp": "S'Inscrire",
+    "email": "E-mail",
+    "password": "Mot de Passe",
+    "displayName": "Nom d'Affichage",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "emailPlaceholder": "Entrez votre e-mail",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "fullNamePlaceholder": "Entrez votre nom complet",
+    "createPassword": "Créer un mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "signInButton": "Se Connecter",
+    "signUpButton": "Créer un Compte",
+    "signingIn": "Connexion...",
+    "creatingAccount": "Création du compte...",
+    "welcomeBack": "Bienvenue !",
+    "signInSuccess": "Vous vous êtes connecté avec succès.",
+    "accountCreated": "Compte créé !",
+    "checkEmail": "Veuillez vérifier votre e-mail pour vérifier votre compte.",
+    "betaVersion": "Version Bêta - Vos commentaires nous aident à nous améliorer",
     "login": "Se Connecter",
     "logout": "Se Déconnecter",
     "register": "S'Inscrire"
+  },
+  "settings": {
+    "language": {
+      "primaryLanguage": "Langue Principale",
+      "dualLanguageMode": "Mode Bilingue",
+      "dualLanguageDescription": "Afficher l'anglais à côté de votre langue"
+    }
   }
 }

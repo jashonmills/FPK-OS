@@ -117,8 +117,38 @@
     "scheduleSession": "Programar Sesión"
   },
   "auth": {
+    "title": "Bienvenido al Aprendizaje",
+    "subtitle": "Tu viaje de aprendizaje personalizado comienza aquí",
+    "portalTitle": "Portal de Aprendizaje",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "displayName": "Nombre de Usuario",
+    "confirmPassword": "Confirmar Contraseña",
+    "emailPlaceholder": "Ingresa tu correo electrónico",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "fullNamePlaceholder": "Ingresa tu nombre completo",
+    "createPassword": "Crear una contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu contraseña",
+    "signInButton": "Iniciar Sesión",
+    "signUpButton": "Crear Cuenta",
+    "signingIn": "Iniciando sesión...",
+    "creatingAccount": "Creando cuenta...",
+    "welcomeBack": "¡Bienvenido de vuelta!",
+    "signInSuccess": "Has iniciado sesión exitosamente.",
+    "accountCreated": "¡Cuenta creada!",
+    "checkEmail": "Por favor revisa tu correo electrónico para verificar tu cuenta.",
+    "betaVersion": "Versión Beta - Tu retroalimentación nos ayuda a mejorar",
     "login": "Iniciar Sesión",
     "logout": "Cerrar Sesión",
     "register": "Registrarse"
+  },
+  "settings": {
+    "language": {
+      "primaryLanguage": "Idioma Principal",
+      "dualLanguageMode": "Modo Bilingüe",
+      "dualLanguageDescription": "Mostrar inglés junto a tu idioma"
+    }
   }
 }

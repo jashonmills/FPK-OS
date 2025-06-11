@@ -117,8 +117,38 @@
     "scheduleSession": "सत्र शेड्यूल करें"
   },
   "auth": {
+    "title": "शिक्षा में आपका स्वागत है",
+    "subtitle": "आपकी व्यक्तिगत शिक्षा यात्रा यहाँ से शुरू होती है",
+    "portalTitle": "शिक्षा पोर्टल",
+    "signIn": "साइन इन",
+    "signUp": "साइन अप",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "displayName": "प्रदर्शन नाम",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "emailPlaceholder": "अपना ईमेल दर्ज करें",
+    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+    "fullNamePlaceholder": "अपना पूरा नाम दर्ज करें",
+    "createPassword": "एक पासवर्ड बनाएं",
+    "confirmPasswordPlaceholder": "अपने पासवर्ड की पुष्टि करें",
+    "signInButton": "साइन इन",
+    "signUpButton": "खाता बनाएं",
+    "signingIn": "साइन इन हो रहा है...",
+    "creatingAccount": "खाता बनाया जा रहा है...",
+    "welcomeBack": "वापस स्वागत है!",
+    "signInSuccess": "आप सफलतापूर्वक साइन इन हो गए हैं।",
+    "accountCreated": "खाता बनाया गया!",
+    "checkEmail": "कृपया अपने खाते को सत्यापित करने के लिए अपना ईमेल जांचें।",
+    "betaVersion": "बीटा संस्करण - आपकी प्रतिक्रिया हमें बेहतर बनाने में मदद करती है",
     "login": "लॉगिन",
     "logout": "लॉगआउट",
     "register": "पंजीकरण"
+  },
+  "settings": {
+    "language": {
+      "primaryLanguage": "मुख्य भाषा",
+      "dualLanguageMode": "द्विभाषी मोड",
+      "dualLanguageDescription": "अपनी भाषा के साथ अंग्रेजी दिखाएं"
+    }
   }
 }
