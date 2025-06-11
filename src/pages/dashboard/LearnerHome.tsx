@@ -162,26 +162,26 @@ const LearnerHome = () => {
   const courseData = [];
   
   const EmptyChart = ({ titleKey, descKey }: { titleKey: string; descKey: string }) => (
-    <div className="h-48 sm:h-64 flex flex-col items-center justify-center text-center p-4 sm:p-6">
-      <BarChart className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mb-3 sm:mb-4" />
-      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-2 text-sm sm:text-base')}
-      {renderDualText(descKey, '', 'text-xs sm:text-sm text-gray-500')}
+    <div className="h-40 md:h-48 lg:h-64 flex flex-col items-center justify-center text-center p-3 md:p-4 lg:p-6">
+      <BarChart className="h-6 w-6 md:h-8 md:w-8 lg:h-12 lg:w-12 text-gray-300 mb-2 md:mb-3 lg:mb-4" />
+      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-1 md:mb-2 text-sm md:text-base')}
+      {renderDualText(descKey, '', 'text-xs md:text-sm text-gray-500')}
     </div>
   );
 
   const EmptyPieChart = ({ titleKey, descKey }: { titleKey: string; descKey: string }) => (
-    <div className="h-48 sm:h-64 flex flex-col items-center justify-center text-center p-4 sm:p-6">
-      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-gray-200 border-dashed mb-3 sm:mb-4 flex items-center justify-center">
-        <Target className="h-4 w-4 sm:h-6 sm:w-6 text-gray-300" />
+    <div className="h-40 md:h-48 lg:h-64 flex flex-col items-center justify-center text-center p-3 md:p-4 lg:p-6">
+      <div className="w-8 h-8 md:w-12 md:h-12 lg:w-16 lg:h-16 rounded-full border-4 border-gray-200 border-dashed mb-2 md:mb-3 lg:mb-4 flex items-center justify-center">
+        <Target className="h-3 w-3 md:h-4 md:w-4 lg:h-6 lg:w-6 text-gray-300" />
       </div>
-      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-2 text-sm sm:text-base')}
-      {renderDualText(descKey, '', 'text-xs sm:text-sm text-gray-500')}
+      {renderDualText(titleKey, '', 'font-semibold text-gray-900 mb-1 md:mb-2 text-sm md:text-base')}
+      {renderDualText(descKey, '', 'text-xs md:text-sm text-gray-500')}
     </div>
   );
 
   if (authLoading || profileLoading) {
     return (
-      <div className="p-4 sm:p-6 flex items-center justify-center">
+      <div className="p-2 md:p-4 lg:p-6 flex items-center justify-center">
         <div className="text-gray-500">{renderDualText('common.loading')}</div>
       </div>
     );
@@ -197,46 +197,46 @@ const LearnerHome = () => {
     <>
       {/* Welcome Modal - Mobile Optimized */}
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="sm:max-w-md mx-4 max-w-[calc(100vw-32px)]">
+        <DialogContent className="mx-2 w-[calc(100vw-16px)] max-w-md md:mx-4 md:max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 fpk-gradient rounded-xl flex items-center justify-center">
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <div className="w-8 h-8 md:w-10 md:h-10 fpk-gradient rounded-xl flex items-center justify-center">
+                <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
-              <DialogTitle className="text-lg sm:text-xl">
+              <DialogTitle className="text-lg md:text-xl">
                 <DualLanguageText translationKey="dashboard.welcomeModal.title" />
               </DialogTitle>
             </div>
-            <DialogDescription className="text-sm sm:text-base leading-relaxed">
+            <DialogDescription className="text-sm md:text-base leading-relaxed">
               Hey {displayName}! Before you dive into your learning journey, please complete your profile so we can personalize your experience and tailor content just for you.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="bg-purple-50 rounded-lg p-3 sm:p-4 my-3 sm:my-4">
+          <div className="bg-purple-50 rounded-lg p-3 md:p-4 my-3 md:my-4">
             <div className="flex items-start gap-3">
-              <User className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 mt-0.5" />
+              <User className="h-4 w-4 md:h-5 md:w-5 text-purple-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-purple-900 mb-1 text-sm sm:text-base">
+                <h4 className="font-medium text-purple-900 mb-1 text-sm md:text-base">
                   <DualLanguageText translationKey="dashboard.welcomeModal.quickSetup" />
                 </h4>
-                <p className="text-xs sm:text-sm text-purple-700">
+                <p className="text-xs md:text-sm text-purple-700">
                   <DualLanguageText translationKey="dashboard.welcomeModal.quickSetupDesc" />
                 </p>
               </div>
             </div>
           </div>
 
-          <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <DialogFooter className="flex-col gap-2 md:flex-row">
             <Button 
               onClick={handleWelcomeComplete}
-              className="fpk-gradient text-white w-full sm:w-auto text-sm"
+              className="fpk-gradient text-white w-full md:w-auto text-sm"
             >
               <DualLanguageText translationKey="dashboard.welcomeModal.completeProfile" />
             </Button>
             <Button 
               variant="outline" 
               onClick={handleRemindLater}
-              className="w-full sm:w-auto text-sm"
+              className="w-full md:w-auto text-sm"
             >
               <DualLanguageText translationKey="dashboard.welcomeModal.remindLater" />
             </Button>
@@ -244,19 +244,20 @@ const LearnerHome = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
+      {/* Main Container - Optimized for mobile width */}
+      <div className="px-2 py-2 md:p-4 lg:p-6 space-y-3 md:space-y-4 lg:space-y-6 w-full max-w-7xl mx-auto">
         {/* Profile Header - Mobile Optimized */}
-        <div className="fpk-card rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <Avatar className="h-12 w-12 sm:h-16 sm:w-16">
+        <div className="fpk-card rounded-xl md:rounded-2xl p-3 md:p-4 lg:p-6 shadow-lg border border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Avatar className="h-10 w-10 md:h-12 md:w-12 lg:h-16 lg:w-16">
                 <AvatarImage src={profile?.avatar_url || ""} alt={displayName} />
-                <AvatarFallback className="fpk-gradient text-white text-lg sm:text-xl font-bold">
+                <AvatarFallback className="fpk-gradient text-white text-sm md:text-lg lg:text-xl font-bold">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
+                <h1 className="text-base md:text-lg lg:text-2xl font-bold text-gray-900 truncate">
                   Welcome back, {displayName}!
                 </h1>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -269,72 +270,72 @@ const LearnerHome = () => {
                 </div>
               </div>
             </div>
-            <div className="text-center sm:text-right">
-              <p className="text-xs sm:text-sm text-gray-500">
+            <div className="text-center md:text-right">
+              <p className="text-xs md:text-sm text-gray-500">
                 <DualLanguageText translationKey="dashboard.stats.totalXP" />
               </p>
-              <p className="text-xl sm:text-2xl font-bold fpk-text-gradient">{totalXP.toLocaleString()}</p>
+              <p className="text-lg md:text-xl lg:text-2xl font-bold fpk-text-gradient">{totalXP.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        {/* Quick Stats - Mobile Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Quick Stats - Mobile Grid Optimized */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4">
           <Card className="fpk-card border-0 shadow-md">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg">
-                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+            <CardContent className="p-2.5 md:p-3 lg:p-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1 md:p-1.5 lg:p-2 bg-purple-100 rounded-lg">
+                  <BookOpen className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-purple-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">
                     <DualLanguageText translationKey="dashboard.stats.activeCourses" />
                   </p>
-                  <p className="text-lg sm:text-xl font-bold">1</p>
+                  <p className="text-sm md:text-lg lg:text-xl font-bold">1</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="fpk-card border-0 shadow-md">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-amber-100 rounded-lg">
-                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+            <CardContent className="p-2.5 md:p-3 lg:p-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1 md:p-1.5 lg:p-2 bg-amber-100 rounded-lg">
+                  <Clock className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-amber-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">
                     Current Streak
                   </p>
-                  <p className="text-lg sm:text-xl font-bold">{currentStreak}</p>
+                  <p className="text-sm md:text-lg lg:text-xl font-bold">{currentStreak}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="fpk-card border-0 shadow-md">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
-                  <Target className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+            <CardContent className="p-2.5 md:p-3 lg:p-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1 md:p-1.5 lg:p-2 bg-green-100 rounded-lg">
+                  <Target className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-green-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">Active Goals</p>
-                  <p className="text-lg sm:text-xl font-bold">{activeGoals.length}</p>
+                  <p className="text-xs md:text-sm text-gray-500 truncate">Active Goals</p>
+                  <p className="text-sm md:text-lg lg:text-xl font-bold">{activeGoals.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="fpk-card border-0 shadow-md">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+            <CardContent className="p-2.5 md:p-3 lg:p-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1 md:p-1.5 lg:p-2 bg-blue-100 rounded-lg">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-blue-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">Goal Progress</p>
-                  <p className="text-lg sm:text-xl font-bold">{goalCompletionRate}%</p>
+                  <p className="text-xs md:text-sm text-gray-500 truncate">Goal Progress</p>
+                  <p className="text-sm md:text-lg lg:text-xl font-bold">{goalCompletionRate}%</p>
                 </div>
               </div>
             </CardContent>
@@ -342,12 +343,12 @@ const LearnerHome = () => {
         </div>
 
         {/* Analytics Charts - Mobile Stacked */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
           {/* Course Progress Chart */}
           <Card className="fpk-card border-0 shadow-lg">
-            <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+            <CardHeader className="pb-2 md:pb-3 lg:pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm md:text-base lg:text-lg">
+                <Target className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-purple-600" />
                 <DualLanguageText translationKey="dashboard.charts.courseProgress" />
               </CardTitle>
             </CardHeader>
@@ -358,13 +359,13 @@ const LearnerHome = () => {
                   descKey="dashboard.charts.noCourseProgressDesc"
                 />
               ) : (
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie
                       data={progressData}
                       cx="50%"
                       cy="50%"
-                      outerRadius={80}
+                      outerRadius={60}
                       dataKey="value"
                     >
                       {progressData.map((entry, index) => (
@@ -379,9 +380,9 @@ const LearnerHome = () => {
 
           {/* Time Spent Chart */}
           <Card className="fpk-card border-0 shadow-lg">
-            <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+            <CardHeader className="pb-2 md:pb-3 lg:pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm md:text-base lg:text-lg">
+                <Clock className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-amber-600" />
                 <DualLanguageText translationKey="dashboard.charts.weeklyTime" />
               </CardTitle>
             </CardHeader>
@@ -392,7 +393,7 @@ const LearnerHome = () => {
                   descKey="dashboard.charts.noStudyTimeDesc"
                 />
               ) : (
-                <ResponsiveContainer width="100%" height={240}>
+                <ResponsiveContainer width="100%" height={160}>
                   <BarChart data={timeSpentData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />
@@ -406,42 +407,42 @@ const LearnerHome = () => {
         </div>
 
         {/* AI Insights - Mobile Stacked */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
           <AIInsightsSection />
 
           <Card className="fpk-card border-0 shadow-lg">
-            <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+            <CardHeader className="pb-2 md:pb-3 lg:pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm md:text-base lg:text-lg">
+                <Target className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-blue-500" />
                 <DualLanguageText translationKey="dashboard.insights.personalGoals" fallback="Personal Goals" />
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               {goalsLoading ? (
-                <div className="text-center py-6 sm:py-8">
+                <div className="text-center py-4 md:py-6 lg:py-8">
                   <div className="text-sm text-gray-500">Loading goals...</div>
                 </div>
               ) : activeGoals.length === 0 ? (
-                <div className="text-center py-6 sm:py-8">
-                  <Target className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">No active goals</h3>
-                  <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                <div className="text-center py-4 md:py-6 lg:py-8">
+                  <Target className="h-6 w-6 md:h-8 md:w-8 lg:h-12 lg:w-12 text-gray-300 mx-auto mb-2 md:mb-3 lg:mb-4" />
+                  <h3 className="font-semibold text-gray-900 mb-1 md:mb-2 text-sm md:text-base">No active goals</h3>
+                  <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3 lg:mb-4 px-2">
                     Create your first Learning State goal to start tracking your progress
                   </p>
                   <GoalCreateForm />
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Active Goals</span>
-                    <span className="text-sm text-gray-600">{activeGoals.length} total</span>
+                    <span className="text-xs md:text-sm font-medium">Active Goals</span>
+                    <span className="text-xs md:text-sm text-gray-600">{activeGoals.length} total</span>
                   </div>
                   <div className="space-y-2">
                     {activeGoals.slice(0, 3).map((goal) => (
-                      <div key={goal.id} className="p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium truncate flex-1">{goal.title}</span>
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                      <div key={goal.id} className="p-2 md:p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-1 md:mb-2">
+                          <span className="text-xs md:text-sm font-medium truncate flex-1">{goal.title}</span>
+                          <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                             <Badge variant="secondary" className="text-xs">
                               {goal.category}
                             </Badge>
@@ -464,7 +465,7 @@ const LearnerHome = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full mt-4 text-sm"
+                    className="w-full mt-3 md:mt-4 text-xs md:text-sm"
                     onClick={() => navigate('/dashboard/learner/goals')}
                   >
                     View All Goals
@@ -475,20 +476,20 @@ const LearnerHome = () => {
           </Card>
 
           <Card className="fpk-card border-0 shadow-lg">
-            <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+            <CardHeader className="pb-2 md:pb-3 lg:pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm md:text-base lg:text-lg">
+                <Users className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5 text-green-500" />
                 <DualLanguageText translationKey="dashboard.insights.communityActivity" />
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-center py-6 sm:py-8">
-                <Users className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
-                {renderDualText('dashboard.insights.joinCommunity', '', 'font-semibold text-gray-900 mb-2 text-sm sm:text-base')}
-                <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+              <div className="text-center py-4 md:py-6 lg:py-8">
+                <Users className="h-6 w-6 md:h-8 md:w-8 lg:h-12 lg:w-12 text-gray-300 mx-auto mb-2 md:mb-3 lg:mb-4" />
+                {renderDualText('dashboard.insights.joinCommunity', '', 'font-semibold text-gray-900 mb-1 md:mb-2 text-sm md:text-base')}
+                <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3 lg:mb-4 px-2">
                   <DualLanguageText translationKey="dashboard.insights.joinCommunityDesc" />
                 </p>
-                <Button variant="outline" className="border-purple-200 text-purple-700 text-sm">
+                <Button variant="outline" className="border-purple-200 text-purple-700 text-xs md:text-sm">
                   <DualLanguageText translationKey="dashboard.insights.exploreCommunity" />
                 </Button>
               </div>
