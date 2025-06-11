@@ -154,10 +154,102 @@
     "register": "注册"
   },
   "settings": {
+    "title": "设置",
+    "subtitle": "管理您的账户偏好和学习体验",
+    "saving": "保存中...",
+    "autoSavePending": "自动保存待处理...",
+    "allChangesSaved": "所有更改已保存",
+    "restoreDefaults": "恢复默认设置",
+    "settingsRestored": "设置已恢复",
+    "defaultsMessage": "所有设置已恢复为默认值",
+    "tabs": {
+      "profile": "个人资料",
+      "language": "语言",
+      "accessibility": "无障碍",
+      "notifications": "通知",
+      "security": "安全",
+      "integrations": "集成"
+    },
+    "profile": {
+      "title": "个人资料信息",
+      "fullName": "全名",
+      "fullNamePlaceholder": "请输入您的全名",
+      "displayName": "显示名称",
+      "displayNamePlaceholder": "请输入您的显示名称",
+      "email": "邮箱",
+      "bio": "个人简介",
+      "bioPlaceholder": "告诉我们一些关于您的信息..."
+    },
     "language": {
       "primaryLanguage": "主要语言",
       "dualLanguageMode": "双语模式",
-      "dualLanguageDescription": "在您的语言旁显示英语"
+      "dualLanguageDescription": "在您的语言旁显示英语",
+      "timeFormat": "时间格式",
+      "dateFormat": "日期格式",
+      "timezone": "时区"
+    },
+    "accessibility": {
+      "title": "无障碍和显示",
+      "fontFamily": "字体系列",
+      "fontHelp": "选择您阅读舒适的字体",
+      "systemFont": "系统默认",
+      "colorContrast": "颜色对比度",
+      "standard": "标准",
+      "highContrast": "高对比度",
+      "comfortMode": "舒适模式",
+      "comfortHelp": "调整界面以获得最佳学习舒适度",
+      "normal": "正常",
+      "lowStimulus": "低刺激",
+      "focusMode": "专注模式",
+      "textSize": "文字大小",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "lineSpacing": "行间距",
+      "compact": "紧凑",
+      "comfortable": "舒适",
+      "airy": "宽松",
+      "speechToText": "语音转文字",
+      "speechToTextDesc": "启用语音输入以提高无障碍性"
+    },
+    "notifications": {
+      "emailTitle": "邮件通知",
+      "appTitle": "应用通知",
+      "newCourses": "新课程",
+      "newCoursesDesc": "当有新课程可用时获得通知",
+      "weeklySum": "每周摘要",
+      "weeklySumDesc": "接收每周进度摘要",
+      "aiPrompts": "AI学习提示",
+      "aiPromptsDesc": "获得个性化学习建议",
+      "pushNotifications": "推送通知",
+      "pushNotificationsDesc": "在您的设备上接收通知",
+      "studyStreak": "学习连击提醒",
+      "studyStreakDesc": "获得保持学习连击的提醒",
+      "moduleNudges": "模块完成提醒",
+      "moduleNudgesDesc": "温和提醒完成进行中的模块"
+    },
+    "security": {
+      "title": "安全设置",
+      "twoFactor": "双因素认证",
+      "twoFactorDesc": "为您的账户添加额外的安全层"
+    },
+    "integrations": {
+      "title": "外部集成",
+      "googleCalendar": "Google日历",
+      "googleDesc": "将您的学习计划与Google日历同步",
+      "outlookCalendar": "Outlook日历",
+      "outlookDesc": "将您的学习计划与Outlook日历同步"
     }
+  },
+  "preview": {
+    "title": "实时预览",
+    "description": "查看您的无障碍设置如何影响显示",
+    "fontLabel": "字体",
+    "sizeLabel": "大小",
+    "spacingLabel": "间距",
+    "contrastLabel": "对比度",
+    "comfortLabel": "舒适模式",
+    "sampleTitle": "示例学习内容",
+    "sampleText": "这是您当前设置下学习内容的显示方式。您可以调整字体、大小、间距和其他偏好设置，以创造最舒适的阅读体验。"
   }
 }

@@ -154,10 +154,102 @@
     "register": "S'Inscrire"
   },
   "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez vos préférences de compte et votre expérience d'apprentissage",
+    "saving": "Sauvegarde...",
+    "autoSavePending": "Sauvegarde automatique en attente...",
+    "allChangesSaved": "Tous les changements sauvegardés",
+    "restoreDefaults": "Restaurer les Valeurs par Défaut",
+    "settingsRestored": "Paramètres Restaurés",
+    "defaultsMessage": "Tous les paramètres ont été restaurés à leurs valeurs par défaut",
+    "tabs": {
+      "profile": "Profil",
+      "language": "Langue",
+      "accessibility": "Accessibilité",
+      "notifications": "Notifications",
+      "security": "Sécurité",
+      "integrations": "Intégrations"
+    },
+    "profile": {
+      "title": "Informations du Profil",
+      "fullName": "Nom Complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "displayName": "Nom d'Affichage",
+      "displayNamePlaceholder": "Entrez votre nom d'affichage",
+      "email": "E-mail",
+      "bio": "Biographie",
+      "bioPlaceholder": "Parlez-nous un peu de vous..."
+    },
     "language": {
       "primaryLanguage": "Langue Principale",
       "dualLanguageMode": "Mode Bilingue",
-      "dualLanguageDescription": "Afficher l'anglais à côté de votre langue"
+      "dualLanguageDescription": "Afficher l'anglais à côté de votre langue",
+      "timeFormat": "Format de l'Heure",
+      "dateFormat": "Format de la Date",
+      "timezone": "Fuseau Horaire"
+    },
+    "accessibility": {
+      "title": "Accessibilité et Affichage",
+      "fontFamily": "Famille de Police",
+      "fontHelp": "Choisissez une police confortable à lire",
+      "systemFont": "Système par Défaut",
+      "colorContrast": "Contraste des Couleurs",
+      "standard": "Standard",
+      "highContrast": "Contraste Élevé",
+      "comfortMode": "Mode Confort",
+      "comfortHelp": "Ajustez l'interface pour un confort d'apprentissage optimal",
+      "normal": "Normal",
+      "lowStimulus": "Faible Stimulation",
+      "focusMode": "Mode Focus",
+      "textSize": "Taille du Texte",
+      "small": "Petit",
+      "medium": "Moyen",
+      "large": "Grand",
+      "lineSpacing": "Espacement des Lignes",
+      "compact": "Compact",
+      "comfortable": "Confortable",
+      "airy": "Aéré",
+      "speechToText": "Parole vers Texte",
+      "speechToTextDesc": "Activer la saisie vocale pour une meilleure accessibilité"
+    },
+    "notifications": {
+      "emailTitle": "Notifications E-mail",
+      "appTitle": "Notifications de l'App",
+      "newCourses": "Nouveaux Cours",
+      "newCoursesDesc": "Être notifié lorsque de nouveaux cours sont disponibles",
+      "weeklySum": "Résumé Hebdomadaire",
+      "weeklySumDesc": "Recevoir un résumé hebdomadaire des progrès",
+      "aiPrompts": "Suggestions d'Apprentissage IA",
+      "aiPromptsDesc": "Obtenir des suggestions d'apprentissage personnalisées",
+      "pushNotifications": "Notifications Push",
+      "pushNotificationsDesc": "Recevoir des notifications sur votre appareil",
+      "studyStreak": "Rappels de Série d'Étude",
+      "studyStreakDesc": "Recevoir des rappels pour maintenir votre série d'apprentissage",
+      "moduleNudges": "Rappels de Finalisation de Module",
+      "moduleNudgesDesc": "Rappels doux pour terminer les modules en cours"
+    },
+    "security": {
+      "title": "Paramètres de Sécurité",
+      "twoFactor": "Authentification à Deux Facteurs",
+      "twoFactorDesc": "Ajouter une couche de sécurité supplémentaire à votre compte"
+    },
+    "integrations": {
+      "title": "Intégrations Externes",
+      "googleCalendar": "Google Calendar",
+      "googleDesc": "Synchroniser votre planning d'étude avec Google Calendar",
+      "outlookCalendar": "Outlook Calendar",
+      "outlookDesc": "Synchroniser votre planning d'étude avec Outlook Calendar"
     }
+  },
+  "preview": {
+    "title": "Aperçu en Direct",
+    "description": "Voyez comment vos paramètres d'accessibilité affectent l'affichage",
+    "fontLabel": "Police",
+    "sizeLabel": "Taille",
+    "spacingLabel": "Espacement",
+    "contrastLabel": "Contraste",
+    "comfortLabel": "Mode Confort",
+    "sampleTitle": "Contenu d'Apprentissage d'Exemple",
+    "sampleText": "Voici comment votre contenu d'apprentissage apparaîtra avec vos paramètres actuels. Vous pouvez ajuster la police, la taille, l'espacement et d'autres préférences pour créer l'expérience de lecture la plus confortable pour vous."
   }
 }

@@ -154,10 +154,102 @@
     "register": "Registrarse"
   },
   "settings": {
+    "title": "Configuración",
+    "subtitle": "Gestiona las preferencias de tu cuenta y experiencia de aprendizaje",
+    "saving": "Guardando...",
+    "autoSavePending": "Guardado automático pendiente...",
+    "allChangesSaved": "Todos los cambios guardados",
+    "restoreDefaults": "Restaurar Valores Predeterminados",
+    "settingsRestored": "Configuración Restaurada",
+    "defaultsMessage": "Toda la configuración ha sido restaurada a sus valores predeterminados",
+    "tabs": {
+      "profile": "Perfil",
+      "language": "Idioma",
+      "accessibility": "Accesibilidad",
+      "notifications": "Notificaciones",
+      "security": "Seguridad",
+      "integrations": "Integraciones"
+    },
+    "profile": {
+      "title": "Información del Perfil",
+      "fullName": "Nombre Completo",
+      "fullNamePlaceholder": "Ingresa tu nombre completo",
+      "displayName": "Nombre de Usuario",
+      "displayNamePlaceholder": "Ingresa tu nombre de usuario",
+      "email": "Correo Electrónico",
+      "bio": "Biografía",
+      "bioPlaceholder": "Cuéntanos un poco sobre ti..."
+    },
     "language": {
       "primaryLanguage": "Idioma Principal",
       "dualLanguageMode": "Modo Bilingüe",
-      "dualLanguageDescription": "Mostrar inglés junto a tu idioma"
+      "dualLanguageDescription": "Mostrar inglés junto a tu idioma",
+      "timeFormat": "Formato de Hora",
+      "dateFormat": "Formato de Fecha",
+      "timezone": "Zona Horaria"
+    },
+    "accessibility": {
+      "title": "Accesibilidad y Visualización",
+      "fontFamily": "Familia de Fuente",
+      "fontHelp": "Elige una fuente que sea cómoda para leer",
+      "systemFont": "Predeterminado del Sistema",
+      "colorContrast": "Contraste de Color",
+      "standard": "Estándar",
+      "highContrast": "Alto Contraste",
+      "comfortMode": "Modo Confort",
+      "comfortHelp": "Ajusta la interfaz para una comodidad de aprendizaje óptima",
+      "normal": "Normal",
+      "lowStimulus": "Bajo Estímulo",
+      "focusMode": "Modo Enfoque",
+      "textSize": "Tamaño de Texto",
+      "small": "Pequeño",
+      "medium": "Mediano",
+      "large": "Grande",
+      "lineSpacing": "Espaciado de Línea",
+      "compact": "Compacto",
+      "comfortable": "Cómodo",
+      "airy": "Espacioso",
+      "speechToText": "Voz a Texto",
+      "speechToTextDesc": "Habilitar entrada de voz para mejor accesibilidad"
+    },
+    "notifications": {
+      "emailTitle": "Notificaciones por Correo",
+      "appTitle": "Notificaciones de la App",
+      "newCourses": "Nuevos Cursos",
+      "newCoursesDesc": "Recibir notificaciones cuando haya nuevos cursos disponibles",
+      "weeklySum": "Resumen Semanal",
+      "weeklySumDesc": "Recibir un resumen semanal de progreso",
+      "aiPrompts": "Sugerencias de IA para Aprendizaje",
+      "aiPromptsDesc": "Obtener sugerencias de aprendizaje personalizadas",
+      "pushNotifications": "Notificaciones Push",
+      "pushNotificationsDesc": "Recibir notificaciones en tu dispositivo",
+      "studyStreak": "Recordatorios de Racha de Estudio",
+      "studyStreakDesc": "Recibir recordatorios para mantener tu racha de aprendizaje",
+      "moduleNudges": "Recordatorios de Finalización de Módulos",
+      "moduleNudgesDesc": "Recordatorios suaves para completar módulos en progreso"
+    },
+    "security": {
+      "title": "Configuración de Seguridad",
+      "twoFactor": "Autenticación de Dos Factores",
+      "twoFactorDesc": "Agregar una capa adicional de seguridad a tu cuenta"
+    },
+    "integrations": {
+      "title": "Integraciones Externas",
+      "googleCalendar": "Google Calendar",
+      "googleDesc": "Sincronizar tu horario de estudio con Google Calendar",
+      "outlookCalendar": "Outlook Calendar",
+      "outlookDesc": "Sincronizar tu horario de estudio con Outlook Calendar"
     }
+  },
+  "preview": {
+    "title": "Vista Previa en Vivo",
+    "description": "Ve cómo afectan tus configuraciones de accesibilidad a la visualización",
+    "fontLabel": "Fuente",
+    "sizeLabel": "Tamaño",
+    "spacingLabel": "Espaciado",
+    "contrastLabel": "Contraste",
+    "comfortLabel": "Modo Confort",
+    "sampleTitle": "Contenido de Aprendizaje de Muestra",
+    "sampleText": "Así es como aparecerá tu contenido de aprendizaje con tu configuración actual. Puedes ajustar la fuente, tamaño, espaciado y otras preferencias para crear la experiencia de lectura más cómoda para ti."
   }
 }

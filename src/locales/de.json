@@ -154,10 +154,102 @@
     "register": "Registrieren"
   },
   "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie Ihre Kontopräferenzen und Lernerfahrung",
+    "saving": "Speichern...",
+    "autoSavePending": "Automatisches Speichern ausstehend...",
+    "allChangesSaved": "Alle Änderungen gespeichert",
+    "restoreDefaults": "Standardwerte wiederherstellen",
+    "settingsRestored": "Einstellungen wiederhergestellt",
+    "defaultsMessage": "Alle Einstellungen wurden auf ihre Standardwerte zurückgesetzt",
+    "tabs": {
+      "profile": "Profil",
+      "language": "Sprache",
+      "accessibility": "Barrierefreiheit",
+      "notifications": "Benachrichtigungen",
+      "security": "Sicherheit",
+      "integrations": "Integrationen"
+    },
+    "profile": {
+      "title": "Profilinformationen",
+      "fullName": "Vollständiger Name",
+      "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+      "displayName": "Anzeigename",
+      "displayNamePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
+      "email": "E-Mail",
+      "bio": "Bio",
+      "bioPlaceholder": "Erzählen Sie uns etwas über sich..."
+    },
     "language": {
       "primaryLanguage": "Hauptsprache",
       "dualLanguageMode": "Zweisprachiger Modus",
-      "dualLanguageDescription": "Englisch neben Ihrer Sprache anzeigen"
+      "dualLanguageDescription": "Englisch neben Ihrer Sprache anzeigen",
+      "timeFormat": "Zeitformat",
+      "dateFormat": "Datumsformat",
+      "timezone": "Zeitzone"
+    },
+    "accessibility": {
+      "title": "Barrierefreiheit & Anzeige",
+      "fontFamily": "Schriftfamilie",
+      "fontHelp": "Wählen Sie eine Schrift, die für Sie angenehm zu lesen ist",
+      "systemFont": "Systemstandard",
+      "colorContrast": "Farbkontrast",
+      "standard": "Standard",
+      "highContrast": "Hoher Kontrast",
+      "comfortMode": "Komfortmodus",
+      "comfortHelp": "Passen Sie die Benutzeroberfläche für optimalen Lernkomfort an",
+      "normal": "Normal",
+      "lowStimulus": "Geringe Stimulation",
+      "focusMode": "Fokusmodus",
+      "textSize": "Textgröße",
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß",
+      "lineSpacing": "Zeilenabstand",
+      "compact": "Kompakt",
+      "comfortable": "Komfortabel",
+      "airy": "Luftig",
+      "speechToText": "Sprache zu Text",
+      "speechToTextDesc": "Spracheingabe für bessere Barrierefreiheit aktivieren"
+    },
+    "notifications": {
+      "emailTitle": "E-Mail-Benachrichtigungen",
+      "appTitle": "App-Benachrichtigungen",
+      "newCourses": "Neue Kurse",
+      "newCoursesDesc": "Benachrichtigt werden, wenn neue Kurse verfügbar sind",
+      "weeklySum": "Wöchentliche Zusammenfassung",
+      "weeklySumDesc": "Eine wöchentliche Fortschrittszusammenfassung erhalten",
+      "aiPrompts": "KI-Lernhinweise",
+      "aiPromptsDesc": "Personalisierte Lernvorschläge erhalten",
+      "pushNotifications": "Push-Benachrichtigungen",
+      "pushNotificationsDesc": "Benachrichtigungen auf Ihrem Gerät erhalten",
+      "studyStreak": "Lernserien-Erinnerungen",
+      "studyStreakDesc": "Erinnerungen erhalten, um Ihre Lernserie aufrechtzuerhalten",
+      "moduleNudges": "Modul-Abschluss-Erinnerungen",
+      "moduleNudgesDesc": "Sanfte Erinnerungen zum Abschluss laufender Module"
+    },
+    "security": {
+      "title": "Sicherheitseinstellungen",
+      "twoFactor": "Zwei-Faktor-Authentifizierung",
+      "twoFactorDesc": "Zusätzliche Sicherheitsschicht für Ihr Konto hinzufügen"
+    },
+    "integrations": {
+      "title": "Externe Integrationen",
+      "googleCalendar": "Google Kalender",
+      "googleDesc": "Ihren Lernplan mit Google Kalender synchronisieren",
+      "outlookCalendar": "Outlook Kalender",
+      "outlookDesc": "Ihren Lernplan mit Outlook Kalender synchronisieren"
     }
+  },
+  "preview": {
+    "title": "Live-Vorschau",
+    "description": "Sehen Sie, wie sich Ihre Barrierefreiheitseinstellungen auf die Anzeige auswirken",
+    "fontLabel": "Schrift",
+    "sizeLabel": "Größe",
+    "spacingLabel": "Abstand",
+    "contrastLabel": "Kontrast",
+    "comfortLabel": "Komfortmodus",
+    "sampleTitle": "Beispiel-Lerninhalt",
+    "sampleText": "So wird Ihr Lerninhalt mit Ihren aktuellen Einstellungen angezeigt. Sie können Schrift, Größe, Abstand und andere Präferenzen anpassen, um die angenehmste Leseerfahrung für Sie zu schaffen."
   }
 }

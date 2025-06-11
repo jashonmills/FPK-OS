@@ -154,10 +154,102 @@
     "register": "पंजीकरण"
   },
   "settings": {
+    "title": "सेटिंग्स",
+    "subtitle": "अपने खाते की प्राथमिकताओं और सीखने के अनुभव को प्रबंधित करें",
+    "saving": "सहेजा जा रहा है...",
+    "autoSavePending": "स्वचालित सहेजना लंबित...",
+    "allChangesSaved": "सभी परिवर्तन सहेजे गए",
+    "restoreDefaults": "डिफ़ॉल्ट पुनर्स्थापित करें",
+    "settingsRestored": "सेटिंग्स पुनर्स्थापित",
+    "defaultsMessage": "सभी सेटिंग्स को उनकी डिफ़ॉल्ट मानों पर पुनर्स्थापित कर दिया गया है",
+    "tabs": {
+      "profile": "प्रोफाइल",
+      "language": "भाषा",
+      "accessibility": "पहुंच",
+      "notifications": "सूचनाएं",
+      "security": "सुरक्षा",
+      "integrations": "एकीकरण"
+    },
+    "profile": {
+      "title": "प्रोफाइल जानकारी",
+      "fullName": "पूरा नाम",
+      "fullNamePlaceholder": "अपना पूरा नाम दर्ज करें",
+      "displayName": "प्रदर्शन नाम",
+      "displayNamePlaceholder": "अपना प्रदर्शन नाम दर्ज करें",
+      "email": "ईमेल",
+      "bio": "बायो",
+      "bioPlaceholder": "अपने बारे में कुछ बताएं..."
+    },
     "language": {
       "primaryLanguage": "मुख्य भाषा",
       "dualLanguageMode": "द्विभाषी मोड",
-      "dualLanguageDescription": "अपनी भाषा के साथ अंग्रेजी दिखाएं"
+      "dualLanguageDescription": "अपनी भाषा के साथ अंग्रेजी दिखाएं",
+      "timeFormat": "समय प्रारूप",
+      "dateFormat": "दिनांक प्रारूप",
+      "timezone": "समय क्षेत्र"
+    },
+    "accessibility": {
+      "title": "पहुंच और प्रदर्शन",
+      "fontFamily": "फ़ॉन्ट परिवार",
+      "fontHelp": "एक फ़ॉन्ट चुनें जो आपके लिए पढ़ने में आरामदायक हो",
+      "systemFont": "सिस्टम डिफ़ॉल्ट",
+      "colorContrast": "रंग कंट्रास्ट",
+      "standard": "मानक",
+      "highContrast": "उच्च कंट्रास्ट",
+      "comfortMode": "आराम मोड",
+      "comfortHelp": "इष्टतम सीखने के आराम के लिए इंटरफेस को समायोजित करें",
+      "normal": "सामान्य",
+      "lowStimulus": "कम उत्तेजना",
+      "focusMode": "फोकस मोड",
+      "textSize": "टेक्स्ट का आकार",
+      "small": "छोटा",
+      "medium": "मध्यम",
+      "large": "बड़ा",
+      "lineSpacing": "लाइन स्पेसिंग",
+      "compact": "कॉम्पैक्ट",
+      "comfortable": "आरामदायक",
+      "airy": "हवादार",
+      "speechToText": "भाषण से टेक्स्ट",
+      "speechToTextDesc": "बेहतर पहुंच के लिए वॉयस इनपुट सक्षम करें"
+    },
+    "notifications": {
+      "emailTitle": "ईमेल सूचनाएं",
+      "appTitle": "ऐप सूचनाएं",
+      "newCourses": "नए कोर्स",
+      "newCoursesDesc": "जब नए कोर्स उपलब्ध हों तो सूचना पाएं",
+      "weeklySum": "साप्ताहिक सारांश",
+      "weeklySumDesc": "साप्ताहिक प्रगति सारांश प्राप्त करें",
+      "aiPrompts": "AI सीखने के सुझाव",
+      "aiPromptsDesc": "व्यक्तिगत सीखने के सुझाव प्राप्त करें",
+      "pushNotifications": "पुश सूचनाएं",
+      "pushNotificationsDesc": "अपने डिवाइस पर सूचनाएं प्राप्त करें",
+      "studyStreak": "अध्ययन स्ट्रीक रिमाइंडर",
+      "studyStreakDesc": "अपनी सीखने की स्ट्रीक बनाए रखने के लिए रिमाइंडर पाएं",
+      "moduleNudges": "मॉड्यूल पूर्णता रिमाइंडर",
+      "moduleNudgesDesc": "चल रहे मॉड्यूल को पूरा करने के लिए सुंदर रिमाइंडर"
+    },
+    "security": {
+      "title": "सुरक्षा सेटिंग्स",
+      "twoFactor": "दो-कारक प्रमाणीकरण",
+      "twoFactorDesc": "अपने खाते में सुरक्षा की एक अतिरिक्त परत जोड़ें"
+    },
+    "integrations": {
+      "title": "बाहरी एकीकरण",
+      "googleCalendar": "Google कैलेंडर",
+      "googleDesc": "अपने अध्ययन कार्यक्रम को Google कैलेंडर के साथ सिंक करें",
+      "outlookCalendar": "Outlook कैलेंडर",
+      "outlookDesc": "अपने अध्ययन कार्यक्रम को Outlook कैलेंडर के साथ सिंक करें"
     }
+  },
+  "preview": {
+    "title": "लाइव पूर्वावलोकन",
+    "description": "देखें कि आपकी पहुंच सेटिंग्स डिस्प्ले को कैसे प्रभावित करती हैं",
+    "fontLabel": "फ़ॉन्ट",
+    "sizeLabel": "आकार",
+    "spacingLabel": "स्पेसिंग",
+    "contrastLabel": "कंट्रास्ट",
+    "comfortLabel": "आराम मोड",
+    "sampleTitle": "नमूना सीखने की सामग्री",
+    "sampleText": "आपकी वर्तमान सेटिंग्स के साथ आपकी सीखने की सामग्री इस तरह दिखाई देगी। आप अपने लिए सबसे आरामदायक पढ़ने का अनुभव बनाने के लिए फ़ॉन्ट, आकार, स्पेसिंग और अन्य प्राथमिकताओं को समायोजित कर सकते हैं।"
   }
 }
