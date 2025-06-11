@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,6 +36,8 @@ const UserManagement = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users', searchQuery, roleFilter],
     queryFn: async () => {
+      console.log('Fetching user data...');
+      
       // Get user profiles
       let profileQuery = supabase
         .from('profiles')
@@ -45,6 +48,8 @@ const UserManagement = () => {
       }
 
       const { data: profilesData, error: profilesError } = await profileQuery;
+      console.log('Profiles data:', profilesData);
+      console.log('Profiles error:', profilesError);
 
       if (profilesError) throw profilesError;
 
@@ -52,6 +57,9 @@ const UserManagement = () => {
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
+      
+      console.log('Roles data:', rolesData);
+      console.log('Roles error:', rolesError);
 
       if (rolesError) throw rolesError;
 
@@ -68,9 +76,16 @@ const UserManagement = () => {
         };
       }) || [];
 
-      return transformedUsers.filter(user => 
+      console.log('Transformed users before filtering:', transformedUsers);
+
+      const filteredUsers = transformedUsers.filter(user => 
         roleFilter === 'all' || user.roles.includes(roleFilter)
       );
+
+      console.log('Filtered users:', filteredUsers);
+      console.log('Current role filter:', roleFilter);
+
+      return filteredUsers;
     },
   });
 
@@ -90,6 +105,7 @@ const UserManagement = () => {
       });
     },
     onError: (error) => {
+      console.error('Error assigning role:', error);
       toast({
         title: "Error assigning role",
         description: "Failed to assign role. Please try again.",
@@ -116,6 +132,7 @@ const UserManagement = () => {
       });
     },
     onError: (error) => {
+      console.error('Error removing role:', error);
       toast({
         title: "Error removing role",
         description: "Failed to remove role. Please try again.",
@@ -134,6 +151,10 @@ const UserManagement = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleRoleSelection = (userId: string) => (value: string) => {
+    handleAssignRole(userId, value);
   };
 
   const handleRemoveRole = (userId: string, role: string) => {
@@ -193,6 +214,13 @@ const UserManagement = () => {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">Loading users...</div>
+          ) : users.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No users found.</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Check the browser console for debugging information.
+              </p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -248,7 +276,7 @@ const UserManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Select onValueChange={(role) => handleAssignRole(user.id, role)}>
+                        <Select onValueChange={handleRoleSelection(user.id)}>
                           <SelectTrigger className="w-32">
                             <SelectValue placeholder="Add role" />
                           </SelectTrigger>
