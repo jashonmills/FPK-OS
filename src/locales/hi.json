@@ -13,7 +13,9 @@
     "search": "खोजें",
     "learningDashboard": "शिक्षण डैशबोर्ड",
     "support": "सहायता",
-    "signOut": "लॉगआउट"
+    "signOut": "लॉगआउट",
+    "beta": "बीटा",
+    "back": "वापस"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "शुरुआती"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "लर्निंग स्टेट कोर्स",
+      "description": "लर्निंग स्टेट्स और कॉग्निटिव प्रोसेसेस की बुनियादी बातों में महारत हासिल करें",
+      "playerTitle": "लर्निंग स्टेट कोर्स प्लेयर",
+      "outline": {
+        "intro": "लर्निंग स्टेट्स का परिचय",
+        "cognitiveLoad": "कॉग्निटिव लोड को समझना",
+        "attention": "ध्यान और फोकस प्रबंधन",
+        "memory": "स्मृति गठन और बनाए रखना",
+        "metacognition": "मेटाकॉग्निटिव रणनीतियां"
+      }
+    },
+    "courseOutline": "कोर्स रूपरेखा",
+    "backToCourses": "कोर्स पर वापस जाएं"
+  },
   "goals": {
     "myGoals": "मेरे लक्ष्य",
     "createNew": "लक्ष्य बनाएं",
@@ -112,7 +130,8 @@
     "goals": "लक्ष्य",
     "notes": "नोट्स",
     "settings": "सेटिंग्स",
-    "liveHub": "लाइव लर्निंग हब"
+    "liveHub": "लाइव लर्निंग हब",
+    "dashboard": "डैशबोर्ड"
   },
   "liveHub": {
     "title": "लाइव लर्निंग हब",

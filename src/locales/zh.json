@@ -13,7 +13,9 @@
     "search": "搜索",
     "learningDashboard": "学习仪表板",
     "support": "支持",
-    "signOut": "登出"
+    "signOut": "登出",
+    "beta": "测试版",
+    "back": "返回"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "初学者"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "学习状态课程",
+      "description": "掌握学习状态和认知过程的基础知识",
+      "playerTitle": "学习状态课程播放器",
+      "outline": {
+        "intro": "学习状态介绍",
+        "cognitiveLoad": "理解认知负荷",
+        "attention": "注意力和专注力管理",
+        "memory": "记忆形成和保持",
+        "metacognition": "元认知策略"
+      }
+    },
+    "courseOutline": "课程大纲",
+    "backToCourses": "返回课程"
+  },
   "goals": {
     "myGoals": "我的目标",
     "createNew": "创建目标",
@@ -112,7 +130,8 @@
     "goals": "目标",
     "notes": "笔记",
     "settings": "设置",
-    "liveHub": "实时学习中心"
+    "liveHub": "实时学习中心",
+    "dashboard": "仪表板"
   },
   "liveHub": {
     "title": "实时学习中心",

@@ -13,7 +13,9 @@
     "search": "Buscar",
     "learningDashboard": "Panel de Aprendizaje",
     "support": "Soporte",
-    "signOut": "Cerrar Sesión"
+    "signOut": "Cerrar Sesión",
+    "beta": "Beta",
+    "back": "Atrás"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "Principiante"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "Curso de Estado de Aprendizaje",
+      "description": "Domina los fundamentos de los estados de aprendizaje y procesos cognitivos",
+      "playerTitle": "Reproductor del Curso de Estado de Aprendizaje",
+      "outline": {
+        "intro": "Introducción a los Estados de Aprendizaje",
+        "cognitiveLoad": "Entendiendo la Carga Cognitiva",
+        "attention": "Gestión de Atención y Enfoque",
+        "memory": "Formación y Retención de Memoria",
+        "metacognition": "Estrategias Metacognitivas"
+      }
+    },
+    "courseOutline": "Esquema del Curso",
+    "backToCourses": "Volver a Cursos"
+  },
   "goals": {
     "myGoals": "Mis Objetivos",
     "createNew": "Crear Objetivo",
@@ -112,7 +130,8 @@
     "goals": "Objetivos",
     "notes": "Notas",
     "settings": "Configuración",
-    "liveHub": "Hub de Aprendizaje en Vivo"
+    "liveHub": "Hub de Aprendizaje en Vivo",
+    "dashboard": "Panel"
   },
   "liveHub": {
     "title": "Hub de Aprendizaje en Vivo",

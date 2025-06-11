@@ -13,7 +13,9 @@
     "search": "Rechercher",
     "learningDashboard": "Tableau de Bord d'Apprentissage",
     "support": "Support",
-    "signOut": "Se Déconnecter"
+    "signOut": "Se Déconnecter",
+    "beta": "Bêta",
+    "back": "Retour"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "Novice"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "Cours d'État d'Apprentissage",
+      "description": "Maîtrisez les fondamentaux des états d'apprentissage et des processus cognitifs",
+      "playerTitle": "Lecteur de Cours d'État d'Apprentissage",
+      "outline": {
+        "intro": "Introduction aux États d'Apprentissage",
+        "cognitiveLoad": "Comprendre la Charge Cognitive",
+        "attention": "Gestion de l'Attention et du Focus",
+        "memory": "Formation et Rétention de la Mémoire",
+        "metacognition": "Stratégies Métacognitives"
+      }
+    },
+    "courseOutline": "Plan du Cours",
+    "backToCourses": "Retour aux Cours"
+  },
   "goals": {
     "myGoals": "Mes Objectifs",
     "createNew": "Créer un Objectif",
@@ -112,7 +130,8 @@
     "goals": "Objectifs",
     "notes": "Notes",
     "settings": "Paramètres",
-    "liveHub": "Hub d'Apprentissage en Direct"
+    "liveHub": "Hub d'Apprentissage en Direct",
+    "dashboard": "Tableau de Bord"
   },
   "liveHub": {
     "title": "Hub d'Apprentissage en Direct",

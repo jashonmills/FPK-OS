@@ -13,7 +13,9 @@
     "search": "Search",
     "learningDashboard": "Learning Dashboard",
     "support": "Support",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "beta": "Beta",
+    "back": "Back"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "Beginner"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "Learning State Course",
+      "description": "Master the fundamentals of learning states and cognitive processes",
+      "playerTitle": "Learning State Course Player",
+      "outline": {
+        "intro": "Introduction to Learning States",
+        "cognitiveLoad": "Understanding Cognitive Load",
+        "attention": "Attention and Focus Management",
+        "memory": "Memory Formation and Retention",
+        "metacognition": "Metacognitive Strategies"
+      }
+    },
+    "courseOutline": "Course Outline",
+    "backToCourses": "Back to Courses"
+  },
   "goals": {
     "myGoals": "My Goals",
     "createNew": "Create Goal",
@@ -112,7 +130,8 @@
     "goals": "Goals",
     "notes": "Notes",
     "settings": "Settings",
-    "liveHub": "Live Learning Hub"
+    "liveHub": "Live Learning Hub",
+    "dashboard": "Dashboard"
   },
   "liveHub": {
     "title": "Live Learning Hub",

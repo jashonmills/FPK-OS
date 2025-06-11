@@ -13,7 +13,9 @@
     "search": "Suchen",
     "learningDashboard": "Lern-Dashboard",
     "support": "Support",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "beta": "Beta",
+    "back": "Zurück"
   },
   "dashboard": {
     "myCourses": {
@@ -78,6 +80,22 @@
       "beginner": "Anfänger"
     }
   },
+  "courses": {
+    "learningState": {
+      "title": "Lernzustand-Kurs",
+      "description": "Meistern Sie die Grundlagen der Lernzustände und kognitiven Prozesse",
+      "playerTitle": "Lernzustand-Kurs-Player",
+      "outline": {
+        "intro": "Einführung in Lernzustände",
+        "cognitiveLoad": "Verstehen der kognitiven Belastung",
+        "attention": "Aufmerksamkeits- und Fokusmanagement",
+        "memory": "Gedächtnisbildung und -erhaltung",
+        "metacognition": "Metakognitive Strategien"
+      }
+    },
+    "courseOutline": "Kursübersicht",
+    "backToCourses": "Zurück zu den Kursen"
+  },
   "goals": {
     "myGoals": "Meine Ziele",
     "createNew": "Ziel erstellen",
@@ -112,7 +130,8 @@
     "goals": "Ziele",
     "notes": "Notizen",
     "settings": "Einstellungen",
-    "liveHub": "Live-Lern-Hub"
+    "liveHub": "Live-Lern-Hub",
+    "dashboard": "Dashboard"
   },
   "liveHub": {
     "title": "Live-Lern-Hub",
