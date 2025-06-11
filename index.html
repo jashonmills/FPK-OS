@@ -21,6 +21,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Preload critical accessibility fonts -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/opendyslexic-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsg-1x4gaVQUwaEQbjB_mQ.woff2" as="font" type="font/woff2" crossorigin>
+    
     <!-- System and Standard Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -31,17 +35,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Arial&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-      /* Ensure smooth font transitions */
+      /* Ensure smooth font transitions and mobile optimization */
       * {
         font-display: swap;
-        transition: font-family 0.3s ease, font-size 0.3s ease, line-height 0.3s ease;
+        transition: font-family 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
       }
       
-      /* Preload accessibility font classes */
-      .font-opendyslexic { font-family: 'OpenDyslexic', 'Comic Sans MS', cursive; }
-      .font-arial { font-family: 'Arial', 'Helvetica', sans-serif; }
-      .font-georgia { font-family: 'Georgia', 'Times New Roman', serif; }
-      .font-system { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      /* Preload accessibility font classes with stronger mobile specificity */
+      .font-opendyslexic, 
+      .font-opendyslexic * { 
+        font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important; 
+      }
+      .font-arial, 
+      .font-arial * { 
+        font-family: 'Arial', 'Helvetica', sans-serif !important; 
+      }
+      .font-georgia, 
+      .font-georgia * { 
+        font-family: 'Georgia', 'Times New Roman', serif !important; 
+      }
+      .font-system, 
+      .font-system * { 
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; 
+      }
+      
+      /* Mobile-specific overrides */
+      @media (max-width: 768px) {
+        .accessibility-text-size-override {
+          font-size: var(--mobile-text-size) !important;
+        }
+        
+        .accessibility-line-height-override {
+          line-height: var(--mobile-line-height) !important;
+        }
+        
+        /* Ensure mobile browsers respect font changes */
+        body.accessibility-active,
+        body.accessibility-active * {
+          -webkit-text-size-adjust: 100% !important;
+          text-size-adjust: 100% !important;
+        }
+      }
     </style>
   </head>
 

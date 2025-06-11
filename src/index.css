@@ -56,6 +56,8 @@
     --accessibility-bg: var(--background);
     --accessibility-text: var(--foreground);
     --accessibility-border: var(--border);
+    --mobile-text-size: 1rem;
+    --mobile-line-height: 1.5;
   }
 
   .dark {
@@ -105,32 +107,66 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
-  /* Accessibility font support */
-  .font-opendyslexic {
+  /* Enhanced accessibility font support with mobile optimization */
+  .font-opendyslexic,
+  .font-opendyslexic * {
     font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
   }
 
-  .font-arial {
+  .font-arial,
+  .font-arial * {
     font-family: 'Arial', 'Helvetica', sans-serif !important;
   }
 
-  .font-georgia {
+  .font-georgia,
+  .font-georgia * {
     font-family: 'Georgia', 'Times New Roman', serif !important;
   }
 
-  .font-system {
+  .font-system,
+  .font-system * {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
 
-  /* Global accessibility classes */
+  /* Global accessibility classes with mobile enhancements */
   .accessibility-container {
-    font-family: var(--accessibility-font-family, system-ui);
-    background-color: var(--accessibility-bg);
-    color: var(--accessibility-text);
-    border-color: var(--accessibility-border);
+    font-family: var(--accessibility-font-family, system-ui) !important;
+    background-color: var(--accessibility-bg) !important;
+    color: var(--accessibility-text) !important;
+    border-color: var(--accessibility-border) !important;
+  }
+
+  /* Mobile-specific accessibility overrides */
+  @media (max-width: 768px) {
+    body.accessibility-active {
+      -webkit-text-size-adjust: 100% !important;
+      text-size-adjust: 100% !important;
+    }
+    
+    .accessibility-text-size-override,
+    .accessibility-text-size-override * {
+      font-size: var(--mobile-text-size) !important;
+    }
+    
+    .accessibility-line-height-override,
+    .accessibility-line-height-override * {
+      line-height: var(--mobile-line-height) !important;
+    }
+    
+    /* Override mobile browser defaults */
+    .text-sm { font-size: 0.875rem !important; }
+    .text-base { font-size: 1rem !important; }
+    .text-lg { font-size: 1.125rem !important; }
+    .text-xl { font-size: 1.25rem !important; }
+    .text-2xl { font-size: 1.5rem !important; }
+    
+    .leading-tight { line-height: 1.25 !important; }
+    .leading-normal { line-height: 1.5 !important; }
+    .leading-relaxed { line-height: 1.625 !important; }
+    .leading-loose { line-height: 2 !important; }
   }
 }
 
@@ -150,16 +186,24 @@
     background-clip: text;
   }
 
-  /* Accessibility utilities */
+  /* Enhanced accessibility utilities with mobile support */
   .accessibility-text {
-    font-size: var(--accessibility-text-size, 1rem);
-    line-height: var(--accessibility-line-height, 1.5);
-    color: var(--accessibility-text);
+    font-size: var(--accessibility-text-size, 1rem) !important;
+    line-height: var(--accessibility-line-height, 1.5) !important;
+    color: var(--accessibility-text) !important;
   }
 
   .accessibility-card {
-    background-color: var(--accessibility-bg);
-    color: var(--accessibility-text);
-    border-color: var(--accessibility-border);
+    background-color: var(--accessibility-bg) !important;
+    color: var(--accessibility-text) !important;
+    border-color: var(--accessibility-border) !important;
+  }
+  
+  /* Mobile accessibility utilities */
+  @media (max-width: 768px) {
+    .accessibility-mobile-text {
+      font-size: var(--mobile-text-size) !important;
+      line-height: var(--mobile-line-height) !important;
+    }
   }
 }

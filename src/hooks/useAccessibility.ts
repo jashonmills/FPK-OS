@@ -99,16 +99,49 @@ export const useAccessibility = () => {
 
     setClasses(newClasses);
 
-    // Apply global CSS custom properties
+    // Apply global CSS custom properties with mobile optimization
     const root = document.documentElement;
-    root.style.setProperty('--accessibility-font-family', getFontClass().replace('font-', ''));
+    const fontFamily = getFontClass().replace('font-', '');
+    
+    root.style.setProperty('--accessibility-font-family', fontFamily);
     root.style.setProperty('--accessibility-text-size', getTextSize());
     root.style.setProperty('--accessibility-line-height', getLineHeight().replace('leading-', ''));
+    
+    // Mobile-specific CSS properties
+    const textSizeMap = {
+      'text-sm': '0.875rem',
+      'text-base': '1rem', 
+      'text-lg': '1.125rem',
+      'text-xl': '1.25rem',
+      'text-2xl': '1.5rem'
+    };
+    
+    const lineHeightMap = {
+      'leading-tight': '1.25',
+      'leading-normal': '1.5',
+      'leading-relaxed': '1.625',
+      'leading-loose': '2'
+    };
+    
+    const currentTextSize = textSizeMap[getTextSize() as keyof typeof textSizeMap] || '1rem';
+    const currentLineHeight = lineHeightMap[getLineHeight() as keyof typeof lineHeightMap] || '1.5';
+    
+    root.style.setProperty('--mobile-text-size', currentTextSize);
+    root.style.setProperty('--mobile-line-height', currentLineHeight);
+    
+    // Force mobile repaint if needed
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Use requestAnimationFrame for smoother mobile updates
+      requestAnimationFrame(() => {
+        document.body.classList.add('accessibility-mobile-text');
+      });
+    }
     
   }, [profile]);
 
   const getAccessibilityClasses = (element: 'card' | 'container' | 'text' = 'container') => {
-    const baseClasses = `${classes.fontFamily} ${classes.textSize} ${classes.lineHeight} transition-all duration-300`;
+    const baseClasses = `${classes.fontFamily} ${classes.textSize} ${classes.lineHeight} transition-all duration-200 accessibility-mobile-text`;
     
     switch (element) {
       case 'card':
@@ -124,6 +157,7 @@ export const useAccessibility = () => {
   return {
     classes,
     getAccessibilityClasses,
+    profile,
     isHighContrast: profile?.color_contrast === 'High Contrast',
     comfortMode: profile?.comfort_mode || 'Normal',
     fontFamily: profile?.font_family || 'System',
