@@ -112,7 +112,8 @@ export const useAccessibility = () => {
   }, [profile]);
 
   const getAccessibilityClasses = (element: 'card' | 'container' | 'text' = 'container') => {
-    const baseClasses = `${classes.fontFamily} ${classes.textSize} ${classes.lineHeight} transition-all duration-200`;
+    // Since we now use global CSS, these classes are mainly for fallback
+    const baseClasses = `transition-all duration-200`;
     
     switch (element) {
       case 'card':

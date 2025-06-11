@@ -21,24 +21,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical accessibility fonts -->
-    <link rel="preload" href="https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsg-1x4gaVQUwaEQbjB_mQ.woff2" as="font" type="font/woff2" crossorigin>
-    
-    <!-- System and Standard Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- OpenDyslexic Font - Using a reliable CDN -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/otf/OpenDyslexic-Regular.otf" as="font" type="font/otf" crossorigin>
-    <link rel="preload" href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/otf/OpenDyslexic-Bold.otf" as="font" type="font/otf" crossorigin>
-    
-    <!-- Additional accessibility fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Arial&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load accessibility-friendly fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Open+Sans:wght@400;500;600;700&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-      /* Define OpenDyslexic font face */
+      /* Define OpenDyslexic and other accessibility fonts */
       @font-face {
         font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/otf/OpenDyslexic-Regular.otf') format('opentype');
+        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/otf/OpenDyslexic-Regular.otf') format('opentype'),
+             url('https://opendyslexic.org/files/OpenDyslexic-Regular.otf') format('opentype');
         font-weight: normal;
         font-style: normal;
         font-display: swap;
@@ -46,119 +37,125 @@
       
       @font-face {
         font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/otf/OpenDyslexic-Bold.otf') format('opentype');
+        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/otf/OpenDyslexic-Bold.otf') format('opentype'),
+             url('https://opendyslexic.org/files/OpenDyslexic-Bold.otf') format('opentype');
         font-weight: bold;
         font-style: normal;
         font-display: swap;
       }
 
-      /* CSS Custom Properties for Global Accessibility */
+      /* Global CSS Custom Properties for Accessibility */
       :root {
-        --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --accessibility-font-size: 1rem;
-        --accessibility-line-height: 1.5;
-        --accessibility-font-weight: 400;
+        --global-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --global-font-size: 1rem;
+        --global-line-height: 1.5;
+        --global-font-weight: 400;
+        --accessibility-active: 0;
       }
       
-      /* Global Accessibility Override - Applied when accessibility is active */
-      .accessibility-active *,
-      .accessibility-active {
-        font-family: var(--accessibility-font-family) !important;
-        font-size: var(--accessibility-font-size) !important;
-        line-height: var(--accessibility-line-height) !important;
-        transition: font-family 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
+      /* Universal Accessibility Override - Applied with maximum specificity */
+      html[data-accessibility="active"] *,
+      html[data-accessibility="active"] body,
+      html[data-accessibility="active"] {
+        font-family: var(--global-font-family) !important;
+        font-size: var(--global-font-size) !important;
+        line-height: var(--global-line-height) !important;
       }
       
-      /* Specific font family overrides */
-      .accessibility-active.font-opendyslexic *,
-      .accessibility-active.font-opendyslexic {
-        font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+      /* Font Family Global Overrides */
+      html[data-font="opendyslexic"] *,
+      html[data-font="opendyslexic"] body,
+      html[data-font="opendyslexic"] {
+        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive !important;
       }
       
-      .accessibility-active.font-arial *,
-      .accessibility-active.font-arial {
+      html[data-font="arial"] *,
+      html[data-font="arial"] body,
+      html[data-font="arial"] {
         font-family: 'Arial', 'Helvetica', sans-serif !important;
       }
       
-      .accessibility-active.font-georgia *,
-      .accessibility-active.font-georgia {
+      html[data-font="georgia"] *,
+      html[data-font="georgia"] body,
+      html[data-font="georgia"] {
         font-family: 'Georgia', 'Times New Roman', serif !important;
       }
       
-      .accessibility-active.font-system *,
-      .accessibility-active.font-system {
+      html[data-font="system"] *,
+      html[data-font="system"] body,
+      html[data-font="system"] {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       }
       
-      /* Text size overrides */
-      .accessibility-active.text-sm * {
+      /* Text Size Global Overrides */
+      html[data-text-size="1"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         font-size: 0.875rem !important;
       }
       
-      .accessibility-active.text-base * {
+      html[data-text-size="2"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         font-size: 1rem !important;
       }
       
-      .accessibility-active.text-lg * {
+      html[data-text-size="3"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         font-size: 1.125rem !important;
       }
       
-      .accessibility-active.text-xl * {
+      html[data-text-size="4"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         font-size: 1.25rem !important;
       }
       
-      .accessibility-active.text-2xl * {
+      html[data-text-size="5"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         font-size: 1.5rem !important;
       }
       
-      /* Line height overrides */
-      .accessibility-active.leading-tight * {
+      /* Line Height Global Overrides */
+      html[data-line-spacing="1"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         line-height: 1.25 !important;
       }
       
-      .accessibility-active.leading-normal * {
+      html[data-line-spacing="2"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         line-height: 1.5 !important;
       }
       
-      .accessibility-active.leading-relaxed * {
+      html[data-line-spacing="3"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         line-height: 1.625 !important;
       }
       
-      .accessibility-active.leading-loose * {
+      html[data-line-spacing="4"] *:not(svg):not(path):not(circle):not(rect):not(line) {
         line-height: 2 !important;
       }
       
-      /* Mobile-specific overrides */
-      @media (max-width: 768px) {
-        .accessibility-active *,
-        .accessibility-active {
-          -webkit-text-size-adjust: 100% !important;
-          text-size-adjust: 100% !important;
-        }
-      }
-      
       /* High contrast mode */
-      .accessibility-active.high-contrast * {
+      html[data-contrast="high"] * {
         color: #000000 !important;
         background-color: #ffffff !important;
       }
       
-      /* Focus mode - reduced visual noise */
-      .accessibility-active.focus-mode {
+      /* Focus mode */
+      html[data-comfort="focus"] {
         background-color: #f0f8ff !important;
       }
       
-      .accessibility-active.focus-mode * {
+      html[data-comfort="focus"] * {
         background-color: transparent !important;
       }
       
       /* Low stimulus mode */
-      .accessibility-active.low-stimulus {
+      html[data-comfort="low-stimulus"] {
         background-color: #f9f9f9 !important;
       }
       
-      .accessibility-active.low-stimulus * {
+      html[data-comfort="low-stimulus"] * {
         background-color: transparent !important;
+      }
+      
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        html[data-accessibility="active"] *,
+        html[data-accessibility="active"] body {
+          -webkit-text-size-adjust: 100% !important;
+          text-size-adjust: 100% !important;
+        }
       }
     </style>
   </head>

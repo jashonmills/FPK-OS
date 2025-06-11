@@ -7,10 +7,20 @@ interface AccessibilityProviderProps {
 }
 
 const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children }) => {
-  const { classes, profile } = useAccessibility();
+  const { profile } = useAccessibility();
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile) {
+      console.log('🔧 AccessibilityProvider: No profile, removing accessibility settings');
+      // Remove accessibility attributes when no profile
+      document.documentElement.removeAttribute('data-accessibility');
+      document.documentElement.removeAttribute('data-font');
+      document.documentElement.removeAttribute('data-text-size');
+      document.documentElement.removeAttribute('data-line-spacing');
+      document.documentElement.removeAttribute('data-contrast');
+      document.documentElement.removeAttribute('data-comfort');
+      return;
+    }
 
     console.log('🔧 AccessibilityProvider: Applying global accessibility settings', {
       fontFamily: profile.font_family,
@@ -20,92 +30,85 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       comfortMode: profile.comfort_mode
     });
 
-    const body = document.body;
-    const root = document.documentElement;
+    const html = document.documentElement;
     
-    // Remove all existing accessibility classes
-    body.classList.remove(
-      'accessibility-active',
-      'font-opendyslexic', 'font-arial', 'font-georgia', 'font-system',
-      'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl',
-      'leading-tight', 'leading-normal', 'leading-relaxed', 'leading-loose',
-      'high-contrast', 'focus-mode', 'low-stimulus'
-    );
+    // Set data attributes for CSS selectors
+    html.setAttribute('data-accessibility', 'active');
     
-    // Add the accessibility-active class to enable global overrides
-    body.classList.add('accessibility-active');
+    // Set font family
+    const fontMap: Record<string, string> = {
+      'OpenDyslexic': 'opendyslexic',
+      'Arial': 'arial', 
+      'Georgia': 'georgia',
+      'System': 'system'
+    };
+    html.setAttribute('data-font', fontMap[profile.font_family || 'System'] || 'system');
     
-    // Add font family class
-    body.classList.add(classes.fontFamily);
+    // Set text size
+    html.setAttribute('data-text-size', String(profile.text_size || 2));
     
-    // Add text size class
-    body.classList.add(classes.textSize);
+    // Set line spacing
+    html.setAttribute('data-line-spacing', String(profile.line_spacing || 2));
     
-    // Add line height class
-    body.classList.add(classes.lineHeight);
-    
-    // Add color contrast mode
+    // Set contrast mode
     if (profile.color_contrast === 'High Contrast') {
-      body.classList.add('high-contrast');
+      html.setAttribute('data-contrast', 'high');
+    } else {
+      html.removeAttribute('data-contrast');
     }
     
-    // Add comfort mode classes
-    switch (profile.comfort_mode) {
-      case 'Focus Mode':
-        body.classList.add('focus-mode');
-        break;
-      case 'Low-Stimulus':
-        body.classList.add('low-stimulus');
-        break;
+    // Set comfort mode
+    const comfortMap: Record<string, string> = {
+      'Focus Mode': 'focus',
+      'Low-Stimulus': 'low-stimulus'
+    };
+    if (profile.comfort_mode && comfortMap[profile.comfort_mode]) {
+      html.setAttribute('data-comfort', comfortMap[profile.comfort_mode]);
+    } else {
+      html.removeAttribute('data-comfort');
     }
     
     // Set CSS custom properties for more granular control
-    const fontFamilyMap = {
-      'font-opendyslexic': "'OpenDyslexic', 'Comic Sans MS', cursive",
-      'font-arial': "'Arial', 'Helvetica', sans-serif",
-      'font-georgia': "'Georgia', 'Times New Roman', serif",
-      'font-system': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    const root = document.documentElement;
+    
+    const fontFamilyMap: Record<string, string> = {
+      'OpenDyslexic': "'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive",
+      'Arial': "'Arial', 'Helvetica', sans-serif",
+      'Georgia': "'Georgia', 'Times New Roman', serif",
+      'System': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     };
     
-    const textSizeMap = {
-      'text-sm': '0.875rem',
-      'text-base': '1rem',
-      'text-lg': '1.125rem',
-      'text-xl': '1.25rem',
-      'text-2xl': '1.5rem'
-    };
+    const textSizeMap = ['0.875rem', '1rem', '1.125rem', '1.25rem', '1.5rem'];
+    const lineHeightMap = ['1.25', '1.5', '1.625', '2'];
     
-    const lineHeightMap = {
-      'leading-tight': '1.25',
-      'leading-normal': '1.5',
-      'leading-relaxed': '1.625',
-      'leading-loose': '2'
-    };
+    root.style.setProperty('--global-font-family', fontFamilyMap[profile.font_family || 'System']);
+    root.style.setProperty('--global-font-size', textSizeMap[(profile.text_size || 2) - 1] || '1rem');
+    root.style.setProperty('--global-line-height', lineHeightMap[(profile.line_spacing || 2) - 1] || '1.5');
     
-    // Apply CSS custom properties
-    root.style.setProperty('--accessibility-font-family', fontFamilyMap[classes.fontFamily as keyof typeof fontFamilyMap] || fontFamilyMap['font-system']);
-    root.style.setProperty('--accessibility-font-size', textSizeMap[classes.textSize as keyof typeof textSizeMap] || '1rem');
-    root.style.setProperty('--accessibility-line-height', lineHeightMap[classes.lineHeight as keyof typeof lineHeightMap] || '1.5');
-    
-    console.log('✅ Applied global accessibility classes:', {
-      fontFamily: classes.fontFamily,
-      textSize: classes.textSize,
-      lineHeight: classes.lineHeight,
+    console.log('✅ Applied global accessibility settings:', {
+      dataAttributes: {
+        accessibility: 'active',
+        font: fontMap[profile.font_family || 'System'],
+        textSize: String(profile.text_size || 2),
+        lineSpacing: String(profile.line_spacing || 2),
+        contrast: profile.color_contrast === 'High Contrast' ? 'high' : 'none',
+        comfort: comfortMap[profile.comfort_mode || ''] || 'none'
+      },
       customProperties: {
-        fontFamily: fontFamilyMap[classes.fontFamily as keyof typeof fontFamilyMap],
-        fontSize: textSizeMap[classes.textSize as keyof typeof textSizeMap],
-        lineHeight: lineHeightMap[classes.lineHeight as keyof typeof lineHeightMap]
+        fontFamily: fontFamilyMap[profile.font_family || 'System'],
+        fontSize: textSizeMap[(profile.text_size || 2) - 1],
+        lineHeight: lineHeightMap[(profile.line_spacing || 2) - 1]
       }
     });
     
     // Force repaint for better browser compatibility
     requestAnimationFrame(() => {
-      body.style.transform = 'translateZ(0)';
-      body.offsetHeight; // Trigger reflow
-      body.style.transform = '';
+      document.body.style.transform = 'translateZ(0)';
+      document.body.offsetHeight; // Trigger reflow
+      document.body.style.transform = '';
     });
     
-  }, [classes, profile]);
+  }, [profile]);
 
   return <>{children}</>;
 };
