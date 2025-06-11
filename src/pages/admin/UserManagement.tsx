@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,8 @@ interface UserProfile {
   created_at: string;
   roles: string[];
 }
+
+type UserRole = 'admin' | 'instructor' | 'learner';
 
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -69,7 +70,7 @@ const UserManagement = () => {
   });
 
   const assignRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'instructor' | 'learner' }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: userId, role });
@@ -119,8 +120,15 @@ const UserManagement = () => {
   });
 
   const handleAssignRole = (userId: string, role: string) => {
+    // Type guard to ensure role is valid
     if (role === 'admin' || role === 'instructor' || role === 'learner') {
       assignRoleMutation.mutate({ userId, role });
+    } else {
+      toast({
+        title: "Invalid role",
+        description: "Please select a valid role.",
+        variant: "destructive",
+      });
     }
   };
 
