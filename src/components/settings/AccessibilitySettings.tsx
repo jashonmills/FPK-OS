@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Eye } from 'lucide-react';
+import { Eye, CheckCircle } from 'lucide-react';
+import { useAccessibility } from '@/components/AccessibilityProvider';
 import type { Database } from '@/integrations/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -16,38 +17,74 @@ interface AccessibilitySettingsProps {
 }
 
 const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, onUpdate }) => {
+  const { updateSettings, settings } = useAccessibility();
+
+  const handleFontFamilyChange = (value: string) => {
+    updateSettings({ fontFamily: value });
+    onUpdate({ font_family: value });
+  };
+
+  const handleColorContrastChange = (value: string) => {
+    updateSettings({ colorContrast: value });
+    onUpdate({ color_contrast: value });
+  };
+
+  const handleComfortModeChange = (value: string) => {
+    updateSettings({ comfortMode: value });
+    onUpdate({ comfort_mode: value });
+  };
+
+  const handleTextSizeChange = (value: number[]) => {
+    const size = value[0];
+    updateSettings({ textSize: size });
+    onUpdate({ text_size: size });
+  };
+
+  const handleLineSpacingChange = (value: number[]) => {
+    const spacing = value[0];
+    updateSettings({ lineSpacing: spacing });
+    onUpdate({ line_spacing: spacing });
+  };
+
   return (
     <Card className="fpk-card border-0 shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Eye className="h-5 w-5 text-green-600" />
           Accessibility & Display
+          <div className="flex items-center gap-1 ml-auto text-sm text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            <span>Live Preview Active</span>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
           <Label>Font Family</Label>
           <Select
-            value={profile.font_family || 'System'}
-            onValueChange={(value) => onUpdate({ font_family: value })}
+            value={settings.fontFamily}
+            onValueChange={handleFontFamilyChange}
           >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="System">System Default</SelectItem>
-              <SelectItem value="OpenDyslexic">OpenDyslexic</SelectItem>
+              <SelectItem value="OpenDyslexic">OpenDyslexic (Dyslexia-Friendly)</SelectItem>
               <SelectItem value="Arial">Arial</SelectItem>
               <SelectItem value="Georgia">Georgia</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs text-gray-500 mt-1">
+            Changes apply immediately across the entire app
+          </p>
         </div>
 
         <div>
           <Label>Color Contrast</Label>
           <RadioGroup
-            value={profile.color_contrast || 'Standard'}
-            onValueChange={(value) => onUpdate({ color_contrast: value })}
+            value={settings.colorContrast}
+            onValueChange={handleColorContrastChange}
             className="flex gap-6 mt-2"
           >
             <div className="flex items-center space-x-2">
@@ -64,8 +101,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
         <div>
           <Label>Comfort Mode</Label>
           <RadioGroup
-            value={profile.comfort_mode || 'Normal'}
-            onValueChange={(value) => onUpdate({ comfort_mode: value })}
+            value={settings.comfortMode}
+            onValueChange={handleComfortModeChange}
             className="flex gap-6 mt-2"
           >
             <div className="flex items-center space-x-2">
@@ -84,27 +121,47 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
         </div>
 
         <div>
-          <Label>Text Size: {['Small', 'Medium', 'Large'][(profile.text_size || 2) - 1]}</Label>
+          <Label>Text Size: {['Small', 'Medium', 'Large', 'Extra Large', 'Maximum'][(settings.textSize || 2) - 1]}</Label>
           <Slider
-            value={[profile.text_size || 2]}
-            onValueChange={([value]) => onUpdate({ text_size: value })}
+            value={[settings.textSize]}
+            onValueChange={handleTextSizeChange}
             min={1}
-            max={3}
+            max={5}
             step={1}
             className="mt-2"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Small</span>
+            <span>Medium</span>
+            <span>Large</span>
+            <span>XL</span>
+            <span>Max</span>
+          </div>
         </div>
 
         <div>
-          <Label>Line Spacing: {['Compact', 'Comfortable', 'Airy'][(profile.line_spacing || 2) - 1]}</Label>
+          <Label>Line Spacing: {['Compact', 'Comfortable', 'Airy', 'Extra Airy'][(settings.lineSpacing || 2) - 1]}</Label>
           <Slider
-            value={[profile.line_spacing || 2]}
-            onValueChange={([value]) => onUpdate({ line_spacing: value })}
+            value={[settings.lineSpacing]}
+            onValueChange={handleLineSpacingChange}
             min={1}
-            max={3}
+            max={4}
             step={1}
             className="mt-2"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Compact</span>
+            <span>Comfortable</span>
+            <span>Airy</span>
+            <span>Extra</span>
+          </div>
+        </div>
+
+        <div className="bg-blue-50 p-3 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>💡 Tip:</strong> All changes are applied instantly and saved automatically. 
+            Your preferences will persist across all devices and sessions.
+          </p>
         </div>
       </CardContent>
     </Card>
