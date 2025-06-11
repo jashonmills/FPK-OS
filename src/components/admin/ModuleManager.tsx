@@ -131,32 +131,52 @@ const ModuleManager = () => {
   };
 
   if (courseLoading || modulesLoading) {
-    return <div className="flex items-center justify-center p-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center p-4 md:p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm md:text-base text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!course) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-4 md:p-8">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600">Course Not Found</h2>
-          <p className="text-gray-600">The requested course could not be found.</p>
+          <h2 className="text-lg md:text-xl font-semibold text-red-600 mb-2">Course Not Found</h2>
+          <p className="text-sm md:text-base text-gray-600 mb-4">The requested course could not be found.</p>
+          <Button 
+            onClick={() => navigate('/dashboard/admin/modules')}
+            className="min-h-[44px] text-sm md:text-base touch-manipulation"
+          >
+            Select a Course
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" onClick={() => navigate('/dashboard/admin/courses')}>
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/dashboard/admin/courses')}
+          className="w-fit"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Courses
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Module Manager</h1>
-          <p className="text-gray-600">Managing modules for: {course.title}</p>
+        <div className="flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Module Manager</h1>
+          <p className="text-sm md:text-base text-gray-600">Managing modules for: {course.title}</p>
         </div>
-        <Button onClick={() => setIsCreating(true)}>
+        <Button 
+          onClick={() => setIsCreating(true)}
+          className="w-full sm:w-auto min-h-[44px] text-sm md:text-base touch-manipulation"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Module
         </Button>
@@ -165,50 +185,55 @@ const ModuleManager = () => {
       {isCreating && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingModule ? 'Edit Module' : 'Create New Module'}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg md:text-xl">
+              {editingModule ? 'Edit Module' : 'Create New Module'}
+            </CardTitle>
+            <CardDescription className="text-sm md:text-base">
               {editingModule ? 'Update module information and assets' : 'Add a new module to this course'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title">Module Title</Label>
+                  <Label htmlFor="title" className="text-sm md:text-base">Module Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
+                    className="mt-1 min-h-[44px] text-sm md:text-base"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="module_number">Module Number</Label>
+                  <Label htmlFor="module_number" className="text-sm md:text-base">Module Number</Label>
                   <Input
                     id="module_number"
                     type="number"
                     value={formData.module_number}
                     onChange={(e) => setFormData({ ...formData, module_number: parseInt(e.target.value) || 1 })}
                     required
+                    className="mt-1 min-h-[44px] text-sm md:text-base"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-sm md:text-base">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
+                  className="mt-1 text-sm md:text-base"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="content_type">Content Type</Label>
+                  <Label htmlFor="content_type" className="text-sm md:text-base">Content Type</Label>
                   <Select value={formData.content_type} onValueChange={(value) => setFormData({ ...formData, content_type: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-1 min-h-[44px] text-sm md:text-base">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -221,42 +246,46 @@ const ModuleManager = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="duration">Duration (minutes)</Label>
+                  <Label htmlFor="duration" className="text-sm md:text-base">Duration (minutes)</Label>
                   <Input
                     id="duration"
                     type="number"
                     value={formData.duration_minutes}
                     onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
+                    className="mt-1 min-h-[44px] text-sm md:text-base"
                   />
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 sm:mt-6">
                   <Switch
                     id="published"
                     checked={formData.is_published}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
                   />
-                  <Label htmlFor="published">Published</Label>
+                  <Label htmlFor="published" className="text-sm md:text-base">Published</Label>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Module Assets</h3>
+                <h3 className="text-base md:text-lg font-semibold">Module Assets</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Video File */}
                   <div>
-                    <Label htmlFor="video">Video File</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="video" className="text-sm md:text-base">Video File</Label>
+                    <div className="flex gap-2 mt-1">
                       <Input
                         id="video"
                         value={formData.video_url}
                         onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
                         placeholder="Video URL or upload file"
+                        className="min-h-[44px] text-sm md:text-base"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         disabled={isUploading}
+                        className="min-h-[44px] min-w-[44px] touch-manipulation"
                         onClick={() => {
                           const input = document.createElement('input');
                           input.type = 'file';
@@ -273,20 +302,23 @@ const ModuleManager = () => {
                     </div>
                   </div>
 
+                  {/* Audio File */}
                   <div>
-                    <Label htmlFor="audio">Audio File</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="audio" className="text-sm md:text-base">Audio File</Label>
+                    <div className="flex gap-2 mt-1">
                       <Input
                         id="audio"
                         value={formData.audio_url}
                         onChange={(e) => setFormData({ ...formData, audio_url: e.target.value })}
                         placeholder="Audio URL or upload file"
+                        className="min-h-[44px] text-sm md:text-base"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         disabled={isUploading}
+                        className="min-h-[44px] min-w-[44px] touch-manipulation"
                         onClick={() => {
                           const input = document.createElement('input');
                           input.type = 'file';
@@ -303,20 +335,23 @@ const ModuleManager = () => {
                     </div>
                   </div>
 
+                  {/* PDF File */}
                   <div>
-                    <Label htmlFor="pdf">PDF File</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="pdf" className="text-sm md:text-base">PDF File</Label>
+                    <div className="flex gap-2 mt-1">
                       <Input
                         id="pdf"
                         value={formData.pdf_url}
                         onChange={(e) => setFormData({ ...formData, pdf_url: e.target.value })}
                         placeholder="PDF URL or upload file"
+                        className="min-h-[44px] text-sm md:text-base"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         disabled={isUploading}
+                        className="min-h-[44px] min-w-[44px] touch-manipulation"
                         onClick={() => {
                           const input = document.createElement('input');
                           input.type = 'file';
@@ -333,20 +368,23 @@ const ModuleManager = () => {
                     </div>
                   </div>
 
+                  {/* Word Document */}
                   <div>
-                    <Label htmlFor="word">Word Document</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="word" className="text-sm md:text-base">Word Document</Label>
+                    <div className="flex gap-2 mt-1">
                       <Input
                         id="word"
                         value={formData.word_url}
                         onChange={(e) => setFormData({ ...formData, word_url: e.target.value })}
                         placeholder="Word doc URL or upload file"
+                        className="min-h-[44px] text-sm md:text-base"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         disabled={isUploading}
+                        className="min-h-[44px] min-w-[44px] touch-manipulation"
                         onClick={() => {
                           const input = document.createElement('input');
                           input.type = 'file';
@@ -365,11 +403,20 @@ const ModuleManager = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={resetForm}
+                  className="min-h-[44px] text-sm md:text-base touch-manipulation"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isUploading}>
+                <Button 
+                  type="submit" 
+                  disabled={isUploading}
+                  className="min-h-[44px] text-sm md:text-base touch-manipulation"
+                >
                   {editingModule ? 'Update Module' : 'Create Module'}
                 </Button>
               </div>
@@ -378,32 +425,44 @@ const ModuleManager = () => {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="space-y-4 md:space-y-6">
         {modules.map((module) => (
           <Card key={module.id}>
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div className="flex-1">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-base md:text-lg">
                     <span>Module {module.module_number}: {module.title}</span>
-                    <Badge variant={module.is_published ? 'default' : 'secondary'}>
+                    <Badge variant={module.is_published ? 'default' : 'secondary'} className="w-fit">
                       {module.is_published ? 'Published' : 'Draft'}
                     </Badge>
                   </CardTitle>
-                  <CardDescription>{module.description}</CardDescription>
+                  {module.description && (
+                    <CardDescription className="text-sm md:text-base mt-2">{module.description}</CardDescription>
+                  )}
                 </div>
-                <div className="flex space-x-1">
-                  <Button size="sm" variant="ghost" onClick={() => handleEdit(module)}>
+                <div className="flex gap-1">
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => handleEdit(module)}
+                    className="h-9 w-9 p-0 touch-manipulation"
+                  >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(module.id)}>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => handleDelete(module.id)}
+                    className="h-9 w-9 p-0 touch-manipulation"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="font-medium">Type:</span> {module.content_type}
                 </div>
@@ -412,16 +471,21 @@ const ModuleManager = () => {
                 </div>
                 <div>
                   <span className="font-medium">Assets:</span>
-                  <div className="flex space-x-1 mt-1">
-                    {module.video_url && <Badge variant="outline">Video</Badge>}
-                    {module.audio_url && <Badge variant="outline">Audio</Badge>}
-                    {module.pdf_url && <Badge variant="outline">PDF</Badge>}
-                    {module.word_url && <Badge variant="outline">Word</Badge>}
-                    {module.image_url && <Badge variant="outline">Image</Badge>}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {module.video_url && <Badge variant="outline" className="text-xs">Video</Badge>}
+                    {module.audio_url && <Badge variant="outline" className="text-xs">Audio</Badge>}
+                    {module.pdf_url && <Badge variant="outline" className="text-xs">PDF</Badge>}
+                    {module.word_url && <Badge variant="outline" className="text-xs">Word</Badge>}
+                    {module.image_url && <Badge variant="outline" className="text-xs">Image</Badge>}
                   </div>
                 </div>
                 <div>
-                  <Button size="sm" variant="outline" asChild>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    asChild
+                    className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
+                  >
                     <a href={`/dashboard/learner/course/${course.slug}?module=${module.module_number}`} target="_blank">
                       <Eye className="h-4 w-4 mr-1" />
                       Preview
@@ -434,10 +498,13 @@ const ModuleManager = () => {
         ))}
 
         {modules.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No modules yet</h3>
-            <p className="text-gray-600 mb-4">Get started by creating your first module for this course.</p>
-            <Button onClick={() => setIsCreating(true)}>
+          <div className="text-center py-8 md:py-12">
+            <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">No modules yet</h3>
+            <p className="text-sm md:text-base text-gray-600 mb-4">Get started by creating your first module for this course.</p>
+            <Button 
+              onClick={() => setIsCreating(true)}
+              className="min-h-[44px] text-sm md:text-base touch-manipulation"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create First Module
             </Button>
