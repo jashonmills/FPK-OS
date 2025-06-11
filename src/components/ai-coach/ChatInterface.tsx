@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -266,9 +265,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const getStatusIcon = () => {
     switch (connectionStatus) {
-      case 'good': return <Wifi className="h-4 w-4 text-green-500" />;
-      case 'slow': return <Wifi className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <WifiOff className="h-4 w-4 text-red-500" />;
+      case 'good': return <Wifi className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />;
+      case 'slow': return <Wifi className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />;
+      case 'error': return <WifiOff className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />;
     }
   };
 
@@ -281,27 +280,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          AI Learning Coach
-          <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
-            Claude
-          </Badge>
-          {completedSessions.length > 0 && (
-            <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" />
-              Analyzing your data
+    <Card className="h-[500px] sm:h-[600px] flex flex-col">
+      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-3 sm:p-6">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
+            <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <span className="text-sm sm:text-base">AI Learning Coach</span>
+            <Badge variant="secondary" className="ml-2 bg-white/20 text-white text-xs">
+              Claude
             </Badge>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {getStatusIcon()}
-            <span className="text-xs">{getStatusText()}</span>
+            {completedSessions.length > 0 && (
+              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs">
+                <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
+                <span className="hidden sm:inline">Analyzing your data</span>
+                <span className="sm:hidden">Analyzing</span>
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="flex items-center gap-1 sm:gap-2">
+              {getStatusIcon()}
+              <span className="text-xs hidden sm:inline">{getStatusText()}</span>
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20">
-                  <MoreVertical className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20">
+                  <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -324,22 +328,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0 relative overflow-hidden">
         {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
-          <div className="space-y-4 min-w-0">
+        <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
+          <div className="space-y-3 sm:space-y-4 min-w-0">
             {chatHistory.map((msg, index) => (
               <div key={index} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] min-w-0 p-3 rounded-lg ${
+                <div className={`max-w-[85%] sm:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg ${
                   msg.role === 'user' 
-                    ? 'bg-purple-600 text-white ml-4' 
-                    : 'bg-muted text-foreground mr-4'
+                    ? 'bg-purple-600 text-white ml-2 sm:ml-4' 
+                    : 'bg-muted text-foreground mr-2 sm:mr-4'
                 }`}>
                   {msg.role === 'assistant' && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <Brain className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                      <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
                       <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
                     </div>
                   )}
-                  <p className="text-sm break-words overflow-wrap-anywhere min-w-0">{msg.message}</p>
+                  <p className="text-xs sm:text-sm break-words overflow-wrap-anywhere min-w-0">{msg.message}</p>
                   {msg.timestamp && (
                     <p className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -350,14 +354,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             ))}
             {isLoading && (
               <div className="flex justify-start min-w-0">
-                <div className="bg-muted text-foreground p-3 rounded-lg mr-4 min-w-0">
+                <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg mr-2 sm:mr-4 min-w-0">
                   <div className="flex items-center gap-2">
                     <div className="animate-pulse flex space-x-1 flex-shrink-0">
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
-                    <span className="text-sm text-muted-foreground min-w-0">
+                    <span className="text-xs sm:text-sm text-muted-foreground min-w-0">
                       {isAnalyzing ? 'Claude is analyzing...' : 'Claude is thinking...'}
                     </span>
                   </div>
@@ -374,45 +378,45 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onClick={scrollToBottom}
             size="icon"
             variant="outline"
-            className="absolute bottom-20 right-4 rounded-full shadow-lg z-10"
+            className="absolute bottom-16 sm:bottom-20 right-2 sm:right-4 rounded-full shadow-lg z-10 h-8 w-8 sm:h-10 sm:w-10"
           >
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         )}
 
         {/* Chat Input */}
-        <div className="border-t p-4 flex-shrink-0">
-          <div className="flex gap-2">
+        <div className="border-t p-2 sm:p-4 flex-shrink-0">
+          <div className="flex gap-1 sm:gap-2">
             <Input
               placeholder="Ask about your progress, study strategies, or get personalized guidance..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading || isRecording}
-              className="flex-1 min-w-0"
+              className="flex-1 min-w-0 text-sm"
             />
             <Button 
               onClick={handleVoiceRecording}
               disabled={isLoading || isProcessing}
               size="icon"
               variant={isRecording ? "destructive" : "outline"}
-              className={`flex-shrink-0 ${isRecording ? "animate-pulse" : ""}`}
+              className={`flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 ${isRecording ? "animate-pulse" : ""}`}
             >
               {isProcessing ? (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : isRecording ? (
-                <MicOff className="h-4 w-4" />
+                <MicOff className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : (
-                <Mic className="h-4 w-4" />
+                <Mic className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
             </Button>
             <Button 
               onClick={handleSendMessage}
               disabled={isLoading || !chatMessage.trim() || isRecording}
               size="icon"
-              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0"
+              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
           {isRecording && (
@@ -426,7 +430,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </p>
           )}
           {completedSessions.length > 0 && (
-            <p className="text-xs text-purple-600 mt-2 text-center">
+            <p className="text-xs text-purple-600 mt-2 text-center px-2">
               💡 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
             </p>
           )}
