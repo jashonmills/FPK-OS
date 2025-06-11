@@ -46,6 +46,9 @@
       "weeklyTime": "Temps d'Étude Hebdomadaire",
       "noCourseProgress": "Aucune donnée de progrès de cours disponible",
       "noWeeklyTime": "Aucune donnée de temps d'étude disponible",
+      "noStudyTime": "Aucune donnée de temps d'étude",
+      "noStudyTimeDesc": "Commencez à terminer des sessions d'étude pour voir votre progrès ici",
+      "noCourseProgressDesc": "Inscrivez-vous à des cours pour voir le suivi de votre progrès",
       "hours": "heures",
       "minutes": "minutes",
       "week": "Semaine"
@@ -54,13 +57,19 @@
       "personalGoals": "Objectifs Personnels",
       "communityActivity": "Activité de la Communauté",
       "aiInsights": "Aperçus IA",
-      "studyPattern": "Modèle d'Étude"
+      "studyPattern": "Modèle d'Étude",
+      "joinCommunity": "Rejoindre la Communauté",
+      "joinCommunityDesc": "Connectez-vous avec d'autres apprenants et partagez votre progrès",
+      "exploreCommunity": "Explorer la Communauté"
     },
     "welcomeModal": {
       "title": "Bienvenue dans votre Parcours d'Apprentissage",
       "quickSetup": "Configuration Rapide",
+      "quickSetupDesc": "Configurez votre profil et vos préférences pour obtenir des recommandations personnalisées",
       "skipForNow": "Ignorer pour l'instant",
-      "getStarted": "Commencer"
+      "getStarted": "Commencer",
+      "completeProfile": "Compléter le Profil",
+      "remindLater": "Rappeler Plus Tard"
     },
     "badges": {
       "learner": "Apprenant",

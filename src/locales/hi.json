@@ -46,6 +46,9 @@
       "weeklyTime": "साप्ताहिक अध्ययन समय",
       "noCourseProgress": "कोई कोर्स प्रगति डेटा उपलब्ध नहीं",
       "noWeeklyTime": "कोई अध्ययन समय डेटा उपलब्ध नहीं",
+      "noStudyTime": "कोई अध्ययन समय डेटा नहीं",
+      "noStudyTimeDesc": "अपनी प्रगति यहाँ देखने के लिए अध्ययन सत्र पूरे करना शुरू करें",
+      "noCourseProgressDesc": "अपनी प्रगति ट्रैकिंग देखने के लिए कोर्स में नामांकन करें",
       "hours": "घंटे",
       "minutes": "मिनट",
       "week": "सप्ताह"
@@ -54,13 +57,19 @@
       "personalGoals": "व्यक्तिगत लक्ष्य",
       "communityActivity": "समुदायिक गतिविधि",
       "aiInsights": "AI अंतर्दृष्टि",
-      "studyPattern": "अध्ययन पैटर्न"
+      "studyPattern": "अध्ययन पैटर्न",
+      "joinCommunity": "समुदाय में शामिल हों",
+      "joinCommunityDesc": "अन्य शिक्षार्थियों से जुड़ें और अपनी प्रगति साझा करें",
+      "exploreCommunity": "समुदाय का अन्वेषण करें"
     },
     "welcomeModal": {
       "title": "अपनी सीखने की यात्रा में आपका स्वागत है",
       "quickSetup": "त्वरित सेटअप",
+      "quickSetupDesc": "व्यक्तिगत सिफारिशें प्राप्त करने के लिए अपनी प्रोफ़ाइल और प्राथमिकताएं सेट करें",
       "skipForNow": "अभी के लिए छोड़ें",
-      "getStarted": "शुरू करें"
+      "getStarted": "शुरू करें",
+      "completeProfile": "प्रोफ़ाइल पूरी करें",
+      "remindLater": "बाद में याद दिलाएं"
     },
     "badges": {
       "learner": "शिक्षार्थी",

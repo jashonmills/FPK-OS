@@ -46,6 +46,9 @@
       "weeklyTime": "Wöchentliche Lernzeit",
       "noCourseProgress": "Keine Kursfortschrittsdaten verfügbar",
       "noWeeklyTime": "Keine Lernzeitdaten verfügbar",
+      "noStudyTime": "Keine Lernzeitdaten",
+      "noStudyTimeDesc": "Beginnen Sie mit Lernsitzungen, um Ihren Fortschritt hier zu sehen",
+      "noCourseProgressDesc": "Melden Sie sich für Kurse an, um Ihre Fortschrittsverfolgung zu sehen",
       "hours": "Stunden",
       "minutes": "Minuten",
       "week": "Woche"
@@ -54,13 +57,19 @@
       "personalGoals": "Persönliche Ziele",
       "communityActivity": "Community-Aktivität",
       "aiInsights": "KI-Erkenntnisse",
-      "studyPattern": "Lernmuster"
+      "studyPattern": "Lernmuster",
+      "joinCommunity": "Der Community beitreten",
+      "joinCommunityDesc": "Verbinden Sie sich mit anderen Lernenden und teilen Sie Ihren Fortschritt",
+      "exploreCommunity": "Community erkunden"
     },
     "welcomeModal": {
       "title": "Willkommen zu Ihrer Lernreise",
       "quickSetup": "Schnelle Einrichtung",
+      "quickSetupDesc": "Richten Sie Ihr Profil und Ihre Präferenzen ein, um personalisierte Empfehlungen zu erhalten",
       "skipForNow": "Vorerst überspringen",
-      "getStarted": "Loslegen"
+      "getStarted": "Loslegen",
+      "completeProfile": "Profil vervollständigen",
+      "remindLater": "Später erinnern"
     },
     "badges": {
       "learner": "Lerner",

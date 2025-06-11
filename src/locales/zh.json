@@ -46,6 +46,9 @@
       "weeklyTime": "每周学习时间",
       "noCourseProgress": "无课程进度数据",
       "noWeeklyTime": "无学习时间数据",
+      "noStudyTime": "无学习时间数据",
+      "noStudyTimeDesc": "开始完成学习会话以在此查看您的进度",
+      "noCourseProgressDesc": "注册课程以查看您的进度跟踪",
       "hours": "小时",
       "minutes": "分钟",
       "week": "周"
@@ -54,13 +57,19 @@
       "personalGoals": "个人目标",
       "communityActivity": "社区活动",
       "aiInsights": "AI洞察",
-      "studyPattern": "学习模式"
+      "studyPattern": "学习模式",
+      "joinCommunity": "加入社区",
+      "joinCommunityDesc": "与其他学习者联系并分享您的进度",
+      "exploreCommunity": "探索社区"
     },
     "welcomeModal": {
       "title": "欢迎开始您的学习之旅",
       "quickSetup": "快速设置",
+      "quickSetupDesc": "设置您的个人资料和偏好以获得个性化推荐",
       "skipForNow": "暂时跳过",
-      "getStarted": "开始"
+      "getStarted": "开始",
+      "completeProfile": "完善资料",
+      "remindLater": "稍后提醒"
     },
     "badges": {
       "learner": "学习者",
