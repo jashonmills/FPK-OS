@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -30,11 +29,17 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
       const { data: profiles, error: profilesError } = await profileQuery;
       if (profilesError) throw profilesError;
 
-      // Get auth users data to get real emails
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) {
-        console.error('Error fetching auth users:', authError);
-        // Fall back to mock emails if we can't fetch auth data
+      // Get auth users data to get real emails - handle potential permission issues
+      let authUsersData: any[] = [];
+      try {
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        if (authError) {
+          console.error('Error fetching auth users:', authError);
+        } else {
+          authUsersData = authUsers?.users || [];
+        }
+      } catch (error) {
+        console.error('Failed to fetch auth users - admin permissions may be required:', error);
       }
 
       // Get user roles
@@ -46,7 +51,7 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
       // Combine data
       const usersWithRoles: User[] = profiles?.map(profile => {
         const userRoles = roles?.filter(role => role.user_id === profile.id) || [];
-        const authUser = authUsers?.users?.find(user => user.id === profile.id);
+        const authUser = authUsersData.find((user: any) => user.id === profile.id);
         
         return {
           id: profile.id,
