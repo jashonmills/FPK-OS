@@ -31,70 +31,73 @@ export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isR
 
   return (
     <div className={`${tableClasses} accessibility-mobile-override`}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className={textClasses}>User</TableHead>
-            <TableHead className={textClasses}>Email</TableHead>
-            <TableHead className={textClasses}>Roles</TableHead>
-            <TableHead className={textClasses}>Created</TableHead>
-            <TableHead className={textClasses}>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>
-                <div>
-                  <div className={`font-medium ${textClasses}`}>{user.full_name}</div>
-                  <div className={`text-sm text-muted-foreground ${textClasses}`}>{user.display_name}</div>
-                </div>
-              </TableCell>
-              <TableCell className={textClasses}>{user.email}</TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  {user.roles.map((role) => (
-                    <div key={role} className="flex items-center gap-1">
-                      <Badge variant={getRoleBadgeVariant(role)} className={textClasses}>
-                        {role}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 p-0"
-                        onClick={() => onRemoveRole(user.id, role)}
-                        disabled={isRemoving}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell className={textClasses}>
-                {new Date(user.created_at).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                <Select onValueChange={(value) => handleRoleAssign(user.id, value)}>
-                  <SelectTrigger className={`w-32 ${textClasses}`}>
-                    <SelectValue placeholder="Add role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AVAILABLE_ROLES.filter(role => !user.roles.includes(role)).map((role) => (
-                      <SelectItem key={role} value={role} className={textClasses}>
-                        <div className="flex items-center gap-2">
-                          <Plus className="h-3 w-3" />
-                          {role}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
+      <div className="min-w-full">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={`${textClasses} text-left`}>User</TableHead>
+              <TableHead className={`${textClasses} text-left hidden sm:table-cell`}>Email</TableHead>
+              <TableHead className={`${textClasses} text-left`}>Roles</TableHead>
+              <TableHead className={`${textClasses} text-left hidden md:table-cell`}>Created</TableHead>
+              <TableHead className={`${textClasses} text-left`}>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <div>
+                    <div className={`font-medium ${textClasses} text-sm sm:text-base`}>{user.full_name}</div>
+                    <div className={`text-xs sm:text-sm text-muted-foreground ${textClasses}`}>{user.display_name}</div>
+                    <div className={`text-xs text-muted-foreground sm:hidden ${textClasses}`}>{user.email}</div>
+                  </div>
+                </TableCell>
+                <TableCell className={`${textClasses} hidden sm:table-cell`}>{user.email}</TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {user.roles.map((role) => (
+                      <div key={role} className="flex items-center gap-1">
+                        <Badge variant={getRoleBadgeVariant(role)} className={`${textClasses} text-xs`}>
+                          {role}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-4 w-4 p-0"
+                          onClick={() => onRemoveRole(user.id, role)}
+                          disabled={isRemoving}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell className={`${textClasses} hidden md:table-cell text-sm`}>
+                  {new Date(user.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Select onValueChange={(value) => handleRoleAssign(user.id, value)}>
+                    <SelectTrigger className={`w-full sm:w-32 ${textClasses} text-xs sm:text-sm`}>
+                      <SelectValue placeholder="Add role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AVAILABLE_ROLES.filter(role => !user.roles.includes(role)).map((role) => (
+                        <SelectItem key={role} value={role} className={textClasses}>
+                          <div className="flex items-center gap-2">
+                            <Plus className="h-3 w-3" />
+                            {role}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

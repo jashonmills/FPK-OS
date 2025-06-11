@@ -28,7 +28,7 @@ const AdminDashboard = () => {
 
   if (!isAdmin) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <Alert>
           <AlertDescription>
             Access denied. You need administrator privileges to view this page.
@@ -70,21 +70,21 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Manage your FPK University learning platform
           </p>
         </div>
-        <Button className="fpk-gradient text-white">
+        <Button className="fpk-gradient text-white w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Quick Actions
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {adminCards.map((card, index) => (
           <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={card.action}
-                className="w-full"
+                className="w-full min-h-[40px]"
               >
                 {card.actionLabel}
               </Button>
@@ -110,13 +110,13 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               Recent platform activity will appear here.
             </p>
           </CardContent>
@@ -124,21 +124,21 @@ const AdminDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>System Status</CardTitle>
+            <CardTitle className="text-lg md:text-xl">System Status</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Platform Status</span>
-                <span className="text-green-600">Online</span>
+                <span className="text-sm md:text-base">Platform Status</span>
+                <span className="text-green-600 text-sm md:text-base">Online</span>
               </div>
               <div className="flex justify-between">
-                <span>Database</span>
-                <span className="text-green-600">Connected</span>
+                <span className="text-sm md:text-base">Database</span>
+                <span className="text-green-600 text-sm md:text-base">Connected</span>
               </div>
               <div className="flex justify-between">
-                <span>Authentication</span>
-                <span className="text-green-600">Active</span>
+                <span className="text-sm md:text-base">Authentication</span>
+                <span className="text-green-600 text-sm md:text-base">Active</span>
               </div>
             </div>
           </CardContent>

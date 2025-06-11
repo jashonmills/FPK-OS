@@ -18,7 +18,7 @@ const UserManagement = () => {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -30,15 +30,15 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">User Management</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Manage users, roles, and permissions
           </p>
         </div>
-        <Button className="fpk-gradient text-white">
+        <Button className="fpk-gradient text-white w-full sm:w-auto">
           <UserPlus className="h-4 w-4 mr-2" />
           Invite User
         </Button>
@@ -46,8 +46,8 @@ const UserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>User Directory</CardTitle>
-          <div className="flex gap-4">
+          <CardTitle className="text-lg md:text-xl">User Directory</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -58,7 +58,7 @@ const UserManagement = () => {
               />
             </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
@@ -88,13 +88,15 @@ const UserManagement = () => {
                 Found {users.length} user{users.length !== 1 ? 's' : ''}
                 {roleFilter !== 'all' && ` with role: ${roleFilter}`}
               </div>
-              <UsersTable
-                users={users}
-                onAssignRole={assignRole}
-                onRemoveRole={removeRole}
-                isAssigning={isAssigning}
-                isRemoving={isRemoving}
-              />
+              <div className="overflow-x-auto">
+                <UsersTable
+                  users={users}
+                  onAssignRole={assignRole}
+                  onRemoveRole={removeRole}
+                  isAssigning={isAssigning}
+                  isRemoving={isRemoving}
+                />
+              </div>
             </div>
           )}
         </CardContent>
