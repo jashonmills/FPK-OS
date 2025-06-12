@@ -157,26 +157,26 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4">
+    <Sidebar className="sidebar-enhanced border-r border-sidebar-border">
+      <SidebarHeader className="p-4 bg-transparent">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
             <span className="text-white font-bold text-sm">FPK</span>
           </div>
           <div>
-            <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
-            <p className="text-xs text-sidebar-foreground/70">
+            <h2 className="font-bold text-white">FPK University</h2>
+            <p className="text-xs text-white/70">
               <DualLanguageText translationKey="common.learnerPortal" />
-              {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
+              {isAdmin && <span className="ml-1 text-amber-300">(Admin)</span>}
             </p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 bg-transparent">
         {(isAdmin || isInstructor) && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+            <SidebarGroupLabel className="text-white/70 font-medium mb-2">
               Administration
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -185,10 +185,10 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 
-                      className={`w-full transition-colors ${
+                      className={`w-full transition-colors text-white hover:bg-white/10 ${
                         isActive(item.url) 
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                          ? 'bg-white/20 text-white' 
+                          : 'hover:bg-white/10'
                       }`}
                     >
                       <button
@@ -207,7 +207,7 @@ export function AppSidebar() {
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+          <SidebarGroupLabel className="text-white/70 font-medium mb-2">
             <DualLanguageText translationKey="common.learningDashboard" />
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -216,10 +216,10 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    className={`w-full transition-colors ${
+                    className={`w-full transition-colors text-white hover:bg-white/10 ${
                       isActive(item.url) 
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                        ? 'bg-white/20 text-white' 
+                        : 'hover:bg-white/10'
                     }`}
                   >
                     <button
@@ -237,7 +237,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className="mt-8">
-          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+          <SidebarGroupLabel className="text-white/70 font-medium mb-2">
             <DualLanguageText translationKey="common.support" />
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -246,10 +246,10 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    className={`w-full transition-colors ${
+                    className={`w-full transition-colors text-white hover:bg-white/10 ${
                       isActive(item.url) 
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                        ? 'bg-white/20 text-white' 
+                        : 'hover:bg-white/10'
                     }`}
                   >
                     <button
@@ -267,24 +267,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
+      <SidebarFooter className="p-4 border-t border-white/20 bg-transparent">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
-            <AvatarFallback className="fpk-gradient text-white text-sm font-semibold">
+            <AvatarFallback className="bg-white/20 text-white text-sm font-semibold">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">{getUserEmail()}</p>
+            <p className="text-sm font-medium text-white truncate">{getDisplayName()}</p>
+            <p className="text-xs text-white/70 truncate">{getUserEmail()}</p>
           </div>
         </div>
         <Button 
           onClick={handleLogout}
           variant="outline" 
           size="sm" 
-          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
+          className="w-full text-white border-white/30 hover:bg-white/10 bg-transparent"
         >
           <DualLanguageText translationKey="common.signOut" />
         </Button>
