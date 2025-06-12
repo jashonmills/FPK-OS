@@ -21,29 +21,29 @@ const DashboardContent = () => {
   console.log('🏠 DashboardLayout: Applied classes:', dashboardClasses);
   
   return (
-    <div className={`min-h-screen flex w-full ${dashboardClasses} accessibility-mobile-override`}>
+    <div className={`min-h-screen flex w-full bg-gradient-to-br from-background to-secondary/20 ${dashboardClasses} accessibility-mobile-override`}>
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header that spans full width */}
-        <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="sticky top-0 z-50 w-full dashboard-header">
           <div className={`flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 ${getAccessibilityClasses('container')}`}>
             {/* Left side - Sidebar trigger and brand */}
             <div className="flex items-center gap-2 sm:gap-3">
               <SidebarTrigger className="hover:text-primary h-8 w-8 sm:h-auto sm:w-auto" />
               <div className="hidden sm:flex items-center gap-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 fpk-gradient rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 fpk-gradient-bg rounded-lg flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-xs sm:text-sm">FPK</span>
                 </div>
-                <span className={`font-semibold text-base sm:text-lg ${getAccessibilityClasses('text')}`}>
+                <span className={`font-semibold text-base sm:text-lg fpk-gradient-text ${getAccessibilityClasses('text')}`}>
                   <DualLanguageText translationKey="common.learnerPortal" />
                 </span>
               </div>
               {/* Mobile brand */}
               <div className="sm:hidden flex items-center gap-2">
-                <div className="w-6 h-6 fpk-gradient rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 fpk-gradient-bg rounded-lg flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-xs">FPK</span>
                 </div>
-                <span className={`font-semibold text-sm ${getAccessibilityClasses('text')}`}>
+                <span className={`font-semibold text-sm fpk-gradient-text ${getAccessibilityClasses('text')}`}>
                   Learner Portal
                 </span>
               </div>
@@ -57,7 +57,7 @@ const DashboardContent = () => {
                 </div>
                 <input
                   placeholder="Search courses, goals..."
-                  className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border border-input rounded-md text-xs sm:text-sm ${getAccessibilityClasses('text')}`}
+                  className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-card/80 border border-border/50 rounded-lg text-xs sm:text-sm shadow-sm backdrop-blur-sm ${getAccessibilityClasses('text')}`}
                 />
               </div>
             </div>
@@ -80,7 +80,7 @@ const DashboardContent = () => {
         </div>
         
         {/* Main content area with accessibility classes */}
-        <main className={`flex-1 overflow-auto ${dashboardClasses} accessibility-mobile-override`}>
+        <main className={`flex-1 overflow-auto bg-gradient-to-br from-background via-background to-secondary/10 ${dashboardClasses} accessibility-mobile-override`}>
           <Outlet />
         </main>
       </div>

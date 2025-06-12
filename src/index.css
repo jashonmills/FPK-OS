@@ -229,15 +229,17 @@ html[data-font-family] .font-mono {
     @apply text-white border-0 hover:opacity-90 transition-all duration-200 shadow-lg;
   }
 
-  /* Beautiful FPK Sidebar with Purple Gradient */
-  .sidebar-enhanced {
+  /* Beautiful FPK Sidebar with Purple Gradient - Force override */
+  [data-sidebar="sidebar"] {
     background: linear-gradient(180deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-purple))/90% 50%, hsl(var(--fpk-purple))/80% 100%) !important;
-    backdrop-filter: blur(10px);
-    border-right: 1px solid hsl(var(--fpk-purple)/30%);
+    backdrop-filter: blur(10px) !important;
+    border-right: 1px solid hsl(var(--fpk-purple)/30%) !important;
   }
 
-  /* Override sidebar background globally */
-  [data-sidebar="sidebar"] {
+  /* Force sidebar background on all sidebar elements */
+  .sidebar-enhanced,
+  [data-sidebar="sidebar"],
+  .sidebar-enhanced [data-sidebar="sidebar"] {
     background: linear-gradient(180deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-purple))/90% 50%, hsl(var(--fpk-purple))/80% 100%) !important;
   }
 
