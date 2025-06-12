@@ -62,17 +62,17 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       lineHeightValue
     });
 
-    // Set CSS variables on the root element with !important
-    root.style.setProperty('--accessibility-font-family', selectedFont);
-    root.style.setProperty('--accessibility-font-size', fontSize);
-    root.style.setProperty('--accessibility-line-height', lineHeight);
-    root.style.setProperty('--mobile-text-size', fontSize);
-    root.style.setProperty('--mobile-line-height', lineHeight);
+    // Set CSS variables on the root element with maximum priority
+    root.style.setProperty('--accessibility-font-family', selectedFont, 'important');
+    root.style.setProperty('--accessibility-font-size', fontSize, 'important');
+    root.style.setProperty('--accessibility-line-height', lineHeight, 'important');
+    root.style.setProperty('--mobile-text-size', fontSize, 'important');
+    root.style.setProperty('--mobile-line-height', lineHeight, 'important');
     
     // Apply main accessibility class to activate the CSS
     body.classList.add('fpk-accessibility-active');
     
-    // Apply specific font class for fallback
+    // Apply specific font class for additional targeting
     const fontClass = `fpk-font-${(profile.font_family || 'system').toLowerCase()}`;
     body.classList.add(fontClass);
     console.log('🎨 Applied font class:', fontClass);
@@ -80,36 +80,23 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     // Apply contrast mode
     if (profile.color_contrast === 'High') {
       body.classList.add('fpk-high-contrast');
-      root.style.setProperty('--accessibility-text', '#000000');
-      root.style.setProperty('--accessibility-bg', '#ffffff');
       console.log('🎨 Applied high contrast mode');
-    } else {
-      body.classList.remove('fpk-high-contrast');
-      root.style.setProperty('--accessibility-text', 'var(--foreground)');
-      root.style.setProperty('--accessibility-bg', 'var(--background)');
     }
     
     // Apply comfort mode
     body.classList.remove('fpk-focus-mode', 'fpk-low-stimulus');
     if (profile.comfort_mode === 'Focus Mode') {
       body.classList.add('fpk-focus-mode');
-      root.style.setProperty('--accessibility-bg', '#eff6ff');
-      root.style.setProperty('--accessibility-border', '#dbeafe');
       console.log('🎨 Applied focus mode');
     } else if (profile.comfort_mode === 'Low-Stimulus') {
       body.classList.add('fpk-low-stimulus');
-      root.style.setProperty('--accessibility-bg', '#f9fafb');
-      root.style.setProperty('--accessibility-border', '#f3f4f6');
       console.log('🎨 Applied low-stimulus mode');
-    } else {
-      root.style.setProperty('--accessibility-bg', 'var(--background)');
-      root.style.setProperty('--accessibility-border', 'var(--border)');
     }
     
-    // Force immediate style application
-    body.style.fontFamily = selectedFont;
-    body.style.fontSize = fontSize;
-    body.style.lineHeight = lineHeight;
+    // Force immediate style application to body
+    body.style.setProperty('font-family', selectedFont, 'important');
+    body.style.setProperty('font-size', fontSize, 'important');
+    body.style.setProperty('line-height', lineHeight, 'important');
     
     console.log('✅ Applied CSS variables:', {
       fontFamily: root.style.getPropertyValue('--accessibility-font-family'),
@@ -125,8 +112,12 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     
     console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
     
-    // Force a repaint to ensure changes are visible
-    body.offsetHeight;
+    // Force multiple repaints to ensure changes are visible
+    body.style.transform = 'translateZ(0)';
+    requestAnimationFrame(() => {
+      body.style.transform = '';
+      body.offsetHeight; // Force reflow
+    });
     
   }, [profile]);
 

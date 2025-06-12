@@ -33,62 +33,65 @@
         --mobile-line-height: 1.5;
       }
       
-      /* GLOBAL ACCESSIBILITY OVERRIDES - MAXIMUM PRIORITY */
-      body.fpk-accessibility-active,
-      body.fpk-accessibility-active *,
-      body.fpk-accessibility-active *:not(svg) {
+      /* MAXIMUM PRIORITY ACCESSIBILITY OVERRIDES */
+      body.fpk-accessibility-active *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse):not(defs):not(g):not(use):not(symbol):not(marker):not(clipPath):not(mask):not(pattern):not(image):not(switch):not(foreignObject):not(text):not(tspan):not(textPath):not(altGlyph):not(altGlyphDef):not(altGlyphItem):not(glyph):not(glyphRef):not(font):not(font-face):not(font-face-format):not(font-face-name):not(font-face-src):not(font-face-uri):not(hkern):not(vkern):not(missing-glyph):not(feFuncA):not(feFuncB):not(feFuncG):not(feFuncR):not(feBlend):not(feColorMatrix):not(feComponentTransfer):not(feComposite):not(feConvolveMatrix):not(feDiffuseLighting):not(feDisplacementMap):not(feDistantLight):not(feDropShadow):not(feFlood):not(feFuncA):not(feFuncB):not(feFuncG):not(feFuncR):not(feGaussianBlur):not(feImage):not(feMerge):not(feMergeNode):not(feMorphology):not(feOffset):not(fePointLight):not(feSpecularLighting):not(feSpotLight):not(feTile):not(feTurbulence) {
         font-family: var(--accessibility-font-family) !important;
         font-size: var(--accessibility-font-size) !important;
         line-height: var(--accessibility-line-height) !important;
       }
       
-      /* SPECIFIC FONT FAMILY CLASSES AS FALLBACK */
+      /* Apply to body as well */
+      body.fpk-accessibility-active {
+        font-family: var(--accessibility-font-family) !important;
+        font-size: var(--accessibility-font-size) !important;
+        line-height: var(--accessibility-line-height) !important;
+      }
+      
+      /* SPECIFIC FONT FAMILY CLASSES - MAXIMUM PRIORITY */
       body.fpk-font-opendyslexic,
-      body.fpk-font-opendyslexic * {
+      body.fpk-font-opendyslexic *:not(svg):not(path) {
         font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
       }
       
       body.fpk-font-arial,
-      body.fpk-font-arial * {
+      body.fpk-font-arial *:not(svg):not(path) {
         font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
       }
       
       body.fpk-font-georgia,
-      body.fpk-font-georgia * {
+      body.fpk-font-georgia *:not(svg):not(path) {
         font-family: Georgia, "Times New Roman", Times, serif !important;
       }
       
       body.fpk-font-cursive,
-      body.fpk-font-cursive * {
+      body.fpk-font-cursive *:not(svg):not(path) {
         font-family: "Dancing Script", "Brush Script MT", cursive !important;
       }
       
       body.fpk-font-system,
-      body.fpk-font-system * {
+      body.fpk-font-system *:not(svg):not(path) {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
       }
       
-      /* HIGH CONTRAST MODE */
+      /* HIGH CONTRAST MODE - MAXIMUM PRIORITY */
       body.fpk-high-contrast,
-      body.fpk-high-contrast * {
+      body.fpk-high-contrast *:not(svg) {
         color: #000000 !important;
         background-color: #ffffff !important;
+        border-color: #000000 !important;
       }
       
-      body.fpk-high-contrast .bg-background,
-      body.fpk-high-contrast .bg-card,
-      body.fpk-high-contrast [class*="bg-"] {
-        background-color: #ffffff !important;
+      body.fpk-high-contrast svg {
         color: #000000 !important;
+        fill: #000000 !important;
       }
       
-      /* COMFORT MODES */
+      /* COMFORT MODES - MAXIMUM PRIORITY */
       body.fpk-low-stimulus {
         background-color: #f9fafb !important;
       }
       
-      body.fpk-low-stimulus .bg-background,
-      body.fpk-low-stimulus .bg-card {
+      body.fpk-low-stimulus *:not(svg) {
         background-color: #f9fafb !important;
         color: #1f2937 !important;
       }
@@ -97,19 +100,26 @@
         background-color: #eff6ff !important;
       }
       
-      body.fpk-focus-mode .bg-background,
-      body.fpk-focus-mode .bg-card {
+      body.fpk-focus-mode *:not(svg) {
         background-color: #eff6ff !important;
         color: #1e3a8a !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
       }
       
-      /* MOBILE RESPONSIVE OVERRIDES */
+      /* Override Tailwind utilities with accessibility settings */
+      body.fpk-accessibility-active [class*="text-"],
+      body.fpk-accessibility-active [class*="font-"],
+      body.fpk-accessibility-active [class*="leading-"] {
+        font-family: var(--accessibility-font-family) !important;
+        font-size: var(--accessibility-font-size) !important;
+        line-height: var(--accessibility-line-height) !important;
+      }
+      
+      /* MOBILE RESPONSIVE OVERRIDES - MAXIMUM PRIORITY */
       @media screen and (max-width: 768px) {
         body.fpk-accessibility-active,
-        body.fpk-accessibility-active *,
+        body.fpk-accessibility-active *:not(svg),
         .accessibility-mobile-override,
-        .accessibility-mobile-override * {
+        .accessibility-mobile-override *:not(svg) {
           font-size: var(--mobile-text-size) !important;
           line-height: var(--mobile-line-height) !important;
         }
@@ -129,6 +139,12 @@
         z-index: 9999;
         pointer-events: none;
         opacity: 0.8;
+        font-family: system-ui !important;
+      }
+      
+      /* Force repaint for better rendering */
+      body.fpk-accessibility-active {
+        transform: translateZ(0);
       }
     </style>
   </head>
