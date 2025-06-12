@@ -185,14 +185,19 @@ html[data-font-family] .font-mono {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-system;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+    min-height: 100vh;
   }
 }
 
 /* Component layer for consistent styling */
 @layer components {
+  /* Enhanced card styles */
   .fpk-card {
-    @apply bg-fpk-card border border-gray-100 rounded-xl shadow-sm;
+    @apply bg-card/95 border border-border/50 rounded-xl shadow-lg backdrop-blur-sm;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card))/95% 100%);
+    border: 1px solid hsl(var(--border)/20%);
   }
   
   .fpk-gradient-bg {
@@ -211,15 +216,47 @@ html[data-font-family] .font-mono {
     background-clip: text;
   }
 
-  /* Enhanced card styles */
+  /* Enhanced card styles with better shadows and gradients */
   .fpk-enhanced-card {
-    @apply bg-card border border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply bg-card/95 border border-border/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary))/30% 100%);
+    backdrop-filter: blur(10px);
   }
 
   /* Button gradient styles */
   .fpk-gradient-button {
     background: linear-gradient(135deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-amber)) 100%);
-    @apply text-white border-0 hover:opacity-90 transition-opacity duration-200;
+    @apply text-white border-0 hover:opacity-90 transition-all duration-200 shadow-lg;
+  }
+
+  /* Sidebar styling */
+  .sidebar-enhanced {
+    background: linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background))/95% 100%);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid hsl(var(--sidebar-border)/30%);
+  }
+
+  /* Admin dashboard specific styling */
+  .admin-card {
+    @apply fpk-enhanced-card hover:scale-[1.02] transition-transform duration-200;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary))/5% 100%);
+  }
+
+  /* Header styling */
+  .dashboard-header {
+    background: linear-gradient(90deg, hsl(var(--background))/95% 0%, hsl(var(--secondary))/50% 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid hsl(var(--border)/30%);
+  }
+
+  /* Navigation improvements */
+  .nav-item {
+    @apply transition-all duration-200 hover:bg-sidebar-accent/50 rounded-lg;
+  }
+
+  .nav-item.active {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+    background: linear-gradient(90deg, hsl(var(--sidebar-accent)) 0%, hsl(var(--primary))/10% 100%);
   }
 }
 
@@ -233,10 +270,89 @@ html[data-font-family] .font-mono {
 
   /* Beautiful hover effects */
   .fpk-hover-lift {
-    @apply transition-transform duration-200 hover:scale-105 hover:shadow-lg;
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-xl;
   }
 
   .fpk-hover-glow {
-    @apply transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25;
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/25;
   }
+
+  /* Dashboard specific utilities */
+  .stat-card {
+    @apply fpk-enhanced-card p-6 text-center hover:shadow-xl transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary))/5% 100%);
+  }
+
+  .metric-value {
+    @apply text-3xl font-bold fpk-gradient-text;
+  }
+
+  .metric-label {
+    @apply text-sm text-muted-foreground font-medium;
+  }
+
+  /* Enhanced buttons */
+  .btn-primary {
+    @apply fpk-gradient-button px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200;
+  }
+
+  /* Beautiful animations */
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+}
+
+/* Beautiful animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chart and visualization styling */
+.recharts-wrapper {
+  @apply rounded-lg overflow-hidden;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: hsl(var(--border));
+  opacity: 0.3;
+}
+
+/* Status indicators */
+.status-online {
+  @apply text-green-600 font-semibold;
+}
+
+.status-connected {
+  @apply text-green-600 font-semibold;
+}
+
+.status-active {
+  @apply text-green-600 font-semibold;
 }
