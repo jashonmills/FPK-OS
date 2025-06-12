@@ -496,13 +496,13 @@ const Settings = () => {
           <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <AccessibilitySettings
-                profile={profile!}
-                onUpdate={(updates) => {
-                  // Update the form data when accessibility settings change
-                  Object.keys(updates).forEach(key => {
-                    handleFormChange(key, updates[key as keyof typeof updates]);
-                  });
-                }}
+                fontFamily={formData.font_family}
+                textSize={formData.text_size}
+                lineSpacing={formData.line_spacing}
+                colorContrast={formData.color_contrast}
+                comfortMode={formData.comfort_mode}
+                speechToTextEnabled={formData.speech_to_text_enabled}
+                onChange={handleFormChange}
               />
 
               <LivePreview

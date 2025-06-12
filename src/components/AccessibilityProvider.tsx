@@ -35,7 +35,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     // Set data attributes for CSS selectors
     html.setAttribute('data-accessibility', 'active');
     
-    // Set font family
+    // Set font family with corrected mapping
     const fontMap: Record<string, string> = {
       'OpenDyslexic': 'opendyslexic',
       'Arial': 'arial', 
@@ -45,10 +45,10 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     };
     html.setAttribute('data-font', fontMap[profile.font_family || 'System'] || 'system');
     
-    // Set text size (1-5 range)
+    // Set text size (1-5 range) with defaults
     html.setAttribute('data-text-size', String(profile.text_size || 3));
     
-    // Set line spacing (1-5 range)
+    // Set line spacing (1-5 range) with defaults
     html.setAttribute('data-line-spacing', String(profile.line_spacing || 3));
     
     // Set contrast mode

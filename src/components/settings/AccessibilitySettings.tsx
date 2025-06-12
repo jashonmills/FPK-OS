@@ -9,16 +9,26 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Eye, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { Database } from '@/integrations/supabase/types';
-
-type Profile = Database['public']['Tables']['profiles']['Row'];
 
 interface AccessibilitySettingsProps {
-  profile: Profile;
-  onUpdate: (updates: Partial<Profile>) => void;
+  fontFamily: string;
+  textSize: number;
+  lineSpacing: number;
+  colorContrast: string;
+  comfortMode: string;
+  speechToTextEnabled: boolean;
+  onChange: (key: string, value: any) => void;
 }
 
-const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, onUpdate }) => {
+const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
+  fontFamily,
+  textSize,
+  lineSpacing,
+  colorContrast,
+  comfortMode,
+  speechToTextEnabled,
+  onChange
+}) => {
   const getTextSizeLabel = (value: number) => {
     const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
     return labels[value - 1] || 'Medium';
@@ -52,8 +62,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
             </Tooltip>
           </div>
           <Select
-            value={profile.font_family || 'System'}
-            onValueChange={(value) => onUpdate({ font_family: value })}
+            value={fontFamily}
+            onValueChange={(value) => onChange('font_family', value)}
           >
             <SelectTrigger>
               <SelectValue />
@@ -72,8 +82,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
         <div className="space-y-3">
           <Label>Color Contrast</Label>
           <RadioGroup
-            value={profile.color_contrast || 'Standard'}
-            onValueChange={(value) => onUpdate({ color_contrast: value })}
+            value={colorContrast}
+            onValueChange={(value) => onChange('color_contrast', value)}
             className="flex gap-6"
           >
             <div className="flex items-center space-x-2">
@@ -101,8 +111,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
             </Tooltip>
           </div>
           <RadioGroup
-            value={profile.comfort_mode || 'Normal'}
-            onValueChange={(value) => onUpdate({ comfort_mode: value })}
+            value={comfortMode}
+            onValueChange={(value) => onChange('comfort_mode', value)}
             className="flex gap-6"
           >
             <div className="flex items-center space-x-2">
@@ -122,10 +132,10 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
 
         {/* Text Size */}
         <div className="space-y-3">
-          <Label>Text Size: {getTextSizeLabel(profile.text_size || 3)}</Label>
+          <Label>Text Size: {getTextSizeLabel(textSize)}</Label>
           <Slider
-            value={[profile.text_size || 3]}
-            onValueChange={([value]) => onUpdate({ text_size: value })}
+            value={[textSize]}
+            onValueChange={([value]) => onChange('text_size', value)}
             min={1}
             max={5}
             step={1}
@@ -142,10 +152,10 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
 
         {/* Line Spacing */}
         <div className="space-y-3">
-          <Label>Line Spacing: {getLineSpacingLabel(profile.line_spacing || 3)}</Label>
+          <Label>Line Spacing: {getLineSpacingLabel(lineSpacing)}</Label>
           <Slider
-            value={[profile.line_spacing || 3]}
-            onValueChange={([value]) => onUpdate({ line_spacing: value })}
+            value={[lineSpacing]}
+            onValueChange={([value]) => onChange('line_spacing', value)}
             min={1}
             max={5}
             step={1}
@@ -170,8 +180,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
           </div>
           <Switch
             id="speech_to_text"
-            checked={profile.speech_to_text_enabled || false}
-            onCheckedChange={(checked) => onUpdate({ speech_to_text_enabled: checked })}
+            checked={speechToTextEnabled}
+            onCheckedChange={(checked) => onChange('speech_to_text_enabled', checked)}
           />
         </div>
       </CardContent>
