@@ -20,7 +20,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const html = document.documentElement;
     const body = document.body;
     
-    console.log('🔧 AccessibilityProvider: Current settings', {
+    console.log('🔧 AccessibilityProvider: Applying settings', {
       font_family: profile.font_family,
       text_size: profile.text_size,
       line_spacing: profile.line_spacing,
@@ -37,7 +37,12 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       body.classList.remove(...existingClasses);
     }
 
-    // Apply font family with both CSS variables and direct inline styles
+    // Remove existing inline styles
+    body.style.removeProperty('font-family');
+    body.style.removeProperty('font-size');
+    body.style.removeProperty('line-height');
+
+    // Apply font family - both class and inline style for maximum effect
     const fontFamilyMap: Record<string, string> = {
       'OpenDyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
       'Arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
@@ -52,21 +57,19 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     
     console.log('🔧 Applying styles:', { selectedFont, fontSize, lineHeight });
     
-    // Set CSS variables
-    html.style.setProperty('--accessibility-font-family', selectedFont);
-    html.style.setProperty('--accessibility-font-size', fontSize);
-    html.style.setProperty('--accessibility-line-height', lineHeight);
-    
-    // Apply direct styles to body and all elements
-    body.style.fontFamily = `${selectedFont} !important`;
-    body.style.fontSize = `${fontSize} !important`;
-    body.style.lineHeight = `${lineHeight} !important`;
-    
-    // Add accessibility classes
+    // Apply CSS classes for specificity
     body.classList.add('fpk-accessibility-active');
     body.classList.add(`fpk-font-${profile.font_family?.toLowerCase() || 'system'}`);
     body.classList.add(`fpk-text-size-${profile.text_size || 3}`);
     body.classList.add(`fpk-line-spacing-${profile.line_spacing || 3}`);
+    
+    // Apply inline styles with !important through style attribute manipulation
+    body.setAttribute('style', `
+      font-family: ${selectedFont} !important;
+      font-size: ${fontSize} !important;
+      line-height: ${lineHeight} !important;
+      ${body.getAttribute('style') || ''}
+    `);
     
     // Apply contrast mode
     if (profile.color_contrast === 'High') {
@@ -81,14 +84,51 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     }
     
     console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
-    console.log('✅ Applied styles:', {
-      fontFamily: body.style.fontFamily,
-      fontSize: body.style.fontSize,
-      lineHeight: body.style.lineHeight
-    });
+    console.log('✅ Applied inline styles:', body.getAttribute('style'));
     
-    // Force a style recalculation
+    // Force a style recalculation and repaint
     body.offsetHeight;
+    document.documentElement.style.display = 'none';
+    document.documentElement.offsetHeight;
+    document.documentElement.style.display = '';
+    
+    // Create a style element to inject global styles as backup
+    let styleElement = document.getElementById('fpk-accessibility-styles');
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = 'fpk-accessibility-styles';
+      document.head.appendChild(styleElement);
+    }
+    
+    styleElement.innerHTML = `
+      body.fpk-accessibility-active *,
+      body.fpk-accessibility-active *::before,
+      body.fpk-accessibility-active *::after {
+        font-family: ${selectedFont} !important;
+        font-size: ${fontSize} !important;
+        line-height: ${lineHeight} !important;
+      }
+      
+      body.fpk-font-${profile.font_family?.toLowerCase() || 'system'} *,
+      body.fpk-font-${profile.font_family?.toLowerCase() || 'system'} *::before,
+      body.fpk-font-${profile.font_family?.toLowerCase() || 'system'} *::after {
+        font-family: ${selectedFont} !important;
+      }
+      
+      body.fpk-text-size-${profile.text_size || 3} *,
+      body.fpk-text-size-${profile.text_size || 3} *::before,
+      body.fpk-text-size-${profile.text_size || 3} *::after {
+        font-size: ${fontSize} !important;
+      }
+      
+      body.fpk-line-spacing-${profile.line_spacing || 3} *,
+      body.fpk-line-spacing-${profile.line_spacing || 3} *::before,
+      body.fpk-line-spacing-${profile.line_spacing || 3} *::after {
+        line-height: ${lineHeight} !important;
+      }
+    `;
+    
+    console.log('✅ Injected global styles');
     
   }, [profile]);
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,6 @@ import {
   Eye, 
   Link, 
   Loader2,
-  HelpCircle,
   Check,
   Globe,
   RotateCcw
@@ -32,8 +32,6 @@ import LivePreview from '@/components/settings/LivePreview';
 import LanguageSettings from '@/components/settings/LanguageSettings';
 import AccessibilitySettings from '@/components/settings/AccessibilitySettings';
 import PasswordChangeForm from '@/components/settings/PasswordChangeForm';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Slider } from '@/components/ui/slider';
 import { 
   Tooltip,
   TooltipContent,
@@ -176,10 +174,16 @@ const Settings = () => {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Set new timeout for auto-save
+    // Set new timeout for auto-save with immediate effect for accessibility settings
+    const isAccessibilityChange = ['font_family', 'text_size', 'line_spacing', 'color_contrast', 'comfort_mode'].some(
+      key => formData[key as keyof typeof formData] !== lastSavedData.current?.[key]
+    );
+    
+    const delay = isAccessibilityChange ? 100 : 1000; // Immediate for accessibility changes
+    
     saveTimeoutRef.current = setTimeout(() => {
       handleAutoSave();
-    }, 1000); // Reduced timeout for faster response
+    }, delay);
 
     return () => {
       if (saveTimeoutRef.current) {
