@@ -21,133 +21,150 @@
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
-      /* Global Accessibility Classes Applied to Body */
+      /* ULTRA-HIGH SPECIFICITY ACCESSIBILITY OVERRIDES */
       
-      /* Font Family Classes */
-      body.accessibility-font-system *,
-      body.accessibility-font-system *::before,
-      body.accessibility-font-system *::after {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+      /* Universal font family overrides with maximum specificity */
+      body.fpk-accessibility-active *,
+      body.fpk-accessibility-active *::before,
+      body.fpk-accessibility-active *::after,
+      html body.fpk-accessibility-active *,
+      html body.fpk-accessibility-active *::before,
+      html body.fpk-accessibility-active *::after {
+        font-family: var(--accessibility-font-family) !important;
+        font-size: var(--accessibility-font-size) !important;
+        line-height: var(--accessibility-line-height) !important;
       }
       
-      body.accessibility-font-opendyslexic *,
-      body.accessibility-font-opendyslexic *::before,
-      body.accessibility-font-opendyslexic *::after {
-        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive !important;
+      /* Specific font family classes with ultra-high specificity */
+      html body.fpk-font-opendyslexic *,
+      html body.fpk-font-opendyslexic *::before,
+      html body.fpk-font-opendyslexic *::after {
+        font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
       }
       
-      body.accessibility-font-arial *,
-      body.accessibility-font-arial *::before,
-      body.accessibility-font-arial *::after {
-        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
+      html body.fpk-font-arial *,
+      html body.fpk-font-arial *::before,
+      html body.fpk-font-arial *::after {
+        font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
       }
       
-      body.accessibility-font-georgia *,
-      body.accessibility-font-georgia *::before,
-      body.accessibility-font-georgia *::after {
-        font-family: Georgia, 'Times New Roman', Times, serif !important;
+      html body.fpk-font-georgia *,
+      html body.fpk-font-georgia *::before,
+      html body.fpk-font-georgia *::after {
+        font-family: Georgia, "Times New Roman", Times, serif !important;
       }
       
-      body.accessibility-font-cursive *,
-      body.accessibility-font-cursive *::before,
-      body.accessibility-font-cursive *::after {
-        font-family: 'Dancing Script', 'Brush Script MT', cursive !important;
+      html body.fpk-font-cursive *,
+      html body.fpk-font-cursive *::before,
+      html body.fpk-font-cursive *::after {
+        font-family: "Dancing Script", "Brush Script MT", cursive !important;
       }
       
-      /* Text Size Classes */
-      body.accessibility-text-size-1 *,
-      body.accessibility-text-size-1 *::before,
-      body.accessibility-text-size-1 *::after {
+      html body.fpk-font-system *,
+      html body.fpk-font-system *::before,
+      html body.fpk-font-system *::after {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      }
+      
+      /* Text size classes with ultra-high specificity */
+      html body.fpk-text-size-1 *,
+      html body.fpk-text-size-1 *::before,
+      html body.fpk-text-size-1 *::after {
         font-size: 0.75rem !important;
       }
       
-      body.accessibility-text-size-2 *,
-      body.accessibility-text-size-2 *::before,
-      body.accessibility-text-size-2 *::after {
+      html body.fpk-text-size-2 *,
+      html body.fpk-text-size-2 *::before,
+      html body.fpk-text-size-2 *::after {
         font-size: 0.875rem !important;
       }
       
-      body.accessibility-text-size-3 *,
-      body.accessibility-text-size-3 *::before,
-      body.accessibility-text-size-3 *::after {
+      html body.fpk-text-size-3 *,
+      html body.fpk-text-size-3 *::before,
+      html body.fpk-text-size-3 *::after {
         font-size: 1rem !important;
       }
       
-      body.accessibility-text-size-4 *,
-      body.accessibility-text-size-4 *::before,
-      body.accessibility-text-size-4 *::after {
+      html body.fpk-text-size-4 *,
+      html body.fpk-text-size-4 *::before,
+      html body.fpk-text-size-4 *::after {
         font-size: 1.125rem !important;
       }
       
-      body.accessibility-text-size-5 *,
-      body.accessibility-text-size-5 *::before,
-      body.accessibility-text-size-5 *::after {
+      html body.fpk-text-size-5 *,
+      html body.fpk-text-size-5 *::before,
+      html body.fpk-text-size-5 *::after {
         font-size: 1.25rem !important;
       }
       
-      /* Line Spacing Classes */
-      body.accessibility-line-spacing-1 *,
-      body.accessibility-line-spacing-1 *::before,
-      body.accessibility-line-spacing-1 *::after {
+      /* Line spacing classes with ultra-high specificity */
+      html body.fpk-line-spacing-1 *,
+      html body.fpk-line-spacing-1 *::before,
+      html body.fpk-line-spacing-1 *::after {
         line-height: 1.1 !important;
       }
       
-      body.accessibility-line-spacing-2 *,
-      body.accessibility-line-spacing-2 *::before,
-      body.accessibility-line-spacing-2 *::after {
+      html body.fpk-line-spacing-2 *,
+      html body.fpk-line-spacing-2 *::before,
+      html body.fpk-line-spacing-2 *::after {
         line-height: 1.25 !important;
       }
       
-      body.accessibility-line-spacing-3 *,
-      body.accessibility-line-spacing-3 *::before,
-      body.accessibility-line-spacing-3 *::after {
+      html body.fpk-line-spacing-3 *,
+      html body.fpk-line-spacing-3 *::before,
+      html body.fpk-line-spacing-3 *::after {
         line-height: 1.5 !important;
       }
       
-      body.accessibility-line-spacing-4 *,
-      body.accessibility-line-spacing-4 *::before,
-      body.accessibility-line-spacing-4 *::after {
+      html body.fpk-line-spacing-4 *,
+      html body.fpk-line-spacing-4 *::before,
+      html body.fpk-line-spacing-4 *::after {
         line-height: 1.75 !important;
       }
       
-      body.accessibility-line-spacing-5 *,
-      body.accessibility-line-spacing-5 *::before,
-      body.accessibility-line-spacing-5 *::after {
+      html body.fpk-line-spacing-5 *,
+      html body.fpk-line-spacing-5 *::before,
+      html body.fpk-line-spacing-5 *::after {
         line-height: 2 !important;
       }
       
-      /* High Contrast Mode */
-      body.accessibility-high-contrast *,
-      body.accessibility-high-contrast *::before,
-      body.accessibility-high-contrast *::after {
+      /* High contrast mode */
+      html body.fpk-high-contrast *,
+      html body.fpk-high-contrast *::before,
+      html body.fpk-high-contrast *::after {
         color: #000000 !important;
       }
       
-      body.accessibility-high-contrast .bg-background,
-      body.accessibility-high-contrast .bg-card {
+      html body.fpk-high-contrast .bg-background,
+      html body.fpk-high-contrast .bg-card {
         background-color: #ffffff !important;
       }
       
-      /* Comfort Modes */
-      body.accessibility-low-stimulus {
+      /* Comfort modes */
+      html body.fpk-low-stimulus {
         background-color: #f9fafb !important;
       }
       
-      body.accessibility-low-stimulus .bg-background,
-      body.accessibility-low-stimulus .bg-card {
+      html body.fpk-low-stimulus .bg-background,
+      html body.fpk-low-stimulus .bg-card {
         background-color: #f9fafb !important;
         color: #1f2937 !important;
       }
       
-      body.accessibility-focus-mode {
+      html body.fpk-focus-mode {
         background-color: #eff6ff !important;
       }
       
-      body.accessibility-focus-mode .bg-background,
-      body.accessibility-focus-mode .bg-card {
+      html body.fpk-focus-mode .bg-background,
+      html body.fpk-focus-mode .bg-card {
         background-color: #eff6ff !important;
         color: #1e3a8a !important;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      /* Force repaint on changes */
+      body.fpk-accessibility-active {
+        transform: translateZ(0);
       }
     </style>
   </head>

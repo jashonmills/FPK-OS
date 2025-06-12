@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -65,7 +64,7 @@ export const useUserProfile = () => {
       }
 
       if (!data) {
-        // Create default profile if it doesn't exist
+        // Create default profile if it doesn't exist with correct accessibility defaults
         const defaultProfile: ProfileUpdate = {
           full_name: user.user_metadata?.full_name || '',
           display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '',
@@ -76,8 +75,8 @@ export const useUserProfile = () => {
           font_family: 'System',
           color_contrast: 'Standard',
           dual_language_enabled: false,
-          text_size: 2,
-          line_spacing: 2,
+          text_size: 3, // Fixed: Medium (3)
+          line_spacing: 3, // Fixed: Normal (3)
           push_notifications_enabled: false,
           two_factor_enabled: false,
           speech_to_text_enabled: false,
