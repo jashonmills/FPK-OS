@@ -1,175 +1,170 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FPK University - Learner Portal</title>
-    <meta name="description" content="FPK University Learner Platform - Your gateway to exceptional education" />
-    <meta name="author" content="FPK University" />
-
-    <meta property="og:title" content="FPK University - Learner Portal" />
-    <meta property="og:description" content="FPK University Learner Platform - Your gateway to exceptional education" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Accessibility Fonts -->
+    
+    <!-- Google Fonts for Accessibility -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Load accessibility-friendly fonts including cursive -->
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Open+Sans:wght@400;500;600;700&family=Georgia:wght@400;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load OpenDyslexic font -->
+    <link href="https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/opendyslexic-regular.css" rel="stylesheet">
+    
+    <!-- Load Dancing Script for cursive option -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Additional accessibility fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
-      /* Define OpenDyslexic and other accessibility fonts */
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/otf/OpenDyslexic-Regular.otf') format('opentype'),
-             url('https://opendyslexic.org/files/OpenDyslexic-Regular.otf') format('opentype');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
+      /* Global Accessibility CSS - Applied based on data attributes */
+      
+      /* Font Family Rules */
+      html[data-accessibility="active"][data-font="system"] *,
+      html[data-accessibility="active"][data-font="system"] {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       }
       
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/otf/OpenDyslexic-Bold.otf') format('opentype'),
-             url('https://opendyslexic.org/files/OpenDyslexic-Bold.otf') format('opentype');
-        font-weight: bold;
-        font-style: normal;
-        font-display: swap;
-      }
-
-      /* Global CSS Custom Properties for Accessibility */
-      :root {
-        --global-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --global-font-size: 1rem;
-        --global-line-height: 1.5;
-        --global-font-weight: 400;
-        --accessibility-active: 0;
+      html[data-accessibility="active"][data-font="opendyslexic"] *,
+      html[data-accessibility="active"][data-font="opendyslexic"] {
+        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive !important;
       }
       
-      /* Universal Accessibility Override - Applied with maximum specificity */
-      html[data-accessibility="active"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-accessibility="active"] body,
-      html[data-accessibility="active"] {
-        font-family: var(--global-font-family) !important;
-        font-size: var(--global-font-size) !important;
-        line-height: var(--global-line-height) !important;
+      html[data-accessibility="active"][data-font="arial"] *,
+      html[data-accessibility="active"][data-font="arial"] {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
       }
       
-      /* Font Family Global Overrides with stronger specificity */
-      html[data-font="opendyslexic"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-font="opendyslexic"] body,
-      html[data-font="opendyslexic"] {
-        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive !important;
+      html[data-accessibility="active"][data-font="georgia"] *,
+      html[data-accessibility="active"][data-font="georgia"] {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
       }
       
-      html[data-font="arial"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-font="arial"] body,
-      html[data-font="arial"] {
-        font-family: 'Arial', 'Helvetica', sans-serif !important;
-      }
-      
-      html[data-font="georgia"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-font="georgia"] body,
-      html[data-font="georgia"] {
-        font-family: 'Georgia', 'Times New Roman', serif !important;
-      }
-      
-      html[data-font="cursive"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-font="cursive"] body,
-      html[data-font="cursive"] {
+      html[data-accessibility="active"][data-font="cursive"] *,
+      html[data-accessibility="active"][data-font="cursive"] {
         font-family: 'Dancing Script', 'Brush Script MT', cursive !important;
       }
       
-      html[data-font="system"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-      html[data-font="system"] body,
-      html[data-font="system"] {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      }
-      
-      /* Text Size Global Overrides - Expanded to 5 levels */
-      html[data-text-size="1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      /* Text Size Rules (1-5 scale) */
+      html[data-accessibility="active"][data-text-size="1"] * {
         font-size: 0.75rem !important;
       }
       
-      html[data-text-size="2"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-text-size="2"] * {
         font-size: 0.875rem !important;
       }
       
-      html[data-text-size="3"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-text-size="3"] * {
         font-size: 1rem !important;
       }
       
-      html[data-text-size="4"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-text-size="4"] * {
         font-size: 1.125rem !important;
       }
       
-      html[data-text-size="5"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-text-size="5"] * {
         font-size: 1.25rem !important;
       }
       
-      /* Line Height Global Overrides - Expanded to 5 levels */
-      html[data-line-spacing="1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      /* Line Spacing Rules (1-5 scale) */
+      html[data-accessibility="active"][data-line-spacing="1"] * {
         line-height: 1.1 !important;
       }
       
-      html[data-line-spacing="2"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-line-spacing="2"] * {
         line-height: 1.25 !important;
       }
       
-      html[data-line-spacing="3"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-line-spacing="3"] * {
         line-height: 1.5 !important;
       }
       
-      html[data-line-spacing="4"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-line-spacing="4"] * {
         line-height: 1.75 !important;
       }
       
-      html[data-line-spacing="5"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      html[data-accessibility="active"][data-line-spacing="5"] * {
         line-height: 2 !important;
       }
       
-      /* High contrast mode */
-      html[data-contrast="high"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+      /* High Contrast Mode */
+      html[data-accessibility="active"][data-contrast="high"] * {
         color: #000000 !important;
+      }
+      
+      html[data-accessibility="active"][data-contrast="high"] .bg-background,
+      html[data-accessibility="active"][data-contrast="high"] .bg-card {
         background-color: #ffffff !important;
       }
       
-      /* Focus mode */
-      html[data-comfort="focus"] {
-        background-color: #f0f8ff !important;
+      /* Comfort Modes */
+      html[data-accessibility="active"][data-comfort="low-stimulus"] {
+        background-color: #f9fafb !important;
       }
       
-      html[data-comfort="focus"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
-        background-color: transparent !important;
+      html[data-accessibility="active"][data-comfort="low-stimulus"] .bg-background,
+      html[data-accessibility="active"][data-comfort="low-stimulus"] .bg-card {
+        background-color: #f9fafb !important;
+        color: #1f2937 !important;
       }
       
-      /* Low stimulus mode */
-      html[data-comfort="low-stimulus"] {
-        background-color: #f9f9f9 !important;
+      html[data-accessibility="active"][data-comfort="focus"] {
+        background-color: #eff6ff !important;
       }
       
-      html[data-comfort="low-stimulus"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
-        background-color: transparent !important;
+      html[data-accessibility="active"][data-comfort="focus"] .bg-background,
+      html[data-accessibility="active"][data-comfort="focus"] .bg-card {
+        background-color: #eff6ff !important;
+        color: #1e3a8a !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
       }
       
-      /* Mobile responsiveness */
-      @media (max-width: 768px) {
-        html[data-accessibility="active"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
-        html[data-accessibility="active"] body {
-          -webkit-text-size-adjust: 100% !important;
-          text-size-adjust: 100% !important;
-        }
+      /* Ensure accessibility overrides take precedence */
+      html[data-accessibility="active"] {
+        font-family: var(--global-font-family, inherit);
+        font-size: var(--global-font-size, inherit);
+        line-height: var(--global-line-height, inherit);
+      }
+      
+      /* Force inheritance on all elements when accessibility is active */
+      html[data-accessibility="active"] *,
+      html[data-accessibility="active"] h1,
+      html[data-accessibility="active"] h2,
+      html[data-accessibility="active"] h3,
+      html[data-accessibility="active"] h4,
+      html[data-accessibility="active"] h5,
+      html[data-accessibility="active"] h6,
+      html[data-accessibility="active"] p,
+      html[data-accessibility="active"] span,
+      html[data-accessibility="active"] div,
+      html[data-accessibility="active"] button,
+      html[data-accessibility="active"] input,
+      html[data-accessibility="active"] textarea,
+      html[data-accessibility="active"] label,
+      html[data-accessibility="active"] a,
+      html[data-accessibility="active"] li,
+      html[data-accessibility="active"] td,
+      html[data-accessibility="active"] th {
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+      }
+      
+      /* Ensure buttons and form elements respect accessibility settings */
+      html[data-accessibility="active"] button,
+      html[data-accessibility="active"] input,
+      html[data-accessibility="active"] textarea,
+      html[data-accessibility="active"] select {
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
       }
     </style>
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -85,8 +85,8 @@ const Settings = () => {
     font_family: 'System',
     color_contrast: 'Standard',
     dual_language_enabled: false,
-    text_size: 2,
-    line_spacing: 2,
+    text_size: 3,
+    line_spacing: 3,
     timezone: 'UTC',
     push_notifications_enabled: false,
     two_factor_enabled: false,
@@ -132,8 +132,8 @@ const Settings = () => {
         font_family: profile.font_family || 'System',
         color_contrast: profile.color_contrast || 'Standard',
         dual_language_enabled: profile.dual_language_enabled || false,
-        text_size: profile.text_size || 2,
-        line_spacing: profile.line_spacing || 2,
+        text_size: profile.text_size || 3,
+        line_spacing: profile.line_spacing || 3,
         timezone: profile.timezone || 'UTC',
         push_notifications_enabled: profile.push_notifications_enabled || false,
         two_factor_enabled: profile.two_factor_enabled || false,
@@ -274,8 +274,8 @@ const Settings = () => {
       font_family: 'System',
       color_contrast: 'Standard',
       dual_language_enabled: false,
-      text_size: 2,
-      line_spacing: 2,
+      text_size: 3,
+      line_spacing: 3,
       timezone: 'UTC',
       push_notifications_enabled: false,
       two_factor_enabled: false,
@@ -495,144 +495,15 @@ const Settings = () => {
 
           <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
-                <CardHeader>
-                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                    <Eye className="h-5 w-5 text-green-600" />
-                    {t('settings.accessibility.title')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Label className={textClasses}>{t('settings.accessibility.fontFamily')}</Label>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <HelpCircle className="h-4 w-4 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className={textClasses}>{t('settings.accessibility.fontHelp')}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <RadioGroup 
-                      value={formData.font_family} 
-                      onValueChange={(value) => handleFormChange('font_family', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="System" id="system-font" />
-                        <Label htmlFor="system-font" className={textClasses}>{t('settings.accessibility.systemFont')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="OpenDyslexic" id="opendyslexic-font" />
-                        <Label htmlFor="opendyslexic-font" className={textClasses}>OpenDyslexic</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Arial" id="arial-font" />
-                        <Label htmlFor="arial-font" className={textClasses}>Arial</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Georgia" id="georgia-font" />
-                        <Label htmlFor="georgia-font" className={textClasses}>Georgia</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className={textClasses}>{t('settings.accessibility.colorContrast')}</Label>
-                    <RadioGroup 
-                      value={formData.color_contrast} 
-                      onValueChange={(value) => handleFormChange('color_contrast', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Standard" id="standard-contrast" />
-                        <Label htmlFor="standard-contrast" className={textClasses}>{t('settings.accessibility.standard')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="High Contrast" id="high-contrast" />
-                        <Label htmlFor="high-contrast" className={textClasses}>{t('settings.accessibility.highContrast')}</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Label className={textClasses}>{t('settings.accessibility.comfortMode')}</Label>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <HelpCircle className="h-4 w-4 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className={textClasses}>{t('settings.accessibility.comfortHelp')}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <RadioGroup 
-                      value={formData.comfort_mode} 
-                      onValueChange={(value) => handleFormChange('comfort_mode', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Normal" id="normal-comfort" />
-                        <Label htmlFor="normal-comfort" className={textClasses}>{t('settings.accessibility.normal')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Low-Stimulus" id="low-stimulus" />
-                        <Label htmlFor="low-stimulus" className={textClasses}>{t('settings.accessibility.lowStimulus')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Focus Mode" id="focus-mode" />
-                        <Label htmlFor="focus-mode" className={textClasses}>{t('settings.accessibility.focusMode')}</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className={textClasses}>{t('settings.accessibility.textSize')}: {formData.text_size}</Label>
-                    <Slider
-                      value={[formData.text_size]}
-                      onValueChange={(value) => handleFormChange('text_size', value[0])}
-                      max={5}
-                      min={1}
-                      step={1}
-                    />
-                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
-                      <span>{t('settings.accessibility.small')}</span>
-                      <span>{t('settings.accessibility.medium')}</span>
-                      <span>{t('settings.accessibility.large')}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className={textClasses}>{t('settings.accessibility.lineSpacing')}: {formData.line_spacing}</Label>
-                    <Slider
-                      value={[formData.line_spacing]}
-                      onValueChange={(value) => handleFormChange('line_spacing', value[0])}
-                      max={4}
-                      min={1}
-                      step={1}
-                    />
-                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
-                      <span>{t('settings.accessibility.compact')}</span>
-                      <span>{t('settings.accessibility.comfortable')}</span>
-                      <span>{t('settings.accessibility.airy')}</span>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="speech_to_text" className={textClasses}>{t('settings.accessibility.speechToText')}</Label>
-                      <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.accessibility.speechToTextDesc')}</p>
-                    </div>
-                    <Switch
-                      id="speech_to_text"
-                      checked={formData.speech_to_text_enabled}
-                      onCheckedChange={(checked) => handleFormChange('speech_to_text_enabled', checked)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <AccessibilitySettings
+                profile={profile!}
+                onUpdate={(updates) => {
+                  // Update the form data when accessibility settings change
+                  Object.keys(updates).forEach(key => {
+                    handleFormChange(key, updates[key as keyof typeof updates]);
+                  });
+                }}
+              />
 
               <LivePreview
                 fontFamily={formData.font_family}
