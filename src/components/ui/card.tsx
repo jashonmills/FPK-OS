@@ -13,15 +13,10 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "fpk-enhanced-card",
+        "rounded-lg border shadow-sm",
         getAccessibilityClasses('card'),
         className
       )}
-      style={{
-        background: 'linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
-        backdropFilter: 'blur(10px)'
-      }}
       {...props}
     />
   )
@@ -50,17 +45,10 @@ const CardTitle = React.forwardRef<
     <h3
       ref={ref}
       className={cn(
-        "text-2xl font-semibold leading-none tracking-tight fpk-gradient-text",
+        "text-2xl font-semibold leading-none tracking-tight",
         getAccessibilityClasses('text'),
         className
       )}
-      style={{
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        fontWeight: '600'
-      }}
       {...props}
     />
   )
@@ -77,7 +65,7 @@ const CardDescription = React.forwardRef<
     <p
       ref={ref}
       className={cn(
-        "text-sm text-gray-600",
+        "text-sm text-muted-foreground",
         getAccessibilityClasses('text'),
         className
       )}

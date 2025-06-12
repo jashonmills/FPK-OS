@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -320,377 +319,496 @@ const Settings = () => {
 
   return (
     <TooltipProvider>
-      <div className={`min-h-screen bg-gradient-to-br from-background via-background to-secondary/10 ${containerClasses}`}>
-        <div className="p-3 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <h1 className={`text-3xl md:text-4xl font-bold fpk-gradient-text ${textClasses}`}>
-                {t('settings.title')}
-              </h1>
-              <p className={`text-muted-foreground text-sm md:text-base ${textClasses}`}>{t('settings.subtitle')}</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-              {saving && (
-                <div className={`flex items-center gap-2 text-sm text-blue-600 ${textClasses}`}>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('settings.saving')}
-                </div>
-              )}
-              {!saving && hasUnsavedChanges && (
-                <div className={`flex items-center gap-2 text-sm text-amber-600 ${textClasses}`}>
-                  <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
-                  {t('settings.autoSavePending')}
-                </div>
-              )}
-              {!saving && !hasUnsavedChanges && !isInitializing.current && (
-                <div className={`flex items-center gap-2 text-sm text-green-600 ${textClasses}`}>
-                  <Check className="h-4 w-4" />
-                  {t('settings.allChangesSaved')}
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size={isMobile ? "default" : "sm"}
-                onClick={handleRestoreDefaults}
-                className={`gap-2 w-full sm:w-auto ${textClasses}`}
-              >
-                <RotateCcw className="h-4 w-4" />
-                {t('settings.restoreDefaults')}
-              </Button>
-            </div>
+      <div className={`p-3 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6 ${containerClasses} accessibility-mobile-override`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
+              {t('settings.title')}
+            </h1>
+            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>{t('settings.subtitle')}</p>
           </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            {saving && (
+              <div className={`flex items-center gap-2 text-sm text-blue-600 ${textClasses}`}>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('settings.saving')}
+              </div>
+            )}
+            {!saving && hasUnsavedChanges && (
+              <div className={`flex items-center gap-2 text-sm text-amber-600 ${textClasses}`}>
+                <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
+                {t('settings.autoSavePending')}
+              </div>
+            )}
+            {!saving && !hasUnsavedChanges && !isInitializing.current && (
+              <div className={`flex items-center gap-2 text-sm text-green-600 ${textClasses}`}>
+                <Check className="h-4 w-4" />
+                {t('settings.allChangesSaved')}
+              </div>
+            )}
+            <Button
+              variant="outline"
+              size={isMobile ? "default" : "sm"}
+              onClick={handleRestoreDefaults}
+              className={`gap-2 w-full sm:w-auto ${textClasses}`}
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t('settings.restoreDefaults')}
+            </Button>
+          </div>
+        </div>
 
-          <Tabs defaultValue="profile" className={`w-full ${containerClasses}`} orientation={isMobile ? "vertical" : "horizontal"}>
-            <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''} bg-card border shadow-sm ${textClasses}`}>
-              <TabsTrigger 
-                value="profile" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <User className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.profile')}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="language" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <Globe className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.language')}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="accessibility" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <Eye className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.accessibility')}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="notifications" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <Bell className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.notifications')}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="security" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <Shield className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.security')}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="integrations" 
-                className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${textClasses}`}
-              >
-                <Link className="h-4 w-4" />
-                <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.integrations')}</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="profile" className={`w-full ${containerClasses}`} orientation={isMobile ? "vertical" : "horizontal"}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''} ${textClasses}`}>
+            <TabsTrigger 
+              value="profile" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <User className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.profile')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="language" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <Globe className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.language')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="accessibility" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <Eye className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.accessibility')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="notifications" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <Bell className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.notifications')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="security" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <Shield className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.security')}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="integrations" 
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+            >
+              <Link className="h-4 w-4" />
+              <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.integrations')}</span>
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="profile" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <Card className={`fpk-enhanced-card ${cardClasses}`}>
-                  <CardHeader className="border-b border-border/20">
-                    <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <User className="h-5 w-5 text-primary" />
-                      </div>
-                      {t('settings.profile.title')}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 pt-6">
-                    <EnhancedAvatarUpload
-                      currentUrl={formData.avatar_url}
-                      onUpload={(url) => handleFormChange('avatar_url', url)}
-                      userName={formData.full_name || formData.display_name || 'User'}
-                    />
+          <TabsContent value="profile" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+                <CardHeader>
+                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
+                    <User className="h-5 w-5 text-purple-600" />
+                    {t('settings.profile.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <EnhancedAvatarUpload
+                    currentUrl={formData.avatar_url}
+                    onUpload={(url) => handleFormChange('avatar_url', url)}
+                    userName={formData.full_name || formData.display_name || 'User'}
+                  />
 
-                    <div className="grid grid-cols-1 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="full_name" className={textClasses}>{t('settings.profile.fullName')}</Label>
-                        <Input
-                          id="full_name"
-                          value={formData.full_name}
-                          onChange={(e) => handleFormChange('full_name', e.target.value)}
-                          placeholder={t('settings.profile.fullNamePlaceholder')}
-                          className={textClasses}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="display_name" className={textClasses}>{t('settings.profile.displayName')}</Label>
-                        <Input
-                          id="display_name"
-                          value={formData.display_name}
-                          onChange={(e) => handleFormChange('display_name', e.target.value)}
-                          placeholder={t('settings.profile.displayNamePlaceholder')}
-                          className={textClasses}
-                        />
-                      </div>
-                    </div>
-
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className={textClasses}>{t('settings.profile.email')}</Label>
+                      <Label htmlFor="full_name" className={textClasses}>{t('settings.profile.fullName')}</Label>
                       <Input
-                        id="email"
-                        value={user?.email || ''}
-                        readOnly
-                        className={`bg-muted ${textClasses}`}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="bio" className={textClasses}>{t('settings.profile.bio')}</Label>
-                      <Textarea
-                        id="bio"
-                        value={formData.bio}
-                        onChange={(e) => handleFormChange('bio', e.target.value)}
-                        placeholder={t('settings.profile.bioPlaceholder')}
-                        rows={3}
+                        id="full_name"
+                        value={formData.full_name}
+                        onChange={(e) => handleFormChange('full_name', e.target.value)}
+                        placeholder={t('settings.profile.fullNamePlaceholder')}
                         className={textClasses}
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="display_name" className={textClasses}>{t('settings.profile.displayName')}</Label>
+                      <Input
+                        id="display_name"
+                        value={formData.display_name}
+                        onChange={(e) => handleFormChange('display_name', e.target.value)}
+                        placeholder={t('settings.profile.displayNamePlaceholder')}
+                        className={textClasses}
+                      />
+                    </div>
+                  </div>
 
-                    <LearningStyleTags
-                      selectedStyles={formData.learning_styles}
-                      onChange={(styles) => handleFormChange('learning_styles', styles)}
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className={textClasses}>{t('settings.profile.email')}</Label>
+                    <Input
+                      id="email"
+                      value={user?.email || ''}
+                      readOnly
+                      className={`bg-gray-50 ${textClasses}`}
                     />
-                  </CardContent>
-                </Card>
+                  </div>
 
-                <LivePreview
-                  fontFamily={formData.font_family}
-                  textSize={formData.text_size}
-                  lineSpacing={formData.line_spacing}
-                  colorContrast={formData.color_contrast}
-                  comfortMode={formData.comfort_mode}
-                />
-              </div>
-            </TabsContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio" className={textClasses}>{t('settings.profile.bio')}</Label>
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => handleFormChange('bio', e.target.value)}
+                      placeholder={t('settings.profile.bioPlaceholder')}
+                      rows={3}
+                      className={textClasses}
+                    />
+                  </div>
 
-            <TabsContent value="language" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <LanguageSettings
-                primaryLanguage={formData.primary_language}
-                dualLanguageEnabled={formData.dual_language_enabled}
-                timeFormat={formData.time_format}
-                dateFormat={formData.date_format}
-                timezone={formData.timezone}
-                onChange={handleFormChange}
+                  <LearningStyleTags
+                    selectedStyles={formData.learning_styles}
+                    onChange={(styles) => handleFormChange('learning_styles', styles)}
+                  />
+                </CardContent>
+              </Card>
+
+              <LivePreview
+                fontFamily={formData.font_family}
+                textSize={formData.text_size}
+                lineSpacing={formData.line_spacing}
+                colorContrast={formData.color_contrast}
+                comfortMode={formData.comfort_mode}
               />
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <AccessibilitySettings
-                  profile={profile}
-                  onUpdate={(updates) => {
-                    // Update form data for each changed field
-                    Object.entries(updates).forEach(([key, value]) => {
-                      handleFormChange(key, value);
-                    });
-                  }}
-                />
+          <TabsContent value="language" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <LanguageSettings
+              primaryLanguage={formData.primary_language}
+              dualLanguageEnabled={formData.dual_language_enabled}
+              timeFormat={formData.time_format}
+              dateFormat={formData.date_format}
+              timezone={formData.timezone}
+              onChange={handleFormChange}
+            />
+          </TabsContent>
 
-                <LivePreview
-                  fontFamily={formData.font_family}
-                  textSize={formData.text_size}
-                  lineSpacing={formData.line_spacing}
-                  colorContrast={formData.color_contrast}
-                  comfortMode={formData.comfort_mode}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="notifications" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <Card className={`fpk-enhanced-card ${cardClasses}`}>
-                <CardHeader className="border-b border-border/20">
+          <TabsContent value="accessibility" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+                <CardHeader>
                   <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                    <div className="p-2 rounded-lg bg-amber-500/10">
-                      <Bell className="h-5 w-5 text-amber-600" />
-                    </div>
-                    {t('settings.notifications.emailTitle')}
+                    <Eye className="h-5 w-5 text-green-600" />
+                    {t('settings.accessibility.title')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="new_courses" className={textClasses}>{t('settings.notifications.newCourses')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.newCoursesDesc')}</p>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Label className={textClasses}>{t('settings.accessibility.fontFamily')}</Label>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="h-4 w-4 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className={textClasses}>{t('settings.accessibility.fontHelp')}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
-                    <Switch
-                      id="new_courses"
-                      checked={formData.email_notifications.new_courses}
-                      onCheckedChange={(checked) => handleEmailNotificationChange('new_courses', checked)}
+                    <RadioGroup 
+                      value={formData.font_family} 
+                      onValueChange={(value) => handleFormChange('font_family', value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="System" id="system-font" />
+                        <Label htmlFor="system-font" className={textClasses}>{t('settings.accessibility.systemFont')}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="OpenDyslexic" id="opendyslexic-font" />
+                        <Label htmlFor="opendyslexic-font" className={textClasses}>OpenDyslexic</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Arial" id="arial-font" />
+                        <Label htmlFor="arial-font" className={textClasses}>Arial</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Georgia" id="georgia-font" />
+                        <Label htmlFor="georgia-font" className={textClasses}>Georgia</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className={textClasses}>{t('settings.accessibility.colorContrast')}</Label>
+                    <RadioGroup 
+                      value={formData.color_contrast} 
+                      onValueChange={(value) => handleFormChange('color_contrast', value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Standard" id="standard-contrast" />
+                        <Label htmlFor="standard-contrast" className={textClasses}>{t('settings.accessibility.standard')}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="High Contrast" id="high-contrast" />
+                        <Label htmlFor="high-contrast" className={textClasses}>{t('settings.accessibility.highContrast')}</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Label className={textClasses}>{t('settings.accessibility.comfortMode')}</Label>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="h-4 w-4 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className={textClasses}>{t('settings.accessibility.comfortHelp')}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <RadioGroup 
+                      value={formData.comfort_mode} 
+                      onValueChange={(value) => handleFormChange('comfort_mode', value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Normal" id="normal-comfort" />
+                        <Label htmlFor="normal-comfort" className={textClasses}>{t('settings.accessibility.normal')}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Low-Stimulus" id="low-stimulus" />
+                        <Label htmlFor="low-stimulus" className={textClasses}>{t('settings.accessibility.lowStimulus')}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Focus Mode" id="focus-mode" />
+                        <Label htmlFor="focus-mode" className={textClasses}>{t('settings.accessibility.focusMode')}</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className={textClasses}>{t('settings.accessibility.textSize')}: {formData.text_size}</Label>
+                    <Slider
+                      value={[formData.text_size]}
+                      onValueChange={(value) => handleFormChange('text_size', value[0])}
+                      max={5}
+                      min={1}
+                      step={1}
                     />
+                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
+                      <span>{t('settings.accessibility.small')}</span>
+                      <span>{t('settings.accessibility.medium')}</span>
+                      <span>{t('settings.accessibility.large')}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className={textClasses}>{t('settings.accessibility.lineSpacing')}: {formData.line_spacing}</Label>
+                    <Slider
+                      value={[formData.line_spacing]}
+                      onValueChange={(value) => handleFormChange('line_spacing', value[0])}
+                      max={4}
+                      min={1}
+                      step={1}
+                    />
+                    <div className={`flex justify-between text-xs text-gray-500 ${textClasses}`}>
+                      <span>{t('settings.accessibility.compact')}</span>
+                      <span>{t('settings.accessibility.comfortable')}</span>
+                      <span>{t('settings.accessibility.airy')}</span>
+                    </div>
                   </div>
 
                   <Separator />
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="weekly_summary" className={textClasses}>{t('settings.notifications.weeklySum')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.weeklySumDesc')}</p>
+                      <Label htmlFor="speech_to_text" className={textClasses}>{t('settings.accessibility.speechToText')}</Label>
+                      <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.accessibility.speechToTextDesc')}</p>
                     </div>
                     <Switch
-                      id="weekly_summary"
-                      checked={formData.email_notifications.weekly_summary}
-                      onCheckedChange={(checked) => handleEmailNotificationChange('weekly_summary', checked)}
-                    />
-                  </div>
-
-                  <Separator />
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="ai_prompts" className={textClasses}>{t('settings.notifications.aiPrompts')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.aiPromptsDesc')}</p>
-                    </div>
-                    <Switch
-                      id="ai_prompts"
-                      checked={formData.email_notifications.ai_prompts}
-                      onCheckedChange={(checked) => handleEmailNotificationChange('ai_prompts', checked)}
+                      id="speech_to_text"
+                      checked={formData.speech_to_text_enabled}
+                      onCheckedChange={(checked) => handleFormChange('speech_to_text_enabled', checked)}
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className={`fpk-enhanced-card ${cardClasses}`}>
-                <CardHeader className="border-b border-border/20">
-                  <CardTitle className={textClasses}>{t('settings.notifications.appTitle')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="push_notifications" className={textClasses}>{t('settings.notifications.pushNotifications')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.pushNotificationsDesc')}</p>
-                    </div>
-                    <Switch
-                      id="push_notifications"
-                      checked={formData.push_notifications_enabled}
-                      onCheckedChange={(checked) => handleFormChange('push_notifications_enabled', checked)}
-                    />
+              <LivePreview
+                fontFamily={formData.font_family}
+                textSize={formData.text_size}
+                lineSpacing={formData.line_spacing}
+                colorContrast={formData.color_contrast}
+                comfortMode={formData.comfort_mode}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+              <CardHeader>
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
+                  <Bell className="h-5 w-5 text-amber-600" />
+                  {t('settings.notifications.emailTitle')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="new_courses" className={textClasses}>{t('settings.notifications.newCourses')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.newCoursesDesc')}</p>
                   </div>
+                  <Switch
+                    id="new_courses"
+                    checked={formData.email_notifications.new_courses}
+                    onCheckedChange={(checked) => handleEmailNotificationChange('new_courses', checked)}
+                  />
+                </div>
 
-                  <Separator />
+                <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="study_streak" className={textClasses}>{t('settings.notifications.studyStreak')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.studyStreakDesc')}</p>
-                    </div>
-                    <Switch
-                      id="study_streak"
-                      checked={formData.app_reminders.study_streak}
-                      onCheckedChange={(checked) => handleAppReminderChange('study_streak', checked)}
-                    />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="weekly_summary" className={textClasses}>{t('settings.notifications.weeklySum')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.weeklySumDesc')}</p>
                   </div>
+                  <Switch
+                    id="weekly_summary"
+                    checked={formData.email_notifications.weekly_summary}
+                    onCheckedChange={(checked) => handleEmailNotificationChange('weekly_summary', checked)}
+                  />
+                </div>
 
-                  <Separator />
+                <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="module_nudges" className={textClasses}>{t('settings.notifications.moduleNudges')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.notifications.moduleNudgesDesc')}</p>
-                    </div>
-                    <Switch
-                      id="module_nudges"
-                      checked={formData.app_reminders.module_nudges}
-                      onCheckedChange={(checked) => handleAppReminderChange('module_nudges', checked)}
-                    />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="ai_prompts" className={textClasses}>{t('settings.notifications.aiPrompts')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.aiPromptsDesc')}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  <Switch
+                    id="ai_prompts"
+                    checked={formData.email_notifications.ai_prompts}
+                    onCheckedChange={(checked) => handleEmailNotificationChange('ai_prompts', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-            <TabsContent value="security" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <Card className={`fpk-enhanced-card ${cardClasses}`}>
-                <CardHeader className="border-b border-border/20">
-                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                    <div className="p-2 rounded-lg bg-red-500/10">
-                      <Shield className="h-5 w-5 text-red-600" />
-                    </div>
-                    {t('settings.security.title')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-6">
-                  <PasswordChangeForm onPasswordChange={changePassword} />
-                  
-                  <Separator />
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="two_factor" className={textClasses}>{t('settings.security.twoFactor')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.security.twoFactorDesc')}</p>
-                    </div>
-                    <Switch
-                      id="two_factor"
-                      checked={formData.two_factor_enabled}
-                      onCheckedChange={(checked) => handleFormChange('two_factor_enabled', checked)}
-                    />
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+              <CardHeader>
+                <CardTitle className={textClasses}>{t('settings.notifications.appTitle')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="push_notifications" className={textClasses}>{t('settings.notifications.pushNotifications')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.pushNotificationsDesc')}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  <Switch
+                    id="push_notifications"
+                    checked={formData.push_notifications_enabled}
+                    onCheckedChange={(checked) => handleFormChange('push_notifications_enabled', checked)}
+                  />
+                </div>
 
-            <TabsContent value="integrations" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
-              <Card className={`fpk-enhanced-card ${cardClasses}`}>
-                <CardHeader className="border-b border-border/20">
-                  <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                    <div className="p-2 rounded-lg bg-blue-500/10">
-                      <Link className="h-5 w-5 text-blue-600" />
-                    </div>
-                    {t('settings.integrations.title')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="google_calendar" className={textClasses}>{t('settings.integrations.googleCalendar')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.integrations.googleDesc')}</p>
-                    </div>
-                    <Switch
-                      id="google_calendar"
-                      checked={formData.calendar_sync.google}
-                      onCheckedChange={(checked) => handleCalendarSyncChange('google', checked)}
-                    />
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="study_streak" className={textClasses}>{t('settings.notifications.studyStreak')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.studyStreakDesc')}</p>
                   </div>
+                  <Switch
+                    id="study_streak"
+                    checked={formData.app_reminders.study_streak}
+                    onCheckedChange={(checked) => handleAppReminderChange('study_streak', checked)}
+                  />
+                </div>
 
-                  <Separator />
+                <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="outlook_calendar" className={textClasses}>{t('settings.integrations.outlookCalendar')}</Label>
-                      <p className={`text-sm text-muted-foreground ${textClasses}`}>{t('settings.integrations.outlookDesc')}</p>
-                    </div>
-                    <Switch
-                      id="outlook_calendar"
-                      checked={formData.calendar_sync.outlook}
-                      onCheckedChange={(checked) => handleCalendarSyncChange('outlook', checked)}
-                    />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="module_nudges" className={textClasses}>{t('settings.notifications.moduleNudges')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.moduleNudgesDesc')}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                  <Switch
+                    id="module_nudges"
+                    checked={formData.app_reminders.module_nudges}
+                    onCheckedChange={(checked) => handleAppReminderChange('module_nudges', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+              <CardHeader>
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
+                  <Shield className="h-5 w-5 text-red-600" />
+                  {t('settings.security.title')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <PasswordChangeForm onPasswordChange={changePassword} />
+                
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="two_factor" className={textClasses}>{t('settings.security.twoFactor')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.security.twoFactorDesc')}</p>
+                  </div>
+                  <Switch
+                    id="two_factor"
+                    checked={formData.two_factor_enabled}
+                    onCheckedChange={(checked) => handleFormChange('two_factor_enabled', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="integrations" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
+            <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
+              <CardHeader>
+                <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
+                  <Link className="h-5 w-5 text-blue-600" />
+                  {t('settings.integrations.title')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="google_calendar" className={textClasses}>{t('settings.integrations.googleCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.googleDesc')}</p>
+                  </div>
+                  <Switch
+                    id="google_calendar"
+                    checked={formData.calendar_sync.google}
+                    onCheckedChange={(checked) => handleCalendarSyncChange('google', checked)}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="outlook_calendar" className={textClasses}>{t('settings.integrations.outlookCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.outlookDesc')}</p>
+                  </div>
+                  <Switch
+                    id="outlook_calendar"
+                    checked={formData.calendar_sync.outlook}
+                    onCheckedChange={(checked) => handleCalendarSyncChange('outlook', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </TooltipProvider>
   );

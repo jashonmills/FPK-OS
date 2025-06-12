@@ -1,415 +1,237 @@
 
-@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Root CSS custom properties for accessibility settings */
-:root {
-  --font-family-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-opendyslexic: "OpenDyslexic", var(--font-family-system);
-  --font-family-arial: Arial, sans-serif;
-  --font-family-georgia: Georgia, serif;
+/* FPK University Design System */
 
-  /* Shadcn/ui CSS Variables - Light Mode */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 262.1 83.3% 57.8%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 262.1 83.3% 57.8%;
-  --radius: 0.75rem;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-  /* FPK Purple Gradient Sidebar Variables - FIXED VALUES */
-  --sidebar-background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #8b5cf6;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #a855f7;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #7c3aed;
-  --sidebar-ring: #8b5cf6;
+    --card: 33 50% 96%;
+    --card-foreground: 222.2 84% 4.9%;
 
-  /* FPK University Brand Colors - ACTUAL COLOR VALUES */
-  --fpk-purple: #8b5cf6;
-  --fpk-amber: #f59e0b;
-  --fpk-purple-dark: #7c3aed;
-  --fpk-purple-darker: #6d28d9;
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 262.1 83.3% 57.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 262.1 83.3% 57.8%;
+    --primary: 280 65% 35%;
+    --primary-foreground: 210 40% 98%;
 
-  /* Dark Sidebar with Purple Gradient */
-  --sidebar-background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 50%, #581c87 100%);
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #a855f7;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #8b5cf6;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #6d28d9;
-  --sidebar-ring: #8b5cf6;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-  /* Dark mode FPK colors */
-  --fpk-purple: #a855f7;
-  --fpk-amber: #fbbf24;
-}
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-/* Global accessibility font application using data attributes */
-html[data-font-family="System"] {
-  font-family: var(--font-family-system);
-}
+    --accent: 33 50% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-html[data-font-family="OpenDyslexic"] {
-  font-family: var(--font-family-opendyslexic);
-}
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-html[data-font-family="Arial"] {
-  font-family: var(--font-family-arial);
-}
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 280 65% 35%;
 
-html[data-font-family="Georgia"] {
-  font-family: var(--font-family-georgia);
-}
+    --radius: 1rem;
 
-/* Text size scaling */
-html[data-text-size="1"] {
-  font-size: 14px;
-}
+    --sidebar-background: 280 65% 35%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 38 95% 48%;
+    --sidebar-primary-foreground: 280 65% 35%;
+    --sidebar-accent: 280 70% 40%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 280 70% 30%;
+    --sidebar-ring: 38 95% 48%;
 
-html[data-text-size="2"] {
-  font-size: 16px;
-}
+    /* FPK University Custom Variables */
+    --fpk-primary: 280 65% 35%;
+    --fpk-secondary: 38 95% 48%;
+    --fpk-card: 33 50% 96%;
+    --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
 
-html[data-text-size="3"] {
-  font-size: 18px;
-}
-
-html[data-text-size="4"] {
-  font-size: 20px;
-}
-
-html[data-text-size="5"] {
-  font-size: 22px;
-}
-
-/* Line spacing */
-html[data-line-spacing="1"] * {
-  line-height: 1.2;
-}
-
-html[data-line-spacing="2"] * {
-  line-height: 1.5;
-}
-
-html[data-line-spacing="3"] * {
-  line-height: 1.8;
-}
-
-html[data-line-spacing="4"] * {
-  line-height: 2.0;
-}
-
-/* High contrast mode */
-html[data-color-contrast="High"] {
-  filter: contrast(1.5);
-}
-
-/* Comfort modes */
-html[data-comfort-mode="Low-Stimulus"] {
-  --colors-primary: #6b7280;
-  --colors-accent: #9ca3af;
-}
-
-html[data-comfort-mode="Focus"] {
-  --animation-duration: 0s;
-}
-
-html[data-comfort-mode="Focus"] * {
-  animation-duration: 0s !important;
-  transition-duration: 0s !important;
-}
-
-/* Ensure accessibility settings override component styles */
-html[data-font-family] *,
-html[data-font-family] .font-sans,
-html[data-font-family] .font-serif,
-html[data-font-family] .font-mono {
-  font-family: inherit !important;
-}
-
-/* Remove mobile-specific overrides that conflict with user preferences */
-@media (max-width: 768px) {
-  /* Allow user font preferences to persist on mobile */
-  html[data-font-family] * {
-    font-family: inherit !important;
+    /* Accessibility Variables */
+    --accessibility-bg: var(--background);
+    --accessibility-text: var(--foreground);
+    --accessibility-border: var(--border);
+    --mobile-text-size: 1rem;
+    --mobile-line-height: 1.5;
   }
-  
-  /* Preserve user text size preferences */
-  html[data-text-size] {
-    font-size: inherit;
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
-/* Base component styles with FPK theme applied globally */
 @layer base {
   * {
     @apply border-border;
   }
-  
-  html {
-    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%);
-  }
-  
+
   body {
-    @apply bg-transparent text-foreground font-system;
-    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%);
-    min-height: 100vh;
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  /* Strong font family declarations with mobile priority */
+  .font-opendyslexic,
+  .font-opendyslexic *,
+  body.font-opendyslexic,
+  body.font-opendyslexic * {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+  }
+
+  .font-arial,
+  .font-arial *,
+  body.font-arial,
+  body.font-arial * {
+    font-family: 'Arial', 'Helvetica', sans-serif !important;
+  }
+
+  .font-georgia,
+  .font-georgia *,
+  body.font-georgia,
+  body.font-georgia * {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+  }
+
+  .font-system,
+  .font-system *,
+  body.font-system,
+  body.font-system * {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+
+  /* Global accessibility classes with stronger mobile specificity */
+  .accessibility-container {
+    font-family: var(--accessibility-font-family, system-ui) !important;
+    background-color: var(--accessibility-bg) !important;
+    color: var(--accessibility-text) !important;
+    border-color: var(--accessibility-border) !important;
+  }
+
+  /* Mobile-first accessibility overrides with maximum specificity */
+  @media screen and (max-width: 768px) {
+    body.accessibility-active,
+    body.accessibility-active *,
+    .accessibility-mobile-override,
+    .accessibility-mobile-override * {
+      -webkit-text-size-adjust: 100% !important;
+      text-size-adjust: 100% !important;
+      font-size: var(--mobile-text-size) !important;
+      line-height: var(--mobile-line-height) !important;
+    }
+    
+    /* Force text size overrides on mobile */
+    body.accessibility-active .text-sm,
+    body.accessibility-active .text-sm * { font-size: 0.875rem !important; }
+    body.accessibility-active .text-base,
+    body.accessibility-active .text-base * { font-size: 1rem !important; }
+    body.accessibility-active .text-lg,
+    body.accessibility-active .text-lg * { font-size: 1.125rem !important; }
+    body.accessibility-active .text-xl,
+    body.accessibility-active .text-xl * { font-size: 1.25rem !important; }
+    body.accessibility-active .text-2xl,
+    body.accessibility-active .text-2xl * { font-size: 1.5rem !important; }
+    
+    /* Force line height overrides on mobile */
+    body.accessibility-active .leading-tight,
+    body.accessibility-active .leading-tight * { line-height: 1.25 !important; }
+    body.accessibility-active .leading-normal,
+    body.accessibility-active .leading-normal * { line-height: 1.5 !important; }
+    body.accessibility-active .leading-relaxed,
+    body.accessibility-active .leading-relaxed * { line-height: 1.625 !important; }
+    body.accessibility-active .leading-loose,
+    body.accessibility-active .leading-loose * { line-height: 2 !important; }
+
+    /* Mobile accessibility text size utility */
+    .accessibility-text-size-override,
+    .accessibility-text-size-override *,
+    .accessibility-line-height-override,
+    .accessibility-line-height-override * {
+      font-size: var(--mobile-text-size) !important;
+      line-height: var(--mobile-line-height) !important;
+    }
   }
 }
 
-/* Component layer for consistent styling */
-@layer components {
-  /* FORCE Beautiful FPK Sidebar with Purple Gradient - MAXIMUM SPECIFICITY */
-  [data-sidebar="sidebar"],
-  [data-sidebar],
-  .sidebar-enhanced,
-  aside[data-sidebar="sidebar"],
-  aside[data-sidebar] {
-    background: var(--sidebar-background) !important;
-    backdrop-filter: blur(10px) !important;
-    border-right: 1px solid rgba(139, 92, 246, 0.3) !important;
-    color: var(--sidebar-foreground) !important;
-  }
-
-  /* Force sidebar text and elements to be white */
-  [data-sidebar="sidebar"] *,
-  [data-sidebar] *,
-  aside[data-sidebar="sidebar"] *,
-  aside[data-sidebar] * {
-    color: var(--sidebar-foreground) !important;
-  }
-
-  /* Sidebar navigation items */
-  [data-sidebar] [data-sidebar-menu-button],
-  [data-sidebar] .sidebar-menu-button,
-  [data-sidebar] button,
-  [data-sidebar] a {
-    color: var(--sidebar-foreground) !important;
-    transition: all 0.2s ease !important;
-  }
-
-  [data-sidebar] [data-sidebar-menu-button]:hover,
-  [data-sidebar] .sidebar-menu-button:hover,
-  [data-sidebar] button:hover,
-  [data-sidebar] a:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: var(--sidebar-foreground) !important;
-  }
-
-  /* Enhanced card styles - Applied globally */
-  .card,
-  [data-fpk-card],
-  .fpk-card,
-  [class*="card"] {
-    @apply border border-purple-200/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
-    background: linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  }
-  
-  .fpk-enhanced-card {
-    @apply border border-purple-200/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
-    background: linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  }
-
-  .fpk-gradient-bg {
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
-  }
-  
-  .fpk-glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
-  }
-
-  /* Beautiful gradient text for headings - Enhanced */
-  .fpk-gradient-text,
-  h1, h2, h3, h4, h5, h6 {
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    font-weight: 600 !important;
-  }
-
-  /* Button gradient styles */
-  .fpk-gradient-button {
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
-    @apply text-white border-0 hover:opacity-90 transition-all duration-200 shadow-lg;
-  }
-
-  /* Admin dashboard specific styling */
-  .admin-card {
-    @apply fpk-enhanced-card hover:scale-[1.02] transition-transform duration-200;
-    background: linear-gradient(135deg, white 0%, #faf5ff 100%);
-  }
-
-  /* Header styling */
-  .dashboard-header {
-    background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(250,245,255,0.8) 100%) !important;
-    backdrop-filter: blur(20px) !important;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.1) !important;
-  }
-
-  /* Navigation improvements */
-  .nav-item {
-    @apply transition-all duration-200 hover:bg-white/20 rounded-lg;
-  }
-
-  .nav-item.active {
-    @apply bg-white/20 text-white;
-    background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%) !important;
-  }
-
-  /* Global page styling */
-  main, .page-container, [role="main"] {
-    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%) !important;
-    min-height: 100vh;
-  }
-}
-
-/* Utilities for accessibility override protection */
 @layer utilities {
-  .accessibility-protected {
-    font-family: inherit !important;
-    font-size: inherit !important;
-    line-height: inherit !important;
+  .fpk-gradient {
+    background: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+  }
+  
+  .fpk-card {
+    background-color: #FBF6F0;
+  }
+  
+  .fpk-text-gradient {
+    background: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  /* Beautiful hover effects */
-  .fpk-hover-lift {
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-xl;
+  /* Enhanced accessibility utilities with maximum mobile priority */
+  .accessibility-text {
+    font-size: var(--accessibility-text-size, 1rem) !important;
+    line-height: var(--accessibility-line-height, 1.5) !important;
+    color: var(--accessibility-text) !important;
   }
 
-  .fpk-hover-glow {
-    @apply transition-all duration-300 hover:shadow-lg;
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.25);
+  .accessibility-card {
+    background-color: var(--accessibility-bg) !important;
+    color: var(--accessibility-text) !important;
+    border-color: var(--accessibility-border) !important;
+  }
+  
+  /* Strong mobile accessibility utilities */
+  .accessibility-mobile-text {
+    font-size: var(--mobile-text-size) !important;
+    line-height: var(--mobile-line-height) !important;
   }
 
-  /* Dashboard specific utilities */
-  .stat-card {
-    @apply fpk-enhanced-card p-6 text-center hover:shadow-xl transition-all duration-300;
-    background: linear-gradient(135deg, white 0%, #faf5ff 100%) !important;
+  /* Mobile accessibility force override */
+  @media screen and (max-width: 768px) {
+    .accessibility-mobile-override * {
+      font-size: var(--mobile-text-size) !important;
+      line-height: var(--mobile-line-height) !important;
+    }
   }
-
-  .metric-value {
-    @apply text-3xl font-bold;
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-  }
-
-  .metric-label {
-    @apply text-sm text-gray-600 font-medium;
-  }
-
-  /* Enhanced buttons */
-  .btn-primary {
-    @apply px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200;
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
-    color: white !important;
-  }
-
-  .btn-secondary {
-    @apply bg-purple-50 hover:bg-purple-100 text-purple-700 px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200;
-  }
-
-  /* Beautiful animations */
-  .fade-in {
-    animation: fadeIn 0.5s ease-out;
-  }
-
-  .slide-up {
-    animation: slideUp 0.6s ease-out;
-  }
-}
-
-/* Beautiful animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Chart and visualization styling */
-.recharts-wrapper {
-  @apply rounded-lg overflow-hidden;
-}
-
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke: rgba(139, 92, 246, 0.1);
-  opacity: 0.3;
-}
-
-/* Status indicators */
-.status-online {
-  @apply text-green-600 font-semibold;
-}
-
-.status-connected {
-  @apply text-green-600 font-semibold;
-}
-
-.status-active {
-  @apply text-green-600 font-semibold;
 }

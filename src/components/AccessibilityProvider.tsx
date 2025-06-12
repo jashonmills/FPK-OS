@@ -1,156 +1,116 @@
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import React, { useEffect } from 'react';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
-interface AccessibilitySettings {
-  fontFamily: string;
-  textSize: number;
-  lineSpacing: number;
-  colorContrast: string;
-  comfortMode: string;
+interface AccessibilityProviderProps {
+  children: React.ReactNode;
 }
 
-interface AccessibilityContextType {
-  settings: AccessibilitySettings;
-  getAccessibilityClasses: (element: string) => string;
-  updateSettings: (newSettings: Partial<AccessibilitySettings>) => void;
-  isLoading: boolean;
-}
+const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children }) => {
+  const { profile } = useAccessibility();
 
-const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
-
-const defaultSettings: AccessibilitySettings = {
-  fontFamily: 'System',
-  textSize: 2,
-  lineSpacing: 2,
-  colorContrast: 'Standard',
-  comfortMode: 'Normal'
-};
-
-const STORAGE_KEY = 'fpk-accessibility-settings';
-
-const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { profile, loading: profileLoading } = useUserProfile();
-  const [settings, setSettings] = useState<AccessibilitySettings>(defaultSettings);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load settings immediately from localStorage on mount
   useEffect(() => {
-    const loadImmediateSettings = () => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsedSettings = JSON.parse(stored);
-          console.log('🎨 AccessibilityProvider: Loaded settings from localStorage:', parsedSettings);
-          setSettings(parsedSettings);
-          applySettingsToDOM(parsedSettings);
-        }
-      } catch (error) {
-        console.error('Failed to load accessibility settings from localStorage:', error);
-      }
-      setIsLoading(false);
-    };
+    if (!profile) {
+      console.log('🔧 AccessibilityProvider: No profile, removing accessibility settings');
+      // Remove accessibility attributes when no profile
+      document.documentElement.removeAttribute('data-accessibility');
+      document.documentElement.removeAttribute('data-font');
+      document.documentElement.removeAttribute('data-text-size');
+      document.documentElement.removeAttribute('data-line-spacing');
+      document.documentElement.removeAttribute('data-contrast');
+      document.documentElement.removeAttribute('data-comfort');
+      return;
+    }
 
-    loadImmediateSettings();
-  }, []);
+    console.log('🔧 AccessibilityProvider: Applying global accessibility settings', {
+      fontFamily: profile.font_family,
+      textSize: profile.text_size,
+      lineSpacing: profile.line_spacing,
+      colorContrast: profile.color_contrast,
+      comfortMode: profile.comfort_mode
+    });
 
-  // Apply settings to DOM
-  const applySettingsToDOM = useCallback((newSettings: AccessibilitySettings) => {
     const html = document.documentElement;
     
-    // Apply font family
-    html.setAttribute('data-font-family', newSettings.fontFamily);
+    // Set data attributes for CSS selectors
+    html.setAttribute('data-accessibility', 'active');
     
-    // Apply text size
-    html.setAttribute('data-text-size', newSettings.textSize.toString());
+    // Set font family
+    const fontMap: Record<string, string> = {
+      'OpenDyslexic': 'opendyslexic',
+      'Arial': 'arial', 
+      'Georgia': 'georgia',
+      'System': 'system'
+    };
+    html.setAttribute('data-font', fontMap[profile.font_family || 'System'] || 'system');
     
-    // Apply line spacing
-    html.setAttribute('data-line-spacing', newSettings.lineSpacing.toString());
+    // Set text size
+    html.setAttribute('data-text-size', String(profile.text_size || 2));
     
-    // Apply color contrast
-    html.setAttribute('data-color-contrast', newSettings.colorContrast);
+    // Set line spacing
+    html.setAttribute('data-line-spacing', String(profile.line_spacing || 2));
     
-    // Apply comfort mode
-    html.setAttribute('data-comfort-mode', newSettings.comfortMode);
-
-    console.log('🎨 AccessibilityProvider: Applied settings to DOM:', newSettings);
-  }, []);
-
-  // Update settings from profile when available
-  useEffect(() => {
-    if (profile && !profileLoading) {
-      const profileSettings: AccessibilitySettings = {
-        fontFamily: profile.font_family || defaultSettings.fontFamily,
-        textSize: profile.text_size || defaultSettings.textSize,
-        lineSpacing: profile.line_spacing || defaultSettings.lineSpacing,
-        colorContrast: profile.color_contrast || defaultSettings.colorContrast,
-        comfortMode: profile.comfort_mode || defaultSettings.comfortMode
-      };
-
-      console.log('🎨 AccessibilityProvider: Loading settings from profile:', profileSettings);
-      setSettings(profileSettings);
-      applySettingsToDOM(profileSettings);
-      
-      // Save to localStorage for immediate future access
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profileSettings));
+    // Set contrast mode
+    if (profile.color_contrast === 'High Contrast') {
+      html.setAttribute('data-contrast', 'high');
+    } else {
+      html.removeAttribute('data-contrast');
     }
-  }, [profile, profileLoading, applySettingsToDOM]);
-
-  // Apply settings whenever they change
-  useEffect(() => {
-    applySettingsToDOM(settings);
-  }, [settings, applySettingsToDOM]);
-
-  const updateSettings = useCallback((newSettings: Partial<AccessibilitySettings>) => {
-    setSettings(prev => {
-      const updated = { ...prev, ...newSettings };
-      console.log('🎨 AccessibilityProvider: Updating settings:', updated);
-      
-      // Apply immediately to DOM
-      applySettingsToDOM(updated);
-      
-      // Save to localStorage for persistence
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      
-      return updated;
+    
+    // Set comfort mode
+    const comfortMap: Record<string, string> = {
+      'Focus Mode': 'focus',
+      'Low-Stimulus': 'low-stimulus'
+    };
+    if (profile.comfort_mode && comfortMap[profile.comfort_mode]) {
+      html.setAttribute('data-comfort', comfortMap[profile.comfort_mode]);
+    } else {
+      html.removeAttribute('data-comfort');
+    }
+    
+    // Set CSS custom properties for more granular control
+    const root = document.documentElement;
+    
+    const fontFamilyMap: Record<string, string> = {
+      'OpenDyslexic': "'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive",
+      'Arial': "'Arial', 'Helvetica', sans-serif",
+      'Georgia': "'Georgia', 'Times New Roman', serif",
+      'System': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    };
+    
+    const textSizeMap = ['0.875rem', '1rem', '1.125rem', '1.25rem', '1.5rem'];
+    const lineHeightMap = ['1.25', '1.5', '1.625', '2'];
+    
+    root.style.setProperty('--global-font-family', fontFamilyMap[profile.font_family || 'System']);
+    root.style.setProperty('--global-font-size', textSizeMap[(profile.text_size || 2) - 1] || '1rem');
+    root.style.setProperty('--global-line-height', lineHeightMap[(profile.line_spacing || 2) - 1] || '1.5');
+    
+    console.log('✅ Applied global accessibility settings:', {
+      dataAttributes: {
+        accessibility: 'active',
+        font: fontMap[profile.font_family || 'System'],
+        textSize: String(profile.text_size || 2),
+        lineSpacing: String(profile.line_spacing || 2),
+        contrast: profile.color_contrast === 'High Contrast' ? 'high' : 'none',
+        comfort: comfortMap[profile.comfort_mode || ''] || 'none'
+      },
+      customProperties: {
+        fontFamily: fontFamilyMap[profile.font_family || 'System'],
+        fontSize: textSizeMap[(profile.text_size || 2) - 1],
+        lineHeight: lineHeightMap[(profile.line_spacing || 2) - 1]
+      }
     });
-  }, [applySettingsToDOM]);
-
-  const getAccessibilityClasses = useCallback((element: string) => {
-    const baseClasses = 'accessibility-protected';
     
-    switch (element) {
-      case 'container':
-        return `${baseClasses} transition-all duration-200`;
-      case 'text':
-        return `${baseClasses}`;
-      case 'card':
-        return `${baseClasses} fpk-card`;
-      default:
-        return baseClasses;
-    }
-  }, []);
+    // Force repaint for better browser compatibility
+    requestAnimationFrame(() => {
+      document.body.style.transform = 'translateZ(0)';
+      document.body.offsetHeight; // Trigger reflow
+      document.body.style.transform = '';
+    });
+    
+  }, [profile]);
 
-  const contextValue: AccessibilityContextType = {
-    settings,
-    getAccessibilityClasses,
-    updateSettings,
-    isLoading: isLoading && profileLoading
-  };
-
-  return (
-    <AccessibilityContext.Provider value={contextValue}>
-      {children}
-    </AccessibilityContext.Provider>
-  );
-};
-
-export const useAccessibility = () => {
-  const context = useContext(AccessibilityContext);
-  if (context === undefined) {
-    throw new Error('useAccessibility must be used within an AccessibilityProvider');
-  }
-  return context;
+  return <>{children}</>;
 };
 
 export default AccessibilityProvider;

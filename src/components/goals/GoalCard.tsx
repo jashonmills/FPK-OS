@@ -66,39 +66,39 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-500/10 text-red-700 border-red-500/20';
-      case 'medium': return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20';
-      case 'low': return 'bg-green-500/10 text-green-700 border-green-500/20';
-      default: return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/10 text-green-700 border-green-500/20';
-      case 'paused': return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20';
-      case 'active': return 'bg-blue-500/10 text-blue-700 border-blue-500/20';
-      default: return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'paused': return 'bg-yellow-100 text-yellow-800';
+      case 'active': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
     <>
-      <Card className="fpk-enhanced-card border-0 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+      <Card className="fpk-card border-0 shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg font-semibold text-foreground mb-3 line-clamp-2">
+            <div className="flex-1">
+              <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
                 {goal.title}
               </CardTitle>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className={`${getPriorityColor(goal.priority)} border font-medium`}>
+              <div className="flex items-center gap-2">
+                <Badge className={getPriorityColor(goal.priority)}>
                   <DualLanguageText 
                     translationKey={`goals.priority.${goal.priority}`} 
                     fallback={goal.priority} 
                   />
                 </Badge>
-                <Badge className={`${getStatusColor(goal.status)} border font-medium`}>
+                <Badge className={getStatusColor(goal.status)}>
                   <DualLanguageText 
                     translationKey={`goals.status.${goal.status}`} 
                     fallback={goal.status} 
@@ -108,32 +108,32 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="sm">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end">
                 {goal.status !== 'completed' && (
-                  <DropdownMenuItem onClick={() => handleStatusChange('completed')} className="text-green-600">
+                  <DropdownMenuItem onClick={() => handleStatusChange('completed')}>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     <DualLanguageText translationKey="goals.actions.markComplete" fallback="Mark Complete" />
                   </DropdownMenuItem>
                 )}
                 {goal.status === 'active' && (
-                  <DropdownMenuItem onClick={() => handleStatusChange('paused')} className="text-yellow-600">
+                  <DropdownMenuItem onClick={() => handleStatusChange('paused')}>
                     <Pause className="h-4 w-4 mr-2" />
                     <DualLanguageText translationKey="goals.actions.pause" fallback="Pause" />
                   </DropdownMenuItem>
                 )}
                 {goal.status === 'paused' && (
-                  <DropdownMenuItem onClick={() => handleStatusChange('active')} className="text-blue-600">
+                  <DropdownMenuItem onClick={() => handleStatusChange('active')}>
                     <Play className="h-4 w-4 mr-2" />
                     <DualLanguageText translationKey="goals.actions.resume" fallback="Resume" />
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem 
                   onClick={() => setShowDeleteDialog(true)}
-                  className="text-red-600 focus:text-red-600"
+                  className="text-red-600"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   <DualLanguageText translationKey="goals.actions.delete" fallback="Delete" />
@@ -145,23 +145,20 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
         
         <CardContent className="space-y-4">
           {goal.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{goal.description}</p>
+            <p className="text-sm text-gray-600">{goal.description}</p>
           )}
           
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground font-medium">
+              <span className="text-gray-500">
                 <DualLanguageText translationKey="goals.progress" fallback="Progress" />
               </span>
-              <span className="font-bold fpk-gradient-text">{goal.progress}%</span>
+              <span className="font-medium">{goal.progress}%</span>
             </div>
-            <div className="relative">
-              <Progress value={goal.progress} className="h-2" />
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-full"></div>
-            </div>
+            <Progress value={goal.progress} className="h-2" />
           </div>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/20">
+          <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               <span>
@@ -183,12 +180,12 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
       </Card>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="fpk-gradient-text">
+            <AlertDialogTitle>
               <DualLanguageText translationKey="goals.deleteDialog.title" fallback="Delete Goal" />
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+            <AlertDialogDescription>
               <DualLanguageText 
                 translationKey="goals.deleteDialog.description" 
                 fallback="Are you sure you want to delete this goal? This action cannot be undone." 
@@ -196,13 +193,10 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-border/50">
+            <AlertDialogCancel>
               <DualLanguageText translationKey="common.cancel" fallback="Cancel" />
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete} 
-              className="bg-red-600 hover:bg-red-700 text-white border-0"
-            >
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               <DualLanguageText translationKey="common.delete" fallback="Delete" />
             </AlertDialogAction>
           </AlertDialogFooter>

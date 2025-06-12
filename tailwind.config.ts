@@ -63,35 +63,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// FPK University Custom Colors with CSS variable integration
-				'fpk-purple': 'hsl(var(--fpk-purple))',
-				'fpk-amber': 'hsl(var(--fpk-amber))',
-				'fpk-card': 'hsl(var(--fpk-card))',
-				// Additional theme colors for variety
-				purple: {
-					50: '#faf5ff',
-					100: '#f3e8ff',
-					200: '#e9d5ff',
-					300: '#d8b4fe',
-					400: '#c084fc',
-					500: '#a855f7',
-					600: '#9333ea',
-					700: 'hsl(var(--fpk-purple))',
-					800: '#6b21a8',
-					900: '#581c87',
-				},
-				amber: {
-					50: '#fffbeb',
-					100: '#fef3c7',
-					200: '#fed7aa',
-					300: '#fdba74',
-					400: '#fb923c',
-					500: 'hsl(var(--fpk-amber))',
-					600: '#d97706',
-					700: '#b45309',
-					800: '#92400e',
-					900: '#78350f',
-				},
+				// FPK University Custom Colors
+				'fpk-purple': '#7F1D9C',
+				'fpk-amber': '#F59E0B',
+				'fpk-card': '#FBF6F0',
 			},
 			fontFamily: {
 				// Accessibility fonts with proper fallbacks
@@ -115,10 +90,6 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
-			backgroundImage: {
-				'fpk-gradient': 'linear-gradient(135deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-amber)) 100%)',
-				'fpk-gradient-reverse': 'linear-gradient(135deg, hsl(var(--fpk-amber)) 0%, hsl(var(--fpk-purple)) 100%)',
-			},
 			keyframes: {
 				'accordion-down': {
 					from: {
@@ -139,18 +110,12 @@ export default {
 				'fade-in': {
 					'0%': { opacity: '0', transform: 'translateY(10px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
-				},
-				'gradient-shift': {
-					'0%': { backgroundPosition: '0% 50%' },
-					'50%': { backgroundPosition: '100% 50%' },
-					'100%': { backgroundPosition: '0% 50%' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-out',
-				'gradient-shift': 'gradient-shift 3s ease-in-out infinite'
+				'fade-in': 'fade-in 0.5s ease-out'
 			}
 		}
 	},
