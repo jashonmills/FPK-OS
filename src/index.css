@@ -53,11 +53,9 @@
     --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
 
     /* Accessibility Variables */
-    --accessibility-bg: var(--background);
-    --accessibility-text: var(--foreground);
-    --accessibility-border: var(--border);
-    --mobile-text-size: 1rem;
-    --mobile-line-height: 1.5;
+    --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --accessibility-font-size: 16px;
+    --accessibility-line-height: 1.5;
   }
 
   .dark {
@@ -110,85 +108,86 @@
     transition: all 0.2s ease;
   }
 
-  /* Strong font family declarations with mobile priority */
-  .font-opendyslexic,
-  .font-opendyslexic *,
-  body.font-opendyslexic,
-  body.font-opendyslexic * {
-    font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+  /* ACCESSIBILITY FONT FAMILIES - MAXIMUM SPECIFICITY */
+  body.fpk-font-opendyslexic,
+  body.fpk-font-opendyslexic *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
-  .font-arial,
-  .font-arial *,
-  body.font-arial,
-  body.font-arial * {
-    font-family: 'Arial', 'Helvetica', sans-serif !important;
+  body.fpk-font-arial,
+  body.fpk-font-arial *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
-  .font-georgia,
-  .font-georgia *,
-  body.font-georgia,
-  body.font-georgia * {
-    font-family: 'Georgia', 'Times New Roman', serif !important;
+  body.fpk-font-georgia,
+  body.fpk-font-georgia *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
-  .font-system,
-  .font-system *,
-  body.font-system,
-  body.font-system * {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  body.fpk-font-cursive,
+  body.fpk-font-cursive *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-family: "Dancing Script", "Brush Script MT", cursive !important;
   }
 
-  /* Global accessibility classes with stronger mobile specificity */
-  .accessibility-container {
-    font-family: var(--accessibility-font-family, system-ui) !important;
-    background-color: var(--accessibility-bg) !important;
-    color: var(--accessibility-text) !important;
-    border-color: var(--accessibility-border) !important;
+  body.fpk-font-system,
+  body.fpk-font-system *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 
-  /* Mobile-first accessibility overrides with maximum specificity */
-  @media screen and (max-width: 768px) {
-    body.accessibility-active,
-    body.accessibility-active *,
-    .accessibility-mobile-override,
-    .accessibility-mobile-override * {
-      -webkit-text-size-adjust: 100% !important;
-      text-size-adjust: 100% !important;
-      font-size: var(--mobile-text-size) !important;
-      line-height: var(--mobile-line-height) !important;
-    }
-    
-    /* Force text size overrides on mobile */
-    body.accessibility-active .text-sm,
-    body.accessibility-active .text-sm * { font-size: 0.875rem !important; }
-    body.accessibility-active .text-base,
-    body.accessibility-active .text-base * { font-size: 1rem !important; }
-    body.accessibility-active .text-lg,
-    body.accessibility-active .text-lg * { font-size: 1.125rem !important; }
-    body.accessibility-active .text-xl,
-    body.accessibility-active .text-xl * { font-size: 1.25rem !important; }
-    body.accessibility-active .text-2xl,
-    body.accessibility-active .text-2xl * { font-size: 1.5rem !important; }
-    
-    /* Force line height overrides on mobile */
-    body.accessibility-active .leading-tight,
-    body.accessibility-active .leading-tight * { line-height: 1.25 !important; }
-    body.accessibility-active .leading-normal,
-    body.accessibility-active .leading-normal * { line-height: 1.5 !important; }
-    body.accessibility-active .leading-relaxed,
-    body.accessibility-active .leading-relaxed * { line-height: 1.625 !important; }
-    body.accessibility-active .leading-loose,
-    body.accessibility-active .leading-loose * { line-height: 2 !important; }
+  /* ACCESSIBILITY TEXT SIZE AND LINE HEIGHT - MAXIMUM SPECIFICITY */
+  body.fpk-accessibility-active,
+  body.fpk-accessibility-active *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+    font-size: var(--accessibility-font-size) !important;
+    line-height: var(--accessibility-line-height) !important;
+  }
 
-    /* Mobile accessibility text size utility */
-    .accessibility-text-size-override,
-    .accessibility-text-size-override *,
-    .accessibility-line-height-override,
-    .accessibility-line-height-override * {
-      font-size: var(--mobile-text-size) !important;
-      line-height: var(--mobile-line-height) !important;
-    }
+  /* HIGH CONTRAST MODE */
+  body.fpk-high-contrast,
+  body.fpk-high-contrast *:not(svg) {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  body.fpk-high-contrast svg {
+    color: #000000 !important;
+    fill: #000000 !important;
+  }
+
+  /* COMFORT MODES */
+  body.fpk-low-stimulus {
+    background-color: #f9fafb !important;
+  }
+
+  body.fpk-low-stimulus *:not(svg) {
+    background-color: #f9fafb !important;
+    color: #1f2937 !important;
+  }
+
+  body.fpk-focus-mode {
+    background-color: #eff6ff !important;
+  }
+
+  body.fpk-focus-mode *:not(svg) {
+    background-color: #eff6ff !important;
+    color: #1e3a8a !important;
+  }
+
+  /* VISUAL DEBUG INDICATOR */
+  body.fpk-accessibility-active::before {
+    content: "🎨 Accessibility Active";
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #10b981;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.8;
+    font-family: system-ui !important;
   }
 }
 
@@ -206,32 +205,5 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-  }
-
-  /* Enhanced accessibility utilities with maximum mobile priority */
-  .accessibility-text {
-    font-size: var(--accessibility-text-size, 1rem) !important;
-    line-height: var(--accessibility-line-height, 1.5) !important;
-    color: var(--accessibility-text) !important;
-  }
-
-  .accessibility-card {
-    background-color: var(--accessibility-bg) !important;
-    color: var(--accessibility-text) !important;
-    border-color: var(--accessibility-border) !important;
-  }
-  
-  /* Strong mobile accessibility utilities */
-  .accessibility-mobile-text {
-    font-size: var(--mobile-text-size) !important;
-    line-height: var(--mobile-line-height) !important;
-  }
-
-  /* Mobile accessibility force override */
-  @media screen and (max-width: 768px) {
-    .accessibility-mobile-override * {
-      font-size: var(--mobile-text-size) !important;
-      line-height: var(--mobile-line-height) !important;
-    }
   }
 }

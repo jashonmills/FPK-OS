@@ -29,25 +29,13 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     });
 
     // Remove all existing accessibility classes
-    const existingClasses = Array.from(body.classList).filter(cls => 
-      cls.startsWith('fpk-') || cls.startsWith('accessibility-')
-    );
+    const existingClasses = Array.from(body.classList).filter(cls => cls.startsWith('fpk-'));
     if (existingClasses.length > 0) {
       console.log('🧹 Removing existing classes:', existingClasses);
       body.classList.remove(...existingClasses);
     }
 
-    // Font family mapping with actual CSS font stacks
-    const fontFamilyMap: Record<string, string> = {
-      'OpenDyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
-      'Arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-      'Georgia': 'Georgia, "Times New Roman", Times, serif',
-      'Cursive': '"Dancing Script", "Brush Script MT", cursive',
-      'System': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    };
-    
-    // Calculate values
-    const selectedFont = fontFamilyMap[profile.font_family || 'System'];
+    // Calculate font size and line height
     const baseSize = 16; // Base font size in px
     const sizeMultiplier = 0.75 + ((profile.text_size || 3) - 1) * 0.125; // Range: 0.75x to 1.25x
     const fontSize = `${baseSize * sizeMultiplier}px`;
@@ -55,24 +43,20 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const lineHeight = lineHeightValue.toString();
     
     console.log('🎨 Calculated styles:', { 
-      selectedFont, 
       fontSize, 
       lineHeight,
       sizeMultiplier,
       lineHeightValue
     });
 
-    // Set CSS variables on the root element with maximum priority
-    root.style.setProperty('--accessibility-font-family', selectedFont, 'important');
-    root.style.setProperty('--accessibility-font-size', fontSize, 'important');
-    root.style.setProperty('--accessibility-line-height', lineHeight, 'important');
-    root.style.setProperty('--mobile-text-size', fontSize, 'important');
-    root.style.setProperty('--mobile-line-height', lineHeight, 'important');
+    // Set CSS variables for text size and line height
+    root.style.setProperty('--accessibility-font-size', fontSize);
+    root.style.setProperty('--accessibility-line-height', lineHeight);
     
     // Apply main accessibility class to activate the CSS
     body.classList.add('fpk-accessibility-active');
     
-    // Apply specific font class for additional targeting
+    // Apply font family class
     const fontClass = `fpk-font-${(profile.font_family || 'system').toLowerCase()}`;
     body.classList.add(fontClass);
     console.log('🎨 Applied font class:', fontClass);
@@ -84,7 +68,6 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     }
     
     // Apply comfort mode
-    body.classList.remove('fpk-focus-mode', 'fpk-low-stimulus');
     if (profile.comfort_mode === 'Focus Mode') {
       body.classList.add('fpk-focus-mode');
       console.log('🎨 Applied focus mode');
@@ -93,26 +76,14 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       console.log('🎨 Applied low-stimulus mode');
     }
     
-    // Force immediate style application to body
-    body.style.setProperty('font-family', selectedFont, 'important');
-    body.style.setProperty('font-size', fontSize, 'important');
-    body.style.setProperty('line-height', lineHeight, 'important');
-    
     console.log('✅ Applied CSS variables:', {
-      fontFamily: root.style.getPropertyValue('--accessibility-font-family'),
       fontSize: root.style.getPropertyValue('--accessibility-font-size'),
       lineHeight: root.style.getPropertyValue('--accessibility-line-height')
     });
     
-    console.log('✅ Applied body styles:', {
-      fontFamily: body.style.fontFamily,
-      fontSize: body.style.fontSize,
-      lineHeight: body.style.lineHeight
-    });
-    
     console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
     
-    // Force multiple repaints to ensure changes are visible
+    // Force repaint to ensure changes are visible
     body.style.transform = 'translateZ(0)';
     requestAnimationFrame(() => {
       body.style.transform = '';
