@@ -16,6 +16,16 @@ interface AccessibilitySettingsProps {
 }
 
 const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, onUpdate }) => {
+  const getTextSizeLabel = (value: number) => {
+    const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
+    return labels[value - 1] || 'Medium';
+  };
+
+  const getLineSpacingLabel = (value: number) => {
+    const labels = ['Compact', 'Tight', 'Normal', 'Relaxed', 'Loose'];
+    return labels[value - 1] || 'Normal';
+  };
+
   return (
     <Card className="fpk-card border-0 shadow-lg">
       <CardHeader>
@@ -39,6 +49,7 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
               <SelectItem value="OpenDyslexic">OpenDyslexic</SelectItem>
               <SelectItem value="Arial">Arial</SelectItem>
               <SelectItem value="Georgia">Georgia</SelectItem>
+              <SelectItem value="Cursive">Cursive</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -84,24 +95,24 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({ profile, 
         </div>
 
         <div>
-          <Label>Text Size: {['Small', 'Medium', 'Large'][(profile.text_size || 2) - 1]}</Label>
+          <Label>Text Size: {getTextSizeLabel(profile.text_size || 3)}</Label>
           <Slider
-            value={[profile.text_size || 2]}
+            value={[profile.text_size || 3]}
             onValueChange={([value]) => onUpdate({ text_size: value })}
             min={1}
-            max={3}
+            max={5}
             step={1}
             className="mt-2"
           />
         </div>
 
         <div>
-          <Label>Line Spacing: {['Compact', 'Comfortable', 'Airy'][(profile.line_spacing || 2) - 1]}</Label>
+          <Label>Line Spacing: {getLineSpacingLabel(profile.line_spacing || 3)}</Label>
           <Slider
-            value={[profile.line_spacing || 2]}
+            value={[profile.line_spacing || 3]}
             onValueChange={([value]) => onUpdate({ line_spacing: value })}
             min={1}
-            max={3}
+            max={5}
             step={1}
             className="mt-2"
           />

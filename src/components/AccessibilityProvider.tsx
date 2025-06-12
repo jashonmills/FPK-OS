@@ -40,18 +40,19 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       'OpenDyslexic': 'opendyslexic',
       'Arial': 'arial', 
       'Georgia': 'georgia',
+      'Cursive': 'cursive',
       'System': 'system'
     };
     html.setAttribute('data-font', fontMap[profile.font_family || 'System'] || 'system');
     
-    // Set text size
-    html.setAttribute('data-text-size', String(profile.text_size || 2));
+    // Set text size (1-5 range)
+    html.setAttribute('data-text-size', String(profile.text_size || 3));
     
-    // Set line spacing
-    html.setAttribute('data-line-spacing', String(profile.line_spacing || 2));
+    // Set line spacing (1-5 range)
+    html.setAttribute('data-line-spacing', String(profile.line_spacing || 3));
     
     // Set contrast mode
-    if (profile.color_contrast === 'High Contrast') {
+    if (profile.color_contrast === 'High') {
       html.setAttribute('data-contrast', 'high');
     } else {
       html.removeAttribute('data-contrast');
@@ -75,29 +76,30 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       'OpenDyslexic': "'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive",
       'Arial': "'Arial', 'Helvetica', sans-serif",
       'Georgia': "'Georgia', 'Times New Roman', serif",
+      'Cursive': "'Dancing Script', 'Brush Script MT', cursive",
       'System': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     };
     
-    const textSizeMap = ['0.875rem', '1rem', '1.125rem', '1.25rem', '1.5rem'];
-    const lineHeightMap = ['1.25', '1.5', '1.625', '2'];
+    const textSizeMap = ['0.75rem', '0.875rem', '1rem', '1.125rem', '1.25rem'];
+    const lineHeightMap = ['1.1', '1.25', '1.5', '1.75', '2'];
     
     root.style.setProperty('--global-font-family', fontFamilyMap[profile.font_family || 'System']);
-    root.style.setProperty('--global-font-size', textSizeMap[(profile.text_size || 2) - 1] || '1rem');
-    root.style.setProperty('--global-line-height', lineHeightMap[(profile.line_spacing || 2) - 1] || '1.5');
+    root.style.setProperty('--global-font-size', textSizeMap[(profile.text_size || 3) - 1] || '1rem');
+    root.style.setProperty('--global-line-height', lineHeightMap[(profile.line_spacing || 3) - 1] || '1.5');
     
     console.log('✅ Applied global accessibility settings:', {
       dataAttributes: {
         accessibility: 'active',
         font: fontMap[profile.font_family || 'System'],
-        textSize: String(profile.text_size || 2),
-        lineSpacing: String(profile.line_spacing || 2),
-        contrast: profile.color_contrast === 'High Contrast' ? 'high' : 'none',
+        textSize: String(profile.text_size || 3),
+        lineSpacing: String(profile.line_spacing || 3),
+        contrast: profile.color_contrast === 'High' ? 'high' : 'none',
         comfort: comfortMap[profile.comfort_mode || ''] || 'none'
       },
       customProperties: {
         fontFamily: fontFamilyMap[profile.font_family || 'System'],
-        fontSize: textSizeMap[(profile.text_size || 2) - 1],
-        lineHeight: lineHeightMap[(profile.line_spacing || 2) - 1]
+        fontSize: textSizeMap[(profile.text_size || 3) - 1],
+        lineHeight: lineHeightMap[(profile.line_spacing || 3) - 1]
       }
     });
     

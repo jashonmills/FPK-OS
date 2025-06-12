@@ -21,8 +21,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Load accessibility-friendly fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Open+Sans:wght@400;500;600;700&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Load accessibility-friendly fonts including cursive -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Open+Sans:wght@400;500;600;700&family=Georgia:wght@400;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
       /* Define OpenDyslexic and other accessibility fonts */
@@ -54,7 +54,7 @@
       }
       
       /* Universal Accessibility Override - Applied with maximum specificity */
-      html[data-accessibility="active"] *,
+      html[data-accessibility="active"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
       html[data-accessibility="active"] body,
       html[data-accessibility="active"] {
         font-family: var(--global-font-family) !important;
@@ -62,71 +62,81 @@
         line-height: var(--global-line-height) !important;
       }
       
-      /* Font Family Global Overrides */
-      html[data-font="opendyslexic"] *,
+      /* Font Family Global Overrides with stronger specificity */
+      html[data-font="opendyslexic"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
       html[data-font="opendyslexic"] body,
       html[data-font="opendyslexic"] {
         font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive !important;
       }
       
-      html[data-font="arial"] *,
+      html[data-font="arial"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
       html[data-font="arial"] body,
       html[data-font="arial"] {
         font-family: 'Arial', 'Helvetica', sans-serif !important;
       }
       
-      html[data-font="georgia"] *,
+      html[data-font="georgia"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
       html[data-font="georgia"] body,
       html[data-font="georgia"] {
         font-family: 'Georgia', 'Times New Roman', serif !important;
       }
       
-      html[data-font="system"] *,
+      html[data-font="cursive"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
+      html[data-font="cursive"] body,
+      html[data-font="cursive"] {
+        font-family: 'Dancing Script', 'Brush Script MT', cursive !important;
+      }
+      
+      html[data-font="system"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
       html[data-font="system"] body,
       html[data-font="system"] {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       }
       
-      /* Text Size Global Overrides */
-      html[data-text-size="1"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      /* Text Size Global Overrides - Expanded to 5 levels */
+      html[data-text-size="1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+        font-size: 0.75rem !important;
+      }
+      
+      html[data-text-size="2"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         font-size: 0.875rem !important;
       }
       
-      html[data-text-size="2"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-text-size="3"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         font-size: 1rem !important;
       }
       
-      html[data-text-size="3"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-text-size="4"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         font-size: 1.125rem !important;
       }
       
-      html[data-text-size="4"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-text-size="5"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         font-size: 1.25rem !important;
       }
       
-      html[data-text-size="5"] *:not(svg):not(path):not(circle):not(rect):not(line) {
-        font-size: 1.5rem !important;
+      /* Line Height Global Overrides - Expanded to 5 levels */
+      html[data-line-spacing="1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+        line-height: 1.1 !important;
       }
       
-      /* Line Height Global Overrides */
-      html[data-line-spacing="1"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-line-spacing="2"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         line-height: 1.25 !important;
       }
       
-      html[data-line-spacing="2"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-line-spacing="3"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         line-height: 1.5 !important;
       }
       
-      html[data-line-spacing="3"] *:not(svg):not(path):not(circle):not(rect):not(line) {
-        line-height: 1.625 !important;
+      html[data-line-spacing="4"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
+        line-height: 1.75 !important;
       }
       
-      html[data-line-spacing="4"] *:not(svg):not(path):not(circle):not(rect):not(line) {
+      html[data-line-spacing="5"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         line-height: 2 !important;
       }
       
       /* High contrast mode */
-      html[data-contrast="high"] * {
+      html[data-contrast="high"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         color: #000000 !important;
         background-color: #ffffff !important;
       }
@@ -136,7 +146,7 @@
         background-color: #f0f8ff !important;
       }
       
-      html[data-comfort="focus"] * {
+      html[data-comfort="focus"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         background-color: transparent !important;
       }
       
@@ -145,13 +155,13 @@
         background-color: #f9f9f9 !important;
       }
       
-      html[data-comfort="low-stimulus"] * {
+      html[data-comfort="low-stimulus"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse) {
         background-color: transparent !important;
       }
       
       /* Mobile responsiveness */
       @media (max-width: 768px) {
-        html[data-accessibility="active"] *,
+        html[data-accessibility="active"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(ellipse),
         html[data-accessibility="active"] body {
           -webkit-text-size-adjust: 100% !important;
           text-size-adjust: 100% !important;

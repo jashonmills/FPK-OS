@@ -28,6 +28,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({
         return 'font-arial';
       case 'Georgia':
         return 'font-georgia';
+      case 'Cursive':
+        return 'font-cursive';
       case 'System':
         return 'font-system';
       default:
@@ -36,12 +38,12 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   };
 
   const getTextSize = () => {
-    const sizes = ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
+    const sizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl'];
     return sizes[textSize - 1] || 'text-base';
   };
 
   const getLineHeight = () => {
-    const heights = ['leading-tight', 'leading-normal', 'leading-relaxed', 'leading-loose'];
+    const heights = ['leading-tight', 'leading-snug', 'leading-normal', 'leading-relaxed', 'leading-loose'];
     return heights[lineSpacing - 1] || 'leading-normal';
   };
 
@@ -58,11 +60,21 @@ const LivePreview: React.FC<LivePreviewProps> = ({
 
   const getTextClasses = () => {
     switch (colorContrast) {
-      case 'High Contrast':
+      case 'High':
         return 'text-black';
       default:
         return 'text-gray-800';
     }
+  };
+
+  const getTextSizeLabel = (value: number) => {
+    const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
+    return labels[value - 1] || 'Medium';
+  };
+
+  const getLineSpacingLabel = (value: number) => {
+    const labels = ['Compact', 'Tight', 'Normal', 'Relaxed', 'Loose'];
+    return labels[value - 1] || 'Normal';
   };
 
   console.log('LivePreview props:', { fontFamily, textSize, lineSpacing, colorContrast, comfortMode });
@@ -90,8 +102,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           </p>
           <p className="mb-3">
             <strong>{t('preview.fontLabel')}:</strong> {fontFamily} <br />
-            <strong>{t('preview.sizeLabel')}:</strong> {textSize} <br />
-            <strong>{t('preview.spacingLabel')}:</strong> {lineSpacing} <br />
+            <strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)} <br />
+            <strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)} <br />
             <strong>{t('preview.contrastLabel')}:</strong> {colorContrast}
           </p>
           <p>

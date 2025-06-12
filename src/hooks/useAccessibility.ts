@@ -37,6 +37,8 @@ export const useAccessibility = () => {
           return 'font-arial';
         case 'Georgia':
           return 'font-georgia';
+        case 'Cursive':
+          return 'font-cursive';
         case 'System':
         default:
           return 'font-system';
@@ -44,17 +46,17 @@ export const useAccessibility = () => {
     };
 
     const getTextSize = () => {
-      const sizes = ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
-      return sizes[(profile.text_size || 2) - 1] || 'text-base';
+      const sizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl'];
+      return sizes[(profile.text_size || 3) - 1] || 'text-base';
     };
 
     const getLineHeight = () => {
-      const heights = ['leading-tight', 'leading-normal', 'leading-relaxed', 'leading-loose'];
-      return heights[(profile.line_spacing || 2) - 1] || 'leading-normal';
+      const heights = ['leading-tight', 'leading-snug', 'leading-normal', 'leading-relaxed', 'leading-loose'];
+      return heights[(profile.line_spacing || 3) - 1] || 'leading-normal';
     };
 
     const getTextColor = () => {
-      return profile.color_contrast === 'High Contrast' ? 'text-black' : 'text-foreground';
+      return profile.color_contrast === 'High' ? 'text-black' : 'text-foreground';
     };
 
     const getBackgroundClasses = () => {
@@ -130,10 +132,10 @@ export const useAccessibility = () => {
     classes,
     getAccessibilityClasses,
     profile,
-    isHighContrast: profile?.color_contrast === 'High Contrast',
+    isHighContrast: profile?.color_contrast === 'High',
     comfortMode: profile?.comfort_mode || 'Normal',
     fontFamily: profile?.font_family || 'System',
-    textSize: profile?.text_size || 2,
-    lineSpacing: profile?.line_spacing || 2
+    textSize: profile?.text_size || 3,
+    lineSpacing: profile?.line_spacing || 3
   };
 };
