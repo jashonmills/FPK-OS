@@ -115,6 +115,8 @@ const Settings = () => {
   // Update form data when profile loads (only initially)
   useEffect(() => {
     if (profile && isInitializing.current) {
+      console.log('🔄 Initializing form data from profile:', profile);
+      
       const emailNotifications = profile.email_notifications as any || {};
       const appReminders = profile.app_reminders as any || {};
       const calendarSync = profile.calendar_sync as any || {};
@@ -153,6 +155,7 @@ const Settings = () => {
         }
       };
 
+      console.log('🔄 Form data initialized:', newFormData);
       setFormData(newFormData);
       lastSavedData.current = newFormData;
       isInitializing.current = false;
@@ -166,6 +169,8 @@ const Settings = () => {
     // Check if data has actually changed
     if (!hasDataChanged(formData, lastSavedData.current)) return;
 
+    console.log('🔄 Form data changed, scheduling auto-save...');
+
     // Clear existing timeout
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -174,7 +179,7 @@ const Settings = () => {
     // Set new timeout for auto-save
     saveTimeoutRef.current = setTimeout(() => {
       handleAutoSave();
-    }, 2000);
+    }, 1000); // Reduced timeout for faster response
 
     return () => {
       if (saveTimeoutRef.current) {
@@ -186,6 +191,7 @@ const Settings = () => {
   const handleAutoSave = async () => {
     if (!profile || isSaving.current) return;
 
+    console.log('💾 Auto-saving form data:', formData);
     isSaving.current = true;
     
     try {
@@ -216,14 +222,16 @@ const Settings = () => {
 
       // Update last saved data
       lastSavedData.current = { ...formData };
+      console.log('✅ Auto-save completed');
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('❌ Auto-save failed:', error);
     } finally {
       isSaving.current = false;
     }
   };
 
   const handleFormChange = (key: string, value: any) => {
+    console.log(`🔧 Form change: ${key} =`, value);
     setFormData(prev => ({
       ...prev,
       [key]: value

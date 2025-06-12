@@ -47,6 +47,8 @@ export const useUserProfile = () => {
         return;
       }
 
+      console.log('📊 Loading profile for user:', user.id);
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -64,6 +66,7 @@ export const useUserProfile = () => {
       }
 
       if (!data) {
+        console.log('📊 No profile found, creating default profile');
         // Create default profile if it doesn't exist with correct accessibility defaults
         const defaultProfile: ProfileUpdate = {
           full_name: user.user_metadata?.full_name || '',
@@ -75,8 +78,8 @@ export const useUserProfile = () => {
           font_family: 'System',
           color_contrast: 'Standard',
           dual_language_enabled: false,
-          text_size: 3, // Fixed: Medium (3)
-          line_spacing: 3, // Fixed: Normal (3)
+          text_size: 3, // Medium (3)
+          line_spacing: 3, // Normal (3)
           push_notifications_enabled: false,
           two_factor_enabled: false,
           speech_to_text_enabled: false,
@@ -115,8 +118,10 @@ export const useUserProfile = () => {
           return;
         }
 
+        console.log('📊 Created new profile:', newProfile);
         setProfile(newProfile);
       } else {
+        console.log('📊 Loaded existing profile:', data);
         setProfile(data);
       }
     } catch (error) {
@@ -132,9 +137,14 @@ export const useUserProfile = () => {
   };
 
   const updateProfile = async (updates: ProfileUpdate, silent: boolean = false) => {
-    if (!profile) return;
+    if (!profile) {
+      console.error('❌ No profile to update');
+      return;
+    }
 
+    console.log('💾 Updating profile with:', updates);
     setSaving(true);
+    
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -153,6 +163,7 @@ export const useUserProfile = () => {
         return;
       }
 
+      console.log('✅ Profile updated successfully:', data);
       setProfile(data);
       
       // Only show success toast for manual saves, not auto-saves
