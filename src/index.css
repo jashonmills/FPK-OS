@@ -33,22 +33,21 @@
   --ring: 262.1 83.3% 57.8%;
   --radius: 0.75rem;
 
-  /* FPK Purple Gradient Sidebar Variables */
-  --sidebar-background: 262.1 83.3% 57.8%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 262.1 83.3% 57.8%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 262.1 70% 65%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 262.1 50% 45%;
-  --sidebar-ring: 262.1 83.3% 57.8%;
+  /* FPK Purple Gradient Sidebar Variables - FIXED VALUES */
+  --sidebar-background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #a855f7;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #7c3aed;
+  --sidebar-ring: #8b5cf6;
 
-  /* FPK University Brand Colors - Fixed with actual color values */
-  --fpk-purple-hsl: 262.1 83.3% 57.8%;
-  --fpk-amber-hsl: 45 93% 47%;
+  /* FPK University Brand Colors - ACTUAL COLOR VALUES */
   --fpk-purple: #8b5cf6;
   --fpk-amber: #f59e0b;
-  --fpk-card: 45 54% 96%;
+  --fpk-purple-dark: #7c3aed;
+  --fpk-purple-darker: #6d28d9;
 }
 
 .dark {
@@ -73,14 +72,14 @@
   --ring: 262.1 83.3% 57.8%;
 
   /* Dark Sidebar with Purple Gradient */
-  --sidebar-background: 262.1 83.3% 45%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 262.1 83.3% 57.8%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 262.1 70% 55%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 262.1 50% 35%;
-  --sidebar-ring: 262.1 83.3% 57.8%;
+  --sidebar-background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 50%, #581c87 100%);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #8b5cf6;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #6d28d9;
+  --sidebar-ring: #8b5cf6;
 
   /* Dark mode FPK colors */
   --fpk-purple: #a855f7;
@@ -190,28 +189,73 @@ html[data-font-family] .font-mono {
   }
   
   html {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%);
   }
   
   body {
     @apply bg-transparent text-foreground font-system;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary))/50% 100%);
+    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%);
     min-height: 100vh;
   }
 }
 
 /* Component layer for consistent styling */
 @layer components {
+  /* FORCE Beautiful FPK Sidebar with Purple Gradient - MAXIMUM SPECIFICITY */
+  [data-sidebar="sidebar"],
+  [data-sidebar],
+  .sidebar-enhanced,
+  aside[data-sidebar="sidebar"],
+  aside[data-sidebar] {
+    background: var(--sidebar-background) !important;
+    backdrop-filter: blur(10px) !important;
+    border-right: 1px solid rgba(139, 92, 246, 0.3) !important;
+    color: var(--sidebar-foreground) !important;
+  }
+
+  /* Force sidebar text and elements to be white */
+  [data-sidebar="sidebar"] *,
+  [data-sidebar] *,
+  aside[data-sidebar="sidebar"] *,
+  aside[data-sidebar] * {
+    color: var(--sidebar-foreground) !important;
+  }
+
+  /* Sidebar navigation items */
+  [data-sidebar] [data-sidebar-menu-button],
+  [data-sidebar] .sidebar-menu-button,
+  [data-sidebar] button,
+  [data-sidebar] a {
+    color: var(--sidebar-foreground) !important;
+    transition: all 0.2s ease !important;
+  }
+
+  [data-sidebar] [data-sidebar-menu-button]:hover,
+  [data-sidebar] .sidebar-menu-button:hover,
+  [data-sidebar] button:hover,
+  [data-sidebar] a:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--sidebar-foreground) !important;
+  }
+
   /* Enhanced card styles - Applied globally */
-  .fpk-card,
-  [data-fpk-card],
   .card,
+  [data-fpk-card],
+  .fpk-card,
   [class*="card"] {
-    @apply bg-white/95 border border-purple-200/50 rounded-xl shadow-lg backdrop-blur-sm;
-    background: linear-gradient(135deg, white 0%, #faf5ff 100%);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    @apply border border-purple-200/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
+    background: linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
   }
   
+  .fpk-enhanced-card {
+    @apply border border-purple-200/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
+    background: linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+  }
+
   .fpk-gradient-bg {
     background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
   }
@@ -223,41 +267,17 @@ html[data-font-family] .font-mono {
   /* Beautiful gradient text for headings - Enhanced */
   .fpk-gradient-text,
   h1, h2, h3, h4, h5, h6 {
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 600;
-  }
-
-  /* Enhanced card styles with better shadows and gradients */
-  .fpk-enhanced-card {
-    @apply border border-purple-200/30 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300;
-    background: linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    font-weight: 600 !important;
   }
 
   /* Button gradient styles */
   .fpk-gradient-button {
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
+    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
     @apply text-white border-0 hover:opacity-90 transition-all duration-200 shadow-lg;
-  }
-
-  /* FORCE Beautiful FPK Sidebar with Purple Gradient */
-  [data-sidebar="sidebar"],
-  .sidebar-enhanced,
-  [data-sidebar] {
-    background: linear-gradient(180deg, var(--fpk-purple) 0%, #7c3aed 50%, #6d28d9 100%) !important;
-    backdrop-filter: blur(10px) !important;
-    border-right: 1px solid rgba(139, 92, 246, 0.3) !important;
-  }
-
-  /* Force sidebar background on all sidebar elements with higher specificity */
-  .sidebar-enhanced *,
-  [data-sidebar="sidebar"] *,
-  [data-sidebar] * {
-    color: white !important;
   }
 
   /* Admin dashboard specific styling */
@@ -268,9 +288,9 @@ html[data-font-family] .font-mono {
 
   /* Header styling */
   .dashboard-header {
-    background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(250,245,255,0.8) 100%);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+    background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(250,245,255,0.8) 100%) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1) !important;
   }
 
   /* Navigation improvements */
@@ -280,12 +300,12 @@ html[data-font-family] .font-mono {
 
   .nav-item.active {
     @apply bg-white/20 text-white;
-    background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%) !important;
   }
 
   /* Global page styling */
   main, .page-container, [role="main"] {
-    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%);
+    background: linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%) !important;
     min-height: 100vh;
   }
 }
@@ -311,15 +331,15 @@ html[data-font-family] .font-mono {
   /* Dashboard specific utilities */
   .stat-card {
     @apply fpk-enhanced-card p-6 text-center hover:shadow-xl transition-all duration-300;
-    background: linear-gradient(135deg, white 0%, #faf5ff 100%);
+    background: linear-gradient(135deg, white 0%, #faf5ff 100%) !important;
   }
 
   .metric-value {
     @apply text-3xl font-bold;
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
   }
 
   .metric-label {
@@ -329,8 +349,8 @@ html[data-font-family] .font-mono {
   /* Enhanced buttons */
   .btn-primary {
     @apply px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200;
-    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--fpk-purple) 0%, var(--fpk-amber) 100%) !important;
+    color: white !important;
   }
 
   .btn-secondary {

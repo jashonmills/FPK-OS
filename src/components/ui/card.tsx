@@ -17,6 +17,11 @@ const Card = React.forwardRef<
         getAccessibilityClasses('card'),
         className
       )}
+      style={{
+        background: 'linear-gradient(135deg, white 0%, #faf5ff 50%, #f3e8ff 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        backdropFilter: 'blur(10px)'
+      }}
       {...props}
     />
   )
@@ -49,6 +54,13 @@ const CardTitle = React.forwardRef<
         getAccessibilityClasses('text'),
         className
       )}
+      style={{
+        background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        fontWeight: '600'
+      }}
       {...props}
     />
   )

@@ -21,32 +21,65 @@ const DashboardContent = () => {
   console.log('🏠 DashboardLayout: Applied classes:', dashboardClasses);
   
   return (
-    <div className={`min-h-screen flex w-full ${dashboardClasses} accessibility-mobile-override`} 
-         style={{background: 'linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%)'}}>
+    <div 
+      className={`min-h-screen flex w-full ${dashboardClasses} accessibility-mobile-override`} 
+      style={{
+        background: 'linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%)'
+      }}
+    >
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header that spans full width */}
         <div className="sticky top-0 z-50 w-full dashboard-header">
-          <div className={`flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 ${getAccessibilityClasses('container')}`}>
+          <div 
+            className={`flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 ${getAccessibilityClasses('container')}`}
+            style={{
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(250,245,255,0.8) 100%)',
+              backdropFilter: 'blur(20px)',
+              borderBottom: '1px solid rgba(139, 92, 246, 0.1)'
+            }}
+          >
             {/* Left side - Sidebar trigger and brand */}
             <div className="flex items-center gap-2 sm:gap-3">
               <SidebarTrigger className="hover:text-primary h-8 w-8 sm:h-auto sm:w-auto" />
               <div className="hidden sm:flex items-center gap-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-lg"
-                     style={{background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)'}}>
+                <div 
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-lg"
+                  style={{background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)'}}
+                >
                   <span className="text-white font-bold text-xs sm:text-sm">FPK</span>
                 </div>
-                <span className={`font-semibold text-base sm:text-lg fpk-gradient-text ${getAccessibilityClasses('text')}`}>
+                <span 
+                  className={`font-semibold text-base sm:text-lg fpk-gradient-text ${getAccessibilityClasses('text')}`}
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    fontWeight: '600'
+                  }}
+                >
                   <DualLanguageText translationKey="common.learnerPortal" />
                 </span>
               </div>
               {/* Mobile brand */}
               <div className="sm:hidden flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center shadow-lg"
-                     style={{background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)'}}>
+                <div 
+                  className="w-6 h-6 rounded-lg flex items-center justify-center shadow-lg"
+                  style={{background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)'}}
+                >
                   <span className="text-white font-bold text-xs">FPK</span>
                 </div>
-                <span className={`font-semibold text-sm fpk-gradient-text ${getAccessibilityClasses('text')}`}>
+                <span 
+                  className={`font-semibold text-sm fpk-gradient-text ${getAccessibilityClasses('text')}`}
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    fontWeight: '600'
+                  }}
+                >
                   Learner Portal
                 </span>
               </div>
@@ -83,8 +116,12 @@ const DashboardContent = () => {
         </div>
         
         {/* Main content area with accessibility classes and FPK background */}
-        <main className={`flex-1 overflow-auto ${dashboardClasses} accessibility-mobile-override`}
-              style={{background: 'linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%)'}}>
+        <main 
+          className={`flex-1 overflow-auto ${dashboardClasses} accessibility-mobile-override`}
+          style={{
+            background: 'linear-gradient(135deg, #fafafa 0%, #f3e8ff 30%, #faf5ff 70%, #ffffff 100%)'
+          }}
+        >
           <Outlet />
         </main>
       </div>
