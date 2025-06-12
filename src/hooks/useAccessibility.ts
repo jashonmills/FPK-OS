@@ -100,7 +100,7 @@ export const useAccessibility = () => {
 
     setClasses(newClasses);
 
-    console.log('🎨 useAccessibility: Generated classes', {
+    console.log('🎨 useAccessibility: Generated classes for fallback', {
       profile: {
         fontFamily: profile.font_family,
         textSize: profile.text_size,
@@ -114,7 +114,7 @@ export const useAccessibility = () => {
   }, [profile]);
 
   const getAccessibilityClasses = (element: 'card' | 'container' | 'text' = 'container') => {
-    // Since we now use global CSS, these classes are mainly for fallback
+    // These classes are mainly for fallback since we now use global CSS on body
     const baseClasses = `transition-all duration-200`;
     
     switch (element) {

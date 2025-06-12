@@ -21,177 +21,133 @@
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
-      /* CSS Custom Properties for Accessibility */
-      :root {
-        --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        --accessibility-font-size: 1rem;
-        --accessibility-line-height: 1.5;
+      /* Global Accessibility Classes Applied to Body */
+      
+      /* Font Family Classes */
+      body.accessibility-font-system *,
+      body.accessibility-font-system *::before,
+      body.accessibility-font-system *::after {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
       }
       
-      /* Apply accessibility settings when active */
-      html[data-accessibility="active"] {
-        --accessibility-font-family: var(--accessibility-font-family);
-        --accessibility-font-size: var(--accessibility-font-size);
-        --accessibility-line-height: var(--accessibility-line-height);
+      body.accessibility-font-opendyslexic *,
+      body.accessibility-font-opendyslexic *::before,
+      body.accessibility-font-opendyslexic *::after {
+        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive !important;
       }
       
-      /* Font Family Settings */
-      html[data-accessibility="active"][data-font="system"] {
-        --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      body.accessibility-font-arial *,
+      body.accessibility-font-arial *::before,
+      body.accessibility-font-arial *::after {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
       }
       
-      html[data-accessibility="active"][data-font="opendyslexic"] {
-        --accessibility-font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive;
+      body.accessibility-font-georgia *,
+      body.accessibility-font-georgia *::before,
+      body.accessibility-font-georgia *::after {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
       }
       
-      html[data-accessibility="active"][data-font="arial"] {
-        --accessibility-font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+      body.accessibility-font-cursive *,
+      body.accessibility-font-cursive *::before,
+      body.accessibility-font-cursive *::after {
+        font-family: 'Dancing Script', 'Brush Script MT', cursive !important;
       }
       
-      html[data-accessibility="active"][data-font="georgia"] {
-        --accessibility-font-family: Georgia, 'Times New Roman', Times, serif;
+      /* Text Size Classes */
+      body.accessibility-text-size-1 *,
+      body.accessibility-text-size-1 *::before,
+      body.accessibility-text-size-1 *::after {
+        font-size: 0.75rem !important;
       }
       
-      html[data-accessibility="active"][data-font="cursive"] {
-        --accessibility-font-family: 'Dancing Script', 'Brush Script MT', cursive;
+      body.accessibility-text-size-2 *,
+      body.accessibility-text-size-2 *::before,
+      body.accessibility-text-size-2 *::after {
+        font-size: 0.875rem !important;
       }
       
-      /* Text Size Settings */
-      html[data-accessibility="active"][data-text-size="1"] {
-        --accessibility-font-size: 0.75rem;
+      body.accessibility-text-size-3 *,
+      body.accessibility-text-size-3 *::before,
+      body.accessibility-text-size-3 *::after {
+        font-size: 1rem !important;
       }
       
-      html[data-accessibility="active"][data-text-size="2"] {
-        --accessibility-font-size: 0.875rem;
+      body.accessibility-text-size-4 *,
+      body.accessibility-text-size-4 *::before,
+      body.accessibility-text-size-4 *::after {
+        font-size: 1.125rem !important;
       }
       
-      html[data-accessibility="active"][data-text-size="3"] {
-        --accessibility-font-size: 1rem;
+      body.accessibility-text-size-5 *,
+      body.accessibility-text-size-5 *::before,
+      body.accessibility-text-size-5 *::after {
+        font-size: 1.25rem !important;
       }
       
-      html[data-accessibility="active"][data-text-size="4"] {
-        --accessibility-font-size: 1.125rem;
+      /* Line Spacing Classes */
+      body.accessibility-line-spacing-1 *,
+      body.accessibility-line-spacing-1 *::before,
+      body.accessibility-line-spacing-1 *::after {
+        line-height: 1.1 !important;
       }
       
-      html[data-accessibility="active"][data-text-size="5"] {
-        --accessibility-font-size: 1.25rem;
+      body.accessibility-line-spacing-2 *,
+      body.accessibility-line-spacing-2 *::before,
+      body.accessibility-line-spacing-2 *::after {
+        line-height: 1.25 !important;
       }
       
-      /* Line Spacing Settings */
-      html[data-accessibility="active"][data-line-spacing="1"] {
-        --accessibility-line-height: 1.1;
+      body.accessibility-line-spacing-3 *,
+      body.accessibility-line-spacing-3 *::before,
+      body.accessibility-line-spacing-3 *::after {
+        line-height: 1.5 !important;
       }
       
-      html[data-accessibility="active"][data-line-spacing="2"] {
-        --accessibility-line-height: 1.25;
+      body.accessibility-line-spacing-4 *,
+      body.accessibility-line-spacing-4 *::before,
+      body.accessibility-line-spacing-4 *::after {
+        line-height: 1.75 !important;
       }
       
-      html[data-accessibility="active"][data-line-spacing="3"] {
-        --accessibility-line-height: 1.5;
-      }
-      
-      html[data-accessibility="active"][data-line-spacing="4"] {
-        --accessibility-line-height: 1.75;
-      }
-      
-      html[data-accessibility="active"][data-line-spacing="5"] {
-        --accessibility-line-height: 2;
-      }
-      
-      /* Apply to ALL elements with maximum specificity */
-      html[data-accessibility="active"] *,
-      html[data-accessibility="active"] *::before,
-      html[data-accessibility="active"] *::after,
-      html[data-accessibility="active"] body *,
-      html[data-accessibility="active"] #root *,
-      html[data-accessibility="active"] .fpk-card *,
-      html[data-accessibility="active"] [class*="text-"],
-      html[data-accessibility="active"] [class*="font-"],
-      html[data-accessibility="active"] [class*="leading-"],
-      html[data-accessibility="active"] h1,
-      html[data-accessibility="active"] h2,
-      html[data-accessibility="active"] h3,
-      html[data-accessibility="active"] h4,
-      html[data-accessibility="active"] h5,
-      html[data-accessibility="active"] h6,
-      html[data-accessibility="active"] p,
-      html[data-accessibility="active"] span,
-      html[data-accessibility="active"] div,
-      html[data-accessibility="active"] button,
-      html[data-accessibility="active"] input,
-      html[data-accessibility="active"] label,
-      html[data-accessibility="active"] textarea,
-      html[data-accessibility="active"] select,
-      html[data-accessibility="active"] option {
-        font-family: var(--accessibility-font-family) !important;
-        font-size: var(--accessibility-font-size) !important;
-        line-height: var(--accessibility-line-height) !important;
+      body.accessibility-line-spacing-5 *,
+      body.accessibility-line-spacing-5 *::before,
+      body.accessibility-line-spacing-5 *::after {
+        line-height: 2 !important;
       }
       
       /* High Contrast Mode */
-      html[data-accessibility="active"][data-contrast="high"] * {
+      body.accessibility-high-contrast *,
+      body.accessibility-high-contrast *::before,
+      body.accessibility-high-contrast *::after {
         color: #000000 !important;
       }
       
-      html[data-accessibility="active"][data-contrast="high"] .bg-background,
-      html[data-accessibility="active"][data-contrast="high"] .bg-card {
+      body.accessibility-high-contrast .bg-background,
+      body.accessibility-high-contrast .bg-card {
         background-color: #ffffff !important;
       }
       
       /* Comfort Modes */
-      html[data-accessibility="active"][data-comfort="low-stimulus"] {
+      body.accessibility-low-stimulus {
         background-color: #f9fafb !important;
       }
       
-      html[data-accessibility="active"][data-comfort="low-stimulus"] .bg-background,
-      html[data-accessibility="active"][data-comfort="low-stimulus"] .bg-card {
+      body.accessibility-low-stimulus .bg-background,
+      body.accessibility-low-stimulus .bg-card {
         background-color: #f9fafb !important;
         color: #1f2937 !important;
       }
       
-      html[data-accessibility="active"][data-comfort="focus"] {
+      body.accessibility-focus-mode {
         background-color: #eff6ff !important;
       }
       
-      html[data-accessibility="active"][data-comfort="focus"] .bg-background,
-      html[data-accessibility="active"][data-comfort="focus"] .bg-card {
+      body.accessibility-focus-mode .bg-background,
+      body.accessibility-focus-mode .bg-card {
         background-color: #eff6ff !important;
         color: #1e3a8a !important;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-      }
-      
-      /* Override all Tailwind text size classes */
-      html[data-accessibility="active"] .text-xs,
-      html[data-accessibility="active"] .text-sm,
-      html[data-accessibility="active"] .text-base,
-      html[data-accessibility="active"] .text-lg,
-      html[data-accessibility="active"] .text-xl,
-      html[data-accessibility="active"] .text-2xl,
-      html[data-accessibility="active"] .text-3xl,
-      html[data-accessibility="active"] .text-4xl,
-      html[data-accessibility="active"] .text-5xl {
-        font-size: var(--accessibility-font-size) !important;
-      }
-      
-      /* Override all Tailwind line height classes */
-      html[data-accessibility="active"] .leading-tight,
-      html[data-accessibility="active"] .leading-snug,
-      html[data-accessibility="active"] .leading-normal,
-      html[data-accessibility="active"] .leading-relaxed,
-      html[data-accessibility="active"] .leading-loose {
-        line-height: var(--accessibility-line-height) !important;
-      }
-      
-      /* Override all font family classes */
-      html[data-accessibility="active"] .font-sans,
-      html[data-accessibility="active"] .font-serif,
-      html[data-accessibility="active"] .font-mono,
-      html[data-accessibility="active"] .font-system,
-      html[data-accessibility="active"] .font-arial,
-      html[data-accessibility="active"] .font-georgia,
-      html[data-accessibility="active"] .font-cursive,
-      html[data-accessibility="active"] .font-opendyslexic {
-        font-family: var(--accessibility-font-family) !important;
       }
     </style>
   </head>
