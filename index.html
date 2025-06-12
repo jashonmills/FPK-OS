@@ -21,73 +21,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
-      /* ACCESSIBILITY OVERRIDES WITH CSS VARIABLES */
-      
+      /* ACCESSIBILITY CSS VARIABLES */
       :root {
         --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        --accessibility-font-size: 1rem;
+        --accessibility-font-size: 16px;
         --accessibility-line-height: 1.5;
         --accessibility-text: var(--foreground);
         --accessibility-bg: var(--background);
         --accessibility-border: var(--border);
-        --mobile-text-size: 1rem;
+        --mobile-text-size: 16px;
         --mobile-line-height: 1.5;
       }
       
-      /* Global accessibility overrides using CSS variables */
+      /* GLOBAL ACCESSIBILITY OVERRIDES - MAXIMUM PRIORITY */
       body.fpk-accessibility-active,
-      body.fpk-accessibility-active * {
+      body.fpk-accessibility-active *,
+      body.fpk-accessibility-active *:not(svg) {
         font-family: var(--accessibility-font-family) !important;
         font-size: var(--accessibility-font-size) !important;
         line-height: var(--accessibility-line-height) !important;
       }
       
-      /* Specific font family classes for fallback */
+      /* SPECIFIC FONT FAMILY CLASSES AS FALLBACK */
+      body.fpk-font-opendyslexic,
       body.fpk-font-opendyslexic * {
         font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
       }
       
+      body.fpk-font-arial,
       body.fpk-font-arial * {
         font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
       }
       
+      body.fpk-font-georgia,
       body.fpk-font-georgia * {
         font-family: Georgia, "Times New Roman", Times, serif !important;
       }
       
+      body.fpk-font-cursive,
       body.fpk-font-cursive * {
         font-family: "Dancing Script", "Brush Script MT", cursive !important;
       }
       
+      body.fpk-font-system,
       body.fpk-font-system * {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
       }
       
-      /* Text size overrides */
-      body.fpk-text-size-1 * { font-size: 0.75rem !important; }
-      body.fpk-text-size-2 * { font-size: 0.875rem !important; }
-      body.fpk-text-size-3 * { font-size: 1rem !important; }
-      body.fpk-text-size-4 * { font-size: 1.125rem !important; }
-      body.fpk-text-size-5 * { font-size: 1.25rem !important; }
-      
-      /* Line spacing overrides */
-      body.fpk-line-spacing-1 * { line-height: 1.1 !important; }
-      body.fpk-line-spacing-2 * { line-height: 1.25 !important; }
-      body.fpk-line-spacing-3 * { line-height: 1.5 !important; }
-      body.fpk-line-spacing-4 * { line-height: 1.75 !important; }
-      body.fpk-line-spacing-5 * { line-height: 2 !important; }
-      
-      /* High contrast mode */
+      /* HIGH CONTRAST MODE */
+      body.fpk-high-contrast,
       body.fpk-high-contrast * {
         color: #000000 !important;
-      }
-      
-      body.fpk-high-contrast .bg-background,
-      body.fpk-high-contrast .bg-card {
         background-color: #ffffff !important;
       }
       
-      /* Comfort modes */
+      body.fpk-high-contrast .bg-background,
+      body.fpk-high-contrast .bg-card,
+      body.fpk-high-contrast [class*="bg-"] {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      
+      /* COMFORT MODES */
       body.fpk-low-stimulus {
         background-color: #f9fafb !important;
       }
@@ -109,13 +104,31 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
       }
       
-      /* Mobile accessibility overrides */
+      /* MOBILE RESPONSIVE OVERRIDES */
       @media screen and (max-width: 768px) {
+        body.fpk-accessibility-active,
         body.fpk-accessibility-active *,
+        .accessibility-mobile-override,
         .accessibility-mobile-override * {
           font-size: var(--mobile-text-size) !important;
           line-height: var(--mobile-line-height) !important;
         }
+      }
+      
+      /* DEBUGGING STYLES - VISUAL INDICATOR WHEN ACCESSIBILITY IS ACTIVE */
+      body.fpk-accessibility-active::before {
+        content: "🎨 Accessibility Active";
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #10b981;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.8;
       }
     </style>
   </head>

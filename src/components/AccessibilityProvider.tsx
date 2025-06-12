@@ -37,7 +37,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       body.classList.remove(...existingClasses);
     }
 
-    // Font family mapping
+    // Font family mapping with actual CSS font stacks
     const fontFamilyMap: Record<string, string> = {
       'OpenDyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
       'Arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
@@ -46,47 +46,70 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       'System': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     };
     
+    // Calculate values
     const selectedFont = fontFamilyMap[profile.font_family || 'System'];
-    const fontSize = `${0.5 + (profile.text_size || 3) * 0.25}rem`;
-    const lineHeight = `${1 + (profile.line_spacing || 3) * 0.25}`;
+    const baseSize = 16; // Base font size in px
+    const sizeMultiplier = 0.75 + ((profile.text_size || 3) - 1) * 0.125; // Range: 0.75x to 1.25x
+    const fontSize = `${baseSize * sizeMultiplier}px`;
+    const lineHeightValue = 1 + ((profile.line_spacing || 3) - 1) * 0.25; // Range: 1 to 2
+    const lineHeight = lineHeightValue.toString();
     
-    console.log('🎨 Calculated styles:', { selectedFont, fontSize, lineHeight });
+    console.log('🎨 Calculated styles:', { 
+      selectedFont, 
+      fontSize, 
+      lineHeight,
+      sizeMultiplier,
+      lineHeightValue
+    });
 
-    // Set CSS variables on the root element
+    // Set CSS variables on the root element with !important
     root.style.setProperty('--accessibility-font-family', selectedFont);
     root.style.setProperty('--accessibility-font-size', fontSize);
     root.style.setProperty('--accessibility-line-height', lineHeight);
     root.style.setProperty('--mobile-text-size', fontSize);
     root.style.setProperty('--mobile-line-height', lineHeight);
     
-    // Apply CSS classes for additional styling hooks
+    // Apply main accessibility class to activate the CSS
     body.classList.add('fpk-accessibility-active');
-    body.classList.add(`fpk-font-${profile.font_family?.toLowerCase() || 'system'}`);
-    body.classList.add(`fpk-text-size-${profile.text_size || 3}`);
-    body.classList.add(`fpk-line-spacing-${profile.line_spacing || 3}`);
+    
+    // Apply specific font class for fallback
+    const fontClass = `fpk-font-${(profile.font_family || 'system').toLowerCase()}`;
+    body.classList.add(fontClass);
+    console.log('🎨 Applied font class:', fontClass);
     
     // Apply contrast mode
     if (profile.color_contrast === 'High') {
       body.classList.add('fpk-high-contrast');
       root.style.setProperty('--accessibility-text', '#000000');
       root.style.setProperty('--accessibility-bg', '#ffffff');
+      console.log('🎨 Applied high contrast mode');
     } else {
+      body.classList.remove('fpk-high-contrast');
       root.style.setProperty('--accessibility-text', 'var(--foreground)');
       root.style.setProperty('--accessibility-bg', 'var(--background)');
     }
     
     // Apply comfort mode
+    body.classList.remove('fpk-focus-mode', 'fpk-low-stimulus');
     if (profile.comfort_mode === 'Focus Mode') {
       body.classList.add('fpk-focus-mode');
       root.style.setProperty('--accessibility-bg', '#eff6ff');
       root.style.setProperty('--accessibility-border', '#dbeafe');
+      console.log('🎨 Applied focus mode');
     } else if (profile.comfort_mode === 'Low-Stimulus') {
       body.classList.add('fpk-low-stimulus');
       root.style.setProperty('--accessibility-bg', '#f9fafb');
       root.style.setProperty('--accessibility-border', '#f3f4f6');
+      console.log('🎨 Applied low-stimulus mode');
     } else {
+      root.style.setProperty('--accessibility-bg', 'var(--background)');
       root.style.setProperty('--accessibility-border', 'var(--border)');
     }
+    
+    // Force immediate style application
+    body.style.fontFamily = selectedFont;
+    body.style.fontSize = fontSize;
+    body.style.lineHeight = lineHeight;
     
     console.log('✅ Applied CSS variables:', {
       fontFamily: root.style.getPropertyValue('--accessibility-font-family'),
@@ -94,7 +117,16 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       lineHeight: root.style.getPropertyValue('--accessibility-line-height')
     });
     
+    console.log('✅ Applied body styles:', {
+      fontFamily: body.style.fontFamily,
+      fontSize: body.style.fontSize,
+      lineHeight: body.style.lineHeight
+    });
+    
     console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
+    
+    // Force a repaint to ensure changes are visible
+    body.offsetHeight;
     
   }, [profile]);
 
