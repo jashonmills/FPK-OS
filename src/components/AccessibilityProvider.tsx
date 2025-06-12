@@ -69,24 +69,6 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       html.removeAttribute('data-comfort');
     }
     
-    // Set CSS custom properties for more granular control
-    const root = document.documentElement;
-    
-    const fontFamilyMap: Record<string, string> = {
-      'OpenDyslexic': "'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', cursive",
-      'Arial': "'Arial', 'Helvetica', sans-serif",
-      'Georgia': "'Georgia', 'Times New Roman', serif",
-      'Cursive': "'Dancing Script', 'Brush Script MT', cursive",
-      'System': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-    };
-    
-    const textSizeMap = ['0.75rem', '0.875rem', '1rem', '1.125rem', '1.25rem'];
-    const lineHeightMap = ['1.1', '1.25', '1.5', '1.75', '2'];
-    
-    root.style.setProperty('--global-font-family', fontFamilyMap[profile.font_family || 'System']);
-    root.style.setProperty('--global-font-size', textSizeMap[(profile.text_size || 3) - 1] || '1rem');
-    root.style.setProperty('--global-line-height', lineHeightMap[(profile.line_spacing || 3) - 1] || '1.5');
-    
     console.log('✅ Applied global accessibility settings:', {
       dataAttributes: {
         accessibility: 'active',
@@ -95,19 +77,21 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
         lineSpacing: String(profile.line_spacing || 3),
         contrast: profile.color_contrast === 'High' ? 'high' : 'none',
         comfort: comfortMap[profile.comfort_mode || ''] || 'none'
-      },
-      customProperties: {
-        fontFamily: fontFamilyMap[profile.font_family || 'System'],
-        fontSize: textSizeMap[(profile.text_size || 3) - 1],
-        lineHeight: lineHeightMap[(profile.line_spacing || 3) - 1]
       }
     });
     
-    // Force repaint for better browser compatibility
+    // Force immediate repaint to ensure changes take effect
     requestAnimationFrame(() => {
-      document.body.style.transform = 'translateZ(0)';
+      // Force DOM reflow to apply new styles immediately
+      document.body.style.display = 'none';
       document.body.offsetHeight; // Trigger reflow
-      document.body.style.transform = '';
+      document.body.style.display = '';
+      
+      // Additional force repaint
+      document.body.style.transform = 'translateZ(0)';
+      setTimeout(() => {
+        document.body.style.transform = '';
+      }, 10);
     });
     
   }, [profile]);
