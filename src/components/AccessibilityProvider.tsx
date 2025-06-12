@@ -12,18 +12,26 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
   useEffect(() => {
     console.log('🎨 AccessibilityProvider: Profile changed', profile);
     
+    const html = document.documentElement;
+    
+    // Clear all accessibility classes
+    const existingClasses = Array.from(html.classList).filter(cls => 
+      cls.startsWith('font-') || 
+      cls.startsWith('high-') || 
+      cls.startsWith('low-') || 
+      cls.startsWith('focus-') ||
+      cls === 'accessibility-active'
+    );
+    html.classList.remove(...existingClasses);
+    
     if (!profile) {
-      console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility classes');
-      // Clear all accessibility classes when no profile
-      const body = document.body;
-      const existingClasses = Array.from(body.classList).filter(cls => cls.startsWith('fpk-'));
-      body.classList.remove(...existingClasses);
+      console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility');
+      // Reset CSS variables to defaults
+      html.style.setProperty('--accessibility-font-size', '16px');
+      html.style.setProperty('--accessibility-line-height', '1.5');
       return;
     }
 
-    const root = document.documentElement;
-    const body = document.body;
-    
     console.log('🎨 AccessibilityProvider: Applying settings', {
       font_family: profile.font_family,
       text_size: profile.text_size,
@@ -31,13 +39,6 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       color_contrast: profile.color_contrast,
       comfort_mode: profile.comfort_mode
     });
-
-    // Remove all existing accessibility classes
-    const existingClasses = Array.from(body.classList).filter(cls => cls.startsWith('fpk-'));
-    if (existingClasses.length > 0) {
-      console.log('🧹 Removing existing classes:', existingClasses);
-      body.classList.remove(...existingClasses);
-    }
 
     // Calculate and set CSS variables for text size and line height
     const baseSize = 16; // Base font size in px
@@ -54,38 +55,38 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     });
 
     // Set CSS variables
-    root.style.setProperty('--accessibility-font-size', fontSize);
-    root.style.setProperty('--accessibility-line-height', lineHeight);
+    html.style.setProperty('--accessibility-font-size', fontSize);
+    html.style.setProperty('--accessibility-line-height', lineHeight);
     
     // Apply main accessibility class to activate the CSS
-    body.classList.add('fpk-accessibility-active');
+    html.classList.add('accessibility-active');
     
-    // Apply font family class
-    const fontClass = `fpk-font-${(profile.font_family || 'system').toLowerCase()}`;
-    body.classList.add(fontClass);
+    // Apply font family class to HTML
+    const fontClass = `font-${(profile.font_family || 'system').toLowerCase()}`;
+    html.classList.add(fontClass);
     console.log('🎨 Applied font class:', fontClass);
     
-    // Apply contrast mode
+    // Apply contrast mode to HTML
     if (profile.color_contrast === 'High') {
-      body.classList.add('fpk-high-contrast');
+      html.classList.add('high-contrast');
       console.log('🎨 Applied high contrast mode');
     }
     
-    // Apply comfort mode
+    // Apply comfort mode to HTML
     if (profile.comfort_mode === 'Focus Mode') {
-      body.classList.add('fpk-focus-mode');
+      html.classList.add('focus-mode');
       console.log('🎨 Applied focus mode');
     } else if (profile.comfort_mode === 'Low-Stimulus') {
-      body.classList.add('fpk-low-stimulus');
+      html.classList.add('low-stimulus');
       console.log('🎨 Applied low-stimulus mode');
     }
     
     console.log('✅ Applied CSS variables:', {
-      fontSize: root.style.getPropertyValue('--accessibility-font-size'),
-      lineHeight: root.style.getPropertyValue('--accessibility-line-height')
+      fontSize: html.style.getPropertyValue('--accessibility-font-size'),
+      lineHeight: html.style.getPropertyValue('--accessibility-line-height')
     });
     
-    console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
+    console.log('✅ Applied classes to HTML:', Array.from(html.classList));
     
   }, [profile]);
 

@@ -107,153 +107,79 @@
     transition: all 0.2s ease;
   }
 
-  /* ACCESSIBILITY SYSTEM - When active, apply to all text elements */
-  body.fpk-accessibility-active {
-    font-size: var(--accessibility-font-size);
-    line-height: var(--accessibility-line-height);
+  /* ACCESSIBILITY SYSTEM - Global application when accessibility is active */
+  html.accessibility-active {
+    font-size: var(--accessibility-font-size) !important;
   }
 
-  body.fpk-accessibility-active p,
-  body.fpk-accessibility-active span,
-  body.fpk-accessibility-active div,
-  body.fpk-accessibility-active h1,
-  body.fpk-accessibility-active h2,
-  body.fpk-accessibility-active h3,
-  body.fpk-accessibility-active h4,
-  body.fpk-accessibility-active h5,
-  body.fpk-accessibility-active h6,
-  body.fpk-accessibility-active label,
-  body.fpk-accessibility-active button,
-  body.fpk-accessibility-active input,
-  body.fpk-accessibility-active textarea {
-    font-size: var(--accessibility-font-size);
-    line-height: var(--accessibility-line-height);
+  html.accessibility-active * {
+    line-height: var(--accessibility-line-height) !important;
   }
 
-  /* FONT FAMILIES - Apply to all text when body has the class */
-  body.fpk-font-opendyslexic,
-  body.fpk-font-opendyslexic p,
-  body.fpk-font-opendyslexic span,
-  body.fpk-font-opendyslexic div,
-  body.fpk-font-opendyslexic h1,
-  body.fpk-font-opendyslexic h2,
-  body.fpk-font-opendyslexic h3,
-  body.fpk-font-opendyslexic h4,
-  body.fpk-font-opendyslexic h5,
-  body.fpk-font-opendyslexic h6,
-  body.fpk-font-opendyslexic label,
-  body.fpk-font-opendyslexic button,
-  body.fpk-font-opendyslexic input,
-  body.fpk-font-opendyslexic textarea {
+  /* FONT FAMILIES - Apply to html when body has the class */
+  html.font-opendyslexic,
+  html.font-opendyslexic * {
     font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
-  body.fpk-font-arial,
-  body.fpk-font-arial p,
-  body.fpk-font-arial span,
-  body.fpk-font-arial div,
-  body.fpk-font-arial h1,
-  body.fpk-font-arial h2,
-  body.fpk-font-arial h3,
-  body.fpk-font-arial h4,
-  body.fpk-font-arial h5,
-  body.fpk-font-arial h6,
-  body.fpk-font-arial label,
-  body.fpk-font-arial button,
-  body.fpk-font-arial input,
-  body.fpk-font-arial textarea {
+  html.font-arial,
+  html.font-arial * {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
-  body.fpk-font-georgia,
-  body.fpk-font-georgia p,
-  body.fpk-font-georgia span,
-  body.fpk-font-georgia div,
-  body.fpk-font-georgia h1,
-  body.fpk-font-georgia h2,
-  body.fpk-font-georgia h3,
-  body.fpk-font-georgia h4,
-  body.fpk-font-georgia h5,
-  body.fpk-font-georgia h6,
-  body.fpk-font-georgia label,
-  body.fpk-font-georgia button,
-  body.fpk-font-georgia input,
-  body.fpk-font-georgia textarea {
+  html.font-georgia,
+  html.font-georgia * {
     font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
-  body.fpk-font-cursive,
-  body.fpk-font-cursive p,
-  body.fpk-font-cursive span,
-  body.fpk-font-cursive div,
-  body.fpk-font-cursive h1,
-  body.fpk-font-cursive h2,
-  body.fpk-font-cursive h3,
-  body.fpk-font-cursive h4,
-  body.fpk-font-cursive h5,
-  body.fpk-font-cursive h6,
-  body.fpk-font-cursive label,
-  body.fpk-font-cursive button,
-  body.fpk-font-cursive input,
-  body.fpk-font-cursive textarea {
+  html.font-cursive,
+  html.font-cursive * {
     font-family: "Dancing Script", "Brush Script MT", cursive !important;
   }
 
-  body.fpk-font-system,
-  body.fpk-font-system p,
-  body.fpk-font-system span,
-  body.fpk-font-system div,
-  body.fpk-font-system h1,
-  body.fpk-font-system h2,
-  body.fpk-font-system h3,
-  body.fpk-font-system h4,
-  body.fpk-font-system h5,
-  body.fpk-font-system h6,
-  body.fpk-font-system label,
-  body.fpk-font-system button,
-  body.fpk-font-system input,
-  body.fpk-font-system textarea {
+  html.font-system,
+  html.font-system * {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 
   /* HIGH CONTRAST MODE */
-  body.fpk-high-contrast {
+  html.high-contrast {
     background-color: #ffffff !important;
     color: #000000 !important;
   }
 
-  body.fpk-high-contrast *:not(svg) {
+  html.high-contrast * {
     background-color: #ffffff !important;
     color: #000000 !important;
     border-color: #000000 !important;
   }
 
-  body.fpk-high-contrast svg {
+  html.high-contrast svg {
     color: #000000 !important;
     fill: #000000 !important;
   }
 
   /* COMFORT MODES */
-  body.fpk-low-stimulus {
+  html.low-stimulus {
     background-color: #f9fafb !important;
   }
 
-  body.fpk-low-stimulus *:not(svg) {
+  html.low-stimulus * {
     background-color: #f9fafb !important;
     color: #1f2937 !important;
   }
 
-  body.fpk-focus-mode {
+  html.focus-mode {
     background-color: #eff6ff !important;
   }
 
-  body.fpk-focus-mode *:not(svg) {
+  html.focus-mode * {
     background-color: #eff6ff !important;
     color: #1e3a8a !important;
   }
 
   /* VISUAL DEBUG INDICATOR */
-  body.fpk-accessibility-active::before {
+  html.accessibility-active::before {
     content: "🎨 Accessibility Active";
     position: fixed;
     top: 10px;
