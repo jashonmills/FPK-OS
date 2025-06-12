@@ -27,6 +27,7 @@ import NotFound from '@/pages/NotFound';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
+import { AuthProvider } from '@/hooks/useAuth';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -34,50 +35,52 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
-        <AccessibilityProvider>
-          <TooltipProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                
-                {/* Dashboard Routes */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<Navigate to="/dashboard/learner" replace />} />
-                  <Route path="learner" element={<LearnerHome />} />
-                  <Route path="learner/courses" element={<MyCourses />} />
-                  <Route path="learner/course/:courseId" element={<DynamicCourse />} />
-                  <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
-                  <Route path="learner/ai-coach" element={<AIStudyCoach />} />
-                  <Route path="learner/settings" element={<Settings />} />
-                  <Route path="learner/notes" element={<Notes />} />
-                  <Route path="learner/goals" element={<Goals />} />
-                  <Route path="learner/analytics" element={<LearningAnalytics />} />
-                  <Route path="learner/live-hub" element={<LiveLearningHub />} />
+      <AuthProvider>
+        <I18nextProvider i18n={i18n}>
+          <AccessibilityProvider>
+            <TooltipProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
                   
-                  {/* Study Routes */}
-                  <Route path="study/:sessionType" element={<StudyPage />} />
+                  {/* Dashboard Routes */}
+                  <Route path="/dashboard" element={<DashboardLayout />}>
+                    <Route index element={<Navigate to="/dashboard/learner" replace />} />
+                    <Route path="learner" element={<LearnerHome />} />
+                    <Route path="learner/courses" element={<MyCourses />} />
+                    <Route path="learner/course/:courseId" element={<DynamicCourse />} />
+                    <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
+                    <Route path="learner/ai-coach" element={<AIStudyCoach />} />
+                    <Route path="learner/settings" element={<Settings />} />
+                    <Route path="learner/notes" element={<Notes />} />
+                    <Route path="learner/goals" element={<Goals />} />
+                    <Route path="learner/analytics" element={<LearningAnalytics />} />
+                    <Route path="learner/live-hub" element={<LiveLearningHub />} />
+                    
+                    {/* Study Routes */}
+                    <Route path="study/:sessionType" element={<StudyPage />} />
+                    
+                    {/* Admin Routes */}
+                    <Route path="admin" element={<AdminDashboard />} />
+                    <Route path="admin/users" element={<UserManagement />} />
+                    <Route path="admin/courses" element={<CourseManager />} />
+                    <Route path="admin/modules" element={<ModuleManagerPage />} />
+                    <Route path="admin/analytics" element={<Analytics />} />
+                  </Route>
                   
-                  {/* Admin Routes */}
-                  <Route path="admin" element={<AdminDashboard />} />
-                  <Route path="admin/users" element={<UserManagement />} />
-                  <Route path="admin/courses" element={<CourseManager />} />
-                  <Route path="admin/modules" element={<ModuleManagerPage />} />
-                  <Route path="admin/analytics" element={<Analytics />} />
-                </Route>
-                
-                {/* Standalone Routes */}
-                <Route path="/embed/learning-state/:courseId" element={<LearningStateEmbed />} />
-                
-                {/* 404 Route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </BrowserRouter>
-          </TooltipProvider>
-        </AccessibilityProvider>
-      </I18nextProvider>
+                  {/* Standalone Routes */}
+                  <Route path="/embed/learning-state/:courseId" element={<LearningStateEmbed />} />
+                  
+                  {/* 404 Route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+              </BrowserRouter>
+            </TooltipProvider>
+          </AccessibilityProvider>
+        </I18nextProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
