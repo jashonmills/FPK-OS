@@ -19,53 +19,6 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   comfortMode
 }) => {
   const { t } = useTranslation();
-  
-  const getFontClass = () => {
-    switch (fontFamily) {
-      case 'OpenDyslexic':
-        return 'font-opendyslexic';
-      case 'Arial':
-        return 'font-arial';
-      case 'Georgia':
-        return 'font-georgia';
-      case 'Cursive':
-        return 'font-cursive';
-      case 'System':
-        return 'font-system';
-      default:
-        return 'font-system';
-    }
-  };
-
-  const getTextSize = () => {
-    const sizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl'];
-    return sizes[textSize - 1] || 'text-base';
-  };
-
-  const getLineHeight = () => {
-    const heights = ['leading-tight', 'leading-snug', 'leading-normal', 'leading-relaxed', 'leading-loose'];
-    return heights[lineSpacing - 1] || 'leading-normal';
-  };
-
-  const getBackgroundClasses = () => {
-    switch (comfortMode) {
-      case 'Low-Stimulus':
-        return 'bg-gray-50 border-gray-200';
-      case 'Focus Mode':
-        return 'bg-blue-50 border-blue-200 shadow-lg';
-      default:
-        return 'bg-white border-gray-200';
-    }
-  };
-
-  const getTextClasses = () => {
-    switch (colorContrast) {
-      case 'High':
-        return 'text-black';
-      default:
-        return 'text-gray-800';
-    }
-  };
 
   const getTextSizeLabel = (value: number) => {
     const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
@@ -78,37 +31,39 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   };
 
   console.log('LivePreview props:', { fontFamily, textSize, lineSpacing, colorContrast, comfortMode });
-  console.log('Applied classes:', {
-    font: getFontClass(),
-    textSize: getTextSize(),
-    lineHeight: getLineHeight(),
-    background: getBackgroundClasses(),
-    textColor: getTextClasses()
-  });
 
   return (
-    <Card className={`${getBackgroundClasses()} transition-all duration-300 border-2`}>
+    <Card className="fpk-card border-2 border-purple-200 shadow-lg">
       <CardHeader>
-        <CardTitle className={`${getTextSize()} ${getTextClasses()} ${getFontClass()}`}>
-          {t('preview.title')}
+        <CardTitle className="text-purple-700">
+          {t('preview.title')} - Live Preview
         </CardTitle>
+        <p className="text-sm text-gray-600">
+          This preview shows how your accessibility settings affect the actual interface. 
+          Changes apply globally across the entire application.
+        </p>
       </CardHeader>
       <CardContent>
-        <div
-          className={`${getTextSize()} ${getLineHeight()} ${getTextClasses()} ${getFontClass()} transition-all duration-300`}
-        >
-          <p className="mb-3">
+        <div className="space-y-4">
+          <p className="text-base">
             {t('preview.description')}
           </p>
-          <p className="mb-3">
-            <strong>{t('preview.fontLabel')}:</strong> {fontFamily} <br />
-            <strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)} <br />
-            <strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)} <br />
-            <strong>{t('preview.contrastLabel')}:</strong> {colorContrast}
-          </p>
-          <p>
-            {t('preview.comfortLabel')}: <em>{comfortMode}</em>
-          </p>
+          
+          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+            <p className="font-semibold">Current Settings:</p>
+            <p><strong>{t('preview.fontLabel')}:</strong> {fontFamily}</p>
+            <p><strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)}</p>
+            <p><strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)}</p>
+            <p><strong>{t('preview.contrastLabel')}:</strong> {colorContrast}</p>
+            <p><strong>{t('preview.comfortLabel')}:</strong> <em>{comfortMode}</em></p>
+          </div>
+          
+          <div className="border-l-4 border-amber-400 bg-amber-50 p-3">
+            <p className="text-amber-800 font-medium">
+              💡 Pro Tip: These settings apply to the entire application immediately. 
+              Navigate to other pages to see the global effect!
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

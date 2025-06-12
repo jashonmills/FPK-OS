@@ -13,7 +13,11 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     console.log('🎨 AccessibilityProvider: Profile changed', profile);
     
     if (!profile) {
-      console.log('🎨 AccessibilityProvider: No profile, skipping');
+      console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility classes');
+      // Clear all accessibility classes when no profile
+      const body = document.body;
+      const existingClasses = Array.from(body.classList).filter(cls => cls.startsWith('fpk-'));
+      body.classList.remove(...existingClasses);
       return;
     }
 
@@ -35,21 +39,21 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       body.classList.remove(...existingClasses);
     }
 
-    // Calculate font size and line height
+    // Calculate and set CSS variables for text size and line height
     const baseSize = 16; // Base font size in px
     const sizeMultiplier = 0.75 + ((profile.text_size || 3) - 1) * 0.125; // Range: 0.75x to 1.25x
     const fontSize = `${baseSize * sizeMultiplier}px`;
     const lineHeightValue = 1 + ((profile.line_spacing || 3) - 1) * 0.25; // Range: 1 to 2
     const lineHeight = lineHeightValue.toString();
     
-    console.log('🎨 Calculated styles:', { 
+    console.log('🎨 Setting CSS variables:', { 
       fontSize, 
       lineHeight,
       sizeMultiplier,
       lineHeightValue
     });
 
-    // Set CSS variables for text size and line height
+    // Set CSS variables
     root.style.setProperty('--accessibility-font-size', fontSize);
     root.style.setProperty('--accessibility-line-height', lineHeight);
     
@@ -82,13 +86,6 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     });
     
     console.log('✅ Applied classes:', Array.from(body.classList).filter(c => c.startsWith('fpk-')));
-    
-    // Force repaint to ensure changes are visible
-    body.style.transform = 'translateZ(0)';
-    requestAnimationFrame(() => {
-      body.style.transform = '';
-      body.offsetHeight; // Force reflow
-    });
     
   }, [profile]);
 

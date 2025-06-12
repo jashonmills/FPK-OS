@@ -52,8 +52,7 @@
     --fpk-card: 33 50% 96%;
     --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
 
-    /* Accessibility Variables */
-    --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Accessibility Variables - Default Values */
     --accessibility-font-size: 16px;
     --accessibility-line-height: 1.5;
   }
@@ -108,44 +107,124 @@
     transition: all 0.2s ease;
   }
 
-  /* ACCESSIBILITY FONT FAMILIES - MAXIMUM SPECIFICITY */
+  /* ACCESSIBILITY SYSTEM - When active, apply to all text elements */
+  body.fpk-accessibility-active {
+    font-size: var(--accessibility-font-size);
+    line-height: var(--accessibility-line-height);
+  }
+
+  body.fpk-accessibility-active p,
+  body.fpk-accessibility-active span,
+  body.fpk-accessibility-active div,
+  body.fpk-accessibility-active h1,
+  body.fpk-accessibility-active h2,
+  body.fpk-accessibility-active h3,
+  body.fpk-accessibility-active h4,
+  body.fpk-accessibility-active h5,
+  body.fpk-accessibility-active h6,
+  body.fpk-accessibility-active label,
+  body.fpk-accessibility-active button,
+  body.fpk-accessibility-active input,
+  body.fpk-accessibility-active textarea {
+    font-size: var(--accessibility-font-size);
+    line-height: var(--accessibility-line-height);
+  }
+
+  /* FONT FAMILIES - Apply to all text when body has the class */
   body.fpk-font-opendyslexic,
-  body.fpk-font-opendyslexic *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+  body.fpk-font-opendyslexic p,
+  body.fpk-font-opendyslexic span,
+  body.fpk-font-opendyslexic div,
+  body.fpk-font-opendyslexic h1,
+  body.fpk-font-opendyslexic h2,
+  body.fpk-font-opendyslexic h3,
+  body.fpk-font-opendyslexic h4,
+  body.fpk-font-opendyslexic h5,
+  body.fpk-font-opendyslexic h6,
+  body.fpk-font-opendyslexic label,
+  body.fpk-font-opendyslexic button,
+  body.fpk-font-opendyslexic input,
+  body.fpk-font-opendyslexic textarea {
     font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
   body.fpk-font-arial,
-  body.fpk-font-arial *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+  body.fpk-font-arial p,
+  body.fpk-font-arial span,
+  body.fpk-font-arial div,
+  body.fpk-font-arial h1,
+  body.fpk-font-arial h2,
+  body.fpk-font-arial h3,
+  body.fpk-font-arial h4,
+  body.fpk-font-arial h5,
+  body.fpk-font-arial h6,
+  body.fpk-font-arial label,
+  body.fpk-font-arial button,
+  body.fpk-font-arial input,
+  body.fpk-font-arial textarea {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
   body.fpk-font-georgia,
-  body.fpk-font-georgia *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+  body.fpk-font-georgia p,
+  body.fpk-font-georgia span,
+  body.fpk-font-georgia div,
+  body.fpk-font-georgia h1,
+  body.fpk-font-georgia h2,
+  body.fpk-font-georgia h3,
+  body.fpk-font-georgia h4,
+  body.fpk-font-georgia h5,
+  body.fpk-font-georgia h6,
+  body.fpk-font-georgia label,
+  body.fpk-font-georgia button,
+  body.fpk-font-georgia input,
+  body.fpk-font-georgia textarea {
     font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
   body.fpk-font-cursive,
-  body.fpk-font-cursive *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+  body.fpk-font-cursive p,
+  body.fpk-font-cursive span,
+  body.fpk-font-cursive div,
+  body.fpk-font-cursive h1,
+  body.fpk-font-cursive h2,
+  body.fpk-font-cursive h3,
+  body.fpk-font-cursive h4,
+  body.fpk-font-cursive h5,
+  body.fpk-font-cursive h6,
+  body.fpk-font-cursive label,
+  body.fpk-font-cursive button,
+  body.fpk-font-cursive input,
+  body.fpk-font-cursive textarea {
     font-family: "Dancing Script", "Brush Script MT", cursive !important;
   }
 
   body.fpk-font-system,
-  body.fpk-font-system *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
+  body.fpk-font-system p,
+  body.fpk-font-system span,
+  body.fpk-font-system div,
+  body.fpk-font-system h1,
+  body.fpk-font-system h2,
+  body.fpk-font-system h3,
+  body.fpk-font-system h4,
+  body.fpk-font-system h5,
+  body.fpk-font-system h6,
+  body.fpk-font-system label,
+  body.fpk-font-system button,
+  body.fpk-font-system input,
+  body.fpk-font-system textarea {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 
-  /* ACCESSIBILITY TEXT SIZE AND LINE HEIGHT - MAXIMUM SPECIFICITY */
-  body.fpk-accessibility-active,
-  body.fpk-accessibility-active *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(polyline):not(ellipse) {
-    font-size: var(--accessibility-font-size) !important;
-    line-height: var(--accessibility-line-height) !important;
+  /* HIGH CONTRAST MODE */
+  body.fpk-high-contrast {
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
 
-  /* HIGH CONTRAST MODE */
-  body.fpk-high-contrast,
   body.fpk-high-contrast *:not(svg) {
-    color: #000000 !important;
     background-color: #ffffff !important;
+    color: #000000 !important;
     border-color: #000000 !important;
   }
 
