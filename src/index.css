@@ -10,6 +10,77 @@
   --font-family-opendyslexic: "OpenDyslexic", var(--font-family-system);
   --font-family-arial: Arial, sans-serif;
   --font-family-georgia: Georgia, serif;
+
+  /* Shadcn/ui CSS Variables - Light Mode */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 262.1 83.3% 57.8%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 262.1 83.3% 57.8%;
+  --radius: 0.75rem;
+
+  /* Sidebar Variables */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 262.1 83.3% 57.8%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 262.1 83.3% 57.8%;
+
+  /* FPK University Brand Colors */
+  --fpk-purple: 262.1 83.3% 57.8%;
+  --fpk-amber: 45 93% 47%;
+  --fpk-card: 45 54% 96%;
+  --fpk-gradient-start: 262.1 83.3% 57.8%;
+  --fpk-gradient-end: 45 93% 47%;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 262.1 83.3% 57.8%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 262.1 83.3% 57.8%;
+
+  /* Dark Sidebar Variables */
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 262.1 83.3% 57.8%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 262.1 83.3% 57.8%;
 }
 
 /* Global accessibility font application using data attributes */
@@ -121,15 +192,34 @@ html[data-font-family] .font-mono {
 /* Component layer for consistent styling */
 @layer components {
   .fpk-card {
-    @apply bg-white border border-gray-100 rounded-xl;
+    @apply bg-fpk-card border border-gray-100 rounded-xl shadow-sm;
   }
   
   .fpk-gradient-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-amber)) 100%);
   }
   
   .fpk-glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  /* Beautiful gradient text for headings */
+  .fpk-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-amber)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Enhanced card styles */
+  .fpk-enhanced-card {
+    @apply bg-card border border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  /* Button gradient styles */
+  .fpk-gradient-button {
+    background: linear-gradient(135deg, hsl(var(--fpk-purple)) 0%, hsl(var(--fpk-amber)) 100%);
+    @apply text-white border-0 hover:opacity-90 transition-opacity duration-200;
   }
 }
 
@@ -139,5 +229,14 @@ html[data-font-family] .font-mono {
     font-family: inherit !important;
     font-size: inherit !important;
     line-height: inherit !important;
+  }
+
+  /* Beautiful hover effects */
+  .fpk-hover-lift {
+    @apply transition-transform duration-200 hover:scale-105 hover:shadow-lg;
+  }
+
+  .fpk-hover-glow {
+    @apply transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25;
   }
 }
