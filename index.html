@@ -21,104 +21,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
-      /* Global Accessibility CSS - Applied based on data attributes with maximum specificity */
+      /* CSS Custom Properties for Accessibility */
+      :root {
+        --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        --accessibility-font-size: 1rem;
+        --accessibility-line-height: 1.5;
+      }
       
-      /* Font Family Rules with maximum specificity */
-      html[data-accessibility="active"][data-font="system"] *,
-      html[data-accessibility="active"][data-font="system"] body *,
-      html[data-accessibility="active"][data-font="system"] div *,
+      /* Apply accessibility settings when active */
+      html[data-accessibility="active"] {
+        --accessibility-font-family: var(--accessibility-font-family);
+        --accessibility-font-size: var(--accessibility-font-size);
+        --accessibility-line-height: var(--accessibility-line-height);
+      }
+      
+      /* Font Family Settings */
       html[data-accessibility="active"][data-font="system"] {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+        --accessibility-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       }
       
-      html[data-accessibility="active"][data-font="opendyslexic"] *,
-      html[data-accessibility="active"][data-font="opendyslexic"] body *,
-      html[data-accessibility="active"][data-font="opendyslexic"] div *,
       html[data-accessibility="active"][data-font="opendyslexic"] {
-        font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive !important;
+        --accessibility-font-family: 'OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', Trebuchet MS, cursive;
       }
       
-      html[data-accessibility="active"][data-font="arial"] *,
-      html[data-accessibility="active"][data-font="arial"] body *,
-      html[data-accessibility="active"][data-font="arial"] div *,
       html[data-accessibility="active"][data-font="arial"] {
-        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
+        --accessibility-font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
       }
       
-      html[data-accessibility="active"][data-font="georgia"] *,
-      html[data-accessibility="active"][data-font="georgia"] body *,
-      html[data-accessibility="active"][data-font="georgia"] div *,
       html[data-accessibility="active"][data-font="georgia"] {
-        font-family: Georgia, 'Times New Roman', Times, serif !important;
+        --accessibility-font-family: Georgia, 'Times New Roman', Times, serif;
       }
       
-      html[data-accessibility="active"][data-font="cursive"] *,
-      html[data-accessibility="active"][data-font="cursive"] body *,
-      html[data-accessibility="active"][data-font="cursive"] div *,
       html[data-accessibility="active"][data-font="cursive"] {
-        font-family: 'Dancing Script', 'Brush Script MT', cursive !important;
+        --accessibility-font-family: 'Dancing Script', 'Brush Script MT', cursive;
       }
       
-      /* Text Size Rules with maximum specificity */
-      html[data-accessibility="active"][data-text-size="1"] *,
-      html[data-accessibility="active"][data-text-size="1"] body *,
-      html[data-accessibility="active"][data-text-size="1"] div * {
-        font-size: 0.75rem !important;
+      /* Text Size Settings */
+      html[data-accessibility="active"][data-text-size="1"] {
+        --accessibility-font-size: 0.75rem;
       }
       
-      html[data-accessibility="active"][data-text-size="2"] *,
-      html[data-accessibility="active"][data-text-size="2"] body *,
-      html[data-accessibility="active"][data-text-size="2"] div * {
-        font-size: 0.875rem !important;
+      html[data-accessibility="active"][data-text-size="2"] {
+        --accessibility-font-size: 0.875rem;
       }
       
-      html[data-accessibility="active"][data-text-size="3"] *,
-      html[data-accessibility="active"][data-text-size="3"] body *,
-      html[data-accessibility="active"][data-text-size="3"] div * {
-        font-size: 1rem !important;
+      html[data-accessibility="active"][data-text-size="3"] {
+        --accessibility-font-size: 1rem;
       }
       
-      html[data-accessibility="active"][data-text-size="4"] *,
-      html[data-accessibility="active"][data-text-size="4"] body *,
-      html[data-accessibility="active"][data-text-size="4"] div * {
-        font-size: 1.125rem !important;
+      html[data-accessibility="active"][data-text-size="4"] {
+        --accessibility-font-size: 1.125rem;
       }
       
-      html[data-accessibility="active"][data-text-size="5"] *,
-      html[data-accessibility="active"][data-text-size="5"] body *,
-      html[data-accessibility="active"][data-text-size="5"] div * {
-        font-size: 1.25rem !important;
+      html[data-accessibility="active"][data-text-size="5"] {
+        --accessibility-font-size: 1.25rem;
       }
       
-      /* Line Spacing Rules with maximum specificity */
-      html[data-accessibility="active"][data-line-spacing="1"] *,
-      html[data-accessibility="active"][data-line-spacing="1"] body *,
-      html[data-accessibility="active"][data-line-spacing="1"] div * {
-        line-height: 1.1 !important;
+      /* Line Spacing Settings */
+      html[data-accessibility="active"][data-line-spacing="1"] {
+        --accessibility-line-height: 1.1;
       }
       
-      html[data-accessibility="active"][data-line-spacing="2"] *,
-      html[data-accessibility="active"][data-line-spacing="2"] body *,
-      html[data-accessibility="active"][data-line-spacing="2"] div * {
-        line-height: 1.25 !important;
+      html[data-accessibility="active"][data-line-spacing="2"] {
+        --accessibility-line-height: 1.25;
       }
       
-      html[data-accessibility="active"][data-line-spacing="3"] *,
-      html[data-accessibility="active"][data-line-spacing="3"] body *,
-      html[data-accessibility="active"][data-line-spacing="3"] div * {
-        line-height: 1.5 !important;
+      html[data-accessibility="active"][data-line-spacing="3"] {
+        --accessibility-line-height: 1.5;
       }
       
-      html[data-accessibility="active"][data-line-spacing="4"] *,
-      html[data-accessibility="active"][data-line-spacing="4"] body *,
-      html[data-accessibility="active"][data-line-spacing="4"] div * {
-        line-height: 1.75 !important;
+      html[data-accessibility="active"][data-line-spacing="4"] {
+        --accessibility-line-height: 1.75;
       }
       
-      html[data-accessibility="active"][data-line-spacing="5"] *,
-      html[data-accessibility="active"][data-line-spacing="5"] body *,
-      html[data-accessibility="active"][data-line-spacing="5"] div * {
-        line-height: 2 !important;
+      html[data-accessibility="active"][data-line-spacing="5"] {
+        --accessibility-line-height: 2;
+      }
+      
+      /* Apply to ALL elements with maximum specificity */
+      html[data-accessibility="active"] *,
+      html[data-accessibility="active"] *::before,
+      html[data-accessibility="active"] *::after,
+      html[data-accessibility="active"] body *,
+      html[data-accessibility="active"] #root *,
+      html[data-accessibility="active"] .fpk-card *,
+      html[data-accessibility="active"] [class*="text-"],
+      html[data-accessibility="active"] [class*="font-"],
+      html[data-accessibility="active"] [class*="leading-"],
+      html[data-accessibility="active"] h1,
+      html[data-accessibility="active"] h2,
+      html[data-accessibility="active"] h3,
+      html[data-accessibility="active"] h4,
+      html[data-accessibility="active"] h5,
+      html[data-accessibility="active"] h6,
+      html[data-accessibility="active"] p,
+      html[data-accessibility="active"] span,
+      html[data-accessibility="active"] div,
+      html[data-accessibility="active"] button,
+      html[data-accessibility="active"] input,
+      html[data-accessibility="active"] label,
+      html[data-accessibility="active"] textarea,
+      html[data-accessibility="active"] select,
+      html[data-accessibility="active"] option {
+        font-family: var(--accessibility-font-family) !important;
+        font-size: var(--accessibility-font-size) !important;
+        line-height: var(--accessibility-line-height) !important;
       }
       
       /* High Contrast Mode */
@@ -153,40 +160,38 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
       }
       
-      /* Force inheritance with extreme specificity */
-      html[data-accessibility="active"] body,
-      html[data-accessibility="active"] #root,
-      html[data-accessibility="active"] #root * {
-        font-family: inherit !important;
-        font-size: inherit !important;
-        line-height: inherit !important;
-      }
-      
-      /* Override specific Tailwind classes that might interfere */
+      /* Override all Tailwind text size classes */
       html[data-accessibility="active"] .text-xs,
       html[data-accessibility="active"] .text-sm,
       html[data-accessibility="active"] .text-base,
       html[data-accessibility="active"] .text-lg,
       html[data-accessibility="active"] .text-xl,
       html[data-accessibility="active"] .text-2xl,
-      html[data-accessibility="active"] .text-3xl {
-        font-size: inherit !important;
+      html[data-accessibility="active"] .text-3xl,
+      html[data-accessibility="active"] .text-4xl,
+      html[data-accessibility="active"] .text-5xl {
+        font-size: var(--accessibility-font-size) !important;
       }
       
+      /* Override all Tailwind line height classes */
       html[data-accessibility="active"] .leading-tight,
       html[data-accessibility="active"] .leading-snug,
       html[data-accessibility="active"] .leading-normal,
       html[data-accessibility="active"] .leading-relaxed,
       html[data-accessibility="active"] .leading-loose {
-        line-height: inherit !important;
+        line-height: var(--accessibility-line-height) !important;
       }
       
+      /* Override all font family classes */
+      html[data-accessibility="active"] .font-sans,
+      html[data-accessibility="active"] .font-serif,
+      html[data-accessibility="active"] .font-mono,
       html[data-accessibility="active"] .font-system,
       html[data-accessibility="active"] .font-arial,
       html[data-accessibility="active"] .font-georgia,
       html[data-accessibility="active"] .font-cursive,
       html[data-accessibility="active"] .font-opendyslexic {
-        font-family: inherit !important;
+        font-family: var(--accessibility-font-family) !important;
       }
     </style>
   </head>

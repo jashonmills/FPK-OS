@@ -10,15 +10,22 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
   const { profile } = useAccessibility();
 
   useEffect(() => {
+    const html = document.documentElement;
+    
     if (!profile) {
       console.log('🔧 AccessibilityProvider: No profile, removing accessibility settings');
       // Remove accessibility attributes when no profile
-      document.documentElement.removeAttribute('data-accessibility');
-      document.documentElement.removeAttribute('data-font');
-      document.documentElement.removeAttribute('data-text-size');
-      document.documentElement.removeAttribute('data-line-spacing');
-      document.documentElement.removeAttribute('data-contrast');
-      document.documentElement.removeAttribute('data-comfort');
+      html.removeAttribute('data-accessibility');
+      html.removeAttribute('data-font');
+      html.removeAttribute('data-text-size');
+      html.removeAttribute('data-line-spacing');
+      html.removeAttribute('data-contrast');
+      html.removeAttribute('data-comfort');
+      
+      // Reset CSS custom properties
+      html.style.removeProperty('--accessibility-font-family');
+      html.style.removeProperty('--accessibility-font-size');
+      html.style.removeProperty('--accessibility-line-height');
       return;
     }
 
@@ -29,8 +36,6 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       colorContrast: profile.color_contrast,
       comfortMode: profile.comfort_mode
     });
-
-    const html = document.documentElement;
     
     // Set data attributes for CSS selectors
     html.setAttribute('data-accessibility', 'active');
@@ -43,13 +48,16 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       'Cursive': 'cursive',
       'System': 'system'
     };
-    html.setAttribute('data-font', fontMap[profile.font_family || 'System'] || 'system');
+    const fontKey = fontMap[profile.font_family || 'System'] || 'system';
+    html.setAttribute('data-font', fontKey);
     
     // Set text size (1-5 range) with defaults
-    html.setAttribute('data-text-size', String(profile.text_size || 3));
+    const textSize = String(profile.text_size || 3);
+    html.setAttribute('data-text-size', textSize);
     
     // Set line spacing (1-5 range) with defaults
-    html.setAttribute('data-line-spacing', String(profile.line_spacing || 3));
+    const lineSpacing = String(profile.line_spacing || 3);
+    html.setAttribute('data-line-spacing', lineSpacing);
     
     // Set contrast mode
     if (profile.color_contrast === 'High') {
@@ -69,14 +77,48 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       html.removeAttribute('data-comfort');
     }
     
+    // Set CSS custom properties for immediate effect
+    const fontFamilyMap: Record<string, string> = {
+      'system': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+      'opendyslexic': '"OpenDyslexic", "Atkinson Hyperlegible", "Comic Sans MS", "Trebuchet MS", cursive',
+      'arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+      'georgia': 'Georgia, "Times New Roman", Times, serif',
+      'cursive': '"Dancing Script", "Brush Script MT", cursive'
+    };
+    
+    const fontSizeMap: Record<string, string> = {
+      '1': '0.75rem',
+      '2': '0.875rem',
+      '3': '1rem',
+      '4': '1.125rem',
+      '5': '1.25rem'
+    };
+    
+    const lineHeightMap: Record<string, string> = {
+      '1': '1.1',
+      '2': '1.25',
+      '3': '1.5',
+      '4': '1.75',
+      '5': '2'
+    };
+    
+    html.style.setProperty('--accessibility-font-family', fontFamilyMap[fontKey] || fontFamilyMap.system);
+    html.style.setProperty('--accessibility-font-size', fontSizeMap[textSize] || fontSizeMap['3']);
+    html.style.setProperty('--accessibility-line-height', lineHeightMap[lineSpacing] || lineHeightMap['3']);
+    
     console.log('✅ Applied global accessibility settings:', {
       dataAttributes: {
         accessibility: 'active',
-        font: fontMap[profile.font_family || 'System'],
-        textSize: String(profile.text_size || 3),
-        lineSpacing: String(profile.line_spacing || 3),
+        font: fontKey,
+        textSize: textSize,
+        lineSpacing: lineSpacing,
         contrast: profile.color_contrast === 'High' ? 'high' : 'none',
         comfort: comfortMap[profile.comfort_mode || ''] || 'none'
+      },
+      cssProperties: {
+        fontFamily: fontFamilyMap[fontKey],
+        fontSize: fontSizeMap[textSize],
+        lineHeight: lineHeightMap[lineSpacing]
       }
     });
     
