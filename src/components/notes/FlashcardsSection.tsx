@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
+import { useStudySessions } from '@/hooks/useStudySessions';
 import { BookOpen, Brain, Play, Settings, Plus, FileText, Clock, Target } from 'lucide-react';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
 import type { Flashcard } from '@/hooks/useFlashcards';
@@ -14,8 +14,10 @@ const FlashcardsSection = () => {
   const navigate = useNavigate();
   const { flashcards } = useFlashcards();
   const { sets } = useFlashcardSets();
+  const { createSession } = useStudySessions();
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedStudyMode, setSelectedStudyMode] = useState<'memory_test' | 'multiple_choice' | 'timed_challenge'>('memory_test');
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
 
   const totalCards = flashcards.length;
   const totalSets = sets.length;
@@ -32,18 +34,44 @@ const FlashcardsSection = () => {
     setShowSelectionModal(true);
   };
 
-  const handleStudyConfirm = (selectedFlashcards: Flashcard[]) => {
-    setShowSelectionModal(false);
-    // Navigate to study session with selected cards based on mode
-    const routeMap = {
-      memory_test: '/study/memory-test',
-      multiple_choice: '/study/multiple-choice',
-      timed_challenge: '/study/timed-challenge'
-    };
+  const handleStudyConfirm = async (selectedFlashcards: Flashcard[]) => {
+    setIsCreatingSession(true);
     
-    navigate(routeMap[selectedStudyMode], { 
-      state: { flashcards: selectedFlashcards } 
-    });
+    try {
+      console.log('Creating study session for', selectedStudyMode, 'with', selectedFlashcards.length, 'cards');
+      
+      // Create the study session first
+      const session = await createSession({
+        session_type: selectedStudyMode,
+        flashcard_ids: selectedFlashcards.map(card => card.id),
+        total_cards: selectedFlashcards.length
+      });
+
+      console.log('Created session:', session);
+      
+      setShowSelectionModal(false);
+      
+      // Navigate to study session with both session and flashcards
+      const routeMap = {
+        memory_test: '/study/memory-test',
+        multiple_choice: '/study/multiple-choice',
+        timed_challenge: '/study/timed-challenge'
+      };
+      
+      console.log('Navigating to', routeMap[selectedStudyMode], 'with session and flashcards');
+      
+      navigate(routeMap[selectedStudyMode], { 
+        state: { 
+          session: session,
+          flashcards: selectedFlashcards 
+        } 
+      });
+    } catch (error) {
+      console.error('Error creating study session:', error);
+      alert('Failed to start study session. Please try again.');
+    } finally {
+      setIsCreatingSession(false);
+    }
   };
 
   return (
