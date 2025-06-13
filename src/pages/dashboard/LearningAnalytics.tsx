@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -265,22 +266,54 @@ const LearningAnalytics = () => {
             Current week (Sunday to {currentDayName}) • Only showing completed days
           </p>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
+        <CardContent className="p-2 sm:p-6 pt-0">
           {weeklyActivity.length > 0 ? (
             <>
-              <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyActivity} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" fontSize={12} />
-                    <YAxis fontSize={12} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="studySessions" fill="var(--color-studySessions)" />
-                    <Bar dataKey="studyTime" fill="var(--color-studyTime)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-              <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[300px] w-full">
+                  <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] lg:h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={weeklyActivity} 
+                        margin={{ 
+                          top: 10, 
+                          right: 10, 
+                          left: 10, 
+                          bottom: 10 
+                        }}
+                        barCategoryGap="20%"
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="day" 
+                          fontSize={10}
+                          tick={{ fontSize: 10 }}
+                          interval={0}
+                        />
+                        <YAxis 
+                          fontSize={10}
+                          tick={{ fontSize: 10 }}
+                          width={30}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar 
+                          dataKey="studySessions" 
+                          fill="var(--color-studySessions)" 
+                          radius={[2, 2, 0, 0]}
+                          maxBarSize={40}
+                        />
+                        <Bar 
+                          dataKey="studyTime" 
+                          fill="var(--color-studyTime)" 
+                          radius={[2, 2, 0, 0]}
+                          maxBarSize={40}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </div>
+              <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4 px-2">
                 {weeklyActivity.some(day => day.studySessions > 0) ? (
                   <>Showing real study activity from Sunday through {currentDayName}. Future days are not displayed.</>
                 ) : (
@@ -289,7 +322,7 @@ const LearningAnalytics = () => {
               </div>
             </>
           ) : (
-            <div className="h-[250px] sm:h-[300px] flex items-center justify-center">
+            <div className="h-[200px] sm:h-[250px] lg:h-[300px] flex items-center justify-center">
               <div className="text-center text-gray-500">
                 <Activity className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
                 <p className="font-medium text-sm sm:text-base">No activity data yet</p>
