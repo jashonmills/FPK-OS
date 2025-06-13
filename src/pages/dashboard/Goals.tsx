@@ -74,30 +74,30 @@ const Goals = () => {
   ];
 
   return (
-    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
-      {/* Header Section */}
+    <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
+      {/* Header Section - Improved tablet layout */}
       <div className="text-center space-y-2 sm:space-y-4 px-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 break-words">
           <DualLanguageText translationKey="nav.goals" fallback="Goals & Progress" />
         </h1>
         <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
           Set, track, and achieve your learning goals with our comprehensive goal management system.
         </p>
-        <div className="text-xs sm:text-sm text-gray-500 space-y-1">
+        <div className="text-xs sm:text-sm text-gray-500 space-y-1 hidden md:block">
           <p className="break-words">Create and manage personalized learning goals</p>
           <p className="break-words">Track your progress with interactive visualizations</p>
           <p className="break-words">Earn rewards and achievements as you reach milestones</p>
         </div>
       </div>
 
-      {/* Goal & XP Tracker Hero Banner */}
+      {/* Goal & XP Tracker Hero Banner - Responsive padding */}
       <Card className="fpk-gradient text-white border-0">
-        <CardContent className="p-4 sm:p-8 text-center">
-          <div className="flex items-center justify-center mb-3 sm:mb-4">
-            <Target className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 flex-shrink-0" />
-            <h2 className="text-xl sm:text-2xl font-bold break-words">Goal & XP Tracker</h2>
+        <CardContent className="p-3 sm:p-6 md:p-8 text-center">
+          <div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+            <Target className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 mr-2 sm:mr-3 flex-shrink-0" />
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold break-words">Goal & XP Tracker</h2>
           </div>
-          <p className="text-sm sm:text-lg opacity-90 break-words leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg opacity-90 break-words leading-relaxed">
             Set your study goals, track XP, and unlock achievements!
           </p>
         </CardContent>
@@ -107,16 +107,16 @@ const Goals = () => {
       <GoalsDashboard />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Active Learning Goals */}
+        {/* Active Learning Goals - Improved tablet responsive */}
         <div className="lg:col-span-2">
           <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-6">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
                 <span className="truncate">Active Learning Goals</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6 pt-0">
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6 pt-0">
               {goalsLoading ? (
                 <div className="text-center py-6 sm:py-8 text-gray-500 text-sm">
                   Loading goals...
@@ -129,7 +129,7 @@ const Goals = () => {
                 </div>
               ) : (
                 activeGoals.map((goal) => (
-                  <div key={goal.id} className="space-y-2">
+                  <div key={goal.id} className="space-y-2 break-inside-avoid">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium text-gray-900 text-sm sm:text-base truncate flex-1">
                         {goal.title}
@@ -159,17 +159,17 @@ const Goals = () => {
           </Card>
         </div>
 
-        {/* Right Sidebar */}
+        {/* Right Sidebar - Improved tablet responsive */}
         <div className="space-y-4 sm:space-y-6">
           {/* Achievements & Rewards */}
           <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-6">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0" />
                 <span className="truncate">Achievements & Rewards</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-6 pt-0">
+            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-4 md:p-6 pt-0">
               {achievements.length === 0 ? (
                 <div className="text-center py-3 sm:py-4 text-gray-500">
                   <Trophy className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-300" />
@@ -195,13 +195,13 @@ const Goals = () => {
 
           {/* Goal Reminders */}
           <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-6">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
                 <span className="truncate">Goal Reminders</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-6 pt-0">
+            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-4 md:p-6 pt-0">
               {reminders.map((reminder) => (
                 <div key={reminder.id} className="flex items-center gap-2 sm:gap-3">
                   <CheckSquare className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${reminder.enabled ? 'text-green-600' : 'text-gray-400'}`} />
@@ -213,21 +213,21 @@ const Goals = () => {
         </div>
       </div>
 
-      {/* XP & Milestones Section */}
+      {/* XP & Milestones Section - Improved tablet responsive */}
       <Card className="fpk-card border-0 shadow-md">
-        <CardHeader className="p-3 sm:p-6">
+        <CardHeader className="p-3 sm:p-4 md:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
             <span className="truncate">XP & Milestones</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-3 sm:p-6 pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-4 sm:mb-6">
+        <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-4 sm:mb-6">
             {/* Total XP */}
-            <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg">
+            <div className="text-center p-3 sm:p-4 md:p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 mr-2 flex-shrink-0" />
-                <span className="text-xl sm:text-2xl font-bold text-amber-800 truncate">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-amber-600 mr-2 flex-shrink-0" />
+                <span className="text-lg sm:text-xl md:text-2xl font-bold text-amber-800 truncate">
                   {totalXP.toLocaleString()}
                 </span>
               </div>
@@ -240,10 +240,10 @@ const Goals = () => {
             </div>
 
             {/* Day Streak */}
-            <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg">
+            <div className="text-center p-3 sm:p-4 md:p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 mr-2 flex-shrink-0" />
-                <span className="text-xl sm:text-2xl font-bold text-red-800 truncate">
+                <Flame className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-red-600 mr-2 flex-shrink-0" />
+                <span className="text-lg sm:text-xl md:text-2xl font-bold text-red-800 truncate">
                   {currentStreak}
                 </span>
               </div>
