@@ -46,7 +46,10 @@ const FlashcardPreviewCardView: React.FC<FlashcardPreviewCardViewProps> = ({
     }
   };
 
-  const truncateText = (text: string, maxLength: number = 100) => {
+  const truncateText = (text: string | undefined | null, maxLength: number = 100) => {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
