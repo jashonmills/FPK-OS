@@ -8,6 +8,7 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
 import { BookOpen, Brain, Play, Settings, Plus, FileText } from 'lucide-react';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
+import type { Flashcard } from '@/hooks/useFlashcards';
 
 const FlashcardsSection = () => {
   const navigate = useNavigate();
@@ -27,6 +28,14 @@ const FlashcardsSection = () => {
       return;
     }
     setShowSelectionModal(true);
+  };
+
+  const handleStudyConfirm = (selectedFlashcards: Flashcard[]) => {
+    setShowSelectionModal(false);
+    // Navigate to study session with selected cards
+    navigate('/study/memory_test', { 
+      state: { flashcards: selectedFlashcards } 
+    });
   };
 
   return (
@@ -133,6 +142,8 @@ const FlashcardsSection = () => {
       <FlashcardSelectionModal
         isOpen={showSelectionModal}
         onClose={() => setShowSelectionModal(false)}
+        onConfirm={handleStudyConfirm}
+        studyMode="memory_test"
       />
     </>
   );
