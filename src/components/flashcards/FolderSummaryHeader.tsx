@@ -40,8 +40,7 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
   const sourceType = getSourceType(folderName);
   const createdDate = cards.length > 0 ? new Date(cards[0].created_at).toLocaleDateString() : '';
 
-  const handleSelectAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSelectAll = () => {
     onSelectAllInFolder();
   };
 
@@ -57,7 +56,6 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
         <Checkbox
           checked={allSelected}
           onCheckedChange={handleSelectAll}
-          onClick={handleSelectAll}
           className="h-4 w-4"
         />
         
