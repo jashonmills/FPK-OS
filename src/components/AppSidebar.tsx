@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -50,22 +49,22 @@ export function AppSidebar() {
     },
     {
       title: 'nav.courses',
-      url: "/dashboard/learner/my-courses",
+      url: "/dashboard/learner/courses",
       icon: Book,
     },
     {
       title: 'nav.analytics',
-      url: "/dashboard/learner/learning-analytics",
+      url: "/dashboard/learner/analytics",
       icon: BarChart,
     },
     {
       title: 'nav.liveHub',
-      url: "/dashboard/learner/live-learning-hub",
+      url: "/dashboard/learner/live-hub",
       icon: Compass,
     },
     {
       title: 'AI Study Coach',
-      url: "/dashboard/learner/ai-study-coach",
+      url: "/dashboard/learner/ai-coach",
       icon: BookUser,
     },
     {
