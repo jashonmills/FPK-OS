@@ -1,13 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
-import { Folder, FileText, Brain, Users, BookOpen, Edit, Upload } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import type { Flashcard } from '@/hooks/useFlashcards';
+import FlashcardSelectionHeader from './FlashcardSelectionHeader';
+import FlashcardFolderList from './FlashcardFolderList';
+import FlashcardIndividualList from './FlashcardIndividualList';
 
 interface FlashcardSelectionModalProps {
   isOpen: boolean;
@@ -56,46 +58,6 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
     
     return sortedGroups;
   }, [flashcards]);
-
-  const getFolderIcon = (folderName: string) => {
-    // Topic-based icons
-    if (folderName.includes('Goonies')) return FileText;
-    if (folderName.includes('Learning State')) return Brain;
-    if (folderName.includes('Dragon Fire')) return FileText;
-    if (folderName.includes('Cannabis')) return FileText;
-    if (folderName.includes('Photography')) return FileText;
-    if (folderName.includes('Wellness')) return FileText;
-    if (folderName.includes('Technology')) return FileText;
-    if (folderName.includes('Science')) return FileText;
-    if (folderName.includes('Business')) return FileText;
-    if (folderName.includes('History')) return FileText;
-    
-    // Source-based icons
-    if (folderName.includes('Manual')) return Edit;
-    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return BookOpen;
-    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return Upload;
-    
-    return Folder;
-  };
-
-  const getFolderType = (folderName: string) => {
-    // Check if it's a topic-based folder
-    const topicFolders = ['Goonies', 'Learning State', 'Dragon Fire', 'Cannabis', 'Photography', 
-                         'Wellness', 'Technology', 'Science', 'Business', 'History'];
-    
-    for (const topic of topicFolders) {
-      if (folderName.includes(topic)) {
-        return 'Topic';
-      }
-    }
-    
-    // Source-based categorization
-    if (folderName.includes('Manual')) return 'Manual';
-    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return 'Notes';
-    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return 'Upload';
-    
-    return 'Auto-grouped';
-  };
 
   const handleFolderToggle = (folderId: string) => {
     setSelectedFolders(prev => 
@@ -168,89 +130,26 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <div className="space-y-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Button 
-                  variant={!showIndividualCards ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowIndividualCards(false)}
-                >
-                  <Folder className="h-4 w-4 mr-1" />
-                  By Folders
-                </Button>
-                <Button 
-                  variant={showIndividualCards ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowIndividualCards(true)}
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  Individual Cards
-                </Button>
-              </div>
-              
-              {!showIndividualCards && (
-                <Button variant="outline" size="sm" onClick={handleSelectAll}>
-                  <Users className="h-4 w-4 mr-1" />
-                  Select All Folders
-                </Button>
-              )}
-            </div>
-
-            <div className="text-sm text-gray-600">
-              Selected: <Badge variant="secondary">{selectedCards.length} cards</Badge>
-            </div>
-          </div>
+          <FlashcardSelectionHeader
+            showIndividualCards={showIndividualCards}
+            onToggleView={setShowIndividualCards}
+            onSelectAll={handleSelectAll}
+            selectedCount={selectedCards.length}
+          />
 
           <ScrollArea className="flex-1 h-[400px] pr-4">
             {!showIndividualCards ? (
-              <div className="space-y-2 pb-4">
-                {Object.entries(groupedFlashcards).map(([folderId, folderCards]) => {
-                  const FolderIcon = getFolderIcon(folderId);
-                  const folderType = getFolderType(folderId);
-                  
-                  return (
-                    <div key={folderId} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                      <Checkbox
-                        checked={selectedFolders.includes(folderId)}
-                        onCheckedChange={() => handleFolderToggle(folderId)}
-                      />
-                      <FolderIcon className="h-4 w-4 text-gray-500" />
-                      <div className="flex-1">
-                        <div className="font-medium">{folderId}</div>
-                        <div className="text-sm text-gray-500">
-                          {folderCards.length} cards • {folderType}
-                        </div>
-                      </div>
-                      <Badge variant="outline">{folderCards.length}</Badge>
-                    </div>
-                  );
-                })}
-              </div>
+              <FlashcardFolderList
+                groupedFlashcards={groupedFlashcards}
+                selectedFolders={selectedFolders}
+                onFolderToggle={handleFolderToggle}
+              />
             ) : (
-              <div className="space-y-2 pb-4">
-                {flashcards.map((card) => (
-                  <div key={card.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                    <Checkbox
-                      checked={selectedIndividualCards.includes(card.id)}
-                      onCheckedChange={() => handleIndividualCardToggle(card.id)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{card.front_content}</div>
-                      <div className="text-xs text-gray-500 truncate mt-1">{card.back_content}</div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className="text-xs">Level {card.difficulty_level}</Badge>
-                        {card.times_reviewed > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            {Math.round((card.times_correct / card.times_reviewed) * 100)}% correct
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <FlashcardIndividualList
+                flashcards={flashcards}
+                selectedCards={selectedIndividualCards}
+                onCardToggle={handleIndividualCardToggle}
+              />
             )}
           </ScrollArea>
         </div>
