@@ -194,6 +194,9 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
+                <AlertDialogFooter className="mt-4">
+                  <AlertDialogCancel className="w-full text-xs">Cancel</AlertDialogCancel>
+                </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </div>
