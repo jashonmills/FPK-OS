@@ -88,7 +88,7 @@ const FlashcardsSection: React.FC = () => {
   }
 
   return (
-    <Card className="fpk-card border-0 shadow-sm bg-white">
+    <Card className="fpk-card border-0 shadow-sm bg-white w-full overflow-hidden">
       <CardHeader className="pb-6">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -101,45 +101,54 @@ const FlashcardsSection: React.FC = () => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-8">
+      <CardContent className="space-y-8 p-6">
         {/* Study Mode Selection */}
-        <div>
+        <div className="w-full">
           <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-            {studyModes.map((mode) => (
-              <div key={mode.id} className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 hover:shadow-lg transition-all duration-300 hover:border-gray-300">
-                {/* Icon and Title */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2 lg:p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
-                    <mode.icon className="h-5 w-5 lg:h-6 lg:w-6" />
-                  </div>
-                  <h4 className="font-semibold text-base lg:text-lg text-gray-900">
-                    {mode.title}
-                  </h4>
-                </div>
-                
-                {/* Description */}
-                <p className="text-gray-600 text-sm mb-4 lg:mb-6 leading-relaxed">
-                  {mode.description}
-                </p>
-                
-                {/* Start Button */}
-                <Button
-                  className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-2 lg:py-3 rounded-lg transition-colors duration-200`}
-                  onClick={() => handleStartStudyMode(mode.id)}
-                  disabled={flashcards.length === 0 || isCreating}
+          
+          {/* Responsive Container for Study Mode Cards */}
+          <div className="w-full overflow-hidden">
+            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 sm:gap-4 lg:gap-6">
+              {studyModes.map((mode) => (
+                <div 
+                  key={mode.id} 
+                  className="w-full max-w-[320px] mx-auto sm:mx-0 bg-white border border-gray-200 rounded-xl p-4 lg:p-5 hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
                 >
-                  <Play className="h-4 w-4 mr-2" />
-                  {isCreating ? 'Starting...' : 'Start Mode'}
-                </Button>
-              </div>
-            ))}
+                  {/* Icon and Title */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`p-2 lg:p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                      <mode.icon className="h-5 w-5 lg:h-6 lg:w-6" />
+                    </div>
+                    <h4 className="font-semibold text-base lg:text-lg text-gray-900 truncate">
+                      {mode.title}
+                    </h4>
+                  </div>
+                  
+                  {/* Description */}
+                  <div className="mb-4 lg:mb-5">
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 break-words">
+                      {mode.description}
+                    </p>
+                  </div>
+                  
+                  {/* Start Button */}
+                  <Button
+                    className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-2 lg:py-2.5 rounded-lg transition-colors duration-200 text-sm lg:text-base`}
+                    onClick={() => handleStartStudyMode(mode.id)}
+                    disabled={flashcards.length === 0 || isCreating}
+                  >
+                    <Play className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">{isCreating ? 'Starting...' : 'Start Mode'}</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Flashcards Preview */}
         {flashcards.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-6 w-full overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Recent Flashcards</h3>
@@ -147,63 +156,66 @@ const FlashcardsSection: React.FC = () => {
               </div>
               <Button 
                 variant="outline" 
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-medium"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-medium flex-shrink-0"
                 onClick={() => setShowReview(true)}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Review All
+                <span className="hidden sm:inline">Review All</span>
+                <span className="sm:hidden">Review</span>
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              {flashcards.slice(0, 4).map((card) => (
-                <div key={card.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 lg:p-6 hover:shadow-sm transition-shadow duration-200">
-                  <div className="space-y-4">
-                    {/* Front Content */}
-                    <div>
-                      <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Front</div>
-                      <div className="text-sm text-gray-900 leading-relaxed line-clamp-3">
-                        {card.front_content}
+            <div className="w-full overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                {flashcards.slice(0, 4).map((card) => (
+                  <div key={card.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 lg:p-6 hover:shadow-sm transition-shadow duration-200 overflow-hidden">
+                    <div className="space-y-4">
+                      {/* Front Content */}
+                      <div>
+                        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Front</div>
+                        <div className="text-sm text-gray-900 leading-relaxed line-clamp-3 break-words">
+                          {card.front_content}
+                        </div>
+                      </div>
+                      
+                      {/* Back Content */}
+                      <div>
+                        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Back</div>
+                        <div className="text-sm text-gray-900 leading-relaxed line-clamp-3 break-words">
+                          {card.back_content}
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Back Content */}
-                    <div>
-                      <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Back</div>
-                      <div className="text-sm text-gray-900 leading-relaxed line-clamp-3">
-                        {card.back_content}
-                      </div>
+                    {/* Card Stats */}
+                    <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-200">
+                      <Badge variant="outline" className="text-xs bg-white border-gray-300 text-gray-600 flex-shrink-0">
+                        Level {card.difficulty_level}
+                      </Badge>
+                      <span className="text-xs text-gray-500 truncate">
+                        Reviewed {card.times_reviewed} times
+                      </span>
+                      {card.times_reviewed > 0 && (
+                        <span className="text-xs text-green-600 font-medium flex-shrink-0">
+                          {Math.round((card.times_correct / card.times_reviewed) * 100)}% correct
+                        </span>
+                      )}
                     </div>
                   </div>
-                  
-                  {/* Card Stats */}
-                  <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-200">
-                    <Badge variant="outline" className="text-xs bg-white border-gray-300 text-gray-600">
-                      Level {card.difficulty_level}
-                    </Badge>
-                    <span className="text-xs text-gray-500">
-                      Reviewed {card.times_reviewed} times
-                    </span>
-                    {card.times_reviewed > 0 && (
-                      <span className="text-xs text-green-600 font-medium">
-                        {Math.round((card.times_correct / card.times_reviewed) * 100)}% correct
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         ) : (
-          <div className="text-center py-12 lg:py-16">
+          <div className="text-center py-12 lg:py-16 w-full">
             <div className="mb-6">
               <Brain className="h-12 w-12 lg:h-16 lg:w-16 mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No flashcards yet</h3>
-              <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+              <p className="text-gray-600 max-w-md mx-auto leading-relaxed px-4">
                 Upload files or create notes to generate flashcards and start your learning journey!
               </p>
             </div>
-            <div className="text-sm text-gray-500 space-y-2">
+            <div className="text-sm text-gray-500 space-y-2 px-4">
               <p>💡 Upload documents to auto-generate flashcards</p>
               <p>📝 Create manual notes and convert them to flashcards</p>
               <p>🎯 Practice with multiple study modes once you have cards</p>
