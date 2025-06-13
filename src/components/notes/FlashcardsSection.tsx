@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,25 +107,25 @@ const FlashcardsSection: React.FC = () => {
           <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
           
           {/* Study Mode Cards - Vertical Stack with Rectangle Format */}
-          <div className="w-full max-w-4xl mx-auto space-y-4">
+          <div className="w-full max-w-4xl mx-auto space-y-2">
             {studyModes.map((mode) => (
               <div 
                 key={mode.id} 
                 className="w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
               >
                 {/* Rectangle Card Content - Horizontal Layout */}
-                <div className="flex items-center p-6 gap-6">
+                <div className="flex items-center p-3 gap-4">
                   {/* Icon */}
-                  <div className={`p-4 rounded-xl ${mode.color} text-white shadow-sm flex-shrink-0`}>
-                    <mode.icon className="h-8 w-8" />
+                  <div className={`p-2 rounded-xl ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                    <mode.icon className="h-6 w-6" />
                   </div>
                   
                   {/* Content */}
                   <div className="flex-grow">
-                    <h4 className="font-semibold text-xl text-gray-900 mb-2">
+                    <h4 className="font-semibold text-lg text-gray-900 mb-1">
                       {mode.title}
                     </h4>
-                    <p className="text-gray-600 text-base leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                       {mode.description}
                     </p>
                   </div>
@@ -132,11 +133,11 @@ const FlashcardsSection: React.FC = () => {
                   {/* Start Button */}
                   <div className="flex-shrink-0">
                     <Button
-                      className={`${mode.color} ${mode.hoverColor} text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200 text-base`}
+                      className={`${mode.color} ${mode.hoverColor} text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 text-sm`}
                       onClick={() => handleStartStudyMode(mode.id)}
                       disabled={flashcards.length === 0 || isCreating}
                     >
-                      <Play className="h-5 w-5 mr-2" />
+                      <Play className="h-4 w-4 mr-2" />
                       {isCreating ? 'Starting...' : 'Start Mode'}
                     </Button>
                   </div>
