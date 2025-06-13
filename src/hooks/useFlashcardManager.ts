@@ -11,6 +11,8 @@ export interface FlashcardManagerState {
   viewMode: 'grid' | 'list';
   sortBy: 'created' | 'difficulty' | 'performance' | 'alphabetical';
   sortOrder: 'asc' | 'desc';
+  expandedFolders: Set<string>;
+  folderViewModes: Record<string, 'grid' | 'list'>;
 }
 
 export const useFlashcardManager = () => {
@@ -24,7 +26,9 @@ export const useFlashcardManager = () => {
     filterValue: '',
     viewMode: 'grid',
     sortBy: 'created',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    expandedFolders: new Set(),
+    folderViewModes: {}
   });
 
   // Filter and search flashcards
@@ -125,6 +129,68 @@ export const useFlashcardManager = () => {
     return groups;
   }, [filteredFlashcards, sets]);
 
+  // Folder management
+  const toggleFolder = (folderId: string) => {
+    setState(prev => {
+      const newExpanded = new Set(prev.expandedFolders);
+      if (newExpanded.has(folderId)) {
+        newExpanded.delete(folderId);
+      } else {
+        newExpanded.add(folderId);
+      }
+      return { ...prev, expandedFolders: newExpanded };
+    });
+  };
+
+  const toggleFolderViewMode = (folderId: string) => {
+    setState(prev => ({
+      ...prev,
+      folderViewModes: {
+        ...prev.folderViewModes,
+        [folderId]: prev.folderViewModes[folderId] === 'grid' ? 'list' : 'grid'
+      }
+    }));
+  };
+
+  const selectAllInFolder = (folderId: string) => {
+    const folderCards = groupedFlashcards[folderId] || [];
+    setState(prev => {
+      const newSelected = new Set(prev.selectedCards);
+      const allSelected = folderCards.every(card => newSelected.has(card.id));
+      
+      if (allSelected) {
+        // Deselect all in folder
+        folderCards.forEach(card => newSelected.delete(card.id));
+      } else {
+        // Select all in folder
+        folderCards.forEach(card => newSelected.add(card.id));
+      }
+      
+      return { ...prev, selectedCards: newSelected };
+    });
+  };
+
+  const bulkFolderAction = async (folderId: string, action: 'delete' | 'archive') => {
+    const folderCards = groupedFlashcards[folderId] || [];
+    
+    if (action === 'delete') {
+      const promises = folderCards.map(card => deleteFlashcard(card.id));
+      await Promise.all(promises);
+    } else if (action === 'archive') {
+      const promises = folderCards.map(card => 
+        updateFlashcard({ id: card.id, difficulty_level: 0 }) // Use difficulty 0 as archived
+      );
+      await Promise.all(promises);
+    }
+    
+    // Clear selections for this folder
+    setState(prev => {
+      const newSelected = new Set(prev.selectedCards);
+      folderCards.forEach(card => newSelected.delete(card.id));
+      return { ...prev, selectedCards: newSelected };
+    });
+  };
+
   // Selection management
   const toggleCardSelection = (cardId: string) => {
     setState(prev => {
@@ -187,5 +253,10 @@ export const useFlashcardManager = () => {
     clearSelection,
     bulkDeleteCards,
     bulkArchiveCards,
+    // Folder-specific methods
+    toggleFolder,
+    toggleFolderViewMode,
+    selectAllInFolder,
+    bulkFolderAction,
   };
 };

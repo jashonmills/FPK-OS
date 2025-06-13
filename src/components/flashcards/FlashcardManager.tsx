@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcardManager } from '@/hooks/useFlashcardManager';
-import { ArrowLeft, Grid, List, Search, Filter } from 'lucide-react';
-import FlashcardGridView from './FlashcardGridView';
-import FlashcardListView from './FlashcardListView';
+import { ArrowLeft, Search, Filter } from 'lucide-react';
+import FlashcardFolderView from './FlashcardFolderView';
 import FlashcardFilterBar from './FlashcardFilterBar';
 import FlashcardBatchActions from './FlashcardBatchActions';
 
@@ -36,13 +35,16 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
                 Flashcard Manager
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                Organize and manage your flashcard collection
+                Organize and manage your flashcard collection by folders
               </p>
             </div>
           </div>
           
           {/* Stats */}
           <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="text-sm">
+              {Object.keys(manager.groupedFlashcards).length} folders
+            </Badge>
             <Badge variant="secondary" className="text-sm">
               {manager.totalCount} cards
             </Badge>
@@ -56,28 +58,6 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
 
         {/* Controls Row */}
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* View Toggle */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant={manager.state.viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => manager.updateState({ viewMode: 'grid' })}
-              className="flex items-center gap-2"
-            >
-              <Grid className="h-4 w-4" />
-              <span className="hidden sm:inline">Grid</span>
-            </Button>
-            <Button
-              variant={manager.state.viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => manager.updateState({ viewMode: 'list' })}
-              className="flex items-center gap-2"
-            >
-              <List className="h-4 w-4" />
-              <span className="hidden sm:inline">List</span>
-            </Button>
-          </div>
-
           {/* Filter Toggle */}
           <Button
             variant="outline"
@@ -129,39 +109,17 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
 
       {/* Main Content */}
       <div className="p-6">
-        {/* Main View */}
-        {manager.state.viewMode === 'grid' ? (
-          <FlashcardGridView
-            groupedFlashcards={manager.groupedFlashcards}
-            selectedCards={new Set(manager.selectedCards)}
-            onToggleSelection={manager.toggleCardSelection}
-            onSelectAll={manager.selectAllCards}
-          />
-        ) : (
-          <FlashcardListView
-            groupedFlashcards={manager.groupedFlashcards}
-            selectedCards={new Set(manager.selectedCards)}
-            onToggleSelection={manager.toggleCardSelection}
-            onSelectAll={manager.selectAllCards}
-          />
-        )}
-
-        {/* Empty State */}
-        {manager.totalCount === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Grid className="h-16 w-16 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No flashcards found
-              </h3>
-              <p className="text-gray-600">
-                {manager.state.searchTerm || manager.state.filterBy !== 'all'
-                  ? 'Try adjusting your search or filters'
-                  : 'Create some flashcards to get started'}
-              </p>
-            </div>
-          </div>
-        )}
+        <FlashcardFolderView
+          groupedFlashcards={manager.groupedFlashcards}
+          selectedCards={new Set(manager.selectedCards)}
+          expandedFolders={manager.state.expandedFolders}
+          folderViewModes={manager.state.folderViewModes}
+          onToggleSelection={manager.toggleCardSelection}
+          onToggleFolder={manager.toggleFolder}
+          onToggleFolderViewMode={manager.toggleFolderViewMode}
+          onSelectAllInFolder={manager.selectAllInFolder}
+          onBulkFolderAction={manager.bulkFolderAction}
+        />
       </div>
     </div>
   );
