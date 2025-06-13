@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcardManager } from '@/hooks/useFlashcardManager';
@@ -19,9 +18,10 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
-    <Card className="fpk-card border-0 shadow-sm bg-white w-full">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full">
+      {/* Header */}
+      <div className="border-b border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -32,9 +32,9 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <CardTitle className="text-xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900">
                 Flashcard Manager
-              </CardTitle>
+              </h1>
               <p className="text-sm text-gray-600 mt-1">
                 Organize and manage your flashcard collection
               </p>
@@ -55,7 +55,7 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
         </div>
 
         {/* Controls Row */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* View Toggle */}
           <div className="flex items-center gap-2">
             <Button
@@ -106,24 +106,29 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
 
         {/* Filters */}
         {showFilters && (
-          <FlashcardFilterBar
-            state={manager.state}
-            onUpdateState={manager.updateState}
-          />
+          <div className="mt-4">
+            <FlashcardFilterBar
+              state={manager.state}
+              onUpdateState={manager.updateState}
+            />
+          </div>
         )}
 
         {/* Batch Actions */}
         {manager.selectedCount > 0 && (
-          <FlashcardBatchActions
-            selectedCount={manager.selectedCount}
-            onBulkDelete={manager.bulkDeleteCards}
-            onBulkArchive={manager.bulkArchiveCards}
-            onClearSelection={manager.clearSelection}
-          />
+          <div className="mt-4">
+            <FlashcardBatchActions
+              selectedCount={manager.selectedCount}
+              onBulkDelete={manager.bulkDeleteCards}
+              onBulkArchive={manager.bulkArchiveCards}
+              onClearSelection={manager.clearSelection}
+            />
+          </div>
         )}
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-6">
+      {/* Main Content */}
+      <div className="p-6">
         {/* Main View */}
         {manager.state.viewMode === 'grid' ? (
           <FlashcardGridView
@@ -157,8 +162,8 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

@@ -16,6 +16,7 @@ import Notes from '@/pages/dashboard/Notes';
 import Goals from '@/pages/dashboard/Goals';
 import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
 import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
+import FlashcardManagerPage from '@/pages/dashboard/FlashcardManagerPage';
 import StudySessionRouter from '@/components/study/StudySessionRouter';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
@@ -58,6 +59,7 @@ function App() {
                     <Route path="learner/ai-coach" element={<AIStudyCoach />} />
                     <Route path="learner/settings" element={<Settings />} />
                     <Route path="learner/notes" element={<Notes />} />
+                    <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
                     <Route path="learner/goals" element={<Goals />} />
                     <Route path="learner/analytics" element={<LearningAnalytics />} />
                     <Route path="learner/live-hub" element={<LiveLearningHub />} />
