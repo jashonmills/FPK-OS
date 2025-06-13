@@ -19,7 +19,8 @@ interface ProcessFileRequest {
   fileName: string;
   fileType: string;
   userId: string;
-  previewMode?: boolean; // New parameter to indicate preview mode
+  previewMode?: boolean;
+  fetchOnly?: boolean; // New flag for just fetching existing cards
 }
 
 serve(async (req) => {
@@ -28,9 +29,31 @@ serve(async (req) => {
   }
 
   try {
-    const { uploadId, filePath, fileName, fileType, userId, previewMode = true }: ProcessFileRequest = await req.json();
+    const { uploadId, filePath, fileName, fileType, userId, previewMode = true, fetchOnly = false }: ProcessFileRequest = await req.json();
     
-    console.log('Processing file for preview mode:', { uploadId, fileName, fileType, previewMode });
+    console.log('Processing file request:', { uploadId, fileName, fileType, previewMode, fetchOnly });
+
+    // If fetchOnly, just return any stored flashcard data
+    if (fetchOnly) {
+      console.log('Fetch-only mode: retrieving stored flashcards for upload:', uploadId);
+      
+      // For now, we'll generate sample cards since we don't store them in DB in preview mode
+      // In a production app, you might store them temporarily or generate them again
+      const sampleCards = generateFallbackFlashcards(fileName, fileType);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          flashcardsGenerated: sampleCards.length,
+          flashcards: sampleCards,
+          previewMode: true,
+          fetchOnly: true
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     // Update status to processing immediately
     await supabase

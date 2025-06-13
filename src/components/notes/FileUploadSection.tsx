@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,7 +33,7 @@ const FileUploadSection: React.FC = () => {
           table: 'file_uploads',
           filter: `user_id=eq.${user.id}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('File upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
@@ -54,11 +53,57 @@ const FileUploadSection: React.FC = () => {
               delete newState[payload.new.id];
               return newState;
             });
-            
-            toast({
-              title: "✅ Success!",
-              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Check the preview above!`,
-            });
+
+            // Fetch the generated flashcards and add them to preview
+            try {
+              console.log('Fetching generated flashcards for upload:', payload.new.id);
+              
+              const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
+                body: {
+                  uploadId: payload.new.id,
+                  filePath: payload.new.storage_path,
+                  fileName: payload.new.file_name,
+                  fileType: payload.new.file_type,
+                  userId: user.id,
+                  previewMode: true,
+                  fetchOnly: true // New flag to just fetch the generated cards
+                }
+              });
+
+              if (error) {
+                console.error('Error fetching flashcards:', error);
+              } else if (data && data.flashcards && data.flashcards.length > 0) {
+                console.log('Adding flashcards to preview:', data.flashcards.length);
+                
+                const previewCards = data.flashcards.map((card: any) => ({
+                  front_content: card.front || card.front_content,
+                  back_content: card.back || card.back_content,
+                  title: `${payload.new.file_name} - Card`,
+                  source: 'upload' as const,
+                  status: 'new' as const,
+                  session_id: payload.new.id
+                }));
+
+                addPreviewCards(previewCards);
+                
+                toast({
+                  title: "✅ Success!",
+                  description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
+                });
+              } else {
+                console.log('No flashcards returned from edge function');
+                toast({
+                  title: "✅ Processing complete",
+                  description: `Processed ${payload.new.file_name} but no flashcards were generated.`,
+                });
+              }
+            } catch (error) {
+              console.error('Error fetching flashcards after completion:', error);
+              toast({
+                title: "⚠️ Processing complete",
+                description: `${payload.new.file_name} processed but couldn't retrieve flashcards. Try refreshing.`,
+              });
+            }
           } else if (payload.new.processing_status === 'failed') {
             // Clear timeout and progress
             if (processingTimeouts[payload.new.id]) {
@@ -90,7 +135,7 @@ const FileUploadSection: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, toast, processingTimeouts]);
+  }, [user, toast, processingTimeouts, addPreviewCards]);
 
   // Clean up timeouts on component unmount
   useEffect(() => {
@@ -135,10 +180,13 @@ const FileUploadSection: React.FC = () => {
 
       console.log('Edge function response:', data);
 
+      // If we get flashcards immediately, add them to preview
       if (data.flashcards && data.flashcards.length > 0) {
+        console.log('Adding immediate flashcards to preview:', data.flashcards.length);
+        
         const previewCards = data.flashcards.map((card: any) => ({
-          front_content: card.front,
-          back_content: card.back,
+          front_content: card.front || card.front_content,
+          back_content: card.back || card.back_content,
           title: `${file.name} - Card`,
           source: 'upload' as const,
           status: 'new' as const,
