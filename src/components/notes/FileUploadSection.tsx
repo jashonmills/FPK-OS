@@ -1,33 +1,34 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
+import { useRealTimeProcessing } from '@/hooks/useRealTimeProcessing';
 import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
-import { allowedTypes, maxFileSize, formatFileSize, simulateProgress } from './FileUploadUtils';
+import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
   const { addPreviewCards } = useFlashcardPreview();
+  const { startProcessing, completeStage, errorStage } = useRealTimeProcessing();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
-  // Set up real-time subscription
+  // Set up real-time subscription for completion handling
   useEffect(() => {
     if (!user) return;
 
-    console.log('🔄 Setting up real-time subscription for file uploads');
+    console.log('🔄 Setting up enhanced real-time subscription for file uploads');
 
     const channel = supabase
-      .channel('file-uploads-changes')
+      .channel('enhanced-file-uploads')
       .on(
         'postgres_changes',
         {
@@ -37,12 +38,15 @@ const FileUploadSection: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('🔄 File upload updated via real-time:', payload);
+          console.log('🔄 Enhanced file upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
-            console.log('✅ Processing completed for upload:', payload.new.id);
+            console.log('✅ Processing completed with enhanced tracking:', payload.new.id);
             
-            // Clear timeout and progress immediately
+            // Complete the final stage
+            completeStage(payload.new.id, 'generation');
+            
+            // Clear timeout and progress
             if (processingTimeouts[payload.new.id]) {
               clearTimeout(processingTimeouts[payload.new.id]);
             }
@@ -59,10 +63,8 @@ const FileUploadSection: React.FC = () => {
               return newState;
             });
 
-            // Fetch the generated flashcards and add them to preview
+            // Fetch flashcards and add to preview
             try {
-              console.log('📥 Fetching generated flashcards for upload:', payload.new.id);
-              
               const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
                 body: {
                   uploadId: payload.new.id,
@@ -75,63 +77,39 @@ const FileUploadSection: React.FC = () => {
                 }
               });
 
-              console.log('📦 Fetch response data:', data);
-              console.log('❌ Fetch response error:', error);
-
               if (error) {
                 console.error('❌ Error fetching flashcards:', error);
                 toast({
                   title: "⚠️ Processing complete",
                   description: `${payload.new.file_name} processed but couldn't retrieve flashcards.`,
                 });
-              } else if (data && data.flashcards && Array.isArray(data.flashcards) && data.flashcards.length > 0) {
-                console.log('📋 Successfully fetched flashcards:', data.flashcards.length, 'cards');
-                
-                const previewCards = data.flashcards.map((card: any, index: number) => {
-                  const frontContent = card.front_content || card.front || '';
-                  const backContent = card.back_content || card.back || '';
-                  
-                  console.log(`🎴 Mapping fetched card ${index + 1}:`, {
-                    original: card,
-                    frontContent,
-                    backContent
-                  });
+              } else if (data?.flashcards?.length > 0) {
+                const previewCards = data.flashcards.map((card: any, index: number) => ({
+                  front_content: card.front_content || card.front || '',
+                  back_content: card.back_content || card.back || '',
+                  title: `${payload.new.file_name} - Card ${index + 1}`,
+                  source: 'upload' as const,
+                  status: 'new' as const,
+                  session_id: payload.new.id
+                }));
 
-                  return {
-                    front_content: frontContent,
-                    back_content: backContent,
-                    title: `${payload.new.file_name} - Card ${index + 1}`,
-                    source: 'upload' as const,
-                    status: 'new' as const,
-                    session_id: payload.new.id
-                  };
-                });
-
-                console.log('✨ Adding fetched cards to preview immediately:', previewCards);
                 addPreviewCards(previewCards);
                 
                 toast({
                   title: "🎉 Flashcards ready!",
                   description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
                 });
-              } else {
-                console.log('⚠️ No flashcards returned from fetch operation');
-                toast({
-                  title: "✅ Processing complete",
-                  description: `Processed ${payload.new.file_name} but no flashcards were generated.`,
-                });
               }
             } catch (error) {
-              console.error('💥 Error in real-time fetch operation:', error);
-              toast({
-                title: "⚠️ Processing complete",
-                description: `${payload.new.file_name} processed but couldn't retrieve flashcards. Try refreshing.`,
-              });
+              console.error('💥 Error in enhanced completion handling:', error);
             }
           } else if (payload.new.processing_status === 'failed') {
-            console.log('❌ Processing failed for upload:', payload.new.id);
+            console.log('❌ Processing failed with enhanced tracking:', payload.new.id);
             
-            // Clear timeout and progress
+            // Mark as error in processing meter
+            errorStage(payload.new.id, 'generation', payload.new.error_message || 'Processing failed');
+            
+            // Clean up
             if (processingTimeouts[payload.new.id]) {
               clearTimeout(processingTimeouts[payload.new.id]);
             }
@@ -159,10 +137,10 @@ const FileUploadSection: React.FC = () => {
       .subscribe();
 
     return () => {
-      console.log('🔌 Cleaning up real-time subscription');
+      console.log('🔌 Cleaning up enhanced real-time subscription');
       supabase.removeChannel(channel);
     };
-  }, [user, toast, processingTimeouts, addPreviewCards]);
+  }, [user, toast, processingTimeouts, addPreviewCards, completeStage, errorStage]);
 
   // Clean up timeouts on component unmount
   useEffect(() => {
@@ -187,7 +165,14 @@ const FileUploadSection: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('🤖 Starting enhanced AI processing for file (preview mode):', file.name);
+      console.log('🤖 Starting enhanced AI processing for file:', file.name);
+      
+      // Start real-time processing tracking
+      startProcessing(uploadId, file.name, file.size);
+      
+      // Progress through stages with realistic timing
+      setTimeout(() => completeStage(uploadId, 'download'), 2000);
+      setTimeout(() => completeStage(uploadId, 'extraction'), 4000);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
@@ -201,38 +186,24 @@ const FileUploadSection: React.FC = () => {
       });
 
       if (error) {
-        console.error('Edge function error:', error);
+        console.error('Enhanced edge function error:', error);
+        errorStage(uploadId, 'generation', error.message || 'AI processing failed');
         throw error;
       }
 
-      console.log('🎯 Immediate edge function response:', data);
+      console.log('🎯 Enhanced processing response:', data);
 
-      // If we get flashcards immediately, add them to preview
-      if (data.flashcards && data.flashcards.length > 0) {
-        console.log('⚡ Adding immediate flashcards to preview:', data.flashcards.length);
-        
-        const previewCards = data.flashcards.map((card: any, index: number) => {
-          // Enhanced content mapping with debugging
-          const frontContent = card.front_content || card.front || '';
-          const backContent = card.back_content || card.back || '';
-          
-          console.log(`🎴 Immediate card ${index + 1} mapping:`, {
-            original: card,
-            frontContent,
-            backContent
-          });
+      // If we get immediate flashcards, add them to preview
+      if (data?.flashcards?.length > 0) {
+        const previewCards = data.flashcards.map((card: any, index: number) => ({
+          front_content: card.front_content || card.front || '',
+          back_content: card.back_content || card.back || '',
+          title: `${file.name} - Card ${index + 1}`,
+          source: 'upload' as const,
+          status: 'new' as const,
+          session_id: uploadId
+        }));
 
-          return {
-            front_content: frontContent,
-            back_content: backContent,
-            title: `${file.name} - Card ${index + 1}`,
-            source: 'upload' as const,
-            status: 'new' as const,
-            session_id: uploadId
-          };
-        });
-
-        console.log('🚀 Immediate preview cards to be added:', previewCards);
         addPreviewCards(previewCards);
         
         toast({
@@ -244,7 +215,8 @@ const FileUploadSection: React.FC = () => {
       return data.flashcardsGenerated || 0;
 
     } catch (error) {
-      console.error('Error processing file with AI:', error);
+      console.error('Enhanced processing error:', error);
+      errorStage(uploadId, 'generation', error instanceof Error ? error.message : 'Processing failed');
       throw error;
     }
   };
@@ -300,7 +272,7 @@ const FileUploadSection: React.FC = () => {
 
         toast({
           title: "✅ File uploaded",
-          description: `${file.name} uploaded successfully. Starting AI processing for preview...`,
+          description: `${file.name} uploaded successfully. Starting enhanced AI processing...`,
         });
 
         setTimeout(async () => {
@@ -316,19 +288,19 @@ const FileUploadSection: React.FC = () => {
               throw new Error('Upload record not found');
             }
 
-            simulateProgress(uploadRecord.id, 6000, setProcessingProgress);
-
             const baseTimeout = 180000;
             const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5);
             const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000);
 
             const timeoutId = setTimeout(() => {
-              console.log('Processing timeout for upload:', uploadRecord.id);
+              console.log('Enhanced processing timeout for upload:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Processing timeout - file may be too complex. Try breaking it into smaller sections or use simpler content.'
+                error_message: 'Processing timeout - file may be too complex. Try breaking into smaller sections.'
               });
+
+              errorStage(uploadRecord.id, 'generation', 'Processing timeout');
 
               setProcessingProgress(prev => {
                 const newState = { ...prev };
@@ -338,7 +310,7 @@ const FileUploadSection: React.FC = () => {
 
               toast({
                 title: "⏱️ Processing timeout",
-                description: "File processing took too long. Try uploading smaller sections or simpler content.",
+                description: "File processing took too long. Try uploading smaller sections.",
                 variant: "destructive"
               });
             }, timeoutDuration);
@@ -351,7 +323,7 @@ const FileUploadSection: React.FC = () => {
             await processFileForFlashcards(file, uploadRecord.id, filePath);
 
           } catch (error) {
-            console.error('AI processing error:', error);
+            console.error('Enhanced AI processing error:', error);
             
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
@@ -364,8 +336,10 @@ const FileUploadSection: React.FC = () => {
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Failed to process file - please try again or use a simpler file'
+                error_message: 'Failed to process file - please try again'
               });
+
+              errorStage(uploadRecord.id, 'generation', 'Processing failed');
 
               setProcessingProgress(prev => {
                 const newState = { ...prev };
@@ -385,7 +359,7 @@ const FileUploadSection: React.FC = () => {
 
             toast({
               title: "❌ Processing failed",
-              description: "Failed to generate flashcards. Please try again with a simpler file.",
+              description: "Failed to generate flashcards. Please try again.",
               variant: "destructive"
             });
           }
@@ -446,8 +420,6 @@ const FileUploadSection: React.FC = () => {
         processing_status: 'processing',
         error_message: null
       });
-
-      simulateProgress(upload.id, 6000, setProcessingProgress);
 
       const timeoutId = setTimeout(() => {
         updateUpload({
