@@ -5,15 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useStudySessions } from '@/hooks/useStudySessions';
-import { Brain, Target, Clock, Play, RotateCcw } from 'lucide-react';
+import { Brain, Target, Clock, Play, RotateCcw, Settings } from 'lucide-react';
 import FlashcardReview from '../study/FlashcardReview';
 import FlashcardSelectionModal from '../study/FlashcardSelectionModal';
+import FlashcardManager from '../flashcards/FlashcardManager';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
 const FlashcardsSection: React.FC = () => {
   const { flashcards, isLoading } = useFlashcards();
   const { createSession, isCreating } = useStudySessions();
   const [showReview, setShowReview] = useState(false);
+  const [showManager, setShowManager] = useState(false);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedStudyMode, setSelectedStudyMode] = useState<'memory_test' | 'multiple_choice' | 'timed_challenge'>('memory_test');
   const navigate = useNavigate();
@@ -98,6 +100,10 @@ const FlashcardsSection: React.FC = () => {
     return <FlashcardReview onClose={() => setShowReview(false)} />;
   }
 
+  if (showManager) {
+    return <FlashcardManager onBack={() => setShowManager(false)} />;
+  }
+
   if (isLoading) {
     return (
       <Card className="fpk-card border-0 shadow-sm bg-white">
@@ -117,9 +123,22 @@ const FlashcardsSection: React.FC = () => {
               <span className="text-2xl">🎯</span>
               <span className="text-xl font-bold text-gray-900">Flashcards & Study Modes</span>
             </div>
-            <Badge variant="secondary" className="text-sm font-medium px-3 py-1 bg-gray-100 text-gray-700">
-              {flashcards.length} cards
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-sm font-medium px-3 py-1 bg-gray-100 text-gray-700">
+                {flashcards.length} cards
+              </Badge>
+              {flashcards.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowManager(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span className="hidden sm:inline">Manage</span>
+                </Button>
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
         
