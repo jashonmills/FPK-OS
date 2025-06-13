@@ -39,15 +39,15 @@ const AIStudyCoach = () => {
   const quickChallenges = generateQuickChallenges(flashcards, completedSessions);
 
   return (
-    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
+    <div className="p-2 sm:p-4 lg:p-6 max-w-7xl mx-auto space-y-3 sm:space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2 sm:space-y-4">
-        <h1 className="text-2xl sm:text-4xl font-bold text-foreground">AI Learning Coach</h1>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+      <div className="text-center space-y-2 sm:space-y-3 lg:space-y-4">
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-foreground px-2">AI Learning Coach</h1>
+        <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-2xl mx-auto px-3 sm:px-4 leading-relaxed">
           Your personalized AI coach analyzes your learning patterns, identifies strengths and weaknesses, 
           and provides tailored guidance to accelerate your educational journey.
         </p>
-        <div className="hidden sm:flex justify-center gap-6 text-sm text-muted-foreground">
+        <div className="hidden sm:flex justify-center gap-4 lg:gap-6 text-xs sm:text-sm text-muted-foreground flex-wrap px-4">
           <span>• Personalized learning analysis from your study data</span>
           <span>• Proactive guidance to build strengths from weaknesses</span>
           <span>• Continuous support and motivation on your learning path</span>
@@ -62,13 +62,13 @@ const AIStudyCoach = () => {
 
       {/* AI Coach Status Card */}
       <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-              <Brain className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" />
+        <CardContent className="p-3 sm:p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
+              <Brain className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 flex-shrink-0" />
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg sm:text-2xl font-bold">AI Learning Coach</h2>
-                <p className="text-purple-100 text-sm sm:text-base">
+                <h2 className="text-base sm:text-lg lg:text-2xl font-bold truncate">AI Learning Coach</h2>
+                <p className="text-purple-100 text-xs sm:text-sm lg:text-base leading-relaxed">
                   {completedSessions.length > 0 ? 
                     `Analyzing your ${completedSessions.length} study sessions and ${flashcards?.length || 0} flashcards` :
                     'Ready to analyze your learning patterns once you start studying'
@@ -77,12 +77,12 @@ const AIStudyCoach = () => {
               </div>
             </div>
             {completedSessions.length > 0 && (
-              <div className="w-full sm:w-auto sm:text-right">
-                <div className="flex items-center justify-between sm:justify-end gap-2 text-base sm:text-lg font-semibold mb-1">
-                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>{overallAccuracy}% Overall Accuracy</span>
+              <div className="w-full sm:w-auto sm:text-right flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-2 text-sm sm:text-base lg:text-lg font-semibold mb-1">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                  <span className="truncate">{overallAccuracy}% Overall Accuracy</span>
                 </div>
-                <p className="text-purple-200 text-xs sm:text-sm">
+                <p className="text-purple-200 text-xs sm:text-sm leading-relaxed">
                   {currentStreak > 0 ? `${currentStreak} day learning streak!` : 'Start your learning streak today'}
                 </p>
               </div>
@@ -92,7 +92,7 @@ const AIStudyCoach = () => {
       </Card>
 
       {/* Main Content Layout */}
-      <div className="space-y-4 sm:space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 lg:grid lg:grid-cols-3 lg:gap-4 xl:gap-6 lg:space-y-0">
         {/* Chat Interface - Full width on mobile, 2/3 on desktop */}
         <div className="lg:col-span-2 order-2 lg:order-1">
           <ChatInterface
@@ -104,7 +104,7 @@ const AIStudyCoach = () => {
         </div>
 
         {/* Right Sidebar - Stack on mobile, sidebar on desktop */}
-        <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-1 lg:order-2">
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />
           <QuickChallengesCard challenges={quickChallenges} />
