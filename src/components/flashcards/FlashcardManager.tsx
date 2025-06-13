@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcardManager } from '@/hooks/useFlashcardManager';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowLeft, Search, Filter } from 'lucide-react';
 import FlashcardFolderView from './FlashcardFolderView';
 import FlashcardFilterBar from './FlashcardFilterBar';
@@ -15,13 +16,14 @@ interface FlashcardManagerProps {
 const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
   const manager = useFlashcardManager();
   const [showFilters, setShowFilters] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full">
       {/* Header */}
-      <div className="border-b border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+      <div className="border-b border-gray-200 p-3 sm:p-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -30,52 +32,67 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Flashcard Manager
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
+                {isMobile ? 'Flashcards' : 'Flashcard Manager'}
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
                 Organize and manage your flashcard collection by folders
               </p>
             </div>
           </div>
           
           {/* Stats */}
-          <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
-              {Object.keys(manager.groupedFlashcards).length} folders
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <Badge variant="secondary" className="text-xs sm:text-sm">
+              {Object.keys(manager.groupedFlashcards).length}
             </Badge>
-            <Badge variant="secondary" className="text-sm">
-              {manager.totalCount} cards
+            <Badge variant="secondary" className="text-xs sm:text-sm">
+              {manager.totalCount}
             </Badge>
             {manager.selectedCount > 0 && (
-              <Badge variant="default" className="text-sm bg-blue-600">
-                {manager.selectedCount} selected
+              <Badge variant="default" className="text-xs sm:text-sm bg-blue-600">
+                {manager.selectedCount}
               </Badge>
             )}
           </div>
         </div>
 
+        {/* Mobile Stats Row */}
+        {isMobile && (
+          <div className="flex items-center gap-3 mb-4 text-xs text-gray-600">
+            <span>{Object.keys(manager.groupedFlashcards).length} folders</span>
+            <span>•</span>
+            <span>{manager.totalCount} cards</span>
+            {manager.selectedCount > 0 && (
+              <>
+                <span>•</span>
+                <span className="text-blue-600 font-medium">{manager.selectedCount} selected</span>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Controls Row */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
           {/* Filter Toggle */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <Filter className="h-4 w-4" />
-            Filters
+            {isMobile ? 'Filters' : 'Filters'}
           </Button>
 
           {/* Quick Search */}
-          <div className="flex-1 max-w-md">
+          <div className="flex-1 max-w-none sm:max-w-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search flashcards..."
+                placeholder={isMobile ? "Search..." : "Search flashcards..."}
                 value={manager.state.searchTerm}
                 onChange={(e) => manager.updateState({ searchTerm: e.target.value })}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -108,7 +125,7 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
       </div>
 
       {/* Main Content */}
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         <FlashcardFolderView
           groupedFlashcards={manager.groupedFlashcards}
           selectedCards={new Set(manager.selectedCards)}

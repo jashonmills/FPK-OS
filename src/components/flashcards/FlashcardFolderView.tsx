@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Accordion } from '@/components/ui/accordion';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { type Flashcard } from '@/hooks/useFlashcards';
 import FlashcardFolderItem from './FlashcardFolderItem';
 
@@ -28,27 +29,28 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
   onSelectAllInFolder,
   onBulkFolderAction,
 }) => {
+  const isMobile = useIsMobile();
   const totalFolders = Object.keys(groupedFlashcards).length;
   const totalCards = Object.values(groupedFlashcards).flat().length;
   const selectedCount = selectedCards.size;
   const expandedCount = expandedFolders.size;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Summary Bar */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">{totalFolders} folders</Badge>
-            <Badge variant="outline">{totalCards} total cards</Badge>
+      <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="outline" className="text-xs">{totalFolders} folders</Badge>
+            <Badge variant="outline" className="text-xs">{totalCards} total cards</Badge>
           </div>
           {selectedCount > 0 && (
-            <Badge variant="default" className="bg-blue-600">
+            <Badge variant="default" className="bg-blue-600 text-xs">
               {selectedCount} selected
             </Badge>
           )}
-          {expandedCount > 0 && (
-            <Badge variant="secondary">
+          {expandedCount > 0 && !isMobile && (
+            <Badge variant="secondary" className="text-xs">
               {expandedCount} expanded
             </Badge>
           )}
@@ -56,7 +58,7 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
       </div>
 
       {/* Folders Accordion */}
-      <Accordion type="multiple" className="space-y-4">
+      <Accordion type="multiple" className="space-y-3 sm:space-y-4">
         {Object.entries(groupedFlashcards).map(([folderId, cards]) => (
           <FlashcardFolderItem
             key={folderId}
@@ -77,13 +79,13 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
 
       {/* Empty State */}
       {totalFolders === 0 && (
-        <div className="text-center py-12">
+        <div className="text-center py-8 sm:py-12">
           <div className="text-gray-400 mb-4">
-            <Badge className="h-16 w-16 mx-auto mb-4 text-4xl">📁</Badge>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="text-4xl sm:text-6xl mb-4">📁</div>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               No flashcard folders found
             </h3>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600 px-4">
               Create some flashcards to get started
             </p>
           </div>
