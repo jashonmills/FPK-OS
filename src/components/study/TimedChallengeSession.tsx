@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { Clock, Check, X, ArrowLeft } from 'lucide-react';
@@ -21,16 +21,24 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
   onComplete
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswer, setUserAnswer] = useState('');
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds per card
   const [showResult, setShowResult] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
+  const [options, setOptions] = useState<string[]>([]);
+  const [correctIndex, setCorrectIndex] = useState(0);
   const [startTime] = useState(Date.now());
   const { completeSession } = useStudySessions();
   const { updateFlashcard } = useFlashcards();
 
   const currentCard = flashcards[currentIndex];
   const progress = ((currentIndex + (answers.length > currentIndex ? 1 : 0)) / flashcards.length) * 100;
+
+  useEffect(() => {
+    if (currentCard) {
+      generateOptions();
+    }
+  }, [currentIndex, currentCard]);
 
   useEffect(() => {
     if (timeLeft > 0 && !showResult && currentIndex < flashcards.length) {
@@ -43,36 +51,39 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
 
   useEffect(() => {
     setTimeLeft(30);
-    setUserAnswer('');
+    setSelectedAnswer(null);
     setShowResult(false);
   }, [currentIndex]);
 
+  const generateOptions = () => {
+    const correctAnswer = currentCard.back_content;
+    const otherCards = flashcards.filter(card => card.id !== currentCard.id);
+    
+    // Get 3 random wrong answers
+    const wrongAnswers = otherCards
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3)
+      .map(card => card.back_content);
+    
+    // Combine and shuffle
+    const allOptions = [correctAnswer, ...wrongAnswers];
+    const shuffled = allOptions.sort(() => Math.random() - 0.5);
+    
+    setOptions(shuffled);
+    setCorrectIndex(shuffled.indexOf(correctAnswer));
+  };
+
   const handleTimeUp = () => {
-    handleAnswer(false);
+    handleAnswer(-1); // -1 indicates timeout (no answer selected)
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userAnswer.trim() || showResult) return;
+  const handleAnswer = (answerIndex: number) => {
+    if (showResult) return;
     
-    const isCorrect = checkAnswer(userAnswer.trim(), currentCard.back_content);
-    handleAnswer(isCorrect);
-  };
-
-  const checkAnswer = (userInput: string, correctAnswer: string) => {
-    const normalize = (str: string) => str.toLowerCase().trim().replace(/[^\w\s]/g, '');
-    const normalizedUser = normalize(userInput);
-    const normalizedCorrect = normalize(correctAnswer);
-    
-    // Exact match or contains the key terms
-    return normalizedUser === normalizedCorrect || 
-           normalizedCorrect.includes(normalizedUser) ||
-           normalizedUser.includes(normalizedCorrect);
-  };
-
-  const handleAnswer = (isCorrect: boolean) => {
+    setSelectedAnswer(answerIndex);
     setShowResult(true);
     
+    const isCorrect = answerIndex === correctIndex;
     const newAnswers = [...answers];
     newAnswers[currentIndex] = isCorrect;
     setAnswers(newAnswers);
@@ -197,50 +208,53 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
               {currentCard?.front_content}
             </div>
           </div>
-
-          {!showResult ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                placeholder="Type your answer..."
-                className="text-center text-lg"
-                autoFocus
-                disabled={timeLeft === 0}
-              />
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={!userAnswer.trim() || timeLeft === 0}
-              >
-                Submit Answer
-              </Button>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div className={`p-4 rounded-lg text-center ${
-                answers[currentIndex] ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'
-              }`}>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  {answers[currentIndex] ? (
-                    <>
-                      <Check className="h-5 w-5" />
-                      <span className="font-medium">Correct!</span>
-                    </>
-                  ) : (
-                    <>
-                      <X className="h-5 w-5" />
-                      <span className="font-medium">Incorrect</span>
-                    </>
-                  )}
-                </div>
-                <div className="text-sm mb-2">Your answer: "{userAnswer || 'No answer'}"</div>
-                <div className="text-sm">Correct answer: "{currentCard?.back_content}"</div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      <div className="space-y-3">
+        {showResult && timeLeft === 0 && selectedAnswer === -1 && (
+          <div className="text-center p-4 bg-red-100 text-red-900 rounded-lg mb-4">
+            <div className="font-medium">Time's up!</div>
+            <div className="text-sm">Correct answer: "{currentCard?.back_content}"</div>
+          </div>
+        )}
+        
+        {options.map((option, index) => {
+          let buttonClass = "w-full text-left p-4 border rounded-lg transition-colors ";
+          
+          if (!showResult && timeLeft > 0) {
+            buttonClass += "hover:bg-gray-50 border-gray-200";
+          } else {
+            if (index === correctIndex) {
+              buttonClass += "bg-green-100 border-green-300 text-green-900";
+            } else if (index === selectedAnswer && index !== correctIndex) {
+              buttonClass += "bg-red-100 border-red-300 text-red-900";
+            } else {
+              buttonClass += "bg-gray-50 border-gray-200 text-gray-600";
+            }
+          }
+
+          return (
+            <button
+              key={index}
+              onClick={() => handleAnswer(index)}
+              disabled={showResult || timeLeft === 0}
+              className={buttonClass}
+              aria-label={`Option ${index + 1}: ${option}`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="flex-1">{option}</span>
+                {showResult && index === correctIndex && (
+                  <Check className="h-5 w-5 text-green-600" />
+                )}
+                {showResult && index === selectedAnswer && index !== correctIndex && (
+                  <X className="h-5 w-5 text-red-600" />
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
