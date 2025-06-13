@@ -1,7 +1,9 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { useFileUploads } from '@/hooks/useFileUploads';
+import { useNotes } from '@/hooks/useNotes';
 
 export interface FlashcardSet {
   id: string;
@@ -12,108 +14,90 @@ export interface FlashcardSet {
   source_id: string | null;
   created_at: string;
   updated_at: string;
-  flashcard_count?: number;
+  flashcard_count: number;
 }
 
 export const useFlashcardSets = () => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const { flashcards } = useFlashcards();
+  const { uploads } = useFileUploads();
+  const { notes } = useNotes();
 
   const { data: sets = [], isLoading } = useQuery({
-    queryKey: ['flashcard-sets', user?.id],
+    queryKey: ['flashcard-sets', user?.id, flashcards.length, uploads.length, notes.length],
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await supabase
-        .from('flashcard_sets')
-        .select(`
-          *,
-          flashcard_count:flashcards(count)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      const virtualSets: FlashcardSet[] = [];
 
-      if (error) {
-        console.error('Error fetching flashcard sets:', error);
-        throw error;
-      }
+      // Create sets from file uploads
+      uploads.forEach(upload => {
+        const uploadFlashcards = flashcards.filter(card => 
+          card.note_id === null && // Assume cards from uploads don't have note_id
+          card.created_at >= upload.created_at // Cards created after upload
+        );
+        
+        if (uploadFlashcards.length > 0) {
+          virtualSets.push({
+            id: `upload_${upload.id}`,
+            user_id: user.id,
+            name: upload.file_name.replace(/\.[^/.]+$/, ""), // Remove file extension
+            description: `Flashcards from ${upload.file_name}`,
+            source_type: 'upload',
+            source_id: upload.id,
+            created_at: upload.created_at,
+            updated_at: upload.updated_at,
+            flashcard_count: uploadFlashcards.length
+          });
+        }
+      });
 
-      return data.map(set => ({
-        ...set,
-        flashcard_count: set.flashcard_count?.[0]?.count || 0
-      })) as FlashcardSet[];
+      // Create sets from notes
+      notes.forEach(note => {
+        const noteFlashcards = flashcards.filter(card => card.note_id === note.id);
+        
+        if (noteFlashcards.length > 0) {
+          virtualSets.push({
+            id: `note_${note.id}`,
+            user_id: user.id,
+            name: note.title,
+            description: `Flashcards from note: ${note.title}`,
+            source_type: 'notes',
+            source_id: note.id,
+            created_at: note.created_at,
+            updated_at: note.updated_at,
+            flashcard_count: noteFlashcards.length
+          });
+        }
+      });
+
+      // Sort by created_at descending
+      return virtualSets.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     },
     enabled: !!user,
   });
 
-  const createSetMutation = useMutation({
-    mutationFn: async (setData: {
-      name: string;
-      description?: string;
-      source_type: 'upload' | 'manual' | 'notes';
-      source_id?: string;
-    }) => {
-      if (!user) throw new Error('User not authenticated');
+  // Mock functions for compatibility (since we can't create actual sets in DB)
+  const createSet = () => {
+    console.warn('Creating sets not supported with current database schema');
+  };
 
-      const { data, error } = await supabase
-        .from('flashcard_sets')
-        .insert({
-          user_id: user.id,
-          name: setData.name,
-          description: setData.description || null,
-          source_type: setData.source_type,
-          source_id: setData.source_id || null
-        })
-        .select()
-        .single();
+  const updateSet = () => {
+    console.warn('Updating sets not supported with current database schema');
+  };
 
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
-    },
-  });
-
-  const updateSetMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<FlashcardSet> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('flashcard_sets')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
-    },
-  });
-
-  const deleteSetMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('flashcard_sets')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
-    },
-  });
+  const deleteSet = () => {
+    console.warn('Deleting sets not supported with current database schema');
+  };
 
   return {
     sets,
     isLoading,
-    createSet: createSetMutation.mutate,
-    updateSet: updateSetMutation.mutate,
-    deleteSet: deleteSetMutation.mutate,
-    isCreating: createSetMutation.isPending,
-    isUpdating: updateSetMutation.isPending,
-    isDeleting: deleteSetMutation.isPending,
+    createSet,
+    updateSet,
+    deleteSet,
+    isCreating: false,
+    isUpdating: false,
+    isDeleting: false,
   };
 };

@@ -33,9 +33,22 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   const flashcardGroups = React.useMemo(() => {
     const groups = new Map<string, { name: string; cards: Flashcard[]; type: string; icon: React.ComponentType<any> }>();
     
-    // Add flashcards to their respective sets
+    // Add flashcards to their respective virtual sets
     sets.forEach(set => {
-      const setCards = flashcards.filter(card => card.set_id === set.id);
+      let setCards: Flashcard[] = [];
+      
+      if (set.source_type === 'notes' && set.source_id) {
+        setCards = flashcards.filter(card => card.note_id === set.source_id);
+      } else if (set.source_type === 'upload') {
+        // For upload sets, we need to match cards that were likely created from this upload
+        // This is approximate since we don't have a direct relationship
+        const uploadDate = new Date(set.created_at);
+        setCards = flashcards.filter(card => 
+          card.note_id === null && 
+          new Date(card.created_at) >= uploadDate
+        ).slice(0, set.flashcard_count); // Limit to expected count
+      }
+      
       if (setCards.length > 0) {
         groups.set(set.id, {
           name: set.name,
@@ -46,8 +59,13 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
       }
     });
 
-    // Add ungrouped flashcards
-    const ungroupedCards = flashcards.filter(card => !card.set_id);
+    // Add ungrouped flashcards (cards not associated with any set)
+    const groupedCardIds = new Set();
+    groups.forEach(group => {
+      group.cards.forEach(card => groupedCardIds.add(card.id));
+    });
+    
+    const ungroupedCards = flashcards.filter(card => !groupedCardIds.has(card.id));
     if (ungroupedCards.length > 0) {
       groups.set('ungrouped', {
         name: 'Ungrouped Cards',
