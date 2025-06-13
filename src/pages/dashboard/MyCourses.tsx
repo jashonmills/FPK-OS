@@ -70,6 +70,15 @@ const MyCourses = () => {
 
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
+    const isLearningStateCourse = course.id === 'learning-state-beta';
+
+    // Determine the correct route for each course
+    const getCourseRoute = () => {
+      if (isLearningStateCourse) {
+        return '/dashboard/learner/learning-state';
+      }
+      return `/dashboard/learner/course/${course.slug || course.id}`;
+    };
 
     return (
       <Card className="h-full hover:shadow-lg transition-shadow">
@@ -85,6 +94,11 @@ const MyCourses = () => {
               {course.featured && (
                 <Badge variant="default" className="fpk-gradient text-white">
                   Featured
+                </Badge>
+              )}
+              {isLearningStateCourse && (
+                <Badge variant="default" className="fpk-gradient text-white">
+                  Beta
                 </Badge>
               )}
               <Badge variant="outline">
@@ -125,7 +139,7 @@ const MyCourses = () => {
               </div>
             )}
 
-            <Link to={`/dashboard/learner/course/${course.slug}`}>
+            <Link to={getCourseRoute()}>
               <Button className="w-full fpk-gradient text-white">
                 {isEnrolled ? 'Continue Learning' : 'View Course'}
               </Button>

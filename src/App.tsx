@@ -53,6 +53,7 @@ function App() {
                     <Route path="learner" element={<LearnerHome />} />
                     <Route path="learner/courses" element={<MyCourses />} />
                     <Route path="learner/course/:courseId" element={<DynamicCourse />} />
+                    <Route path="learner/learning-state" element={<LearningStateCourse />} />
                     <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
                     <Route path="learner/ai-coach" element={<AIStudyCoach />} />
                     <Route path="learner/settings" element={<Settings />} />

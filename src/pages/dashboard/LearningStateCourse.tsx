@@ -33,7 +33,7 @@ const LearningStateCourse = () => {
   }, [isMobile]);
 
   const handleBackToCourses = () => {
-    navigate('/dashboard/learner/my-courses');
+    navigate('/dashboard/learner/courses');
   };
 
   const handleDashboard = () => {
