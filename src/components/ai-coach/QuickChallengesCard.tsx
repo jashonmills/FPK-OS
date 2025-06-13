@@ -16,7 +16,7 @@ interface QuickChallengesCardProps {
 
 const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges }) => {
   return (
-    <Card>
+    <Card className="w-full overflow-hidden">
       <CardHeader className="p-3 sm:p-4 lg:p-6">
         <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
           <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 flex-shrink-0" />
@@ -28,11 +28,13 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
           <Button 
             key={index}
             variant="outline" 
-            className="w-full justify-start text-left h-auto p-2 sm:p-3 min-h-[2.5rem] sm:min-h-[3rem]"
+            className="w-full justify-start text-left h-auto p-2 sm:p-3 min-h-[2.5rem] sm:min-h-[3rem] overflow-hidden"
             onClick={challenge.action}
           >
             <challenge.icon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
-            <span className="text-xs sm:text-sm leading-tight break-words">{challenge.text}</span>
+            <span className="text-xs sm:text-sm leading-tight break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-full">
+              {challenge.text}
+            </span>
           </Button>
         ))}
       </CardContent>
