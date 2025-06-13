@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { type Flashcard } from '@/hooks/useFlashcards';
-import { FileText, BookOpen, Edit, Trash2, Archive } from 'lucide-react';
+import { FileText, BookOpen, Edit, Trash2, Archive, Brain, Upload, Folder } from 'lucide-react';
 
 interface FolderSummaryHeaderProps {
   folderName: string;
@@ -25,15 +25,43 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
   onBulkFolderAction,
 }) => {
   const getSourceIcon = (folderName: string) => {
+    // Topic-based icons
+    if (folderName.includes('Goonies')) return FileText;
+    if (folderName.includes('Learning State')) return Brain;
+    if (folderName.includes('Dragon Fire')) return FileText;
+    if (folderName.includes('Cannabis')) return FileText;
+    if (folderName.includes('Photography')) return FileText;
+    if (folderName.includes('Wellness')) return FileText;
+    if (folderName.includes('Technology')) return FileText;
+    if (folderName.includes('Science')) return FileText;
+    if (folderName.includes('Business')) return FileText;
+    if (folderName.includes('History')) return FileText;
+    
+    // Source-based icons
     if (folderName.includes('Manual')) return Edit;
-    if (folderName.includes('Notes') || folderName.includes('note')) return BookOpen;
-    return FileText;
+    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return BookOpen;
+    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return Upload;
+    
+    return Folder;
   };
 
   const getSourceType = (folderName: string) => {
+    // Check if it's a topic-based folder
+    const topicFolders = ['Goonies', 'Learning State', 'Dragon Fire', 'Cannabis', 'Photography', 
+                         'Wellness', 'Technology', 'Science', 'Business', 'History'];
+    
+    for (const topic of topicFolders) {
+      if (folderName.includes(topic)) {
+        return 'Topic';
+      }
+    }
+    
+    // Source-based categorization
     if (folderName.includes('Manual')) return 'Manual';
-    if (folderName.includes('Notes') || folderName.includes('note')) return 'Notes';
-    return 'Upload';
+    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return 'Notes';
+    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return 'Upload';
+    
+    return 'Auto-grouped';
   };
 
   const SourceIcon = getSourceIcon(folderName);

@@ -1,7 +1,7 @@
-
 import { useState, useMemo } from 'react';
 import { useFlashcards, type Flashcard } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
+import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
 
 export interface FlashcardManagerState {
   selectedCards: Set<string>;
@@ -101,33 +101,35 @@ export const useFlashcardManager = () => {
     return filtered;
   }, [flashcards, state.searchTerm, state.filterBy, state.filterValue, state.sortBy, state.sortOrder]);
 
-  // Group flashcards by source
+  // Group flashcards by automatically detected topics/sources
   const groupedFlashcards = useMemo(() => {
     const groups: Record<string, Flashcard[]> = {};
     
     filteredFlashcards.forEach(card => {
-      let groupKey = 'Manual Cards';
+      // Use the topic analyzer to determine the appropriate folder
+      const topicFolder = analyzeFlashcardTopic(
+        card.front_content, 
+        card.back_content, 
+        card.note_id,
+        card.created_at
+      );
       
-      if (card.note_id) {
-        const noteSet = sets.find(set => set.source_type === 'notes' && set.source_id === card.note_id);
-        groupKey = noteSet ? noteSet.name : 'Notes';
-      } else {
-        // Check if card belongs to an upload
-        const uploadSet = sets.find(set => 
-          set.source_type === 'upload' && 
-          new Date(card.created_at) >= new Date(set.created_at)
-        );
-        groupKey = uploadSet ? uploadSet.name : 'Manual Cards';
+      if (!groups[topicFolder]) {
+        groups[topicFolder] = [];
       }
-      
-      if (!groups[groupKey]) {
-        groups[groupKey] = [];
-      }
-      groups[groupKey].push(card);
+      groups[topicFolder].push(card);
     });
     
-    return groups;
-  }, [filteredFlashcards, sets]);
+    // Sort groups by name for consistent ordering
+    const sortedGroups: Record<string, Flashcard[]> = {};
+    Object.keys(groups)
+      .sort()
+      .forEach(key => {
+        sortedGroups[key] = groups[key];
+      });
+    
+    return sortedGroups;
+  }, [filteredFlashcards]);
 
   // Folder management
   const toggleFolder = (folderId: string) => {
