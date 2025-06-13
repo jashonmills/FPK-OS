@@ -14,7 +14,7 @@ const FlashcardManagerPage = () => {
 
   return (
     <div className={`min-h-screen bg-gray-50 ${getAccessibilityClasses('container')}`}>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-none px-2 py-2 sm:px-4 sm:py-4 lg:max-w-7xl lg:mx-auto lg:px-8 lg:py-8">
         <FlashcardManager onBack={handleBack} />
       </div>
     </div>

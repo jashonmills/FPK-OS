@@ -32,34 +32,34 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
     return 'bg-red-100 text-red-700';
   };
 
-  const truncateText = (text: string, maxLength: number = 50) => {
+  const truncateText = (text: string, maxLength: number = 40) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 sm:space-y-3">
       {/* View Toggle */}
-      <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-        <div className="text-sm text-gray-600">
+      <div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:pt-3">
+        <div className="text-xs sm:text-sm text-gray-600">
           {cards.length} cards in this folder
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'outline'}
             size="sm"
             onClick={() => onToggleViewMode(folderId)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 h-6 px-2 text-xs"
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-3 w-3" />
             <span className="hidden sm:inline">Grid</span>
           </Button>
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             size="sm"
             onClick={() => onToggleViewMode(folderId)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 h-6 px-2 text-xs"
           >
-            <List className="h-4 w-4" />
+            <List className="h-3 w-3" />
             <span className="hidden sm:inline">List</span>
           </Button>
         </div>
@@ -67,33 +67,33 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
 
       {/* Cards Display */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {cards.map((card) => (
             <div
               key={card.id}
-              className={`relative bg-gray-50 border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer ${
+              className={`relative bg-gray-50 border rounded-lg p-2 sm:p-3 hover:shadow-md transition-shadow cursor-pointer ${
                 selectedCards.has(card.id) ? 'ring-2 ring-blue-500 border-blue-300' : 'border-gray-200'
               }`}
               onClick={() => onToggleSelection(card.id)}
             >
               {/* Selection Checkbox */}
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-2 right-2">
                 <Checkbox
                   checked={selectedCards.has(card.id)}
                   onCheckedChange={() => onToggleSelection(card.id)}
-                  className="h-4 w-4"
+                  className="h-3 w-3 sm:h-4 sm:w-4"
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
 
               {/* Card Content */}
-              <div className="space-y-3 pr-6">
+              <div className="space-y-2 pr-5">
                 {/* Front */}
                 <div>
                   <div className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
                     Front
                   </div>
-                  <div className="text-sm text-gray-900 line-clamp-3 leading-relaxed">
+                  <div className="text-xs sm:text-sm text-gray-900 leading-relaxed break-words">
                     {card.front_content}
                   </div>
                 </div>
@@ -103,20 +103,20 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
                   <div className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
                     Back
                   </div>
-                  <div className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                  <div className="text-xs sm:text-sm text-gray-600 leading-relaxed break-words">
                     {card.back_content}
                   </div>
                 </div>
 
                 {/* Stats */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
-                  <Badge variant="outline" className="text-xs">
+                <div className="flex flex-wrap items-center gap-1 pt-1 border-t border-gray-100">
+                  <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                     Level {card.difficulty_level}
                   </Badge>
                   
                   {card.times_reviewed > 0 && (
                     <Badge 
-                      className={`text-xs ${getPerformanceColor(card)}`}
+                      className={`text-xs px-1.5 py-0.5 ${getPerformanceColor(card)}`}
                       variant="secondary"
                     >
                       {Math.round((card.times_correct / card.times_reviewed) * 100)}%
@@ -132,11 +132,11 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
           ))}
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">
+                <TableHead className="w-8 p-2">
                   <Checkbox
                     checked={cards.every(card => selectedCards.has(card.id))}
                     onCheckedChange={() => {
@@ -149,14 +149,14 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
                         }
                       });
                     }}
-                    className="h-4 w-4"
+                    className="h-3 w-3 sm:h-4 sm:w-4"
                   />
                 </TableHead>
-                <TableHead className="min-w-[200px]">Front Content</TableHead>
-                <TableHead className="min-w-[200px]">Back Content</TableHead>
-                <TableHead className="w-20">Level</TableHead>
-                <TableHead className="w-24">Reviews</TableHead>
-                <TableHead className="w-24">Success</TableHead>
+                <TableHead className="min-w-[120px] p-2 text-xs">Front</TableHead>
+                <TableHead className="min-w-[120px] p-2 text-xs">Back</TableHead>
+                <TableHead className="w-12 p-2 text-xs">Lvl</TableHead>
+                <TableHead className="w-16 p-2 text-xs">Rev</TableHead>
+                <TableHead className="w-16 p-2 text-xs">Succ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -168,42 +168,42 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
                   }`}
                   onClick={() => onToggleSelection(card.id)}
                 >
-                  <TableCell onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="p-2" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selectedCards.has(card.id)}
                       onCheckedChange={() => onToggleSelection(card.id)}
-                      className="h-4 w-4"
+                      className="h-3 w-3 sm:h-4 sm:w-4"
                     />
                   </TableCell>
                   
-                  <TableCell>
-                    <div className="text-sm text-gray-900 font-medium">
-                      {truncateText(card.front_content, 60)}
+                  <TableCell className="p-2">
+                    <div className="text-xs text-gray-900 font-medium break-words">
+                      {truncateText(card.front_content, 50)}
                     </div>
                   </TableCell>
                   
-                  <TableCell>
-                    <div className="text-sm text-gray-600">
-                      {truncateText(card.back_content, 60)}
+                  <TableCell className="p-2">
+                    <div className="text-xs text-gray-600 break-words">
+                      {truncateText(card.back_content, 50)}
                     </div>
                   </TableCell>
                   
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
+                  <TableCell className="p-2">
+                    <Badge variant="outline" className="text-xs px-1 py-0.5">
                       {card.difficulty_level}
                     </Badge>
                   </TableCell>
                   
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
+                  <TableCell className="p-2">
+                    <span className="text-xs text-gray-600">
                       {card.times_reviewed}
                     </span>
                   </TableCell>
                   
-                  <TableCell>
+                  <TableCell className="p-2">
                     {card.times_reviewed > 0 ? (
                       <Badge 
-                        className={`text-xs ${getPerformanceColor(card)}`}
+                        className={`text-xs px-1 py-0.5 ${getPerformanceColor(card)}`}
                         variant="secondary"
                       >
                         {Math.round((card.times_correct / card.times_reviewed) * 100)}%

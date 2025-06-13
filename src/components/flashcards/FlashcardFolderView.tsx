@@ -36,11 +36,11 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
   const expandedCount = expandedFolders.size;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-2 sm:space-y-3 lg:space-y-4">
       {/* Summary Bar */}
-      <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-          <div className="flex items-center gap-2 flex-wrap">
+      <div className="bg-gray-50 rounded-lg p-2 sm:p-3 lg:p-4">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 lg:gap-4 text-xs">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <Badge variant="outline" className="text-xs">{totalFolders} folders</Badge>
             <Badge variant="outline" className="text-xs">{totalCards} total cards</Badge>
           </div>
@@ -58,7 +58,7 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
       </div>
 
       {/* Folders Accordion */}
-      <Accordion type="multiple" className="space-y-3 sm:space-y-4">
+      <Accordion type="multiple" className="space-y-2 sm:space-y-3">
         {Object.entries(groupedFlashcards).map(([folderId, cards]) => (
           <FlashcardFolderItem
             key={folderId}
@@ -79,13 +79,13 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
 
       {/* Empty State */}
       {totalFolders === 0 && (
-        <div className="text-center py-8 sm:py-12">
+        <div className="text-center py-6 sm:py-8 lg:py-12">
           <div className="text-gray-400 mb-4">
-            <div className="text-4xl sm:text-6xl mb-4">📁</div>
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+            <div className="text-3xl sm:text-4xl lg:text-6xl mb-2 sm:mb-4">📁</div>
+            <h3 className="text-sm sm:text-base lg:text-lg font-medium text-gray-900 mb-1 sm:mb-2">
               No flashcard folders found
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 px-4">
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 px-2 sm:px-4">
               Create some flashcards to get started
             </p>
           </div>

@@ -79,27 +79,27 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between w-full" onClick={(e) => e.stopPropagation()}>
+    <div className="flex items-center justify-between w-full min-w-0" onClick={(e) => e.stopPropagation()}>
       {/* Left Side - Folder Info */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 pr-2">
         <Checkbox
           checked={allSelected}
           onCheckedChange={handleSelectAll}
-          className="h-4 w-4 shrink-0"
+          className="h-3 w-3 sm:h-4 sm:w-4 shrink-0"
         />
         
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <SourceIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 shrink-0" />
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+          <SourceIcon className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-gray-500 shrink-0" />
           <div className="min-w-0 flex-1">
-            <h3 className="font-medium sm:font-semibold text-gray-900 text-sm sm:text-base truncate">
+            <h3 className="font-medium text-gray-900 text-xs sm:text-sm lg:text-base leading-tight break-words">
               {folderName}
             </h3>
-            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-500">
-              <span className="truncate">{sourceType}</span>
+            <div className="flex items-center gap-1 text-xs text-gray-500 leading-tight">
+              <span className="break-words">{sourceType}</span>
               {!isMobile && (
                 <>
                   <span>•</span>
-                  <span>{createdDate}</span>
+                  <span className="whitespace-nowrap">{createdDate}</span>
                 </>
               )}
             </div>
@@ -108,13 +108,13 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
       </div>
 
       {/* Right Side - Stats and Actions */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Badge variant="secondary" className="text-xs">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1">
+          <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
             {cards.length}
           </Badge>
           {selectedInFolder > 0 && (
-            <Badge variant="default" className="text-xs bg-blue-600">
+            <Badge variant="default" className="text-xs bg-blue-600 px-1.5 py-0.5">
               {selectedInFolder}
             </Badge>
           )}
@@ -129,38 +129,38 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={(e) => e.stopPropagation()}
-                  className="h-8 w-8 p-0"
+                  className="h-6 w-6 p-0"
                 >
-                  <MoreVertical className="h-4 w-4" />
+                  <MoreVertical className="h-3 w-3" />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="w-[95vw] max-w-md">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Folder Actions</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-sm">Folder Actions</AlertDialogTitle>
+                  <AlertDialogDescription className="text-xs">
                     Choose an action for "{folderName}" ({cards.length} cards)
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="flex flex-col gap-2">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start">
-                        <Archive className="h-4 w-4 mr-2" />
+                      <Button variant="outline" className="w-full justify-start text-xs">
+                        <Archive className="h-3 w-3 mr-2" />
                         Archive Folder
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="w-[95vw] max-w-md">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Archive Folder</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle className="text-sm">Archive Folder</AlertDialogTitle>
+                        <AlertDialogDescription className="text-xs">
                           Archive all {cards.length} cards in "{folderName}"?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="text-xs">Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={(e) => handleAction(e, 'archive')}
-                          className="bg-orange-600 hover:bg-orange-700"
+                          className="bg-orange-600 hover:bg-orange-700 text-xs"
                         >
                           Archive
                         </AlertDialogAction>
@@ -170,23 +170,23 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
                   
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-red-600">
-                        <Trash2 className="h-4 w-4 mr-2" />
+                      <Button variant="outline" className="w-full justify-start text-red-600 text-xs">
+                        <Trash2 className="h-3 w-3 mr-2" />
                         Delete Folder
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="w-[95vw] max-w-md">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Folder</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle className="text-sm">Delete Folder</AlertDialogTitle>
+                        <AlertDialogDescription className="text-xs">
                           Permanently delete all {cards.length} cards in "{folderName}"? This cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="text-xs">Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={(e) => handleAction(e, 'delete')}
-                          className="bg-red-600 hover:bg-red-700"
+                          className="bg-red-600 hover:bg-red-700 text-xs"
                         >
                           Delete
                         </AlertDialogAction>
@@ -198,16 +198,16 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
             </AlertDialog>
           </div>
         ) : (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={(e) => e.stopPropagation()}
-                  className="h-8 w-8 p-0 text-orange-600 hover:bg-orange-50"
+                  className="h-6 w-6 p-0 text-orange-600 hover:bg-orange-50"
                 >
-                  <Archive className="h-4 w-4" />
+                  <Archive className="h-3 w-3" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -236,9 +236,9 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={(e) => e.stopPropagation()}
-                  className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
+                  className="h-6 w-6 p-0 text-red-600 hover:bg-red-50"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
