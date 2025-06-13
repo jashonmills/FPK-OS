@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -52,6 +53,8 @@ export const useFlashcards = () => {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
+      console.log('💾 Creating flashcard in database:', flashcardData);
+
       const { data, error } = await supabase
         .from('flashcards')
         .insert({
@@ -65,10 +68,16 @@ export const useFlashcards = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Database error creating flashcard:', error);
+        throw error;
+      }
+      
+      console.log('✅ Flashcard created successfully:', data);
       return data;
     },
     onSuccess: () => {
+      console.log('🔄 Invalidating flashcard queries after successful creation');
       queryClient.invalidateQueries({ queryKey: ['flashcards', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
     },
@@ -105,10 +114,30 @@ export const useFlashcards = () => {
     },
   });
 
+  // Enhanced createFlashcard function with callback support
+  const createFlashcard = (
+    flashcardData: { 
+      front_content: string; 
+      back_content: string; 
+      note_id?: string;
+      set_id?: string;
+      difficulty_level?: number;
+    },
+    callbacks?: {
+      onSuccess?: (data: any) => void;
+      onError?: (error: any) => void;
+    }
+  ) => {
+    createFlashcardMutation.mutate(flashcardData, {
+      onSuccess: callbacks?.onSuccess,
+      onError: callbacks?.onError,
+    });
+  };
+
   return {
     flashcards,
     isLoading,
-    createFlashcard: createFlashcardMutation.mutate,
+    createFlashcard,
     updateFlashcard: updateFlashcardMutation.mutate,
     deleteFlashcard: deleteFlashcardMutation.mutate,
     isCreating: createFlashcardMutation.isPending,

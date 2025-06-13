@@ -24,6 +24,8 @@ const FileUploadSection: React.FC = () => {
   useEffect(() => {
     if (!user) return;
 
+    console.log('🔄 Setting up real-time subscription for file uploads');
+
     const channel = supabase
       .channel('file-uploads-changes')
       .on(
@@ -35,10 +37,12 @@ const FileUploadSection: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('🔄 File upload updated:', payload);
+          console.log('🔄 File upload updated via real-time:', payload);
           
           if (payload.new.processing_status === 'completed') {
-            // Clear timeout and progress
+            console.log('✅ Processing completed for upload:', payload.new.id);
+            
+            // Clear timeout and progress immediately
             if (processingTimeouts[payload.new.id]) {
               clearTimeout(processingTimeouts[payload.new.id]);
             }
@@ -71,20 +75,23 @@ const FileUploadSection: React.FC = () => {
                 }
               });
 
-              console.log('📦 Edge function response:', data);
-              console.log('❌ Edge function error:', error);
+              console.log('📦 Fetch response data:', data);
+              console.log('❌ Fetch response error:', error);
 
               if (error) {
-                console.error('Error fetching flashcards:', error);
-              } else if (data && data.flashcards && data.flashcards.length > 0) {
-                console.log('📋 Raw flashcards from edge function:', data.flashcards);
+                console.error('❌ Error fetching flashcards:', error);
+                toast({
+                  title: "⚠️ Processing complete",
+                  description: `${payload.new.file_name} processed but couldn't retrieve flashcards.`,
+                });
+              } else if (data && data.flashcards && Array.isArray(data.flashcards) && data.flashcards.length > 0) {
+                console.log('📋 Successfully fetched flashcards:', data.flashcards.length, 'cards');
                 
                 const previewCards = data.flashcards.map((card: any, index: number) => {
-                  // More robust content mapping with debugging
                   const frontContent = card.front_content || card.front || '';
                   const backContent = card.back_content || card.back || '';
                   
-                  console.log(`🎴 Card ${index + 1} mapping:`, {
+                  console.log(`🎴 Mapping fetched card ${index + 1}:`, {
                     original: card,
                     frontContent,
                     backContent
@@ -100,28 +107,30 @@ const FileUploadSection: React.FC = () => {
                   };
                 });
 
-                console.log('✨ Preview cards to be added:', previewCards);
+                console.log('✨ Adding fetched cards to preview immediately:', previewCards);
                 addPreviewCards(previewCards);
                 
                 toast({
-                  title: "✅ Success!",
+                  title: "🎉 Flashcards ready!",
                   description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
                 });
               } else {
-                console.log('⚠️ No flashcards returned from edge function');
+                console.log('⚠️ No flashcards returned from fetch operation');
                 toast({
                   title: "✅ Processing complete",
                   description: `Processed ${payload.new.file_name} but no flashcards were generated.`,
                 });
               }
             } catch (error) {
-              console.error('💥 Error fetching flashcards after completion:', error);
+              console.error('💥 Error in real-time fetch operation:', error);
               toast({
                 title: "⚠️ Processing complete",
                 description: `${payload.new.file_name} processed but couldn't retrieve flashcards. Try refreshing.`,
               });
             }
           } else if (payload.new.processing_status === 'failed') {
+            console.log('❌ Processing failed for upload:', payload.new.id);
+            
             // Clear timeout and progress
             if (processingTimeouts[payload.new.id]) {
               clearTimeout(processingTimeouts[payload.new.id]);
@@ -150,6 +159,7 @@ const FileUploadSection: React.FC = () => {
       .subscribe();
 
     return () => {
+      console.log('🔌 Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
   }, [user, toast, processingTimeouts, addPreviewCards]);

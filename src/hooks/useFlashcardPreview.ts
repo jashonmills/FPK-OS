@@ -85,11 +85,14 @@ export const useFlashcardPreview = () => {
     };
 
     console.log('🆕 New card created:', newCard);
-    const updatedCards = [...previewCards, newCard];
-    console.log('📋 Updated cards array:', updatedCards);
     
-    setPreviewCards(updatedCards);
-    saveToStorage(updatedCards);
+    setPreviewCards(prev => {
+      const updatedCards = [...prev, newCard];
+      console.log('📋 Updated cards array:', updatedCards);
+      saveToStorage(updatedCards);
+      return updatedCards;
+    });
+    
     return newCard.id;
   };
 
@@ -107,72 +110,112 @@ export const useFlashcardPreview = () => {
     });
 
     console.log('🆕🆕 All new cards created:', newCards);
-    const updatedCards = [...previewCards, ...newCards];
-    console.log('📋📋 Final updated cards array:', updatedCards);
     
-    setPreviewCards(updatedCards);
-    saveToStorage(updatedCards);
+    setPreviewCards(prev => {
+      const updatedCards = [...prev, ...newCards];
+      console.log('📋📋 Final updated cards array:', updatedCards);
+      saveToStorage(updatedCards);
+      return updatedCards;
+    });
+    
     return newCards.map(card => card.id);
   };
 
   const updatePreviewCard = (id: string, updates: Partial<PreviewFlashcard>) => {
-    const updatedCards = previewCards.map(card =>
-      card.id === id 
-        ? { ...card, ...updates, status: 'edited' as const }
-        : card
-    );
-    setPreviewCards(updatedCards);
-    saveToStorage(updatedCards);
+    setPreviewCards(prev => {
+      const updatedCards = prev.map(card =>
+        card.id === id 
+          ? { ...card, ...updates, status: 'edited' as const }
+          : card
+      );
+      saveToStorage(updatedCards);
+      return updatedCards;
+    });
   };
 
   const deletePreviewCard = (id: string) => {
-    const updatedCards = previewCards.filter(card => card.id !== id);
-    setPreviewCards(updatedCards);
-    saveToStorage(updatedCards);
+    setPreviewCards(prev => {
+      const updatedCards = prev.filter(card => card.id !== id);
+      saveToStorage(updatedCards);
+      return updatedCards;
+    });
   };
 
-  const approveCard = async (id: string) => {
+  const approveCard = async (id: string): Promise<boolean> => {
     const card = previewCards.find(c => c.id === id);
-    if (!card) return null;
+    if (!card) {
+      console.error('❌ Card not found for approval:', id);
+      return false;
+    }
+
+    console.log('✅ Approving card:', card);
 
     try {
-      // Save to database via useFlashcards hook
-      createFlashcard({
-        front_content: card.front_content,
-        back_content: card.back_content,
-        difficulty_level: 1
+      // Create a promise wrapper for the mutation
+      const createFlashcardPromise = new Promise<boolean>((resolve, reject) => {
+        createFlashcard(
+          {
+            front_content: card.front_content,
+            back_content: card.back_content,
+            difficulty_level: 1
+          },
+          {
+            onSuccess: (data) => {
+              console.log('✅ Flashcard successfully created in database:', data);
+              resolve(true);
+            },
+            onError: (error) => {
+              console.error('❌ Failed to create flashcard in database:', error);
+              reject(error);
+            }
+          }
+        );
       });
 
-      // Remove from preview and add to recent
-      const updatedCards = previewCards.filter(c => c.id !== id);
-      setPreviewCards(updatedCards);
-      saveToStorage(updatedCards);
+      // Wait for the database operation to complete
+      await createFlashcardPromise;
 
-      // Add to recent cards (we'll use a timestamp-based ID for recent tracking)
+      // Only remove from preview if database operation succeeded
+      setPreviewCards(prev => {
+        const updatedCards = prev.filter(c => c.id !== id);
+        console.log('🗑️ Removed card from preview, remaining cards:', updatedCards.length);
+        saveToStorage(updatedCards);
+        return updatedCards;
+      });
+
+      // Add to recent cards tracking
       const recentId = `recent_${Date.now()}`;
-      const updatedRecentIds = [recentId, ...recentCardIds.slice(0, 19)]; // Keep last 20
+      const updatedRecentIds = [recentId, ...recentCardIds.slice(0, 19)];
       saveRecentIds(updatedRecentIds);
 
+      console.log('✅ Card approval completed successfully');
       return true;
+
     } catch (error) {
-      console.error('Error approving card:', error);
+      console.error('❌ Error approving card:', error);
       return false;
     }
   };
 
-  const approveAllCards = async () => {
-    const results = await Promise.allSettled(
-      previewCards.map(card => approveCard(card.id))
-    );
+  const approveAllCards = async (): Promise<number> => {
+    console.log('✅ Starting bulk approval of', previewCards.length, 'cards');
     
-    const successful = results.filter(result => 
-      result.status === 'fulfilled' && result.value === true
-    ).length;
-    
+    let successful = 0;
+    const cardsToApprove = [...previewCards]; // Create a copy to avoid state changes during iteration
+
+    for (const card of cardsToApprove) {
+      const success = await approveCard(card.id);
+      if (success) {
+        successful++;
+      }
+    }
+
+    console.log('✅ Bulk approval completed:', successful, 'successful out of', cardsToApprove.length);
     return successful;
   };
 
   const clearPreviewCards = () => {
+    console.log('🗑️ Clearing all preview cards');
     setPreviewCards([]);
     localStorage.removeItem(STORAGE_KEY);
   };
