@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,21 +54,24 @@ const FlashcardsSection: React.FC = () => {
       title: 'Memory Test',
       description: 'Classic flashcard review with front and back',
       icon: Brain,
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      shortTitle: 'Me...'
     },
     {
       id: 'multiple_choice' as const,
       title: 'Multiple Choice',
       description: 'Answer with multiple choice options',
       icon: Target,
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      shortTitle: 'Mul...'
     },
     {
       id: 'timed_challenge' as const,
       title: 'Timed Challenge',
       description: 'Beat the clock in rapid-fire mode',
       icon: Clock,
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      shortTitle: 'Tim...'
     }
   ];
 
@@ -87,84 +91,133 @@ const FlashcardsSection: React.FC = () => {
 
   return (
     <Card className="fpk-card border-0 shadow-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          🎯 Flashcards & Study Modes
-          <Badge variant="secondary" className="ml-auto">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            🎯 
+            <span className="text-lg lg:text-xl font-semibold">Flashcards & Study Modes</span>
+          </div>
+          <Badge variant="secondary" className="text-sm px-3 py-1">
             {flashcards.length} cards
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Study Mode Selection */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {studyModes.map((mode) => (
-            <div key={mode.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`p-2 rounded-lg ${mode.color} text-white flex-shrink-0`}>
-                  <mode.icon className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-sm sm:text-base truncate">{mode.title}</h3>
+      <CardContent className="space-y-8">
+        {/* Study Mode Selection - Enhanced Desktop Layout */}
+        <div>
+          <h3 className="text-base font-medium mb-4 text-gray-700">Choose Your Study Mode</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {studyModes.map((mode) => (
+              <div key={mode.id} className="group relative">
+                <div className="p-6 border-2 border-gray-100 rounded-xl hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full flex flex-col bg-gradient-to-br from-white to-gray-50 group-hover:from-purple-50 group-hover:to-white">
+                  {/* Icon and Title */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`p-3 rounded-xl ${mode.color} text-white shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                      <mode.icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 text-lg group-hover:text-purple-900 transition-colors">
+                        {mode.title}
+                      </h4>
+                      <p className="text-sm text-gray-500 hidden lg:block">
+                        {mode.shortTitle}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
+                    {mode.description}
+                  </p>
+                  
+                  {/* Start Button */}
+                  <Button
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                    onClick={() => handleStartStudyMode(mode.id)}
+                    disabled={flashcards.length === 0 || isCreating}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    {isCreating ? 'Starting...' : 'Start Mode'}
+                  </Button>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed break-words flex-grow">{mode.description}</p>
-              <Button
-                size="sm"
-                className="w-full text-xs sm:text-sm mt-auto"
-                onClick={() => handleStartStudyMode(mode.id)}
-                disabled={flashcards.length === 0 || isCreating}
-              >
-                <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                {isCreating ? 'Starting...' : 'Start Mode'}
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Flashcards Preview */}
+        {/* Flashcards Preview - Enhanced Desktop Layout */}
         {flashcards.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium text-sm sm:text-base">Recent Flashcards</h3>
+              <div>
+                <h3 className="text-base font-medium text-gray-900">Recent Flashcards</h3>
+                <p className="text-sm text-gray-500 mt-1">Preview your latest study materials</p>
+              </div>
               <Button 
-                size="sm" 
                 variant="outline" 
-                className="text-xs sm:text-sm"
+                className="hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors"
                 onClick={() => setShowReview(true)}
               >
-                <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                <RotateCcw className="h-4 w-4 mr-2" />
                 Review All
               </Button>
             </div>
-            <div className="grid grid-cols-1 gap-4">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {flashcards.slice(0, 4).map((card) => (
-                <div key={card.id} className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
-                  <div className="space-y-3">
-                    <div>
-                      <div className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Front:</div>
-                      <div className="text-sm sm:text-base text-gray-900 break-words leading-relaxed">{card.front_content}</div>
+                <div key={card.id} className="group">
+                  <div className="p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all duration-300">
+                    <div className="space-y-4">
+                      {/* Front Content */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">Front</div>
+                        <div className="text-base text-gray-900 leading-relaxed line-clamp-3">
+                          {card.front_content}
+                        </div>
+                      </div>
+                      
+                      {/* Back Content */}
+                      <div>
+                        <div className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">Back</div>
+                        <div className="text-base text-gray-900 leading-relaxed line-clamp-3">
+                          {card.back_content}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Back:</div>
-                      <div className="text-sm sm:text-base text-gray-900 break-words leading-relaxed">{card.back_content}</div>
+                    
+                    {/* Card Stats */}
+                    <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-white/50">
+                      <Badge variant="outline" className="text-xs bg-white/70 border-gray-200">
+                        Level {card.difficulty_level}
+                      </Badge>
+                      <span className="text-xs text-gray-600">
+                        Reviewed {card.times_reviewed} times
+                      </span>
+                      {card.times_reviewed > 0 && (
+                        <span className="text-xs text-green-600 font-medium">
+                          {Math.round((card.times_correct / card.times_reviewed) * 100)}% correct
+                        </span>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-gray-500">
-                    <Badge variant="outline" className="text-xs px-2 py-1">
-                      Level {card.difficulty_level}
-                    </Badge>
-                    <span className="break-words">Reviewed {card.times_reviewed} times</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <Brain className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-base sm:text-lg font-medium mb-2">No flashcards yet</p>
-            <p className="text-sm px-4 break-words">Upload files or create notes to generate flashcards!</p>
+          <div className="text-center py-12">
+            <div className="mb-6">
+              <Brain className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No flashcards yet</h3>
+              <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+                Upload files or create notes to generate flashcards and start your learning journey!
+              </p>
+            </div>
+            <div className="text-sm text-gray-500 space-y-1">
+              <p>💡 Upload documents to auto-generate flashcards</p>
+              <p>📝 Create manual notes and convert them to flashcards</p>
+              <p>🎯 Practice with multiple study modes once you have cards</p>
+            </div>
           </div>
         )}
       </CardContent>
