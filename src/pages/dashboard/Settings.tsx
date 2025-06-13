@@ -371,45 +371,45 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="profile" className={`w-full ${containerClasses}`} orientation={isMobile ? "vertical" : "horizontal"}>
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 h-auto' : 'grid-cols-6 h-10'} ${isMobile ? 'gap-1 p-1' : ''} ${textClasses}`}>
+          <TabsList className={`w-full ${isMobile ? 'flex-col h-auto gap-1 p-1' : 'h-10'} ${textClasses}`}>
             <TabsTrigger 
               value="profile" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <User className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.profile')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="language" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Globe className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.language')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="accessibility" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Eye className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.accessibility')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="notifications" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Bell className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.notifications')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Shield className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.security')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="integrations" 
-              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4' : ''} ${textClasses}`}
+              className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Link className="h-4 w-4" />
               <span className={isMobile ? 'text-sm' : ''}>{t('settings.tabs.integrations')}</span>
