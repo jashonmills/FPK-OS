@@ -265,11 +265,11 @@ const LearningAnalytics = () => {
           </ChartContainer>
           {weeklyActivity.some(day => day.studySessions > 0) ? (
             <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
-              Your study activity is based on real study sessions and time spent learning.
+              Showing real study activity from Sunday through today. Future days are not displayed.
             </div>
           ) : (
             <div className="text-center text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-              No study sessions yet. Start learning to see your weekly activity patterns.
+              No study sessions yet this week. Start learning to see your daily activity patterns.
             </div>
           )}
         </CardContent>

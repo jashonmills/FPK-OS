@@ -7,7 +7,6 @@ interface WeeklyActivityData {
   day: string;
   studySessions: number;
   studyTime: number;
-  modulesCompleted: number;
 }
 
 export function useWeeklyActivity() {
@@ -18,15 +17,28 @@ export function useWeeklyActivity() {
     queryFn: async () => {
       if (!user) return [];
       
-      // Get last 7 days of data
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      // Get current week boundaries (Sunday to today)
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Start of today
+      
+      // Find the start of this week (Sunday)
+      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - currentDay);
+      
+      console.log('Week calculation:', {
+        today: today.toDateString(),
+        currentDay,
+        weekStart: weekStart.toDateString()
+      });
 
+      // Fetch study sessions for the current week up to today
       const { data: sessions, error } = await supabase
         .from('study_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .gte('created_at', sevenDaysAgo.toISOString())
+        .gte('created_at', weekStart.toISOString())
+        .lte('created_at', new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString()) // End of today
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -34,46 +46,40 @@ export function useWeeklyActivity() {
         throw error;
       }
 
-      // Get enrollment progress for module completion data
-      const { data: enrollments, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('progress')
-        .eq('user_id', user.id);
+      console.log('Fetched sessions for week:', sessions);
 
-      if (enrollmentError) {
-        console.error('Error fetching enrollments:', error);
-        throw enrollmentError;
-      }
-
-      const totalCompletedModules = enrollments.reduce((acc, enrollment) => {
-        const progress = enrollment.progress as any;
-        return acc + (progress?.completed_modules?.length || 0);
-      }, 0);
-
-      // Create daily aggregation
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const today = new Date().getDay();
+      // Create array for each day from Sunday to today
+      const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const weekData: WeeklyActivityData[] = [];
 
-      for (let i = 0; i < 7; i++) {
-        const dayIndex = (today - 6 + i + 7) % 7;
-        const dayName = days[dayIndex];
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - (6 - i));
+      // Only include days from Sunday up to today
+      for (let dayOffset = 0; dayOffset <= currentDay; dayOffset++) {
+        const targetDate = new Date(weekStart);
+        targetDate.setDate(weekStart.getDate() + dayOffset);
         
+        const dayLabel = dayLabels[dayOffset];
+        
+        // Filter sessions for this specific day
         const daySessions = sessions.filter(session => {
           const sessionDate = new Date(session.created_at);
-          return sessionDate.toDateString() === targetDate.toDateString();
+          const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+          return sessionDateOnly.getTime() === targetDate.getTime();
         });
 
-        const studyTime = daySessions.reduce((acc, session) => 
-          acc + (session.session_duration_seconds || 0), 0) / 60; // Convert to minutes
+        // Calculate total study time for this day (convert seconds to minutes)
+        const studyTime = daySessions.reduce((acc, session) => {
+          return acc + (session.session_duration_seconds || 0);
+        }, 0) / 60;
 
         weekData.push({
-          day: dayName,
+          day: dayLabel,
           studySessions: daySessions.length,
-          studyTime: Math.round(studyTime),
-          modulesCompleted: i === 3 ? totalCompletedModules : 0 // Show modules on Thursday for now
+          studyTime: Math.round(studyTime)
+        });
+
+        console.log(`Day ${dayLabel} (${targetDate.toDateString()}):`, {
+          sessions: daySessions.length,
+          minutes: Math.round(studyTime)
         });
       }
 
