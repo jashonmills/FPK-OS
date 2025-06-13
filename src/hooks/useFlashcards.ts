@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,6 +6,7 @@ export interface Flashcard {
   id: string;
   user_id: string;
   note_id: string | null;
+  set_id: string | null;
   front_content: string;
   back_content: string;
   difficulty_level: number;
@@ -47,6 +47,7 @@ export const useFlashcards = () => {
       front_content: string; 
       back_content: string; 
       note_id?: string;
+      set_id?: string;
       difficulty_level?: number;
     }) => {
       if (!user) throw new Error('User not authenticated');
@@ -58,6 +59,7 @@ export const useFlashcards = () => {
           front_content: flashcardData.front_content,
           back_content: flashcardData.back_content,
           note_id: flashcardData.note_id || null,
+          set_id: flashcardData.set_id || null,
           difficulty_level: flashcardData.difficulty_level || 1
         })
         .select()
@@ -68,6 +70,7 @@ export const useFlashcards = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flashcards', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
     },
   });
 
