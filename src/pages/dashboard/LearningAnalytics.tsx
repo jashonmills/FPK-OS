@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -72,6 +71,21 @@ const LearningAnalytics = () => {
     studyTime: {
       label: 'Study Time (min)',
       color: '#F59E0B',
+    },
+  };
+
+  const pieChartConfig = {
+    memoryPractice: {
+      label: 'Memory Practice',
+      color: '#8B5CF6',
+    },
+    multipleChoice: {
+      label: 'Multiple Choice', 
+      color: '#F59E0B',
+    },
+    timedChallenges: {
+      label: 'Timed Challenges',
+      color: '#3B82F6',
     },
   };
 
@@ -306,7 +320,7 @@ const LearningAnalytics = () => {
             </div>
             {activityDistribution.length > 0 ? (
               <>
-                <div className="h-[180px] sm:h-[200px]">
+                <ChartContainer config={pieChartConfig} className="h-[180px] sm:h-[200px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -323,7 +337,7 @@ const LearningAnalytics = () => {
                       <ChartTooltip content={<ChartTooltipContent />} />
                     </PieChart>
                   </ResponsiveContainer>
-                </div>
+                </ChartContainer>
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm">
                   {activityDistribution.map((item, index) => (
                     <div key={index} className="flex items-center gap-1 sm:gap-2">
