@@ -6,8 +6,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useFlashcardSets } from '@/hooks/useFlashcardSets';
-import { Folder, FileText, Brain, Users } from 'lucide-react';
+import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
+import { Folder, FileText, Brain, Users, BookOpen, Edit, Upload } from 'lucide-react';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
 interface FlashcardSelectionModalProps {
@@ -24,71 +24,91 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   studyMode
 }) => {
   const { flashcards } = useFlashcards();
-  const { sets } = useFlashcardSets();
-  const [selectedSets, setSelectedSets] = useState<string[]>([]);
+  const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
   const [selectedIndividualCards, setSelectedIndividualCards] = useState<string[]>([]);
   const [showIndividualCards, setShowIndividualCards] = useState(false);
 
-  // Group flashcards by set or create default groups
-  const flashcardGroups = React.useMemo(() => {
-    const groups = new Map<string, { name: string; cards: Flashcard[]; type: string; icon: React.ComponentType<any> }>();
+  // Group flashcards by topic using the same logic as FlashcardManager
+  const groupedFlashcards = React.useMemo(() => {
+    const groups: Record<string, Flashcard[]> = {};
     
-    // Add flashcards to their respective virtual sets
-    sets.forEach(set => {
-      let setCards: Flashcard[] = [];
+    flashcards.forEach(card => {
+      // Use the topic analyzer to determine the appropriate folder
+      const topicFolder = analyzeFlashcardTopic(
+        card.front_content, 
+        card.back_content, 
+        card.note_id,
+        card.created_at
+      );
       
-      if (set.source_type === 'notes' && set.source_id) {
-        setCards = flashcards.filter(card => card.note_id === set.source_id);
-      } else if (set.source_type === 'upload') {
-        // For upload sets, we need to match cards that were likely created from this upload
-        // This is approximate since we don't have a direct relationship
-        const uploadDate = new Date(set.created_at);
-        setCards = flashcards.filter(card => 
-          card.note_id === null && 
-          new Date(card.created_at) >= uploadDate
-        ).slice(0, set.flashcard_count); // Limit to expected count
+      if (!groups[topicFolder]) {
+        groups[topicFolder] = [];
       }
-      
-      if (setCards.length > 0) {
-        groups.set(set.id, {
-          name: set.name,
-          cards: setCards,
-          type: set.source_type,
-          icon: set.source_type === 'upload' ? FileText : set.source_type === 'notes' ? Brain : Folder
-        });
-      }
-    });
-
-    // Add ungrouped flashcards (cards not associated with any set)
-    const groupedCardIds = new Set();
-    groups.forEach(group => {
-      group.cards.forEach(card => groupedCardIds.add(card.id));
+      groups[topicFolder].push(card);
     });
     
-    const ungroupedCards = flashcards.filter(card => !groupedCardIds.has(card.id));
-    if (ungroupedCards.length > 0) {
-      groups.set('ungrouped', {
-        name: 'Ungrouped Cards',
-        cards: ungroupedCards,
-        type: 'manual',
-        icon: Brain
+    // Sort groups by name for consistent ordering
+    const sortedGroups: Record<string, Flashcard[]> = {};
+    Object.keys(groups)
+      .sort()
+      .forEach(key => {
+        sortedGroups[key] = groups[key];
       });
+    
+    return sortedGroups;
+  }, [flashcards]);
+
+  const getFolderIcon = (folderName: string) => {
+    // Topic-based icons
+    if (folderName.includes('Goonies')) return FileText;
+    if (folderName.includes('Learning State')) return Brain;
+    if (folderName.includes('Dragon Fire')) return FileText;
+    if (folderName.includes('Cannabis')) return FileText;
+    if (folderName.includes('Photography')) return FileText;
+    if (folderName.includes('Wellness')) return FileText;
+    if (folderName.includes('Technology')) return FileText;
+    if (folderName.includes('Science')) return FileText;
+    if (folderName.includes('Business')) return FileText;
+    if (folderName.includes('History')) return FileText;
+    
+    // Source-based icons
+    if (folderName.includes('Manual')) return Edit;
+    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return BookOpen;
+    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return Upload;
+    
+    return Folder;
+  };
+
+  const getFolderType = (folderName: string) => {
+    // Check if it's a topic-based folder
+    const topicFolders = ['Goonies', 'Learning State', 'Dragon Fire', 'Cannabis', 'Photography', 
+                         'Wellness', 'Technology', 'Science', 'Business', 'History'];
+    
+    for (const topic of topicFolders) {
+      if (folderName.includes(topic)) {
+        return 'Topic';
+      }
     }
+    
+    // Source-based categorization
+    if (folderName.includes('Manual')) return 'Manual';
+    if (folderName.includes('Notes') || folderName.includes('Study Notes')) return 'Notes';
+    if (folderName.includes('Upload') || folderName.includes('Recent Upload')) return 'Upload';
+    
+    return 'Auto-grouped';
+  };
 
-    return Array.from(groups.entries()).map(([id, group]) => ({ id, ...group }));
-  }, [flashcards, sets]);
-
-  const handleSetToggle = (setId: string) => {
-    setSelectedSets(prev => 
-      prev.includes(setId) 
-        ? prev.filter(id => id !== setId)
-        : [...prev, setId]
+  const handleFolderToggle = (folderId: string) => {
+    setSelectedFolders(prev => 
+      prev.includes(folderId) 
+        ? prev.filter(id => id !== folderId)
+        : [...prev, folderId]
     );
   };
 
   const handleSelectAll = () => {
-    const allSetIds = flashcardGroups.map(group => group.id);
-    setSelectedSets(allSetIds);
+    const allFolderIds = Object.keys(groupedFlashcards);
+    setSelectedFolders(allFolderIds);
     setSelectedIndividualCards([]);
   };
 
@@ -105,11 +125,9 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
       return flashcards.filter(card => selectedIndividualCards.includes(card.id));
     } else {
       const selectedCards: Flashcard[] = [];
-      selectedSets.forEach(setId => {
-        const group = flashcardGroups.find(g => g.id === setId);
-        if (group) {
-          selectedCards.push(...group.cards);
-        }
+      selectedFolders.forEach(folderId => {
+        const folderCards = groupedFlashcards[folderId] || [];
+        selectedCards.push(...folderCards);
       });
       return selectedCards;
     }
@@ -128,7 +146,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   // Reset selections when modal opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedSets([]);
+      setSelectedFolders([]);
       setSelectedIndividualCards([]);
       setShowIndividualCards(false);
     }
@@ -160,7 +178,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
                   onClick={() => setShowIndividualCards(false)}
                 >
                   <Folder className="h-4 w-4 mr-1" />
-                  By Sets
+                  By Folders
                 </Button>
                 <Button 
                   variant={showIndividualCards ? "default" : "outline"}
@@ -175,7 +193,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
               {!showIndividualCards && (
                 <Button variant="outline" size="sm" onClick={handleSelectAll}>
                   <Users className="h-4 w-4 mr-1" />
-                  Select All Sets
+                  Select All Folders
                 </Button>
               )}
             </div>
@@ -188,22 +206,27 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
           <ScrollArea className="flex-1 max-h-96">
             {!showIndividualCards ? (
               <div className="space-y-2">
-                {flashcardGroups.map((group) => (
-                  <div key={group.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                    <Checkbox
-                      checked={selectedSets.includes(group.id)}
-                      onCheckedChange={() => handleSetToggle(group.id)}
-                    />
-                    <group.icon className="h-4 w-4 text-gray-500" />
-                    <div className="flex-1">
-                      <div className="font-medium">{group.name}</div>
-                      <div className="text-sm text-gray-500">
-                        {group.cards.length} cards • {group.type}
+                {Object.entries(groupedFlashcards).map(([folderId, folderCards]) => {
+                  const FolderIcon = getFolderIcon(folderId);
+                  const folderType = getFolderType(folderId);
+                  
+                  return (
+                    <div key={folderId} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <Checkbox
+                        checked={selectedFolders.includes(folderId)}
+                        onCheckedChange={() => handleFolderToggle(folderId)}
+                      />
+                      <FolderIcon className="h-4 w-4 text-gray-500" />
+                      <div className="flex-1">
+                        <div className="font-medium">{folderId}</div>
+                        <div className="text-sm text-gray-500">
+                          {folderCards.length} cards • {folderType}
+                        </div>
                       </div>
+                      <Badge variant="outline">{folderCards.length}</Badge>
                     </div>
-                    <Badge variant="outline">{group.cards.length}</Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="space-y-2">
