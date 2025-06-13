@@ -36,29 +36,29 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
   const expandedCount = expandedFolders.size;
 
   return (
-    <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-      {/* Summary Bar */}
-      <div className="bg-gray-50 rounded-lg p-2 sm:p-3 lg:p-4">
-        <div className="flex flex-wrap items-center gap-1 sm:gap-2 lg:gap-4 text-xs">
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-            <Badge variant="outline" className="text-xs">{totalFolders} folders</Badge>
-            <Badge variant="outline" className="text-xs">{totalCards} total cards</Badge>
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+      {/* Summary Bar - Enhanced contrast */}
+      <div className="bg-slate-100 border border-slate-200 rounded-xl p-3 sm:p-4 lg:p-5 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <Badge variant="outline" className="text-xs bg-white border-slate-300 text-slate-700 shadow-sm">{totalFolders} folders</Badge>
+            <Badge variant="outline" className="text-xs bg-white border-slate-300 text-slate-700 shadow-sm">{totalCards} total cards</Badge>
           </div>
           {selectedCount > 0 && (
-            <Badge variant="default" className="bg-blue-600 text-xs">
+            <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 text-xs shadow-md">
               {selectedCount} selected
             </Badge>
           )}
           {expandedCount > 0 && !isMobile && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-700 border border-gray-300 shadow-sm">
               {expandedCount} expanded
             </Badge>
           )}
         </div>
       </div>
 
-      {/* Folders Accordion */}
-      <Accordion type="multiple" className="space-y-2 sm:space-y-3">
+      {/* Folders Accordion - Enhanced spacing and contrast */}
+      <Accordion type="multiple" className="space-y-4 sm:space-y-5 lg:space-y-6">
         {Object.entries(groupedFlashcards).map(([folderId, cards]) => (
           <FlashcardFolderItem
             key={folderId}
@@ -77,15 +77,15 @@ const FlashcardFolderView: React.FC<FlashcardFolderViewProps> = ({
         ))}
       </Accordion>
 
-      {/* Empty State */}
+      {/* Empty State - Enhanced styling */}
       {totalFolders === 0 && (
-        <div className="text-center py-6 sm:py-8 lg:py-12">
+        <div className="text-center py-8 sm:py-12 lg:py-16 bg-slate-50 rounded-xl border border-slate-200">
           <div className="text-gray-400 mb-4">
-            <div className="text-3xl sm:text-4xl lg:text-6xl mb-2 sm:mb-4">📁</div>
-            <h3 className="text-sm sm:text-base lg:text-lg font-medium text-gray-900 mb-1 sm:mb-2">
+            <div className="text-4xl sm:text-5xl lg:text-7xl mb-3 sm:mb-5">📁</div>
+            <h3 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-2 sm:mb-3">
               No flashcard folders found
             </h3>
-            <p className="text-xs sm:text-sm lg:text-base text-gray-600 px-2 sm:px-4">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 px-3 sm:px-6">
               Create some flashcards to get started
             </p>
           </div>
