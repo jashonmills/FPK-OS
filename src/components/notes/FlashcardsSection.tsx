@@ -38,7 +38,6 @@ const FlashcardsSection: React.FC = () => {
       navigate(`/study/${routeMode}`, { 
         state: { 
           flashcards: studyCards,
-          mode,
           session
         }
       });

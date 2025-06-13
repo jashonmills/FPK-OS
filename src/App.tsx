@@ -16,7 +16,7 @@ import Notes from '@/pages/dashboard/Notes';
 import Goals from '@/pages/dashboard/Goals';
 import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
 import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
-import StudyPage from '@/pages/study/StudyPage';
+import StudySessionRouter from '@/components/study/StudySessionRouter';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
 import CourseManager from '@/pages/admin/CourseManager';
@@ -44,6 +44,9 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   
+                  {/* Study Routes - Outside dashboard for direct access */}
+                  <Route path="/study/:mode" element={<StudySessionRouter />} />
+                  
                   {/* Dashboard Routes */}
                   <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Navigate to="/dashboard/learner" replace />} />
@@ -57,9 +60,6 @@ function App() {
                     <Route path="learner/goals" element={<Goals />} />
                     <Route path="learner/analytics" element={<LearningAnalytics />} />
                     <Route path="learner/live-hub" element={<LiveLearningHub />} />
-                    
-                    {/* Study Routes */}
-                    <Route path="study/:sessionType" element={<StudyPage />} />
                     
                     {/* Admin Routes */}
                     <Route path="admin" element={<AdminDashboard />} />
