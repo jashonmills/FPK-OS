@@ -48,8 +48,8 @@ const FlashcardFilterBar: React.FC<FlashcardFilterBarProps> = ({
           <label className="text-xs font-medium text-gray-700">Filter By</label>
           <Select 
             value={state.filterBy} 
-            onValueChange={(value: 'all' | 'source' | 'difficulty' | 'performance' | 'recent') => onUpdateState({ 
-              filterBy: value,
+            onValueChange={(value) => onUpdateState({ 
+              filterBy: value as 'all' | 'source' | 'difficulty' | 'performance' | 'recent',
               filterValue: value === 'all' ? '' : state.filterValue 
             })}
           >
@@ -118,7 +118,7 @@ const FlashcardFilterBar: React.FC<FlashcardFilterBarProps> = ({
           <label className="text-xs font-medium text-gray-700">Sort By</label>
           <Select 
             value={state.sortBy} 
-            onValueChange={(value: 'created' | 'difficulty' | 'performance' | 'alphabetical') => onUpdateState({ sortBy: value })}
+            onValueChange={(value) => onUpdateState({ sortBy: value as 'created' | 'difficulty' | 'performance' | 'alphabetical' })}
           >
             <SelectTrigger className="h-9 text-sm">
               <SelectValue />
