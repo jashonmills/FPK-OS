@@ -101,16 +101,16 @@ const FlashcardsSection: React.FC = () => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-10">
+      <CardContent className="space-y-8">
         {/* Study Mode Selection */}
         <div>
           <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {studyModes.map((mode) => (
-              <div key={mode.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300 hover:border-gray-300">
+              <div key={mode.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-gray-300">
                 {/* Icon and Title */}
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`p-3 rounded-lg ${mode.color} text-white shadow-sm`}>
+                  <div className={`p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
                     <mode.icon className="h-6 w-6" />
                   </div>
                   <h4 className="font-semibold text-lg text-gray-900">
@@ -119,13 +119,13 @@ const FlashcardsSection: React.FC = () => {
                 </div>
                 
                 {/* Description */}
-                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed min-h-[40px]">
                   {mode.description}
                 </p>
                 
                 {/* Start Button */}
                 <Button
-                  className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-2.5 rounded-lg transition-colors duration-200`}
+                  className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-3 rounded-lg transition-colors duration-200`}
                   onClick={() => handleStartStudyMode(mode.id)}
                   disabled={flashcards.length === 0 || isCreating}
                 >
