@@ -108,32 +108,32 @@ const FlashcardsSection: React.FC = () => {
           
           {/* Responsive Container for Study Mode Cards */}
           <div className="w-full overflow-hidden">
-            <div className="flex flex-col gap-4 sm:grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 sm:gap-4 lg:gap-6">
+            <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch">
               {studyModes.map((mode) => (
                 <div 
                   key={mode.id} 
-                  className="w-full max-w-[320px] mx-auto sm:mx-0 bg-white border border-gray-200 rounded-xl p-4 lg:p-5 hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
+                  className="flex-1 w-full max-w-[340px] min-w-[220px] mx-auto md:mx-0 bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
                 >
                   {/* Icon and Title */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`p-2 lg:p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
-                      <mode.icon className="h-5 w-5 lg:h-6 lg:w-6" />
+                  <div className="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                    <div className={`p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                      <mode.icon className="h-6 w-6" />
                     </div>
-                    <h4 className="font-semibold text-base lg:text-lg text-gray-900 truncate">
+                    <h4 className="font-semibold text-lg text-gray-900 text-center md:text-left">
                       {mode.title}
                     </h4>
                   </div>
                   
                   {/* Description */}
-                  <div className="mb-4 lg:mb-5">
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 break-words">
+                  <div className="mb-6">
+                    <p className="text-gray-600 text-sm leading-relaxed text-center md:text-left break-words">
                       {mode.description}
                     </p>
                   </div>
                   
                   {/* Start Button */}
                   <Button
-                    className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-2 lg:py-2.5 rounded-lg transition-colors duration-200 text-sm lg:text-base`}
+                    className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-3 rounded-lg transition-colors duration-200 text-base`}
                     onClick={() => handleStartStudyMode(mode.id)}
                     disabled={flashcards.length === 0 || isCreating}
                   >
