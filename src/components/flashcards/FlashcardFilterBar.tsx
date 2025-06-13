@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Grid, List, SortAsc, SortDesc, Clock, Sparkles } from 'lucide-react';
-import { type FlashcardManagerState } from '@/hooks/useFlashcardManager';
+import type { FlashcardManagerState } from '@/hooks/useFlashcardManager';
 
 interface FlashcardFilterBarProps {
   state: FlashcardManagerState;
@@ -145,9 +145,13 @@ const FlashcardFilterBar: React.FC<FlashcardFilterBarProps> = ({
               className="w-full h-9 justify-center text-sm"
             >
               {state.sortOrder === 'asc' ? (
-                <><SortAsc className="h-3 w-3 mr-1" /> Asc</>
+                <>
+                  <SortAsc className="h-3 w-3 mr-1" /> Asc
+                </>
               ) : (
-                <><SortDesc className="h-3 w-3 mr-1" /> Desc</>
+                <>
+                  <SortDesc className="h-3 w-3 mr-1" /> Desc
+                </>
               )}
             </Button>
           </div>
@@ -163,9 +167,13 @@ const FlashcardFilterBar: React.FC<FlashcardFilterBarProps> = ({
               className="w-full h-9 justify-center text-sm"
             >
               {state.viewMode === 'grid' ? (
-                <><Grid className="h-3 w-3 mr-1" /> Grid</>
+                <>
+                  <Grid className="h-3 w-3 mr-1" /> Grid
+                </>
               ) : (
-                <><List className="h-3 w-3 mr-1" /> List</>
+                <>
+                  <List className="h-3 w-3 mr-1" /> List
+                </>
               )}
             </Button>
           </div>
