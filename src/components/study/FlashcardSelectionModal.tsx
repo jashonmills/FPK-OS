@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -160,7 +159,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
@@ -168,7 +167,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           <div className="space-y-4 mb-4">
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
@@ -203,9 +202,9 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
             </div>
           </div>
 
-          <ScrollArea className="flex-1 max-h-96">
+          <ScrollArea className="flex-1 h-[400px] pr-4">
             {!showIndividualCards ? (
-              <div className="space-y-2">
+              <div className="space-y-2 pb-4">
                 {Object.entries(groupedFlashcards).map(([folderId, folderCards]) => {
                   const FolderIcon = getFolderIcon(folderId);
                   const folderType = getFolderType(folderId);
@@ -229,7 +228,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
                 })}
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 pb-4">
                 {flashcards.map((card) => (
                   <div key={card.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
                     <Checkbox
@@ -256,7 +255,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
           </ScrollArea>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t pt-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
