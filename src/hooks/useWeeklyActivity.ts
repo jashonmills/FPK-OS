@@ -17,18 +17,20 @@ export function useWeeklyActivity() {
     queryFn: async () => {
       if (!user) return [];
       
-      // Get current week boundaries (Sunday to today)
+      // Get current date in user's local timezone
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Start of today
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       
       // Find the start of this week (Sunday)
       const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
       const weekStart = new Date(today);
       weekStart.setDate(today.getDate() - currentDay);
       
-      console.log('Week calculation:', {
+      console.log('Date calculations:', {
+        now: now.toString(),
         today: today.toDateString(),
-        currentDay,
+        currentDay: currentDay,
+        dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDay],
         weekStart: weekStart.toDateString()
       });
 
@@ -38,7 +40,7 @@ export function useWeeklyActivity() {
         .select('*')
         .eq('user_id', user.id)
         .gte('created_at', weekStart.toISOString())
-        .lte('created_at', new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString()) // End of today
+        .lte('created_at', new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString())
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -48,22 +50,30 @@ export function useWeeklyActivity() {
 
       console.log('Fetched sessions for week:', sessions);
 
-      // Create array for each day from Sunday to today
+      // Create array for each day from Sunday up to today ONLY
       const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const weekData: WeeklyActivityData[] = [];
 
-      // Only include days from Sunday up to today
+      // IMPORTANT: Only include days from Sunday (0) up to currentDay (today)
       for (let dayOffset = 0; dayOffset <= currentDay; dayOffset++) {
         const targetDate = new Date(weekStart);
         targetDate.setDate(weekStart.getDate() + dayOffset);
         
         const dayLabel = dayLabels[dayOffset];
         
+        console.log(`Processing day ${dayOffset}: ${dayLabel} (${targetDate.toDateString()})`);
+        
         // Filter sessions for this specific day
         const daySessions = sessions.filter(session => {
           const sessionDate = new Date(session.created_at);
           const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
-          return sessionDateOnly.getTime() === targetDate.getTime();
+          const matches = sessionDateOnly.getTime() === targetDate.getTime();
+          
+          if (matches) {
+            console.log(`Session found for ${dayLabel}:`, session);
+          }
+          
+          return matches;
         });
 
         // Calculate total study time for this day (convert seconds to minutes)
@@ -77,13 +87,19 @@ export function useWeeklyActivity() {
           studyTime: Math.round(studyTime)
         });
 
-        console.log(`Day ${dayLabel} (${targetDate.toDateString()}):`, {
+        console.log(`Day ${dayLabel} final data:`, {
           sessions: daySessions.length,
           minutes: Math.round(studyTime)
         });
       }
 
-      return weekData;
+      // Extra safety check: ensure no future days are included
+      const finalData = weekData.filter((_, index) => index <= currentDay);
+      
+      console.log('Final weekly data (no future days):', finalData);
+      console.log(`Should have ${currentDay + 1} days (Sunday=0 to today=${currentDay})`);
+
+      return finalData;
     },
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // 5 minutes

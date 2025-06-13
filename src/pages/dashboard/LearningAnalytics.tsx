@@ -127,6 +127,18 @@ const LearningAnalytics = () => {
 
   const overallProgress = learningStateProgress?.completion_percentage || 0;
 
+  // Debug current day information
+  const today = new Date();
+  const currentDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.getDay()];
+  
+  console.log('LearningAnalytics render:', {
+    today: today.toDateString(),
+    currentDay: today.getDay(),
+    currentDayName,
+    weeklyActivityLength: weeklyActivity.length,
+    weeklyActivity
+  });
+
   return (
     <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
@@ -249,27 +261,40 @@ const LearningAnalytics = () => {
             <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
             Weekly Learning Activity
           </CardTitle>
+          <p className="text-xs sm:text-sm text-gray-500">
+            Current week (Sunday to {currentDayName}) • Only showing completed days
+          </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyActivity} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" fontSize={12} />
-                <YAxis fontSize={12} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="studySessions" fill="var(--color-studySessions)" />
-                <Bar dataKey="studyTime" fill="var(--color-studyTime)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-          {weeklyActivity.some(day => day.studySessions > 0) ? (
-            <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
-              Showing real study activity from Sunday through today. Future days are not displayed.
-            </div>
+          {weeklyActivity.length > 0 ? (
+            <>
+              <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyActivity} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" fontSize={12} />
+                    <YAxis fontSize={12} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="studySessions" fill="var(--color-studySessions)" />
+                    <Bar dataKey="studyTime" fill="var(--color-studyTime)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
+                {weeklyActivity.some(day => day.studySessions > 0) ? (
+                  <>Showing real study activity from Sunday through {currentDayName}. Future days are not displayed.</>
+                ) : (
+                  <>No study sessions yet this week (Sunday to {currentDayName}). Start learning to see your daily activity patterns.</>
+                )}
+              </div>
+            </>
           ) : (
-            <div className="text-center text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-              No study sessions yet this week. Start learning to see your daily activity patterns.
+            <div className="h-[250px] sm:h-[300px] flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Activity className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
+                <p className="font-medium text-sm sm:text-base">No activity data yet</p>
+                <p className="text-xs sm:text-sm">Complete study sessions to see your weekly activity</p>
+              </div>
             </div>
           )}
         </CardContent>
