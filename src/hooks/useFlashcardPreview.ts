@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 
@@ -200,14 +199,66 @@ export const useFlashcardPreview = () => {
   const approveAllCards = async (): Promise<number> => {
     console.log('✅ Starting bulk approval of', previewCards.length, 'cards');
     
-    let successful = 0;
-    const cardsToApprove = [...previewCards]; // Create a copy to avoid state changes during iteration
+    if (previewCards.length === 0) {
+      console.log('⚠️ No cards to approve');
+      return 0;
+    }
 
+    let successful = 0;
+    const cardsToApprove = [...previewCards]; // Create a snapshot to avoid state changes during iteration
+    const successfulCardIds: string[] = [];
+
+    // Process all cards without modifying state during iteration
     for (const card of cardsToApprove) {
-      const success = await approveCard(card.id);
-      if (success) {
+      console.log('🔄 Processing card for bulk approval:', card.id);
+      
+      try {
+        // Create flashcard in database
+        const createFlashcardPromise = new Promise<boolean>((resolve, reject) => {
+          createFlashcard(
+            {
+              front_content: card.front_content,
+              back_content: card.back_content,
+              difficulty_level: 1
+            },
+            {
+              onSuccess: (data) => {
+                console.log('✅ Bulk: Flashcard successfully created in database:', data);
+                resolve(true);
+              },
+              onError: (error) => {
+                console.error('❌ Bulk: Failed to create flashcard in database:', error);
+                reject(error);
+              }
+            }
+          );
+        });
+
+        // Wait for this card's database operation
+        await createFlashcardPromise;
+        
         successful++;
+        successfulCardIds.push(card.id);
+        console.log(`✅ Bulk approval: Card ${card.id} processed successfully (${successful}/${cardsToApprove.length})`);
+
+      } catch (error) {
+        console.error('❌ Bulk approval: Error processing card:', card.id, error);
       }
+    }
+
+    // Now update the state once, removing all successfully approved cards
+    if (successfulCardIds.length > 0) {
+      setPreviewCards(prev => {
+        const updatedCards = prev.filter(card => !successfulCardIds.includes(card.id));
+        console.log('🗑️ Bulk: Removed', successfulCardIds.length, 'cards from preview, remaining:', updatedCards.length);
+        saveToStorage(updatedCards);
+        return updatedCards;
+      });
+
+      // Add to recent cards tracking (one entry for the bulk operation)
+      const recentId = `bulk_${Date.now()}`;
+      const updatedRecentIds = [recentId, ...recentCardIds.slice(0, 19)];
+      saveRecentIds(updatedRecentIds);
     }
 
     console.log('✅ Bulk approval completed:', successful, 'successful out of', cardsToApprove.length);
