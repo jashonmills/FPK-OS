@@ -1,14 +1,14 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, CheckCircle, AlertCircle, X, Clock, RefreshCw } from 'lucide-react';
+import FileUploadDropzone from './FileUploadDropzone';
+import FileUploadProgress from './FileUploadProgress';
+import { allowedTypes, maxFileSize, formatFileSize, simulateProgress } from './FileUploadUtils';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
@@ -19,21 +19,6 @@ const FileUploadSection: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
-
-  // Enhanced file type support
-  const allowedTypes = [
-    'application/pdf',
-    'text/plain',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'text/markdown',
-    'text/csv',
-    'application/rtf'
-  ];
-
-  const maxFileSize = 100 * 1024 * 1024; // Increased to 100MB
 
   // Set up real-time subscription
   useEffect(() => {
@@ -139,7 +124,7 @@ const FileUploadSection: React.FC = () => {
           fileName: file.name,
           fileType: file.type,
           userId: user.id,
-          previewMode: true // Enable preview mode
+          previewMode: true
         }
       });
 
@@ -150,7 +135,6 @@ const FileUploadSection: React.FC = () => {
 
       console.log('Edge function response:', data);
 
-      // If we got flashcards back, add them to the preview
       if (data.flashcards && data.flashcards.length > 0) {
         const previewCards = data.flashcards.map((card: any) => ({
           front_content: card.front,
@@ -177,62 +161,16 @@ const FileUploadSection: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 5000) => {
-    const steps = 40;
-    const interval = duration / steps;
-    let currentStep = 0;
-
-    const progressInterval = setInterval(() => {
-      currentStep++;
-      const progress = Math.min((currentStep / steps) * 85, 85);
-      
-      setProcessingProgress(prev => ({
-        ...prev,
-        [uploadId]: progress
-      }));
-
-      if (currentStep >= steps) {
-        clearInterval(progressInterval);
-      }
-    }, interval);
-
-    return progressInterval;
-  };
-
-  const getFileTypeLabel = (fileType: string) => {
-    const typeMap: Record<string, string> = {
-      'application/pdf': 'PDF',
-      'text/plain': 'TXT',
-      'application/msword': 'DOC',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
-      'application/vnd.ms-powerpoint': 'PPT',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
-      'text/markdown': 'MD',
-      'text/csv': 'CSV',
-      'application/rtf': 'RTF'
-    };
-    return typeMap[fileType] || 'FILE';
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   const handleFiles = async (files: FileList) => {
     if (!user || files.length === 0) return;
 
     setUploading(true);
     
     for (const file of Array.from(files)) {
-      // Enhanced file validation
       if (!allowedTypes.includes(file.type)) {
         toast({
           title: "❌ File type not supported",
-          description: `${getFileTypeLabel(file.type)} files are not supported. Please upload PDF, DOC, PPT, TXT, MD, CSV, or RTF files.`,
+          description: `${file.type} files are not supported. Please upload PDF, DOC, PPT, TXT, MD, CSV, or RTF files.`,
           variant: "destructive"
         });
         continue;
@@ -248,7 +186,6 @@ const FileUploadSection: React.FC = () => {
       }
 
       try {
-        // Upload file to Supabase Storage
         const fileName = `${Date.now()}-${file.name}`;
         const filePath = `${user.id}/${fileName}`;
 
@@ -266,7 +203,6 @@ const FileUploadSection: React.FC = () => {
           continue;
         }
 
-        // Record upload in database
         createUpload({
           file_name: file.name,
           file_size: file.size,
@@ -279,7 +215,6 @@ const FileUploadSection: React.FC = () => {
           description: `${file.name} uploaded successfully. Starting AI processing for preview...`,
         });
 
-        // Process with AI after upload
         setTimeout(async () => {
           try {
             const { data: uploadRecord } = await supabase
@@ -293,13 +228,11 @@ const FileUploadSection: React.FC = () => {
               throw new Error('Upload record not found');
             }
 
-            // Start progress animation
-            simulateProgress(uploadRecord.id, 6000);
+            simulateProgress(uploadRecord.id, 6000, setProcessingProgress);
 
-            // Set smart timeout based on file size (3-8 minutes)
-            const baseTimeout = 180000; // 3 minutes base
-            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5); // Up to 2.5x for large files
-            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000); // Max 8 minutes
+            const baseTimeout = 180000;
+            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5);
+            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000);
 
             const timeoutId = setTimeout(() => {
               console.log('Processing timeout for upload:', uploadRecord.id);
@@ -327,7 +260,6 @@ const FileUploadSection: React.FC = () => {
               [uploadRecord.id]: timeoutId
             }));
 
-            // Process file with AI
             await processFileForFlashcards(file, uploadRecord.id, filePath);
 
           } catch (error) {
@@ -427,7 +359,7 @@ const FileUploadSection: React.FC = () => {
         error_message: null
       });
 
-      simulateProgress(upload.id, 6000);
+      simulateProgress(upload.id, 6000, setProcessingProgress);
 
       const timeoutId = setTimeout(() => {
         updateUpload({
@@ -441,7 +373,7 @@ const FileUploadSection: React.FC = () => {
           delete newState[upload.id];
           return newState;
         });
-      }, 300000); // 5 minutes for retry
+      }, 300000);
 
       setProcessingTimeouts(prev => ({
         ...prev,
@@ -472,134 +404,23 @@ const FileUploadSection: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Enhanced Upload Area */}
-        <div
-          className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center transition-colors ${
-            dragActive 
-              ? 'border-primary bg-primary/5' 
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
+        <FileUploadDropzone
+          dragActive={dragActive}
+          uploading={uploading}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-        >
-          <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-400" />
-          <h3 className="text-base sm:text-lg font-medium mb-2 break-words px-2">
-            Drop your files here or click to browse
-          </h3>
-          <div className="text-sm sm:text-base text-gray-600 mb-4 break-words px-2 leading-relaxed space-y-2">
-            <p><strong>📁 Supported:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF</p>
-            <p><strong>📏 Size limit:</strong> Up to {formatFileSize(maxFileSize)}</p>
-            <p><strong>⚡ Processing:</strong> Smart timeout (3-8 minutes based on file size)</p>
-            <p><strong>🔄 Preview mode:</strong> Review before saving to collection</p>
-          </div>
-          <input
-            type="file"
-            id="file-upload"
-            className="hidden"
-            multiple
-            accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.md,.csv,.rtf"
-            onChange={handleFileInput}
-            disabled={uploading}
-          />
-          <Button asChild disabled={uploading} size="sm" className="text-xs sm:text-sm">
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-              {uploading ? 'Processing...' : 'Choose Files'}
-            </label>
-          </Button>
-        </div>
+          onFileInput={handleFileInput}
+          maxFileSize={maxFileSize}
+        />
 
-        {/* Enhanced Upload Progress */}
-        {uploads.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm sm:text-base">File Processing Status</h3>
-            {uploads.map((upload) => (
-              <div key={upload.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-start sm:items-center justify-between mb-2 gap-2">
-                  <div className="flex items-start sm:items-center gap-2 min-w-0 flex-1">
-                    <FileText className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
-                    <div className="min-w-0 flex-1">
-                      <span className="font-medium text-sm sm:text-base break-words leading-tight block">
-                        {upload.file_name}
-                      </span>
-                      <div className="text-xs text-gray-500 flex flex-wrap items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs px-1 py-0">
-                          {getFileTypeLabel(upload.file_type)}
-                        </Badge>
-                        <span>{formatFileSize(upload.file_size)}</span>
-                      </div>
-                    </div>
-                    <Badge 
-                      variant={
-                        upload.processing_status === 'completed' ? 'default' :
-                        upload.processing_status === 'failed' ? 'destructive' : 'secondary'
-                      }
-                      className="text-xs flex-shrink-0"
-                    >
-                      {upload.processing_status}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-1">
-                    {upload.processing_status === 'failed' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => retryProcessing(upload)}
-                        className="flex-shrink-0 h-8 w-8 p-0"
-                        title="Retry processing"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => removeUpload(upload.id)}
-                      className="flex-shrink-0 h-8 w-8 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                {upload.processing_status === 'processing' && (
-                  <div className="space-y-2">
-                    <Progress 
-                      value={processingProgress[upload.id] || 0} 
-                      className="h-2" 
-                    />
-                    <p className="text-xs text-gray-600 break-words">
-                      {processingProgress[upload.id] >= 70 
-                        ? '🧠 AI is generating flashcards for preview...' 
-                        : '📖 AI is analyzing content...'
-                      }
-                    </p>
-                  </div>
-                )}
-                
-                {upload.processing_status === 'completed' && (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm break-words">
-                      ✅ Generated {upload.generated_flashcards_count} flashcards for preview
-                    </span>
-                  </div>
-                )}
-                
-                {upload.processing_status === 'failed' && (
-                  <div className="flex items-start gap-2 text-red-600">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-sm break-words">
-                      ❌ {upload.error_message || 'Processing failed'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        <FileUploadProgress
+          uploads={uploads}
+          processingProgress={processingProgress}
+          onRemoveUpload={removeUpload}
+          onRetryProcessing={retryProcessing}
+        />
       </CardContent>
     </Card>
   );
