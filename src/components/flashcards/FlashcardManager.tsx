@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcardManager } from '@/hooks/useFlashcardManager';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Search, Filter, Sparkles } from 'lucide-react';
 import FlashcardFolderView from './FlashcardFolderView';
 import FlashcardFilterBar from './FlashcardFilterBar';
 import FlashcardBatchActions from './FlashcardBatchActions';
@@ -53,6 +53,12 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
               <Badge variant="secondary" className="text-sm bg-slate-200 text-slate-700 border border-slate-300 px-3 py-1">
                 {manager.totalCount} cards
               </Badge>
+              {manager.recentCardCount > 0 && (
+                <Badge variant="default" className="text-sm bg-green-600 hover:bg-green-700 px-3 py-1 shadow-md">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  {manager.recentCardCount} new
+                </Badge>
+              )}
               {manager.selectedCount > 0 && (
                 <Badge variant="default" className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 shadow-md">
                   {manager.selectedCount} selected
@@ -67,6 +73,12 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
           <div className="flex flex-wrap items-center gap-2 mb-4 text-xs text-slate-600">
             <Badge variant="outline" className="text-xs bg-white border-slate-300 text-slate-700">{Object.keys(manager.groupedFlashcards).length} folders</Badge>
             <Badge variant="outline" className="text-xs bg-white border-slate-300 text-slate-700">{manager.totalCount} cards</Badge>
+            {manager.recentCardCount > 0 && (
+              <Badge variant="default" className="text-xs bg-green-600">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {manager.recentCardCount} new
+              </Badge>
+            )}
             {manager.selectedCount > 0 && (
               <Badge variant="default" className="text-xs bg-blue-600">{manager.selectedCount} selected</Badge>
             )}
@@ -88,6 +100,11 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
           >
             <Filter className="h-4 w-4" />
             Filters
+            {manager.recentCardCount > 0 && (
+              <Badge variant="secondary" className="ml-1 bg-green-100 text-green-800 text-xs">
+                {manager.recentCardCount}
+              </Badge>
+            )}
           </Button>
 
           {/* Quick Search - Enhanced styling */}
@@ -111,6 +128,7 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
             <FlashcardFilterBar
               state={manager.state}
               onUpdateState={manager.updateState}
+              recentCardCount={manager.recentCardCount}
             />
           </div>
         )}
@@ -135,11 +153,15 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
           selectedCards={new Set(manager.selectedCards)}
           expandedFolders={manager.state.expandedFolders}
           folderViewModes={manager.state.folderViewModes}
+          recentCardIds={manager.recentCardIds}
           onToggleSelection={manager.toggleCardSelection}
           onToggleFolder={manager.toggleFolder}
           onToggleFolderViewMode={manager.toggleFolderViewMode}
           onSelectAllInFolder={manager.selectAllInFolder}
           onBulkFolderAction={manager.bulkFolderAction}
+          isCardRecent={manager.isCardRecent}
+          folderHasRecentCards={manager.folderHasRecentCards}
+          getRecentCardCount={manager.getRecentCardCount}
         />
       </div>
     </div>

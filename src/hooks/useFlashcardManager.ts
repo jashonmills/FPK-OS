@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFlashcards, type Flashcard } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
 import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
@@ -6,7 +6,7 @@ import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
 export interface FlashcardManagerState {
   selectedCards: Set<string>;
   searchTerm: string;
-  filterBy: 'all' | 'source' | 'difficulty' | 'performance';
+  filterBy: 'all' | 'source' | 'difficulty' | 'performance' | 'recent';
   filterValue: string;
   viewMode: 'grid' | 'list';
   sortBy: 'created' | 'difficulty' | 'performance' | 'alphabetical';
@@ -14,6 +14,8 @@ export interface FlashcardManagerState {
   expandedFolders: Set<string>;
   folderViewModes: Record<string, 'grid' | 'list'>;
 }
+
+const RECENT_CARDS_MINUTES = 10; // Consider cards "new" for 10 minutes
 
 export const useFlashcardManager = () => {
   const { flashcards, deleteFlashcard, updateFlashcard } = useFlashcards();
@@ -30,6 +32,44 @@ export const useFlashcardManager = () => {
     expandedFolders: new Set(),
     folderViewModes: {}
   });
+
+  // Track recently created cards
+  const recentCardIds = useMemo(() => {
+    const cutoffTime = new Date(Date.now() - RECENT_CARDS_MINUTES * 60 * 1000);
+    return flashcards
+      .filter(card => new Date(card.created_at) > cutoffTime)
+      .map(card => card.id);
+  }, [flashcards]);
+
+  // Auto-expand folders with recent cards
+  useEffect(() => {
+    if (recentCardIds.length > 0) {
+      console.log('📌 Found recent cards, auto-expanding relevant folders:', recentCardIds);
+      
+      // Find folders that contain recent cards
+      const foldersWithRecentCards = new Set<string>();
+      
+      recentCardIds.forEach(cardId => {
+        const card = flashcards.find(c => c.id === cardId);
+        if (card) {
+          const topicFolder = analyzeFlashcardTopic(
+            card.front_content, 
+            card.back_content, 
+            card.note_id,
+            card.created_at
+          );
+          foldersWithRecentCards.add(topicFolder);
+        }
+      });
+
+      if (foldersWithRecentCards.size > 0) {
+        setState(prev => ({
+          ...prev,
+          expandedFolders: new Set([...prev.expandedFolders, ...foldersWithRecentCards])
+        }));
+      }
+    }
+  }, [recentCardIds, flashcards]);
 
   // Filter and search flashcards
   const filteredFlashcards = useMemo(() => {
@@ -71,11 +111,22 @@ export const useFlashcardManager = () => {
             return true;
           });
           break;
+        case 'recent':
+          filtered = filtered.filter(card => recentCardIds.includes(card.id));
+          break;
       }
     }
 
-    // Apply sorting
+    // Apply sorting - prioritize recent cards
     filtered.sort((a, b) => {
+      // Always put recent cards first
+      const aIsRecent = recentCardIds.includes(a.id);
+      const bIsRecent = recentCardIds.includes(b.id);
+      
+      if (aIsRecent && !bIsRecent) return -1;
+      if (!aIsRecent && bIsRecent) return 1;
+      
+      // Then apply normal sorting
       let comparison = 0;
       
       switch (state.sortBy) {
@@ -99,9 +150,9 @@ export const useFlashcardManager = () => {
     });
 
     return filtered;
-  }, [flashcards, state.searchTerm, state.filterBy, state.filterValue, state.sortBy, state.sortOrder]);
+  }, [flashcards, state.searchTerm, state.filterBy, state.filterValue, state.sortBy, state.sortOrder, recentCardIds]);
 
-  // Group flashcards by automatically detected topics/sources
+  // Group flashcards by automatically detected topics/sources - prioritize folders with recent cards
   const groupedFlashcards = useMemo(() => {
     const groups: Record<string, Flashcard[]> = {};
     
@@ -120,16 +171,39 @@ export const useFlashcardManager = () => {
       groups[topicFolder].push(card);
     });
     
-    // Sort groups by name for consistent ordering
+    // Sort groups by whether they contain recent cards, then by name
     const sortedGroups: Record<string, Flashcard[]> = {};
     Object.keys(groups)
-      .sort()
+      .sort((a, b) => {
+        const aHasRecent = groups[a].some(card => recentCardIds.includes(card.id));
+        const bHasRecent = groups[b].some(card => recentCardIds.includes(card.id));
+        
+        if (aHasRecent && !bHasRecent) return -1;
+        if (!aHasRecent && bHasRecent) return 1;
+        
+        return a.localeCompare(b);
+      })
       .forEach(key => {
         sortedGroups[key] = groups[key];
       });
     
     return sortedGroups;
-  }, [filteredFlashcards]);
+  }, [filteredFlashcards, recentCardIds]);
+
+  // Check if a card is recent
+  const isCardRecent = (cardId: string) => recentCardIds.includes(cardId);
+
+  // Check if a folder has recent cards
+  const folderHasRecentCards = (folderId: string) => {
+    const folderCards = groupedFlashcards[folderId] || [];
+    return folderCards.some(card => isCardRecent(card.id));
+  };
+
+  // Get recent card count for a folder
+  const getRecentCardCount = (folderId: string) => {
+    const folderCards = groupedFlashcards[folderId] || [];
+    return folderCards.filter(card => isCardRecent(card.id)).length;
+  };
 
   // Folder management
   const toggleFolder = (folderId: string) => {
@@ -250,6 +324,11 @@ export const useFlashcardManager = () => {
     selectedCards: Array.from(state.selectedCards),
     selectedCount: state.selectedCards.size,
     totalCount: filteredFlashcards.length,
+    recentCardIds,
+    recentCardCount: recentCardIds.length,
+    isCardRecent,
+    folderHasRecentCards,
+    getRecentCardCount,
     toggleCardSelection,
     selectAllCards,
     clearSelection,
