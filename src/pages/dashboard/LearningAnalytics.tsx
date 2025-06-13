@@ -8,6 +8,9 @@ import { TrendingUp, Clock, Award, Target, BookOpen, Activity } from 'lucide-rea
 import { useEnrolledCourses } from '@/hooks/useEnrolledCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useWeeklyActivity } from '@/hooks/useWeeklyActivity';
+import { useActivityDistribution } from '@/hooks/useActivityDistribution';
+import { useStreakCalculation } from '@/hooks/useStreakCalculation';
 import { useTranslation } from 'react-i18next';
 
 const LearningAnalytics = () => {
@@ -15,6 +18,9 @@ const LearningAnalytics = () => {
   const { courses, loading: coursesLoading, error: coursesError } = useEnrolledCourses();
   const { enrollments, overallStats, isLoading: progressLoading } = useEnrollmentProgress();
   const { profile } = useUserProfile();
+  const { weeklyActivity, isLoading: weeklyLoading } = useWeeklyActivity();
+  const { activityDistribution, isLoading: distributionLoading } = useActivityDistribution();
+  const { currentStreak } = useStreakCalculation();
 
   // Listen for progress updates
   useEffect(() => {
@@ -34,19 +40,8 @@ const LearningAnalytics = () => {
 
   const learningStateProgress = enrollments?.find(e => e.course_id === 'learning-state-beta')?.progress;
 
-  // Real weekly engagement data based on completed modules
-  const completedModules = learningStateProgress?.completed_modules?.length || 0;
-  const weeklyEngagementData = [
-    { day: 'Mon', completedModules: 0, studyTime: 0 },
-    { day: 'Tue', completedModules: 0, studyTime: 0 },
-    { day: 'Wed', completedModules: 0, studyTime: 0 },
-    { day: 'Thu', completedModules: completedModules, studyTime: completedModules * 45 },
-    { day: 'Fri', completedModules: 0, studyTime: 0 },
-    { day: 'Sat', completedModules: 0, studyTime: 0 },
-    { day: 'Sun', completedModules: 0, studyTime: 0 },
-  ];
-
   // Real progress data based on Learning State modules
+  const completedModules = learningStateProgress?.completed_modules?.length || 0;
   const moduleTopics = [
     'Cognitive Load Theory',
     'Attention and Focus', 
@@ -69,17 +64,9 @@ const LearningAnalytics = () => {
     };
   });
 
-  // Activity distribution based on real progress
-  const totalStudyTime = completedModules * 95; // 95 min per module average
-  const activityDistribution = totalStudyTime > 0 ? [
-    { name: 'Video Lectures', value: Math.round(totalStudyTime * 0.6), color: '#8B5CF6' },
-    { name: 'Interactive Content', value: Math.round(totalStudyTime * 0.25), color: '#F59E0B' },
-    { name: 'Practice & Review', value: Math.round(totalStudyTime * 0.15), color: '#3B82F6' },
-  ] : [];
-
   const chartConfig = {
-    completedModules: {
-      label: 'Completed Modules',
+    studySessions: {
+      label: 'Study Sessions',
       color: '#8B5CF6',
     },
     studyTime: {
@@ -88,7 +75,7 @@ const LearningAnalytics = () => {
     },
   };
 
-  const loading = coursesLoading || progressLoading;
+  const loading = coursesLoading || progressLoading || weeklyLoading || distributionLoading;
 
   if (loading) {
     return (
@@ -228,10 +215,10 @@ const LearningAnalytics = () => {
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-amber-600 mb-1 sm:mb-2">{profile?.current_streak || 0}</div>
+              <div className="text-3xl sm:text-4xl font-bold text-amber-600 mb-1 sm:mb-2">{currentStreak}</div>
               <p className="text-xs sm:text-sm text-gray-500">Day Streak</p>
               <p className="text-xs text-gray-400 mt-1 sm:mt-2">
-                {(profile?.current_streak || 0) > 0 
+                {currentStreak > 0 
                   ? "Keep up the great work!" 
                   : "Study daily to build your streak"
                 }
@@ -252,23 +239,23 @@ const LearningAnalytics = () => {
         <CardContent className="p-4 sm:p-6 pt-0">
           <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyEngagementData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              <BarChart data={weeklyActivity} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" fontSize={12} />
                 <YAxis fontSize={12} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="completedModules" fill="var(--color-completedModules)" />
+                <Bar dataKey="studySessions" fill="var(--color-studySessions)" />
                 <Bar dataKey="studyTime" fill="var(--color-studyTime)" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
-          {completedModules > 0 ? (
+          {weeklyActivity.some(day => day.studySessions > 0) ? (
             <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
-              You've been most active on Thursday with {completedModules} modules completed!
+              Your study activity is based on real study sessions and time spent learning.
             </div>
           ) : (
             <div className="text-center text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-              No activity data yet. Start learning to see your weekly activity patterns.
+              No study sessions yet. Start learning to see your weekly activity patterns.
             </div>
           )}
         </CardContent>
@@ -354,7 +341,7 @@ const LearningAnalytics = () => {
                 <div className="text-center text-gray-500">
                   <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
                   <p className="font-medium text-sm sm:text-base">No activity data yet</p>
-                  <p className="text-xs sm:text-sm">Start learning to see your activity distribution</p>
+                  <p className="text-xs sm:text-sm">Complete study sessions to see your activity distribution</p>
                 </div>
               </div>
             )}
