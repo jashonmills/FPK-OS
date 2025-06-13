@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,46 +105,44 @@ const FlashcardsSection: React.FC = () => {
         <div className="w-full">
           <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
           
-          {/* Study Mode Cards Container */}
-          <div className="w-full max-w-[1100px] mx-auto px-4 md:px-8">
-            <div className="flex flex-col md:flex-row md:justify-center md:items-stretch gap-6 md:gap-6">
-              {studyModes.map((mode) => (
-                <div 
-                  key={mode.id} 
-                  className="w-full max-w-[420px] mx-auto md:mx-0 md:min-w-[240px] md:max-w-[360px] md:flex-1 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
-                >
-                  {/* Card Content Container */}
-                  <div className="h-full flex flex-col items-center justify-between p-6 text-center">
-                    {/* Icon and Title */}
-                    <div className="flex flex-col items-center gap-3 mb-4">
-                      <div className={`p-3 rounded-lg ${mode.color} text-white shadow-sm`}>
-                        <mode.icon className="h-6 w-6" />
-                      </div>
-                      <h4 className="font-semibold text-lg text-gray-900">
-                        {mode.title}
-                      </h4>
-                    </div>
-                    
-                    {/* Description */}
-                    <div className="mb-6 flex-grow flex items-center">
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        {mode.description}
-                      </p>
-                    </div>
-                    
-                    {/* Start Button */}
+          {/* Study Mode Cards - Vertical Stack with Rectangle Format */}
+          <div className="w-full max-w-4xl mx-auto space-y-4">
+            {studyModes.map((mode) => (
+              <div 
+                key={mode.id} 
+                className="w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
+              >
+                {/* Rectangle Card Content - Horizontal Layout */}
+                <div className="flex items-center p-6 gap-6">
+                  {/* Icon */}
+                  <div className={`p-4 rounded-xl ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                    <mode.icon className="h-8 w-8" />
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-grow">
+                    <h4 className="font-semibold text-xl text-gray-900 mb-2">
+                      {mode.title}
+                    </h4>
+                    <p className="text-gray-600 text-base leading-relaxed">
+                      {mode.description}
+                    </p>
+                  </div>
+                  
+                  {/* Start Button */}
+                  <div className="flex-shrink-0">
                     <Button
-                      className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-3 rounded-lg transition-colors duration-200 text-base`}
+                      className={`${mode.color} ${mode.hoverColor} text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200 text-base`}
                       onClick={() => handleStartStudyMode(mode.id)}
                       disabled={flashcards.length === 0 || isCreating}
                     >
-                      <Play className="h-4 w-4 mr-2" />
+                      <Play className="h-5 w-5 mr-2" />
                       {isCreating ? 'Starting...' : 'Start Mode'}
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
