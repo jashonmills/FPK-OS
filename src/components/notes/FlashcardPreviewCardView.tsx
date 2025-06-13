@@ -18,6 +18,8 @@ const FlashcardPreviewCardView: React.FC<FlashcardPreviewCardViewProps> = ({
   onDelete,
   onApprove
 }) => {
+  console.log('🎴 FlashcardPreviewCardView rendering card:', card);
+
   const getStatusBadge = () => {
     switch (card.status) {
       case 'new': 
@@ -48,10 +50,21 @@ const FlashcardPreviewCardView: React.FC<FlashcardPreviewCardViewProps> = ({
 
   const truncateText = (text: string | undefined | null, maxLength: number = 100) => {
     if (!text || typeof text !== 'string') {
+      console.log('⚠️ truncateText received invalid text:', text);
       return '';
     }
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
+
+  const frontContent = truncateText(card.front_content);
+  const backContent = truncateText(card.back_content);
+
+  console.log('📝 Card content for display:', {
+    originalFront: card.front_content,
+    originalBack: card.back_content,
+    truncatedFront: frontContent,
+    truncatedBack: backContent
+  });
 
   return (
     <div className="space-y-3">
@@ -83,11 +96,11 @@ const FlashcardPreviewCardView: React.FC<FlashcardPreviewCardViewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="p-3 bg-white rounded border">
           <h5 className="text-xs font-medium text-gray-600 mb-1">FRONT</h5>
-          <p className="text-sm text-gray-900">{truncateText(card.front_content)}</p>
+          <p className="text-sm text-gray-900">{frontContent || '(No content)'}</p>
         </div>
         <div className="p-3 bg-white rounded border">
           <h5 className="text-xs font-medium text-gray-600 mb-1">BACK</h5>
-          <p className="text-sm text-gray-900">{truncateText(card.back_content)}</p>
+          <p className="text-sm text-gray-900">{backContent || '(No content)'}</p>
         </div>
       </div>
     </div>

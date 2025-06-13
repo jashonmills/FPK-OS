@@ -24,18 +24,23 @@ export const useFlashcardPreview = () => {
 
   // Load preview cards from localStorage on mount
   useEffect(() => {
+    console.log('🔄 Loading preview cards from localStorage...');
     const stored = localStorage.getItem(STORAGE_KEY);
     const recentIds = localStorage.getItem(RECENT_CARDS_KEY);
     
     if (stored) {
       try {
         const cards = JSON.parse(stored);
+        console.log('📦 Raw cards from localStorage:', cards);
+        
         // Filter out cards older than 7 days
         const validCards = cards.filter((card: PreviewFlashcard) => {
           const cardDate = new Date(card.created_at);
           const daysDiff = (Date.now() - cardDate.getTime()) / (1000 * 60 * 60 * 24);
           return daysDiff <= RECENT_CARDS_DAYS;
         });
+        
+        console.log('✅ Valid cards after filtering:', validCards);
         setPreviewCards(validCards);
         
         // Clean up localStorage if we filtered out old cards
@@ -43,7 +48,7 @@ export const useFlashcardPreview = () => {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(validCards));
         }
       } catch (error) {
-        console.error('Error loading preview cards:', error);
+        console.error('💥 Error loading preview cards:', error);
         localStorage.removeItem(STORAGE_KEY);
       }
     }
@@ -60,6 +65,7 @@ export const useFlashcardPreview = () => {
 
   // Save preview cards to localStorage
   const saveToStorage = (cards: PreviewFlashcard[]) => {
+    console.log('💾 Saving preview cards to localStorage:', cards);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
   };
 
@@ -70,26 +76,40 @@ export const useFlashcardPreview = () => {
   };
 
   const addPreviewCard = (card: Omit<PreviewFlashcard, 'id' | 'created_at'>) => {
+    console.log('➕ Adding single preview card:', card);
+    
     const newCard: PreviewFlashcard = {
       ...card,
       id: `preview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       created_at: new Date().toISOString(),
     };
 
+    console.log('🆕 New card created:', newCard);
     const updatedCards = [...previewCards, newCard];
+    console.log('📋 Updated cards array:', updatedCards);
+    
     setPreviewCards(updatedCards);
     saveToStorage(updatedCards);
     return newCard.id;
   };
 
   const addPreviewCards = (cards: Omit<PreviewFlashcard, 'id' | 'created_at'>[]) => {
-    const newCards = cards.map(card => ({
-      ...card,
-      id: `preview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      created_at: new Date().toISOString(),
-    }));
+    console.log('➕➕ Adding multiple preview cards:', cards);
+    
+    const newCards = cards.map(card => {
+      const newCard = {
+        ...card,
+        id: `preview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        created_at: new Date().toISOString(),
+      };
+      console.log('🆕 Individual new card created:', newCard);
+      return newCard;
+    });
 
+    console.log('🆕🆕 All new cards created:', newCards);
     const updatedCards = [...previewCards, ...newCards];
+    console.log('📋📋 Final updated cards array:', updatedCards);
+    
     setPreviewCards(updatedCards);
     saveToStorage(updatedCards);
     return newCards.map(card => card.id);

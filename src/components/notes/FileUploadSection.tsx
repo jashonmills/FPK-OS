@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,7 +35,7 @@ const FileUploadSection: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('File upload updated:', payload);
+          console.log('🔄 File upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
             // Clear timeout and progress
@@ -56,7 +57,7 @@ const FileUploadSection: React.FC = () => {
 
             // Fetch the generated flashcards and add them to preview
             try {
-              console.log('Fetching generated flashcards for upload:', payload.new.id);
+              console.log('📥 Fetching generated flashcards for upload:', payload.new.id);
               
               const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
                 body: {
@@ -66,24 +67,40 @@ const FileUploadSection: React.FC = () => {
                   fileType: payload.new.file_type,
                   userId: user.id,
                   previewMode: true,
-                  fetchOnly: true // New flag to just fetch the generated cards
+                  fetchOnly: true
                 }
               });
+
+              console.log('📦 Edge function response:', data);
+              console.log('❌ Edge function error:', error);
 
               if (error) {
                 console.error('Error fetching flashcards:', error);
               } else if (data && data.flashcards && data.flashcards.length > 0) {
-                console.log('Adding flashcards to preview:', data.flashcards.length);
+                console.log('📋 Raw flashcards from edge function:', data.flashcards);
                 
-                const previewCards = data.flashcards.map((card: any) => ({
-                  front_content: card.front || card.front_content,
-                  back_content: card.back || card.back_content,
-                  title: `${payload.new.file_name} - Card`,
-                  source: 'upload' as const,
-                  status: 'new' as const,
-                  session_id: payload.new.id
-                }));
+                const previewCards = data.flashcards.map((card: any, index: number) => {
+                  // More robust content mapping with debugging
+                  const frontContent = card.front_content || card.front || '';
+                  const backContent = card.back_content || card.back || '';
+                  
+                  console.log(`🎴 Card ${index + 1} mapping:`, {
+                    original: card,
+                    frontContent,
+                    backContent
+                  });
 
+                  return {
+                    front_content: frontContent,
+                    back_content: backContent,
+                    title: `${payload.new.file_name} - Card ${index + 1}`,
+                    source: 'upload' as const,
+                    status: 'new' as const,
+                    session_id: payload.new.id
+                  };
+                });
+
+                console.log('✨ Preview cards to be added:', previewCards);
                 addPreviewCards(previewCards);
                 
                 toast({
@@ -91,14 +108,14 @@ const FileUploadSection: React.FC = () => {
                   description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
                 });
               } else {
-                console.log('No flashcards returned from edge function');
+                console.log('⚠️ No flashcards returned from edge function');
                 toast({
                   title: "✅ Processing complete",
                   description: `Processed ${payload.new.file_name} but no flashcards were generated.`,
                 });
               }
             } catch (error) {
-              console.error('Error fetching flashcards after completion:', error);
+              console.error('💥 Error fetching flashcards after completion:', error);
               toast({
                 title: "⚠️ Processing complete",
                 description: `${payload.new.file_name} processed but couldn't retrieve flashcards. Try refreshing.`,
@@ -160,7 +177,7 @@ const FileUploadSection: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('Starting enhanced AI processing for file (preview mode):', file.name);
+      console.log('🤖 Starting enhanced AI processing for file (preview mode):', file.name);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
@@ -178,21 +195,34 @@ const FileUploadSection: React.FC = () => {
         throw error;
       }
 
-      console.log('Edge function response:', data);
+      console.log('🎯 Immediate edge function response:', data);
 
       // If we get flashcards immediately, add them to preview
       if (data.flashcards && data.flashcards.length > 0) {
-        console.log('Adding immediate flashcards to preview:', data.flashcards.length);
+        console.log('⚡ Adding immediate flashcards to preview:', data.flashcards.length);
         
-        const previewCards = data.flashcards.map((card: any) => ({
-          front_content: card.front || card.front_content,
-          back_content: card.back || card.back_content,
-          title: `${file.name} - Card`,
-          source: 'upload' as const,
-          status: 'new' as const,
-          session_id: uploadId
-        }));
+        const previewCards = data.flashcards.map((card: any, index: number) => {
+          // Enhanced content mapping with debugging
+          const frontContent = card.front_content || card.front || '';
+          const backContent = card.back_content || card.back || '';
+          
+          console.log(`🎴 Immediate card ${index + 1} mapping:`, {
+            original: card,
+            frontContent,
+            backContent
+          });
 
+          return {
+            front_content: frontContent,
+            back_content: backContent,
+            title: `${file.name} - Card ${index + 1}`,
+            source: 'upload' as const,
+            status: 'new' as const,
+            session_id: uploadId
+          };
+        });
+
+        console.log('🚀 Immediate preview cards to be added:', previewCards);
         addPreviewCards(previewCards);
         
         toast({

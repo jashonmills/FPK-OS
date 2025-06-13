@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,9 +16,18 @@ const FlashcardPreviewModule: React.FC = () => {
   } = useFlashcardPreview();
   const { toast } = useToast();
 
+  console.log('🎯 FlashcardPreviewModule render:', {
+    previewCards,
+    hasPreviewCards,
+    cardCount: previewCards.length
+  });
+
   if (!hasPreviewCards) {
+    console.log('❌ No preview cards - module hidden');
     return null;
   }
+
+  console.log('✅ Preview cards exist - showing module');
 
   const handleApproveAll = async () => {
     const approved = await approveAllCards();
@@ -105,12 +113,15 @@ const FlashcardPreviewModule: React.FC = () => {
 
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {previewCards.map((card) => (
-            <FlashcardPreviewCard 
-              key={card.id} 
-              card={card}
-            />
-          ))}
+          {previewCards.map((card) => {
+            console.log('🎴 Rendering card:', card);
+            return (
+              <FlashcardPreviewCard 
+                key={card.id} 
+                card={card}
+              />
+            );
+          })}
         </div>
 
         {/* Footer Message */}
