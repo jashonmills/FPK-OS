@@ -104,41 +104,42 @@ const FlashcardsSection: React.FC = () => {
       <CardContent className="space-y-8 p-6">
         {/* Study Mode Selection */}
         <div className="w-full">
-          <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
+          <h3 className="text-lg font-semibold mb-4 sm:mb-6 text-gray-800">Choose Your Study Mode</h3>
           
-          {/* Study Mode Cards - Vertical Stack with Rectangle Format */}
-          <div className="w-full max-w-4xl mx-auto space-y-2">
+          {/* Study Mode Cards - Mobile Optimized */}
+          <div className="w-full space-y-3 sm:space-y-2">
             {studyModes.map((mode) => (
               <div 
                 key={mode.id} 
-                className="w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
+                className="w-full bg-white border border-gray-200 rounded-lg sm:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300 overflow-hidden"
               >
-                {/* Rectangle Card Content - Horizontal Layout */}
-                <div className="flex items-center p-3 gap-4">
-                  {/* Icon */}
-                  <div className={`p-2 rounded-xl ${mode.color} text-white shadow-sm flex-shrink-0`}>
-                    <mode.icon className="h-6 w-6" />
+                {/* Mobile-first Rectangle Card Content */}
+                <div className="flex items-center p-3 sm:p-4 gap-3 sm:gap-4">
+                  {/* Icon - Smaller on mobile */}
+                  <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                    <mode.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   
-                  {/* Content */}
-                  <div className="flex-grow">
-                    <h4 className="font-semibold text-lg text-gray-900 mb-1">
+                  {/* Content - Optimized text for mobile */}
+                  <div className="flex-grow min-w-0">
+                    <h4 className="font-semibold text-base sm:text-lg text-gray-900 mb-1 truncate">
                       {mode.title}
                     </h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
                       {mode.description}
                     </p>
                   </div>
                   
-                  {/* Start Button */}
+                  {/* Start Button - Compact on mobile */}
                   <div className="flex-shrink-0">
                     <Button
-                      className={`${mode.color} ${mode.hoverColor} text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 text-sm`}
+                      className={`${mode.color} ${mode.hoverColor} text-white font-medium px-3 sm:px-6 py-1.5 sm:py-2 rounded-md sm:rounded-lg transition-colors duration-200 text-xs sm:text-sm`}
                       onClick={() => handleStartStudyMode(mode.id)}
                       disabled={flashcards.length === 0 || isCreating}
                     >
-                      <Play className="h-4 w-4 mr-2" />
-                      {isCreating ? 'Starting...' : 'Start Mode'}
+                      <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">{isCreating ? 'Starting...' : 'Start Mode'}</span>
+                      <span className="xs:hidden">{isCreating ? '...' : 'Start'}</span>
                     </Button>
                   </div>
                 </div>
