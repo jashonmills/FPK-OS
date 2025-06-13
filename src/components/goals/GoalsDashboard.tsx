@@ -38,8 +38,8 @@ export const GoalsDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">
+      <div className="flex items-center justify-center p-4 sm:p-8">
+        <div className="text-gray-500 text-sm sm:text-base">
           <DualLanguageText translationKey="common.loading" fallback="Loading..." />
         </div>
       </div>
@@ -47,68 +47,68 @@ export const GoalsDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Target className="h-5 w-5 text-blue-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                <Target className="h-3 w-3 sm:h-5 sm:w-5 text-blue-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-500">
+              <div className="min-w-0 overflow-hidden">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
                   <DualLanguageText translationKey="goals.stats.totalGoals" fallback="Total Goals" />
                 </p>
-                <p className="text-xl font-bold">{goals.length}</p>
+                <p className="text-lg sm:text-xl font-bold">{goals.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Target className="h-5 w-5 text-green-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                <Target className="h-3 w-3 sm:h-5 sm:w-5 text-green-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-500">
-                  <DualLanguageText translationKey="goals.stats.activeGoals" fallback="Active Goals" />
+              <div className="min-w-0 overflow-hidden">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <DualLanguageText translationKey="goals.stats.activeGoals" fallback="Active" />
                 </p>
-                <p className="text-xl font-bold">{activeGoals.length}</p>
+                <p className="text-lg sm:text-xl font-bold">{activeGoals.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Trophy className="h-5 w-5 text-amber-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-amber-100 rounded-lg flex-shrink-0">
+                <Trophy className="h-3 w-3 sm:h-5 sm:w-5 text-amber-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-500">
-                  <DualLanguageText translationKey="goals.stats.completedGoals" fallback="Completed" />
+              <div className="min-w-0 overflow-hidden">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <DualLanguageText translationKey="goals.stats.completedGoals" fallback="Complete" />
                 </p>
-                <p className="text-xl font-bold">{completedGoals.length}</p>
+                <p className="text-lg sm:text-xl font-bold">{completedGoals.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                <Calendar className="h-3 w-3 sm:h-5 sm:w-5 text-purple-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-500">
-                  <DualLanguageText translationKey="goals.stats.completionRate" fallback="Completion Rate" />
+              <div className="min-w-0 overflow-hidden">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <DualLanguageText translationKey="goals.stats.completionRate" fallback="Rate" />
                 </p>
-                <p className="text-xl font-bold">
+                <p className="text-lg sm:text-xl font-bold">
                   {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
                 </p>
               </div>
@@ -119,57 +119,69 @@ export const GoalsDashboard = () => {
 
       {/* Goals Management */}
       <Card className="fpk-card border-0 shadow-lg">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-purple-600" />
-              <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
+        <CardHeader className="p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
+              <span className="truncate">
+                <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
+              </span>
             </CardTitle>
             <Button 
               onClick={() => setShowCreateForm(true)}
-              className="fpk-gradient text-white"
+              className="fpk-gradient text-white text-sm sm:text-base px-3 sm:px-4 py-2 w-full sm:w-auto"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="truncate">
+                <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+              </span>
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6 pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <DualLanguageText translationKey="goals.tabs.all" fallback="All" />
-                <Badge variant="secondary" className="ml-1">{goals.length}</Badge>
+            <TabsList className="grid w-full grid-cols-4 mb-4 sm:mb-6 h-auto">
+              <TabsTrigger value="all" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <Filter className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="truncate">
+                  <DualLanguageText translationKey="goals.tabs.all" fallback="All" />
+                </span>
+                <Badge variant="secondary" className="text-xs sm:text-sm min-w-0">{goals.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="active" className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                <DualLanguageText translationKey="goals.tabs.active" fallback="Active" />
-                <Badge variant="secondary" className="ml-1">{activeGoals.length}</Badge>
+              <TabsTrigger value="active" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="truncate">
+                  <DualLanguageText translationKey="goals.tabs.active" fallback="Active" />
+                </span>
+                <Badge variant="secondary" className="text-xs sm:text-sm min-w-0">{activeGoals.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                <DualLanguageText translationKey="goals.tabs.completed" fallback="Completed" />
-                <Badge variant="secondary" className="ml-1">{completedGoals.length}</Badge>
+              <TabsTrigger value="completed" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <Trophy className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="truncate">
+                  <DualLanguageText translationKey="goals.tabs.completed" fallback="Done" />
+                </span>
+                <Badge variant="secondary" className="text-xs sm:text-sm min-w-0">{completedGoals.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="paused" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <DualLanguageText translationKey="goals.tabs.paused" fallback="Paused" />
-                <Badge variant="secondary" className="ml-1">{pausedGoals.length}</Badge>
+              <TabsTrigger value="paused" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="truncate">
+                  <DualLanguageText translationKey="goals.tabs.paused" fallback="Paused" />
+                </span>
+                <Badge variant="secondary" className="text-xs sm:text-sm min-w-0">{pausedGoals.length}</Badge>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value={activeTab}>
+            <TabsContent value={activeTab} className="min-w-0">
               {getFilteredGoals().length === 0 ? (
-                <div className="text-center py-8">
-                  <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                <div className="text-center py-6 sm:py-8">
+                  <Target className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
                     <DualLanguageText 
                       translationKey={`goals.empty.${activeTab}Title`} 
                       fallback="No goals found" 
                     />
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 px-4 leading-relaxed">
                     <DualLanguageText 
                       translationKey={`goals.empty.${activeTab}Description`} 
                       fallback="Start by creating your first goal to track your learning progress" 
@@ -178,7 +190,7 @@ export const GoalsDashboard = () => {
                   {activeTab === 'all' || activeTab === 'active' ? (
                     <Button 
                       onClick={() => setShowCreateForm(true)}
-                      className="fpk-gradient text-white"
+                      className="fpk-gradient text-white text-sm px-4 py-2"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       <DualLanguageText translationKey="goals.createFirst" fallback="Create Your First Goal" />
@@ -186,7 +198,7 @@ export const GoalsDashboard = () => {
                   ) : null}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                   {getFilteredGoals().map((goal) => (
                     <GoalCard 
                       key={goal.id} 
@@ -211,16 +223,17 @@ export const GoalsDashboard = () => {
 
       {/* Create Goal Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-base sm:text-lg font-semibold truncate mr-2">
                 <DualLanguageText translationKey="goals.createNew" fallback="Create New Goal" />
               </h2>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setShowCreateForm(false)}
+                className="flex-shrink-0"
               >
                 ×
               </Button>
