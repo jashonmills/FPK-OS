@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
+import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, Clock, RefreshCw } from 'lucide-react';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
+  const { addPreviewCards } = useFlashcardPreview();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -70,7 +72,7 @@ const FileUploadSection: React.FC = () => {
             
             toast({
               title: "✅ Success!",
-              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}`,
+              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Check the preview above!`,
             });
           } else if (payload.new.processing_status === 'failed') {
             // Clear timeout and progress
@@ -128,7 +130,7 @@ const FileUploadSection: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('Starting enhanced AI processing for file:', file.name);
+      console.log('Starting enhanced AI processing for file (preview mode):', file.name);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
@@ -136,7 +138,8 @@ const FileUploadSection: React.FC = () => {
           filePath,
           fileName: file.name,
           fileType: file.type,
-          userId: user.id
+          userId: user.id,
+          previewMode: true // Enable preview mode
         }
       });
 
@@ -146,6 +149,26 @@ const FileUploadSection: React.FC = () => {
       }
 
       console.log('Edge function response:', data);
+
+      // If we got flashcards back, add them to the preview
+      if (data.flashcards && data.flashcards.length > 0) {
+        const previewCards = data.flashcards.map((card: any) => ({
+          front_content: card.front,
+          back_content: card.back,
+          title: `${file.name} - Card`,
+          source: 'upload' as const,
+          status: 'new' as const,
+          session_id: uploadId
+        }));
+
+        addPreviewCards(previewCards);
+        
+        toast({
+          title: "🎉 Cards ready for preview!",
+          description: `${data.flashcards.length} flashcards generated and added to preview. Review them above!`,
+        });
+      }
+
       return data.flashcardsGenerated || 0;
 
     } catch (error) {
@@ -161,7 +184,7 @@ const FileUploadSection: React.FC = () => {
 
     const progressInterval = setInterval(() => {
       currentStep++;
-      const progress = Math.min((currentStep / steps) * 85, 85); // Cap at 85% until completion
+      const progress = Math.min((currentStep / steps) * 85, 85);
       
       setProcessingProgress(prev => ({
         ...prev,
@@ -253,7 +276,7 @@ const FileUploadSection: React.FC = () => {
 
         toast({
           title: "✅ File uploaded",
-          description: `${file.name} uploaded successfully. Starting AI processing...`,
+          description: `${file.name} uploaded successfully. Starting AI processing for preview...`,
         });
 
         // Process with AI after upload
@@ -469,7 +492,7 @@ const FileUploadSection: React.FC = () => {
             <p><strong>📁 Supported:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF</p>
             <p><strong>📏 Size limit:</strong> Up to {formatFileSize(maxFileSize)}</p>
             <p><strong>⚡ Processing:</strong> Smart timeout (3-8 minutes based on file size)</p>
-            <p><strong>🔄 Chunked processing:</strong> Handles large files efficiently</p>
+            <p><strong>🔄 Preview mode:</strong> Review before saving to collection</p>
           </div>
           <input
             type="file"
@@ -549,7 +572,7 @@ const FileUploadSection: React.FC = () => {
                     />
                     <p className="text-xs text-gray-600 break-words">
                       {processingProgress[upload.id] >= 70 
-                        ? '🧠 AI is generating flashcards...' 
+                        ? '🧠 AI is generating flashcards for preview...' 
                         : '📖 AI is analyzing content...'
                       }
                     </p>
@@ -560,7 +583,7 @@ const FileUploadSection: React.FC = () => {
                   <div className="flex items-center gap-2 text-green-600">
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />
                     <span className="text-xs sm:text-sm break-words">
-                      ✅ Generated {upload.generated_flashcards_count} flashcards
+                      ✅ Generated {upload.generated_flashcards_count} flashcards for preview
                     </span>
                   </div>
                 )}

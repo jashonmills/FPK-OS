@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -20,6 +19,7 @@ interface ProcessFileRequest {
   fileName: string;
   fileType: string;
   userId: string;
+  previewMode?: boolean; // New parameter to indicate preview mode
 }
 
 serve(async (req) => {
@@ -28,9 +28,9 @@ serve(async (req) => {
   }
 
   try {
-    const { uploadId, filePath, fileName, fileType, userId }: ProcessFileRequest = await req.json();
+    const { uploadId, filePath, fileName, fileType, userId, previewMode = true }: ProcessFileRequest = await req.json();
     
-    console.log('Processing file with enhanced timeout handling:', { uploadId, fileName, fileType });
+    console.log('Processing file for preview mode:', { uploadId, fileName, fileType, previewMode });
 
     // Update status to processing immediately
     await supabase
@@ -72,7 +72,7 @@ serve(async (req) => {
     console.log('Extracted text length:', textContent.length);
 
     // Chunk processing for very large content
-    const maxChunkSize = 3000; // Reduced chunk size for better processing
+    const maxChunkSize = 3000;
     let allFlashcards: any[] = [];
 
     if (textContent.length > maxChunkSize) {
@@ -80,69 +80,104 @@ serve(async (req) => {
       const chunks = chunkText(textContent, maxChunkSize);
       console.log(`Processing ${chunks.length} chunks`);
       
-      for (let i = 0; i < Math.min(chunks.length, 3); i++) { // Limit to 3 chunks max
+      for (let i = 0; i < Math.min(chunks.length, 3); i++) {
         try {
-          const chunkCards = await generateFlashcardsWithAI(chunks[i], `${fileName} (Part ${i+1})`, fileType, 4); // 4 cards per chunk
+          const chunkCards = await generateFlashcardsWithAI(chunks[i], `${fileName} (Part ${i+1})`, fileType, 4);
           allFlashcards.push(...chunkCards);
           
-          // Small delay between chunks to avoid rate limits
           if (i < chunks.length - 1) {
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
         } catch (error) {
           console.warn(`Failed to process chunk ${i+1}:`, error);
-          // Continue with other chunks
         }
       }
     } else {
-      // Process entire content
       allFlashcards = await generateFlashcardsWithAI(textContent, fileName, fileType);
     }
 
     console.log('Generated flashcards:', allFlashcards.length);
 
-    // Ensure we have at least some flashcards
     if (allFlashcards.length === 0) {
       allFlashcards = generateFallbackFlashcards(fileName, fileType);
     }
 
-    // Batch insert flashcards
-    const flashcardInserts = allFlashcards.map(card => ({
-      user_id: userId,
-      front_content: card.front,
-      back_content: card.back,
-      difficulty_level: card.difficulty || 1
-    }));
+    let savedFlashcards = null;
 
-    const { data: savedFlashcards, error: insertError } = await supabase
-      .from('flashcards')
-      .insert(flashcardInserts)
-      .select();
+    if (previewMode) {
+      // In preview mode, return the flashcards without saving to database
+      console.log('Preview mode: returning flashcards without saving to database');
+      
+      // Update upload record to completed with preview data
+      const { error: updateError } = await supabase
+        .from('file_uploads')
+        .update({
+          processing_status: 'completed',
+          generated_flashcards_count: allFlashcards.length,
+          error_message: null
+        })
+        .eq('id', uploadId);
 
-    if (insertError) {
-      console.error('Error inserting flashcards:', insertError);
-      throw new Error(`Failed to save flashcards: ${insertError.message}`);
-    }
+      if (updateError) {
+        console.error('Error updating upload record:', updateError);
+      }
 
-    // Update upload record with completion status
-    const { error: updateError } = await supabase
-      .from('file_uploads')
-      .update({
-        processing_status: 'completed',
-        generated_flashcards_count: savedFlashcards?.length || 0,
-        error_message: null
-      })
-      .eq('id', uploadId);
+      // Return flashcards for preview
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          flashcardsGenerated: allFlashcards.length,
+          flashcards: allFlashcards,
+          previewMode: true,
+          uploadId: uploadId,
+          fileName: fileName
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    } else {
+      // Legacy mode: save directly to database
+      const flashcardInserts = allFlashcards.map(card => ({
+        user_id: userId,
+        front_content: card.front,
+        back_content: card.back,
+        difficulty_level: card.difficulty || 1
+      }));
 
-    if (updateError) {
-      console.error('Error updating upload record:', updateError);
+      const { data: insertedCards, error: insertError } = await supabase
+        .from('flashcards')
+        .insert(flashcardInserts)
+        .select();
+
+      if (insertError) {
+        console.error('Error inserting flashcards:', insertError);
+        throw new Error(`Failed to save flashcards: ${insertError.message}`);
+      }
+
+      savedFlashcards = insertedCards;
+
+      // Update upload record with completion status
+      const { error: updateError } = await supabase
+        .from('file_uploads')
+        .update({
+          processing_status: 'completed',
+          generated_flashcards_count: savedFlashcards?.length || 0,
+          error_message: null
+        })
+        .eq('id', uploadId);
+
+      if (updateError) {
+        console.error('Error updating upload record:', updateError);
+      }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        flashcardsGenerated: savedFlashcards?.length || 0,
-        flashcards: savedFlashcards 
+        flashcardsGenerated: savedFlashcards?.length || allFlashcards.length,
+        flashcards: savedFlashcards || allFlashcards,
+        previewMode: previewMode
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -255,7 +290,7 @@ function generateEnhancedSampleContent(fileName: string, fileType: string): stri
 
 async function generateFlashcardsWithAI(textContent: string, fileName: string, fileType: string, targetCount?: number) {
   const contentLength = textContent.length;
-  let targetFlashcards = targetCount || 6; // Reduced default for faster processing
+  let targetFlashcards = targetCount || 6;
   
   if (contentLength > 1500) targetFlashcards = targetCount || 8;
   if (contentLength > 3000) targetFlashcards = targetCount || 10;
@@ -271,7 +306,7 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
     console.log('Calling OpenAI API...');
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -289,7 +324,7 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
           { role: 'user', content: prompt }
         ],
         temperature: 0.3,
-        max_tokens: 800 // Reduced for faster response
+        max_tokens: 800
       }),
       signal: controller.signal
     });

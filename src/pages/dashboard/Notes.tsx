@@ -6,6 +6,7 @@ import NotesSection from '@/components/notes/NotesSection';
 import FlashcardsSection from '@/components/notes/FlashcardsSection';
 import FileUploadSection from '@/components/notes/FileUploadSection';
 import ProgressSection from '@/components/notes/ProgressSection';
+import FlashcardPreviewModule from '@/components/notes/FlashcardPreviewModule';
 
 const Notes = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -26,6 +27,9 @@ const Notes = () => {
           <p>Practice with multiple study modes and track progress</p>
         </div>
       </div>
+
+      {/* Flashcard Preview Module - Always visible when there are preview cards */}
+      <FlashcardPreviewModule />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
