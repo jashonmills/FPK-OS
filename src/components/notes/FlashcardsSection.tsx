@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
-import { BookOpen, Brain, Play, Settings, Plus, FileText } from 'lucide-react';
+import { BookOpen, Brain, Play, Settings, Plus, FileText, Clock, Target } from 'lucide-react';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
@@ -15,6 +15,7 @@ const FlashcardsSection = () => {
   const { flashcards } = useFlashcards();
   const { sets } = useFlashcardSets();
   const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [selectedStudyMode, setSelectedStudyMode] = useState<'memory_test' | 'multiple_choice' | 'timed_challenge'>('memory_test');
 
   const totalCards = flashcards.length;
   const totalSets = sets.length;
@@ -23,17 +24,24 @@ const FlashcardsSection = () => {
     navigate('/dashboard/learner/flashcards');
   };
 
-  const handleStartStudy = () => {
+  const handleStartStudy = (mode: 'memory_test' | 'multiple_choice' | 'timed_challenge') => {
     if (totalCards === 0) {
       return;
     }
+    setSelectedStudyMode(mode);
     setShowSelectionModal(true);
   };
 
   const handleStudyConfirm = (selectedFlashcards: Flashcard[]) => {
     setShowSelectionModal(false);
-    // Navigate to study session with selected cards
-    navigate('/study/memory_test', { 
+    // Navigate to study session with selected cards based on mode
+    const routeMap = {
+      memory_test: '/study/memory-test',
+      multiple_choice: '/study/multiple-choice',
+      timed_challenge: '/study/timed-challenge'
+    };
+    
+    navigate(routeMap[selectedStudyMode], { 
       state: { flashcards: selectedFlashcards } 
     });
   };
@@ -81,21 +89,54 @@ const FlashcardsSection = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleStartStudy}
-              disabled={totalCards === 0}
-              className="flex items-center gap-2 flex-1"
-            >
-              <Play className="h-4 w-4" />
-              Start Study Session
-            </Button>
-            
+          {/* Study Mode Buttons */}
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">Choose Study Mode</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Button
+                onClick={() => handleStartStudy('memory_test')}
+                disabled={totalCards === 0}
+                className="flex flex-col items-center gap-2 h-auto py-3 bg-blue-600 hover:bg-blue-700"
+              >
+                <Brain className="h-5 w-5" />
+                <div className="text-center">
+                  <div className="font-medium">Memory Test</div>
+                  <div className="text-xs opacity-90">Flip & recall</div>
+                </div>
+              </Button>
+              
+              <Button
+                onClick={() => handleStartStudy('multiple_choice')}
+                disabled={totalCards === 0}
+                className="flex flex-col items-center gap-2 h-auto py-3 bg-green-600 hover:bg-green-700"
+              >
+                <Target className="h-5 w-5" />
+                <div className="text-center">
+                  <div className="font-medium">Multiple Choice</div>
+                  <div className="text-xs opacity-90">Pick the answer</div>
+                </div>
+              </Button>
+              
+              <Button
+                onClick={() => handleStartStudy('timed_challenge')}
+                disabled={totalCards === 0}
+                className="flex flex-col items-center gap-2 h-auto py-3 bg-orange-600 hover:bg-orange-700"
+              >
+                <Clock className="h-5 w-5" />
+                <div className="text-center">
+                  <div className="font-medium">Timed Challenge</div>
+                  <div className="text-xs opacity-90">Beat the clock</div>
+                </div>
+              </Button>
+            </div>
+          </div>
+
+          {/* Management Button */}
+          <div className="pt-2 border-t border-gray-100">
             <Button
               variant="outline"
               onClick={handleManageFlashcards}
-              className="flex items-center gap-2 flex-1"
+              className="w-full flex items-center gap-2"
             >
               <Settings className="h-4 w-4" />
               Manage Flashcards
@@ -143,7 +184,7 @@ const FlashcardsSection = () => {
         isOpen={showSelectionModal}
         onClose={() => setShowSelectionModal(false)}
         onConfirm={handleStudyConfirm}
-        studyMode="memory_test"
+        studyMode={selectedStudyMode}
       />
     </>
   );
