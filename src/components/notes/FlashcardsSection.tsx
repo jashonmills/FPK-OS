@@ -105,27 +105,27 @@ const FlashcardsSection: React.FC = () => {
         {/* Study Mode Selection */}
         <div>
           <h3 className="text-lg font-semibold mb-6 text-gray-800">Choose Your Study Mode</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
             {studyModes.map((mode) => (
-              <div key={mode.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-gray-300">
+              <div key={mode.id} className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 hover:shadow-lg transition-all duration-300 hover:border-gray-300">
                 {/* Icon and Title */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className={`p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
-                    <mode.icon className="h-6 w-6" />
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`p-2 lg:p-3 rounded-lg ${mode.color} text-white shadow-sm flex-shrink-0`}>
+                    <mode.icon className="h-5 w-5 lg:h-6 lg:w-6" />
                   </div>
-                  <h4 className="font-semibold text-lg text-gray-900">
+                  <h4 className="font-semibold text-base lg:text-lg text-gray-900">
                     {mode.title}
                   </h4>
                 </div>
                 
                 {/* Description */}
-                <p className="text-gray-600 text-sm mb-6 leading-relaxed min-h-[40px]">
+                <p className="text-gray-600 text-sm mb-4 lg:mb-6 leading-relaxed">
                   {mode.description}
                 </p>
                 
                 {/* Start Button */}
                 <Button
-                  className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-3 rounded-lg transition-colors duration-200`}
+                  className={`w-full ${mode.color} ${mode.hoverColor} text-white font-medium py-2 lg:py-3 rounded-lg transition-colors duration-200`}
                   onClick={() => handleStartStudyMode(mode.id)}
                   disabled={flashcards.length === 0 || isCreating}
                 >
@@ -155,9 +155,9 @@ const FlashcardsSection: React.FC = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {flashcards.slice(0, 4).map((card) => (
-                <div key={card.id} className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-sm transition-shadow duration-200">
+                <div key={card.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 lg:p-6 hover:shadow-sm transition-shadow duration-200">
                   <div className="space-y-4">
                     {/* Front Content */}
                     <div>
@@ -195,9 +195,9 @@ const FlashcardsSection: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-16">
+          <div className="text-center py-12 lg:py-16">
             <div className="mb-6">
-              <Brain className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+              <Brain className="h-12 w-12 lg:h-16 lg:w-16 mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No flashcards yet</h3>
               <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
                 Upload files or create notes to generate flashcards and start your learning journey!
