@@ -30,7 +30,7 @@ const FlashcardsSection: React.FC = () => {
 
   const handleFlashcardSelection = async (selectedFlashcards: Flashcard[]) => {
     try {
-      console.log('Starting study session with selected flashcards:', selectedFlashcards);
+      console.log('FlashcardsSection: Starting study session with selected flashcards:', selectedFlashcards.map(c => ({ id: c.id, front: c.front_content })));
       
       const session = await createSession({
         session_type: selectedStudyMode,
@@ -38,17 +38,29 @@ const FlashcardsSection: React.FC = () => {
         total_cards: selectedFlashcards.length
       });
 
-      console.log('Session created:', session);
+      console.log('FlashcardsSection: Session created successfully:', session);
+      console.log('FlashcardsSection: Navigating with state:', {
+        flashcards: selectedFlashcards.length,
+        sessionId: session.id,
+        sessionType: session.session_type
+      });
 
       const routeMode = selectedStudyMode.replace('_', '-');
-      navigate(`/study/${routeMode}`, { 
-        state: { 
-          flashcards: selectedFlashcards,
-          session
-        }
-      });
+      
+      // Add a small delay to ensure session is fully created
+      setTimeout(() => {
+        navigate(`/study/${routeMode}`, { 
+          state: { 
+            flashcards: selectedFlashcards,
+            session: session,
+            timestamp: Date.now() // Add timestamp to ensure fresh state
+          },
+          replace: true // Use replace to avoid back button issues
+        });
+      }, 100);
+      
     } catch (error) {
-      console.error('Error creating session:', error);
+      console.error('FlashcardsSection: Error creating session:', error);
       alert('Failed to start study session. Please try again.');
     } finally {
       setShowSelectionModal(false);
