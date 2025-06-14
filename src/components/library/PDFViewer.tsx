@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { reinitializeWorker } from '@/utils/pdfWorkerConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -70,7 +71,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const onDocumentLoadError = (error: Error) => {
+  const onDocumentLoadError = async (error: Error) => {
     console.error('❌ PDF loading error - Detailed info:', {
       errorName: error.name,
       errorMessage: error.message,
@@ -87,6 +88,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     
     if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
       errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
+      
+      // Try to reinitialize worker with fallback
+      console.log('🔄 Attempting worker reinitialize due to network error...');
+      const workerFixed = await reinitializeWorker();
+      if (workerFixed) {
+        errorMessage += " Worker was reinitialized, please try again.";
+      }
     } else if (error.message.includes('Invalid PDF') || error.message.includes('PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
     } else if (error.message.includes('CORS')) {
@@ -104,8 +112,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     console.log('🔄 Retrying PDF load for:', fileName);
+    
+    // Reinitialize worker before retry
+    const workerFixed = await reinitializeWorker();
+    console.log('🔧 Worker reinitialize result:', workerFixed);
+    
     setError(null);
     setIsLoading(true);
     setNumPages(0);
@@ -227,9 +240,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                   </div>
                 }
                 options={{
-                  cMapUrl: `https://unpkg.com/pdfjs-dist@4.4.168/cmaps/`,
+                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/cmaps/`,
                   cMapPacked: true,
-                  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@4.4.168/standard_fonts/`,
+                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/standard_fonts/`,
                 }}
               >
                 {numPages > 0 && (
