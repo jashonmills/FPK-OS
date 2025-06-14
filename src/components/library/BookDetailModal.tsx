@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -25,8 +24,9 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({ book, onClose }) => {
   const [imageError, setImageError] = useState(false);
   const [showReader, setShowReader] = useState(false);
 
-  const coverUrl = bookDetails?.covers?.[0] || book.cover_i
-    ? `https://covers.openlibrary.org/b/id/${bookDetails?.covers?.[0] || book.cover_i}-L.jpg`
+  // Prioritize curated cover (book.cover_i) over fetched cover (bookDetails?.covers?.[0])
+  const coverUrl = book.cover_i || bookDetails?.covers?.[0]
+    ? `https://covers.openlibrary.org/b/id/${book.cover_i || bookDetails?.covers?.[0]}-L.jpg`
     : null;
 
   const description = bookDetails?.description || book.description;
