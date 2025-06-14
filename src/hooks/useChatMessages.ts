@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -97,7 +98,7 @@ export const useChatMessages = (sessionId: string | null) => {
     }
   };
 
-  // Enhanced sendMessage with page context
+  // Enhanced sendMessage with improved context and metadata
   const sendMessage = async (content: string, context?: string) => {
     if (!sessionId || !user || isSending) return;
 
@@ -111,13 +112,18 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save user message');
       }
 
-      // Call enhanced AI function with comprehensive context
+      // Call enhanced AI function with comprehensive context and metadata
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
           userId: user.id,
           sessionId: sessionId,
-          pageContext: context
+          pageContext: context,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            sessionLength: messages.length
+          }
         }
       });
 
@@ -126,7 +132,7 @@ export const useChatMessages = (sessionId: string | null) => {
         throw error;
       }
 
-      const aiResponse = data?.response || "I'm here to guide your learning journey! 🌟";
+      const aiResponse = data?.response || "I'm here to guide your learning journey! 🌟 What would you like to explore together?";
       
       // Add AI response with enhanced formatting
       const assistantMessage = await addMessage(aiResponse, 'assistant');
@@ -134,17 +140,22 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save AI response');
       }
 
-      // Update session title if this is the first meaningful exchange
+      // Update session title and context tags for better organization
       if (messages.length <= 1) {
-        const title = content.length > 50 ? content.substring(0, 50) + '...' : content;
+        const title = content.length > 40 ? content.substring(0, 40) + '...' : content;
+        const contextTag = context?.includes('Notes') ? 'Study Notes' : 
+                         context?.includes('Coach') ? 'AI Coaching' : 
+                         context?.includes('Flashcard') ? 'Flashcard Help' : 
+                         content.toLowerCase().includes('quiz') ? 'Quiz Help' :
+                         content.toLowerCase().includes('strategy') ? 'Study Strategy' :
+                         'General Study Support';
+                         
         await supabase
           .from('chat_sessions')
           .update({ 
             title, 
             updated_at: new Date().toISOString(),
-            context_tag: context?.includes('Notes') ? 'Study Notes' : 
-                        context?.includes('Coach') ? 'AI Coaching' : 
-                        context?.includes('Flashcard') ? 'Flashcard Help' : 'Study Support'
+            context_tag: contextTag
           })
           .eq('id', sessionId);
       }
@@ -152,18 +163,18 @@ export const useChatMessages = (sessionId: string | null) => {
     } catch (error) {
       console.error('Error in enhanced sendMessage:', error);
       
-      // Enhanced fallback with context awareness
+      // Enhanced fallback responses based on context
       const contextualFallback = context?.includes('Notes') 
-        ? "I'm here to help with your notes and study materials! Try asking about study strategies or note-taking techniques."
+        ? "I'm here to help optimize your note-taking and study materials! 📚 Try asking about effective note-taking strategies or how to organize your study content."
         : context?.includes('Flashcard')
-        ? "I can help you optimize your flashcard study sessions! Ask me about spaced repetition or memory techniques."
-        : "I'm your AI learning coach! Ask me about study strategies, concepts, or how to improve your learning effectiveness.";
+        ? "I can help you maximize your flashcard study sessions! 🎯 Ask me about spaced repetition, memory techniques, or how to tackle challenging cards."
+        : "I'm your AI learning coach, ready to help! 🌟 Ask me about study strategies, specific concepts, or how to improve your learning effectiveness.";
         
       await addMessage(contextualFallback, 'assistant');
       
       toast({
         title: "AI Coach Ready",
-        description: "I'm here to help with your studies - just ask!",
+        description: "I'm here to support your learning journey!",
       });
     } finally {
       setIsSending(false);

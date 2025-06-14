@@ -14,39 +14,98 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced system prompt for FPK University AI Learning Coach
-const SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—an empathetic, conversational study buddy whose sole focus is helping learners achieve their educational goals. Follow these guidelines in every interaction:
+// Enhanced FPK University AI Learning Coach System Prompt
+const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—an empathetic, conversational study-buddy focused exclusively on helping learners succeed. Follow these rules in every interaction:
 
 1. Persona & Tone:
-   • Friendly, supportive, and lightly humorous—like a trusted tutor or peer.  
-   • Encourage progress: celebrate wins ("Great job!") and gently guide through challenges.  
+   • Warm, supportive, lightly humorous—like a trusted tutor or peer.  
+   • Celebrate wins ("Great job!") and gently guide through challenges.
+   • Use emojis sparingly—only for major wins (🎉✨) or key points (💡📚)
+   • Explain jargon when you use it, keep language accessible
 
 2. Dynamic Knowledge Retrieval:
-   • When asked about facts, definitions, or concepts outside the learner's current module, fetch up-to-date information from the integrated knowledge base or external educational APIs.  
-   • If no direct data is available, respond with "Let me find that for you…" then deliver a concise, accurate answer.  
+   • For factual or conceptual questions outside the current module, provide accurate, up-to-date information
+   • If uncertain about facts, say "Let me think about that..." then provide the best available answer
+   • Always cite when knowledge comes from outside the learner's current materials
 
 3. Scope & Boundaries:
-   • Answer any academic question—history, math, science, language, arts—always with an educational focus.  
-   • Politely decline non-educational or off-topic requests: "I'm here to help with your learning; let's stick to study or course questions."  
+   • Answer any academic question—history, science, math, languages, arts—always with educational focus
+   • Politely decline off-topic requests: "I'm here to help with your learning—let's stick to study or course questions."
+   • For weather, personal life, etc: redirect to academic topics
 
 4. Context Awareness & Memory:
-   • Remember the learner's current course, module, or flashcard set.  
-   • Tailor examples and suggestions to that context: "In Module 3 you learned X; here's how it applies…"  
+   • Remember the learner's current course, module, flashcard performance, and study patterns
+   • Tailor examples to their context: "In your Module 3 material, you learned X; here's how it connects..."
+   • Reference their specific data: accuracy rates, struggling topics, recent sessions
 
 5. Multi-Modal Guidance:
-   • Where relevant, point back to in-platform resources: flashcards, notes, video lectures, or external references.  
-   • Offer next steps: "Try reviewing flashcard set #5, or attempt a quick quiz on this topic."  
+   • Point to in-platform resources: "Try reviewing your flashcard set on [topic]" or "Check your notes on [subject]"
+   • Suggest actionable next steps: "Practice those 6 challenging flashcards" or "Take a quick quiz on this"
 
 6. Clarification & Fallback:
-   • If a question is vague, ask a clarifying question: "Would you like a brief overview or a deep dive with examples?"  
-   • If uncertain, admit it and offer to look up or suggest reliable resources.  
+   • For vague questions like "Tell me more" or "Explain that": Ask "Would you like a brief overview or detailed examples?"
+   • If topic is unclear: "Which specific aspect would you like me to focus on?"
+   • When uncertain: "I want to give you the most helpful answer—could you clarify what part you're most interested in?"
 
 7. Study Coaching & Strategy:
-   • Provide study tips, memory techniques, and personalized practice plans based on learner performance metrics (e.g., "You've struggled with X; focus on spaced repetition for that topic").  
+   • Provide evidence-based study tips: spaced repetition, active recall, interleaving
+   • Reference their performance data for personalized advice
+   • Suggest specific practice plans based on their weak areas
 
-Always deliver responses that are concise (1–3 paragraphs), actionable, and uplifting. Keep the conversation learner-centered, guiding them toward deeper understanding and confidence.`;
+Response Format:
+• Keep responses 1-3 paragraphs, concise and actionable
+• Start with acknowledgment of their progress when relevant
+• End with a specific next step or question to guide learning
+• Use encouraging language that builds confidence
 
-// Enhanced user context fetching with more detailed analytics
+Examples of good responses:
+- For off-topic: "I'm here to help with your learning—let's stick to study or course questions. What academic topic can I help you explore?"
+- For vague questions: "I'd love to help! Could you tell me which specific aspect you'd like me to focus on—a brief overview or detailed examples?"
+- For factual queries: "Great question! [Accurate answer with context]. This connects to your current studies because..."`;
+
+// Knowledge retrieval function for educational topics
+async function retrieveKnowledge(query: string, context: any) {
+  // For now, we'll enhance responses with educational context
+  // This could be expanded to connect to educational APIs or knowledge bases
+  const educationalKeywords = ['theory', 'history', 'science', 'math', 'literature', 'psychology', 'philosophy', 'economics'];
+  const isEducational = educationalKeywords.some(keyword => 
+    query.toLowerCase().includes(keyword) || context?.pageContext?.toLowerCase().includes(keyword)
+  );
+  
+  return {
+    isEducational,
+    needsRetrieval: isEducational && !context?.learningContext?.profile?.categories?.some((cat: string) => 
+      query.toLowerCase().includes(cat.toLowerCase())
+    )
+  };
+}
+
+// Detect if user needs clarification
+function needsClarification(message: string): boolean {
+  const vaguePatterns = [
+    /^(tell me more|explain that|more info|continue|what about|how about)$/i,
+    /^(that|this|it)$/i,
+    /^(explain|tell me|what)$/i
+  ];
+  
+  return vaguePatterns.some(pattern => pattern.test(message.trim())) || message.trim().length < 10;
+}
+
+// Detect off-topic requests
+function isOffTopic(message: string): boolean {
+  const offTopicPatterns = [
+    /weather|temperature|climate today/i,
+    /personal life|relationship|dating/i,
+    /entertainment|movies|tv shows|music/i,
+    /sports|games|gaming/i,
+    /politics|religion/i,
+    /shopping|buying|selling/i
+  ];
+  
+  return offTopicPatterns.some(pattern => pattern.test(message));
+}
+
+// Enhanced user context fetching with better organization
 async function getEnhancedLearningContext(userId: string) {
   try {
     console.log('Fetching enhanced learning context for user:', userId);
@@ -142,8 +201,8 @@ async function getEnhancedLearningContext(userId: string) {
   }
 }
 
-// Enhanced chat history with context tags
-async function getEnhancedChatHistory(sessionId: string, limit: number = 12) {
+// Enhanced chat history with better context
+async function getEnhancedChatHistory(sessionId: string, limit: number = 8) {
   try {
     const { data, error } = await supabase
       .from('chat_messages')
@@ -159,13 +218,6 @@ async function getEnhancedChatHistory(sessionId: string, limit: number = 12) {
     console.error('Error fetching enhanced chat history:', error);
     return [];
   }
-}
-
-// Knowledge retrieval function (placeholder for future external API integration)
-async function retrieveKnowledge(query: string, context: any) {
-  // This could integrate with educational APIs, Wikipedia, or other knowledge bases
-  // For now, we'll enhance the prompt with available context
-  return null;
 }
 
 serve(async (req) => {
@@ -187,18 +239,38 @@ serve(async (req) => {
       throw new Error('Message and user ID are required');
     }
 
+    // Check for off-topic requests first
+    if (isOffTopic(message)) {
+      return new Response(
+        JSON.stringify({ 
+          response: "I'm here to help with your learning—let's stick to study or course questions. What academic topic can I help you explore? 📚"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if clarification is needed
+    if (needsClarification(message)) {
+      return new Response(
+        JSON.stringify({ 
+          response: "I'd love to help! Could you tell me which specific aspect you'd like me to focus on—a brief overview or detailed examples with practice suggestions? 💡"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (!anthropicApiKey) {
-      const coachingResponses = [
-        "Great to see you're engaging with your studies! 🌟 While I'm getting my advanced coaching features ready, you can still make amazing progress with the flashcards and study sessions available.",
-        "I love your curiosity! 📚 Let's focus on building consistent study habits with the tools available - try creating some flashcards or taking a quick study session.",
-        "You're on the right track! 🎯 Consistent practice is key to learning success. Start with a short study session and I'll have better insights to share soon.",
-        "Keep that learning momentum going! 💪 Every question you ask shows you're thinking critically - that's the foundation of great learning.",
-        "Your dedication to learning is inspiring! ✨ Try reviewing some flashcards or creating notes, and I'll be able to provide more personalized guidance."
+      const contextualResponses = [
+        "Great to see you're engaging with your studies! 🌟 I'm analyzing your learning patterns to provide better guidance. Try some practice sessions and I'll have personalized insights ready!",
+        "I love your curiosity! 📚 Consistent practice with your flashcards will help me understand your learning style better. What specific topic would you like to explore?",
+        "You're on the right track! 🎯 Every question shows you're thinking critically. Let's focus on building your knowledge systematically—what subject interests you most?",
+        "Your dedication to learning is inspiring! ✨ While I'm optimizing my coaching algorithms, remember that active recall beats passive reading every time.",
+        "Keep that learning momentum going! 💪 The fact that you're here asking questions tells me you're serious about growth. What concept can I help clarify?"
       ];
       
       return new Response(
         JSON.stringify({ 
-          response: coachingResponses[Math.floor(Math.random() * coachingResponses.length)]
+          response: contextualResponses[Math.floor(Math.random() * contextualResponses.length)]
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -207,37 +279,39 @@ serve(async (req) => {
     // Get enhanced context and chat history
     const [learningContext, chatHistory] = await Promise.all([
       getEnhancedLearningContext(userId),
-      sessionId ? getEnhancedChatHistory(sessionId, 10) : Promise.resolve([])
+      sessionId ? getEnhancedChatHistory(sessionId, 6) : Promise.resolve([])
     ]);
 
-    // Build enhanced conversation context
+    // Check if knowledge retrieval is needed
+    const knowledgeCheck = await retrieveKnowledge(message, { learningContext, pageContext });
+
+    // Build conversation context
     let conversationContext = '';
     if (chatHistory.length > 0) {
       conversationContext = '\n\nRecent conversation:\n' + 
-        chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
+        chatHistory.slice(-4).map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
     }
 
     // Build comprehensive learning context
-    let contextPrompt = `\nLearner Profile: ${learningContext?.profile.name || 'Student'}`;
+    let contextPrompt = `\nCurrent learner: ${learningContext?.profile.name || 'Student'}`;
     
     if (learningContext && learningContext.performance.totalSessions > 0) {
       contextPrompt += `
-📊 Learning Analytics:
+📊 Learner's Progress Data:
 • Study Sessions: ${learningContext.performance.totalSessions} completed
 • Overall Accuracy: ${learningContext.performance.overallAccuracy}%
 • Recent Performance: ${learningContext.performance.recentAccuracy}% (${learningContext.performance.improvementTrend > 0 ? '+' : ''}${learningContext.performance.improvementTrend}% trend)
 • Current Streak: ${learningContext.performance.currentStreak} days
 • Study Frequency: ${learningContext.performance.studyFrequency} sessions/day
-• Total XP: ${learningContext.performance.totalXP}
 
-📚 Learning Resources:
-• Flashcards: ${learningContext.profile.totalCards} total, ${learningContext.profile.strugglingCards} need practice
+📚 Available Learning Resources:
+• Flashcards: ${learningContext.profile.totalCards} total, ${learningContext.profile.strugglingCards} need focused practice
 • Notes: ${learningContext.profile.totalNotes} created
-• Categories: ${learningContext.profile.categories.join(', ') || 'None yet'}
-• Folders: ${learningContext.profile.folders.join(', ') || 'None yet'}`;
+• Study Categories: ${learningContext.profile.categories.join(', ') || 'Getting started'}
+• Study Folders: ${learningContext.profile.folders.join(', ') || 'None yet'}`;
 
       if (learningContext.recentActivity.strugglingTopics.length > 0) {
-        contextPrompt += `\n\n🎯 Areas needing attention: ${learningContext.recentActivity.strugglingTopics.join(', ')}`;
+        contextPrompt += `\n\n🎯 Topics needing attention: ${learningContext.recentActivity.strugglingTopics.join(', ')}`;
       }
 
       if (learningContext.recentActivity.lastStudySession) {
@@ -248,31 +322,43 @@ serve(async (req) => {
       contextPrompt += `\n\n🌱 New learner - encourage them to start with flashcards or study sessions to build their learning profile.`;
     }
 
-    // Add page context if available
+    // Add page context
     if (pageContext) {
       contextPrompt += `\n\n📍 Current page: ${pageContext}`;
+      if (pageContext.includes('Notes')) {
+        contextPrompt += ` - Focus on note-taking strategies and study material organization`;
+      } else if (pageContext.includes('Flashcard')) {
+        contextPrompt += ` - Focus on flashcard optimization and memory techniques`;
+      } else if (pageContext.includes('Coach')) {
+        contextPrompt += ` - Provide comprehensive learning guidance and strategy`;
+      }
     }
 
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    // Enhanced coaching guidance
+    // Add knowledge retrieval context
+    if (knowledgeCheck.needsRetrieval) {
+      contextPrompt += `\n\n🔍 Note: This question may require factual knowledge outside the student's current materials. Provide accurate information and cite that it's supplementary educational content.`;
+    }
+
+    // Enhanced coaching guidance based on performance
     if (learningContext) {
-      if (learningContext.performance.improvementTrend > 10) {
-        contextPrompt += `\n\n🚀 Coaching note: Student is improving rapidly! Celebrate their progress and suggest increasing difficulty.`;
-      } else if (learningContext.performance.improvementTrend < -10) {
-        contextPrompt += `\n\n💡 Coaching note: Student may be struggling. Provide encouragement and suggest reviewing fundamentals.`;
+      if (learningContext.performance.improvementTrend > 15) {
+        contextPrompt += `\n\n🚀 Coaching note: Student is improving rapidly (+${learningContext.performance.improvementTrend}%)! Celebrate progress and suggest advancing to harder topics.`;
+      } else if (learningContext.performance.improvementTrend < -15) {
+        contextPrompt += `\n\n💡 Coaching note: Recent decline (${learningContext.performance.improvementTrend}%). Provide encouragement and suggest reviewing fundamentals before advancing.`;
       } else if (learningContext.performance.currentStreak > 7) {
-        contextPrompt += `\n\n⭐ Coaching note: Excellent consistency! Acknowledge their dedication and suggest advanced techniques.`;
+        contextPrompt += `\n\n⭐ Coaching note: Excellent ${learningContext.performance.currentStreak}-day streak! Acknowledge dedication and suggest advanced study techniques.`;
       } else if (learningContext.performance.studyFrequency < 0.5) {
-        contextPrompt += `\n\n📅 Coaching note: Low study frequency. Gently encourage more regular practice with achievable goals.`;
+        contextPrompt += `\n\n📅 Coaching note: Low study frequency (${learningContext.performance.studyFrequency}/day). Gently encourage more regular practice with achievable daily goals.`;
       }
     }
 
-    console.log('Calling enhanced Anthropic API...');
+    console.log('Calling enhanced Anthropic API with personalized context...');
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -285,11 +371,11 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           model: 'claude-3-5-haiku-20241022',
-          max_tokens: 300,
+          max_tokens: 350,
           messages: [
             {
               role: 'user',
-              content: SYSTEM_PROMPT + contextPrompt
+              content: ENHANCED_SYSTEM_PROMPT + contextPrompt
             }
           ]
         }),
@@ -303,7 +389,7 @@ serve(async (req) => {
       }
 
       const data = await response.json();
-      const aiResponse = data.content?.[0]?.text || "I'm here to guide your learning journey! 🌟";
+      const aiResponse = data.content?.[0]?.text || "I'm here to guide your learning journey! What would you like to explore together? 📚";
       
       console.log('Enhanced AI Coach response generated successfully');
 
@@ -320,17 +406,17 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in enhanced AI coach function:', error);
     
-    const contextualFallbacks = [
-      "I'm here to help you succeed! 🎯 Let's tackle this together - what specific topic or concept would you like to explore?",
-      "Learning is a journey, and I'm your guide! 📚 Try a quick study session and I'll analyze your progress to provide better insights.",
-      "Great question! 💭 While I'm processing your learning data, remember that consistent practice leads to mastery.",
-      "You're building something amazing with every study session! ⭐ Keep the momentum going and I'll provide personalized coaching soon.",
-      "I believe in your potential! 🌟 Every expert was once a beginner - let's focus on your next learning step."
+    const smartFallbacks = [
+      "I'm here to support your learning journey! 🎯 What specific concept or study challenge can I help you tackle?",
+      "Great to see you engaging with your studies! 📚 Try a quick practice session and I'll analyze your progress for personalized tips.",
+      "Learning is about consistent progress! 💭 What topic would you like to explore deeper, or do you need study strategy advice?",
+      "You're building expertise with every session! ⭐ Remember, understanding comes through practice—what can I help clarify today?",
+      "I believe in your learning potential! 🌟 Every question is a step forward. What subject or concept interests you most right now?"
     ];
     
     return new Response(
       JSON.stringify({ 
-        response: contextualFallbacks[Math.floor(Math.random() * contextualFallbacks.length)]
+        response: smartFallbacks[Math.floor(Math.random() * smartFallbacks.length)]
       }),
       {
         status: 200,
