@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, ArrowRight, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useXPIntegration } from '@/hooks/useXPIntegration';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface QuickReviewProps {
   flashcards?: any[];
@@ -14,11 +13,13 @@ interface QuickReviewProps {
 
 const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  const { awardChallengeCompletionXP } = useXPIntegration();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [reviewCards, setReviewCards] = useState<any[]>([]);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
   useEffect(() => {
     if (customCards && customCards.length > 0) {
@@ -32,6 +33,16 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
       console.log('📚 QuickReview: Using random cards:', 3);
     }
   }, [flashcards, customCards]);
+
+  // Track challenge start when cards are ready and first shown
+  useEffect(() => {
+    if (reviewCards.length > 0 && !completed && !hasTrackedStart) {
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      trackChallengeStart('quick_review', mode, reviewCards.length);
+      setStartTime(Date.now());
+      setHasTrackedStart(true);
+    }
+  }, [reviewCards, completed, hasTrackedStart, customCards, trackChallengeStart]);
 
   const handleNext = async () => {
     // Update review stats for current card
@@ -49,13 +60,18 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
       setShowAnswer(false);
     } else {
       setCompleted(true);
-      // Award XP for completing the review
-      try {
-        await awardChallengeCompletionXP('quick_review', reviewCards.length * 10);
-        console.log('✅ QuickReview: XP awarded for completion');
-      } catch (error) {
-        console.error('❌ QuickReview: Failed to award XP:', error);
-      }
+      
+      // Track completion
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 60;
+      await trackChallengeComplete(
+        'quick_review',
+        mode,
+        reviewCards.length,
+        reviewCards.length, // All cards are considered "correct" for quick review
+        timeTaken,
+        startTime
+      );
     }
   };
 
@@ -63,6 +79,9 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
+    setHasTrackedStart(false);
+    setStartTime(null);
+    
     // Re-select cards based on mode
     if (customCards && customCards.length > 0) {
       setReviewCards(customCards);

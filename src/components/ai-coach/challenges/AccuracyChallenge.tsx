@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useXPIntegration } from '@/hooks/useXPIntegration';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface AccuracyChallengeProps {
 
 const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  const { awardChallengeCompletionXP } = useXPIntegration();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -21,6 +21,8 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
   const [completed, setCompleted] = useState(false);
   const [challengeCards, setChallengeCards] = useState<any[]>([]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
   const targetAccuracy = 80;
 
@@ -59,6 +61,16 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     }
   }, [challengeCards, currentCard]);
 
+  // Track challenge start when cards are ready and first shown
+  useEffect(() => {
+    if (challengeCards.length > 0 && !completed && !hasTrackedStart) {
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      trackChallengeStart('accuracy_challenge', mode, challengeCards.length);
+      setStartTime(Date.now());
+      setHasTrackedStart(true);
+    }
+  }, [challengeCards, completed, hasTrackedStart, customCards, trackChallengeStart]);
+
   const generateMultipleChoiceOptions = () => {
     if (!challengeCards[currentCard] || !flashcards) return;
 
@@ -95,18 +107,27 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentCard < challengeCards.length - 1) {
       setCurrentCard(currentCard + 1);
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
       setCompleted(true);
-      // Award XP based on accuracy performance
-      const accuracy = Math.round((score.correct / score.total) * 100);
-      const baseScore = accuracy >= targetAccuracy ? 100 : 50;
-      awardChallengeCompletionXP('accuracy_challenge', baseScore).catch(console.error);
-      console.log('✅ AccuracyChallenge: XP awarded for completion, accuracy:', accuracy + '%');
+      
+      // Track completion with final score
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
+      const finalCorrect = score.correct + (selectedAnswer === challengeCards[currentCard].back_content ? 1 : 0);
+      
+      await trackChallengeComplete(
+        'accuracy_challenge',
+        mode,
+        challengeCards.length,
+        finalCorrect,
+        timeTaken,
+        startTime
+      );
     }
   };
 
@@ -116,6 +137,8 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     setShowResult(false);
     setScore({ correct: 0, total: 0 });
     setCompleted(false);
+    setHasTrackedStart(false);
+    setStartTime(null);
     
     // Regenerate challenge cards based on mode
     if (customCards && customCards.length > 0) {

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useXPIntegration } from '@/hooks/useXPIntegration';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface CustomPracticeProps {
   selectedCards: any[];
@@ -12,18 +12,31 @@ interface CustomPracticeProps {
 
 const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
   const { updateFlashcard } = useFlashcards();
-  const { awardChallengeCompletionXP } = useXPIntegration();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
   useEffect(() => {
     // Reset state when new cards are selected
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
+    setHasTrackedStart(false);
+    setStartTime(null);
     console.log('📋 CustomPractice: Cards selected:', selectedCards.length);
   }, [selectedCards]);
+
+  // Track challenge start when cards are ready and first shown
+  useEffect(() => {
+    if (selectedCards.length > 0 && !completed && !hasTrackedStart) {
+      trackChallengeStart('custom_practice', 'custom', selectedCards.length);
+      setStartTime(Date.now());
+      setHasTrackedStart(true);
+    }
+  }, [selectedCards, completed, hasTrackedStart, trackChallengeStart]);
 
   const handleNext = async () => {
     // Update review stats for current card
@@ -41,13 +54,17 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
       setShowAnswer(false);
     } else {
       setCompleted(true);
-      // Award XP for completing custom practice
-      try {
-        await awardChallengeCompletionXP('custom_practice', selectedCards.length * 5);
-        console.log('✅ CustomPractice: XP awarded for completion');
-      } catch (error) {
-        console.error('❌ CustomPractice: Failed to award XP:', error);
-      }
+      
+      // Track completion
+      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 60;
+      await trackChallengeComplete(
+        'custom_practice',
+        'custom',
+        selectedCards.length,
+        selectedCards.length, // All cards are considered "correct" for custom practice
+        timeTaken,
+        startTime
+      );
     }
   };
 
@@ -55,6 +72,8 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
+    setHasTrackedStart(false);
+    setStartTime(null);
   };
 
   if (selectedCards.length === 0) {

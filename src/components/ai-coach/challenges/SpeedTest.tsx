@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useXPIntegration } from '@/hooks/useXPIntegration';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface SpeedTestProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface SpeedTestProps {
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  const { awardChallengeCompletionXP } = useXPIntegration();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
@@ -22,6 +22,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const [answeredCards, setAnsweredCards] = useState(0);
   const [testCards, setTestCards] = useState<any[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
   useEffect(() => {
     if (customCards && customCards.length > 0) {
@@ -53,23 +54,43 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
       interval = setInterval(() => {
         setTimeLeft(timeLeft => timeLeft - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && isActive) {
       setCompleted(true);
       setIsActive(false);
-      // Award XP for time-based completion
-      const timeBonus = answeredCards * 10; // 10 XP per card answered
-      awardChallengeCompletionXP('speed_test', timeBonus).catch(console.error);
-      console.log('✅ SpeedTest: XP awarded for completion, cards answered:', answeredCards);
+      
+      // Track completion when time runs out
+      handleTimeUpCompletion();
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, completed, answeredCards, awardChallengeCompletionXP]);
+  }, [isActive, timeLeft, completed, answeredCards]);
+
+  const handleTimeUpCompletion = async () => {
+    const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
+    
+    await trackChallengeComplete(
+      'speed_test',
+      mode,
+      testCards.length,
+      answeredCards,
+      timeTaken,
+      startTime
+    );
+  };
 
   const startTest = () => {
     setIsActive(true);
     setStartTime(Date.now());
+    
+    // Track challenge start
+    if (!hasTrackedStart) {
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      trackChallengeStart('speed_test', mode, testCards.length);
+      setHasTrackedStart(true);
+    }
   };
 
   const handleShowAnswer = () => {
@@ -95,14 +116,19 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     } else {
       setCompleted(true);
       setIsActive(false);
-      // Award XP for completing all cards
-      const completionBonus = testCards.length * 15; // 15 XP per card completed
-      try {
-        await awardChallengeCompletionXP('speed_test', completionBonus);
-        console.log('✅ SpeedTest: XP awarded for full completion');
-      } catch (error) {
-        console.error('❌ SpeedTest: Failed to award XP:', error);
-      }
+      
+      // Track completion when all cards are answered
+      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : (120 - timeLeft);
+      
+      await trackChallengeComplete(
+        'speed_test',
+        mode,
+        testCards.length,
+        answeredCards + 1, // Include current card
+        timeTaken,
+        startTime
+      );
     }
   };
 
@@ -114,6 +140,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     setCompleted(false);
     setAnsweredCards(0);
     setStartTime(null);
+    setHasTrackedStart(false);
     
     // Select new cards based on mode
     if (customCards && customCards.length > 0) {
