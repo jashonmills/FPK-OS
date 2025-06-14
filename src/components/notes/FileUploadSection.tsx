@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,12 +20,19 @@ const FileUploadSection: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const channelRef = useRef<any>(null);
 
   // Set up real-time subscription for completion handling with unique channel name
   useEffect(() => {
     if (!user) return;
 
     console.log('🔄 Setting up enhanced real-time subscription for file uploads');
+
+    // Clean up existing channel if it exists
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
 
     // Use a unique channel name to avoid conflicts
     const channelName = `notes-file-uploads-${user.id}-${Date.now()}`;
@@ -138,11 +145,16 @@ const FileUploadSection: React.FC = () => {
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
       console.log('🔌 Cleaning up enhanced real-time subscription');
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [user, toast, addPreviewCards, completeStage, errorStage]);
+  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
   // Clean up timeouts on component unmount
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +17,7 @@ const FileUploadCard: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const channelRef = useRef<any>(null);
 
   // Enhanced file type support
   const allowedTypes = [
@@ -36,6 +37,12 @@ const FileUploadCard: React.FC = () => {
   // Set up real-time subscription with unique channel name
   useEffect(() => {
     if (!user) return;
+
+    // Clean up existing channel if it exists
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
 
     // Use a unique channel name to avoid conflicts with other file upload components
     const channelName = `ai-coach-file-uploads-${user.id}-${Date.now()}`;
@@ -102,10 +109,15 @@ const FileUploadCard: React.FC = () => {
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [user, toast]);
+  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
   // Clean up timeouts on component unmount
   useEffect(() => {
