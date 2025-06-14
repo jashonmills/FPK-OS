@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -90,13 +91,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     let errorMessage = "Failed to load PDF file.";
     
     if (error.message.includes('Setting up fake worker') || error.message.includes('worker')) {
-      errorMessage = "PDF worker configuration issue. Attempting to fix...";
+      errorMessage = "PDF worker configuration issue. Please try refreshing the page.";
       
       // Try to reinitialize worker
       console.log('🔄 Attempting worker reinitialize due to worker error...');
       const workerFixed = await reinitializeWorker();
       if (workerFixed) {
-        errorMessage += " Worker was reinitialized, please try again.";
+        errorMessage += " Worker was reinitialized, please retry.";
       }
     } else if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
       errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
@@ -158,25 +159,27 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
           <DialogTitle>PDF Viewer Error</DialogTitle>
-          <DialogDescription>
-            <div className="flex items-center justify-center p-8">
-              <div className="text-center space-y-4">
-                <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
-                <p className="text-destructive">{error}</p>
-                <div className="text-xs text-muted-foreground">
-                  <p>File: {fileName}</p>
-                  <p className="break-all">URL: {fileUrl.substring(0, 50)}...</p>
-                  <p>Worker: {getWorkerInfo().workerSrc?.substring(0, 50)}...</p>
-                </div>
-                <div className="space-x-2">
-                  <Button variant="outline" size="sm" onClick={handleRetry}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Retry
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={onClose}>
-                    <X className="h-4 w-4 mr-2" />
-                    Close
-                  </Button>
+          <DialogDescription asChild>
+            <div>
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center space-y-4">
+                  <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+                  <div className="text-destructive">{error}</div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>File: {fileName}</div>
+                    <div className="break-all">URL: {fileUrl.substring(0, 50)}...</div>
+                    <div>Worker: {getWorkerInfo().workerSrc?.substring(0, 50)}...</div>
+                  </div>
+                  <div className="space-x-2">
+                    <Button variant="outline" size="sm" onClick={handleRetry}>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={onClose}>
+                      <X className="h-4 w-4 mr-2" />
+                      Close
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -238,9 +241,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                     <div className="text-center space-y-4">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                       <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">Loading PDF...</p>
-                        <p className="text-xs text-muted-foreground">{fileName}</p>
-                        <p className="text-xs text-muted-foreground break-all">{fileUrl.substring(0, 50)}...</p>
+                        <div className="text-sm text-muted-foreground">Loading PDF...</div>
+                        <div className="text-xs text-muted-foreground">{fileName}</div>
+                        <div className="text-xs text-muted-foreground break-all">{fileUrl.substring(0, 50)}...</div>
                       </div>
                     </div>
                   </div>
