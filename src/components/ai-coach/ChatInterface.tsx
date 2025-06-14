@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       createNewSession();
     }
   }, [user]);
+
+  // Auto-read new AI messages
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      const lastMessage = chatHistory[chatHistory.length - 1];
+      if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
+        // Add a small delay to ensure the UI has updated
+        setTimeout(() => {
+          readAIMessage(lastMessage.message);
+        }, 500);
+      }
+    }
+  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead]);
 
   const createNewSession = async () => {
     if (!user) return;
@@ -491,8 +505,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
               </div>
             ))}
-            {/* Auto-read AI messages when they arrive */}
-            {chatHistory.length > 0 && (
+            {/* Only show thinking indicator when actually loading */}
+            {isLoading && (
               <div className="flex justify-start min-w-0">
                 <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg mr-2 sm:mr-4 min-w-0">
                   <div className="flex items-center gap-2">

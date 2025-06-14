@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Brain, Volume2 } from 'lucide-react';
@@ -27,7 +27,7 @@ const ChatMessagesPane = ({
   isSending, 
   messagesEndRef 
 }: ChatMessagesPaneProps) => {
-  const { speak, readAIMessage, isSupported: ttsSupported } = useTextToSpeech();
+  const { speak, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
 
   const formatTime = (timestamp: string) => {
@@ -36,16 +36,6 @@ const ChatMessagesPane = ({
       minute: '2-digit' 
     });
   };
-
-  // Auto-read new AI messages
-  useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
-        readAIMessage(lastMessage.content);
-      }
-    }
-  }, [messages, readAIMessage, settings.enabled, settings.autoRead]);
 
   const handleSpeakMessage = (content: string) => {
     if (ttsSupported && settings.enabled) {
