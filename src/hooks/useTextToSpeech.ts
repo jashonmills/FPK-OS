@@ -8,6 +8,7 @@ export const useTextToSpeech = () => {
   const { toast } = useToast();
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isCurrentlySpeaking = useRef(false);
+  const lastSpokenMessageRef = useRef<string>('');
 
   // Initialize voice on mount
   useEffect(() => {
@@ -20,6 +21,7 @@ export const useTextToSpeech = () => {
       console.log('🔊 Stopping current speech');
       window.speechSynthesis.cancel();
       isCurrentlySpeaking.current = false;
+      lastSpokenMessageRef.current = '';
     }
   }, [isSupported]);
 
@@ -27,26 +29,38 @@ export const useTextToSpeech = () => {
   const pauseSpeech = useCallback(() => {
     if (isSupported && window.speechSynthesis.speaking && !settings.paused) {
       console.log('🔊 Pausing speech');
+      window.speechSynthesis.pause();
       togglePaused();
     }
   }, [isSupported, settings.paused, togglePaused]);
 
   // Resume paused speech
   const resumeSpeech = useCallback(() => {
-    if (isSupported && window.speechSynthesis.speaking && settings.paused) {
+    if (isSupported && settings.paused) {
       console.log('🔊 Resuming speech');
+      window.speechSynthesis.resume();
       togglePaused();
     }
   }, [isSupported, settings.paused, togglePaused]);
 
   // Toggle pause/resume
   const togglePauseSpeech = useCallback(() => {
-    if (!isSupported || !window.speechSynthesis.speaking) {
+    if (!isSupported) {
+      console.log('🔊 Cannot toggle pause: speech synthesis not supported');
+      return;
+    }
+
+    if (!window.speechSynthesis.speaking) {
       console.log('🔊 Cannot toggle pause: nothing is speaking');
       return;
     }
-    togglePaused();
-  }, [isSupported, togglePaused]);
+
+    if (settings.paused) {
+      resumeSpeech();
+    } else {
+      pauseSpeech();
+    }
+  }, [isSupported, settings.paused, pauseSpeech, resumeSpeech]);
 
   // Speak the given text
   const speak = useCallback((text: string, options?: { interrupt?: boolean }) => {
@@ -62,6 +76,12 @@ export const useTextToSpeech = () => {
 
     if (!text.trim()) {
       console.log('🔊 Empty text, skipping speech');
+      return;
+    }
+
+    // Prevent speaking the same message multiple times
+    if (lastSpokenMessageRef.current === text && isCurrentlySpeaking.current) {
+      console.log('🔊 Already speaking this message, skipping');
       return;
     }
 
@@ -99,18 +119,29 @@ export const useTextToSpeech = () => {
       utterance.onstart = () => {
         console.log('🔊 Speech started');
         isCurrentlySpeaking.current = true;
+        lastSpokenMessageRef.current = text;
       };
 
       utterance.onend = () => {
         console.log('🔊 Speech ended');
         isCurrentlySpeaking.current = false;
         currentUtteranceRef.current = null;
+        lastSpokenMessageRef.current = '';
+      };
+
+      utterance.onpause = () => {
+        console.log('🔊 Speech paused');
+      };
+
+      utterance.onresume = () => {
+        console.log('🔊 Speech resumed');
       };
 
       utterance.onerror = (event) => {
         console.error('🔊 Speech synthesis error:', event.error);
         isCurrentlySpeaking.current = false;
         currentUtteranceRef.current = null;
+        lastSpokenMessageRef.current = '';
         
         if (event.error !== 'interrupted' && event.error !== 'canceled') {
           toast({
@@ -133,10 +164,16 @@ export const useTextToSpeech = () => {
     }
   }, [isSupported, settings, stopSpeech, toast]);
 
-  // Auto-read AI messages
+  // Auto-read AI messages with duplicate prevention
   const readAIMessage = useCallback((message: string) => {
     if (!settings.autoRead) {
       console.log('🔊 Auto-read disabled, skipping speech');
+      return;
+    }
+
+    // Prevent reading the same message multiple times
+    if (lastSpokenMessageRef.current === message) {
+      console.log('🔊 Message already spoken, skipping auto-read');
       return;
     }
     

@@ -34,7 +34,7 @@ export const useVoiceSettings = () => {
 
 export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<VoiceSettings>({
-    enabled: true, // Enable by default
+    enabled: true,
     autoRead: true,
     selectedVoice: null,
     rate: 1.0,
@@ -58,7 +58,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         if (isSupported && settings.enabled) {
           try {
             const testUtterance = new SpeechSynthesisUtterance('');
-            testUtterance.volume = 0; // Silent test
+            testUtterance.volume = 0;
             window.speechSynthesis.speak(testUtterance);
             console.log('🔊 Voice synthesis test successful');
           } catch (error) {
@@ -81,16 +81,19 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!isSupported) return;
 
-    const checkPauseState = () => {
+    const checkSpeechState = () => {
       if (!window.speechSynthesis.speaking) {
-        // If nothing is speaking, we're not paused
-        setSettings(prev => ({ ...prev, paused: false }));
+        // If nothing is speaking, reset pause state
+        if (settings.paused) {
+          console.log('🔊 Speech ended, resetting pause state');
+          setSettings(prev => ({ ...prev, paused: false }));
+        }
       }
     };
 
-    const interval = setInterval(checkPauseState, 500);
+    const interval = setInterval(checkSpeechState, 500);
     return () => clearInterval(interval);
-  }, [isSupported]);
+  }, [isSupported, settings.paused]);
 
   // Load voices when they become available
   useEffect(() => {
@@ -114,15 +117,12 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    // Load voices immediately
     loadVoices();
     
-    // Also load when voices change (some browsers load them asynchronously)
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
-    // Force voice loading in some browsers
     if (availableVoices.length === 0) {
       const utterance = new SpeechSynthesisUtterance('');
       utterance.volume = 0;
@@ -138,7 +138,6 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     try {
-      // Ensure voices are loaded
       if (availableVoices.length === 0) {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length > 0) {
@@ -160,7 +159,6 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     const newEnabled = !settings.enabled;
     console.log('🔊 Voice toggled:', newEnabled ? 'enabled' : 'disabled');
     
-    // If disabling voice, cancel any current speech
     if (!newEnabled && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
     }
@@ -169,20 +167,8 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const togglePaused = () => {
-    if (!isSupported || !window.speechSynthesis.speaking) {
-      console.log('🔊 Cannot pause/resume: nothing is speaking');
-      return;
-    }
-
     const newPaused = !settings.paused;
-    console.log('🔊 Speech', newPaused ? 'paused' : 'resumed');
-    
-    if (newPaused) {
-      window.speechSynthesis.pause();
-    } else {
-      window.speechSynthesis.resume();
-    }
-    
+    console.log('🔊 Pause state toggled to:', newPaused);
     setSettings(prev => ({ ...prev, paused: newPaused }));
   };
 

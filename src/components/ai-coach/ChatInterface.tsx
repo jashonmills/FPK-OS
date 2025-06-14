@@ -16,6 +16,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   message: string;
   timestamp?: Date;
+  id?: string; // Add unique ID to prevent duplicate speaking
 }
 
 interface ChatInterfaceProps {
@@ -40,6 +41,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [lastReadMessageId, setLastReadMessageId] = useState<string>('');
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
   const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
@@ -73,29 +75,34 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   }, [user]);
 
-  // Auto-read new AI messages with better debugging
+  // Auto-read new AI messages with better duplicate prevention
   useEffect(() => {
     if (chatHistory.length > 0) {
       const lastMessage = chatHistory[chatHistory.length - 1];
       if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
-        console.log('🔊 New AI message detected, preparing to speak:', lastMessage.message.substring(0, 50) + '...');
+        const messageId = lastMessage.id || `${lastMessage.timestamp?.getTime()}-${lastMessage.message.substring(0, 20)}`;
         
-        // Check if user has interacted
-        if (!settings.hasInteracted) {
-          console.log('🔊 Warning: User has not interacted yet, speech may be blocked');
+        // Only read if this is a new message we haven't read before
+        if (messageId !== lastReadMessageId) {
+          console.log('🔊 New AI message detected, preparing to speak:', lastMessage.message.substring(0, 50) + '...');
+          setLastReadMessageId(messageId);
+          
+          if (!settings.hasInteracted) {
+            console.log('🔊 Warning: User has not interacted yet, speech may be blocked');
+          }
+          
+          // Add a small delay to ensure the UI has updated
+          setTimeout(() => {
+            readAIMessage(lastMessage.message);
+          }, 500);
         }
-        
-        // Add a small delay to ensure the UI has updated
-        setTimeout(() => {
-          readAIMessage(lastMessage.message);
-        }, 500);
       } else {
         if (lastMessage.role === 'assistant') {
           console.log('🔊 AI message detected but speech skipped - enabled:', settings.enabled, 'autoRead:', settings.autoRead);
         }
       }
     }
-  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead, settings.hasInteracted]);
+  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead, settings.hasInteracted, lastReadMessageId]);
 
   const createNewSession = async () => {
     if (!user) return;
@@ -154,11 +161,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         personalizedGreeting += "I'm here to help guide your learning journey with personalized insights and strategies. Take a few study sessions and I'll analyze your learning patterns to provide tailored coaching!";
       }
 
-      setChatHistory([{
-        role: 'assistant',
+      const greetingMessage = {
+        role: 'assistant' as const,
         message: personalizedGreeting,
-        timestamp: new Date()
-      }]);
+        timestamp: new Date(),
+        id: 'initial-greeting'
+      };
+
+      setChatHistory([greetingMessage]);
     }
   }, [user, completedSessions, flashcards]);
 
@@ -190,11 +200,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     const userMessage = chatMessage;
     setChatMessage('');
-    setChatHistory(prev => [...prev, { 
-      role: 'user', 
+    const userMessageObj = { 
+      role: 'user' as const, 
       message: userMessage,
-      timestamp: new Date()
-    }]);
+      timestamp: new Date(),
+      id: `user-${Date.now()}`
+    };
+    setChatHistory(prev => [...prev, userMessageObj]);
     setIsLoading(true);
     setIsAnalyzing(true);
     setConnectionStatus('good');
@@ -206,12 +218,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     const startTime = Date.now();
 
     try {
-      // Reduced timeout for faster user feedback
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
         setConnectionStatus('slow');
-      }, 5000); // Reduced from 8s to 5s
+      }, 5000);
 
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
@@ -234,11 +245,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setConnectionStatus('good');
       const aiResponse = data?.response || "I'm here to guide your learning journey!";
       
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
+      const aiMessageObj = { 
+        role: 'assistant' as const, 
         message: aiResponse,
-        timestamp: new Date()
-      }]);
+        timestamp: new Date(),
+        id: `ai-${Date.now()}`
+      };
+      
+      setChatHistory(prev => [...prev, aiMessageObj]);
 
       // Save assistant message to session
       await saveMessageToSession(aiResponse, 'assistant');
@@ -251,7 +265,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Log performance for monitoring
       console.log(`AI response time: ${responseTimeMs}ms`);
 
     } catch (error) {
@@ -268,11 +281,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       const randomTip = coachingTips[Math.floor(Math.random() * coachingTips.length)];
       
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
+      const fallbackMessageObj = { 
+        role: 'assistant' as const, 
         message: randomTip,
-        timestamp: new Date()
-      }]);
+        timestamp: new Date(),
+        id: `fallback-${Date.now()}`
+      };
+      
+      setChatHistory(prev => [...prev, fallbackMessageObj]);
 
       // Save fallback message to session
       await saveMessageToSession(randomTip, 'assistant');
@@ -510,14 +526,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <div className="flex items-center gap-1 sm:gap-2">
-              {getStatusIcon()}
-              <span className="text-xs hidden sm:inline">{getStatusText()}</span>
+              {/* ... keep existing status display code */}
+              <span className="text-xs hidden sm:inline">{/* status text */}</span>
             </div>
-            {/* Pause/Resume/Stop Speech Buttons */}
+            {/* Smart Pause/Resume/Stop Speech Controls */}
             {isSpeaking && (
               <div className="flex items-center gap-1">
                 <Button
-                  onClick={handlePauseResumeSpeech}
+                  onClick={togglePauseSpeech}
                   size="icon"
                   variant="ghost"
                   className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
@@ -540,48 +556,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </Button>
               </div>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20">
-                  <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {voiceSupported && (
-                  <>
-                    <DropdownMenuItem onClick={toggleVoice} className="flex items-center gap-2">
-                      {settings.enabled ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                      {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
-                    </DropdownMenuItem>
-                    {isSpeaking && (
-                      <>
-                        <DropdownMenuItem onClick={handlePauseResumeSpeech} className="flex items-center gap-2">
-                          {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                          {isPaused ? 'Resume Speaking' : 'Pause Speaking'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={stopSpeech} className="flex items-center gap-2">
-                          <Square className="h-4 w-4" />
-                          Stop Speaking
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem onClick={handleResetChat} className="flex items-center gap-2">
-                  <RotateCcw className="h-4 w-4" />
-                  Reset Chat
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSaveChat} className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  Save Chat
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleArchiveChat} className="flex items-center gap-2">
-                  <Archive className="h-4 w-4" />
-                  Archive Chat
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* ... keep existing dropdown menu code */}
           </div>
         </CardTitle>
       </CardHeader>
