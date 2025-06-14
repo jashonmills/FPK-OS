@@ -59,23 +59,23 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
       </CardHeader>
       <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
         {/* Challenge Container - Responsive Grid */}
-        <div className="challenge-container grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="challenge-container grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Challenge List */}
           <div className="challenge-list space-y-2 sm:space-y-3 lg:col-span-1">
             {enhancedChallenges.map((challenge) => (
               <Button 
                 key={challenge.id}
                 variant={activeChallenge === challenge.id ? "default" : "outline"} 
-                className={`w-full justify-start text-left h-auto p-2 sm:p-3 transition-all duration-200 ${
+                className={`w-full justify-start text-left h-auto py-3 px-3 sm:py-4 sm:px-4 transition-all duration-200 ${
                   activeChallenge === challenge.id 
                     ? 'ring-2 ring-primary ring-offset-2 bg-primary text-primary-foreground' 
                     : 'hover:bg-accent hover:text-accent-foreground'
                 }`}
                 onClick={challenge.action}
               >
-                <div className="flex items-start gap-2 w-full min-w-0">
-                  <challenge.icon className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm leading-tight break-words hyphens-auto text-left flex-1">
+                <div className="flex items-start gap-3 w-full min-w-0">
+                  <challenge.icon className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm sm:text-base leading-relaxed text-left flex-1 whitespace-normal">
                     {challenge.text}
                   </span>
                 </div>
