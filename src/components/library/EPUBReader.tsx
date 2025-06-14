@@ -26,6 +26,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     isLoading,
     error,
     loadingStep,
+    loadingProgress,
     toc,
     initializeRendition,
     handleRetry,
@@ -73,6 +74,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               isLoading={isLoading}
               error={error}
               loadingStep={loadingStep}
+              loadingProgress={loadingProgress}
               readerRef={readerRef}
               onRetry={handleRetry}
               onClose={onClose}
