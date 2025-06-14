@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 
 interface EPUBReaderProps {
@@ -33,7 +34,9 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
   const [fontSize, setFontSize] = useState(16);
   const [showTOC, setShowTOC] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('');
+  const [toc, setToc] = useState<any[]>([]);
   const epubRef = useRef<any>(null);
+  const renditionRef = useRef<any>(null);
 
   useEffect(() => {
     loadEPUB();
@@ -50,68 +53,91 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       setIsLoading(true);
       setError(null);
 
-      // For now, show a placeholder reader since we don't have real EPUB files
-      // In a real implementation, this would use epub.js:
-      /*
+      console.log('📖 Loading EPUB for:', book.title);
+
+      // Dynamic import of epub.js
       const ePub = (await import('epubjs')).default;
-      const epubBook = ePub(book.epub_url);
+      
+      // Create proxy URL for CORS handling
+      const proxyUrl = `/api/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
+      
+      // Create EPUB book instance
+      const epubBook = ePub(proxyUrl);
       epubRef.current = epubBook;
-      
-      const rendition = epubBook.renderTo(readerRef.current!, {
-        width: '100%',
-        height: '100%',
-        flow: 'paginated'
-      });
-      
-      await rendition.display();
-      */
-      
-      // Placeholder content
+
+      // Wait for book to be ready
+      await epubBook.ready;
+
+      // Load navigation/TOC
+      await epubBook.loaded.navigation;
+      setToc(epubBook.navigation.toc || []);
+
       if (readerRef.current) {
-        readerRef.current.innerHTML = `
-          <div class="p-8 max-w-4xl mx-auto">
-            <h1 class="text-2xl font-bold mb-4">${book.title}</h1>
-            <p class="text-lg text-muted-foreground mb-6">by ${book.author}</p>
-            <div class="prose prose-lg">
-              <p>This is a preview of the EPUB reader. In a full implementation, this would display the actual book content using EPUB.js.</p>
-              <p>${book.description || 'No description available.'}</p>
-              <p>This book covers topics related to: ${book.subjects.join(', ')}</p>
-              <p>The reader would provide full navigation, text reflow, and accessibility features for a complete reading experience.</p>
-            </div>
-          </div>
-        `;
+        // Create rendition
+        const rendition = epubBook.renderTo(readerRef.current, {
+          width: '100%',
+          height: '100%',
+          flow: 'paginated',
+          spread: 'none'
+        });
+        renditionRef.current = rendition;
+
+        // Set initial font size
+        rendition.themes.fontSize(`${fontSize}px`);
+
+        // Display first page
+        await rendition.display();
+
+        // Track location changes
+        rendition.on('relocated', (location: any) => {
+          setCurrentLocation(location.start.cfi);
+        });
+
+        console.log('✅ EPUB loaded successfully');
       }
-      
+
       setIsLoading(false);
     } catch (err) {
+      console.error('❌ Error loading EPUB:', err);
       setError(err instanceof Error ? err.message : 'Failed to load EPUB');
       setIsLoading(false);
     }
   };
 
   const handlePrevPage = () => {
-    // In real implementation: epubRef.current?.rendition.prev()
-    console.log('Previous page');
+    if (renditionRef.current) {
+      renditionRef.current.prev();
+    }
   };
 
   const handleNextPage = () => {
-    // In real implementation: epubRef.current?.rendition.next()
-    console.log('Next page');
+    if (renditionRef.current) {
+      renditionRef.current.next();
+    }
   };
 
   const handleFontSizeChange = (delta: number) => {
     const newSize = Math.max(12, Math.min(24, fontSize + delta));
     setFontSize(newSize);
     
-    // In real implementation: update rendition font size
-    if (readerRef.current) {
-      readerRef.current.style.fontSize = `${newSize}px`;
+    if (renditionRef.current) {
+      renditionRef.current.themes.fontSize(`${newSize}px`);
+    }
+  };
+
+  const handleTOCItemClick = (href: string) => {
+    if (renditionRef.current) {
+      renditionRef.current.display(href);
+      setShowTOC(false);
     }
   };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
+        <DialogDescription className="sr-only">
+          EPUB reader for {book.title} by {book.author}
+        </DialogDescription>
         <div className="flex flex-col h-full">
           {/* Header */}
           <DialogHeader className="flex-shrink-0 p-4 border-b">
@@ -150,17 +176,23 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-background">
-                <div className="text-center">
+                <div className="text-center max-w-md p-6">
                   <p className="text-destructive mb-4">Error loading book: {error}</p>
-                  <Button onClick={loadEPUB}>Try Again</Button>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    This is likely due to CORS restrictions with Project Gutenberg URLs. 
+                    The EPUB proxy function needs to be deployed to handle this.
+                  </p>
+                  <div className="space-x-2">
+                    <Button onClick={loadEPUB} variant="outline">Try Again</Button>
+                    <Button onClick={onClose}>Close</Button>
+                  </div>
                 </div>
               </div>
             )}
 
             <div
               ref={readerRef}
-              className={`w-full h-full overflow-auto ${getAccessibilityClasses('container')}`}
-              style={{ fontSize: `${fontSize}px` }}
+              className={`w-full h-full ${getAccessibilityClasses('container')}`}
             />
           </div>
 
@@ -173,11 +205,11 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               </Button>
               
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={handlePrevPage}>
+                <Button variant="outline" onClick={handlePrevPage} disabled={isLoading || !!error}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Button>
-                <Button variant="outline" onClick={handleNextPage}>
+                <Button variant="outline" onClick={handleNextPage} disabled={isLoading || !!error}>
                   Next
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
@@ -193,10 +225,22 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               <DialogHeader>
                 <DialogTitle>Table of Contents</DialogTitle>
               </DialogHeader>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Table of contents would be populated from EPUB metadata in a full implementation.
-                </p>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {toc.length > 0 ? (
+                  toc.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTOCItemClick(item.href)}
+                      className="block w-full text-left p-2 hover:bg-muted rounded"
+                    >
+                      <span className="text-sm">{item.label}</span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No table of contents available for this book.
+                  </p>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -207,3 +251,4 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 };
 
 export default EPUBReader;
+
