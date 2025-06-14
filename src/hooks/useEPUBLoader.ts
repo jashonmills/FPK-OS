@@ -65,7 +65,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
 
       // Wait for book to be ready with a longer timeout
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Book loading timed out after 30 seconds')), 30000)
+        setTimeout(() => reject(new Error('Book loading timed out after 40 seconds')), 40000)
       );
 
       await Promise.race([epubBook.ready, timeoutPromise]);
@@ -91,15 +91,19 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       console.error('❌ Error loading EPUB:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
       
-      // Provide more specific error messages
+      // Provide more specific error messages based on the error
       if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
         setError('The book is taking too long to download. This may be due to the book size or network conditions. Please try again.');
-      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('Could not connect')) {
         setError('Could not download the book file. Please check your internet connection and try again.');
       } else if (errorMessage.includes('CORS')) {
         setError('There was a network configuration issue. Please try again.');
       } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
         setError('The book file could not be found. This book may not be available in EPUB format.');
+      } else if (errorMessage.includes('502') || errorMessage.includes('504') || errorMessage.includes('service')) {
+        setError('The book loading service is temporarily unavailable. Please try again in a few moments.');
+      } else if (errorMessage.includes('Access denied') || errorMessage.includes('403')) {
+        setError('Access to this book was denied. The book may not be publicly available.');
       } else {
         setError(`Unable to load "${book.title}": ${errorMessage}`);
       }
