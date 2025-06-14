@@ -8,6 +8,7 @@ import { Users, BookOpen, Upload, Settings, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PopulateApprovedBooks from '@/components/admin/PopulateApprovedBooks';
 import CommunityBooksApproval from '@/components/admin/CommunityBooksApproval';
+import XPBackfillAdmin from '@/components/admin/XPBackfillAdmin';
 
 const AdminDashboard = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -84,6 +85,15 @@ const AdminDashboard = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* XP System Initialization */}
+        <div className="space-y-6">
+          <h2 className={`text-2xl font-semibold ${getAccessibilityClasses('text')}`}>
+            System Initialization
+          </h2>
+          
+          <XPBackfillAdmin />
         </div>
 
         {/* Library Management Section */}
