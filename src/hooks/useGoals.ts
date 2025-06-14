@@ -19,19 +19,25 @@ export const useGoals = () => {
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
   const channelRef = useRef<any>(null);
+  const isSubscribedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !isSubscribedRef.current) {
       loadGoals();
       
       // Clean up any existing channel before creating a new one
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
+        try {
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.log('Error removing previous goals channel:', error);
+        }
         channelRef.current = null;
+        isSubscribedRef.current = false;
       }
 
       // Create a unique channel for goals
-      const channelName = `goals-changes-${user.id}`;
+      const channelName = `goals-changes-${user.id}-${Date.now()}`;
       const channel = supabase.channel(channelName);
 
       channel.on(
@@ -50,14 +56,24 @@ export const useGoals = () => {
 
       channel.subscribe((status) => {
         console.log('Goals channel subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          isSubscribedRef.current = true;
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          isSubscribedRef.current = false;
+        }
       });
 
       channelRef.current = channel;
 
       return () => {
-        if (channelRef.current) {
-          supabase.removeChannel(channelRef.current);
+        if (channelRef.current && isSubscribedRef.current) {
+          try {
+            supabase.removeChannel(channelRef.current);
+          } catch (error) {
+            console.log('Error removing goals channel on cleanup:', error);
+          }
           channelRef.current = null;
+          isSubscribedRef.current = false;
         }
       };
     }

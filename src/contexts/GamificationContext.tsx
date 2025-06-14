@@ -25,6 +25,7 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { userStats, fetchUserStats, isLoading } = useGamification();
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
   const channelRef = useRef<any>(null);
+  const isSubscribedRef = useRef<boolean>(false);
 
   const refreshStats = async () => {
     await fetchUserStats();
@@ -32,15 +33,20 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && !isSubscribedRef.current) {
       // Clean up any existing channel before creating a new one
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
+        try {
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.log('Error removing previous channel:', error);
+        }
         channelRef.current = null;
+        isSubscribedRef.current = false;
       }
 
       // Create a single channel with a unique name to prevent conflicts
-      const channelName = `gamification-updates-${user.id}`;
+      const channelName = `gamification-updates-${user.id}-${Date.now()}`;
       const channel = supabase.channel(channelName);
 
       // Configure all the real-time listeners
@@ -98,18 +104,28 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           }
         );
 
-      // Subscribe to the channel
+      // Subscribe to the channel only once
       channel.subscribe((status) => {
         console.log('Gamification channel subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          isSubscribedRef.current = true;
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          isSubscribedRef.current = false;
+        }
       });
 
       // Store the channel reference for cleanup
       channelRef.current = channel;
 
       return () => {
-        if (channelRef.current) {
-          supabase.removeChannel(channelRef.current);
+        if (channelRef.current && isSubscribedRef.current) {
+          try {
+            supabase.removeChannel(channelRef.current);
+          } catch (error) {
+            console.log('Error removing channel on cleanup:', error);
+          }
           channelRef.current = null;
+          isSubscribedRef.current = false;
         }
       };
     }
