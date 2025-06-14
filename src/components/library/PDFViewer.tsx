@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { reinitializeWorker } from '@/utils/pdfWorkerConfig';
+import { reinitializeWorker, getWorkerInfo } from '@/utils/pdfWorkerConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -30,7 +30,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       fileUrl,
       urlLength: fileUrl.length,
       isValidUrl: /^https?:\/\//.test(fileUrl),
-      domain: fileUrl.split('/')[2] || 'no domain'
+      domain: fileUrl.split('/')[2] || 'no domain',
+      workerInfo: getWorkerInfo()
     });
 
     // Test if URL is accessible
@@ -58,7 +59,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     console.log('✅ PDF loaded successfully:', { 
       numPages, 
       fileName, 
-      fileUrl: fileUrl.substring(0, 100) + '...'
+      fileUrl: fileUrl.substring(0, 100) + '...',
+      workerInfo: getWorkerInfo()
     });
     
     setNumPages(numPages);
@@ -79,22 +81,25 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       fileName,
       fileUrl: fileUrl.substring(0, 100) + '...',
       userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      workerInfo: getWorkerInfo()
     });
     
     setIsLoading(false);
     
     let errorMessage = "Failed to load PDF file.";
     
-    if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
-      errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
+    if (error.message.includes('Setting up fake worker') || error.message.includes('worker')) {
+      errorMessage = "PDF worker configuration issue. Attempting to fix...";
       
-      // Try to reinitialize worker with fallback
-      console.log('🔄 Attempting worker reinitialize due to network error...');
+      // Try to reinitialize worker
+      console.log('🔄 Attempting worker reinitialize due to worker error...');
       const workerFixed = await reinitializeWorker();
       if (workerFixed) {
         errorMessage += " Worker was reinitialized, please try again.";
       }
+    } else if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
+      errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
     } else if (error.message.includes('Invalid PDF') || error.message.includes('PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
     } else if (error.message.includes('CORS')) {
@@ -161,6 +166,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                 <div className="text-xs text-muted-foreground">
                   <p>File: {fileName}</p>
                   <p className="break-all">URL: {fileUrl.substring(0, 50)}...</p>
+                  <p>Worker: {getWorkerInfo().workerSrc?.substring(0, 50)}...</p>
                 </div>
                 <div className="space-x-2">
                   <Button variant="outline" size="sm" onClick={handleRetry}>
@@ -240,9 +246,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                   </div>
                 }
                 options={{
-                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
+                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/cmaps/`,
                   cMapPacked: true,
-                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/standard_fonts/`,
                 }}
               >
                 {numPages > 0 && (
