@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import LibraryHero from '@/components/library/LibraryHero';
 import CuratedBooksSection from '@/components/library/CuratedBooksSection';
 import LibrarySearchSection from '@/components/library/LibrarySearchSection';
 import BookDetailModal from '@/components/library/BookDetailModal';
+import PublicDomainBooksSection from '@/components/library/PublicDomainBooksSection';
 import { Book } from '@/types/library';
 
 const Library = () => {
@@ -24,6 +24,7 @@ const Library = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
         <LibraryHero />
         <CuratedBooksSection onBookSelect={handleBookSelect} />
+        <PublicDomainBooksSection />
         <LibrarySearchSection onBookSelect={handleBookSelect} />
         
         {selectedBook && (
