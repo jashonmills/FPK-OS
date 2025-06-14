@@ -58,8 +58,8 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       // Dynamic import of epub.js
       const ePub = (await import('epubjs')).default;
       
-      // Create proxy URL for CORS handling
-      const proxyUrl = `/api/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
+      // Create proxy URL for CORS handling using our Supabase edge function
+      const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
       
       // Create EPUB book instance
       const epubBook = ePub(proxyUrl);
@@ -179,8 +179,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
                 <div className="text-center max-w-md p-6">
                   <p className="text-destructive mb-4">Error loading book: {error}</p>
                   <p className="text-sm text-muted-foreground mb-4">
-                    This is likely due to CORS restrictions with Project Gutenberg URLs. 
-                    The EPUB proxy function needs to be deployed to handle this.
+                    There might be an issue with the EPUB file or network connection.
                   </p>
                   <div className="space-x-2">
                     <Button onClick={loadEPUB} variant="outline">Try Again</Button>
@@ -251,4 +250,3 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 };
 
 export default EPUBReader;
-

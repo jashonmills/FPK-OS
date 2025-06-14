@@ -655,6 +655,48 @@ export type Database = {
         }
         Relationships: []
       }
+      public_domain_books: {
+        Row: {
+          author: string
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          epub_url: string
+          gutenberg_id: number
+          id: string
+          language: string | null
+          last_updated: string | null
+          subjects: string[] | null
+          title: string
+        }
+        Insert: {
+          author: string
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          epub_url: string
+          gutenberg_id: number
+          id: string
+          language?: string | null
+          last_updated?: string | null
+          subjects?: string[] | null
+          title: string
+        }
+        Update: {
+          author?: string
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          epub_url?: string
+          gutenberg_id?: number
+          id?: string
+          language?: string | null
+          last_updated?: string | null
+          subjects?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           completed_at: string | null
