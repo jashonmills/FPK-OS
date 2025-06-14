@@ -47,6 +47,9 @@ const XPBackfillCard: React.FC<XPBackfillCardProps> = ({
     setShowReport(true);
   };
 
+  const isDryRun = backfillResult && 'dry_run' in backfillResult;
+  const isActualBackfill = backfillResult && !('dry_run' in backfillResult);
+
   return (
     <Card className={`${className}`}>
       <CardHeader>
@@ -144,7 +147,7 @@ const XPBackfillCard: React.FC<XPBackfillCardProps> = ({
         </div>
 
         {/* Dry Run Results */}
-        {backfillResult && backfillResult.dry_run && (
+        {isDryRun && (
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="font-medium text-blue-900 mb-2">Dry Run Results</div>
             <div className="grid grid-cols-2 gap-3 text-sm text-blue-800">
@@ -164,7 +167,7 @@ const XPBackfillCard: React.FC<XPBackfillCardProps> = ({
         )}
 
         {/* Backfill Results */}
-        {backfillResult && !backfillResult.dry_run && (
+        {isActualBackfill && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="font-medium text-green-900 mb-2">Backfill Complete!</div>
             <div className="grid grid-cols-2 gap-3 text-sm text-green-800">
@@ -200,7 +203,7 @@ const XPBackfillCard: React.FC<XPBackfillCardProps> = ({
             <div className="space-y-3">
               <div className="font-medium">Activity Breakdown</div>
               
-              {backfillResult?.activities_processed && (
+              {isActualBackfill && backfillResult.activities_processed && (
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2">
                     <StickyNote className="h-4 w-4 text-blue-500" />
@@ -225,6 +228,35 @@ const XPBackfillCard: React.FC<XPBackfillCardProps> = ({
                   <div className="flex items-center gap-2">
                     <Upload className="h-4 w-4 text-red-500" />
                     <span>Uploads: {backfillResult.activities_processed.file_uploads}</span>
+                  </div>
+                </div>
+              )}
+
+              {isDryRun && backfillResult.activities_found && (
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <StickyNote className="h-4 w-4 text-blue-500" />
+                    <span>Flashcards: {backfillResult.activities_found.flashcards}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-purple-500" />
+                    <span>Study Sessions: {backfillResult.activities_found.study_sessions}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-green-500" />
+                    <span>Notes: {backfillResult.activities_found.notes}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-orange-500" />
+                    <span>Goals: {backfillResult.activities_found.goals}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-indigo-500" />
+                    <span>Reading: {backfillResult.activities_found.reading_sessions}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-4 w-4 text-red-500" />
+                    <span>Uploads: {backfillResult.activities_found.file_uploads}</span>
                   </div>
                 </div>
               )}

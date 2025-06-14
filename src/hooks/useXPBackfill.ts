@@ -22,6 +22,25 @@ interface BackfillResult {
   };
 }
 
+interface DryRunResult {
+  dry_run: true;
+  user_id: string;
+  before_xp: number;
+  projected_after_xp: number;
+  before_level: number;
+  projected_after_level: number;
+  events_to_create: number;
+  backfill_xp: number;
+  activities_found: {
+    flashcards: number;
+    study_sessions: number;
+    notes: number;
+    goals: number;
+    reading_sessions: number;
+    file_uploads: number;
+  };
+}
+
 interface BackfillReport {
   user_id: string;
   current_xp: number;
@@ -35,9 +54,11 @@ interface BackfillReport {
   recent_events: any[];
 }
 
+type BackfillResponse = BackfillResult | DryRunResult;
+
 export function useXPBackfill() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
+  const [backfillResult, setBackfillResult] = useState<BackfillResponse | null>(null);
   const [backfillReport, setBackfillReport] = useState<BackfillReport | null>(null);
   const { user } = useAuth();
 
@@ -61,7 +82,7 @@ export function useXPBackfill() {
       if (dryRun) {
         toast({
           title: "Dry Run Complete",
-          description: `Would award ${data.backfill_xp || (data.projected_after_xp - data.before_xp)} XP and create ${data.events_to_create || data.events_created} events`,
+          description: `Would award ${data.backfill_xp} XP and create ${data.events_to_create} events`,
           duration: 5000,
         });
       } else {
