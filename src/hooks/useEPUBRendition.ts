@@ -28,7 +28,8 @@ export const useEPUBRendition = (book: Book | null) => {
       setIsNavigating(false);
     });
 
-    rendition.display();
+    // Fix: Pass container and empty options object to display()
+    rendition.display(container, {});
     renditionRef.current = rendition;
 
     console.log('📖 EPUB rendition initialized');
@@ -60,7 +61,8 @@ export const useEPUBRendition = (book: Book | null) => {
   const handleTOCItemClick = useCallback((item: NavItem) => {
     if (!renditionRef.current || isNavigating) return;
     setIsNavigating(true);
-    renditionRef.current.display(item.href);
+    // Fix: Pass href and empty options object to display()
+    renditionRef.current.display(item.href, {});
   }, [isNavigating]);
 
   const forceLayoutRefresh = useCallback(() => {
