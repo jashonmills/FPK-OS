@@ -9,14 +9,13 @@ export interface Book {
   subject?: string[];
   description?: string;
   isCurated?: boolean;
-  ocaid?: string;
-  // Additional properties for backward compatibility
-  isbn?: string[];
-  publisher?: string[];
   // Public domain book specific fields
   epub_url?: string;
   isPublicDomain?: boolean;
   gutenberg_id?: number;
+  cover_url?: string;
+  subjects?: string[];
+  author?: string;
 }
 
 export interface CuratedBook {

@@ -25,13 +25,15 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
       key: `/works/gutenberg-${publicDomainBook.gutenberg_id}`,
       title: publicDomainBook.title,
       author_name: [publicDomainBook.author],
+      author: publicDomainBook.author,
       workKey: `/works/gutenberg-${publicDomainBook.gutenberg_id}`,
       description: publicDomainBook.description,
-      cover_i: publicDomainBook.cover_url ? null : undefined,
+      cover_url: publicDomainBook.cover_url,
+      subjects: publicDomainBook.subjects,
       isCurated: true,
-      // Add epub access info
       epub_url: publicDomainBook.epub_url,
-      isPublicDomain: true
+      isPublicDomain: true,
+      gutenberg_id: publicDomainBook.gutenberg_id
     };
     onBookSelect(book);
   };
@@ -102,6 +104,7 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
           <Card 
             key={book.id}
             className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-primary/20"
+            onClick={() => handleBookSelect(book)}
           >
             <CardContent className="p-4 h-full">
               <div className="flex flex-col h-full">
@@ -153,7 +156,10 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
                 {/* Bottom section - pinned to bottom */}
                 <div className="flex gap-2 mt-3">
                   <Button 
-                    onClick={() => handleBookSelect(book)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookSelect(book);
+                    }}
                     className="flex-1"
                     size="sm"
                   >
@@ -177,7 +183,7 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
         ))}
       </div>
 
-      {curatedBooks.length === 0 && (
+      {curatedBooks.length === 0 && !isLoading && !error && (
         <div className="text-center py-12">
           <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <p className={`text-muted-foreground ${getAccessibilityClasses('text')}`}>
