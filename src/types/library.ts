@@ -10,6 +10,9 @@ export interface Book {
   description?: string;
   isCurated?: boolean;
   ocaid?: string;
+  // Additional properties for backward compatibility
+  isbn?: string[];
+  publisher?: string[];
   // Public domain book specific fields
   epub_url?: string;
   isPublicDomain?: boolean;
@@ -28,4 +31,14 @@ export interface OpenLibrarySearchResponse {
   docs: Book[];
   numFound: number;
   start: number;
+}
+
+export interface OpenLibraryWorkResponse {
+  key: string;
+  title: string;
+  authors?: Array<{ author: { key: string } }>;
+  covers?: number[];
+  description?: string | { value: string };
+  subjects?: string[];
+  first_publish_date?: string;
 }
