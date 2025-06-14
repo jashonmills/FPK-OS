@@ -1,13 +1,46 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useVoiceRecording = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const maxRecordingTime = 60; // 60 seconds
+
+  // Timer effect for recording duration
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingDuration(prev => {
+          const newDuration = prev + 1;
+          // Auto-stop at 60 seconds
+          if (newDuration >= maxRecordingTime) {
+            stopRecording();
+            return maxRecordingTime;
+          }
+          return newDuration;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setRecordingDuration(0);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isRecording]);
 
   const startRecording = async () => {
     try {
@@ -44,9 +77,10 @@ export const useVoiceRecording = () => {
         }
       };
 
-      // Record in smaller chunks for faster processing
-      mediaRecorder.start(1000); // 1 second intervals
+      // Record in smaller chunks for better memory management
+      mediaRecorder.start(500); // 500ms intervals for smoother recording
       setIsRecording(true);
+      setRecordingDuration(0);
     } catch (error) {
       console.error('Error starting recording:', error);
       throw new Error('Could not access microphone. Please check permissions.');
@@ -72,22 +106,34 @@ export const useVoiceRecording = () => {
           const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
           const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
           
-          // Convert to base64 more efficiently
-          const arrayBuffer = await audioBlob.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-          const base64Audio = btoa(String.fromCharCode(...uint8Array));
-
           console.log('Audio blob size:', audioBlob.size, 'bytes');
+          console.log('Recording duration:', recordingDuration, 'seconds');
           console.log('Audio format:', mimeType);
 
-          // Call improved speech-to-text function with timeout
+          // Enhanced base64 conversion for larger files
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          
+          // Process in chunks to prevent memory issues with large files
+          const chunkSize = 1024 * 1024; // 1MB chunks
+          let base64Audio = '';
+          
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.slice(i, i + chunkSize);
+            const chunkString = String.fromCharCode(...chunk);
+            base64Audio += btoa(chunkString);
+          }
+
+          // Call enhanced speech-to-text function with extended timeout for longer audio
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+          const timeoutDuration = Math.max(20000, recordingDuration * 1000); // Minimum 20s, or 1s per recorded second
+          const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
           const { data, error } = await supabase.functions.invoke('speech-to-text', {
             body: { 
               audio: base64Audio,
-              format: mimeType.includes('webm') ? 'webm' : 'wav'
+              format: mimeType.includes('webm') ? 'webm' : 'wav',
+              duration: recordingDuration
             }
           });
 
@@ -102,13 +148,20 @@ export const useVoiceRecording = () => {
           console.log('Transcription result:', transcription);
           
           setIsProcessing(false);
+          setRecordingDuration(0);
+          
+          // Clear audio chunks to free memory
+          audioChunksRef.current = [];
+          
           resolve(transcription);
         } catch (error) {
           console.error('Transcription error:', error);
           setIsProcessing(false);
+          setRecordingDuration(0);
+          audioChunksRef.current = [];
           
           if (error.name === 'AbortError') {
-            reject(new Error('Speech recognition timed out. Please try again.'));
+            reject(new Error('Speech recognition timed out. Please try again with a shorter recording.'));
           } else {
             reject(error);
           }
@@ -126,14 +179,38 @@ export const useVoiceRecording = () => {
       streamRef.current = null;
       setIsRecording(false);
       setIsProcessing(false);
+      setRecordingDuration(0);
+      audioChunksRef.current = [];
     }
+  };
+
+  const getRemainingTime = () => {
+    return Math.max(0, maxRecordingTime - recordingDuration);
+  };
+
+  const getFormattedDuration = () => {
+    const minutes = Math.floor(recordingDuration / 60);
+    const seconds = recordingDuration % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const getFormattedRemainingTime = () => {
+    const remaining = getRemainingTime();
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return {
     isRecording,
     isProcessing,
+    recordingDuration,
+    maxRecordingTime,
     startRecording,
     stopRecording,
-    cancelRecording
+    cancelRecording,
+    getRemainingTime,
+    getFormattedDuration,
+    getFormattedRemainingTime
   };
 };

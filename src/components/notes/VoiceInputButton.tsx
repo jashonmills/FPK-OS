@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Loader2, Square } from 'lucide-react';
+import { Mic, MicOff, Loader2, Square, Clock } from 'lucide-react';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,7 +16,18 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   placeholder = "voice input",
   disabled = false
 }) => {
-  const { isRecording, isProcessing, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
+  const { 
+    isRecording, 
+    isProcessing, 
+    recordingDuration,
+    maxRecordingTime,
+    startRecording, 
+    stopRecording, 
+    cancelRecording,
+    getRemainingTime,
+    getFormattedDuration,
+    getFormattedRemainingTime
+  } = useVoiceRecording();
   const { toast } = useToast();
 
   const handleVoiceInput = async () => {
@@ -51,7 +62,7 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         await startRecording();
         toast({
           title: "🎤 Recording started",
-          description: "Speak clearly now. Click the button again to stop.",
+          description: `Speak clearly now. You have up to ${maxRecordingTime} seconds. Click the button again to stop.`,
         });
       } catch (error) {
         console.error('Microphone access error:', error);
@@ -94,6 +105,10 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
     return `Start ${placeholder}`;
   };
 
+  const isNearTimeLimit = () => {
+    return isRecording && getRemainingTime() <= 10;
+  };
+
   return (
     <div className="flex gap-1">
       <Button
@@ -109,16 +124,35 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
       </Button>
       
       {isRecording && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleCancel}
-          className="shrink-0"
-          title="Cancel recording"
-        >
-          <Square className="h-3 w-3" />
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleCancel}
+            className="shrink-0"
+            title="Cancel recording"
+          >
+            <Square className="h-3 w-3" />
+          </Button>
+          
+          {/* Recording Timer */}
+          <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+            isNearTimeLimit() 
+              ? 'bg-red-100 text-red-700 animate-pulse' 
+              : 'bg-blue-100 text-blue-700'
+          }`}>
+            <Clock className="h-3 w-3" />
+            <span>{getFormattedDuration()}</span>
+            <span className="text-gray-500">/{getFormattedRemainingTime()}</span>
+          </div>
+        </>
+      )}
+      
+      {isProcessing && (
+        <div className="flex items-center gap-1 px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs">
+          <span>Processing...</span>
+        </div>
       )}
     </div>
   );
