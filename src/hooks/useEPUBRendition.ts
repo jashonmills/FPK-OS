@@ -53,10 +53,18 @@ export const useEPUBRendition = (book: Book | null) => {
     // Force layout refresh after font size change with proper arguments
     setTimeout(() => {
       if (renditionRef.current) {
-        // Fix: Provide width and height arguments to resize method
-        const container = renditionRef.current.manager?.container;
-        if (container) {
-          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+        // Fix: Use the iframe element directly from the rendition
+        try {
+          const iframe = renditionRef.current.iframe;
+          if (iframe && iframe.parentElement) {
+            const container = iframe.parentElement;
+            renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+          } else {
+            // Fallback: call resize with default dimensions
+            renditionRef.current.resize();
+          }
+        } catch (error) {
+          console.warn('Could not resize rendition:', error);
         }
       }
     }, 100);
@@ -73,10 +81,18 @@ export const useEPUBRendition = (book: Book | null) => {
     if (!renditionRef.current) return;
     setTimeout(() => {
       if (renditionRef.current) {
-        // Fix: Provide width and height arguments to resize method
-        const container = renditionRef.current.manager?.container;
-        if (container) {
-          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+        // Fix: Use the iframe element directly from the rendition
+        try {
+          const iframe = renditionRef.current.iframe;
+          if (iframe && iframe.parentElement) {
+            const container = iframe.parentElement;
+            renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+          } else {
+            // Fallback: call resize with default dimensions
+            renditionRef.current.resize();
+          }
+        } catch (error) {
+          console.warn('Could not resize rendition:', error);
         }
       }
     }, 50);
