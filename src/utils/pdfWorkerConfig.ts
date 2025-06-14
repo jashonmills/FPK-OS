@@ -13,3 +13,14 @@ export const isPDFWorkerReady = (): boolean => {
   });
   return isReady;
 };
+
+/**
+ * Get current worker configuration info
+ */
+export const getWorkerInfo = () => {
+  return {
+    workerSrc: pdfjs.GlobalWorkerOptions.workerSrc,
+    version: pdfjs.version,
+    isConfigured: !!pdfjs.GlobalWorkerOptions.workerSrc
+  };
+};

@@ -23,7 +23,10 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ['pdfjs-dist'],
   },
-  assetsInclude: ['**/*.pdf'],
+  assetsInclude: [
+    '**/*.pdf',
+    '**/pdf.worker.min.js'
+  ],
   define: {
     global: 'globalThis',
   },
@@ -32,15 +35,14 @@ export default defineConfig(({ mode }) => ({
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.endsWith('.worker.min.js')) {
-            return 'assets/[name].[hash][extname]';
+            return 'assets/[name]-[hash][extname]';
           }
-          return 'assets/[name].[hash][extname]';
+          return 'assets/[name]-[hash][extname]';
         }
       }
     }
   },
   worker: {
     format: 'es'
-  },
-  publicDir: 'public'
+  }
 }));
