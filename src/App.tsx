@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -18,6 +17,7 @@ import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
 import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
 import FlashcardManagerPage from '@/pages/dashboard/FlashcardManagerPage';
 import Library from '@/pages/dashboard/Library';
+import Gamification from '@/pages/dashboard/Gamification';
 import StudySessionRouter from '@/components/study/StudySessionRouter';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
@@ -65,6 +65,7 @@ function App() {
                     <Route path="learner/analytics" element={<LearningAnalytics />} />
                     <Route path="learner/live-hub" element={<LiveLearningHub />} />
                     <Route path="learner/library" element={<Library />} />
+                    <Route path="learner/achievements" element={<Gamification />} />
                     
                     {/* Admin Routes */}
                     <Route path="admin" element={<AdminDashboard />} />

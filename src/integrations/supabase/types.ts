@@ -39,6 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          criteria: Json
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          rarity: string
+          xp_reward: number
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          rarity?: string
+          xp_reward?: number
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          rarity?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -712,6 +748,45 @@ export type Database = {
         }
         Relationships: []
       }
+      quests: {
+        Row: {
+          created_at: string
+          criteria: Json
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          quest_id: string
+          start_date: string | null
+          xp_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          quest_id: string
+          start_date?: string | null
+          xp_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          quest_id?: string
+          start_date?: string | null
+          xp_multiplier?: number
+        }
+        Relationships: []
+      }
       reading_progress: {
         Row: {
           book_id: string
@@ -790,6 +865,78 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_available: boolean
+          item_id: string
+          item_type: string
+          metadata: Json | null
+          name: string
+          xp_cost: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          item_id: string
+          item_type?: string
+          metadata?: Json | null
+          name: string
+          xp_cost: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          item_id?: string
+          item_type?: string
+          metadata?: Json | null
+          name?: string
+          xp_cost?: number
+        }
+        Relationships: []
+      }
+      streaks: {
+        Row: {
+          best_count: number
+          created_at: string
+          current_count: number
+          id: string
+          last_activity_date: string
+          start_date: string
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_count?: number
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string
+          start_date: string
+          streak_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_count?: number
+          created_at?: string
+          current_count?: number
+          id?: string
+          last_activity_date?: string
+          start_date?: string
+          streak_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           completed_at: string | null
@@ -828,6 +975,105 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_badges: {
+        Row: {
+          awarded_at: string
+          badge_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_purchases: {
+        Row: {
+          id: string
+          purchased_at: string
+          shop_item_id: string
+          user_id: string
+          xp_spent: number
+        }
+        Insert: {
+          id?: string
+          purchased_at?: string
+          shop_item_id: string
+          user_id: string
+          xp_spent: number
+        }
+        Update: {
+          id?: string
+          purchased_at?: string
+          shop_item_id?: string
+          user_id?: string
+          xp_spent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_purchases_shop_item_id_fkey"
+            columns: ["shop_item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_quest_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress: Json
+          quest_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: Json
+          quest_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: Json
+          quest_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quest_progress_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -892,11 +1138,75 @@ export type Database = {
         }
         Relationships: []
       }
+      user_xp: {
+        Row: {
+          created_at: string
+          id: string
+          level: number
+          next_level_xp: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: number
+          next_level_xp?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: number
+          next_level_xp?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xp_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          event_value: number
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          event_value?: number
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          event_value?: number
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_level_from_xp: {
+        Args: { total_xp: number }
+        Returns: {
+          level: number
+          next_level_xp: number
+        }[]
+      }
       has_role: {
         Args: {
           _user_id: string

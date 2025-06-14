@@ -1,54 +1,37 @@
 
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/use-toast';
+import { useXPIntegration } from './useXPIntegration';
 
 export function useXPSystem() {
   const [isAwarding, setIsAwarding] = useState(false);
   const { user } = useAuth();
+  const {
+    awardFlashcardCreationXP,
+    awardFlashcardStudyXP,
+    awardModuleCompletionXP,
+    awardReadingSessionXP,
+    awardNoteCreationXP,
+    awardFileUploadXP,
+    awardGoalCompletionXP
+  } = useXPIntegration();
 
   const awardXP = useCallback(async (amount: number, reason: string) => {
     if (!user?.id || isAwarding) return;
 
     setIsAwarding(true);
     try {
-      const { data: currentProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('total_xp')
-        .eq('id', user.id)
-        .single();
-
-      if (fetchError) {
-        console.error('Error fetching current XP:', fetchError);
-        return;
-      }
-
-      const newTotalXP = (currentProfile?.total_xp || 0) + amount;
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ total_xp: newTotalXP })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Error updating XP:', updateError);
-        throw updateError;
-      }
-
-      toast({
-        title: `+${amount} XP Earned!`,
-        description: reason,
-        duration: 3000,
-      });
-
-      console.log(`XP awarded: +${amount} for ${reason}. Total XP: ${newTotalXP}`);
+      // Use the new gamification system for basic XP awarding
+      await awardFlashcardStudyXP(amount, amount, 60); // Default values for compatibility
+      
+      console.log(`XP awarded: +${amount} for ${reason}`);
     } catch (error) {
       console.error('Failed to award XP:', error);
     } finally {
       setIsAwarding(false);
     }
-  }, [user?.id, isAwarding]);
+  }, [user?.id, isAwarding, awardFlashcardStudyXP]);
 
   const calculateModuleXP = useCallback((moduleId: string) => {
     // Base XP for completing a module
@@ -73,5 +56,13 @@ export function useXPSystem() {
     calculateModuleXP,
     calculateProgressXP,
     isAwarding,
+    // Expose specific XP functions for direct use
+    awardFlashcardCreationXP,
+    awardFlashcardStudyXP,
+    awardModuleCompletionXP,
+    awardReadingSessionXP,
+    awardNoteCreationXP,
+    awardFileUploadXP,
+    awardGoalCompletionXP
   };
 }

@@ -10,15 +10,20 @@ import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GlobalChatWidget from '@/components/GlobalChatWidget';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import XPProgressBar from '@/components/gamification/XPProgressBar';
+import { useGamification } from '@/hooks/useGamification';
 
 const DashboardContent = () => {
   const { getAccessibilityClasses } = useAccessibility();
   const { state } = useSidebar();
   const isMobile = useIsMobile();
+  const { userStats } = useGamification();
   
   // Apply accessibility classes to the entire dashboard
   const dashboardClasses = getAccessibilityClasses('container');
   console.log('🏠 DashboardLayout: Applied classes:', dashboardClasses);
+  
+  const xpData = userStats?.xp || { total_xp: 0, level: 1, next_level_xp: 100 };
   
   return (
     <div className={`min-h-screen flex w-full ${dashboardClasses} accessibility-mobile-override`}>
@@ -49,8 +54,18 @@ const DashboardContent = () => {
               </div>
             </div>
 
+            {/* Center - XP Progress Bar (hidden on mobile) */}
+            <div className="hidden md:block flex-1 max-w-xs mx-4">
+              <XPProgressBar
+                totalXP={xpData.total_xp}
+                level={xpData.level}
+                xpToNext={xpData.next_level_xp}
+                showDetails={false}
+              />
+            </div>
+
             {/* Header content from GlobalHeader - Hidden on mobile */}
-            <div className="flex-1 max-w-sm mx-3 sm:mx-4 hidden md:block">
+            <div className="flex-1 max-w-sm mx-3 sm:mx-4 hidden lg:block">
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground">
                   🔍

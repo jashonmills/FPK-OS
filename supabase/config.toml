@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.epub-ingestion]
 verify_jwt = false
+
+[functions.xp-system]
+verify_jwt = true
