@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -13,226 +14,161 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced FPK University AI Learning Coach System Prompt with External Knowledge Tool
-const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—an empathetic, conversational study-buddy focused exclusively on helping learners succeed. You now have access to external knowledge sources through the @fetchKnowledge tool.
+// Enhanced FPK University AI Learning Coach System Prompt with Tool Integration
+const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—a Claude-based assistant embedded in the FPK Learner Portal. Your mission is to help each student study more effectively by tapping into their **own** flashcards, study materials, and performance data.
 
-AVAILABLE TOOLS:
-- @fetchKnowledge(topic): Retrieves information from external educational sources (Wikipedia, DBpedia, academic papers, etc.)
+**AVAILABLE TOOLS:**
+You have access to these authenticated Supabase tools to fetch user-specific data:
 
-Follow these rules in every interaction:
+1. **getRecentFlashcards(userId, limit)** - Returns the N most recent flashcards created by this user
+2. **getFlashcardsByGroup(userId, groupId)** - Returns all flashcards in a specific folder/group  
+3. **searchFlashcards(userId, query)** - Full-text search across user's flashcards
+4. **getStudyStats(userId)** - Returns comprehensive study statistics and performance metrics
 
-1. Persona & Tone:
-   • Warm, supportive, lightly humorous—like a trusted tutor or peer.  
-   • Celebrate wins ("Great job!") and gently guide through challenges.
-   • Use emojis sparingly—only for major wins (🎉✨) or key points (💡📚)
-   • Explain jargon when you use it, keep language accessible
+**TOOL CALLING GUIDELINES:**
+- When a user asks about their **own** flashcards or study history, you **MUST** invoke the appropriate tool
+- Format tool calls as: {"tool": "toolName", "arguments": {"userId": "abc123", "param": "value"}}
+- After receiving tool data, synthesize it into clear, supportive, actionable guidance
 
-2. Dynamic Knowledge Retrieval:
-   • For factual or conceptual questions outside the current module, use @fetchKnowledge(topic)
-   • Always cite external sources: "According to Wikipedia..." or "Research from Semantic Scholar shows..."
-   • If external knowledge is unavailable, provide the best answer from training data
-   • Combine external facts with learner's personal context for maximum relevance
+**WHEN TO CALL EACH TOOL:**
+- **getRecentFlashcards**: "What were my last 5 flashcards?" "Show my newest uploads" "Which card did I create recently?"
+- **getFlashcardsByGroup**: "Let's review my Biology flashcards" "Show cards in my Math folder"
+- **searchFlashcards**: "Find my cards about 'photosynthesis'" "Search for cards with 'calculus'"
+- **getStudyStats**: "How many flashcards have I studied?" "What's my accuracy?" "Show my learning progress"
 
-3. Tool Usage Guidelines:
-   • Use @fetchKnowledge when learners ask about:
-     - Scientific concepts, historical events, mathematical theorems
-     - Current research, academic papers, or specific topics
-     - Definitions of technical terms
-     - Background information on subjects they're studying
-   • Don't use the tool for:
-     - Personal study advice (use their data instead)
-     - Platform navigation questions
-     - General encouragement or motivation
+**VOICE INTEGRATION:**
+- Check for voiceActive flag in the request
+- If voiceActive=true: structure responses for natural speech with appropriate pauses
+- If voiceActive=false: optimize for text readability
+- Always provide both text and voice-optimized versions when voice is enabled
 
-4. Scope & Boundaries:
-   • Answer any academic question—history, science, math, languages, arts—always with educational focus
-   • Politely decline off-topic requests: "I'm here to help with your learning—let's stick to study or course questions."
-   • For weather, personal life, etc: redirect to academic topics
+**COACHING APPROACH:**
+- Warm, encouraging, and personalized based on actual user data
+- Always suggest specific next steps: "Let's focus on these 3 challenging cards"
+- Celebrate progress and gently guide through difficulties
+- Use emojis sparingly for emphasis: 🎯📚✨💡
+- Reference specific flashcards, folders, and performance trends
 
-5. Context Awareness & Memory:
-   • Remember the learner's current course, module, flashcard performance, and study patterns
-   • Tailor examples to their context: "In your Module 3 material, you learned X; here's how it connects..."
-   • Reference their specific data: accuracy rates, struggling topics, recent sessions
+**RESPONSE STRUCTURE:**
+1. Acknowledge their current progress/question
+2. Use tools to fetch relevant data when needed
+3. Provide specific, data-driven insights
+4. Suggest concrete next actions
+5. Encourage continued learning
 
-6. Multi-Modal Guidance:
-   • Point to in-platform resources: "Try reviewing your flashcard set on [topic]" or "Check your notes on [subject]"
-   • Suggest actionable next steps: "Practice those 6 challenging flashcards" or "Take a quick quiz on this"
+**FALLBACK BEHAVIOR:**
+- For general study questions ("What is spaced repetition?"), answer from knowledge without tools
+- For mixed requests ("Teach me about my weak areas in biology"), first fetch weak biology cards, then provide targeted teaching
+- Always prioritize user-specific data over general advice when available
 
-7. Citation & Source Integration:
-   • Always include source attribution when using external knowledge
-   • Format citations naturally: "According to Wikipedia, photosynthesis is... (source)"
-   • Blend external facts with personalized guidance seamlessly
+Remember: You're not just an AI assistant—you're their personal learning coach who knows their study history, strengths, and areas for improvement. Make every interaction feel personalized and actionable.`;
 
-8. Clarification & Fallback:
-   • For vague questions like "Tell me more" or "Explain that": Ask "Would you like a brief overview or detailed examples?"
-   • If topic is unclear: "Which specific aspect would you like me to focus on?"
-   • When external knowledge fails: "I want to give you the most helpful answer—let me work with what I know..."
-
-Response Format:
-• Keep responses 1-3 paragraphs, concise and actionable
-• Start with acknowledgment of their progress when relevant
-• Integrate external knowledge naturally with personal context
-• End with a specific next step or question to guide learning
-• Use encouraging language that builds confidence
-• Always cite sources when using external information`;
-
-// Knowledge retrieval function for educational topics
-async function retrieveKnowledge(topic: string) {
+// Tool function implementations
+async function callTool(toolName: string, args: any) {
   try {
-    console.log('Calling external knowledge retrieval for:', topic);
+    console.log(`Calling tool: ${toolName} with args:`, args);
     
-    const { data, error } = await supabase.functions.invoke('retrieve-knowledge', {
-      body: { topic }
+    const { data, error } = await supabase.functions.invoke(toolName, {
+      body: args
     });
 
     if (error) {
-      console.error('Knowledge retrieval error:', error);
-      return null;
+      console.error(`Tool ${toolName} error:`, error);
+      throw error;
     }
 
+    console.log(`Tool ${toolName} response:`, data);
     return data;
   } catch (error) {
-    console.error('Error calling knowledge retrieval function:', error);
-    return null;
+    console.error(`Error calling tool ${toolName}:`, error);
+    throw error;
   }
 }
 
-// Detect if user needs external knowledge
-function needsExternalKnowledge(message: string, context: any): { needed: boolean, topic?: string } {
-  const knowledgeIndicators = [
-    /what is (.+?)[\?\.]|define (.+?)[\?\.]|explain (.+?)[\?\.]|tell me about (.+?)[\?\.]|how does (.+?) work/i,
-    /research on (.+)|papers about (.+)|studies on (.+)/i,
-    /history of (.+)|when was (.+) invented|who discovered (.+)/i,
-    /(.+) theory|(.+) principle|(.+) law|(.+) equation/i
-  ];
-  
-  for (const pattern of knowledgeIndicators) {
-    const match = message.match(pattern);
-    if (match) {
-      // Extract the topic from the first capturing group
-      const topic = match[1] || match[2] || match[3] || match[4];
-      if (topic && topic.trim().length > 2) {
-        return { needed: true, topic: topic.trim() };
-      }
+// Detect if user needs tool data
+function detectToolNeeds(message: string, context: any): { tool?: string, args?: any } {
+  const lowerMessage = message.toLowerCase();
+  const userId = context.userId;
+
+  // Recent flashcards patterns
+  if (lowerMessage.match(/(recent|last|newest|latest).*(flashcard|card)/i) ||
+      lowerMessage.match(/(show|what).*(recent|last|newest|latest)/i)) {
+    const limitMatch = message.match(/(\d+)/);
+    const limit = limitMatch ? parseInt(limitMatch[1]) : 5;
+    return { tool: 'get-recent-flashcards', args: { userId, limit } };
+  }
+
+  // Group/folder flashcards patterns
+  if (lowerMessage.match(/(folder|group|category).*(flashcard|card)/i) ||
+      lowerMessage.match(/(review|show).*(biology|math|history|science|english)/i)) {
+    const groupMatch = message.match(/(biology|math|history|science|english|\w+\s+folder|\w+\s+group)/i);
+    const groupId = groupMatch ? groupMatch[1].toLowerCase() : 'general';
+    return { tool: 'get-flashcards-by-group', args: { userId, groupId } };
+  }
+
+  // Search patterns
+  if (lowerMessage.match(/(search|find|look for).*(flashcard|card)/i) ||
+      lowerMessage.match(/cards?.*(about|with|containing)/i)) {
+    const queryMatch = message.match(/(?:about|with|containing|for)\s+['"]?([^'"]+)['"]?/i);
+    const query = queryMatch ? queryMatch[1].trim() : '';
+    
+    // Check for performance filters
+    let filter = undefined;
+    if (lowerMessage.includes('weak') || lowerMessage.includes('struggling') || lowerMessage.includes('difficult')) {
+      filter = 'low success';
+    } else if (lowerMessage.includes('practice') || lowerMessage.includes('review needed')) {
+      filter = 'needs practice';
     }
+    
+    return { tool: 'search-flashcards', args: { userId, query, filter } };
   }
-  
-  return { needed: false };
+
+  // Stats patterns
+  if (lowerMessage.match(/(stats|statistics|progress|accuracy|performance)/i) ||
+      lowerMessage.match(/(how many|total).*(session|card|study)/i) ||
+      lowerMessage.match(/(streak|xp|level)/i)) {
+    return { tool: 'get-study-stats', args: { userId } };
+  }
+
+  return {};
 }
 
-// Detect if user needs clarification
-function needsClarification(message: string): boolean {
-  const vaguePatterns = [
-    /^(tell me more|explain that|more info|continue|what about|how about)$/i,
-    /^(that|this|it)$/i,
-    /^(explain|tell me|what)$/i
-  ];
-  
-  return vaguePatterns.some(pattern => pattern.test(message.trim())) || message.trim().length < 10;
-}
-
-// Detect off-topic requests
-function isOffTopic(message: string): boolean {
-  const offTopicPatterns = [
-    /weather|temperature|climate today/i,
-    /personal life|relationship|dating/i,
-    /entertainment|movies|tv shows|music/i,
-    /sports|games|gaming/i,
-    /politics|religion/i,
-    /shopping|buying|selling/i
-  ];
-  
-  return offTopicPatterns.some(pattern => pattern.test(message));
-}
-
-// Enhanced user context fetching with better organization
+// Enhanced user context fetching
 async function getEnhancedLearningContext(userId: string) {
   try {
     console.log('Fetching enhanced learning context for user:', userId);
     
-    const [sessionsData, flashcardsData, profileData, notesData] = await Promise.all([
-      supabase
-        .from('study_sessions')
-        .select('correct_answers, total_cards, session_type, created_at, completed_at, difficulty_distribution')
-        .eq('user_id', userId)
-        .not('completed_at', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(15),
-      
-      supabase
-        .from('flashcards')
-        .select('difficulty_level, times_reviewed, times_correct, front_content, category, folder_name')
-        .eq('user_id', userId)
-        .limit(30),
-      
+    const [profileData, recentActivity] = await Promise.all([
       supabase
         .from('profiles')
-        .select('display_name, full_name, current_streak, total_xp, learning_preferences')
+        .select('display_name, full_name, current_streak, total_xp')
         .eq('id', userId)
         .single(),
-
+      
       supabase
-        .from('notes')
-        .select('title, category, created_at')
+        .from('study_sessions')
+        .select('completed_at, correct_answers, total_cards')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10)
+        .not('completed_at', 'is', null)
+        .order('completed_at', { ascending: false })
+        .limit(3)
     ]);
 
-    const sessions = sessionsData.data || [];
-    const flashcards = flashcardsData.data || [];
     const profile = profileData.data;
-    const notes = notesData.data || [];
-
-    // Enhanced analytics
-    const completedSessions = sessions.filter(s => s.completed_at);
-    const totalCorrect = completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0);
-    const totalAnswered = completedSessions.reduce((sum, s) => sum + (s.total_cards || 0), 0);
-    const overallAccuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
-
-    // Recent performance trend
-    const recentSessions = completedSessions.slice(0, 5);
-    const recentCorrect = recentSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0);
-    const recentTotal = recentSessions.reduce((sum, s) => sum + (s.total_cards || 0), 0);
-    const recentAccuracy = recentTotal > 0 ? Math.round((recentCorrect / recentTotal) * 100) : 0;
-
-    // Struggling areas analysis
-    const strugglingCards = flashcards.filter(card => {
-      const successRate = card.times_reviewed > 0 ? (card.times_correct / card.times_reviewed) : 0;
-      return card.times_reviewed >= 2 && successRate < 0.6;
-    });
-
-    // Study patterns
-    const studyFrequency = completedSessions.length > 0 ? 
-      completedSessions.length / Math.max(1, Math.ceil((Date.now() - new Date(completedSessions[completedSessions.length - 1].created_at).getTime()) / (1000 * 60 * 60 * 24))) : 0;
-
-    // Categories and topics
-    const categories = [...new Set(flashcards.map(card => card.category).filter(Boolean))];
-    const folders = [...new Set(flashcards.map(card => card.folder_name).filter(Boolean))];
+    const sessions = recentActivity.data || [];
 
     return {
-      performance: {
-        totalSessions: completedSessions.length,
-        overallAccuracy,
-        recentAccuracy,
-        improvementTrend: recentAccuracy - overallAccuracy,
-        currentStreak: profile?.current_streak || 0,
-        totalXP: profile?.total_xp || 0,
-        studyFrequency: Math.round(studyFrequency * 10) / 10
-      },
       profile: {
         name: profile?.display_name || profile?.full_name || 'Student',
-        totalCards: flashcards.length,
-        strugglingCards: strugglingCards.length,
-        categories,
-        folders,
-        totalNotes: notes.length,
-        learningPreferences: profile?.learning_preferences
+        currentStreak: profile?.current_streak || 0,
+        totalXP: profile?.total_xp || 0
       },
       recentActivity: {
-        lastStudySession: completedSessions[0]?.created_at,
-        recentNotes: notes.slice(0, 3).map(note => note.title),
-        strugglingTopics: strugglingCards.slice(0, 5).map(card => card.front_content?.substring(0, 50))
+        sessionCount: sessions.length,
+        lastSession: sessions[0]?.completed_at || null,
+        recentAccuracy: sessions.length > 0 ? 
+          Math.round((sessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0) / 
+                     sessions.reduce((sum, s) => sum + (s.total_cards || 0), 1)) * 100) : 0
       }
     };
   } catch (error) {
@@ -241,8 +177,8 @@ async function getEnhancedLearningContext(userId: string) {
   }
 }
 
-// Enhanced chat history with better context
-async function getEnhancedChatHistory(sessionId: string, limit: number = 8) {
+// Enhanced chat history
+async function getEnhancedChatHistory(sessionId: string, limit: number = 6) {
   try {
     const { data, error } = await supabase
       .from('chat_messages')
@@ -266,149 +202,103 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, sessionId, pageContext } = await req.json();
+    const { message, userId, sessionId, voiceActive = false, metadata } = await req.json();
     
     console.log('Enhanced AI Coach request:', { 
       hasMessage: !!message, 
       hasUserId: !!userId, 
-      hasSessionId: !!sessionId,
-      pageContext
+      voiceActive,
+      hasSessionId: !!sessionId
     });
     
     if (!message || !userId) {
       throw new Error('Message and user ID are required');
     }
 
-    // Check for off-topic requests first
-    if (isOffTopic(message)) {
-      return new Response(
-        JSON.stringify({ 
-          response: "I'm here to help with your learning—let's stick to study or course questions. What academic topic can I help you explore? 📚"
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if clarification is needed
-    if (needsClarification(message)) {
-      return new Response(
-        JSON.stringify({ 
-          response: "I'd love to help! Could you tell me which specific aspect you'd like me to focus on—a brief overview or detailed examples with practice suggestions? 💡"
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     if (!anthropicApiKey) {
-      const contextualResponses = [
-        "Great to see you're engaging with your studies! 🌟 I'm analyzing your learning patterns to provide better guidance. Try some practice sessions and I'll have personalized insights ready!",
-        "I love your curiosity! 📚 Consistent practice with your flashcards will help me understand your learning style better. What specific topic would you like to explore?",
-        "You're on the right track! 🎯 Every question shows you're thinking critically. Let's focus on building your knowledge systematically—what subject interests you most?",
-        "Your dedication to learning is inspiring! ✨ While I'm optimizing my coaching algorithms, remember that active recall beats passive reading every time.",
-        "Keep that learning momentum going! 💪 The fact that you're here asking questions tells me you're serious about growth. What concept can I help clarify?"
-      ];
+      const fallbackResponse = voiceActive 
+        ? "I'm here to help you with your studies! While I'm getting ready to access your personal data, feel free to ask me about study strategies or any academic topics."
+        : "I'm here to support your learning journey! 🎯 I'm working on connecting to your study data to provide personalized guidance.";
       
       return new Response(
         JSON.stringify({ 
-          response: contextualResponses[Math.floor(Math.random() * contextualResponses.length)]
+          response: fallbackResponse,
+          voiceEnabled: voiceActive
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get enhanced context and chat history
+    // Get context and detect tool needs
     const [learningContext, chatHistory] = await Promise.all([
       getEnhancedLearningContext(userId),
-      sessionId ? getEnhancedChatHistory(sessionId, 6) : Promise.resolve([])
+      sessionId ? getEnhancedChatHistory(sessionId, 4) : Promise.resolve([])
     ]);
 
-    // Check if external knowledge is needed
-    const knowledgeCheck = needsExternalKnowledge(message, { learningContext, pageContext });
-    let externalKnowledge = null;
-    
-    if (knowledgeCheck.needed && knowledgeCheck.topic) {
-      externalKnowledge = await retrieveKnowledge(knowledgeCheck.topic);
+    const toolNeeds = detectToolNeeds(message, { userId, learningContext });
+    let toolData = null;
+    let toolUsed = null;
+
+    // Execute tool if needed
+    if (toolNeeds.tool) {
+      try {
+        toolData = await callTool(toolNeeds.tool, toolNeeds.args);
+        toolUsed = toolNeeds.tool;
+        console.log('Tool executed successfully:', toolUsed);
+      } catch (error) {
+        console.error('Tool execution failed:', error);
+        // Continue without tool data
+      }
     }
 
     // Build conversation context
     let conversationContext = '';
     if (chatHistory.length > 0) {
       conversationContext = '\n\nRecent conversation:\n' + 
-        chatHistory.slice(-4).map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
+        chatHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
     }
 
-    // Build comprehensive learning context
+    // Build comprehensive context prompt
     let contextPrompt = `\nCurrent learner: ${learningContext?.profile.name || 'Student'}`;
     
-    if (learningContext && learningContext.performance.totalSessions > 0) {
+    if (learningContext) {
       contextPrompt += `
-📊 Learner's Progress Data:
-• Study Sessions: ${learningContext.performance.totalSessions} completed
-• Overall Accuracy: ${learningContext.performance.overallAccuracy}%
-• Recent Performance: ${learningContext.performance.recentAccuracy}% (${learningContext.performance.improvementTrend > 0 ? '+' : ''}${learningContext.performance.improvementTrend}% trend)
-• Current Streak: ${learningContext.performance.currentStreak} days
-• Study Frequency: ${learningContext.performance.studyFrequency} sessions/day
+📊 Quick Profile:
+• Current Streak: ${learningContext.profile.currentStreak} days
+• Total XP: ${learningContext.profile.totalXP}
+• Recent Sessions: ${learningContext.recentActivity.sessionCount}
+• Recent Accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
 
-📚 Available Learning Resources:
-• Flashcards: ${learningContext.profile.totalCards} total, ${learningContext.profile.strugglingCards} need focused practice
-• Notes: ${learningContext.profile.totalNotes} created
-• Study Categories: ${learningContext.profile.categories.join(', ') || 'Getting started'}
-• Study Folders: ${learningContext.profile.folders.join(', ') || 'None yet'}`;
-
-      if (learningContext.recentActivity.strugglingTopics.length > 0) {
-        contextPrompt += `\n\n🎯 Topics needing attention: ${learningContext.recentActivity.strugglingTopics.join(', ')}`;
-      }
-
-      if (learningContext.recentActivity.lastStudySession) {
-        const daysSinceLastSession = Math.floor((Date.now() - new Date(learningContext.recentActivity.lastStudySession).getTime()) / (1000 * 60 * 60 * 24));
-        contextPrompt += `\n\n⏰ Last study session: ${daysSinceLastSession === 0 ? 'Today' : `${daysSinceLastSession} days ago`}`;
-      }
-    } else {
-      contextPrompt += `\n\n🌱 New learner - encourage them to start with flashcards or study sessions to build their learning profile.`;
-    }
-
-    // Add page context
-    if (pageContext) {
-      contextPrompt += `\n\n📍 Current page: ${pageContext}`;
-      if (pageContext.includes('Notes')) {
-        contextPrompt += ` - Focus on note-taking strategies and study material organization`;
-      } else if (pageContext.includes('Flashcard')) {
-        contextPrompt += ` - Focus on flashcard optimization and memory techniques`;
-      } else if (pageContext.includes('Coach')) {
-        contextPrompt += ` - Provide comprehensive learning guidance and strategy`;
+      if (learningContext.recentActivity.lastSession) {
+        const daysSince = Math.floor((Date.now() - new Date(learningContext.recentActivity.lastSession).getTime()) / (1000 * 60 * 60 * 24));
+        contextPrompt += `\n• Last Study: ${daysSince === 0 ? 'Today' : `${daysSince} days ago`}`;
       }
     }
 
-    // Add external knowledge if retrieved
-    if (externalKnowledge && externalKnowledge.content) {
-      contextPrompt += `\n\n🔍 External Knowledge Retrieved:
-Source: ${externalKnowledge.source_name}
-Content: ${externalKnowledge.content}
-URL: ${externalKnowledge.source_url}
+    // Add tool data if available
+    if (toolData && toolUsed) {
+      contextPrompt += `\n\n🔧 Tool Data Retrieved (${toolUsed}):\n${JSON.stringify(toolData, null, 2)}
+      
+IMPORTANT: Use this specific user data to provide personalized, actionable guidance. Reference their actual flashcards, performance metrics, and study patterns.`;
+    }
 
-IMPORTANT: Integrate this external knowledge naturally into your response and always cite the source.`;
+    // Add voice optimization instruction
+    if (voiceActive) {
+      contextPrompt += `\n\n🎤 VOICE MODE ACTIVE: Structure your response for natural speech with appropriate pauses. Keep it conversational and easy to listen to.`;
     }
 
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    // Enhanced coaching guidance based on performance
-    if (learningContext) {
-      if (learningContext.performance.improvementTrend > 15) {
-        contextPrompt += `\n\n🚀 Coaching note: Student is improving rapidly (+${learningContext.performance.improvementTrend}%)! Celebrate progress and suggest advancing to harder topics.`;
-      } else if (learningContext.performance.improvementTrend < -15) {
-        contextPrompt += `\n\n💡 Coaching note: Recent decline (${learningContext.performance.improvementTrend}%). Provide encouragement and suggest reviewing fundamentals before advancing.`;
-      } else if (learningContext.performance.currentStreak > 7) {
-        contextPrompt += `\n\n⭐ Coaching note: Excellent ${learningContext.performance.currentStreak}-day streak! Acknowledge dedication and suggest advanced study techniques.`;
-      } else if (learningContext.performance.studyFrequency < 0.5) {
-        contextPrompt += `\n\n📅 Coaching note: Low study frequency (${learningContext.performance.studyFrequency}/day). Gently encourage more regular practice with achievable daily goals.`;
-      }
+    // Add coaching guidance
+    if (learningContext && toolData) {
+      contextPrompt += `\n\n💡 Coaching Focus: Provide specific, data-driven insights based on their actual study data. Suggest concrete next steps and celebrate their progress.`;
     }
 
-    console.log('Calling enhanced Anthropic API with personalized context and external knowledge...');
+    console.log('Calling enhanced Anthropic API with personalized context and tool data...');
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -421,7 +311,7 @@ IMPORTANT: Integrate this external knowledge naturally into your response and al
         },
         body: JSON.stringify({
           model: 'claude-3-5-haiku-20241022',
-          max_tokens: 350,
+          max_tokens: 400,
           messages: [
             {
               role: 'user',
@@ -439,12 +329,17 @@ IMPORTANT: Integrate this external knowledge naturally into your response and al
       }
 
       const data = await response.json();
-      const aiResponse = data.content?.[0]?.text || "I'm here to guide your learning journey! What would you like to explore together? 📚";
+      const aiResponse = data.content?.[0]?.text || "I'm here to guide your personalized learning journey! What would you like to work on together? 📚";
       
       console.log('Enhanced AI Coach response generated successfully');
 
       return new Response(
-        JSON.stringify({ response: aiResponse }),
+        JSON.stringify({ 
+          response: aiResponse,
+          voiceEnabled: voiceActive,
+          toolUsed: toolUsed,
+          hasPersonalData: !!toolData
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
 
@@ -456,17 +351,12 @@ IMPORTANT: Integrate this external knowledge naturally into your response and al
   } catch (error) {
     console.error('Error in enhanced AI coach function:', error);
     
-    const smartFallbacks = [
-      "I'm here to support your learning journey! 🎯 What specific concept or study challenge can I help you tackle?",
-      "Great to see you engaging with your studies! 📚 Try a quick practice session and I'll analyze your progress for personalized tips.",
-      "Learning is about consistent progress! 💭 What topic would you like to explore deeper, or do you need study strategy advice?",
-      "You're building expertise with every session! ⭐ Remember, understanding comes through practice—what can I help clarify today?",
-      "I believe in your learning potential! 🌟 Every question is a step forward. What subject or concept interests you most right now?"
-    ];
+    const smartFallback = "I'm here to support your personalized learning journey! 🎯 While I'm connecting to your study data, feel free to ask me about study strategies, specific topics, or how to make the most of your flashcards.";
     
     return new Response(
       JSON.stringify({ 
-        response: smartFallbacks[Math.floor(Math.random() * smartFallbacks.length)]
+        response: smartFallback,
+        error: 'fallback_mode'
       }),
       {
         status: 200,

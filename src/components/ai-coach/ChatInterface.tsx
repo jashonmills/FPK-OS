@@ -222,13 +222,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       const timeoutId = setTimeout(() => {
         controller.abort();
         setConnectionStatus('slow');
-      }, 5000);
+      }, 8000);
 
+      // Enhanced request with voice status and user context
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
           userId: user?.id,
-          sessionId: currentSessionId
+          sessionId: currentSessionId,
+          voiceActive: settings.enabled && settings.autoRead,
+          metadata: {
+            hasInteracted: settings.hasInteracted,
+            timestamp: new Date().toISOString(),
+            sessionLength: chatHistory.length,
+            userAgent: navigator.userAgent
+          }
         }
       });
 
@@ -238,18 +246,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setResponseTime(responseTimeMs);
 
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Enhanced AI coach error:', error);
         throw error;
       }
 
       setConnectionStatus('good');
-      const aiResponse = data?.response || "I'm here to guide your learning journey!";
+      const aiResponse = data?.response || "I'm here to guide your personalized learning journey with your own study data! 🌟";
       
       const aiMessageObj = { 
         role: 'assistant' as const, 
         message: aiResponse,
         timestamp: new Date(),
-        id: `ai-${Date.now()}`
+        id: `ai-${Date.now()}`,
+        hasPersonalData: data?.hasPersonalData || false,
+        toolUsed: data?.toolUsed || null
       };
       
       setChatHistory(prev => [...prev, aiMessageObj]);
@@ -257,41 +267,40 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       // Save assistant message to session
       await saveMessageToSession(aiResponse, 'assistant');
 
-      // Track message exchange analytics event
-      console.log('📊 AI Coach Message Exchange:', {
+      // Enhanced analytics tracking
+      console.log('📊 Enhanced AI Coach Interaction:', {
         sessionId: currentSessionId,
         userMessage: userMessage,
         responseTime: responseTimeMs,
+        voiceEnabled: settings.enabled,
+        hasPersonalData: data?.hasPersonalData,
+        toolUsed: data?.toolUsed,
         timestamp: new Date().toISOString()
       });
 
-      console.log(`AI response time: ${responseTimeMs}ms`);
-
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('Enhanced AI coach error:', error);
       setConnectionStatus('error');
       
-      const coachingTips = [
-        "Remember: consistency beats intensity! Even 15 minutes of focused study daily builds stronger neural pathways than cramming.",
-        "I notice you're engaging with your studies! Try the Pomodoro Technique: 25 minutes focused work, 5 minute break to optimize retention.",
-        "Active recall is your superpower! Instead of re-reading, quiz yourself on what you've learned to strengthen memory pathways.",
-        "Growth mindset moment: Every mistake is data for improvement. Review what you got wrong to turn weaknesses into strengths!",
-        "Spaced repetition works wonders! Review material at increasing intervals to move knowledge from short-term to long-term memory."
+      const personalizedFallbacks = [
+        "I'm getting ready to analyze your personal study data! 🎯 While I connect, try asking about study strategies or specific topics you're working on.",
+        "Your personalized learning coach is warming up! 📚 I'll soon have access to your flashcards and performance data for tailored guidance.",
+        "I'm here to help with your unique learning journey! ✨ Ask me about study techniques while I prepare your personalized insights.",
+        "Building your custom learning profile! 💪 In the meantime, I can help with general study questions or subject-specific guidance.",
+        "Your data-driven learning coach is almost ready! 🌟 Feel free to ask about effective study methods or any academic topics."
       ];
       
-      const randomTip = coachingTips[Math.floor(Math.random() * coachingTips.length)];
+      const randomFallback = personalizedFallbacks[Math.floor(Math.random() * personalizedFallbacks.length)];
       
       const fallbackMessageObj = { 
         role: 'assistant' as const, 
-        message: randomTip,
+        message: randomFallback,
         timestamp: new Date(),
         id: `fallback-${Date.now()}`
       };
       
       setChatHistory(prev => [...prev, fallbackMessageObj]);
-
-      // Save fallback message to session
-      await saveMessageToSession(randomTip, 'assistant');
+      await saveMessageToSession(randomFallback, 'assistant');
     } finally {
       setIsLoading(false);
       setIsAnalyzing(false);
@@ -487,13 +496,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             <span className="text-sm sm:text-base">AI Learning Coach</span>
             <Badge variant="secondary" className="ml-2 bg-white/20 text-white text-xs">
-              Claude
+              Enhanced
             </Badge>
             {completedSessions.length > 0 && (
-              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs">
+              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs">
                 <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Analyzing your data</span>
-                <span className="sm:hidden">Analyzing</span>
+                <span className="hidden sm:inline">Personal Data Active</span>
+                <span className="sm:hidden">Data ✓</span>
               </Badge>
             )}
             {settings.enabled && (
@@ -575,6 +584,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="flex items-center gap-2 mb-1 sm:mb-2">
                       <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
                       <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
+                      {(msg as any).hasPersonalData && (
+                        <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                          Personal Data
+                        </Badge>
+                      )}
+                      {(msg as any).toolUsed && (
+                        <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                          {(msg as any).toolUsed.replace('-', ' ')}
+                        </Badge>
+                      )}
                       {ttsSupported && settings.enabled && (
                         <Button
                           size="icon"
@@ -633,7 +652,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="border-t p-2 sm:p-4 flex-shrink-0">
           <div className="flex gap-1 sm:gap-2">
             <Input
-              placeholder="Ask about your progress, study strategies, or get personalized guidance..."
+              placeholder="Ask about your flashcards, study progress, or get personalized guidance..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -692,13 +711,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           )}
           {completedSessions.length > 0 && (
             <p className="text-xs text-purple-600 mt-2 text-center px-2">
-              💡 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
+              🎯 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
               {settings.enabled && " • 🔊 Voice responses enabled"}
+              • Ask about your recent cards, study stats, or specific topics!
             </p>
           )}
           {responseTime && (
             <p className="text-xs text-muted-foreground mt-1 text-center">
               Response time: {responseTime}ms
+              {completedSessions.length > 0 && " • Enhanced with personal data"}
             </p>
           )}
         </div>
