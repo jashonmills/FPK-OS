@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -142,13 +143,17 @@ const FileUploadSection: React.FC = () => {
         }
       );
 
-    // Subscribe and set the channel reference
+    // Set the channel reference immediately to prevent multiple subscriptions
+    channelRef.current = channel;
+
+    // Subscribe and handle the result
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        channelRef.current = channel;
         console.log('✅ Successfully subscribed to file uploads channel');
       } else {
         console.error('❌ Failed to subscribe to file uploads channel:', status);
+        // Reset the ref on failure so we can try again
+        channelRef.current = null;
       }
     });
 

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -175,13 +176,17 @@ export const useNotifications = () => {
         }
       );
 
-    // Subscribe and set the channel reference
+    // Set the channel reference immediately to prevent multiple subscriptions
+    channelRef.current = channel;
+
+    // Subscribe and handle the result
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        channelRef.current = channel;
         console.log('✅ Successfully subscribed to notifications channel');
       } else {
         console.error('❌ Failed to subscribe to notifications channel:', status);
+        // Reset the ref on failure so we can try again
+        channelRef.current = null;
       }
     });
 
