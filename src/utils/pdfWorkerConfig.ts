@@ -24,3 +24,12 @@ export const getWorkerInfo = () => {
     isConfigured: !!pdfjs.GlobalWorkerOptions.workerSrc
   };
 };
+
+/**
+ * Reinitialize worker if needed
+ */
+export const reinitializeWorker = () => {
+  console.log('🔄 Reinitializing PDF.js worker...');
+  pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.js';
+  console.log('✅ Worker reinitialized:', pdfjs.GlobalWorkerOptions.workerSrc);
+};
