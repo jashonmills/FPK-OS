@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,8 @@ interface FolderSummaryHeaderProps {
   cards: Flashcard[];
   selectedInFolder: number;
   allSelected: boolean;
+  hasRecentCards: boolean;
+  recentCardCount: number;
   onSelectAllInFolder: () => void;
   onBulkFolderAction: (action: 'delete' | 'archive') => void;
 }
@@ -22,6 +23,8 @@ const FolderSummaryHeader: React.FC<FolderSummaryHeaderProps> = ({
   cards,
   selectedInFolder,
   allSelected,
+  hasRecentCards,
+  recentCardCount,
   onSelectAllInFolder,
   onBulkFolderAction,
 }) => {

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +13,7 @@ interface FolderContentAreaProps {
   viewMode: 'grid' | 'list';
   onToggleSelection: (cardId: string) => void;
   onToggleViewMode: (folderId: string) => void;
+  isCardRecent: (cardId: string) => boolean;
 }
 
 const FolderContentArea: React.FC<FolderContentAreaProps> = ({
@@ -23,6 +23,7 @@ const FolderContentArea: React.FC<FolderContentAreaProps> = ({
   viewMode,
   onToggleSelection,
   onToggleViewMode,
+  isCardRecent,
 }) => {
   const getPerformanceColor = (card: Flashcard) => {
     if (card.times_reviewed === 0) return 'bg-gray-200 text-gray-700 border border-gray-300';
