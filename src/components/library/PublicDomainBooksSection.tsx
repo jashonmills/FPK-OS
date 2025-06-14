@@ -26,8 +26,7 @@ const PublicDomainBooksSection: React.FC = () => {
     cover_url: book.cover_url,
     subjects: book.subjects,
     gutenberg_id: book.gutenberg_id,
-    onReadClick: () => handleBookClick(book),
-    onExternalClick: () => window.open(`https://gutenberg.org/ebooks/${book.gutenberg_id}`, '_blank')
+    onReadClick: () => handleBookClick(book)
   }));
 
   return (

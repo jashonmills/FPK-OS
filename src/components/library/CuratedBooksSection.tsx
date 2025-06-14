@@ -41,8 +41,7 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
     cover_url: book.cover_url,
     subjects: book.subjects,
     gutenberg_id: book.gutenberg_id,
-    onReadClick: () => handleBookSelect(book),
-    onExternalClick: () => window.open(`https://gutenberg.org/ebooks/${book.gutenberg_id}`, '_blank')
+    onReadClick: () => handleBookSelect(book)
   }));
 
   return (

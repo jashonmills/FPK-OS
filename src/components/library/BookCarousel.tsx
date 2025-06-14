@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BookOpen, ExternalLink } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 
 interface BookItem {
@@ -15,7 +15,6 @@ interface BookItem {
   subjects?: string[];
   gutenberg_id?: number;
   onReadClick: () => void;
-  onExternalClick?: () => void;
 }
 
 interface BookCarouselProps {
@@ -131,24 +130,15 @@ const BookCarousel: React.FC<BookCarouselProps> = ({
           </div>
 
           {/* Bottom section - pinned to bottom */}
-          <div className="flex gap-2 mt-3">
+          <div className="mt-3">
             <Button 
               onClick={book.onReadClick}
-              className="flex-1"
+              className="w-full"
               size="sm"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Read
             </Button>
-            {book.onExternalClick && (
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={book.onExternalClick}
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
       </CardContent>
@@ -233,15 +223,6 @@ const BookCarousel: React.FC<BookCarouselProps> = ({
               <BookOpen className="h-4 w-4 mr-2" />
               Read
             </Button>
-            {book.onExternalClick && (
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={book.onExternalClick}
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
       ))}
