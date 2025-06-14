@@ -1,38 +1,48 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Loader2, Square } from 'lucide-react';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceInputButtonProps {
   onTranscription: (text: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({ 
   onTranscription, 
-  placeholder = "voice input" 
+  placeholder = "voice input",
+  disabled = false
 }) => {
-  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  const { isRecording, isProcessing, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
   const { toast } = useToast();
 
   const handleVoiceInput = async () => {
+    if (disabled) return;
+
     if (isRecording) {
       try {
         const transcription = await stopRecording();
-        if (transcription) {
+        if (transcription.trim()) {
           onTranscription(transcription);
           toast({
-            title: "🎤 Voice recorded",
-            description: "Your speech has been converted to text!",
+            title: "🎤 Voice recorded successfully",
+            description: `Transcribed: "${transcription.substring(0, 50)}${transcription.length > 50 ? '...' : ''}"`,
+          });
+        } else {
+          toast({
+            title: "🔇 No speech detected",
+            description: "Please try speaking more clearly or check your microphone.",
+            variant: "destructive"
           });
         }
       } catch (error) {
         console.error('Voice recording error:', error);
         toast({
           title: "❌ Recording failed",
-          description: "Could not process voice recording. Please try again.",
+          description: error.message || "Could not process voice recording. Please try again.",
           variant: "destructive"
         });
       }
@@ -41,37 +51,76 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         await startRecording();
         toast({
           title: "🎤 Recording started",
-          description: "Speak now to add text via voice...",
+          description: "Speak clearly now. Click the button again to stop.",
         });
       } catch (error) {
         console.error('Microphone access error:', error);
         toast({
           title: "❌ Microphone access denied",
-          description: "Please allow microphone access to use voice input.",
+          description: "Please allow microphone access and try again.",
           variant: "destructive"
         });
       }
     }
   };
 
+  const handleCancel = () => {
+    cancelRecording();
+    toast({
+      title: "🚫 Recording cancelled",
+      description: "Voice recording was stopped.",
+    });
+  };
+
+  const getButtonContent = () => {
+    if (isProcessing) {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+    if (isRecording) {
+      return <MicOff className="h-4 w-4 text-red-500" />;
+    }
+    return <Mic className="h-4 w-4" />;
+  };
+
+  const getButtonVariant = () => {
+    if (isRecording) return "destructive";
+    if (isProcessing) return "outline";
+    return "outline";
+  };
+
+  const getTitle = () => {
+    if (isProcessing) return "Processing your speech...";
+    if (isRecording) return "Click to stop recording";
+    return `Start ${placeholder}`;
+  };
+
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      onClick={handleVoiceInput}
-      disabled={isProcessing}
-      className="shrink-0"
-      title={isRecording ? "Stop recording" : `Start ${placeholder}`}
-    >
-      {isProcessing ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : isRecording ? (
-        <MicOff className="h-4 w-4 text-red-500" />
-      ) : (
-        <Mic className="h-4 w-4" />
+    <div className="flex gap-1">
+      <Button
+        type="button"
+        variant={getButtonVariant()}
+        size="sm"
+        onClick={handleVoiceInput}
+        disabled={disabled || isProcessing}
+        className="shrink-0"
+        title={getTitle()}
+      >
+        {getButtonContent()}
+      </Button>
+      
+      {isRecording && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleCancel}
+          className="shrink-0"
+          title="Cancel recording"
+        >
+          <Square className="h-3 w-3" />
+        </Button>
       )}
-    </Button>
+    </div>
   );
 };
 

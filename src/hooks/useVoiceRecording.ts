@@ -7,11 +7,34 @@ export const useVoiceRecording = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      // Request high-quality audio for better transcription
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 16000, // Optimal for speech recognition
+          channelCount: 1
+        } 
+      });
+      
+      streamRef.current = stream;
+      
+      // Use webm codec for better compression and quality
+      const options = {
+        mimeType: 'audio/webm;codecs=opus'
+      };
+      
+      // Fallback for browsers that don't support webm
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options.mimeType = 'audio/wav';
+      }
+      
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -21,17 +44,18 @@ export const useVoiceRecording = () => {
         }
       };
 
-      mediaRecorder.start();
+      // Record in smaller chunks for faster processing
+      mediaRecorder.start(1000); // 1 second intervals
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      throw new Error('Could not access microphone');
+      throw new Error('Could not access microphone. Please check permissions.');
     }
   };
 
   const stopRecording = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (!mediaRecorderRef.current) {
+      if (!mediaRecorderRef.current || !streamRef.current) {
         reject(new Error('No recording in progress'));
         return;
       }
@@ -41,62 +65,75 @@ export const useVoiceRecording = () => {
         setIsProcessing(true);
 
         try {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          // Stop all tracks immediately to release microphone
+          streamRef.current?.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+
+          const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
           
-          // Convert blob to base64
-          const reader = new FileReader();
-          reader.onloadend = async () => {
-            try {
-              const base64Audio = reader.result?.toString().split(',')[1];
-              
-              if (!base64Audio) {
-                throw new Error('Failed to convert audio to base64');
-              }
+          // Convert to base64 more efficiently
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const base64Audio = btoa(String.fromCharCode(...uint8Array));
 
-              // Call speech-to-text edge function
-              const { data, error } = await supabase.functions.invoke('speech-to-text', {
-                body: { audio: base64Audio }
-              });
+          console.log('Audio blob size:', audioBlob.size, 'bytes');
+          console.log('Audio format:', mimeType);
 
-              if (error) {
-                console.error('Speech-to-text error:', error);
-                throw new Error('Failed to transcribe audio');
-              }
+          // Call improved speech-to-text function with timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-              const transcription = data?.transcription || '';
-              setIsProcessing(false);
-              resolve(transcription);
-            } catch (error) {
-              console.error('Transcription error:', error);
-              setIsProcessing(false);
-              reject(error);
+          const { data, error } = await supabase.functions.invoke('speech-to-text', {
+            body: { 
+              audio: base64Audio,
+              format: mimeType.includes('webm') ? 'webm' : 'wav'
             }
-          };
+          });
 
-          reader.onerror = () => {
-            setIsProcessing(false);
-            reject(new Error('Failed to read audio file'));
-          };
+          clearTimeout(timeoutId);
 
-          reader.readAsDataURL(audioBlob);
-        } catch (error) {
+          if (error) {
+            console.error('Speech-to-text error:', error);
+            throw new Error(`Failed to transcribe audio: ${error.message}`);
+          }
+
+          const transcription = data?.text || '';
+          console.log('Transcription result:', transcription);
+          
           setIsProcessing(false);
-          reject(error);
+          resolve(transcription);
+        } catch (error) {
+          console.error('Transcription error:', error);
+          setIsProcessing(false);
+          
+          if (error.name === 'AbortError') {
+            reject(new Error('Speech recognition timed out. Please try again.'));
+          } else {
+            reject(error);
+          }
         }
       };
 
       mediaRecorderRef.current.stop();
-      
-      // Stop all tracks to release microphone
-      const stream = mediaRecorderRef.current.stream;
-      stream.getTracks().forEach(track => track.stop());
     });
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      streamRef.current?.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      setIsRecording(false);
+      setIsProcessing(false);
+    }
   };
 
   return {
     isRecording,
     isProcessing,
     startRecording,
-    stopRecording
+    stopRecording,
+    cancelRecording
   };
 };
