@@ -1,16 +1,16 @@
 
 import { pdfjs } from 'react-pdf';
 
-// Use the actual installed pdfjs-dist version
-const ACTUAL_PDFJS_VERSION = '4.4.168';
+// Use the version that matches react-pdf's expectation
+const PDFJS_VERSION = '4.8.69';
 
 /**
  * Available CDN sources for PDF.js worker using the correct version
  */
 const WORKER_URLS = [
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${ACTUAL_PDFJS_VERSION}/legacy/build/pdf.worker.min.js`,
-  `https://unpkg.com/pdfjs-dist@${ACTUAL_PDFJS_VERSION}/legacy/build/pdf.worker.min.js`,
-  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ACTUAL_PDFJS_VERSION}/pdf.worker.min.js`
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`
 ];
 
 /**
@@ -22,7 +22,7 @@ export const isPDFWorkerReady = (): boolean => {
     workerSrc: pdfjs.GlobalWorkerOptions.workerSrc,
     isReady,
     reactPdfVersion: pdfjs.version,
-    actualVersion: ACTUAL_PDFJS_VERSION
+    configuredVersion: PDFJS_VERSION
   });
   return isReady;
 };
@@ -34,7 +34,7 @@ export const getWorkerInfo = () => {
   return {
     workerSrc: pdfjs.GlobalWorkerOptions.workerSrc,
     reactPdfVersion: pdfjs.version,
-    actualVersion: ACTUAL_PDFJS_VERSION,
+    configuredVersion: PDFJS_VERSION,
     isConfigured: !!pdfjs.GlobalWorkerOptions.workerSrc
   };
 };
