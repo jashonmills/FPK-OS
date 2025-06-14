@@ -39,6 +39,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
   // Initialize rendition when EPUB is loaded and container is ready
   useEffect(() => {
     if (!isLoading && !error && readerRef.current) {
+      console.log('🎨 Initializing EPUB rendition with container');
       initializeRendition(readerRef.current, fontSize);
     }
   }, [isLoading, error, initializeRendition, fontSize]);
@@ -49,11 +50,57 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     handleFontSizeChange(newSize);
   };
 
+  // Add touch/swipe navigation for mobile
+  useEffect(() => {
+    if (!readerRef.current || isLoading || error) return;
+
+    let startX = 0;
+    let startY = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!startX || !startY) return;
+      
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      
+      const deltaX = startX - endX;
+      const deltaY = startY - endY;
+      
+      // Only trigger if horizontal swipe is more significant than vertical
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+          // Swipe left - next page
+          handleNextPage();
+        } else {
+          // Swipe right - previous page
+          handlePrevPage();
+        }
+      }
+      
+      startX = 0;
+      startY = 0;
+    };
+
+    const container = readerRef.current;
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isLoading, error, handlePrevPage, handleNextPage]);
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
         <DialogDescription className="sr-only">
-          EPUB reader for {book.title} by {book.author}
+          EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
         </DialogDescription>
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -78,6 +125,8 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               readerRef={readerRef}
               onRetry={handleRetry}
               onClose={onClose}
+              onPrevPage={handlePrevPage}
+              onNextPage={handleNextPage}
             />
           </div>
 

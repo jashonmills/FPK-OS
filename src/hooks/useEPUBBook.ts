@@ -1,6 +1,7 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
-import type ePub from 'epubjs'; // Import type for ePub instance
+import type ePub from 'epubjs';
 
 export const useEPUBBook = (book: PublicDomainBook) => {
   const [epubBookInstance, setEpubBookInstance] = useState<ePub.Book | null>(null);
@@ -56,8 +57,8 @@ export const useEPUBBook = (book: PublicDomainBook) => {
     try {
       setIsLoading(true);
       setError(null);
-      setEpubBookInstance(null); // Clear previous instance
-      setToc([]); // Clear previous TOC
+      setEpubBookInstance(null);
+      setToc([]);
       setLoadingStep('Initializing...');
       setLoadingProgress(10);
 
@@ -127,8 +128,8 @@ export const useEPUBBook = (book: PublicDomainBook) => {
         setLoadingStep(`Retrying... (${retryCountRef.current}/${maxRetries})`);
         
         await delay(retryDelay);
-        loadEPUB(); // Call recursively
-        return; // Exit to avoid setting error state prematurely
+        loadEPUB();
+        return;
       }
       
       handleLoadingError(err);

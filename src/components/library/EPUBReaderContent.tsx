@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -15,6 +15,8 @@ interface EPUBReaderContentProps {
   readerRef: React.RefObject<HTMLDivElement>;
   onRetry: () => void;
   onClose: () => void;
+  onPrevPage?: () => void;
+  onNextPage?: () => void;
 }
 
 const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
@@ -25,9 +27,41 @@ const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
   loadingProgress = 0,
   readerRef,
   onRetry,
-  onClose
+  onClose,
+  onPrevPage,
+  onNextPage
 }) => {
   const { getAccessibilityClasses } = useAccessibility();
+
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isLoading || error) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          onPrevPage?.();
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case ' ':
+          event.preventDefault();
+          onNextPage?.();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          onClose();
+          break;
+      }
+    };
+
+    if (!isLoading && !error) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isLoading, error, onPrevPage, onNextPage, onClose]);
 
   if (isLoading) {
     return (
@@ -109,6 +143,9 @@ const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
     <div
       ref={readerRef}
       className={`w-full h-full ${getAccessibilityClasses('container')}`}
+      tabIndex={0}
+      role="main"
+      aria-label={`Reading ${book.title} by ${book.author}`}
     />
   );
 };
