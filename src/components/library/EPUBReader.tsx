@@ -55,24 +55,6 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     };
   }, [book.epub_url]);
 
-  const testProxyConnectivity = async (): Promise<boolean> => {
-    try {
-      setLoadingStep('Testing proxy connection...');
-      const testUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent('https://www.gutenberg.org/ebooks/11.epub.noimages')}`;
-      
-      const response = await fetch(testUrl, {
-        method: 'HEAD',
-        signal: AbortSignal.timeout(10000) // 10 second timeout for connectivity test
-      });
-      
-      console.log('📡 Proxy connectivity test:', response.status, response.statusText);
-      return response.ok;
-    } catch (err) {
-      console.error('🔴 Proxy connectivity test failed:', err);
-      return false;
-    }
-  };
-
   const loadEPUB = async () => {
     try {
       setIsLoading(true);
@@ -84,12 +66,6 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       // Validate EPUB URL
       if (!book.epub_url) {
         throw new Error('No EPUB URL available for this book');
-      }
-
-      // Test proxy connectivity first
-      const proxyWorking = await testProxyConnectivity();
-      if (!proxyWorking) {
-        throw new Error('PROXY_UNAVAILABLE');
       }
 
       setLoadingStep('Loading EPUB library...');
@@ -113,12 +89,12 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       // Set up error handler for the book
       epubBook.ready.catch((err: any) => {
         console.error('❌ EPUB ready error:', err);
-        throw new Error(`Failed to load book: ${err.message || 'Unknown error'}`);
+        throw err;
       });
 
-      // Wait for book to be ready with a longer timeout for larger books
+      // Wait for book to be ready with a longer timeout
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('BOOK_TIMEOUT')), 45000) // 45 seconds
+        setTimeout(() => reject(new Error('Book loading timed out after 30 seconds')), 30000)
       );
 
       await Promise.race([epubBook.ready, timeoutPromise]);
@@ -179,14 +155,14 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
       
       // Provide more specific error messages
-      if (errorMessage === 'BOOK_TIMEOUT') {
+      if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
         setError('The book is taking too long to download. This may be due to the book size or network conditions. Please try again.');
-      } else if (errorMessage === 'PROXY_UNAVAILABLE') {
-        setError('The book loading service is temporarily unavailable. Please try again in a few moments.');
-      } else if (errorMessage.includes('Failed to fetch')) {
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
         setError('Could not download the book file. Please check your internet connection and try again.');
       } else if (errorMessage.includes('CORS')) {
         setError('There was a network configuration issue. Please try again.');
+      } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+        setError('The book file could not be found. This book may not be available in EPUB format.');
       } else {
         setError(`Unable to load "${book.title}": ${errorMessage}`);
       }
