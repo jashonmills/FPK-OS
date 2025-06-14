@@ -2,21 +2,42 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check } from 'lucide-react';
+import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface SpeedTestProps {
   flashcards?: any[];
 }
 
-const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
+const SpeedTest: React.FC<SpeedTestProps> = () => {
+  const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
   const [isActive, setIsActive] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [answeredCards, setAnsweredCards] = useState(0);
+  const [testCards, setTestCards] = useState<any[]>([]);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
-  const testCards = flashcards.slice(0, 5);
+  useEffect(() => {
+    if (flashcards && flashcards.length > 0) {
+      // Filter cards not reviewed in last 24 hours
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const availableCards = flashcards.filter(card => {
+        if (!card.last_reviewed_at) return true;
+        return new Date(card.last_reviewed_at) < oneDayAgo;
+      });
+
+      // If fewer than 5 cards available, use any cards
+      let selectedCards = availableCards.length >= 5 
+        ? availableCards.sort(() => 0.5 - Math.random()).slice(0, 5)
+        : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+      setTestCards(selectedCards);
+    }
+  }, [flashcards]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -37,9 +58,24 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
 
   const startTest = () => {
     setIsActive(true);
+    setStartTime(Date.now());
   };
 
-  const handleNext = () => {
+  const handleShowAnswer = () => {
+    setShowAnswer(true);
+  };
+
+  const handleNext = async () => {
+    // Update card stats
+    const currentCardData = testCards[currentCard];
+    if (currentCardData) {
+      await updateFlashcard({
+        id: currentCardData.id,
+        times_reviewed: currentCardData.times_reviewed + 1,
+        last_reviewed_at: new Date().toISOString()
+      });
+    }
+
     setAnsweredCards(prev => prev + 1);
     
     if (currentCard < testCards.length - 1) {
@@ -58,6 +94,22 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
     setIsActive(false);
     setCompleted(false);
     setAnsweredCards(0);
+    setStartTime(null);
+    
+    // Select new cards
+    if (flashcards && flashcards.length > 0) {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const availableCards = flashcards.filter(card => {
+        if (!card.last_reviewed_at) return true;
+        return new Date(card.last_reviewed_at) < oneDayAgo;
+      });
+
+      let selectedCards = availableCards.length >= 5 
+        ? availableCards.sort(() => 0.5 - Math.random()).slice(0, 5)
+        : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+      setTestCards(selectedCards);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -66,12 +118,41 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (isLoading) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Speed Test
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!flashcards || flashcards.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardContent className="p-6 text-center">
+          <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Flashcards Found</h3>
+          <p className="text-muted-foreground">Create some flashcards first to start the speed test!</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (testCards.length === 0) {
     return (
       <Card className="h-full">
         <CardContent className="p-6 text-center">
           <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No flashcards available for speed test</p>
+          <p className="text-muted-foreground">Loading speed test cards...</p>
         </CardContent>
       </Card>
     );
@@ -86,6 +167,9 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
           <p className="text-muted-foreground mb-4">
             Answer {testCards.length} cards in 2 minutes!
           </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Cards selected: {testCards.length} (prioritizing cards not seen in 24hrs)
+          </p>
           <Button onClick={startTest} className="bg-blue-600 hover:bg-blue-700">
             <Timer className="h-4 w-4 mr-2" />
             Start Speed Test
@@ -96,8 +180,8 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
   }
 
   if (completed) {
-    const timeUsed = 120 - timeLeft;
-    const avgTimePerCard = timeUsed / answeredCards;
+    const timeUsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120 - timeLeft;
+    const avgTimePerCard = answeredCards > 0 ? timeUsed / answeredCards : 0;
 
     return (
       <Card className="h-full bg-blue-50 border-blue-200">
@@ -109,6 +193,9 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
             <p>Time Used: {formatTime(timeUsed)}</p>
             {answeredCards > 0 && (
               <p>Avg Time/Card: {avgTimePerCard.toFixed(1)}s</p>
+            )}
+            {timeLeft === 0 && (
+              <p className="text-red-600 font-medium">Time's up!</p>
             )}
           </div>
           <Button onClick={handleRestart} variant="outline">
@@ -146,13 +233,13 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
 
         <div className="bg-muted p-4 rounded-lg">
           <h4 className="font-medium mb-2">Question</h4>
-          <p>{card?.front || 'Sample question'}</p>
+          <p>{card.front_content}</p>
         </div>
 
         {showAnswer && (
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
             <h4 className="font-medium mb-2 text-green-800">Answer</h4>
-            <p className="text-green-700 mb-4">{card?.back || 'Sample answer'}</p>
+            <p className="text-green-700 mb-4">{card.back_content}</p>
             <Button onClick={handleNext} className="w-full">
               {currentCard < testCards.length - 1 ? 'Next Card' : 'Finish Test'}
             </Button>
@@ -160,7 +247,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ flashcards = [] }) => {
         )}
 
         {!showAnswer && (
-          <Button onClick={() => setShowAnswer(true)} className="w-full">
+          <Button onClick={handleShowAnswer} className="w-full">
             Show Answer
           </Button>
         )}

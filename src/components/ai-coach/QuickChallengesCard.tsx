@@ -16,7 +16,7 @@ interface Challenge {
 }
 
 interface QuickChallengesCardProps {
-  challenges: Challenge[];
+  challenges?: Challenge[];
   flashcards?: any[];
 }
 
@@ -34,7 +34,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, f
     },
     {
       id: 'accuracy-challenge',
-      text: 'Accuracy challenge: Score 90%+ on 5 cards',
+      text: 'Accuracy challenge: Score 80%+ on 5 cards',
       icon: Target,
       action: () => setActiveChallenge('accuracy-challenge'),
       component: AccuracyChallenge
@@ -85,7 +85,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, f
           {/* Challenge Detail */}
           <div className="challenge-detail lg:col-span-2 mt-4 lg:mt-0">
             {activeChallengData ? (
-              <activeChallengData.component flashcards={flashcards} />
+              <activeChallengData.component />
             ) : (
               <Card className="h-full min-h-[200px] lg:min-h-[300px]">
                 <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
@@ -121,7 +121,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, f
               </div>
               <div className="p-4 max-h-96 overflow-y-auto">
                 {activeChallengData && (
-                  <activeChallengData.component flashcards={flashcards} />
+                  <activeChallengData.component />
                 )}
               </div>
             </div>

@@ -1,32 +1,98 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
+import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
 }
 
-const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ flashcards = [] }) => {
+const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
+  const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [completed, setCompleted] = useState(false);
+  const [challengeCards, setChallengeCards] = useState<any[]>([]);
+  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
 
-  const challengeCards = flashcards.slice(0, 5);
-  const targetAccuracy = 90;
+  const targetAccuracy = 80;
 
-  const handleAnswer = (isCorrect: boolean) => {
-    const newScore = {
-      correct: score.correct + (isCorrect ? 1 : 0),
-      total: score.total + 1
-    };
-    setScore(newScore);
+  useEffect(() => {
+    if (flashcards && flashcards.length > 0) {
+      // Filter cards with low accuracy (< 80%) or no review history
+      const lowAccuracyCards = flashcards.filter(card => {
+        const successRate = card.times_reviewed > 0 
+          ? (card.times_correct / card.times_reviewed) * 100 
+          : 0;
+        return successRate < targetAccuracy || card.times_reviewed === 0;
+      });
 
+      // If we don't have enough low accuracy cards, add some random ones
+      let selectedCards = [...lowAccuracyCards];
+      if (selectedCards.length < 5) {
+        const remainingCards = flashcards.filter(card => !selectedCards.includes(card));
+        const shuffled = remainingCards.sort(() => 0.5 - Math.random());
+        selectedCards = [...selectedCards, ...shuffled].slice(0, 5);
+      } else {
+        selectedCards = selectedCards.slice(0, 5);
+      }
+
+      setChallengeCards(selectedCards);
+    }
+  }, [flashcards]);
+
+  useEffect(() => {
+    if (challengeCards.length > 0 && currentCard < challengeCards.length) {
+      generateMultipleChoiceOptions();
+    }
+  }, [challengeCards, currentCard]);
+
+  const generateMultipleChoiceOptions = () => {
+    if (!challengeCards[currentCard] || !flashcards) return;
+
+    const correctAnswer = challengeCards[currentCard].back_content;
+    const otherAnswers = flashcards
+      .filter(card => card.id !== challengeCards[currentCard].id)
+      .map(card => card.back_content)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3);
+
+    const allOptions = [correctAnswer, ...otherAnswers].sort(() => 0.5 - Math.random());
+    setMultipleChoiceOptions(allOptions);
+  };
+
+  const handleAnswerSelect = async (answer: string) => {
+    setSelectedAnswer(answer);
+    setShowResult(true);
+
+    const currentCardData = challengeCards[currentCard];
+    const isCorrect = answer === currentCardData.back_content;
+
+    // Update score
+    setScore(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      total: prev.total + 1
+    }));
+
+    // Update card stats
+    await updateFlashcard({
+      id: currentCardData.id,
+      times_reviewed: currentCardData.times_reviewed + 1,
+      times_correct: currentCardData.times_correct + (isCorrect ? 1 : 0),
+      last_reviewed_at: new Date().toISOString()
+    });
+  };
+
+  const handleNext = () => {
     if (currentCard < challengeCards.length - 1) {
       setCurrentCard(currentCard + 1);
-      setShowAnswer(false);
+      setSelectedAnswer(null);
+      setShowResult(false);
     } else {
       setCompleted(true);
     }
@@ -34,17 +100,69 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ flashcards = [] }
 
   const handleRestart = () => {
     setCurrentCard(0);
-    setShowAnswer(false);
+    setSelectedAnswer(null);
+    setShowResult(false);
     setScore({ correct: 0, total: 0 });
     setCompleted(false);
+    // Regenerate challenge cards
+    if (flashcards && flashcards.length > 0) {
+      const lowAccuracyCards = flashcards.filter(card => {
+        const successRate = card.times_reviewed > 0 
+          ? (card.times_correct / card.times_reviewed) * 100 
+          : 0;
+        return successRate < targetAccuracy || card.times_reviewed === 0;
+      });
+
+      let selectedCards = [...lowAccuracyCards];
+      if (selectedCards.length < 5) {
+        const remainingCards = flashcards.filter(card => !selectedCards.includes(card));
+        const shuffled = remainingCards.sort(() => 0.5 - Math.random());
+        selectedCards = [...selectedCards, ...shuffled].slice(0, 5);
+      } else {
+        selectedCards = selectedCards.slice(0, 5);
+      }
+
+      setChallengeCards(selectedCards);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Accuracy Challenge
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!flashcards || flashcards.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardContent className="p-6 text-center">
+          <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Flashcards Found</h3>
+          <p className="text-muted-foreground">Create some flashcards first to start the accuracy challenge!</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (challengeCards.length === 0) {
     return (
       <Card className="h-full">
         <CardContent className="p-6 text-center">
           <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No flashcards available for accuracy challenge</p>
+          <p className="text-muted-foreground">Loading challenge cards...</p>
         </CardContent>
       </Card>
     );
@@ -105,30 +223,53 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ flashcards = [] }
 
         <div className="bg-muted p-4 rounded-lg">
           <h4 className="font-medium mb-2">Question</h4>
-          <p>{card?.front || 'Sample question'}</p>
+          <p>{card.front_content}</p>
         </div>
 
-        {showAnswer && (
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <h4 className="font-medium mb-2 text-green-800">Correct Answer</h4>
-            <p className="text-green-700 mb-4">{card?.back || 'Sample answer'}</p>
-            <div className="flex gap-2">
-              <Button onClick={() => handleAnswer(true)} className="flex-1 bg-green-600 hover:bg-green-700">
-                <Check className="h-4 w-4 mr-2" />
-                I Got It Right
+        {!showResult && (
+          <div className="space-y-2">
+            <h4 className="font-medium mb-2">Choose the correct answer:</h4>
+            {multipleChoiceOptions.map((option, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                className="w-full text-left h-auto p-3 justify-start"
+                onClick={() => handleAnswerSelect(option)}
+                disabled={selectedAnswer !== null}
+              >
+                {option}
               </Button>
-              <Button onClick={() => handleAnswer(false)} variant="outline" className="flex-1">
-                <X className="h-4 w-4 mr-2" />
-                I Got It Wrong
-              </Button>
-            </div>
+            ))}
           </div>
         )}
 
-        {!showAnswer && (
-          <Button onClick={() => setShowAnswer(true)} className="w-full">
-            Show Answer
-          </Button>
+        {showResult && (
+          <div className={`p-4 rounded-lg border ${
+            selectedAnswer === card.back_content 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              {selectedAnswer === card.back_content ? (
+                <Check className="h-5 w-5 text-green-600" />
+              ) : (
+                <X className="h-5 w-5 text-red-600" />
+              )}
+              <h4 className={`font-medium ${
+                selectedAnswer === card.back_content ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {selectedAnswer === card.back_content ? 'Correct!' : 'Incorrect'}
+              </h4>
+            </div>
+            <p className={`mb-4 ${
+              selectedAnswer === card.back_content ? 'text-green-700' : 'text-red-700'
+            }`}>
+              Correct answer: {card.back_content}
+            </p>
+            <Button onClick={handleNext} className="w-full">
+              {currentCard < challengeCards.length - 1 ? 'Next Question' : 'Complete Challenge'}
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>

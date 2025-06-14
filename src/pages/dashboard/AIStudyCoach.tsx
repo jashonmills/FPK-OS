@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, Brain, TrendingUp } from 'lucide-react';
@@ -94,7 +93,7 @@ const AIStudyCoach = () => {
       </Card>
 
       {/* Quick Study Challenges Section */}
-      <QuickChallengesCard challenges={quickChallenges} flashcards={flashcards} />
+      <QuickChallengesCard challenges={quickChallenges} />
 
       {/* Main Content Layout */}
       <div className="space-y-3 sm:space-y-4 lg:space-y-6 lg:grid lg:grid-cols-3 lg:gap-4 xl:gap-6 lg:space-y-0 overflow-hidden">

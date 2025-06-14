@@ -1,21 +1,41 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, ArrowRight, Check } from 'lucide-react';
+import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface QuickReviewProps {
   flashcards?: any[];
 }
 
-const QuickReview: React.FC<QuickReviewProps> = ({ flashcards = [] }) => {
+const QuickReview: React.FC<QuickReviewProps> = () => {
+  const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [reviewCards, setReviewCards] = useState<any[]>([]);
 
-  const reviewCards = flashcards.slice(0, 3);
+  useEffect(() => {
+    if (flashcards && flashcards.length > 0) {
+      // Randomly select 3 cards
+      const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
+      setReviewCards(shuffled.slice(0, 3));
+    }
+  }, [flashcards]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Update review stats for current card
+    const currentCardData = reviewCards[currentCard];
+    if (currentCardData) {
+      await updateFlashcard({
+        id: currentCardData.id,
+        times_reviewed: currentCardData.times_reviewed + 1,
+        last_reviewed_at: new Date().toISOString()
+      });
+    }
+
     if (currentCard < reviewCards.length - 1) {
       setCurrentCard(currentCard + 1);
       setShowAnswer(false);
@@ -28,14 +48,48 @@ const QuickReview: React.FC<QuickReviewProps> = ({ flashcards = [] }) => {
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
+    // Randomly select 3 new cards
+    if (flashcards && flashcards.length > 0) {
+      const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
+      setReviewCards(shuffled.slice(0, 3));
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Quick Review
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!flashcards || flashcards.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardContent className="p-6 text-center">
+          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Flashcards Found</h3>
+          <p className="text-muted-foreground">Create some flashcards first to start reviewing!</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (reviewCards.length === 0) {
     return (
       <Card className="h-full">
         <CardContent className="p-6 text-center">
           <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No flashcards available for review</p>
+          <p className="text-muted-foreground">Loading review cards...</p>
         </CardContent>
       </Card>
     );
@@ -47,7 +101,7 @@ const QuickReview: React.FC<QuickReviewProps> = ({ flashcards = [] }) => {
         <CardContent className="p-6 text-center">
           <Check className="h-12 w-12 mx-auto text-green-600 mb-4" />
           <h3 className="text-lg font-semibold text-green-800 mb-2">Quick Review Complete!</h3>
-          <p className="text-green-700 mb-4">You've reviewed 3 flashcards</p>
+          <p className="text-green-700 mb-4">You've reviewed {reviewCards.length} flashcards</p>
           <Button onClick={handleRestart} variant="outline">
             Review Again
           </Button>
@@ -74,13 +128,13 @@ const QuickReview: React.FC<QuickReviewProps> = ({ flashcards = [] }) => {
       <CardContent className="space-y-4">
         <div className="bg-muted p-4 rounded-lg">
           <h4 className="font-medium mb-2">Question</h4>
-          <p>{card?.front || 'Sample question'}</p>
+          <p>{card.front_content}</p>
         </div>
 
         {showAnswer && (
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <h4 className="font-medium mb-2 text-blue-800">Answer</h4>
-            <p className="text-blue-700">{card?.back || 'Sample answer'}</p>
+            <p className="text-blue-700">{card.back_content}</p>
           </div>
         )}
 
