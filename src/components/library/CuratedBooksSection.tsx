@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { useAccessibility } from '@/hooks/useAccessibility';
-import BookCard from './BookCard';
+import CuratedBookItem from './CuratedBookItem';
 import { Book, CuratedBook } from '@/types/library';
 
 interface CuratedBooksSectionProps {
@@ -19,7 +18,7 @@ const curatedBooks: CuratedBook[] = [
   {
     title: "The Reason I Jump",
     author: "Naoki Higashida",
-    workKey: "/works/OL14346775W",
+    workKey: "/works/OL16814394W",
     description: "A thirteen-year-old boy with autism answers questions about his condition"
   },
   {
@@ -30,7 +29,7 @@ const curatedBooks: CuratedBook[] = [
   },
   {
     title: "Different Like Me",
-    author: "Jenifer Calvin",
+    author: "Jennifer Elder",
     workKey: "/works/OL7846811W",
     description: "Stories of famous people who were different and how they succeeded"
   },
@@ -51,18 +50,6 @@ const curatedBooks: CuratedBook[] = [
 const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect }) => {
   const { getAccessibilityClasses } = useAccessibility();
 
-  const handleBookClick = (curatedBook: CuratedBook) => {
-    const book: Book = {
-      key: curatedBook.workKey,
-      title: curatedBook.title,
-      author_name: [curatedBook.author],
-      workKey: curatedBook.workKey,
-      description: curatedBook.description,
-      isCurated: true
-    };
-    onBookSelect(book);
-  };
-
   return (
     <section className="space-y-6">
       <div className="text-center">
@@ -76,20 +63,11 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {curatedBooks.map((book) => (
-          <Card 
+          <CuratedBookItem
             key={book.workKey}
-            className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-primary/20"
-            onClick={() => handleBookClick(book)}
-          >
-            <CardContent className="p-4">
-              <BookCard
-                title={book.title}
-                author={book.author}
-                workKey={book.workKey}
-                isCurated={true}
-              />
-            </CardContent>
-          </Card>
+            curatedBook={book}
+            onBookSelect={onBookSelect}
+          />
         ))}
       </div>
     </section>
