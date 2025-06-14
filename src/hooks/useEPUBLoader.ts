@@ -25,7 +25,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
         }
       }
     };
-  }, [book.epub_url]);
+  }, [book.epub_url, book.storage_url]); // Added book.storage_url dependency
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -90,7 +90,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
             setToc(epubBook.navigation.toc || []);
             console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 3000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 5000)) // Increased TOC timeout
         ]);
       } catch (navError) {
         console.warn('⚠️ Could not load table of contents, continuing without it');
@@ -127,8 +127,8 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
   const waitForBookReady = async (epubBook: any) => {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
-        reject(new Error('Book parsing timed out. This book may be too large or complex.'));
-      }, 10000); // Reduced timeout for local files
+        reject(new Error('Book parsing timed out. This book may be too large or complex. Please try again.'));
+      }, 30000); // Increased timeout to 30 seconds
     });
 
     await Promise.race([epubBook.ready, timeoutPromise]);
@@ -138,13 +138,13 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
     
     if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
-      setError('This book is taking too long to load. Please try again or select a different book.');
+      setError('This book is taking too long to load, even after extending the wait time. It might be very large or there could be a temporary issue. Please try again later or select a different book.');
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
       setError('Network connection issue. Please check your internet connection and try again.');
     } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
       setError('This book is not available. Please try selecting a different book.');
     } else {
-      setError(`Unable to load "${book.title}". Please try again or select a different book.`);
+      setError(`Unable to load "${book.title}". Please try again or select a different book. Details: ${errorMessage}`);
     }
     
     setIsLoading(false);
