@@ -21,7 +21,12 @@ export const usePublicDomainBooks = () => {
       }
       
       console.log(`✅ Loaded ${data?.length || 0} books from database`);
-      return data || [];
+      
+      // Type assertion to ensure the data conforms to our PublicDomainBook interface
+      return (data || []).map(book => ({
+        ...book,
+        download_status: book.download_status as 'pending' | 'downloading' | 'completed' | 'failed'
+      })) as PublicDomainBook[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false
