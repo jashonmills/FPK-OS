@@ -17,10 +17,9 @@ interface Challenge {
 
 interface QuickChallengesCardProps {
   challenges?: Challenge[];
-  flashcards?: any[];
 }
 
-const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, flashcards = [] }) => {
+const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges }) => {
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
 
   // Enhanced challenges with component mapping
@@ -67,17 +66,19 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, f
               <Button 
                 key={challenge.id}
                 variant={activeChallenge === challenge.id ? "default" : "outline"} 
-                className={`w-full justify-start text-left h-auto p-2 sm:p-3 min-h-[2.5rem] sm:min-h-[3rem] overflow-hidden transition-all duration-200 ${
+                className={`w-full justify-start text-left h-auto p-2 sm:p-3 transition-all duration-200 ${
                   activeChallenge === challenge.id 
                     ? 'ring-2 ring-primary ring-offset-2 bg-primary text-primary-foreground' 
                     : 'hover:bg-accent hover:text-accent-foreground'
                 }`}
                 onClick={challenge.action}
               >
-                <challenge.icon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
-                <span className="text-xs sm:text-sm leading-tight break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-full">
-                  {challenge.text}
-                </span>
+                <div className="flex items-start gap-2 w-full min-w-0">
+                  <challenge.icon className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm leading-tight break-words hyphens-auto text-left flex-1">
+                    {challenge.text}
+                  </span>
+                </div>
               </Button>
             ))}
           </div>
@@ -95,7 +96,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges, f
                   <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
                     Select a challenge to begin!
                   </h3>
-                  <p className="text-sm text-muted-foreground italic max-w-sm">
+                  <p className="text-sm text-muted-foreground italic max-w-sm leading-relaxed">
                     Choose a study challenge from the list to start practicing and improving your skills.
                   </p>
                 </CardContent>
