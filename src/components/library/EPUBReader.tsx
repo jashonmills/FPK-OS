@@ -11,7 +11,8 @@ import {
   Minus, 
   Plus, 
   Settings,
-  X 
+  X,
+  AlertCircle
 } from 'lucide-react';
 import {
   Dialog,
@@ -43,7 +44,11 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     return () => {
       // Cleanup EPUB instance
       if (epubRef.current) {
-        epubRef.current.destroy();
+        try {
+          epubRef.current.destroy();
+        } catch (err) {
+          console.log('EPUB cleanup error (non-critical):', err);
+        }
       }
     };
   }, [book.epub_url]);
@@ -53,7 +58,12 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       setIsLoading(true);
       setError(null);
 
-      console.log('📖 Loading EPUB for:', book.title);
+      console.log('📖 Loading EPUB for:', book.title, 'URL:', book.epub_url);
+
+      // Validate EPUB URL
+      if (!book.epub_url) {
+        throw new Error('No EPUB URL available for this book');
+      }
 
       // Dynamic import of epub.js
       const ePub = (await import('epubjs')).default;
@@ -61,45 +71,84 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       // Create proxy URL for CORS handling using our Supabase edge function
       const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
       
+      console.log('🔗 Using proxy URL:', proxyUrl);
+      
       // Create EPUB book instance
       const epubBook = ePub(proxyUrl);
       epubRef.current = epubBook;
 
-      // Wait for book to be ready
-      await epubBook.ready;
+      // Set up error handler for the book
+      epubBook.ready.catch((err: any) => {
+        console.error('❌ EPUB ready error:', err);
+        throw new Error(`Failed to load book: ${err.message || 'Unknown error'}`);
+      });
+
+      // Wait for book to be ready with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Book loading timed out after 30 seconds')), 30000)
+      );
+
+      await Promise.race([epubBook.ready, timeoutPromise]);
+      console.log('✅ EPUB book ready');
 
       // Load navigation/TOC
-      await epubBook.loaded.navigation;
-      setToc(epubBook.navigation.toc || []);
-
-      if (readerRef.current) {
-        // Create rendition
-        const rendition = epubBook.renderTo(readerRef.current, {
-          width: '100%',
-          height: '100%',
-          flow: 'paginated',
-          spread: 'none'
-        });
-        renditionRef.current = rendition;
-
-        // Set initial font size
-        rendition.themes.fontSize(`${fontSize}px`);
-
-        // Display first page
-        await rendition.display();
-
-        // Track location changes
-        rendition.on('relocated', (location: any) => {
-          setCurrentLocation(location.start.cfi);
-        });
-
-        console.log('✅ EPUB loaded successfully');
+      try {
+        await epubBook.loaded.navigation;
+        setToc(epubBook.navigation.toc || []);
+        console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
+      } catch (navError) {
+        console.warn('⚠️ Could not load table of contents:', navError);
+        setToc([]);
       }
 
+      if (!readerRef.current) {
+        throw new Error('Reader container not available');
+      }
+
+      // Create rendition
+      const rendition = epubBook.renderTo(readerRef.current, {
+        width: '100%',
+        height: '100%',
+        flow: 'paginated',
+        spread: 'none'
+      });
+      renditionRef.current = rendition;
+
+      // Set initial font size
+      rendition.themes.fontSize(`${fontSize}px`);
+
+      // Display first page
+      await rendition.display();
+      console.log('📄 First page displayed');
+
+      // Track location changes
+      rendition.on('relocated', (location: any) => {
+        setCurrentLocation(location.start.cfi);
+      });
+
+      // Handle rendition errors
+      rendition.on('error', (err: any) => {
+        console.error('❌ Rendition error:', err);
+      });
+
       setIsLoading(false);
+      console.log('✅ EPUB loaded successfully');
+
     } catch (err) {
       console.error('❌ Error loading EPUB:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load EPUB');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('timed out')) {
+        setError('The book is taking too long to load. Please try again or check your internet connection.');
+      } else if (errorMessage.includes('CORS')) {
+        setError('There was a network issue loading this book. Please try again.');
+      } else if (errorMessage.includes('Failed to fetch')) {
+        setError('Could not download the book file. The book may be temporarily unavailable.');
+      } else {
+        setError(`Error loading book: ${errorMessage}`);
+      }
+      
       setIsLoading(false);
     }
   };
@@ -132,6 +181,11 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     }
   };
 
+  const handleRetry = () => {
+    setError(null);
+    loadEPUB();
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
@@ -146,16 +200,20 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
                 {book.title}
               </DialogTitle>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setShowTOC(true)}>
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleFontSizeChange(-2)}>
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="text-sm px-2">{fontSize}px</span>
-                <Button variant="ghost" size="sm" onClick={() => handleFontSizeChange(2)}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                {!isLoading && !error && (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => setShowTOC(true)}>
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleFontSizeChange(-2)}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm px-2">{fontSize}px</span>
+                    <Button variant="ghost" size="sm" onClick={() => handleFontSizeChange(2)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
                 <Button variant="ghost" size="sm" onClick={onClose}>
                   <X className="h-4 w-4" />
                 </Button>
@@ -169,7 +227,10 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               <div className="absolute inset-0 flex items-center justify-center bg-background">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className={getAccessibilityClasses('text')}>Loading book...</p>
+                  <p className={getAccessibilityClasses('text')}>Loading "{book.title}"...</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Downloading from Project Gutenberg...
+                  </p>
                 </div>
               </div>
             )}
@@ -177,44 +238,55 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-background">
                 <div className="text-center max-w-md p-6">
-                  <p className="text-destructive mb-4">Error loading book: {error}</p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    There might be an issue with the EPUB file or network connection.
+                  <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Could not load book</h3>
+                  <p className="text-destructive mb-4">{error}</p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    This may be a temporary issue with the book file or network connection.
                   </p>
                   <div className="space-x-2">
-                    <Button onClick={loadEPUB} variant="outline">Try Again</Button>
-                    <Button onClick={onClose}>Close</Button>
+                    <Button onClick={handleRetry} variant="outline">
+                      Try Again
+                    </Button>
+                    <Button onClick={onClose}>
+                      Back to Library
+                    </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Book: {book.title} (Gutenberg #{book.gutenberg_id})
+                  </p>
                 </div>
               </div>
             )}
 
             <div
               ref={readerRef}
-              className={`w-full h-full ${getAccessibilityClasses('container')}`}
+              className={`w-full h-full ${getAccessibilityClasses('container')} ${isLoading || error ? 'hidden' : ''}`}
             />
           </div>
 
           {/* Navigation Footer */}
-          <div className="flex-shrink-0 p-4 border-t">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={onClose}>
-                <Home className="h-4 w-4 mr-2" />
-                Back to Library
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={handlePrevPage} disabled={isLoading || !!error}>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Previous
+          {!isLoading && !error && (
+            <div className="flex-shrink-0 p-4 border-t">
+              <div className="flex items-center justify-between">
+                <Button variant="outline" onClick={onClose}>
+                  <Home className="h-4 w-4 mr-2" />
+                  Back to Library
                 </Button>
-                <Button variant="outline" onClick={handleNextPage} disabled={isLoading || !!error}>
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={handlePrevPage}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                  <Button variant="outline" onClick={handleNextPage}>
+                    Next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Table of Contents Modal */}

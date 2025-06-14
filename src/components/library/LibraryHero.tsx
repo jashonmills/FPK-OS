@@ -18,16 +18,16 @@ const LibraryHero = () => {
           <BookOpen className="h-6 w-6 text-white" />
         </div>
         <h1 className={`text-4xl font-bold ${getAccessibilityClasses('text')}`}>
-          Public Domain Library
+          Classic Literature Library
         </h1>
       </div>
       <p className={`text-lg text-muted-foreground max-w-2xl mx-auto ${getAccessibilityClasses('text')}`}>
         {isLoading ? (
-          "Loading our collection of educational books from Project Gutenberg..."
+          "Loading our collection of classic literature from Project Gutenberg..."
         ) : error ? (
-          "Discover our collection of free educational books focused on learning, neurodiversity, and personal growth from Project Gutenberg's open collection."
+          "Discover our collection of free classic books from Project Gutenberg's vast digital library."
         ) : (
-          `Discover ${bookCount} free educational books covering ${subjectCount} subjects, all focused on learning, neurodiversity, and personal growth from Project Gutenberg's open collection.`
+          `Discover ${bookCount} free classic books covering ${subjectCount} genres, all from Project Gutenberg's renowned collection of public domain literature.`
         )}
       </p>
       {error && (
@@ -40,4 +40,3 @@ const LibraryHero = () => {
 };
 
 export default LibraryHero;
-
