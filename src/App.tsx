@@ -17,6 +17,7 @@ import Goals from '@/pages/dashboard/Goals';
 import LearningAnalytics from '@/pages/dashboard/LearningAnalytics';
 import LiveLearningHub from '@/pages/dashboard/LiveLearningHub';
 import FlashcardManagerPage from '@/pages/dashboard/FlashcardManagerPage';
+import Library from '@/pages/dashboard/Library';
 import StudySessionRouter from '@/components/study/StudySessionRouter';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import UserManagement from '@/pages/admin/UserManagement';
@@ -63,6 +64,7 @@ function App() {
                     <Route path="learner/goals" element={<Goals />} />
                     <Route path="learner/analytics" element={<LearningAnalytics />} />
                     <Route path="learner/live-hub" element={<LiveLearningHub />} />
+                    <Route path="learner/library" element={<Library />} />
                     
                     {/* Admin Routes */}
                     <Route path="admin" element={<AdminDashboard />} />

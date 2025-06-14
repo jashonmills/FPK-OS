@@ -24,7 +24,8 @@ import {
   BookUser,
   Compass,
   GraduationCap,
-  Shield
+  Shield,
+  BookOpen
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +52,11 @@ export function AppSidebar() {
       title: 'nav.courses',
       url: "/dashboard/learner/courses",
       icon: Book,
+    },
+    {
+      title: 'nav.library',
+      url: "/dashboard/learner/library",
+      icon: BookOpen,
     },
     {
       title: 'nav.analytics',
