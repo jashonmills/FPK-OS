@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
@@ -21,7 +22,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [scale, setScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [workerStatus, setWorkerStatus] = useState<'configuring' | 'ready' | 'failed'>('configuring');
+  const [workerReady, setWorkerReady] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Initialize PDF worker on component mount
@@ -31,35 +32,22 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       
       const configSuccess = configurePDFWorker();
       if (!configSuccess) {
-        setWorkerStatus('failed');
         setError('Failed to configure PDF processing engine');
         return;
       }
       
-      // Validate worker functionality
       const validationSuccess = await validatePDFWorker();
       if (!validationSuccess) {
-        setWorkerStatus('failed');
         setError('PDF processing engine validation failed');
         return;
       }
       
-      setWorkerStatus('ready');
+      setWorkerReady(true);
       console.log('✅ PDF.js worker ready');
     };
 
     initializeWorker();
   }, []);
-
-  // PDF options with better configuration
-  const pdfOptions = useMemo(() => ({
-    cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-    cMapPacked: true,
-    standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-    disableAutoFetch: false,
-    disableStream: false,
-    useSystemFonts: true,
-  }), []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('✅ PDF loaded successfully:', { numPages, fileName });
@@ -78,20 +66,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     setIsLoading(false);
     
     let errorMessage = "Failed to load PDF file.";
-    let errorDetails = error.message;
     
-    if (error.message.includes('worker') || error.message.includes('Worker')) {
+    if (error.message.includes('worker')) {
       errorMessage = "PDF processing engine error. Please refresh and try again.";
-      errorDetails = "Worker initialization failed";
     } else if (error.message.includes('fetch') || error.message.includes('network')) {
       errorMessage = "Network error. Please check your connection and try again.";
-      errorDetails = "Could not download PDF file";
     } else if (error.message.includes('Invalid PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
-      errorDetails = "PDF format not recognized";
     }
     
-    setError(`${errorMessage} (${errorDetails})`);
+    setError(errorMessage);
     
     toast({
       title: "PDF Error",
@@ -100,39 +84,32 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const handleRetry = async () => {
+  const handleRetry = () => {
     console.log('🔄 Retrying PDF load');
     setError(null);
     setIsLoading(true);
     setNumPages(0);
     setPageNumber(1);
-    setWorkerStatus('configuring');
+    setWorkerReady(false);
     
-    // Reconfigure worker on retry
+    // Reinitialize worker
     const configSuccess = configurePDFWorker();
     if (configSuccess) {
-      const validationSuccess = await validatePDFWorker();
-      setWorkerStatus(validationSuccess ? 'ready' : 'failed');
+      validatePDFWorker().then(success => {
+        setWorkerReady(success);
+        if (!success) {
+          setError('PDF processing engine validation failed');
+        }
+      });
     } else {
-      setWorkerStatus('failed');
+      setError('Failed to configure PDF processing engine');
     }
   };
 
-  const goToPrevPage = () => {
-    setPageNumber(prev => Math.max(prev - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setPageNumber(prev => Math.min(prev + 1, numPages));
-  };
-
-  const zoomIn = () => {
-    setScale(prev => Math.min(prev + 0.2, 2.0));
-  };
-
-  const zoomOut = () => {
-    setScale(prev => Math.max(prev - 0.2, 0.5));
-  };
+  const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
+  const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages));
+  const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 2.0));
+  const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.5));
 
   const progressPercentage = numPages > 0 ? (pageNumber / numPages) * 100 : 0;
 
@@ -152,8 +129,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [pageNumber, numPages, onClose]);
 
-  // Show worker initialization status
-  if (workerStatus === 'configuring') {
+  // Show loading state while worker initializes
+  if (!workerReady && !error) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
@@ -171,7 +148,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     );
   }
 
-  if (workerStatus === 'failed') {
+  if (error) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
@@ -180,7 +157,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
             <div className="flex items-center justify-center p-8">
               <div className="text-center space-y-4">
                 <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
-                <p className="text-destructive">Failed to initialize PDF processing engine</p>
+                <p className="text-destructive">{error}</p>
                 <div className="space-x-2">
                   <Button variant="outline" size="sm" onClick={handleRetry}>
                     <RefreshCw className="h-4 w-4 mr-2" />
@@ -242,62 +219,44 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
           {/* PDF Content */}
           <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
             <div className="bg-white shadow-lg">
-              {error ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-center space-y-4">
-                    <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
-                    <p className="text-destructive font-medium">Failed to load PDF</p>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                      {error}
-                    </p>
-                    <div className="space-x-2">
-                      <Button variant="outline" size="sm" onClick={handleRetry}>
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Retry
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={onClose}>
-                        <X className="h-4 w-4 mr-2" />
-                        Close
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <Document
-                  file={fileUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  onLoadError={onDocumentLoadError}
-                  loading={
-                    <div className="flex items-center justify-center p-8">
-                      <div className="text-center space-y-4">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                        <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground">Loading PDF...</p>
-                          <p className="text-xs text-muted-foreground">{fileName}</p>
-                        </div>
+              <Document
+                file={fileUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
+                loading={
+                  <div className="flex items-center justify-center p-8">
+                    <div className="text-center space-y-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Loading PDF...</p>
+                        <p className="text-xs text-muted-foreground">{fileName}</p>
                       </div>
                     </div>
-                  }
-                  options={pdfOptions}
-                >
-                  {numPages > 0 && (
-                    <Page
-                      pageNumber={pageNumber}
-                      scale={scale}
-                      loading={
-                        <div className="flex items-center justify-center h-96 w-64">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                        </div>
-                      }
-                    />
-                  )}
-                </Document>
-              )}
+                  </div>
+                }
+                options={{
+                  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+                  cMapPacked: true,
+                  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+                }}
+              >
+                {numPages > 0 && (
+                  <Page
+                    pageNumber={pageNumber}
+                    scale={scale}
+                    loading={
+                      <div className="flex items-center justify-center h-96 w-64">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      </div>
+                    }
+                  />
+                )}
+              </Document>
             </div>
           </div>
 
           {/* Footer Navigation */}
-          {!isLoading && numPages > 0 && !error && (
+          {!isLoading && numPages > 0 && (
             <div className="flex-shrink-0 p-4 border-t bg-background">
               <div className="flex items-center justify-between">
                 <Button variant="outline" onClick={onClose} className="flex items-center gap-2">
