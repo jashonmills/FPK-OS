@@ -12,7 +12,8 @@ import {
   Plus, 
   Settings,
   X,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import {
   Dialog,
@@ -36,6 +37,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
   const [showTOC, setShowTOC] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('');
   const [toc, setToc] = useState<any[]>([]);
+  const [loadingStep, setLoadingStep] = useState('Initializing...');
   const epubRef = useRef<any>(null);
   const renditionRef = useRef<any>(null);
 
@@ -53,10 +55,29 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     };
   }, [book.epub_url]);
 
+  const testProxyConnectivity = async (): Promise<boolean> => {
+    try {
+      setLoadingStep('Testing proxy connection...');
+      const testUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent('https://www.gutenberg.org/ebooks/11.epub.noimages')}`;
+      
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(10000) // 10 second timeout for connectivity test
+      });
+      
+      console.log('📡 Proxy connectivity test:', response.status, response.statusText);
+      return response.ok;
+    } catch (err) {
+      console.error('🔴 Proxy connectivity test failed:', err);
+      return false;
+    }
+  };
+
   const loadEPUB = async () => {
     try {
       setIsLoading(true);
       setError(null);
+      setLoadingStep('Initializing...');
 
       console.log('📖 Loading EPUB for:', book.title, 'URL:', book.epub_url);
 
@@ -65,6 +86,14 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
         throw new Error('No EPUB URL available for this book');
       }
 
+      // Test proxy connectivity first
+      const proxyWorking = await testProxyConnectivity();
+      if (!proxyWorking) {
+        throw new Error('PROXY_UNAVAILABLE');
+      }
+
+      setLoadingStep('Loading EPUB library...');
+      
       // Dynamic import of epub.js
       const ePub = (await import('epubjs')).default;
       
@@ -73,9 +102,13 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       
       console.log('🔗 Using proxy URL:', proxyUrl);
       
+      setLoadingStep('Creating EPUB instance...');
+      
       // Create EPUB book instance
       const epubBook = ePub(proxyUrl);
       epubRef.current = epubBook;
+
+      setLoadingStep('Downloading book content...');
 
       // Set up error handler for the book
       epubBook.ready.catch((err: any) => {
@@ -83,13 +116,15 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
         throw new Error(`Failed to load book: ${err.message || 'Unknown error'}`);
       });
 
-      // Wait for book to be ready with timeout
+      // Wait for book to be ready with a longer timeout for larger books
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Book loading timed out after 30 seconds')), 30000)
+        setTimeout(() => reject(new Error('BOOK_TIMEOUT')), 45000) // 45 seconds
       );
 
       await Promise.race([epubBook.ready, timeoutPromise]);
       console.log('✅ EPUB book ready');
+
+      setLoadingStep('Loading table of contents...');
 
       // Load navigation/TOC
       try {
@@ -105,6 +140,8 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
         throw new Error('Reader container not available');
       }
 
+      setLoadingStep('Preparing reader...');
+
       // Create rendition
       const rendition = epubBook.renderTo(readerRef.current, {
         width: '100%',
@@ -116,6 +153,8 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 
       // Set initial font size
       rendition.themes.fontSize(`${fontSize}px`);
+
+      setLoadingStep('Rendering first page...');
 
       // Display first page
       await rendition.display();
@@ -132,6 +171,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       });
 
       setIsLoading(false);
+      setLoadingStep('');
       console.log('✅ EPUB loaded successfully');
 
     } catch (err) {
@@ -139,17 +179,20 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
       
       // Provide more specific error messages
-      if (errorMessage.includes('timed out')) {
-        setError('The book is taking too long to load. Please try again or check your internet connection.');
-      } else if (errorMessage.includes('CORS')) {
-        setError('There was a network issue loading this book. Please try again.');
+      if (errorMessage === 'BOOK_TIMEOUT') {
+        setError('The book is taking too long to download. This may be due to the book size or network conditions. Please try again.');
+      } else if (errorMessage === 'PROXY_UNAVAILABLE') {
+        setError('The book loading service is temporarily unavailable. Please try again in a few moments.');
       } else if (errorMessage.includes('Failed to fetch')) {
-        setError('Could not download the book file. The book may be temporarily unavailable.');
+        setError('Could not download the book file. Please check your internet connection and try again.');
+      } else if (errorMessage.includes('CORS')) {
+        setError('There was a network configuration issue. Please try again.');
       } else {
-        setError(`Error loading book: ${errorMessage}`);
+        setError(`Unable to load "${book.title}": ${errorMessage}`);
       }
       
       setIsLoading(false);
+      setLoadingStep('');
     }
   };
 
@@ -183,6 +226,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 
   const handleRetry = () => {
     setError(null);
+    setLoadingStep('Retrying...');
     loadEPUB();
   };
 
@@ -225,11 +269,16 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
           <div className="flex-1 relative overflow-hidden">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-background">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className={getAccessibilityClasses('text')}>Loading "{book.title}"...</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Downloading from Project Gutenberg...
+                <div className="text-center max-w-md p-6">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-6"></div>
+                  <h3 className={`text-lg font-semibold mb-2 ${getAccessibilityClasses('text')}`}>
+                    Loading "{book.title}"
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {loadingStep}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Please wait while we download and prepare your book...
                   </p>
                 </div>
               </div>
@@ -237,24 +286,29 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-background">
-                <div className="text-center max-w-md p-6">
-                  <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Could not load book</h3>
-                  <p className="text-destructive mb-4">{error}</p>
+                <div className="text-center max-w-lg p-6">
+                  <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-6" />
+                  <h3 className="text-xl font-semibold mb-4">Unable to Load Book</h3>
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
+                    <p className="text-destructive text-sm">{error}</p>
+                  </div>
                   <p className="text-sm text-muted-foreground mb-6">
-                    This may be a temporary issue with the book file or network connection.
+                    This could be due to network connectivity, server availability, or book file issues.
                   </p>
-                  <div className="space-x-2">
-                    <Button onClick={handleRetry} variant="outline">
+                  <div className="flex gap-3 justify-center">
+                    <Button onClick={handleRetry} variant="outline" className="flex items-center gap-2">
+                      <RefreshCw className="h-4 w-4" />
                       Try Again
                     </Button>
                     <Button onClick={onClose}>
                       Back to Library
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Book: {book.title} (Gutenberg #{book.gutenberg_id})
-                  </p>
+                  <div className="mt-6 p-3 bg-muted rounded text-xs text-muted-foreground">
+                    <p><strong>Book:</strong> {book.title}</p>
+                    <p><strong>Author:</strong> {book.author}</p>
+                    <p><strong>Gutenberg ID:</strong> #{book.gutenberg_id}</p>
+                  </div>
                 </div>
               </div>
             )}
