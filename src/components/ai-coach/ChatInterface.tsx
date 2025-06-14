@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,18 +73,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   }, [user]);
 
-  // Auto-read new AI messages
+  // Auto-read new AI messages with better debugging
   useEffect(() => {
     if (chatHistory.length > 0) {
       const lastMessage = chatHistory[chatHistory.length - 1];
       if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
+        console.log('🔊 New AI message detected, preparing to speak:', lastMessage.message.substring(0, 50) + '...');
+        
+        // Check if user has interacted
+        if (!settings.hasInteracted) {
+          console.log('🔊 Warning: User has not interacted yet, speech may be blocked');
+        }
+        
         // Add a small delay to ensure the UI has updated
         setTimeout(() => {
           readAIMessage(lastMessage.message);
         }, 500);
+      } else {
+        if (lastMessage.role === 'assistant') {
+          console.log('🔊 AI message detected but speech skipped - enabled:', settings.enabled, 'autoRead:', settings.autoRead);
+        }
       }
     }
-  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead]);
+  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead, settings.hasInteracted]);
 
   const createNewSession = async () => {
     if (!user) return;
@@ -174,6 +184,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     // Stop any current speech when user sends a message
     if (settings.enabled) {
+      console.log('🔊 Stopping speech before sending message');
       stopSpeech();
     }
 
@@ -428,6 +439,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Voice Active</span>
                 <span className="sm:hidden">Voice</span>
+              </Badge>
+            )}
+            {!settings.hasInteracted && settings.enabled && (
+              <Badge variant="secondary" className="bg-orange-500/80 text-white flex items-center gap-1 text-xs">
+                <span className="hidden sm:inline">Click to enable voice</span>
+                <span className="sm:hidden">Click for voice</span>
               </Badge>
             )}
           </div>
