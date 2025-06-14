@@ -9,6 +9,7 @@ interface VoiceSettings {
   pitch: number;
   volume: number;
   hasInteracted: boolean;
+  paused: boolean;
 }
 
 interface VoiceSettingsContextType {
@@ -17,6 +18,7 @@ interface VoiceSettingsContextType {
   availableVoices: SpeechSynthesisVoice[];
   isSupported: boolean;
   toggle: () => void;
+  togglePaused: () => void;
   initializeVoice: () => Promise<void>;
 }
 
@@ -38,7 +40,8 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     rate: 1.0,
     pitch: 1.0,
     volume: 0.8,
-    hasInteracted: false
+    hasInteracted: false,
+    paused: false
   });
   
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -73,6 +76,21 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       document.removeEventListener('keydown', handleUserInteraction);
     };
   }, [isSupported, settings.enabled, settings.hasInteracted]);
+
+  // Monitor speech synthesis state changes
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const checkPauseState = () => {
+      if (!window.speechSynthesis.speaking) {
+        // If nothing is speaking, we're not paused
+        setSettings(prev => ({ ...prev, paused: false }));
+      }
+    };
+
+    const interval = setInterval(checkPauseState, 500);
+    return () => clearInterval(interval);
+  }, [isSupported]);
 
   // Load voices when they become available
   useEffect(() => {
@@ -141,7 +159,31 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const toggle = () => {
     const newEnabled = !settings.enabled;
     console.log('🔊 Voice toggled:', newEnabled ? 'enabled' : 'disabled');
-    setSettings(prev => ({ ...prev, enabled: newEnabled }));
+    
+    // If disabling voice, cancel any current speech
+    if (!newEnabled && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+    
+    setSettings(prev => ({ ...prev, enabled: newEnabled, paused: false }));
+  };
+
+  const togglePaused = () => {
+    if (!isSupported || !window.speechSynthesis.speaking) {
+      console.log('🔊 Cannot pause/resume: nothing is speaking');
+      return;
+    }
+
+    const newPaused = !settings.paused;
+    console.log('🔊 Speech', newPaused ? 'paused' : 'resumed');
+    
+    if (newPaused) {
+      window.speechSynthesis.pause();
+    } else {
+      window.speechSynthesis.resume();
+    }
+    
+    setSettings(prev => ({ ...prev, paused: newPaused }));
   };
 
   const value = {
@@ -150,6 +192,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     availableVoices,
     isSupported,
     toggle,
+    togglePaused,
     initializeVoice
   };
 

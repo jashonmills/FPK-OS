@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp, MoreVertical, RotateCcw, Download, Archive, ChevronDown, Volume2, VolumeX, Square } from 'lucide-react';
+import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp, MoreVertical, RotateCcw, Download, Archive, ChevronDown, Volume2, VolumeX, Square, Pause, Play } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -42,7 +42,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
-  const { speak, stopSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking } = useTextToSpeech();
+  const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
   const { settings, toggle: toggleVoice, isSupported: voiceSupported } = useVoiceSettings();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -411,6 +411,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
+  const handlePauseResumeSpeech = () => {
+    if (isSpeaking) {
+      togglePauseSpeech();
+      toast({
+        title: isPaused ? "Speech resumed" : "Speech paused",
+        description: isPaused ? "Voice output has been resumed." : "Voice output has been paused.",
+      });
+    }
+  };
+
   const getStatusIcon = () => {
     switch (connectionStatus) {
       case 'good': return <Wifi className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />;
@@ -429,8 +439,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Escape key or Ctrl/Cmd + Space to stop speech
-      if (event.key === 'Escape' || (event.key === ' ' && (event.ctrlKey || event.metaKey))) {
+      // Escape key to stop speech completely
+      if (event.key === 'Escape') {
         if (isSpeaking) {
           event.preventDefault();
           stopSpeech();
@@ -440,11 +450,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           });
         }
       }
+      // Space bar to pause/resume speech (when not typing)
+      else if (event.key === ' ' && (event.ctrlKey || event.metaKey)) {
+        if (isSpeaking) {
+          event.preventDefault();
+          handlePauseResumeSpeech();
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isSpeaking, stopSpeech, toast]);
+  }, [isSpeaking, isPaused, stopSpeech, togglePauseSpeech, toast]);
 
   return (
     <Card className="h-[500px] sm:h-[600px] flex flex-col">
@@ -470,11 +487,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <span className="sm:hidden">Voice</span>
               </Badge>
             )}
-            {isSpeaking && (
+            {isSpeaking && !isPaused && (
               <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs animate-pulse">
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Speaking</span>
                 <span className="sm:hidden">🔊</span>
+              </Badge>
+            )}
+            {isPaused && (
+              <Badge variant="secondary" className="bg-yellow-500/80 text-white flex items-center gap-1 text-xs">
+                <Pause className="h-2 w-2 sm:h-3 sm:w-3" />
+                <span className="hidden sm:inline">Paused</span>
+                <span className="sm:hidden">⏸</span>
               </Badge>
             )}
             {!settings.hasInteracted && settings.enabled && (
@@ -489,17 +513,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               {getStatusIcon()}
               <span className="text-xs hidden sm:inline">{getStatusText()}</span>
             </div>
-            {/* Stop Speech Button */}
+            {/* Pause/Resume/Stop Speech Buttons */}
             {isSpeaking && (
-              <Button
-                onClick={handleStopSpeech}
-                size="icon"
-                variant="ghost"
-                className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
-                title="Stop speaking (ESC)"
-              >
-                <Square className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  onClick={handlePauseResumeSpeech}
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
+                  title={isPaused ? "Resume speaking (Ctrl+Space)" : "Pause speaking (Ctrl+Space)"}
+                >
+                  {isPaused ? (
+                    <Play className="h-3 w-3 sm:h-4 sm:w-4" />
+                  ) : (
+                    <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
+                  )}
+                </Button>
+                <Button
+                  onClick={stopSpeech}
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
+                  title="Stop speaking (ESC)"
+                >
+                  <Square className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />
+                </Button>
+              </div>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -515,10 +554,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
                     </DropdownMenuItem>
                     {isSpeaking && (
-                      <DropdownMenuItem onClick={handleStopSpeech} className="flex items-center gap-2">
-                        <Square className="h-4 w-4" />
-                        Stop Speaking
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem onClick={handlePauseResumeSpeech} className="flex items-center gap-2">
+                          {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                          {isPaused ? 'Resume Speaking' : 'Pause Speaking'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={stopSpeech} className="flex items-center gap-2">
+                          <Square className="h-4 w-4" />
+                          Stop Speaking
+                        </DropdownMenuItem>
+                      </>
                     )}
                     <DropdownMenuSeparator />
                   </>
@@ -660,9 +705,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               Processing your voice...
             </p>
           )}
-          {isSpeaking && (
+          {isSpeaking && !isPaused && (
             <p className="text-xs text-green-600 mt-2 text-center animate-pulse">
-              🔊 AI is speaking... Press ESC or Ctrl+Space to stop
+              🔊 AI is speaking... Press Ctrl+Space to pause, ESC to stop
+            </p>
+          )}
+          {isPaused && (
+            <p className="text-xs text-yellow-600 mt-2 text-center">
+              ⏸ Speech paused... Press Ctrl+Space to resume, ESC to stop
             </p>
           )}
           {completedSessions.length > 0 && (

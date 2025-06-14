@@ -4,7 +4,7 @@ import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
 
 export const useTextToSpeech = () => {
-  const { settings, isSupported, initializeVoice } = useVoiceSettings();
+  const { settings, isSupported, initializeVoice, togglePaused } = useVoiceSettings();
   const { toast } = useToast();
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isCurrentlySpeaking = useRef(false);
@@ -22,6 +22,31 @@ export const useTextToSpeech = () => {
       isCurrentlySpeaking.current = false;
     }
   }, [isSupported]);
+
+  // Pause current speech
+  const pauseSpeech = useCallback(() => {
+    if (isSupported && window.speechSynthesis.speaking && !settings.paused) {
+      console.log('🔊 Pausing speech');
+      togglePaused();
+    }
+  }, [isSupported, settings.paused, togglePaused]);
+
+  // Resume paused speech
+  const resumeSpeech = useCallback(() => {
+    if (isSupported && window.speechSynthesis.speaking && settings.paused) {
+      console.log('🔊 Resuming speech');
+      togglePaused();
+    }
+  }, [isSupported, settings.paused, togglePaused]);
+
+  // Toggle pause/resume
+  const togglePauseSpeech = useCallback(() => {
+    if (!isSupported || !window.speechSynthesis.speaking) {
+      console.log('🔊 Cannot toggle pause: nothing is speaking');
+      return;
+    }
+    togglePaused();
+  }, [isSupported, togglePaused]);
 
   // Speak the given text
   const speak = useCallback((text: string, options?: { interrupt?: boolean }) => {
@@ -132,8 +157,12 @@ export const useTextToSpeech = () => {
   return {
     speak,
     stopSpeech,
+    pauseSpeech,
+    resumeSpeech,
+    togglePauseSpeech,
     readAIMessage,
     isSupported,
-    isSpeaking: isCurrentlySpeaking.current
+    isSpeaking: isCurrentlySpeaking.current,
+    isPaused: settings.paused
   };
 };
