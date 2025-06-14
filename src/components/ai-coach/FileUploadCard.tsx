@@ -6,19 +6,20 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
+import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 'lucide-react';
-import { RealtimeChannel } from '@supabase/supabase-js';
 
 const FileUploadCard: React.FC = () => {
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
+  const { subscribe, unsubscribe } = useFileUploadSubscription();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
-  const channelRef = useRef<RealtimeChannel | null>(null);
+  const subscriptionIdRef = useRef<string>(`ai-coach-upload-${Date.now()}`);
 
   // Enhanced file type support
   const allowedTypes = [
@@ -35,111 +36,76 @@ const FileUploadCard: React.FC = () => {
 
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  // Set up real-time subscription with proper pattern
+  // Set up centralized subscription
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
-    // If we've already created & subscribed, do nothing
-    if (channelRef.current) return;
+    const subscriptionId = subscriptionIdRef.current;
+    console.log(`📡 Setting up AI coach file upload handler: ${subscriptionId}`);
 
-    console.log('🔄 Setting up AI coach file upload subscription');
-
-    // Create the channel with unique name to avoid conflicts with other file upload components
-    const channelName = `ai-coach-file-uploads-${user.id}-${Date.now()}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'file_uploads',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('🤖 AI Coach file upload updated:', payload);
-          
-          if (payload.new.processing_status === 'completed') {
-            // Clear timeout and progress
-            if (processingTimeouts[payload.new.id]) {
-              clearTimeout(processingTimeouts[payload.new.id]);
-            }
-            
-            setProcessingProgress(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-            
-            setProcessingTimeouts(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-            
-            toast({
-              title: "🧠 AI Coach Ready!",
-              description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Your AI coach can now provide guidance based on this content!`,
-            });
-          } else if (payload.new.processing_status === 'failed') {
-            // Clear timeout and progress
-            if (processingTimeouts[payload.new.id]) {
-              clearTimeout(processingTimeouts[payload.new.id]);
-            }
-            
-            setProcessingProgress(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-            
-            setProcessingTimeouts(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-            
-            toast({
-              title: "❌ Processing failed",
-              description: payload.new.error_message || "Failed to process your study material",
-              variant: "destructive"
-            });
-          }
+    const handleFileUploadUpdate = (payload: any) => {
+      console.log('🤖 AI Coach file upload updated:', payload);
+      
+      if (payload.new.processing_status === 'completed') {
+        // Clear timeout and progress
+        if (processingTimeouts[payload.new.id]) {
+          clearTimeout(processingTimeouts[payload.new.id]);
         }
-      );
-
-    // Set the channel reference immediately to prevent multiple subscriptions
-    channelRef.current = channel;
-
-    // Subscribe and handle the result
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to AI coach file uploads channel');
-      } else {
-        console.error('❌ Failed to subscribe to AI coach file uploads channel:', status);
-        // Reset the ref on failure so we can try again
-        channelRef.current = null;
-      }
-    });
-
-    // Cleanup on unmount
-    return () => {
-      console.log('🔌 Cleaning up AI coach file upload subscription');
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
+        
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        toast({
+          title: "🧠 AI Coach Ready!",
+          description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Your AI coach can now provide guidance based on this content!`,
+        });
+      } else if (payload.new.processing_status === 'failed') {
+        // Clear timeout and progress
+        if (processingTimeouts[payload.new.id]) {
+          clearTimeout(processingTimeouts[payload.new.id]);
+        }
+        
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        toast({
+          title: "❌ Processing failed",
+          description: payload.new.error_message || "Failed to process your study material",
+          variant: "destructive"
+        });
       }
     };
-  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
-  // Clean up timeouts on component unmount
-  useEffect(() => {
+    subscribe(subscriptionId, handleFileUploadUpdate);
+
     return () => {
+      console.log(`🔌 Cleaning up AI coach file upload handler: ${subscriptionId}`);
+      unsubscribe(subscriptionId);
+      
+      // Clean up timeouts
       Object.values(processingTimeouts).forEach(timeout => {
         clearTimeout(timeout);
       });
     };
-  }, [processingTimeouts]);
+  }, [user?.id, subscribe, unsubscribe]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

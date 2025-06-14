@@ -5,184 +5,137 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
 import { useRealTimeProcessing } from '@/hooks/useRealTimeProcessing';
+import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
 import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
-import { RealtimeChannel } from '@supabase/supabase-js';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
   const { addPreviewCards } = useFlashcardPreview();
   const { startProcessing, completeStage, errorStage } = useRealTimeProcessing();
+  const { subscribe, unsubscribe } = useFileUploadSubscription();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
-  const channelRef = useRef<RealtimeChannel | null>(null);
-  const userIdRef = useRef<string | null>(null);
+  const subscriptionIdRef = useRef<string>(`notes-upload-${Date.now()}`);
 
-  // Set up real-time subscription for completion handling with proper pattern
+  // Set up centralized subscription
   useEffect(() => {
     if (!user?.id) return;
 
-    // If user hasn't changed and we already have a subscription, do nothing
-    if (userIdRef.current === user.id && channelRef.current) return;
+    const subscriptionId = subscriptionIdRef.current;
+    console.log(`📡 Setting up notes file upload handler: ${subscriptionId}`);
 
-    // Clean up previous subscription if user changed
-    if (channelRef.current && userIdRef.current !== user.id) {
-      console.log('🧹 Cleaning up previous subscription due to user change');
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
+    const handleFileUploadUpdate = async (payload: any) => {
+      console.log('🔄 Notes file upload updated:', payload);
+      
+      if (payload.new.processing_status === 'completed') {
+        console.log('✅ Processing completed:', payload.new.id);
+        
+        completeStage(payload.new.id, 'generation');
+        
+        // Clear timeout and progress
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          if (prev[payload.new.id]) {
+            clearTimeout(prev[payload.new.id]);
+          }
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
 
-    // Update user ref
-    userIdRef.current = user.id;
-
-    console.log('🔄 Setting up file upload subscription for user:', user.id);
-
-    // Create the channel with unique name based on component and timestamp
-    const channelName = `notes-file-uploads-${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'file_uploads',
-          filter: `user_id=eq.${user.id}`
-        },
-        async (payload) => {
-          console.log('🔄 File upload updated:', payload);
-          
-          if (payload.new.processing_status === 'completed') {
-            console.log('✅ Processing completed:', payload.new.id);
-            
-            completeStage(payload.new.id, 'generation');
-            
-            // Clear timeout and progress - using functional updates to avoid dependencies
-            setProcessingProgress(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-            
-            setProcessingTimeouts(prev => {
-              if (prev[payload.new.id]) {
-                clearTimeout(prev[payload.new.id]);
-              }
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
-
-            // Fetch flashcards and add to preview
-            try {
-              const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
-                body: {
-                  uploadId: payload.new.id,
-                  filePath: payload.new.storage_path,
-                  fileName: payload.new.file_name,
-                  fileType: payload.new.file_type,
-                  userId: user.id,
-                  previewMode: true,
-                  fetchOnly: true
-                }
-              });
-
-              if (error) {
-                console.error('❌ Error fetching flashcards:', error);
-                toast({
-                  title: "⚠️ Processing complete",
-                  description: `${payload.new.file_name} processed but couldn't retrieve flashcards.`,
-                });
-              } else if (data?.flashcards?.length > 0) {
-                const previewCards = data.flashcards.map((card: any, index: number) => ({
-                  front_content: card.front_content || card.front || '',
-                  back_content: card.back_content || card.back || '',
-                  title: `${payload.new.file_name} - Card ${index + 1}`,
-                  source: 'upload' as const,
-                  status: 'new' as const,
-                  session_id: payload.new.id
-                }));
-
-                addPreviewCards(previewCards);
-                
-                toast({
-                  title: "🎉 Flashcards ready!",
-                  description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
-                });
-              }
-            } catch (error) {
-              console.error('💥 Error in completion handling:', error);
+        // Fetch flashcards and add to preview
+        try {
+          const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
+            body: {
+              uploadId: payload.new.id,
+              filePath: payload.new.storage_path,
+              fileName: payload.new.file_name,
+              fileType: payload.new.file_type,
+              userId: user.id,
+              previewMode: true,
+              fetchOnly: true
             }
-          } else if (payload.new.processing_status === 'failed') {
-            console.log('❌ Processing failed:', payload.new.id);
-            
-            errorStage(payload.new.id, 'generation', payload.new.error_message || 'Processing failed');
-            
-            // Clean up using functional updates
-            setProcessingProgress(prev => {
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
+          });
+
+          if (error) {
+            console.error('❌ Error fetching flashcards:', error);
+            toast({
+              title: "⚠️ Processing complete",
+              description: `${payload.new.file_name} processed but couldn't retrieve flashcards.`,
             });
-            
-            setProcessingTimeouts(prev => {
-              if (prev[payload.new.id]) {
-                clearTimeout(prev[payload.new.id]);
-              }
-              const newState = { ...prev };
-              delete newState[payload.new.id];
-              return newState;
-            });
+          } else if (data?.flashcards?.length > 0) {
+            const previewCards = data.flashcards.map((card: any, index: number) => ({
+              front_content: card.front_content || card.front || '',
+              back_content: card.back_content || card.back || '',
+              title: `${payload.new.file_name} - Card ${index + 1}`,
+              source: 'upload' as const,
+              status: 'new' as const,
+              session_id: payload.new.id
+            }));
+
+            addPreviewCards(previewCards);
             
             toast({
-              title: "❌ Processing failed",
-              description: payload.new.error_message || "Failed to generate flashcards",
-              variant: "destructive"
+              title: "🎉 Flashcards ready!",
+              description: `Generated ${data.flashcards.length} flashcards from ${payload.new.file_name}. Check the preview above!`,
             });
           }
+        } catch (error) {
+          console.error('💥 Error in completion handling:', error);
         }
-      );
-
-    // Set the channel reference immediately to prevent multiple subscriptions
-    channelRef.current = channel;
-
-    // Subscribe and handle the result
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to file uploads channel');
-      } else {
-        console.error('❌ Failed to subscribe to file uploads channel:', status);
-        // Reset the ref on failure so we can try again
-        channelRef.current = null;
-        userIdRef.current = null;
+      } else if (payload.new.processing_status === 'failed') {
+        console.log('❌ Processing failed:', payload.new.id);
+        
+        errorStage(payload.new.id, 'generation', payload.new.error_message || 'Processing failed');
+        
+        // Clean up
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          if (prev[payload.new.id]) {
+            clearTimeout(prev[payload.new.id]);
+          }
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        toast({
+          title: "❌ Processing failed",
+          description: payload.new.error_message || "Failed to generate flashcards",
+          variant: "destructive"
+        });
       }
-    });
-
-    // Cleanup on unmount or user change
-    return () => {
-      console.log('🔌 Cleaning up file upload subscription');
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-      userIdRef.current = null;
     };
-  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
-  // Clean up timeouts on component unmount - separate effect to avoid subscription issues
-  useEffect(() => {
+    subscribe(subscriptionId, handleFileUploadUpdate);
+
     return () => {
+      console.log(`🔌 Cleaning up notes file upload handler: ${subscriptionId}`);
+      unsubscribe(subscriptionId);
+      
+      // Clean up timeouts
       Object.values(processingTimeouts).forEach(timeout => {
         clearTimeout(timeout);
       });
     };
-  }, []);
+  }, [user?.id, subscribe, unsubscribe]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

@@ -1,10 +1,7 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect, useCallback } from 'react';
 import { ProcessingStage } from '@/components/notes/RealTimeProcessingMeter';
 import { FileText, Download, Brain, Sparkles } from 'lucide-react';
-import { RealtimeChannel } from '@supabase/supabase-js';
 
 export interface ProcessingState {
   uploadId: string;
@@ -17,9 +14,7 @@ export interface ProcessingState {
 }
 
 export const useRealTimeProcessing = () => {
-  const { user } = useAuth();
   const [processingStates, setProcessingStates] = useState<Record<string, ProcessingState>>({});
-  const channelRef = useRef<RealtimeChannel | null>(null);
 
   const createDefaultStages = (): ProcessingStage[] => [
     {
@@ -188,74 +183,6 @@ export const useRealTimeProcessing = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  // Set up real-time subscription for processing updates with proper pattern
-  useEffect(() => {
-    if (!user) return;
-
-    // If we've already created & subscribed, do nothing
-    if (channelRef.current) return;
-
-    console.log('🔄 Setting up real-time processing updates subscription');
-
-    // Create the channel with unique name
-    const channelName = `processing-updates-${user.id}-${Date.now()}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'file_uploads',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const uploadId = payload.new.id;
-          const status = payload.new.processing_status;
-
-          if (status === 'processing') {
-            // Start processing if not already started
-            if (!processingStates[uploadId]) {
-              startProcessing(uploadId, payload.new.file_name, payload.new.file_size);
-            }
-          } else if (status === 'completed') {
-            // Complete all stages
-            completeStage(uploadId, 'generation');
-            setTimeout(() => removeProcessing(uploadId), 3000);
-          } else if (status === 'failed') {
-            // Mark current stage as error
-            const currentState = processingStates[uploadId];
-            if (currentState) {
-              errorStage(uploadId, currentState.currentStage, payload.new.error_message || 'Processing failed');
-            }
-          }
-        }
-      );
-
-    // Set the channel reference immediately to prevent multiple subscriptions
-    channelRef.current = channel;
-
-    // Subscribe and handle the result
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to processing updates channel');
-      } else {
-        console.error('❌ Failed to subscribe to processing updates channel:', status);
-        // Reset the ref on failure so we can try again
-        channelRef.current = null;
-      }
-    });
-
-    // Cleanup on unmount
-    return () => {
-      console.log('🔌 Cleaning up processing updates subscription');
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
   return {
     processingStates,
