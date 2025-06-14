@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useLibrarySearch } from '@/hooks/useLibrarySearch';
 import BookCard from './BookCard';
+import RecommendedBooksSection from './RecommendedBooksSection';
 import { Book } from '@/types/library';
 import { Search, Loader2 } from 'lucide-react';
 
@@ -34,7 +35,7 @@ const LibrarySearchSection: React.FC<LibrarySearchSectionProps> = ({ onBookSelec
   };
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
       <div className="text-center">
         <h2 className={`text-2xl font-semibold mb-2 ${getAccessibilityClasses('text')}`}>
           Search the Library
@@ -55,7 +56,10 @@ const LibrarySearchSection: React.FC<LibrarySearchSectionProps> = ({ onBookSelec
         </div>
       </div>
 
-      {isLoading && books.length === 0 && (
+      {/* Recommended Books Section - positioned below search bar */}
+      <RecommendedBooksSection onBookSelect={onBookSelect} />
+
+      {isLoading && books.length === 0 && inputValue.trim() && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className={`ml-2 ${getAccessibilityClasses('text')}`}>Searching library...</span>
@@ -64,6 +68,9 @@ const LibrarySearchSection: React.FC<LibrarySearchSectionProps> = ({ onBookSelec
 
       {books.length > 0 && (
         <div className="space-y-6">
+          <h3 className={`text-lg font-semibold ${getAccessibilityClasses('text')}`}>
+            Search Results
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {books.map((book) => (
               <Card 

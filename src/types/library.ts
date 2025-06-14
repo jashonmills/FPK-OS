@@ -41,4 +41,5 @@ export interface CuratedBook {
   author: string;
   workKey: string;
   description?: string;
+  coverId?: number;
 }
