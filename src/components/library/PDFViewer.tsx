@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Document, Page } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -23,11 +22,42 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Add detailed debugging for PDF loading
+  useEffect(() => {
+    console.log('🔍 PDFViewer Debug Info:', {
+      fileName,
+      fileUrl,
+      urlLength: fileUrl.length,
+      isValidUrl: /^https?:\/\//.test(fileUrl),
+      domain: fileUrl.split('/')[2] || 'no domain'
+    });
+
+    // Test if URL is accessible
+    const testUrl = async () => {
+      try {
+        console.log('🌐 Testing URL accessibility:', fileUrl);
+        const response = await fetch(fileUrl, { 
+          method: 'HEAD',
+          mode: 'cors'
+        });
+        console.log('📊 URL test result:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+      } catch (testError) {
+        console.error('❌ URL accessibility test failed:', testError);
+      }
+    };
+
+    testUrl();
+  }, [fileUrl, fileName]);
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('✅ PDF loaded successfully:', { 
       numPages, 
       fileName, 
-      fileUrl: fileUrl.substring(0, 50) + '...'
+      fileUrl: fileUrl.substring(0, 100) + '...'
     });
     
     setNumPages(numPages);
@@ -41,23 +71,28 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error('❌ PDF loading error:', {
-      error: error.message,
+    console.error('❌ PDF loading error - Detailed info:', {
+      errorName: error.name,
+      errorMessage: error.message,
+      errorStack: error.stack,
       fileName,
-      fileUrl: fileUrl.substring(0, 50) + '...',
-      stack: error.stack
+      fileUrl: fileUrl.substring(0, 100) + '...',
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
     });
     
     setIsLoading(false);
     
     let errorMessage = "Failed to load PDF file.";
     
-    if (error.message.includes('fetch') || error.message.includes('network')) {
-      errorMessage = "Network error. Please check your connection and try again.";
+    if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
+      errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
     } else if (error.message.includes('Invalid PDF') || error.message.includes('PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
     } else if (error.message.includes('CORS')) {
       errorMessage = "Access denied. The PDF file cannot be loaded due to security restrictions.";
+    } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+      errorMessage = "PDF file not found. The file may have been moved or deleted.";
     }
     
     setError(errorMessage);
@@ -70,7 +105,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   };
 
   const handleRetry = () => {
-    console.log('🔄 Retrying PDF load');
+    console.log('🔄 Retrying PDF load for:', fileName);
     setError(null);
     setIsLoading(true);
     setNumPages(0);
@@ -112,6 +147,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                 <p className="text-destructive">{error}</p>
                 <div className="text-xs text-muted-foreground">
                   <p>File: {fileName}</p>
+                  <p className="break-all">URL: {fileUrl.substring(0, 50)}...</p>
                 </div>
                 <div className="space-x-2">
                   <Button variant="outline" size="sm" onClick={handleRetry}>
@@ -185,6 +221,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                       <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">Loading PDF...</p>
                         <p className="text-xs text-muted-foreground">{fileName}</p>
+                        <p className="text-xs text-muted-foreground break-all">{fileUrl.substring(0, 50)}...</p>
                       </div>
                     </div>
                   </div>
