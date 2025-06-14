@@ -50,10 +50,14 @@ export const useEPUBRendition = (book: Book | null) => {
   const handleFontSizeChange = useCallback((newSize: number) => {
     if (!renditionRef.current) return;
     renditionRef.current.themes.fontSize(`${newSize}px`);
-    // Force layout refresh after font size change
+    // Force layout refresh after font size change with proper arguments
     setTimeout(() => {
       if (renditionRef.current) {
-        renditionRef.current.resize();
+        // Fix: Provide width and height arguments to resize method
+        const container = renditionRef.current.manager?.container;
+        if (container) {
+          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+        }
       }
     }, 100);
   }, []);
@@ -69,7 +73,11 @@ export const useEPUBRendition = (book: Book | null) => {
     if (!renditionRef.current) return;
     setTimeout(() => {
       if (renditionRef.current) {
-        renditionRef.current.resize();
+        // Fix: Provide width and height arguments to resize method
+        const container = renditionRef.current.manager?.container;
+        if (container) {
+          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
+        }
       }
     }, 50);
   }, []);
