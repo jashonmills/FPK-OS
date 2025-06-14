@@ -850,6 +850,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_uploaded_books: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_url: string
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string | null
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

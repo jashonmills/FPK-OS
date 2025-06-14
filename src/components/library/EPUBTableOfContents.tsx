@@ -1,19 +1,17 @@
 
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { NavItem } from 'epubjs';
+import { BookOpen, Loader2 } from 'lucide-react';
 
 interface EPUBTableOfContentsProps {
   isOpen: boolean;
   onClose: () => void;
-  toc: any[];
-  onItemClick: (href: string) => void;
-  isNavigating?: boolean;
+  toc: NavItem[];
+  onItemClick: (item: NavItem) => void;
+  isNavigating: boolean;
 }
 
 const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
@@ -21,47 +19,54 @@ const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
   onClose,
   toc,
   onItemClick,
-  isNavigating = false
+  isNavigating
 }) => {
-  const handleTOCItemClick = (href: string) => {
-    onItemClick(href);
+  const handleItemClick = (item: NavItem) => {
+    onItemClick(item);
     onClose();
+  };
+
+  const renderTOCItem = (item: NavItem, level: number = 0) => {
+    return (
+      <div key={item.id || item.href} className={`ml-${level * 4}`}>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-left h-auto py-2 px-3"
+          onClick={() => handleItemClick(item)}
+          disabled={isNavigating}
+        >
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{item.label}</span>
+            {isNavigating && <Loader2 className="h-3 w-3 animate-spin ml-auto" />}
+          </div>
+        </Button>
+        {item.subitems && item.subitems.map(subitem => 
+          renderTOCItem(subitem, level + 1)
+        )}
+      </div>
+    );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            Table of Contents
-            {isNavigating && (
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            )}
-          </DialogTitle>
+          <DialogTitle>Table of Contents</DialogTitle>
         </DialogHeader>
-        <div className="space-y-2 max-h-96 overflow-y-auto">
-          {toc.length > 0 ? (
-            toc.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => handleTOCItemClick(item.href)}
-                disabled={isNavigating}
-                className="block w-full text-left p-2 hover:bg-muted rounded disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-sm">{item.label}</span>
-              </button>
-            ))
+        
+        <ScrollArea className="max-h-96">
+          {toc.length === 0 ? (
+            <div className="text-center py-8">
+              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No table of contents available</p>
+            </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No table of contents available for this book.
-            </p>
+            <div className="space-y-1">
+              {toc.map(item => renderTOCItem(item))}
+            </div>
           )}
-        </div>
-        {isNavigating && (
-          <div className="text-center p-2">
-            <p className="text-xs text-muted-foreground">Loading chapter...</p>
-          </div>
-        )}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
