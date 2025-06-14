@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Document, Page } from 'react-pdf';
+import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -240,9 +240,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                   </div>
                 }
                 options={{
-                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/cmaps/`,
+                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
                   cMapPacked: true,
-                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/standard_fonts/`,
+                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
                 }}
               >
                 {numPages > 0 && (

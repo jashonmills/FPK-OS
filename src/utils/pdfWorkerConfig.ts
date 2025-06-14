@@ -1,13 +1,12 @@
-
 import { pdfjs } from 'react-pdf';
 
 /**
  * Available CDN sources for PDF.js worker
  */
 const WORKER_URLS = [
-  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.js',
-  'https://unpkg.com/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.js'
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`,
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`,
+  `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`
 ];
 
 /**
