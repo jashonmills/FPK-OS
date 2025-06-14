@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, Brain, TrendingUp } from 'lucide-react';
@@ -109,7 +108,7 @@ const AIStudyCoach = () => {
         <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-1 lg:order-2 min-w-0 max-w-full">
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />
-          <QuickChallengesCard challenges={quickChallenges} />
+          <QuickChallengesCard challenges={quickChallenges} flashcards={flashcards} />
           <LearningStatsCard
             totalXP={totalXP}
             currentStreak={currentStreak}

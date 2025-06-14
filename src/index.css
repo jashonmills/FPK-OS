@@ -211,4 +211,35 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Enhanced Quick Study Challenges Layout */
+  .challenge-container {
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* Desktop: Two-column layout */
+  @media (min-width: 1024px) {
+    .challenge-container {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  /* Mobile: Stacked layout with spacing */
+  @media (max-width: 640px) {
+    .challenge-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .challenge-detail {
+      margin-top: 1rem;
+    }
+  }
+
+  /* Very small screens: Modal overlay */
+  @media (max-width: 480px) {
+    .challenge-detail:not(.modal) {
+      display: none;
+    }
+  }
 }
