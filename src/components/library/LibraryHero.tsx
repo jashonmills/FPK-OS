@@ -1,10 +1,15 @@
 
 import React from 'react';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { BookOpen } from 'lucide-react';
 
 const LibraryHero = () => {
   const { getAccessibilityClasses } = useAccessibility();
+  const { books, isLoading } = usePublicDomainBooks();
+
+  const bookCount = books.length;
+  const subjectCount = new Set(books.flatMap(book => book.subjects)).size;
 
   return (
     <div className={`text-center space-y-4 py-8 ${getAccessibilityClasses('container')}`}>
@@ -13,12 +18,15 @@ const LibraryHero = () => {
           <BookOpen className="h-6 w-6 text-white" />
         </div>
         <h1 className={`text-4xl font-bold ${getAccessibilityClasses('text')}`}>
-          Neurodiversity Library
+          Public Domain Library
         </h1>
       </div>
       <p className={`text-lg text-muted-foreground max-w-2xl mx-auto ${getAccessibilityClasses('text')}`}>
-        Curated reads & full catalog search for grades 6–12. Discover books that celebrate 
-        neurodiversity and explore millions of titles from the OpenLibrary collection.
+        {isLoading ? (
+          "Loading our collection of educational books from Project Gutenberg..."
+        ) : (
+          `Discover ${bookCount} free educational books covering ${subjectCount} subjects, all focused on learning, neurodiversity, and personal growth from Project Gutenberg's open collection.`
+        )}
       </p>
     </div>
   );

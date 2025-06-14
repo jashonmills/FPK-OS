@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
+import { supabase } from '@/integrations/supabase/client';
 
 export const usePublicDomainBooks = () => {
   const [books, setBooks] = useState<PublicDomainBook[]>([]);
@@ -16,52 +17,50 @@ export const usePublicDomainBooks = () => {
       setIsLoading(true);
       setError(null);
       
-      // For now, we'll use mock data. In a real implementation, this would
-      // fetch from a Supabase table populated by the OPDS ingestion service
-      const mockBooks: PublicDomainBook[] = [
-        {
-          id: 'gutenberg-1',
-          title: 'The Psychology of Learning',
-          author: 'Educational Collective',
-          subjects: ['psychology', 'education', 'learning'],
-          cover_url: 'https://covers.openlibrary.org/b/id/8225261-M.jpg',
-          epub_url: 'https://example.com/psychology-learning.epub',
-          gutenberg_id: 12345,
-          description: 'A comprehensive guide to understanding how we learn and process information.',
-          language: 'en',
-          last_updated: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 'gutenberg-2',
-          title: 'Understanding Different Minds',
-          author: 'Dr. Sarah Johnson',
-          subjects: ['psychology', 'neurodiversity', 'autism'],
-          cover_url: 'https://covers.openlibrary.org/b/id/8225262-M.jpg',
-          epub_url: 'https://example.com/different-minds.epub',
-          gutenberg_id: 12346,
-          description: 'Exploring the beautiful diversity of human cognition and neurodiversity.',
-          language: 'en',
-          last_updated: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 'gutenberg-3',
-          title: 'Inclusive Teaching Methods',
-          author: 'Educational Research Group',
-          subjects: ['education', 'teaching', 'inclusive'],
-          cover_url: 'https://covers.openlibrary.org/b/id/8225263-M.jpg',
-          epub_url: 'https://example.com/inclusive-teaching.epub',
-          gutenberg_id: 12347,
-          description: 'Modern approaches to inclusive education that work for all learners.',
-          language: 'en',
-          last_updated: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        }
-      ];
+      console.log('🔄 Fetching public domain books from Supabase...');
       
-      setBooks(mockBooks);
+      // Fetch books from the public_domain_books table
+      const { data, error: supabaseError } = await supabase
+        .from('public_domain_books')
+        .select('*')
+        .order('last_updated', { ascending: false })
+        .limit(50);
+
+      if (supabaseError) {
+        console.error('❌ Supabase error:', supabaseError);
+        throw new Error(supabaseError.message);
+      }
+
+      if (!data || data.length === 0) {
+        console.log('📚 No books found in database, triggering OPDS ingestion...');
+        
+        // Trigger OPDS ingestion if no books exist
+        const { error: functionError } = await supabase.functions.invoke('opds-ingestion');
+        
+        if (functionError) {
+          console.error('❌ OPDS ingestion error:', functionError);
+          throw new Error('Failed to fetch books from Project Gutenberg');
+        }
+
+        // Retry fetching after ingestion
+        const { data: newData, error: retryError } = await supabase
+          .from('public_domain_books')
+          .select('*')
+          .order('last_updated', { ascending: false })
+          .limit(50);
+
+        if (retryError) {
+          throw new Error(retryError.message);
+        }
+
+        setBooks(newData || []);
+      } else {
+        console.log(`✅ Loaded ${data.length} books from database`);
+        setBooks(data);
+      }
+      
     } catch (err) {
+      console.error('❌ Error fetching public domain books:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch books');
     } finally {
       setIsLoading(false);
