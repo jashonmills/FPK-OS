@@ -6,9 +6,13 @@ export const useEPUBRendition = (book: Book | null) => {
   const [currentLocation, setCurrentLocation] = useState<string | undefined>();
   const [isNavigating, setIsNavigating] = useState(false);
   const renditionRef = useRef<Rendition | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const initializeRendition = useCallback((container: HTMLDivElement, fontSize: number) => {
     if (!book || !container) return;
+
+    // Store reference to the container
+    containerRef.current = container;
 
     // Clear any existing rendition
     if (renditionRef.current) {
@@ -52,19 +56,15 @@ export const useEPUBRendition = (book: Book | null) => {
     renditionRef.current.themes.fontSize(`${newSize}px`);
     // Force layout refresh after font size change with proper arguments
     setTimeout(() => {
-      if (renditionRef.current) {
-        // Fix: Use the iframe element directly from the rendition
+      if (renditionRef.current && containerRef.current) {
         try {
-          const iframe = renditionRef.current.iframe;
-          if (iframe && iframe.parentElement) {
-            const container = iframe.parentElement;
-            renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
-          } else {
-            // Fallback: call resize with default dimensions
-            renditionRef.current.resize();
-          }
+          // Use the stored container reference for reliable dimensions
+          const container = containerRef.current;
+          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
         } catch (error) {
           console.warn('Could not resize rendition:', error);
+          // Fallback with default dimensions
+          renditionRef.current.resize(800, 600);
         }
       }
     }, 100);
@@ -80,19 +80,15 @@ export const useEPUBRendition = (book: Book | null) => {
   const forceLayoutRefresh = useCallback(() => {
     if (!renditionRef.current) return;
     setTimeout(() => {
-      if (renditionRef.current) {
-        // Fix: Use the iframe element directly from the rendition
+      if (renditionRef.current && containerRef.current) {
         try {
-          const iframe = renditionRef.current.iframe;
-          if (iframe && iframe.parentElement) {
-            const container = iframe.parentElement;
-            renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
-          } else {
-            // Fallback: call resize with default dimensions
-            renditionRef.current.resize();
-          }
+          // Use the stored container reference for reliable dimensions
+          const container = containerRef.current;
+          renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
         } catch (error) {
           console.warn('Could not resize rendition:', error);
+          // Fallback with default dimensions
+          renditionRef.current.resize(800, 600);
         }
       }
     }, 50);
@@ -105,6 +101,7 @@ export const useEPUBRendition = (book: Book | null) => {
         renditionRef.current.destroy();
         renditionRef.current = null;
       }
+      containerRef.current = null;
     };
   }, []);
 
