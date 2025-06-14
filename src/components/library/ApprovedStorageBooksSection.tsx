@@ -3,13 +3,17 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
-import { FileText, Eye, Calendar, Users } from 'lucide-react';
+import { FileText, Eye, Calendar, Users, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 import PDFViewer from './PDFViewer';
+import { validatePDFUrl } from '@/utils/pdfUtils';
 
 const ApprovedStorageBooksSection: React.FC = () => {
   const { approvedUploads, isLoadingApproved } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
+  const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -25,6 +29,45 @@ const ApprovedStorageBooksSection: React.FC = () => {
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, l => l.toUpperCase())
       .substring(0, 50) + (fileName.length > 50 ? '...' : '');
+  };
+
+  const handlePDFOpen = async (book: any) => {
+    setValidatingPDF(book.id);
+    
+    try {
+      console.log('🔍 Validating PDF before opening:', book.file_name);
+      
+      const validation = await validatePDFUrl(book.file_url);
+      
+      if (!validation.isValid) {
+        toast({
+          title: "PDF Error",
+          description: validation.error || "The PDF file cannot be loaded.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update the book with the processed URL if it was modified
+      const bookToOpen = validation.processedUrl !== book.file_url 
+        ? { ...book, file_url: validation.processedUrl }
+        : book;
+        
+      setSelectedPDF(bookToOpen);
+      
+    } catch (error) {
+      console.error('❌ PDF validation failed:', error);
+      toast({
+        title: "Validation Error",
+        description: "Could not validate the PDF file. It may still load.",
+        variant: "destructive"
+      });
+      
+      // Still try to open the PDF
+      setSelectedPDF(book);
+    } finally {
+      setValidatingPDF(null);
+    }
   };
 
   if (isLoadingApproved) {
@@ -103,11 +146,21 @@ const ApprovedStorageBooksSection: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSelectedPDF(book)}
+                      onClick={() => handlePDFOpen(book)}
+                      disabled={validatingPDF === book.id}
                       className="w-full flex items-center gap-1 hover:bg-green-50"
                     >
-                      <Eye className="h-3 w-3" />
-                      Read Book
+                      {validatingPDF === book.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                          Validating...
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3 w-3" />
+                          Read Book
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
