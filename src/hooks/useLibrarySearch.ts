@@ -33,8 +33,6 @@ export const useLibrarySearch = () => {
         author_name: doc.author_name,
         first_publish_year: doc.first_publish_year,
         cover_i: doc.cover_i,
-        isbn: doc.isbn,
-        publisher: doc.publisher,
         subject: doc.subject,
         workKey: doc.key
       }));
