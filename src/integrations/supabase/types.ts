@@ -661,11 +661,16 @@ export type Database = {
           cover_url: string | null
           created_at: string | null
           description: string | null
+          download_error_message: string | null
+          download_status: string | null
           epub_url: string
+          file_size: number | null
           gutenberg_id: number
           id: string
           language: string | null
+          last_download_attempt: string | null
           last_updated: string | null
+          storage_url: string | null
           subjects: string[] | null
           title: string
         }
@@ -674,11 +679,16 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
+          download_error_message?: string | null
+          download_status?: string | null
           epub_url: string
+          file_size?: number | null
           gutenberg_id: number
           id: string
           language?: string | null
+          last_download_attempt?: string | null
           last_updated?: string | null
+          storage_url?: string | null
           subjects?: string[] | null
           title: string
         }
@@ -687,11 +697,16 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
+          download_error_message?: string | null
+          download_status?: string | null
           epub_url?: string
+          file_size?: number | null
           gutenberg_id?: number
           id?: string
           language?: string | null
+          last_download_attempt?: string | null
           last_updated?: string | null
+          storage_url?: string | null
           subjects?: string[] | null
           title?: string
         }

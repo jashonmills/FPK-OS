@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 
@@ -30,6 +29,19 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  const getEPUBUrl = () => {
+    // Priority order: storage_url > epub_url (with proxy) > direct epub_url
+    if (book.storage_url) {
+      console.log('📚 Using local storage URL:', book.storage_url);
+      return book.storage_url;
+    }
+    
+    // Fallback to proxy for external URLs
+    const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
+    console.log('🔗 Using proxy URL:', proxyUrl);
+    return proxyUrl;
+  };
+
   const loadEPUB = async () => {
     try {
       setIsLoading(true);
@@ -37,9 +49,9 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Initializing...');
       setLoadingProgress(10);
 
-      console.log('📖 Loading EPUB for:', book.title, 'URL:', book.epub_url);
+      console.log('📖 Loading EPUB for:', book.title);
 
-      if (!book.epub_url) {
+      if (!book.epub_url && !book.storage_url) {
         throw new Error('No EPUB URL available for this book');
       }
 
@@ -53,26 +65,25 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Connecting to book server...');
       setLoadingProgress(30);
       
-      const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
-      console.log('🔗 Using proxy URL:', proxyUrl);
+      const epubUrl = getEPUBUrl();
       
       setLoadingStep('Creating EPUB instance...');
       setLoadingProgress(40);
       
-      const epubBook = ePub(proxyUrl);
+      const epubBook = ePub(epubUrl);
       epubRef.current = epubBook;
 
-      setLoadingStep('Downloading book content...');
+      setLoadingStep('Loading book content...');
       setLoadingProgress(50);
 
-      // Simplified book ready handling
+      // Wait for book to be ready
       await waitForBookReady(epubBook);
       console.log('✅ EPUB book ready');
 
       setLoadingStep('Processing book structure...');
       setLoadingProgress(80);
 
-      // Load TOC with simple timeout
+      // Load TOC with timeout
       try {
         await Promise.race([
           epubBook.loaded.navigation.then(() => {
@@ -114,11 +125,10 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
   };
 
   const waitForBookReady = async (epubBook: any) => {
-    // Simple timeout approach - just wait for the book to be ready
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
         reject(new Error('Book parsing timed out. This book may be too large or complex.'));
-      }, 15000); // 15 second timeout
+      }, 10000); // Reduced timeout for local files
     });
 
     await Promise.race([epubBook.ready, timeoutPromise]);
@@ -128,7 +138,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
     
     if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
-      setError('This book is taking too long to load. It may be a large file or have complex formatting. Please try again or select a different book.');
+      setError('This book is taking too long to load. Please try again or select a different book.');
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
       setError('Network connection issue. Please check your internet connection and try again.');
     } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
@@ -147,7 +157,6 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
 
     console.log('🎨 Initializing rendition...');
 
-    // Create rendition
     const rendition = epubRef.current.renderTo(container, {
       width: '100%',
       height: '100%',
@@ -157,22 +166,18 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     });
     renditionRef.current = rendition;
 
-    // Set font size
     rendition.themes.fontSize(`${fontSize}px`);
 
-    // Display first page
     rendition.display().then(() => {
       console.log('📄 First page displayed successfully');
     }).catch((err: any) => {
       console.error('❌ Rendition display error:', err);
     });
 
-    // Track location changes
     rendition.on('relocated', (location: any) => {
       setCurrentLocation(location.start.cfi);
     });
 
-    // Handle rendition errors gracefully
     rendition.on('error', (err: any) => {
       console.warn('⚠️ Rendition warning:', err);
     });
