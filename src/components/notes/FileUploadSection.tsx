@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,18 +22,29 @@ const FileUploadSection: React.FC = () => {
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const userIdRef = useRef<string | null>(null);
 
   // Set up real-time subscription for completion handling with proper pattern
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
-    // If we've already created & subscribed, do nothing
-    if (channelRef.current) return;
+    // If user hasn't changed and we already have a subscription, do nothing
+    if (userIdRef.current === user.id && channelRef.current) return;
 
-    console.log('🔄 Setting up enhanced real-time subscription for file uploads');
+    // Clean up previous subscription if user changed
+    if (channelRef.current && userIdRef.current !== user.id) {
+      console.log('🧹 Cleaning up previous subscription due to user change');
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
 
-    // Create the channel with unique name
-    const channelName = `notes-file-uploads-${user.id}-${Date.now()}`;
+    // Update user ref
+    userIdRef.current = user.id;
+
+    console.log('🔄 Setting up file upload subscription for user:', user.id);
+
+    // Create the channel with unique name based on component and timestamp
+    const channelName = `notes-file-uploads-${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const channel = supabase
       .channel(channelName)
       .on(
@@ -46,19 +56,14 @@ const FileUploadSection: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('🔄 Enhanced file upload updated:', payload);
+          console.log('🔄 File upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
-            console.log('✅ Processing completed with enhanced tracking:', payload.new.id);
+            console.log('✅ Processing completed:', payload.new.id);
             
-            // Complete the final stage
             completeStage(payload.new.id, 'generation');
             
-            // Clear timeout and progress
-            if (processingTimeouts[payload.new.id]) {
-              clearTimeout(processingTimeouts[payload.new.id]);
-            }
-            
+            // Clear timeout and progress - using functional updates to avoid dependencies
             setProcessingProgress(prev => {
               const newState = { ...prev };
               delete newState[payload.new.id];
@@ -66,6 +71,9 @@ const FileUploadSection: React.FC = () => {
             });
             
             setProcessingTimeouts(prev => {
+              if (prev[payload.new.id]) {
+                clearTimeout(prev[payload.new.id]);
+              }
               const newState = { ...prev };
               delete newState[payload.new.id];
               return newState;
@@ -109,19 +117,14 @@ const FileUploadSection: React.FC = () => {
                 });
               }
             } catch (error) {
-              console.error('💥 Error in enhanced completion handling:', error);
+              console.error('💥 Error in completion handling:', error);
             }
           } else if (payload.new.processing_status === 'failed') {
-            console.log('❌ Processing failed with enhanced tracking:', payload.new.id);
+            console.log('❌ Processing failed:', payload.new.id);
             
-            // Mark as error in processing meter
             errorStage(payload.new.id, 'generation', payload.new.error_message || 'Processing failed');
             
-            // Clean up
-            if (processingTimeouts[payload.new.id]) {
-              clearTimeout(processingTimeouts[payload.new.id]);
-            }
-            
+            // Clean up using functional updates
             setProcessingProgress(prev => {
               const newState = { ...prev };
               delete newState[payload.new.id];
@@ -129,6 +132,9 @@ const FileUploadSection: React.FC = () => {
             });
             
             setProcessingTimeouts(prev => {
+              if (prev[payload.new.id]) {
+                clearTimeout(prev[payload.new.id]);
+              }
               const newState = { ...prev };
               delete newState[payload.new.id];
               return newState;
@@ -154,27 +160,29 @@ const FileUploadSection: React.FC = () => {
         console.error('❌ Failed to subscribe to file uploads channel:', status);
         // Reset the ref on failure so we can try again
         channelRef.current = null;
+        userIdRef.current = null;
       }
     });
 
-    // Cleanup on unmount
+    // Cleanup on unmount or user change
     return () => {
-      console.log('🔌 Cleaning up enhanced real-time subscription');
+      console.log('🔌 Cleaning up file upload subscription');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
+      userIdRef.current = null;
     };
   }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
-  // Clean up timeouts on component unmount
+  // Clean up timeouts on component unmount - separate effect to avoid subscription issues
   useEffect(() => {
     return () => {
       Object.values(processingTimeouts).forEach(timeout => {
         clearTimeout(timeout);
       });
     };
-  }, [processingTimeouts]);
+  }, []);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -190,12 +198,10 @@ const FileUploadSection: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('🤖 Starting enhanced AI processing for file:', file.name);
+      console.log('🤖 Starting AI processing for file:', file.name);
       
-      // Start real-time processing tracking
       startProcessing(uploadId, file.name, file.size);
       
-      // Progress through stages with realistic timing
       setTimeout(() => completeStage(uploadId, 'download'), 2000);
       setTimeout(() => completeStage(uploadId, 'extraction'), 4000);
       
@@ -211,14 +217,13 @@ const FileUploadSection: React.FC = () => {
       });
 
       if (error) {
-        console.error('Enhanced edge function error:', error);
+        console.error('Edge function error:', error);
         errorStage(uploadId, 'generation', error.message || 'AI processing failed');
         throw error;
       }
 
-      console.log('🎯 Enhanced processing response:', data);
+      console.log('🎯 Processing response:', data);
 
-      // If we get immediate flashcards, add them to preview
       if (data?.flashcards?.length > 0) {
         const previewCards = data.flashcards.map((card: any, index: number) => ({
           front_content: card.front_content || card.front || '',
@@ -240,7 +245,7 @@ const FileUploadSection: React.FC = () => {
       return data.flashcardsGenerated || 0;
 
     } catch (error) {
-      console.error('Enhanced processing error:', error);
+      console.error('Processing error:', error);
       errorStage(uploadId, 'generation', error instanceof Error ? error.message : 'Processing failed');
       throw error;
     }
@@ -297,7 +302,7 @@ const FileUploadSection: React.FC = () => {
 
         toast({
           title: "✅ File uploaded",
-          description: `${file.name} uploaded successfully. Starting enhanced AI processing...`,
+          description: `${file.name} uploaded successfully. Starting AI processing...`,
         });
 
         setTimeout(async () => {
@@ -318,7 +323,7 @@ const FileUploadSection: React.FC = () => {
             const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000);
 
             const timeoutId = setTimeout(() => {
-              console.log('Enhanced processing timeout for upload:', uploadRecord.id);
+              console.log('Processing timeout for upload:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
@@ -348,7 +353,7 @@ const FileUploadSection: React.FC = () => {
             await processFileForFlashcards(file, uploadRecord.id, filePath);
 
           } catch (error) {
-            console.error('Enhanced AI processing error:', error);
+            console.error('AI processing error:', error);
             
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
@@ -372,14 +377,14 @@ const FileUploadSection: React.FC = () => {
                 return newState;
               });
 
-              if (processingTimeouts[uploadRecord.id]) {
-                clearTimeout(processingTimeouts[uploadRecord.id]);
-                setProcessingTimeouts(prev => {
-                  const newState = { ...prev };
-                  delete newState[uploadRecord.id];
-                  return newState;
-                });
-              }
+              setProcessingTimeouts(prev => {
+                if (prev[uploadRecord.id]) {
+                  clearTimeout(prev[uploadRecord.id]);
+                }
+                const newState = { ...prev };
+                delete newState[uploadRecord.id];
+                return newState;
+              });
             }
 
             toast({
@@ -420,14 +425,14 @@ const FileUploadSection: React.FC = () => {
   };
 
   const removeUpload = (id: string) => {
-    if (processingTimeouts[id]) {
-      clearTimeout(processingTimeouts[id]);
-      setProcessingTimeouts(prev => {
-        const newState = { ...prev };
-        delete newState[id];
-        return newState;
-      });
-    }
+    setProcessingTimeouts(prev => {
+      if (prev[id]) {
+        clearTimeout(prev[id]);
+      }
+      const newState = { ...prev };
+      delete newState[id];
+      return newState;
+    });
     
     setProcessingProgress(prev => {
       const newState = { ...prev };
