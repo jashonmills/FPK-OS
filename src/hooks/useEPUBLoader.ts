@@ -58,7 +58,6 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Loading EPUB library...');
       setLoadingProgress(20);
       
-      // Load EPUB.js library
       const epubModule = await import('epubjs');
       const ePub = epubModule.default;
       
@@ -76,21 +75,19 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Loading book content...');
       setLoadingProgress(50);
 
-      // Wait for book to be ready
       await waitForBookReady(epubBook);
       console.log('✅ EPUB book ready');
 
       setLoadingStep('Processing book structure...');
       setLoadingProgress(80);
 
-      // Load TOC with timeout
       try {
         await Promise.race([
           epubBook.loaded.navigation.then(() => {
             setToc(epubBook.navigation.toc || []);
             console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 5000)) // Increased TOC timeout
+          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 5000))
         ]);
       } catch (navError) {
         console.warn('⚠️ Could not load table of contents, continuing without it');
@@ -105,19 +102,20 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setIsLoading(false);
       setLoadingStep('');
       setLoadingProgress(0);
+      retryCountRef.current = 0; // Reset retry count on success
       console.log('✅ EPUB loaded successfully');
 
     } catch (err) {
       console.error('❌ Error loading EPUB:', err);
       
-      // Simple retry logic
       if (retryCountRef.current < maxRetries) {
         retryCountRef.current++;
-        console.log(`🔄 Retrying... Attempt ${retryCountRef.current}/${maxRetries}`);
+        const retryDelay = Math.pow(2, retryCountRef.current -1) * 1000; // Exponential backoff: 1s, 2s
+        console.log(`🔄 Retrying... Attempt ${retryCountRef.current}/${maxRetries}. Waiting ${retryDelay}ms.`);
         setLoadingStep(`Retrying... (${retryCountRef.current}/${maxRetries})`);
         
-        await delay(1000);
-        return loadEPUB();
+        await delay(retryDelay);
+        return loadEPUB(); // Return to ensure the promise chain continues correctly
       }
       
       handleLoadingError(err);
