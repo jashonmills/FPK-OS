@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 
 interface SpeedTestProps {
   flashcards?: any[];
@@ -12,6 +13,7 @@ interface SpeedTestProps {
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
+  const { awardChallengeCompletionXP } = useXPIntegration();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
@@ -25,6 +27,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided (limit to 5 for speed test)
       setTestCards(customCards.slice(0, 5));
+      console.log('⚡ SpeedTest: Using custom cards:', Math.min(5, customCards.length));
     } else if (flashcards && flashcards.length > 0) {
       // Filter cards not reviewed in last 24 hours
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -39,6 +42,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
         : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
 
       setTestCards(selectedCards);
+      console.log('⚡ SpeedTest: Using filtered cards:', selectedCards.length);
     }
   }, [flashcards, customCards]);
 
@@ -52,12 +56,16 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     } else if (timeLeft === 0) {
       setCompleted(true);
       setIsActive(false);
+      // Award XP for time-based completion
+      const timeBonus = answeredCards * 10; // 10 XP per card answered
+      awardChallengeCompletionXP('speed_test', timeBonus).catch(console.error);
+      console.log('✅ SpeedTest: XP awarded for completion, cards answered:', answeredCards);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, completed]);
+  }, [isActive, timeLeft, completed, answeredCards, awardChallengeCompletionXP]);
 
   const startTest = () => {
     setIsActive(true);
@@ -87,6 +95,14 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     } else {
       setCompleted(true);
       setIsActive(false);
+      // Award XP for completing all cards
+      const completionBonus = testCards.length * 15; // 15 XP per card completed
+      try {
+        await awardChallengeCompletionXP('speed_test', completionBonus);
+        console.log('✅ SpeedTest: XP awarded for full completion');
+      } catch (error) {
+        console.error('❌ SpeedTest: Failed to award XP:', error);
+      }
     }
   };
 

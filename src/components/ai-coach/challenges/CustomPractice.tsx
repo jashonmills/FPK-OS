@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 
 interface CustomPracticeProps {
   selectedCards: any[];
@@ -11,6 +12,7 @@ interface CustomPracticeProps {
 
 const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
   const { updateFlashcard } = useFlashcards();
+  const { awardChallengeCompletionXP } = useXPIntegration();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -20,6 +22,7 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
+    console.log('📋 CustomPractice: Cards selected:', selectedCards.length);
   }, [selectedCards]);
 
   const handleNext = async () => {
@@ -38,6 +41,13 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
       setShowAnswer(false);
     } else {
       setCompleted(true);
+      // Award XP for completing custom practice
+      try {
+        await awardChallengeCompletionXP('custom_practice', selectedCards.length * 5);
+        console.log('✅ CustomPractice: XP awarded for completion');
+      } catch (error) {
+        console.error('❌ CustomPractice: Failed to award XP:', error);
+      }
     }
   };
 

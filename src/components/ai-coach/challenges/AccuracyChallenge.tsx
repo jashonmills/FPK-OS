@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
@@ -12,6 +13,7 @@ interface AccuracyChallengeProps {
 
 const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
+  const { awardChallengeCompletionXP } = useXPIntegration();
   const [currentCard, setCurrentCard] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -26,6 +28,7 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided (limit to 5 for accuracy challenge)
       setChallengeCards(customCards.slice(0, 5));
+      console.log('🎯 AccuracyChallenge: Using custom cards:', Math.min(5, customCards.length));
     } else if (flashcards && flashcards.length > 0) {
       // Filter cards with low accuracy (< 80%) or no review history
       const lowAccuracyCards = flashcards.filter(card => {
@@ -46,6 +49,7 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
       }
 
       setChallengeCards(selectedCards);
+      console.log('🎯 AccuracyChallenge: Using filtered cards:', selectedCards.length);
     }
   }, [flashcards, customCards]);
 
@@ -98,6 +102,11 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
       setShowResult(false);
     } else {
       setCompleted(true);
+      // Award XP based on accuracy performance
+      const accuracy = Math.round((score.correct / score.total) * 100);
+      const baseScore = accuracy >= targetAccuracy ? 100 : 50;
+      awardChallengeCompletionXP('accuracy_challenge', baseScore).catch(console.error);
+      console.log('✅ AccuracyChallenge: XP awarded for completion, accuracy:', accuracy + '%');
     }
   };
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, ArrowRight, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 
 interface QuickReviewProps {
   flashcards?: any[];
@@ -13,6 +14,7 @@ interface QuickReviewProps {
 
 const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
+  const { awardChallengeCompletionXP } = useXPIntegration();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -22,10 +24,12 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided
       setReviewCards(customCards);
+      console.log('📚 QuickReview: Using custom cards:', customCards.length);
     } else if (flashcards && flashcards.length > 0) {
       // Randomly select 3 cards when no custom cards
       const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
       setReviewCards(shuffled.slice(0, 3));
+      console.log('📚 QuickReview: Using random cards:', 3);
     }
   }, [flashcards, customCards]);
 
@@ -45,6 +49,13 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
       setShowAnswer(false);
     } else {
       setCompleted(true);
+      // Award XP for completing the review
+      try {
+        await awardChallengeCompletionXP('quick_review', reviewCards.length * 10);
+        console.log('✅ QuickReview: XP awarded for completion');
+      } catch (error) {
+        console.error('❌ QuickReview: Failed to award XP:', error);
+      }
     }
   };
 
