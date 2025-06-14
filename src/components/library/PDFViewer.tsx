@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -24,43 +23,25 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Add detailed debugging for PDF loading
+  // Memoize the options to avoid react-pdf warnings
+  const pdfOptions = React.useMemo(() => ({
+    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/cmaps/`,
+    cMapPacked: true,
+    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/standard_fonts/`,
+  }), []);
+
   useEffect(() => {
     console.log('🔍 PDFViewer Debug Info:', {
       fileName,
-      fileUrl,
-      urlLength: fileUrl.length,
-      isValidUrl: /^https?:\/\//.test(fileUrl),
-      domain: fileUrl.split('/')[2] || 'no domain',
+      fileUrl: fileUrl.substring(0, 100) + '...',
       workerInfo: getWorkerInfo()
     });
-
-    // Test if URL is accessible
-    const testUrl = async () => {
-      try {
-        console.log('🌐 Testing URL accessibility:', fileUrl);
-        const response = await fetch(fileUrl, { 
-          method: 'HEAD',
-          mode: 'cors'
-        });
-        console.log('📊 URL test result:', {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-      } catch (testError) {
-        console.error('❌ URL accessibility test failed:', testError);
-      }
-    };
-
-    testUrl();
   }, [fileUrl, fileName]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('✅ PDF loaded successfully:', { 
       numPages, 
-      fileName, 
-      fileUrl: fileUrl.substring(0, 100) + '...',
+      fileName,
       workerInfo: getWorkerInfo()
     });
     
@@ -75,14 +56,10 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   };
 
   const onDocumentLoadError = async (error: Error) => {
-    console.error('❌ PDF loading error - Detailed info:', {
+    console.error('❌ PDF loading error:', {
       errorName: error.name,
       errorMessage: error.message,
-      errorStack: error.stack,
       fileName,
-      fileUrl: fileUrl.substring(0, 100) + '...',
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
       workerInfo: getWorkerInfo()
     });
     
@@ -90,23 +67,20 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     
     let errorMessage = "Failed to load PDF file.";
     
-    if (error.message.includes('Setting up fake worker') || error.message.includes('worker')) {
-      errorMessage = "PDF worker configuration issue. Please try refreshing the page.";
+    if (error.message.includes('worker') || error.message.includes('Setting up fake worker')) {
+      errorMessage = "PDF worker configuration issue. Attempting to fix...";
       
       // Try to reinitialize worker
-      console.log('🔄 Attempting worker reinitialize due to worker error...');
       const workerFixed = await reinitializeWorker();
       if (workerFixed) {
-        errorMessage += " Worker was reinitialized, please retry.";
+        errorMessage = "Worker was reinitialized. Please try again.";
+      } else {
+        errorMessage = "Worker configuration failed. Please refresh the page.";
       }
-    } else if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('NetworkError')) {
-      errorMessage = "Network error loading PDF. The file may not be accessible or there could be a connection issue.";
-    } else if (error.message.includes('Invalid PDF') || error.message.includes('PDF')) {
+    } else if (error.message.includes('fetch') || error.message.includes('network')) {
+      errorMessage = "Network error loading PDF. Please check your connection.";
+    } else if (error.message.includes('Invalid PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
-    } else if (error.message.includes('CORS')) {
-      errorMessage = "Access denied. The PDF file cannot be loaded due to security restrictions.";
-    } else if (error.message.includes('404') || error.message.includes('Not Found')) {
-      errorMessage = "PDF file not found. The file may have been moved or deleted.";
     }
     
     setError(errorMessage);
@@ -121,9 +95,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const handleRetry = async () => {
     console.log('🔄 Retrying PDF load for:', fileName);
     
-    // Reinitialize worker before retry
-    const workerFixed = await reinitializeWorker();
-    console.log('🔧 Worker reinitialize result:', workerFixed);
+    await reinitializeWorker();
     
     setError(null);
     setIsLoading(true);
@@ -159,27 +131,24 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
           <DialogTitle>PDF Viewer Error</DialogTitle>
-          <DialogDescription asChild>
-            <div>
-              <div className="flex items-center justify-center p-8">
-                <div className="text-center space-y-4">
-                  <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
-                  <div className="text-destructive">{error}</div>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div>File: {fileName}</div>
-                    <div className="break-all">URL: {fileUrl.substring(0, 50)}...</div>
-                    <div>Worker: {getWorkerInfo().workerSrc?.substring(0, 50)}...</div>
-                  </div>
-                  <div className="space-x-2">
-                    <Button variant="outline" size="sm" onClick={handleRetry}>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Retry
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={onClose}>
-                      <X className="h-4 w-4 mr-2" />
-                      Close
-                    </Button>
-                  </div>
+          <DialogDescription>
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center space-y-4">
+                <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+                <div className="text-destructive">{error}</div>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div>File: {fileName}</div>
+                  <div className="break-all">URL: {fileUrl.substring(0, 50)}...</div>
+                </div>
+                <div className="space-x-2">
+                  <Button variant="outline" size="sm" onClick={handleRetry}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Retry
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={onClose}>
+                    <X className="h-4 w-4 mr-2" />
+                    Close
+                  </Button>
                 </div>
               </div>
             </div>
@@ -243,16 +212,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                       <div className="space-y-2">
                         <div className="text-sm text-muted-foreground">Loading PDF...</div>
                         <div className="text-xs text-muted-foreground">{fileName}</div>
-                        <div className="text-xs text-muted-foreground break-all">{fileUrl.substring(0, 50)}...</div>
                       </div>
                     </div>
                   </div>
                 }
-                options={{
-                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/cmaps/`,
-                  cMapPacked: true,
-                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/standard_fonts/`,
-                }}
+                options={pdfOptions}
               >
                 {numPages > 0 && (
                   <Page
