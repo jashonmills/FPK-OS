@@ -24,25 +24,9 @@ export default defineConfig(({ mode }) => ({
     include: ['pdfjs-dist'],
   },
   assetsInclude: [
-    '**/*.pdf',
-    '**/pdf.worker.min.js'
+    '**/*.pdf'
   ],
   define: {
     global: 'globalThis',
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.worker.min.js')) {
-            return 'assets/[name]-[hash][extname]';
-          }
-          return 'assets/[name]-[hash][extname]';
-        }
-      }
-    }
-  },
-  worker: {
-    format: 'es'
   }
 }));
