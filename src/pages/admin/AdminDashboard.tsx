@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Users, BookOpen, Upload, Settings, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PopulateApprovedBooks from '@/components/admin/PopulateApprovedBooks';
+import CommunityBooksApproval from '@/components/admin/CommunityBooksApproval';
 
 const AdminDashboard = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -90,6 +91,9 @@ const AdminDashboard = () => {
           <h2 className={`text-2xl font-semibold ${getAccessibilityClasses('text')}`}>
             Library Management
           </h2>
+          
+          {/* Community Books Approval Panel */}
+          <CommunityBooksApproval />
           
           <PopulateApprovedBooks />
         </div>
