@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads } from '@/hooks/useFileUploads';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 'lucide-react';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 const FileUploadCard: React.FC = () => {
   const { user } = useAuth();
@@ -17,7 +18,7 @@ const FileUploadCard: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Enhanced file type support
   const allowedTypes = [
@@ -34,17 +35,16 @@ const FileUploadCard: React.FC = () => {
 
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  // Set up real-time subscription with unique channel name
+  // Set up real-time subscription with proper pattern
   useEffect(() => {
     if (!user) return;
 
-    // Clean up existing channel if it exists
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
+    // If we've already created & subscribed, do nothing
+    if (channelRef.current) return;
 
-    // Use a unique channel name to avoid conflicts with other file upload components
+    console.log('🔄 Setting up AI coach file upload subscription');
+
+    // Create the channel with unique name to avoid conflicts with other file upload components
     const channelName = `ai-coach-file-uploads-${user.id}-${Date.now()}`;
     const channel = supabase
       .channel(channelName)
@@ -57,7 +57,7 @@ const FileUploadCard: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('AI Coach file upload updated:', payload);
+          console.log('🤖 AI Coach file upload updated:', payload);
           
           if (payload.new.processing_status === 'completed') {
             // Clear timeout and progress
@@ -106,12 +106,25 @@ const FileUploadCard: React.FC = () => {
             });
           }
         }
-      )
-      .subscribe();
+      );
 
+    // Set the channel reference immediately to prevent multiple subscriptions
     channelRef.current = channel;
 
+    // Subscribe and handle the result
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to AI coach file uploads channel');
+      } else {
+        console.error('❌ Failed to subscribe to AI coach file uploads channel:', status);
+        // Reset the ref on failure so we can try again
+        channelRef.current = null;
+      }
+    });
+
+    // Cleanup on unmount
     return () => {
+      console.log('🔌 Cleaning up AI coach file upload subscription');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;

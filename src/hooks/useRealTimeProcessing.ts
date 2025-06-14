@@ -1,9 +1,10 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ProcessingStage } from '@/components/notes/RealTimeProcessingMeter';
 import { FileText, Download, Brain, Sparkles } from 'lucide-react';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 export interface ProcessingState {
   uploadId: string;
@@ -18,6 +19,7 @@ export interface ProcessingState {
 export const useRealTimeProcessing = () => {
   const { user } = useAuth();
   const [processingStates, setProcessingStates] = useState<Record<string, ProcessingState>>({});
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   const createDefaultStages = (): ProcessingStage[] => [
     {
@@ -187,12 +189,19 @@ export const useRealTimeProcessing = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Set up real-time subscription for processing updates
+  // Set up real-time subscription for processing updates with proper pattern
   useEffect(() => {
     if (!user) return;
 
+    // If we've already created & subscribed, do nothing
+    if (channelRef.current) return;
+
+    console.log('🔄 Setting up real-time processing updates subscription');
+
+    // Create the channel with unique name
+    const channelName = `processing-updates-${user.id}-${Date.now()}`;
     const channel = supabase
-      .channel('processing-updates')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -222,13 +231,31 @@ export const useRealTimeProcessing = () => {
             }
           }
         }
-      )
-      .subscribe();
+      );
 
+    // Set the channel reference immediately to prevent multiple subscriptions
+    channelRef.current = channel;
+
+    // Subscribe and handle the result
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to processing updates channel');
+      } else {
+        console.error('❌ Failed to subscribe to processing updates channel:', status);
+        // Reset the ref on failure so we can try again
+        channelRef.current = null;
+      }
+    });
+
+    // Cleanup on unmount
     return () => {
-      supabase.removeChannel(channel);
+      console.log('🔌 Cleaning up processing updates subscription');
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [user, processingStates, startProcessing, completeStage, errorStage, removeProcessing]);
+  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
 
   return {
     processingStates,
