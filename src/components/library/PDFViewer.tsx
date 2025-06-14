@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -22,34 +23,26 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [workerReady, setWorkerReady] = useState<boolean>(false);
-  const [initializingWorker, setInitializingWorker] = useState<boolean>(true);
   const { toast } = useToast();
 
   // Initialize PDF worker on component mount
   useEffect(() => {
     const initializeWorker = async () => {
       console.log('🔧 Initializing PDF.js worker...');
-      setInitializingWorker(true);
       
       const configSuccess = configurePDFWorker();
       if (!configSuccess) {
         setError('Failed to configure PDF processing engine');
-        setInitializingWorker(false);
         return;
       }
-      
-      // Wait a bit for worker to be ready
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const validationSuccess = await validatePDFWorker();
       if (!validationSuccess) {
         setError('PDF processing engine validation failed');
-        setInitializingWorker(false);
         return;
       }
       
       setWorkerReady(true);
-      setInitializingWorker(false);
       console.log('✅ PDF.js worker ready');
     };
 
@@ -91,28 +84,25 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const handleRetry = async () => {
+  const handleRetry = () => {
     console.log('🔄 Retrying PDF load');
     setError(null);
     setIsLoading(true);
     setNumPages(0);
     setPageNumber(1);
     setWorkerReady(false);
-    setInitializingWorker(true);
     
     // Reinitialize worker
     const configSuccess = configurePDFWorker();
     if (configSuccess) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const success = await validatePDFWorker();
-      setWorkerReady(success);
-      setInitializingWorker(false);
-      if (!success) {
-        setError('PDF processing engine validation failed');
-      }
+      validatePDFWorker().then(success => {
+        setWorkerReady(success);
+        if (!success) {
+          setError('PDF processing engine validation failed');
+        }
+      });
     } else {
       setError('Failed to configure PDF processing engine');
-      setInitializingWorker(false);
     }
   };
 
@@ -139,25 +129,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [pageNumber, numPages, onClose]);
 
-  // Show loading state while worker initializes
-  if (initializingWorker) {
-    return (
-      <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-md">
-          <DialogTitle>Initializing PDF Viewer</DialogTitle>
-          <DialogDescription>
-            <div className="flex items-center justify-center p-8">
-              <div className="text-center space-y-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p>Setting up PDF processing engine...</p>
-              </div>
-            </div>
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   if (error) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
@@ -178,6 +149,25 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                     Close
                   </Button>
                 </div>
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show loading state while worker initializes
+  if (!workerReady) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogTitle>Initializing PDF Viewer</DialogTitle>
+          <DialogDescription>
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center space-y-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p>Setting up PDF processing engine...</p>
               </div>
             </div>
           </DialogDescription>
@@ -229,41 +219,39 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
           {/* PDF Content */}
           <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
             <div className="bg-white shadow-lg">
-              {workerReady && (
-                <Document
-                  file={fileUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  onLoadError={onDocumentLoadError}
-                  loading={
-                    <div className="flex items-center justify-center p-8">
-                      <div className="text-center space-y-4">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                        <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground">Loading PDF...</p>
-                          <p className="text-xs text-muted-foreground">{fileName}</p>
-                        </div>
+              <Document
+                file={fileUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
+                loading={
+                  <div className="flex items-center justify-center p-8">
+                    <div className="text-center space-y-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Loading PDF...</p>
+                        <p className="text-xs text-muted-foreground">{fileName}</p>
                       </div>
                     </div>
-                  }
-                  options={{
-                    cMapUrl: `https://unpkg.com/pdfjs-dist@4.4.168/cmaps/`,
-                    cMapPacked: true,
-                    standardFontDataUrl: `https://unpkg.com/pdfjs-dist@4.4.168/standard_fonts/`,
-                  }}
-                >
-                  {numPages > 0 && (
-                    <Page
-                      pageNumber={pageNumber}
-                      scale={scale}
-                      loading={
-                        <div className="flex items-center justify-center h-96 w-64">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                        </div>
-                      }
-                    />
-                  )}
-                </Document>
-              )}
+                  </div>
+                }
+                options={{
+                  cMapUrl: `https://unpkg.com/pdfjs-dist@4.4.168/cmaps/`,
+                  cMapPacked: true,
+                  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@4.4.168/standard_fonts/`,
+                }}
+              >
+                {numPages > 0 && (
+                  <Page
+                    pageNumber={pageNumber}
+                    scale={scale}
+                    loading={
+                      <div className="flex items-center justify-center h-96 w-64">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      </div>
+                    }
+                  />
+                )}
+              </Document>
             </div>
           </div>
 
