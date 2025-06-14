@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAccessibility } from '@/hooks/useAccessibility';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Progress } from '@/components/ui/progress';
 
@@ -17,6 +17,7 @@ interface EPUBReaderContentProps {
   onClose: () => void;
   onPrevPage?: () => void;
   onNextPage?: () => void;
+  isNavigating?: boolean;
 }
 
 const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
@@ -29,14 +30,15 @@ const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
   onRetry,
   onClose,
   onPrevPage,
-  onNextPage
+  onNextPage,
+  isNavigating = false
 }) => {
   const { getAccessibilityClasses } = useAccessibility();
 
   // Add keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isLoading || error) return;
+      if (isLoading || error || isNavigating) return;
       
       switch (event.key) {
         case 'ArrowLeft':
@@ -61,7 +63,7 @@ const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isLoading, error, onPrevPage, onNextPage, onClose]);
+  }, [isLoading, error, isNavigating, onPrevPage, onNextPage, onClose]);
 
   if (isLoading) {
     return (
@@ -140,13 +142,27 @@ const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
   }
 
   return (
-    <div
-      ref={readerRef}
-      className={`w-full h-full ${getAccessibilityClasses('container')}`}
-      tabIndex={0}
-      role="main"
-      aria-label={`Reading ${book.title} by ${book.author}`}
-    />
+    <div className="relative w-full h-full">
+      {/* Navigation overlay when navigating */}
+      {isNavigating && (
+        <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+          <div className="bg-background border border-border rounded-lg p-4 flex items-center gap-2 shadow-lg">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <span className="text-sm">Loading chapter...</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Reader container */}
+      <div
+        ref={readerRef}
+        className={`w-full h-full ${getAccessibilityClasses('container')} ${isNavigating ? 'pointer-events-none' : ''}`}
+        tabIndex={0}
+        role="main"
+        aria-label={`Reading ${book.title} by ${book.author}`}
+        style={{ opacity: isNavigating ? 0.7 : 1 }}
+      />
+    </div>
   );
 };
 

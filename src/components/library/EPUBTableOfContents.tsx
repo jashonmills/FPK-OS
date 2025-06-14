@@ -6,19 +6,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Loader2 } from 'lucide-react';
 
 interface EPUBTableOfContentsProps {
   isOpen: boolean;
   onClose: () => void;
   toc: any[];
   onItemClick: (href: string) => void;
+  isNavigating?: boolean;
 }
 
 const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
   isOpen,
   onClose,
   toc,
-  onItemClick
+  onItemClick,
+  isNavigating = false
 }) => {
   const handleTOCItemClick = (href: string) => {
     onItemClick(href);
@@ -29,7 +32,12 @@ const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Table of Contents</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Table of Contents
+            {isNavigating && (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            )}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {toc.length > 0 ? (
@@ -37,7 +45,8 @@ const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
               <button
                 key={index}
                 onClick={() => handleTOCItemClick(item.href)}
-                className="block w-full text-left p-2 hover:bg-muted rounded"
+                disabled={isNavigating}
+                className="block w-full text-left p-2 hover:bg-muted rounded disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="text-sm">{item.label}</span>
               </button>
@@ -48,6 +57,11 @@ const EPUBTableOfContents: React.FC<EPUBTableOfContentsProps> = ({
             </p>
           )}
         </div>
+        {isNavigating && (
+          <div className="text-center p-2">
+            <p className="text-xs text-muted-foreground">Loading chapter...</p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

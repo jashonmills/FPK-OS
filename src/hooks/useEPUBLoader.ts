@@ -17,11 +17,13 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
 
   const {
     currentLocation,
+    isNavigating,
     initializeRendition: initRendition,
     handlePrevPage,
     handleNextPage,
     handleFontSizeChange: changeFontSize,
     handleTOCItemClick,
+    forceLayoutRefresh,
   } = useEPUBRendition(epubBookInstance);
 
   const isLoading = isBookLoading;
@@ -52,6 +54,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     loadingStep,
     loadingProgress,
     currentLocation,
+    isNavigating,
     toc,
     initializeRendition,
     handleRetry,
@@ -59,5 +62,6 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     handleNextPage,
     handleFontSizeChange,
     handleTOCItemClick,
+    forceLayoutRefresh,
   };
 };

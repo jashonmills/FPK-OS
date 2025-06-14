@@ -27,13 +27,15 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     error,
     loadingStep,
     loadingProgress,
+    isNavigating,
     toc,
     initializeRendition,
     handleRetry,
     handlePrevPage,
     handleNextPage,
     handleFontSizeChange,
-    handleTOCItemClick
+    handleTOCItemClick,
+    forceLayoutRefresh
   } = useEPUBLoader(book);
 
   // Initialize rendition when EPUB is loaded and container is ready
@@ -52,7 +54,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
 
   // Add touch/swipe navigation for mobile
   useEffect(() => {
-    if (!readerRef.current || isLoading || error) return;
+    if (!readerRef.current || isLoading || error || isNavigating) return;
 
     let startX = 0;
     let startY = 0;
@@ -94,7 +96,18 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
       container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isLoading, error, handlePrevPage, handleNextPage]);
+  }, [isLoading, error, isNavigating, handlePrevPage, handleNextPage]);
+
+  // Force layout refresh when container size might have changed
+  useEffect(() => {
+    if (!isLoading && !error && !isNavigating) {
+      const timer = setTimeout(() => {
+        forceLayoutRefresh();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, error, isNavigating, forceLayoutRefresh]);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -127,6 +140,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               onClose={onClose}
               onPrevPage={handlePrevPage}
               onNextPage={handleNextPage}
+              isNavigating={isNavigating}
             />
           </div>
 
@@ -136,6 +150,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               onClose={onClose}
               onPrevPage={handlePrevPage}
               onNextPage={handleNextPage}
+              isNavigating={isNavigating}
             />
           )}
         </div>
@@ -146,6 +161,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
           onClose={() => setShowTOC(false)}
           toc={toc}
           onItemClick={handleTOCItemClick}
+          isNavigating={isNavigating}
         />
       </DialogContent>
     </Dialog>
