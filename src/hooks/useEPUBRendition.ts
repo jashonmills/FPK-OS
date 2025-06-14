@@ -1,10 +1,9 @@
+import { useState, useRef, useCallback, useEffect } from 'react'; // Added useEffect
+import type ePub from 'epubjs'; // Import type for ePub and Rendition
 
-import { useState, useRef, useCallback } from 'react';
-import type EPub from 'epubjs'; // Import type for ePub and Rendition
-
-export const useEPUBRendition = (epubBookInstance: EPub.Book | null) => {
+export const useEPUBRendition = (epubBookInstance: ePub.Book | null) => {
   const [currentLocation, setCurrentLocation] = useState('');
-  const renditionRef = useRef<EPub.Rendition | null>(null);
+  const renditionRef = useRef<ePub.Rendition | null>(null);
 
   const initializeRendition = useCallback((container: HTMLDivElement, fontSize: number) => {
     if (!epubBookInstance || !container || renditionRef.current) {
@@ -56,7 +55,7 @@ export const useEPUBRendition = (epubBookInstance: EPub.Book | null) => {
         }
       }
     };
-  }, [epubBookInstance]); // epubBookInstance is the main dependency
+  }, [epubBookInstance]);
 
   const handlePrevPage = useCallback(() => {
     if (renditionRef.current) {

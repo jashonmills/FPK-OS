@@ -1,10 +1,9 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
-import type EPub from 'epubjs'; // Import type for ePub instance
+import type ePub from 'epubjs'; // Import type for ePub instance
 
 export const useEPUBBook = (book: PublicDomainBook) => {
-  const [epubBookInstance, setEpubBookInstance] = useState<EPub.Book | null>(null);
+  const [epubBookInstance, setEpubBookInstance] = useState<ePub.Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState('Initializing...');
@@ -26,7 +25,7 @@ export const useEPUBBook = (book: PublicDomainBook) => {
     return proxyUrl;
   }, [book.storage_url, book.epub_url]);
 
-  const waitForBookReady = async (currentEpubBook: EPub.Book) => {
+  const waitForBookReady = async (currentEpubBook: ePub.Book) => {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
         reject(new Error('Book parsing timed out. This book may be too large or complex. Please try again.'));
@@ -140,16 +139,6 @@ export const useEPUBBook = (book: PublicDomainBook) => {
     loadEPUB();
     
     return () => {
-      // epubBookInstance is managed by state now, destruction logic will be in the main hook or rendition hook
-      // if a reference to the instance needs to be kept for destruction.
-      // For now, let's assume rendition destruction will handle necessary epubjs cleanup.
-      // If direct epubBookInstance.destroy() is needed, it implies this hook needs to expose the instance
-      // and the parent needs to call destroy.
-      // Alternative: have a cleanup function returned by this hook.
-      // Simplest for now: Let the component unmount and re-create if book changes.
-      // Consider if epubjs needs explicit destroy even if rendition is destroyed.
-      // The original code destroyed `epubRef.current`. This is now `epubBookInstance`.
-      // Let's try to destroy it here if it exists.
       if (epubBookInstance && typeof epubBookInstance.destroy === 'function') {
         try {
           console.log('Destroying EPUBBook instance from useEPUBBook cleanup');
@@ -159,7 +148,7 @@ export const useEPUBBook = (book: PublicDomainBook) => {
         }
       }
     };
-  }, [loadEPUB]); // loadEPUB dependency includes book details
+  }, [loadEPUB]);
 
   const retryLoad = useCallback(() => {
     retryCountRef.current = 0;
