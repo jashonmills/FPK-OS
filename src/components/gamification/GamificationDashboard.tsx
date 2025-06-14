@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGamification } from '@/hooks/useGamification';
+import { useUserRole } from '@/hooks/useUserRole';
 import XPProgressBar from './XPProgressBar';
 import BadgeDisplay from './BadgeDisplay';
 import StreakDisplay from './StreakDisplay';
 import LeaderboardCard from './LeaderboardCard';
-import { Trophy, Star, Target, Gift, Zap } from 'lucide-react';
+import XPBackfillCard from './XPBackfillCard';
+import { Trophy, Star, Target, Gift, Zap, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface GamificationDashboardProps {
@@ -20,6 +22,7 @@ const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
   className = ''
 }) => {
   const { userStats, isLoading, fetchUserStats, checkBadges } = useGamification();
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     fetchUserStats();
@@ -103,11 +106,12 @@ const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="badges">Badges</TabsTrigger>
           <TabsTrigger value="streaks">Streaks</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4">
@@ -177,6 +181,42 @@ const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
         <TabsContent value="leaderboard">
           <LeaderboardCard limit={20} />
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="admin" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <XPBackfillCard />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Admin Tools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Additional admin tools will be added here for managing the gamification system.
+                  </p>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button variant="outline" size="sm" disabled>
+                      <Gift className="h-4 w-4 mr-2" />
+                      Manage Shop Items
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
+                      <Trophy className="h-4 w-4 mr-2" />
+                      Manage Badges
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
+                      <Target className="h-4 w-4 mr-2" />
+                      Manage Quests
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
