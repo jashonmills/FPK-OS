@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
 import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
@@ -20,21 +22,18 @@ const FileUploadSection: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Set up real-time subscription for completion handling with unique channel name
+  // Set up real-time subscription for completion handling with proper pattern
   useEffect(() => {
     if (!user) return;
 
+    // If we've already created & subscribed, do nothing
+    if (channelRef.current) return;
+
     console.log('🔄 Setting up enhanced real-time subscription for file uploads');
 
-    // Clean up existing channel if it exists
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
-
-    // Use a unique channel name to avoid conflicts
+    // Create the channel with unique name
     const channelName = `notes-file-uploads-${user.id}-${Date.now()}`;
     const channel = supabase
       .channel(channelName)
@@ -142,11 +141,19 @@ const FileUploadSection: React.FC = () => {
             });
           }
         }
-      )
-      .subscribe();
+      );
 
-    channelRef.current = channel;
+    // Subscribe once and only set ref after successful subscription
+    channel.subscribe().then(status => {
+      if (status === 'SUBSCRIBED') {
+        channelRef.current = channel;
+        console.log('✅ Successfully subscribed to file uploads channel');
+      } else {
+        console.error('❌ Failed to subscribe to file uploads channel:', status);
+      }
+    });
 
+    // Cleanup on unmount
     return () => {
       console.log('🔌 Cleaning up enhanced real-time subscription');
       if (channelRef.current) {

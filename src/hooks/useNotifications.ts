@@ -1,8 +1,8 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 interface Notification {
   id: string;
@@ -23,7 +23,7 @@ export const useNotifications = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Load notifications
   const loadNotifications = async () => {
@@ -126,19 +126,16 @@ export const useNotifications = () => {
     }
   };
 
-  // Set up real-time subscription with unique channel name
+  // Set up real-time subscription with proper pattern
   useEffect(() => {
     if (!user) return;
 
+    // If we've already created & subscribed, do nothing
+    if (channelRef.current) return;
+
     loadNotifications();
 
-    // Clean up existing channel if it exists
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
-
-    // Use a unique channel name to avoid conflicts
+    // Create the channel with unique name
     const channelName = `notifications-${user.id}-${Date.now()}`;
     const channel = supabase
       .channel(channelName)
@@ -176,11 +173,19 @@ export const useNotifications = () => {
             prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
           );
         }
-      )
-      .subscribe();
+      );
 
-    channelRef.current = channel;
+    // Subscribe once and only set ref after successful subscription
+    channel.subscribe().then(status => {
+      if (status === 'SUBSCRIBED') {
+        channelRef.current = channel;
+        console.log('✅ Successfully subscribed to notifications channel');
+      } else {
+        console.error('❌ Failed to subscribe to notifications channel:', status);
+      }
+    });
 
+    // Cleanup on unmount
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
