@@ -95,36 +95,45 @@ const UserUploadsSection: React.FC = () => {
               {userUploads.map((upload) => (
                 <div
                   key={upload.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium truncate">{upload.file_name}</h4>
-                      <Badge variant={getStatusVariant(upload.status)} className="flex items-center gap-1">
+                  {/* Flex container with left content and right actions */}
+                  <div className="flex items-center justify-between">
+                    {/* Left section: filename and metadata */}
+                    <div className="flex-1 min-w-0 pr-4">
+                      <h4 className="font-medium truncate mb-1">{upload.file_name}</h4>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>Uploaded {formatDate(upload.uploaded_at)}</p>
+                        {upload.reviewed_at && (
+                          <p>Reviewed {formatDate(upload.reviewed_at)}</p>
+                        )}
+                        {upload.notes && upload.status === 'rejected' && (
+                          <p className="text-red-600 mt-1">Note: {upload.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Right section: status badge and view button */}
+                    <div className="flex items-center space-x-3">
+                      <Badge 
+                        variant={getStatusVariant(upload.status)} 
+                        className="flex items-center gap-1 px-2 py-1 text-sm"
+                      >
                         {getStatusIcon(upload.status)}
                         {upload.status}
                       </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      <p>Uploaded {formatDate(upload.uploaded_at)}</p>
-                      {upload.reviewed_at && (
-                        <p>Reviewed {formatDate(upload.reviewed_at)}</p>
-                      )}
-                      {upload.notes && upload.status === 'rejected' && (
-                        <p className="text-red-600 mt-1">Note: {upload.notes}</p>
-                      )}
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedPDF(upload)}
+                        className="flex items-center gap-1 flex-shrink-0"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View
+                      </Button>
                     </div>
                   </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedPDF(upload)}
-                    className="flex items-center gap-1"
-                  >
-                    <Eye className="h-4 w-4" />
-                    View
-                  </Button>
                 </div>
               ))}
             </div>
