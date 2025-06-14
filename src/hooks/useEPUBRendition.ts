@@ -28,8 +28,8 @@ export const useEPUBRendition = (book: Book | null) => {
       setIsNavigating(false);
     });
 
-    // Fix: Pass container and empty options object to display()
-    rendition.display(container, {});
+    // Fix: Since we passed container to renderTo, call display() with no arguments
+    rendition.display();
     renditionRef.current = rendition;
 
     console.log('📖 EPUB rendition initialized');
@@ -61,8 +61,8 @@ export const useEPUBRendition = (book: Book | null) => {
   const handleTOCItemClick = useCallback((item: NavItem) => {
     if (!renditionRef.current || isNavigating) return;
     setIsNavigating(true);
-    // Fix: Pass href and empty options object to display()
-    renditionRef.current.display(item.href, {});
+    // Fix: Pass only href to display() method
+    renditionRef.current.display(item.href);
   }, [isNavigating]);
 
   const forceLayoutRefresh = useCallback(() => {
