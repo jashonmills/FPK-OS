@@ -1,159 +1,124 @@
 
 import React from 'react';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { 
-  GraduationCap, 
-  Users, 
-  Book, 
-  BarChart3,
-  Settings,
-  Plus,
-  Download
-} from 'lucide-react';
-import { useUserRole } from '@/hooks/useUserRole';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import EPUBIngestionManager from '@/components/admin/EPUBIngestionManager';
+import { Users, BookOpen, Upload, Settings, BarChart3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import PopulateApprovedBooks from '@/components/admin/PopulateApprovedBooks';
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { isAdmin, isLoading } = useUserRole();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="p-4 md:p-6">
-        <Alert>
-          <AlertDescription>
-            Access denied. You need administrator privileges to view this page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  const { getAccessibilityClasses } = useAccessibility();
 
   const adminCards = [
     {
-      title: 'Course Management',
-      description: 'Create, edit, and manage courses',
-      icon: GraduationCap,
-      action: () => navigate('/dashboard/admin/courses'),
-      actionLabel: 'Manage Courses'
-    },
-    {
-      title: 'Module Management',
-      description: 'Organize course modules and content',
-      icon: Book,
-      action: () => navigate('/dashboard/admin/modules'),
-      actionLabel: 'Manage Modules'
-    },
-    {
-      title: 'User Management',
-      description: 'Manage users and their roles',
+      title: "User Management",
+      description: "Manage users, roles, and permissions",
       icon: Users,
-      action: () => navigate('/dashboard/admin/users'),
-      actionLabel: 'Manage Users'
+      href: "/dashboard/admin/users",
+      badge: "Active"
     },
     {
-      title: 'Analytics',
-      description: 'View system-wide analytics and reports',
+      title: "Course Manager",
+      description: "Create and manage learning courses",
+      icon: BookOpen,
+      href: "/dashboard/admin/courses",
+      badge: "New"
+    },
+    {
+      title: "Analytics",
+      description: "View platform analytics and insights",
       icon: BarChart3,
-      action: () => navigate('/dashboard/admin/analytics'),
-      actionLabel: 'View Analytics'
+      href: "/dashboard/admin/analytics",
+      badge: "Beta"
+    },
+    {
+      title: "Module Manager",
+      description: "Manage course modules and content",
+      icon: Upload,
+      href: "/dashboard/admin/modules",
+      badge: "Active"
     }
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Manage your FPK University learning platform
+    <div className={`min-h-screen bg-background ${getAccessibilityClasses('container')}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className={`text-3xl font-bold ${getAccessibilityClasses('text')}`}>
+            Admin Dashboard
+          </h1>
+          <p className={`text-muted-foreground ${getAccessibilityClasses('text')}`}>
+            Manage your learning platform and monitor system performance
           </p>
         </div>
-        <Button className="fpk-gradient text-white w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Quick Actions
-        </Button>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {adminCards.map((card, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {card.title}
-              </CardTitle>
-              <card.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground mb-4">
-                {card.description}
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={card.action}
-                className="w-full min-h-[40px]"
-              >
-                {card.actionLabel}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {adminCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Card key={card.title} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <Icon className="h-8 w-8 text-primary" />
+                    <Badge variant="secondary" className="text-xs">
+                      {card.badge}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">{card.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {card.description}
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link to={card.href}>
+                      Manage
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Library Management Section */}
+        <div className="space-y-6">
+          <h2 className={`text-2xl font-semibold ${getAccessibilityClasses('text')}`}>
+            Library Management
+          </h2>
+          
+          <PopulateApprovedBooks />
+        </div>
+
+        {/* System Status */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg md:text-xl">Recent Activity</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              System Status
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Recent platform activity will appear here.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg md:text-xl">System Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm md:text-base">Platform Status</span>
-                <span className="text-green-600 text-sm md:text-base">Online</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">Online</div>
+                <div className="text-sm text-muted-foreground">System Status</div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm md:text-base">Database</span>
-                <span className="text-green-600 text-sm md:text-base">Connected</span>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">99.9%</div>
+                <div className="text-sm text-muted-foreground">Uptime</div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm md:text-base">Authentication</span>
-                <span className="text-green-600 text-sm md:text-base">Active</span>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">v2.1.0</div>
+                <div className="text-sm text-muted-foreground">Platform Version</div>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* EPUB Ingestion Manager */}
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Download className="h-5 w-5" />
-          Library Management
-        </h2>
-        <EPUBIngestionManager />
       </div>
     </div>
   );

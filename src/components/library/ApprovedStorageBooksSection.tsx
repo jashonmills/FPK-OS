@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
-import { FileText, Eye, Calendar } from 'lucide-react';
+import { FileText, Eye, Calendar, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PDFViewer from './PDFViewer';
 
@@ -19,14 +19,25 @@ const ApprovedStorageBooksSection: React.FC = () => {
     });
   };
 
+  const formatFileName = (fileName: string) => {
+    return fileName
+      .replace('.pdf', '')
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase())
+      .substring(0, 50) + (fileName.length > 50 ? '...' : '');
+  };
+
   if (isLoadingApproved) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Community Books
+            <Users className="h-5 w-5" />
+            Community Library
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Loading community books...
+          </p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -50,11 +61,11 @@ const ApprovedStorageBooksSection: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Community Books ({approvedUploads.length})
+            <Users className="h-5 w-5" />
+            Community Library ({approvedUploads.length})
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Books uploaded by the community and approved by our team
+            Books uploaded by the community and approved by our moderation team
           </p>
         </CardHeader>
         <CardContent>
@@ -63,7 +74,7 @@ const ApprovedStorageBooksSection: React.FC = () => {
               <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No community books yet</h3>
               <p className="text-muted-foreground mb-4">
-                Be the first to upload a book for the community!
+                Community books will appear here once they are uploaded and approved by our team.
               </p>
             </div>
           ) : (
@@ -71,11 +82,11 @@ const ApprovedStorageBooksSection: React.FC = () => {
               {approvedUploads.map((book) => (
                 <div key={book.id} className="group space-y-3">
                   {/* Book Cover */}
-                  <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg overflow-hidden flex items-center justify-center border group-hover:shadow-md transition-shadow">
+                  <div className="aspect-[3/4] bg-gradient-to-br from-green-50 to-green-100 rounded-lg overflow-hidden flex items-center justify-center border group-hover:shadow-md transition-shadow">
                     <div className="text-center p-4">
-                      <FileText className="h-12 w-12 text-blue-500 mx-auto mb-2" />
-                      <p className="text-xs text-blue-600 font-medium line-clamp-3">
-                        {book.file_name.replace('.pdf', '')}
+                      <FileText className="h-12 w-12 text-green-500 mx-auto mb-2" />
+                      <p className="text-xs text-green-600 font-medium line-clamp-3">
+                        {formatFileName(book.file_name)}
                       </p>
                     </div>
                   </div>
@@ -83,7 +94,7 @@ const ApprovedStorageBooksSection: React.FC = () => {
                   {/* Book Info */}
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-                      {book.file_name.replace('.pdf', '').replace(/[-_]/g, ' ')}
+                      {formatFileName(book.file_name)}
                     </h3>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
@@ -93,7 +104,7 @@ const ApprovedStorageBooksSection: React.FC = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedPDF(book)}
-                      className="w-full flex items-center gap-1"
+                      className="w-full flex items-center gap-1 hover:bg-green-50"
                     >
                       <Eye className="h-3 w-3" />
                       Read Book
