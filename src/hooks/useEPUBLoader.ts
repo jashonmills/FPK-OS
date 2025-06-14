@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { useEPUBBook } from './useEPUBBook';
 import { useEPUBRendition } from './useEPUBRendition';
+import { useReadingProgress } from './useReadingProgress';
 
 export const useEPUBLoader = (book: PublicDomainBook) => {
   const {
@@ -24,15 +25,38 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     handleFontSizeChange: changeFontSize,
     handleTOCItemClick,
     forceLayoutRefresh,
+    renditionRef,
   } = useEPUBRendition(epubBookInstance);
 
-  const isLoading = isBookLoading;
+  const {
+    progress: readingProgress,
+    isLoading: isProgressLoading,
+    saveProgress,
+    startSession,
+    endSession,
+    updateLocation,
+  } = useReadingProgress(book.id);
+
+  const isLoading = isBookLoading || isProgressLoading;
   const error = bookError;
 
   const initializeRendition = (container: HTMLDivElement, fontSize: number) => {
     if (epubBookInstance) {
       console.log('📖 Initializing rendition for book:', book.title);
       initRendition(container, fontSize);
+      
+      // Start reading session when rendition is initialized
+      startSession(readingProgress?.current_cfi);
+      
+      // Restore reading position if available
+      if (readingProgress?.current_cfi && renditionRef.current) {
+        setTimeout(() => {
+          if (renditionRef.current) {
+            renditionRef.current.display(readingProgress.current_cfi!);
+            console.log('📍 Restored reading position:', readingProgress.current_cfi);
+          }
+        }, 1000);
+      }
     }
   };
   
@@ -43,6 +67,22 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
   const handleRetry = () => {
     retryBookLoad();
   };
+
+  // Track location changes for progress saving
+  useEffect(() => {
+    if (currentLocation && !isNavigating) {
+      updateLocation(currentLocation);
+    }
+  }, [currentLocation, isNavigating, updateLocation]);
+
+  // End session when component unmounts
+  useEffect(() => {
+    return () => {
+      if (currentLocation) {
+        endSession(currentLocation);
+      }
+    };
+  }, [endSession, currentLocation]);
 
   useEffect(() => {
     console.log('📚 EPUB Loader - Book changed:', book.title);
@@ -56,6 +96,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     currentLocation,
     isNavigating,
     toc,
+    readingProgress,
     initializeRendition,
     handleRetry,
     handlePrevPage,

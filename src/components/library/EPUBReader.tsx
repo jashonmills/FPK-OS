@@ -29,6 +29,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
     loadingProgress,
     isNavigating,
     toc,
+    readingProgress,
     initializeRendition,
     handleRetry,
     handlePrevPage,
@@ -122,6 +123,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
             isLoading={isLoading}
             error={error}
             fontSize={fontSize}
+            readingProgress={readingProgress}
             onClose={onClose}
             onShowTOC={() => setShowTOC(true)}
             onFontSizeChange={onFontSizeChange}
@@ -151,6 +153,7 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               onPrevPage={handlePrevPage}
               onNextPage={handleNextPage}
               isNavigating={isNavigating}
+              readingProgress={readingProgress}
             />
           )}
         </div>

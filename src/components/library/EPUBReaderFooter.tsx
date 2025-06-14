@@ -1,7 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Home, Book, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Book, Loader2, Clock } from 'lucide-react';
+
+interface ReadingProgress {
+  completion_percentage: number;
+  reading_time_seconds: number;
+  last_read_at: string;
+}
 
 interface EPUBReaderFooterProps {
   onClose: () => void;
@@ -9,6 +15,7 @@ interface EPUBReaderFooterProps {
   onNextPage: () => void;
   currentLocation?: string;
   isNavigating?: boolean;
+  readingProgress?: ReadingProgress | null;
 }
 
 const EPUBReaderFooter: React.FC<EPUBReaderFooterProps> = ({
@@ -16,8 +23,21 @@ const EPUBReaderFooter: React.FC<EPUBReaderFooterProps> = ({
   onPrevPage,
   onNextPage,
   currentLocation,
-  isNavigating = false
+  isNavigating = false,
+  readingProgress
 }) => {
+  const formatLastRead = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="flex-shrink-0 p-4 border-t bg-background">
       <div className="flex items-center justify-between">
@@ -46,6 +66,9 @@ const EPUBReaderFooter: React.FC<EPUBReaderFooterProps> = ({
             ) : (
               <>
                 <Book className="h-3 w-3" />
+                {readingProgress && (
+                  <span>{readingProgress.completion_percentage.toFixed(1)}% • </span>
+                )}
                 Reading...
               </>
             )}
@@ -63,10 +86,14 @@ const EPUBReaderFooter: React.FC<EPUBReaderFooterProps> = ({
         </div>
       </div>
       
-      <div className="mt-2 text-center">
-        <p className="text-xs text-muted-foreground">
-          Use arrow keys or swipe to navigate • Press ESC to close
-        </p>
+      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+        <p>Use arrow keys or swipe to navigate • Press ESC to close</p>
+        {readingProgress?.last_read_at && (
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            <span>Last read {formatLastRead(readingProgress.last_read_at)}</span>
+          </div>
+        )}
       </div>
     </div>
   );

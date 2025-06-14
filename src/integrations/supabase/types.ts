@@ -712,6 +712,84 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_progress: {
+        Row: {
+          book_id: string
+          chapter_index: number | null
+          completion_percentage: number | null
+          created_at: string | null
+          current_cfi: string | null
+          id: string
+          last_read_at: string | null
+          reading_time_seconds: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          chapter_index?: number | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          current_cfi?: string | null
+          id?: string
+          last_read_at?: string | null
+          reading_time_seconds?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          chapter_index?: number | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          current_cfi?: string | null
+          id?: string
+          last_read_at?: string | null
+          reading_time_seconds?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          book_id: string
+          created_at: string | null
+          duration_seconds: number | null
+          end_cfi: string | null
+          id: string
+          pages_read: number | null
+          session_end: string | null
+          session_start: string | null
+          start_cfi: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          end_cfi?: string | null
+          id?: string
+          pages_read?: number | null
+          session_end?: string | null
+          session_start?: string | null
+          start_cfi?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          end_cfi?: string | null
+          id?: string
+          pages_read?: number | null
+          session_end?: string | null
+          session_start?: string | null
+          start_cfi?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sessions: {
         Row: {
           completed_at: string | null
