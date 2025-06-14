@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Document, Page } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { isPDFWorkerReady, reconfigurePDFWorker } from '@/utils/pdfWorkerConfig';
+import { isPDFWorkerReady, reconfigurePDFWorker, validateWorkerAccess } from '@/utils/pdfWorkerConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -22,18 +21,50 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [scale, setScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [workerStatus, setWorkerStatus] = useState<string>('checking');
   const { toast } = useToast();
 
-  // Simple worker check on mount
+  // Enhanced worker initialization and validation
   useEffect(() => {
-    if (!isPDFWorkerReady()) {
-      console.log('🔧 PDF worker not ready, reconfiguring...');
-      reconfigurePDFWorker();
-    }
-  }, []);
+    const initializeWorker = async () => {
+      console.log('🚀 Initializing PDF worker for:', fileName);
+      
+      // Step 1: Check if worker is configured
+      if (!isPDFWorkerReady()) {
+        console.log('🔧 Worker not ready, reconfiguring...');
+        reconfigurePDFWorker();
+        setWorkerStatus('reconfigured');
+      } else {
+        setWorkerStatus('ready');
+      }
+      
+      // Step 2: Validate worker accessibility
+      try {
+        const isAccessible = await validateWorkerAccess();
+        if (!isAccessible) {
+          console.warn('⚠️ Worker not accessible, attempting reconfiguration...');
+          reconfigurePDFWorker();
+          setWorkerStatus('fallback');
+        }
+      } catch (error) {
+        console.error('❌ Worker validation failed:', error);
+        setWorkerStatus('error');
+      }
+      
+      console.log('✅ Worker initialization complete, status:', workerStatus);
+    };
+    
+    initializeWorker();
+  }, [fileName]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    console.log('✅ PDF loaded successfully:', { numPages, fileName });
+    console.log('✅ PDF loaded successfully:', { 
+      numPages, 
+      fileName, 
+      workerStatus,
+      fileUrl: fileUrl.substring(0, 50) + '...'
+    });
+    
     setNumPages(numPages);
     setIsLoading(false);
     setError(null);
@@ -45,17 +76,26 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error('❌ PDF loading error:', error);
+    console.error('❌ PDF loading error:', {
+      error: error.message,
+      fileName,
+      workerStatus,
+      fileUrl: fileUrl.substring(0, 50) + '...',
+      stack: error.stack
+    });
+    
     setIsLoading(false);
     
     let errorMessage = "Failed to load PDF file.";
     
     if (error.message.includes('worker') || error.message.includes('Worker')) {
-      errorMessage = "PDF processing engine error. Please refresh and try again.";
+      errorMessage = "PDF processing engine error. The worker failed to initialize properly.";
     } else if (error.message.includes('fetch') || error.message.includes('network')) {
       errorMessage = "Network error. Please check your connection and try again.";
-    } else if (error.message.includes('Invalid PDF')) {
+    } else if (error.message.includes('Invalid PDF') || error.message.includes('PDF')) {
       errorMessage = "Invalid or corrupted PDF file.";
+    } else if (error.message.includes('CORS')) {
+      errorMessage = "Access denied. The PDF file cannot be loaded due to security restrictions.";
     }
     
     setError(errorMessage);
@@ -67,15 +107,20 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const handleRetry = () => {
-    console.log('🔄 Retrying PDF load');
+  const handleRetry = async () => {
+    console.log('🔄 Retrying PDF load with enhanced diagnostics');
     setError(null);
     setIsLoading(true);
     setNumPages(0);
     setPageNumber(1);
     
-    // Ensure worker is configured before retry
+    // Force worker reconfiguration
     reconfigurePDFWorker();
+    
+    // Wait a moment for worker to initialize
+    setTimeout(() => {
+      console.log('🔄 Retry attempt initiated');
+    }, 500);
   };
 
   const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
@@ -111,6 +156,10 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
               <div className="text-center space-y-4">
                 <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
                 <p className="text-destructive">{error}</p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Worker Status: {workerStatus}</p>
+                  <p>File: {fileName}</p>
+                </div>
                 <div className="space-x-2">
                   <Button variant="outline" size="sm" onClick={handleRetry}>
                     <RefreshCw className="h-4 w-4 mr-2" />
@@ -183,6 +232,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                       <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">Loading PDF...</p>
                         <p className="text-xs text-muted-foreground">{fileName}</p>
+                        <p className="text-xs text-muted-foreground">Worker: {workerStatus}</p>
                       </div>
                     </div>
                   </div>
