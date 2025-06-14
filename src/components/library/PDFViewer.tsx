@@ -240,9 +240,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                   </div>
                 }
                 options={{
-                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/cmaps/`,
+                  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/cmaps/`,
                   cMapPacked: true,
-                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/standard_fonts/`,
+                  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/standard_fonts/`,
                 }}
               >
                 {numPages > 0 && (
