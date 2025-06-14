@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Brain } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Brain, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface ChatMessage {
   id: string;
@@ -24,11 +27,30 @@ const ChatMessagesPane = ({
   isSending, 
   messagesEndRef 
 }: ChatMessagesPaneProps) => {
+  const { speak, readAIMessage, isSupported: ttsSupported } = useTextToSpeech();
+  const { settings } = useVoiceSettings();
+
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
       hour: '2-digit', 
       minute: '2-digit' 
     });
+  };
+
+  // Auto-read new AI messages
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
+        readAIMessage(lastMessage.content);
+      }
+    }
+  }, [messages, readAIMessage, settings.enabled, settings.autoRead]);
+
+  const handleSpeakMessage = (content: string) => {
+    if (ttsSupported && settings.enabled) {
+      speak(content, { interrupt: true });
+    }
   };
 
   if (isLoading) {
@@ -54,6 +76,11 @@ const ChatMessagesPane = ({
             I'm here to help you with your studies, provide learning strategies, 
             and answer questions about the platform. How can I assist you today?
           </p>
+          {settings.enabled && (
+            <p className="text-purple-600 text-xs mt-2">
+              🔊 Voice responses are enabled - I'll read my replies aloud!
+            </p>
+          )}
         </div>
       </div>
     );
@@ -71,7 +98,7 @@ const ChatMessagesPane = ({
             )}
           >
             <div className={cn(
-              "max-w-[80%] p-3 rounded-lg text-sm",
+              "max-w-[80%] p-3 rounded-lg text-sm relative group",
               message.role === 'user' 
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto' 
                 : 'bg-muted text-foreground mr-auto'
@@ -80,6 +107,17 @@ const ChatMessagesPane = ({
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="h-4 w-4 text-purple-600" />
                   <span className="text-xs font-medium text-purple-600">AI Coach</span>
+                  {ttsSupported && settings.enabled && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+                      onClick={() => handleSpeakMessage(message.content)}
+                      title="Read aloud"
+                    >
+                      <Volume2 className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               )}
               

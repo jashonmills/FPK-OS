@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp, MoreVertical, RotateCcw, Download, Archive, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Bot, Send, Wifi, WifiOff, Mic, MicOff, Brain, TrendingUp, MoreVertical, RotateCcw, Download, Archive, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
@@ -40,7 +41,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   
-  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
+  const { speak, stopSpeech, readAIMessage, isSupported: ttsSupported } = useTextToSpeech();
+  const { settings, toggle: toggleVoice, isSupported: voiceSupported } = useVoiceSettings();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -155,6 +158,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
 
+    // Stop any current speech when user sends a message
+    if (settings.enabled) {
+      stopSpeech();
+    }
+
     const userMessage = chatMessage;
     setChatMessage('');
     setChatHistory(prev => [...prev, { 
@@ -268,10 +276,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       }
     } else {
       try {
-        await startRecording();
+        await startRecording((text) => {
+          setChatMessage(text);
+        });
         toast({
           title: "Recording started",
-          description: "Speak your message now...",
+          description: isNativeListening ? "Speak your message now..." : "Recording audio...",
         });
       } catch (error) {
         console.error('Error starting recording:', error);
@@ -281,6 +291,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           variant: "destructive",
         });
       }
+    }
+  };
+
+  const handleSpeakMessage = (message: string) => {
+    if (ttsSupported && settings.enabled) {
+      speak(message, { interrupt: true });
     }
   };
 
@@ -393,6 +409,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <span className="sm:hidden">Analyzing</span>
               </Badge>
             )}
+            {settings.enabled && (
+              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs">
+                <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                <span className="hidden sm:inline">Voice Active</span>
+                <span className="sm:hidden">Voice</span>
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <div className="flex items-center gap-1 sm:gap-2">
@@ -406,6 +429,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {voiceSupported && (
+                  <>
+                    <DropdownMenuItem onClick={toggleVoice} className="flex items-center gap-2">
+                      {settings.enabled ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                      {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onClick={handleResetChat} className="flex items-center gap-2">
                   <RotateCcw className="h-4 w-4" />
                   Reset Chat
@@ -429,7 +461,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="space-y-3 sm:space-y-4 min-w-0">
             {chatHistory.map((msg, index) => (
               <div key={index} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] sm:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg ${
+                <div className={`max-w-[85%] sm:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg relative group ${
                   msg.role === 'user' 
                     ? 'bg-purple-600 text-white ml-2 sm:ml-4' 
                     : 'bg-muted text-foreground mr-2 sm:mr-4'
@@ -438,6 +470,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="flex items-center gap-2 mb-1 sm:mb-2">
                       <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
                       <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
+                      {ttsSupported && settings.enabled && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleSpeakMessage(msg.message)}
+                        >
+                          <Volume2 className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   )}
                   <p className="text-xs sm:text-sm break-words overflow-wrap-anywhere min-w-0">{msg.message}</p>
@@ -449,7 +491,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {/* Auto-read AI messages when they arrive */}
+            {chatHistory.length > 0 && (
               <div className="flex justify-start min-w-0">
                 <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg mr-2 sm:mr-4 min-w-0">
                   <div className="flex items-center gap-2">
@@ -516,9 +559,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
-          {isRecording && (
+          {/* Enhanced status messages */}
+          {isNativeListening && (
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Recording... Click the microphone again to stop
+              🎤 Listening... Speak clearly {transcript && `(${transcript})`}
+            </p>
+          )}
+          {isRecording && !isNativeListening && (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Recording audio... Click the microphone again to stop
             </p>
           )}
           {isProcessing && (
@@ -529,6 +578,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {completedSessions.length > 0 && (
             <p className="text-xs text-purple-600 mt-2 text-center px-2">
               💡 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
+              {settings.enabled && " • 🔊 Voice responses enabled"}
             </p>
           )}
           {responseTime && (
