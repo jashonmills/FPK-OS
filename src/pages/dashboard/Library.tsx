@@ -6,6 +6,7 @@ import CuratedBooksSection from '@/components/library/CuratedBooksSection';
 import PublicDomainBooksSection from '@/components/library/PublicDomainBooksSection';
 import PDFUploadComponent from '@/components/library/PDFUploadComponent';
 import UserUploadsSection from '@/components/library/UserUploadsSection';
+import ApprovedStorageBooksSection from '@/components/library/ApprovedStorageBooksSection';
 import BookDetailModal from '@/components/library/BookDetailModal';
 import { Book } from '@/types/library';
 
@@ -31,6 +32,9 @@ const Library = () => {
         
         {/* User Uploads Section */}
         <UserUploadsSection />
+        
+        {/* Community Approved Books Section */}
+        <ApprovedStorageBooksSection />
         
         <CuratedBooksSection onBookSelect={handleBookSelect} />
         <PublicDomainBooksSection />
