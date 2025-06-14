@@ -1,1 +1,5 @@
+
 project_id = "zgcegkmqfgznbpdplscz"
+
+[functions.epub-proxy]
+verify_jwt = false
