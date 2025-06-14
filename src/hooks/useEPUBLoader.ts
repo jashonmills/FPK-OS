@@ -1,217 +1,61 @@
-import { useEffect, useRef, useState } from 'react';
+
+import { useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
+import { useEPUBBook } from './useEPUBBook';
+import { useEPUBRendition } from './useEPUBRendition';
 
 export const useEPUBLoader = (book: PublicDomainBook) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [loadingStep, setLoadingStep] = useState('Initializing...');
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [currentLocation, setCurrentLocation] = useState('');
-  const [toc, setToc] = useState<any[]>([]);
-  
-  const epubRef = useRef<any>(null);
-  const renditionRef = useRef<any>(null);
-  const retryCountRef = useRef(0);
-  const maxRetries = 2;
+  const {
+    epubBookInstance,
+    isLoading: isBookLoading,
+    error: bookError,
+    loadingStep,
+    loadingProgress,
+    toc,
+    retryLoad: retryBookLoad,
+  } = useEPUBBook(book);
 
-  useEffect(() => {
-    loadEPUB();
-    return () => {
-      if (epubRef.current) {
-        try {
-          epubRef.current.destroy();
-        } catch (err) {
-          console.log('EPUB cleanup error (non-critical):', err);
-        }
-      }
-    };
-  }, [book.epub_url, book.storage_url]); // Added book.storage_url dependency
+  const {
+    currentLocation,
+    initializeRendition: initRendition,
+    handlePrevPage,
+    handleNextPage,
+    handleFontSizeChange: changeFontSize,
+    handleTOCItemClick,
+    // renditionRef, // Not exposed by the main hook
+  } = useEPUBRendition(epubBookInstance);
 
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  // The main hook's loading and error state reflect the book loading process.
+  // Rendition errors are logged internally by useEPUBRendition but don't typically halt the UI in the same way.
+  const isLoading = isBookLoading;
+  const error = bookError;
 
-  const getEPUBUrl = () => {
-    // Priority order: storage_url > epub_url (with proxy) > direct epub_url
-    if (book.storage_url) {
-      console.log('📚 Using local storage URL:', book.storage_url);
-      return book.storage_url;
-    }
-    
-    // Fallback to proxy for external URLs
-    const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}`;
-    console.log('🔗 Using proxy URL:', proxyUrl);
-    return proxyUrl;
-  };
-
-  const loadEPUB = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      setLoadingStep('Initializing...');
-      setLoadingProgress(10);
-
-      console.log('📖 Loading EPUB for:', book.title);
-
-      if (!book.epub_url && !book.storage_url) {
-        throw new Error('No EPUB URL available for this book');
-      }
-
-      setLoadingStep('Loading EPUB library...');
-      setLoadingProgress(20);
-      
-      const epubModule = await import('epubjs');
-      const ePub = epubModule.default;
-      
-      setLoadingStep('Connecting to book server...');
-      setLoadingProgress(30);
-      
-      const epubUrl = getEPUBUrl();
-      
-      setLoadingStep('Creating EPUB instance...');
-      setLoadingProgress(40);
-      
-      const epubBook = ePub(epubUrl);
-      epubRef.current = epubBook;
-
-      setLoadingStep('Loading book content...');
-      setLoadingProgress(50);
-
-      await waitForBookReady(epubBook);
-      console.log('✅ EPUB book ready');
-
-      setLoadingStep('Processing book structure...');
-      setLoadingProgress(80);
-
-      try {
-        await Promise.race([
-          epubBook.loaded.navigation.then(() => {
-            setToc(epubBook.navigation.toc || []);
-            console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 5000))
-        ]);
-      } catch (navError) {
-        console.warn('⚠️ Could not load table of contents, continuing without it');
-        setToc([]);
-      }
-
-      setLoadingStep('Ready to read!');
-      setLoadingProgress(100);
-      
-      await delay(300);
-
-      setIsLoading(false);
-      setLoadingStep('');
-      setLoadingProgress(0);
-      retryCountRef.current = 0; // Reset retry count on success
-      console.log('✅ EPUB loaded successfully');
-
-    } catch (err) {
-      console.error('❌ Error loading EPUB:', err);
-      
-      if (retryCountRef.current < maxRetries) {
-        retryCountRef.current++;
-        const retryDelay = Math.pow(2, retryCountRef.current -1) * 1000; // Exponential backoff: 1s, 2s
-        console.log(`🔄 Retrying... Attempt ${retryCountRef.current}/${maxRetries}. Waiting ${retryDelay}ms.`);
-        setLoadingStep(`Retrying... (${retryCountRef.current}/${maxRetries})`);
-        
-        await delay(retryDelay);
-        return loadEPUB(); // Return to ensure the promise chain continues correctly
-      }
-      
-      handleLoadingError(err);
-    }
-  };
-
-  const waitForBookReady = async (epubBook: any) => {
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('Book parsing timed out. This book may be too large or complex. Please try again.'));
-      }, 30000); // Increased timeout to 30 seconds
-    });
-
-    await Promise.race([epubBook.ready, timeoutPromise]);
-  };
-
-  const handleLoadingError = (err: any) => {
-    const errorMessage = err instanceof Error ? err.message : 'Failed to load EPUB';
-    
-    if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
-      setError('This book is taking too long to load, even after extending the wait time. It might be very large or there could be a temporary issue. Please try again later or select a different book.');
-    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-      setError('Network connection issue. Please check your internet connection and try again.');
-    } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
-      setError('This book is not available. Please try selecting a different book.');
-    } else {
-      setError(`Unable to load "${book.title}". Please try again or select a different book. Details: ${errorMessage}`);
-    }
-    
-    setIsLoading(false);
-    setLoadingStep('');
-    setLoadingProgress(0);
-  };
-
+  // Wrapper for initializeRendition to match the old API, if needed, or just use initRendition directly.
+  // The old initializeRendition took (container, fontSize). useEPUBRendition's initRendition takes the same.
   const initializeRendition = (container: HTMLDivElement, fontSize: number) => {
-    if (!epubRef.current || !container) return;
-
-    console.log('🎨 Initializing rendition...');
-
-    const rendition = epubRef.current.renderTo(container, {
-      width: '100%',
-      height: '100%',
-      flow: 'paginated',
-      spread: 'none',
-      minSpreadWidth: 800
-    });
-    renditionRef.current = rendition;
-
-    rendition.themes.fontSize(`${fontSize}px`);
-
-    rendition.display().then(() => {
-      console.log('📄 First page displayed successfully');
-    }).catch((err: any) => {
-      console.error('❌ Rendition display error:', err);
-    });
-
-    rendition.on('relocated', (location: any) => {
-      setCurrentLocation(location.start.cfi);
-    });
-
-    rendition.on('error', (err: any) => {
-      console.warn('⚠️ Rendition warning:', err);
-    });
-  };
-
-  const handleRetry = () => {
-    retryCountRef.current = 0;
-    setError(null);
-    setLoadingStep('Retrying...');
-    setLoadingProgress(0);
-    loadEPUB();
-  };
-
-  const handlePrevPage = () => {
-    if (renditionRef.current) {
-      renditionRef.current.prev();
+    if (epubBookInstance) { // Only initialize if book instance is available
+      initRendition(container, fontSize);
     }
   };
-
-  const handleNextPage = () => {
-    if (renditionRef.current) {
-      renditionRef.current.next();
-    }
-  };
-
+  
+  // Wrapper for font size change to match old API
   const handleFontSizeChange = (newSize: number) => {
-    if (renditionRef.current) {
-      renditionRef.current.themes.fontSize(`${newSize}px`);
-    }
+    changeFontSize(newSize);
   };
 
-  const handleTOCItemClick = (href: string) => {
-    if (renditionRef.current) {
-      renditionRef.current.display(href);
-    }
+  // handleRetry now calls the retry mechanism from useEPUBBook
+  const handleRetry = () => {
+    retryBookLoad();
   };
+
+  // Cleanup effect: useEPUBBook and useEPUBRendition now handle their own internal cleanup.
+  // This main hook mostly orchestrates.
+  useEffect(() => {
+    // console.log('useEPUBLoader: book or epubBookInstance changed');
+    // If epubBookInstance becomes null (e.g., book changed, load failed hard),
+    // useEPUBRendition's own effect should clean up its rendition.
+  }, [book, epubBookInstance]);
+
 
   return {
     isLoading,
@@ -225,6 +69,7 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     handlePrevPage,
     handleNextPage,
     handleFontSizeChange,
-    handleTOCItemClick
+    handleTOCItemClick,
+    // epubRef and renditionRef are no longer exposed as they are internal to the sub-hooks.
   };
 };
