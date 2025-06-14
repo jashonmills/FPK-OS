@@ -8,9 +8,10 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface QuickReviewProps {
   flashcards?: any[];
+  customCards?: any[];
 }
 
-const QuickReview: React.FC<QuickReviewProps> = () => {
+const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -18,12 +19,15 @@ const QuickReview: React.FC<QuickReviewProps> = () => {
   const [reviewCards, setReviewCards] = useState<any[]>([]);
 
   useEffect(() => {
-    if (flashcards && flashcards.length > 0) {
-      // Randomly select 3 cards
+    if (customCards && customCards.length > 0) {
+      // Use custom cards when provided
+      setReviewCards(customCards);
+    } else if (flashcards && flashcards.length > 0) {
+      // Randomly select 3 cards when no custom cards
       const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
       setReviewCards(shuffled.slice(0, 3));
     }
-  }, [flashcards]);
+  }, [flashcards, customCards]);
 
   const handleNext = async () => {
     // Update review stats for current card
@@ -48,8 +52,10 @@ const QuickReview: React.FC<QuickReviewProps> = () => {
     setCurrentCard(0);
     setShowAnswer(false);
     setCompleted(false);
-    // Randomly select 3 new cards
-    if (flashcards && flashcards.length > 0) {
+    // Re-select cards based on mode
+    if (customCards && customCards.length > 0) {
+      setReviewCards(customCards);
+    } else if (flashcards && flashcards.length > 0) {
       const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
       setReviewCards(shuffled.slice(0, 3));
     }
@@ -119,6 +125,9 @@ const QuickReview: React.FC<QuickReviewProps> = () => {
           <span className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
             Quick Review
+            {customCards && customCards.length > 0 && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Custom Set</span>
+            )}
           </span>
           <span className="text-sm font-normal text-muted-foreground">
             {currentCard + 1} of {reviewCards.length}

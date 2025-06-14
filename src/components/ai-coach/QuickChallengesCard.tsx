@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Zap, BookOpen, Target, CheckSquare } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Zap, BookOpen, Target, CheckSquare, X } from 'lucide-react';
 import QuickReview from './challenges/QuickReview';
 import AccuracyChallenge from './challenges/AccuracyChallenge';
 import SpeedTest from './challenges/SpeedTest';
@@ -12,6 +12,7 @@ import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal'
 interface Challenge {
   id: string;
   text: string;
+  customText: string;
   icon: React.ComponentType<any>;
   action: () => void;
   component: React.ComponentType<any>;
@@ -26,13 +27,15 @@ interface QuickChallengesCardProps {
 const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges }) => {
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
-  const [selectedCustomCards, setSelectedCustomCards] = useState<any[]>([]);
+  const [customSelectedCards, setCustomSelectedCards] = useState<any[]>([]);
+  const [isCustomModeActive, setIsCustomModeActive] = useState(false);
 
-  // Enhanced challenges with component mapping and colors
+  // Enhanced challenges with component mapping, colors, and custom text
   const enhancedChallenges: Challenge[] = [
     {
       id: 'quick-review',
       text: `Quick review: 3 random flashcards`,
+      customText: `Quick review: ${customSelectedCards.length} selected cards`,
       icon: BookOpen,
       action: () => setActiveChallenge('quick-review'),
       component: QuickReview,
@@ -42,6 +45,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
     {
       id: 'accuracy-challenge',
       text: 'Accuracy challenge: Score 80%+ on 5 cards',
+      customText: `Accuracy challenge: Score 80%+ on ${Math.min(5, customSelectedCards.length)} selected cards`,
       icon: Target,
       action: () => setActiveChallenge('accuracy-challenge'),
       component: AccuracyChallenge,
@@ -51,6 +55,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
     {
       id: 'speed-test',
       text: 'Speed test: Answer 5 cards in 2 minutes',
+      customText: `Speed test: Answer ${Math.min(5, customSelectedCards.length)} selected cards in 2 minutes`,
       icon: Zap,
       action: () => setActiveChallenge('speed-test'),
       component: SpeedTest,
@@ -60,6 +65,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
     {
       id: 'custom-practice',
       text: 'Custom practice: Choose your own cards',
+      customText: `Custom practice: ${customSelectedCards.length} cards selected`,
       icon: CheckSquare,
       action: () => setShowSelectionModal(true),
       component: CustomPractice,
@@ -71,19 +77,67 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
   const activeChallengData = enhancedChallenges.find(c => c.id === activeChallenge);
 
   const handleCustomPracticeStart = (selectedFlashcards: any[]) => {
-    setSelectedCustomCards(selectedFlashcards);
+    setCustomSelectedCards(selectedFlashcards);
+    setIsCustomModeActive(true);
     setShowSelectionModal(false);
     setActiveChallenge('custom-practice');
+  };
+
+  const handleClearCustomSelection = () => {
+    setCustomSelectedCards([]);
+    setIsCustomModeActive(false);
+    // Keep the current active challenge but it will now use default behavior
+  };
+
+  const renderChallengeComponent = () => {
+    if (!activeChallengData) return null;
+
+    const ComponentToRender = activeChallengData.component;
+    
+    // Pass custom cards to all challenge components when in custom mode
+    if (isCustomModeActive && customSelectedCards.length > 0) {
+      if (activeChallenge === 'custom-practice') {
+        return <CustomPractice selectedCards={customSelectedCards} />;
+      } else {
+        // Pass custom cards to other challenges
+        return <ComponentToRender customCards={customSelectedCards} />;
+      }
+    }
+    
+    // Default behavior when not in custom mode
+    if (activeChallenge === 'custom-practice') {
+      return <CustomPractice selectedCards={[]} />;
+    }
+    
+    return <ComponentToRender />;
   };
 
   return (
     <>
       <Card className="w-full overflow-hidden">
         <CardHeader className="p-3 sm:p-4 lg:p-6">
-          <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
-            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 flex-shrink-0" />
-            <span className="truncate">Quick Study Challenges</span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 flex-shrink-0" />
+              <span className="truncate">Quick Study Challenges</span>
+            </CardTitle>
+            {isCustomModeActive && (
+              <div className="flex items-center gap-2">
+                <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+                  Custom Set ({customSelectedCards.length})
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleClearCustomSelection}
+                  className="h-7 px-2 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
           {/* Challenge Container - Responsive Grid */}
@@ -91,34 +145,45 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
             {/* Challenge List */}
             <div className="challenge-list space-y-2 sm:space-y-3 lg:col-span-1">
               {enhancedChallenges.map((challenge) => (
-                <Button 
-                  key={challenge.id}
-                  variant="outline"
-                  className={`w-full justify-start text-left h-auto py-3 px-3 sm:py-4 sm:px-4 transition-all duration-200 border-2 ${
-                    activeChallenge === challenge.id 
-                      ? `${challenge.colorClass} ring-2 ring-offset-2 shadow-md border-opacity-100` 
-                      : `${challenge.colorClass} border-opacity-50 ${challenge.hoverColorClass}`
-                  }`}
-                  onClick={challenge.action}
-                >
-                  <div className="flex items-start gap-3 w-full min-w-0">
-                    <challenge.icon className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm sm:text-base leading-relaxed text-left flex-1 whitespace-normal">
-                      {challenge.text}
-                    </span>
-                  </div>
-                </Button>
+                <div key={challenge.id} className="relative">
+                  <Button 
+                    variant="outline"
+                    className={`w-full justify-start text-left h-auto py-3 px-3 sm:py-4 sm:px-4 transition-all duration-200 border-2 ${
+                      activeChallenge === challenge.id 
+                        ? `${challenge.colorClass} ring-2 ring-offset-2 shadow-md border-opacity-100` 
+                        : `${challenge.colorClass} border-opacity-50 ${challenge.hoverColorClass}`
+                    } ${
+                      isCustomModeActive && challenge.id !== 'custom-practice' 
+                        ? 'ring-1 ring-purple-300 ring-opacity-50' 
+                        : ''
+                    }`}
+                    onClick={challenge.action}
+                  >
+                    <div className="flex items-start gap-3 w-full min-w-0">
+                      <challenge.icon className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm sm:text-base leading-relaxed text-left whitespace-normal block">
+                          {isCustomModeActive && customSelectedCards.length > 0 
+                            ? challenge.customText 
+                            : challenge.text
+                          }
+                        </span>
+                        {isCustomModeActive && challenge.id !== 'custom-practice' && (
+                          <Badge className="mt-1 bg-purple-100 text-purple-700 text-xs">
+                            Using Custom Set
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </Button>
+                </div>
               ))}
             </div>
 
             {/* Challenge Detail */}
             <div className="challenge-detail lg:col-span-2 mt-4 lg:mt-0">
               {activeChallengData ? (
-                activeChallenge === 'custom-practice' ? (
-                  <CustomPractice selectedCards={selectedCustomCards} />
-                ) : (
-                  <activeChallengData.component />
-                )
+                renderChallengeComponent()
               ) : (
                 <Card className="h-full min-h-[200px] lg:min-h-[300px]">
                   <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
@@ -131,6 +196,11 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
                     <p className="text-sm text-muted-foreground italic max-w-sm leading-relaxed">
                       Choose a study challenge from the list to start practicing and improving your skills.
                     </p>
+                    {isCustomModeActive && (
+                      <Badge className="mt-3 bg-purple-100 text-purple-800 border-purple-200">
+                        Custom mode active ({customSelectedCards.length} cards selected)
+                      </Badge>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -153,13 +223,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
                   </Button>
                 </div>
                 <div className="p-4 max-h-96 overflow-y-auto">
-                  {activeChallengData && (
-                    activeChallenge === 'custom-practice' ? (
-                      <CustomPractice selectedCards={selectedCustomCards} />
-                    ) : (
-                      <activeChallengData.component />
-                    )
-                  )}
+                  {renderChallengeComponent()}
                 </div>
               </div>
             </div>

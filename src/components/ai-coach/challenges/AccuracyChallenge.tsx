@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +7,10 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
+  customCards?: any[];
 }
 
-const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
+const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -23,7 +23,10 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
   const targetAccuracy = 80;
 
   useEffect(() => {
-    if (flashcards && flashcards.length > 0) {
+    if (customCards && customCards.length > 0) {
+      // Use custom cards when provided (limit to 5 for accuracy challenge)
+      setChallengeCards(customCards.slice(0, 5));
+    } else if (flashcards && flashcards.length > 0) {
       // Filter cards with low accuracy (< 80%) or no review history
       const lowAccuracyCards = flashcards.filter(card => {
         const successRate = card.times_reviewed > 0 
@@ -44,7 +47,7 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
 
       setChallengeCards(selectedCards);
     }
-  }, [flashcards]);
+  }, [flashcards, customCards]);
 
   useEffect(() => {
     if (challengeCards.length > 0 && currentCard < challengeCards.length) {
@@ -104,8 +107,11 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
     setShowResult(false);
     setScore({ correct: 0, total: 0 });
     setCompleted(false);
-    // Regenerate challenge cards
-    if (flashcards && flashcards.length > 0) {
+    
+    // Regenerate challenge cards based on mode
+    if (customCards && customCards.length > 0) {
+      setChallengeCards(customCards.slice(0, 5));
+    } else if (flashcards && flashcards.length > 0) {
       const lowAccuracyCards = flashcards.filter(card => {
         const successRate = card.times_reviewed > 0 
           ? (card.times_correct / card.times_reviewed) * 100 
@@ -207,6 +213,9 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = () => {
           <span className="flex items-center gap-2">
             <Target className="h-5 w-5" />
             Accuracy Challenge
+            {customCards && customCards.length > 0 && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Custom Set</span>
+            )}
           </span>
           <span className="text-sm font-normal text-muted-foreground">
             {currentCard + 1} of {challengeCards.length}

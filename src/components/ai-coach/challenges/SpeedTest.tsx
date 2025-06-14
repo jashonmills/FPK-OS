@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +7,10 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface SpeedTestProps {
   flashcards?: any[];
+  customCards?: any[];
 }
 
-const SpeedTest: React.FC<SpeedTestProps> = () => {
+const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -22,7 +22,10 @@ const SpeedTest: React.FC<SpeedTestProps> = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (flashcards && flashcards.length > 0) {
+    if (customCards && customCards.length > 0) {
+      // Use custom cards when provided (limit to 5 for speed test)
+      setTestCards(customCards.slice(0, 5));
+    } else if (flashcards && flashcards.length > 0) {
       // Filter cards not reviewed in last 24 hours
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const availableCards = flashcards.filter(card => {
@@ -37,7 +40,7 @@ const SpeedTest: React.FC<SpeedTestProps> = () => {
 
       setTestCards(selectedCards);
     }
-  }, [flashcards]);
+  }, [flashcards, customCards]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -96,8 +99,10 @@ const SpeedTest: React.FC<SpeedTestProps> = () => {
     setAnsweredCards(0);
     setStartTime(null);
     
-    // Select new cards
-    if (flashcards && flashcards.length > 0) {
+    // Select new cards based on mode
+    if (customCards && customCards.length > 0) {
+      setTestCards(customCards.slice(0, 5));
+    } else if (flashcards && flashcards.length > 0) {
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const availableCards = flashcards.filter(card => {
         if (!card.last_reviewed_at) return true;
@@ -168,7 +173,10 @@ const SpeedTest: React.FC<SpeedTestProps> = () => {
             Answer {testCards.length} cards in 2 minutes!
           </p>
           <p className="text-sm text-muted-foreground mb-4">
-            Cards selected: {testCards.length} (prioritizing cards not seen in 24hrs)
+            {customCards && customCards.length > 0 
+              ? `Using your custom selection (${testCards.length} cards)`
+              : `Cards selected: ${testCards.length} (prioritizing cards not seen in 24hrs)`
+            }
           </p>
           <Button onClick={startTest} className="bg-blue-600 hover:bg-blue-700">
             <Timer className="h-4 w-4 mr-2" />
@@ -215,6 +223,9 @@ const SpeedTest: React.FC<SpeedTestProps> = () => {
           <span className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
             Speed Test
+            {customCards && customCards.length > 0 && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Custom Set</span>
+            )}
           </span>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-muted-foreground">
