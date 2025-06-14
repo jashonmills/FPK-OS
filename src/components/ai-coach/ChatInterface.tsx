@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [responseTime, setResponseTime] = useState<number | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { toast } = useToast();
@@ -58,6 +61,44 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
     const isBottom = scrollHeight - scrollTop === clientHeight;
     setIsAtBottom(isBottom);
+  };
+
+  // Create a new chat session when the interface loads
+  useEffect(() => {
+    if (user && !currentSessionId) {
+      createNewSession();
+    }
+  }, [user]);
+
+  const createNewSession = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .insert({
+          user_id: user.id,
+          title: 'AI Coach Session',
+          context_tag: 'AI Coaching'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setCurrentSessionId(data.id);
+      setSessionStartTime(Date.now());
+      
+      // Track session start analytics event
+      console.log('📊 AI Coach Session Started:', {
+        sessionId: data.id,
+        userId: user.id,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Error creating chat session:', error);
+    }
   };
 
   // Generate personalized greeting based on user data
@@ -94,6 +135,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   }, [user, completedSessions, flashcards]);
 
+  const saveMessageToSession = async (content: string, role: 'user' | 'assistant') => {
+    if (!currentSessionId) return;
+
+    try {
+      await supabase
+        .from('chat_messages')
+        .insert({
+          session_id: currentSessionId,
+          role,
+          content,
+          timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+      console.error('Error saving message to session:', error);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
 
@@ -109,6 +167,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setConnectionStatus('good');
     setResponseTime(null);
 
+    // Save user message to session
+    await saveMessageToSession(userMessage, 'user');
+
     const startTime = Date.now();
 
     try {
@@ -122,7 +183,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
-          userId: user?.id
+          userId: user?.id,
+          sessionId: currentSessionId
         }
       });
 
@@ -137,11 +199,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       }
 
       setConnectionStatus('good');
+      const aiResponse = data?.response || "I'm here to guide your learning journey!";
+      
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        message: data?.response || "I'm here to guide your learning journey!",
+        message: aiResponse,
         timestamp: new Date()
       }]);
+
+      // Save assistant message to session
+      await saveMessageToSession(aiResponse, 'assistant');
+
+      // Track message exchange analytics event
+      console.log('📊 AI Coach Message Exchange:', {
+        sessionId: currentSessionId,
+        userMessage: userMessage,
+        responseTime: responseTimeMs,
+        timestamp: new Date().toISOString()
+      });
 
       // Log performance for monitoring
       console.log(`AI response time: ${responseTimeMs}ms`);
@@ -165,6 +240,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         message: randomTip,
         timestamp: new Date()
       }]);
+
+      // Save fallback message to session
+      await saveMessageToSession(randomTip, 'assistant');
     } finally {
       setIsLoading(false);
       setIsAnalyzing(false);
@@ -207,8 +285,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   const handleResetChat = () => {
+    // Track session end analytics event before resetting
+    if (currentSessionId && sessionStartTime) {
+      const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
+      console.log('📊 AI Coach Session Ended:', {
+        sessionId: currentSessionId,
+        duration: sessionDuration,
+        messageCount: chatHistory.length,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     setChatHistory([]);
     setResponseTime(null);
+    setCurrentSessionId(null);
+    setSessionStartTime(null);
+    
+    // Create a new session for the next conversation
+    createNewSession();
+    
     toast({
       title: "Chat reset",
       description: "Your conversation has been cleared.",
@@ -217,6 +312,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const handleSaveChat = () => {
     const chatData = {
+      sessionId: currentSessionId,
       timestamp: new Date().toISOString(),
       messages: chatHistory,
       user: user?.email || 'unknown'
@@ -243,6 +339,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const handleArchiveChat = () => {
     const archiveKey = `ai-coach-archive-${Date.now()}`;
     const chatData = {
+      sessionId: currentSessionId,
       timestamp: new Date().toISOString(),
       messages: chatHistory,
       user: user?.email || 'unknown'

@@ -12,6 +12,7 @@ import { useWeeklyActivity } from '@/hooks/useWeeklyActivity';
 import { useActivityDistribution } from '@/hooks/useActivityDistribution';
 import { useStreakCalculation } from '@/hooks/useStreakCalculation';
 import { useTranslation } from 'react-i18next';
+import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 
 const LearningAnalytics = () => {
   const { t } = useTranslation();
@@ -254,6 +255,9 @@ const LearningAnalytics = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Coach Engagement Card - NEW */}
+      <AICoachEngagementCard />
 
       {/* Weekly Engagement Chart */}
       <Card className="border-0 shadow-lg">
