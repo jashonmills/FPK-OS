@@ -9,10 +9,12 @@ import {
   Book, 
   BarChart3,
   Settings,
-  Plus
+  Plus,
+  Download
 } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import EPUBIngestionManager from '@/components/admin/EPUBIngestionManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -143,6 +145,15 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* EPUB Ingestion Manager */}
+      <div className="mt-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Download className="h-5 w-5" />
+          Library Management
+        </h2>
+        <EPUBIngestionManager />
       </div>
     </div>
   );
