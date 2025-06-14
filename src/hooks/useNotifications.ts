@@ -175,8 +175,8 @@ export const useNotifications = () => {
         }
       );
 
-    // Subscribe once and only set ref after successful subscription
-    channel.subscribe().then(status => {
+    // Subscribe and set the channel reference
+    channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         channelRef.current = channel;
         console.log('✅ Successfully subscribed to notifications channel');

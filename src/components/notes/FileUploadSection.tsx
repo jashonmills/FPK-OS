@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -143,8 +142,8 @@ const FileUploadSection: React.FC = () => {
         }
       );
 
-    // Subscribe once and only set ref after successful subscription
-    channel.subscribe().then(status => {
+    // Subscribe and set the channel reference
+    channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         channelRef.current = channel;
         console.log('✅ Successfully subscribed to file uploads channel');
