@@ -98,11 +98,11 @@ export const useChatMessages = (sessionId: string | null) => {
     }
   };
 
-  // Enhanced sendMessage with improved context and metadata
+  // Enhanced sendMessage with external knowledge integration
   const sendMessage = async (content: string, context?: string) => {
     if (!sessionId || !user || isSending) return;
 
-    console.log('Starting enhanced sendMessage flow...', { sessionId, content, context });
+    console.log('Starting enhanced sendMessage with external knowledge support...', { sessionId, content, context });
     setIsSending(true);
     
     try {
@@ -112,7 +112,7 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save user message');
       }
 
-      // Call enhanced AI function with comprehensive context and metadata
+      // Call enhanced AI function with external knowledge capabilities
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
@@ -122,7 +122,8 @@ export const useChatMessages = (sessionId: string | null) => {
           metadata: {
             timestamp: new Date().toISOString(),
             userAgent: navigator.userAgent,
-            sessionLength: messages.length
+            sessionLength: messages.length,
+            hasExternalKnowledge: true
           }
         }
       });
@@ -132,7 +133,7 @@ export const useChatMessages = (sessionId: string | null) => {
         throw error;
       }
 
-      const aiResponse = data?.response || "I'm here to guide your learning journey! 🌟 What would you like to explore together?";
+      const aiResponse = data?.response || "I'm here to guide your learning journey with access to comprehensive knowledge sources! 🌟 What would you like to explore together?";
       
       // Add AI response with enhanced formatting
       const assistantMessage = await addMessage(aiResponse, 'assistant');
@@ -148,6 +149,8 @@ export const useChatMessages = (sessionId: string | null) => {
                          context?.includes('Flashcard') ? 'Flashcard Help' : 
                          content.toLowerCase().includes('quiz') ? 'Quiz Help' :
                          content.toLowerCase().includes('strategy') ? 'Study Strategy' :
+                         content.toLowerCase().includes('research') ? 'Research' :
+                         content.toLowerCase().includes('definition') ? 'Definitions' :
                          'General Study Support';
                          
         await supabase
@@ -163,18 +166,18 @@ export const useChatMessages = (sessionId: string | null) => {
     } catch (error) {
       console.error('Error in enhanced sendMessage:', error);
       
-      // Enhanced fallback responses based on context
+      // Enhanced fallback responses based on context with knowledge integration hints
       const contextualFallback = context?.includes('Notes') 
-        ? "I'm here to help optimize your note-taking and study materials! 📚 Try asking about effective note-taking strategies or how to organize your study content."
+        ? "I'm here to help optimize your note-taking and study materials! 📚 I can also research topics for you. Try asking about effective note-taking strategies or specific concepts you're studying."
         : context?.includes('Flashcard')
-        ? "I can help you maximize your flashcard study sessions! 🎯 Ask me about spaced repetition, memory techniques, or how to tackle challenging cards."
-        : "I'm your AI learning coach, ready to help! 🌟 Ask me about study strategies, specific concepts, or how to improve your learning effectiveness.";
+        ? "I can help you maximize your flashcard study sessions! 🎯 Ask me about spaced repetition, memory techniques, or research on specific topics you're studying."
+        : "I'm your AI learning coach with access to academic knowledge sources! 🌟 Ask me about study strategies, specific concepts, definitions, or research on topics you're exploring.";
         
       await addMessage(contextualFallback, 'assistant');
       
       toast({
         title: "AI Coach Ready",
-        description: "I'm here to support your learning journey!",
+        description: "I'm here with enhanced knowledge access to support your learning!",
       });
     } finally {
       setIsSending(false);

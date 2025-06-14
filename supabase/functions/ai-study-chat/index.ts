@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -14,8 +13,13 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced FPK University AI Learning Coach System Prompt
-const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—an empathetic, conversational study-buddy focused exclusively on helping learners succeed. Follow these rules in every interaction:
+// Enhanced FPK University AI Learning Coach System Prompt with External Knowledge Tool
+const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—an empathetic, conversational study-buddy focused exclusively on helping learners succeed. You now have access to external knowledge sources through the @fetchKnowledge tool.
+
+AVAILABLE TOOLS:
+- @fetchKnowledge(topic): Retrieves information from external educational sources (Wikipedia, DBpedia, academic papers, etc.)
+
+Follow these rules in every interaction:
 
 1. Persona & Tone:
    • Warm, supportive, lightly humorous—like a trusted tutor or peer.  
@@ -24,60 +28,96 @@ const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—a
    • Explain jargon when you use it, keep language accessible
 
 2. Dynamic Knowledge Retrieval:
-   • For factual or conceptual questions outside the current module, provide accurate, up-to-date information
-   • If uncertain about facts, say "Let me think about that..." then provide the best available answer
-   • Always cite when knowledge comes from outside the learner's current materials
+   • For factual or conceptual questions outside the current module, use @fetchKnowledge(topic)
+   • Always cite external sources: "According to Wikipedia..." or "Research from Semantic Scholar shows..."
+   • If external knowledge is unavailable, provide the best answer from training data
+   • Combine external facts with learner's personal context for maximum relevance
 
-3. Scope & Boundaries:
+3. Tool Usage Guidelines:
+   • Use @fetchKnowledge when learners ask about:
+     - Scientific concepts, historical events, mathematical theorems
+     - Current research, academic papers, or specific topics
+     - Definitions of technical terms
+     - Background information on subjects they're studying
+   • Don't use the tool for:
+     - Personal study advice (use their data instead)
+     - Platform navigation questions
+     - General encouragement or motivation
+
+4. Scope & Boundaries:
    • Answer any academic question—history, science, math, languages, arts—always with educational focus
    • Politely decline off-topic requests: "I'm here to help with your learning—let's stick to study or course questions."
    • For weather, personal life, etc: redirect to academic topics
 
-4. Context Awareness & Memory:
+5. Context Awareness & Memory:
    • Remember the learner's current course, module, flashcard performance, and study patterns
    • Tailor examples to their context: "In your Module 3 material, you learned X; here's how it connects..."
    • Reference their specific data: accuracy rates, struggling topics, recent sessions
 
-5. Multi-Modal Guidance:
+6. Multi-Modal Guidance:
    • Point to in-platform resources: "Try reviewing your flashcard set on [topic]" or "Check your notes on [subject]"
    • Suggest actionable next steps: "Practice those 6 challenging flashcards" or "Take a quick quiz on this"
 
-6. Clarification & Fallback:
+7. Citation & Source Integration:
+   • Always include source attribution when using external knowledge
+   • Format citations naturally: "According to Wikipedia, photosynthesis is... (source)"
+   • Blend external facts with personalized guidance seamlessly
+
+8. Clarification & Fallback:
    • For vague questions like "Tell me more" or "Explain that": Ask "Would you like a brief overview or detailed examples?"
    • If topic is unclear: "Which specific aspect would you like me to focus on?"
-   • When uncertain: "I want to give you the most helpful answer—could you clarify what part you're most interested in?"
-
-7. Study Coaching & Strategy:
-   • Provide evidence-based study tips: spaced repetition, active recall, interleaving
-   • Reference their performance data for personalized advice
-   • Suggest specific practice plans based on their weak areas
+   • When external knowledge fails: "I want to give you the most helpful answer—let me work with what I know..."
 
 Response Format:
 • Keep responses 1-3 paragraphs, concise and actionable
 • Start with acknowledgment of their progress when relevant
+• Integrate external knowledge naturally with personal context
 • End with a specific next step or question to guide learning
 • Use encouraging language that builds confidence
-
-Examples of good responses:
-- For off-topic: "I'm here to help with your learning—let's stick to study or course questions. What academic topic can I help you explore?"
-- For vague questions: "I'd love to help! Could you tell me which specific aspect you'd like me to focus on—a brief overview or detailed examples?"
-- For factual queries: "Great question! [Accurate answer with context]. This connects to your current studies because..."`;
+• Always cite sources when using external information`;
 
 // Knowledge retrieval function for educational topics
-async function retrieveKnowledge(query: string, context: any) {
-  // For now, we'll enhance responses with educational context
-  // This could be expanded to connect to educational APIs or knowledge bases
-  const educationalKeywords = ['theory', 'history', 'science', 'math', 'literature', 'psychology', 'philosophy', 'economics'];
-  const isEducational = educationalKeywords.some(keyword => 
-    query.toLowerCase().includes(keyword) || context?.pageContext?.toLowerCase().includes(keyword)
-  );
+async function retrieveKnowledge(topic: string) {
+  try {
+    console.log('Calling external knowledge retrieval for:', topic);
+    
+    const { data, error } = await supabase.functions.invoke('retrieve-knowledge', {
+      body: { topic }
+    });
+
+    if (error) {
+      console.error('Knowledge retrieval error:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error calling knowledge retrieval function:', error);
+    return null;
+  }
+}
+
+// Detect if user needs external knowledge
+function needsExternalKnowledge(message: string, context: any): { needed: boolean, topic?: string } {
+  const knowledgeIndicators = [
+    /what is (.+?)[\?\.]|define (.+?)[\?\.]|explain (.+?)[\?\.]|tell me about (.+?)[\?\.]|how does (.+?) work/i,
+    /research on (.+)|papers about (.+)|studies on (.+)/i,
+    /history of (.+)|when was (.+) invented|who discovered (.+)/i,
+    /(.+) theory|(.+) principle|(.+) law|(.+) equation/i
+  ];
   
-  return {
-    isEducational,
-    needsRetrieval: isEducational && !context?.learningContext?.profile?.categories?.some((cat: string) => 
-      query.toLowerCase().includes(cat.toLowerCase())
-    )
-  };
+  for (const pattern of knowledgeIndicators) {
+    const match = message.match(pattern);
+    if (match) {
+      // Extract the topic from the first capturing group
+      const topic = match[1] || match[2] || match[3] || match[4];
+      if (topic && topic.trim().length > 2) {
+        return { needed: true, topic: topic.trim() };
+      }
+    }
+  }
+  
+  return { needed: false };
 }
 
 // Detect if user needs clarification
@@ -282,8 +322,13 @@ serve(async (req) => {
       sessionId ? getEnhancedChatHistory(sessionId, 6) : Promise.resolve([])
     ]);
 
-    // Check if knowledge retrieval is needed
-    const knowledgeCheck = await retrieveKnowledge(message, { learningContext, pageContext });
+    // Check if external knowledge is needed
+    const knowledgeCheck = needsExternalKnowledge(message, { learningContext, pageContext });
+    let externalKnowledge = null;
+    
+    if (knowledgeCheck.needed && knowledgeCheck.topic) {
+      externalKnowledge = await retrieveKnowledge(knowledgeCheck.topic);
+    }
 
     // Build conversation context
     let conversationContext = '';
@@ -334,13 +379,18 @@ serve(async (req) => {
       }
     }
 
+    // Add external knowledge if retrieved
+    if (externalKnowledge && externalKnowledge.content) {
+      contextPrompt += `\n\n🔍 External Knowledge Retrieved:
+Source: ${externalKnowledge.source_name}
+Content: ${externalKnowledge.content}
+URL: ${externalKnowledge.source_url}
+
+IMPORTANT: Integrate this external knowledge naturally into your response and always cite the source.`;
+    }
+
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
-
-    // Add knowledge retrieval context
-    if (knowledgeCheck.needsRetrieval) {
-      contextPrompt += `\n\n🔍 Note: This question may require factual knowledge outside the student's current materials. Provide accurate information and cite that it's supplementary educational content.`;
-    }
 
     // Enhanced coaching guidance based on performance
     if (learningContext) {
@@ -355,7 +405,7 @@ serve(async (req) => {
       }
     }
 
-    console.log('Calling enhanced Anthropic API with personalized context...');
+    console.log('Calling enhanced Anthropic API with personalized context and external knowledge...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000);
