@@ -1,35 +1,13 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { configurePDFWorker, validatePDFWorker } from '@/utils/pdfWorkerConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-
-// Configure PDF.js worker using a more reliable approach
-const configurePDFWorker = () => {
-  try {
-    // Use the bundled worker from the pdfjs-dist package
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-    
-    // Alternative: Use unpkg as fallback
-    if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-    }
-    
-    console.log('📄 PDF.js worker configured successfully');
-    return true;
-  } catch (error) {
-    console.error('❌ Failed to configure PDF.js worker:', error);
-    return false;
-  }
-};
-
-// Configure worker immediately
-configurePDFWorker();
 
 interface PDFViewerProps {
   fileUrl: string;
@@ -43,15 +21,44 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [scale, setScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [workerStatus, setWorkerStatus] = useState<'configuring' | 'ready' | 'failed'>('configuring');
   const { toast } = useToast();
+
+  // Initialize PDF worker on component mount
+  useEffect(() => {
+    const initializeWorker = async () => {
+      console.log('🔧 Initializing PDF.js worker...');
+      
+      const configSuccess = configurePDFWorker();
+      if (!configSuccess) {
+        setWorkerStatus('failed');
+        setError('Failed to configure PDF processing engine');
+        return;
+      }
+      
+      // Validate worker functionality
+      const validationSuccess = await validatePDFWorker();
+      if (!validationSuccess) {
+        setWorkerStatus('failed');
+        setError('PDF processing engine validation failed');
+        return;
+      }
+      
+      setWorkerStatus('ready');
+      console.log('✅ PDF.js worker ready');
+    };
+
+    initializeWorker();
+  }, []);
 
   // PDF options with better configuration
   const pdfOptions = useMemo(() => ({
-    cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/cmaps/`,
+    cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
     cMapPacked: true,
-    standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/standard_fonts/`,
+    standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
     disableAutoFetch: false,
     disableStream: false,
+    useSystemFonts: true,
   }), []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -69,15 +76,22 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const onDocumentLoadError = (error: Error) => {
     console.error('❌ PDF loading error:', error);
     setIsLoading(false);
-    setError(error.message);
     
     let errorMessage = "Failed to load PDF file.";
+    let errorDetails = error.message;
     
     if (error.message.includes('worker') || error.message.includes('Worker')) {
-      errorMessage = "PDF processing engine error. Please refresh the page and try again.";
-    } else if (error.message.includes('fetch')) {
-      errorMessage = "Could not download the PDF file. Please check your connection.";
+      errorMessage = "PDF processing engine error. Please refresh and try again.";
+      errorDetails = "Worker initialization failed";
+    } else if (error.message.includes('fetch') || error.message.includes('network')) {
+      errorMessage = "Network error. Please check your connection and try again.";
+      errorDetails = "Could not download PDF file";
+    } else if (error.message.includes('Invalid PDF')) {
+      errorMessage = "Invalid or corrupted PDF file.";
+      errorDetails = "PDF format not recognized";
     }
+    
+    setError(`${errorMessage} (${errorDetails})`);
     
     toast({
       title: "PDF Error",
@@ -86,15 +100,22 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     });
   };
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     console.log('🔄 Retrying PDF load');
     setError(null);
     setIsLoading(true);
     setNumPages(0);
     setPageNumber(1);
+    setWorkerStatus('configuring');
     
     // Reconfigure worker on retry
-    configurePDFWorker();
+    const configSuccess = configurePDFWorker();
+    if (configSuccess) {
+      const validationSuccess = await validatePDFWorker();
+      setWorkerStatus(validationSuccess ? 'ready' : 'failed');
+    } else {
+      setWorkerStatus('failed');
+    }
   };
 
   const goToPrevPage = () => {
@@ -130,6 +151,53 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [pageNumber, numPages, onClose]);
+
+  // Show worker initialization status
+  if (workerStatus === 'configuring') {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogTitle>Initializing PDF Viewer</DialogTitle>
+          <DialogDescription>
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center space-y-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p>Setting up PDF processing engine...</p>
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (workerStatus === 'failed') {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogTitle>PDF Viewer Error</DialogTitle>
+          <DialogDescription>
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center space-y-4">
+                <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+                <p className="text-destructive">Failed to initialize PDF processing engine</p>
+                <div className="space-x-2">
+                  <Button variant="outline" size="sm" onClick={handleRetry}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Retry
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={onClose}>
+                    <X className="h-4 w-4 mr-2" />
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -177,9 +245,10 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
               {error ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="text-center space-y-4">
-                    <p className="text-destructive mb-2">Failed to load PDF</p>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      There was a problem loading {fileName}
+                    <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+                    <p className="text-destructive font-medium">Failed to load PDF</p>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      {error}
                     </p>
                     <div className="space-x-2">
                       <Button variant="outline" size="sm" onClick={handleRetry}>

@@ -27,41 +27,80 @@ export const validatePDFUrl = async (url: string): Promise<PDFValidationResult> 
     // Validate URL format
     const urlObj = new URL(processedUrl);
     
-    // Check if it's a Supabase storage URL
+    // Enhanced Supabase URL handling
     if (urlObj.hostname.includes('supabase')) {
-      // For Supabase URLs, ensure proper encoding
-      const pathSegments = urlObj.pathname.split('/').map(segment => 
-        segment ? encodeURIComponent(decodeURIComponent(segment)) : segment
-      );
+      // Ensure proper encoding for file names with special characters
+      const pathSegments = urlObj.pathname.split('/').map(segment => {
+        if (segment) {
+          // Decode first to handle already encoded segments
+          const decoded = decodeURIComponent(segment);
+          // Then encode properly
+          return encodeURIComponent(decoded);
+        }
+        return segment;
+      });
       processedUrl = `${urlObj.origin}${pathSegments.join('/')}${urlObj.search}${urlObj.hash}`;
+      
+      console.log('🔗 Processed Supabase URL:', processedUrl);
     }
 
-    // Test if URL is accessible
+    // Test if URL is accessible with better error handling
     try {
-      const response = await fetch(processedUrl, { method: 'HEAD' });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(processedUrl, { 
+        method: 'HEAD',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/pdf,*/*'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
         return { 
           isValid: false, 
-          error: `File not accessible (HTTP ${response.status})`,
+          error: `File not accessible (HTTP ${response.status}: ${response.statusText})`,
           processedUrl 
         };
       }
 
-      // Check content type if available
+      // Enhanced content type checking
       const contentType = response.headers.get('content-type');
-      if (contentType && !contentType.includes('pdf') && !contentType.includes('application/octet-stream')) {
-        console.warn('⚠️ Unexpected content type for PDF:', contentType);
+      if (contentType) {
+        const isPDF = contentType.includes('pdf') || 
+                     contentType.includes('application/octet-stream') ||
+                     contentType.includes('binary/octet-stream');
+        
+        if (!isPDF) {
+          console.warn('⚠️ Unexpected content type for PDF:', contentType);
+        }
       }
+      
+      console.log('✅ PDF URL validation successful:', processedUrl);
     } catch (fetchError) {
-      console.warn('⚠️ Could not verify PDF accessibility:', fetchError);
-      // Continue anyway as the fetch might fail due to CORS but PDF.js might still work
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        return {
+          isValid: false,
+          error: 'Request timeout - PDF file may be too large or server is slow',
+          processedUrl
+        };
+      }
+      
+      console.warn('⚠️ Could not verify PDF accessibility (continuing anyway):', fetchError);
+      // Continue anyway as CORS might block HEAD requests but PDF.js might still work
     }
 
     return { isValid: true, processedUrl };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ PDF URL validation failed:', errorMessage);
+    
     return { 
       isValid: false, 
-      error: `URL validation failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      error: `URL validation failed: ${errorMessage}` 
     };
   }
 };
@@ -95,7 +134,16 @@ export const updateStorageCORS = async (bucketName: string) => {
  */
 export const getPDFMetadata = async (url: string) => {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(url, { 
+      method: 'HEAD',
+      signal: controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
+    
     return {
       size: response.headers.get('content-length'),
       lastModified: response.headers.get('last-modified'),
