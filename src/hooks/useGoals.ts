@@ -20,21 +20,34 @@ export const useGoals = () => {
   const queryClient = useQueryClient();
   const channelRef = useRef<any>(null);
   const isSubscribedRef = useRef<boolean>(false);
+  const currentUserIdRef = useRef<string | null>(null);
+
+  // Cleanup function
+  const cleanup = () => {
+    if (channelRef.current && isSubscribedRef.current) {
+      try {
+        supabase.removeChannel(channelRef.current);
+        console.log('🧹 Cleaned up goals channel');
+      } catch (error) {
+        console.log('Error removing goals channel:', error);
+      }
+      channelRef.current = null;
+      isSubscribedRef.current = false;
+    }
+  };
 
   useEffect(() => {
-    if (user && !isSubscribedRef.current) {
+    // Only setup subscription if user changed or we don't have an active subscription
+    if (user?.id && (currentUserIdRef.current !== user.id || !isSubscribedRef.current)) {
+      console.log('🔗 Setting up goals real-time subscription for user:', user.id);
+      
       loadGoals();
       
-      // Clean up any existing channel before creating a new one
-      if (channelRef.current) {
-        try {
-          supabase.removeChannel(channelRef.current);
-        } catch (error) {
-          console.log('Error removing previous goals channel:', error);
-        }
-        channelRef.current = null;
-        isSubscribedRef.current = false;
-      }
+      // Clean up previous subscription if exists
+      cleanup();
+      
+      // Update current user reference
+      currentUserIdRef.current = user.id;
 
       // Create a unique channel for goals
       const channelName = `goals-changes-${user.id}-${Date.now()}`;
@@ -64,19 +77,21 @@ export const useGoals = () => {
       });
 
       channelRef.current = channel;
-
-      return () => {
-        if (channelRef.current && isSubscribedRef.current) {
-          try {
-            supabase.removeChannel(channelRef.current);
-          } catch (error) {
-            console.log('Error removing goals channel on cleanup:', error);
-          }
-          channelRef.current = null;
-          isSubscribedRef.current = false;
-        }
-      };
     }
+
+    // Cleanup when user logs out
+    if (!user?.id) {
+      cleanup();
+      currentUserIdRef.current = null;
+    }
+
+    // Cleanup function for effect
+    return () => {
+      // Only cleanup if user is changing, not on every re-render
+      if (!user?.id || currentUserIdRef.current !== user.id) {
+        cleanup();
+      }
+    };
   }, [user?.id]); // Only depend on user.id
 
   const loadGoals = async () => {

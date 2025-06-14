@@ -26,26 +26,39 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
   const channelRef = useRef<any>(null);
   const isSubscribedRef = useRef<boolean>(false);
+  const currentUserIdRef = useRef<string | null>(null);
 
   const refreshStats = async () => {
     await fetchUserStats();
     setLastUpdate(Date.now());
   };
 
-  useEffect(() => {
-    if (user && !isSubscribedRef.current) {
-      // Clean up any existing channel before creating a new one
-      if (channelRef.current) {
-        try {
-          supabase.removeChannel(channelRef.current);
-        } catch (error) {
-          console.log('Error removing previous channel:', error);
-        }
-        channelRef.current = null;
-        isSubscribedRef.current = false;
+  // Cleanup function
+  const cleanup = () => {
+    if (channelRef.current && isSubscribedRef.current) {
+      try {
+        supabase.removeChannel(channelRef.current);
+        console.log('🧹 Cleaned up gamification channel');
+      } catch (error) {
+        console.log('Error removing channel:', error);
       }
+      channelRef.current = null;
+      isSubscribedRef.current = false;
+    }
+  };
 
-      // Create a single channel with a unique name to prevent conflicts
+  useEffect(() => {
+    // Only setup subscription if user changed or we don't have an active subscription
+    if (user?.id && (currentUserIdRef.current !== user.id || !isSubscribedRef.current)) {
+      console.log('🔗 Setting up gamification real-time subscription for user:', user.id);
+      
+      // Clean up previous subscription if exists
+      cleanup();
+      
+      // Update current user reference
+      currentUserIdRef.current = user.id;
+
+      // Create a single channel with a unique name
       const channelName = `gamification-updates-${user.id}-${Date.now()}`;
       const channel = supabase.channel(channelName);
 
@@ -116,19 +129,21 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       // Store the channel reference for cleanup
       channelRef.current = channel;
-
-      return () => {
-        if (channelRef.current && isSubscribedRef.current) {
-          try {
-            supabase.removeChannel(channelRef.current);
-          } catch (error) {
-            console.log('Error removing channel on cleanup:', error);
-          }
-          channelRef.current = null;
-          isSubscribedRef.current = false;
-        }
-      };
     }
+
+    // Cleanup when user logs out
+    if (!user?.id) {
+      cleanup();
+      currentUserIdRef.current = null;
+    }
+
+    // Cleanup function for effect
+    return () => {
+      // Only cleanup if user is changing, not on every re-render
+      if (!user?.id || currentUserIdRef.current !== user.id) {
+        cleanup();
+      }
+    };
   }, [user?.id]); // Only depend on user.id to avoid recreation
 
   // Auto-refresh on mount
