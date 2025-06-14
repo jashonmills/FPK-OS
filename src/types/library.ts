@@ -41,4 +41,5 @@ export interface OpenLibraryWorkResponse {
   description?: string | { value: string };
   subjects?: string[];
   first_publish_date?: string;
+  ocaid?: string;
 }
