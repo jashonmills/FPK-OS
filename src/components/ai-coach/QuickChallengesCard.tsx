@@ -15,6 +15,8 @@ interface Challenge {
   icon: React.ComponentType<any>;
   action: () => void;
   component: React.ComponentType<any>;
+  colorClass: string;
+  hoverColorClass: string;
 }
 
 interface QuickChallengesCardProps {
@@ -26,35 +28,43 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedCustomCards, setSelectedCustomCards] = useState<any[]>([]);
 
-  // Enhanced challenges with component mapping
+  // Enhanced challenges with component mapping and colors
   const enhancedChallenges: Challenge[] = [
     {
       id: 'quick-review',
       text: `Quick review: 3 random flashcards`,
       icon: BookOpen,
       action: () => setActiveChallenge('quick-review'),
-      component: QuickReview
+      component: QuickReview,
+      colorClass: 'bg-blue-50 border-blue-200 text-blue-800',
+      hoverColorClass: 'hover:bg-blue-100 hover:border-blue-300'
     },
     {
       id: 'accuracy-challenge',
       text: 'Accuracy challenge: Score 80%+ on 5 cards',
       icon: Target,
       action: () => setActiveChallenge('accuracy-challenge'),
-      component: AccuracyChallenge
+      component: AccuracyChallenge,
+      colorClass: 'bg-green-50 border-green-200 text-green-800',
+      hoverColorClass: 'hover:bg-green-100 hover:border-green-300'
     },
     {
       id: 'speed-test',
       text: 'Speed test: Answer 5 cards in 2 minutes',
       icon: Zap,
       action: () => setActiveChallenge('speed-test'),
-      component: SpeedTest
+      component: SpeedTest,
+      colorClass: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+      hoverColorClass: 'hover:bg-yellow-100 hover:border-yellow-300'
     },
     {
       id: 'custom-practice',
       text: 'Custom practice: Choose your own cards',
       icon: CheckSquare,
       action: () => setShowSelectionModal(true),
-      component: CustomPractice
+      component: CustomPractice,
+      colorClass: 'bg-purple-50 border-purple-200 text-purple-800',
+      hoverColorClass: 'hover:bg-purple-100 hover:border-purple-300'
     }
   ];
 
@@ -83,11 +93,11 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
               {enhancedChallenges.map((challenge) => (
                 <Button 
                   key={challenge.id}
-                  variant={activeChallenge === challenge.id ? "default" : "outline"} 
-                  className={`w-full justify-start text-left h-auto py-3 px-3 sm:py-4 sm:px-4 transition-all duration-200 ${
+                  variant="outline"
+                  className={`w-full justify-start text-left h-auto py-3 px-3 sm:py-4 sm:px-4 transition-all duration-200 border-2 ${
                     activeChallenge === challenge.id 
-                      ? 'ring-2 ring-primary ring-offset-2 bg-primary text-primary-foreground' 
-                      : 'hover:bg-accent hover:text-accent-foreground'
+                      ? `${challenge.colorClass} ring-2 ring-offset-2 shadow-md border-opacity-100` 
+                      : `${challenge.colorClass} border-opacity-50 ${challenge.hoverColorClass}`
                   }`}
                   onClick={challenge.action}
                 >
