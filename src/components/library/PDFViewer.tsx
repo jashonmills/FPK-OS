@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { configurePDFWorker, validatePDFWorker } from '@/utils/pdfWorkerConfig';
+import { isPDFWorkerReady, reconfigurePDFWorker } from '@/utils/pdfWorkerConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -22,31 +22,14 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [scale, setScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [workerReady, setWorkerReady] = useState<boolean>(false);
   const { toast } = useToast();
 
-  // Initialize PDF worker on component mount
+  // Simple worker check on mount
   useEffect(() => {
-    const initializeWorker = async () => {
-      console.log('🔧 Initializing PDF.js worker...');
-      
-      const configSuccess = configurePDFWorker();
-      if (!configSuccess) {
-        setError('Failed to configure PDF processing engine');
-        return;
-      }
-      
-      const validationSuccess = await validatePDFWorker();
-      if (!validationSuccess) {
-        setError('PDF processing engine validation failed');
-        return;
-      }
-      
-      setWorkerReady(true);
-      console.log('✅ PDF.js worker ready');
-    };
-
-    initializeWorker();
+    if (!isPDFWorkerReady()) {
+      console.log('🔧 PDF worker not ready, reconfiguring...');
+      reconfigurePDFWorker();
+    }
   }, []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -90,20 +73,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
     setIsLoading(true);
     setNumPages(0);
     setPageNumber(1);
-    setWorkerReady(false);
     
-    // Reinitialize worker
-    const configSuccess = configurePDFWorker();
-    if (configSuccess) {
-      validatePDFWorker().then(success => {
-        setWorkerReady(success);
-        if (!success) {
-          setError('PDF processing engine validation failed');
-        }
-      });
-    } else {
-      setError('Failed to configure PDF processing engine');
-    }
+    // Ensure worker is configured before retry
+    reconfigurePDFWorker();
   };
 
   const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
@@ -149,25 +121,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
                     Close
                   </Button>
                 </div>
-              </div>
-            </div>
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // Show loading state while worker initializes
-  if (!workerReady) {
-    return (
-      <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-md">
-          <DialogTitle>Initializing PDF Viewer</DialogTitle>
-          <DialogDescription>
-            <div className="flex items-center justify-center p-8">
-              <div className="text-center space-y-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p>Setting up PDF processing engine...</p>
               </div>
             </div>
           </DialogDescription>
