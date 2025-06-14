@@ -38,13 +38,12 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
     containerRef.current = container;
     
     try {
-      // Create rendition with optimized settings
+      // Create rendition with correct EPUB.js API
       const rendition = book.renderTo(container, {
         width: '100%',
         height: '100%',
         spread: 'none',
-        allowScriptedContent: false, // Security and performance
-        allowPopups: false
+        allowScriptedContent: false // Security and performance
       });
 
       // Configure styling

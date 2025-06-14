@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 
 export interface EPUBLoadingProgress {
-  stage: 'initializing' | 'connecting' | 'downloading' | 'parsing' | 'ready';
+  stage: 'downloading' | 'processing' | 'ready';
   percentage: number;
   message: string;
   bytesLoaded?: number;
@@ -12,7 +12,7 @@ export interface EPUBLoadingProgress {
 }
 
 export interface EPUBLoadError {
-  type: 'network' | 'timeout' | 'parsing' | 'cors' | 'unknown';
+  type: 'network' | 'timeout' | 'parsing' | 'unknown';
   message: string;
   recoverable: boolean;
   retryCount: number;
@@ -82,10 +82,6 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
     } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
       type = 'network';
       message = 'Network connection issue. Please check your internet connection.';
-    } else if (error.message?.includes('CORS') || error.message?.includes('cors')) {
-      type = 'cors';
-      message = 'Unable to access this book due to server restrictions.';
-      recoverable = true;
     } else if (error.message?.includes('parse') || error.message?.includes('invalid')) {
       type = 'parsing';
       message = 'This book file appears to be corrupted or incompatible.';
@@ -116,21 +112,19 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       
       console.log('📖 Starting optimized EPUB load for:', book.title);
       
-      updateProgress('initializing', 5, 'Preparing to load book...');
+      updateProgress('downloading', 25, 'Downloading book content...');
       
       // Load EPUB.js module if not already loaded
       if (!epubModuleRef.current) {
-        updateProgress('initializing', 15, 'Loading EPUB reader...');
+        updateProgress('processing', 35, 'Loading EPUB reader...');
         epubModuleRef.current = await import('epubjs');
       }
       
       const EPubLib = epubModuleRef.current.default;
       
-      updateProgress('connecting', 25, 'Connecting to book server...');
+      updateProgress('processing', 50, 'Processing book structure...');
       
       const epubUrl = getOptimalEPUBUrl();
-      
-      updateProgress('downloading', 35, 'Downloading book content...');
       
       // Create EPUB instance with proper error handling
       const newEpubInstance = EPubLib(epubUrl);
@@ -141,7 +135,7 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
         abortControllerRef.current?.abort();
       }, timeout);
       
-      updateProgress('parsing', 50, 'Processing book structure...');
+      updateProgress('processing', 75, 'Preparing book for reading...');
       
       // Wait for book to be ready with proper error boundaries
       await Promise.race([
@@ -155,8 +149,6 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       
       clearTimeout(timeoutId);
       console.log('✅ EPUB instance ready');
-      
-      updateProgress('parsing', 75, 'Loading navigation...');
       
       // Set the instance early to prevent race conditions
       setEpubInstance(newEpubInstance);
@@ -199,7 +191,7 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
         const retryDelay = 1000 + (retryCountRef.current * 1500); // Progressive delay
         
         console.log(`🔄 Retrying optimized load... Attempt ${retryCountRef.current}/${MAX_RETRIES}`);
-        updateProgress('connecting', 10, `Retrying with different settings... (${retryCountRef.current}/${MAX_RETRIES})`);
+        updateProgress('downloading', 10, `Retrying with different settings... (${retryCountRef.current}/${MAX_RETRIES})`);
         
         setTimeout(() => {
           loadEPUB();
