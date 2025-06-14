@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useGamification } from '@/hooks/useGamification';
@@ -24,6 +24,7 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { user } = useAuth();
   const { userStats, fetchUserStats, isLoading } = useGamification();
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+  const channelRef = useRef<any>(null);
 
   const refreshStats = async () => {
     await fetchUserStats();
@@ -32,9 +33,18 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     if (user) {
-      // Subscribe to real-time updates for gamification-related tables
-      const xpChannel = supabase
-        .channel('gamification-updates')
+      // Clean up any existing channel before creating a new one
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+
+      // Create a single channel with a unique name to prevent conflicts
+      const channelName = `gamification-updates-${user.id}`;
+      const channel = supabase.channel(channelName);
+
+      // Configure all the real-time listeners
+      channel
         .on(
           'postgres_changes',
           {
@@ -86,14 +96,24 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             console.log('Real-time streak update detected');
             refreshStats();
           }
-        )
-        .subscribe();
+        );
+
+      // Subscribe to the channel
+      channel.subscribe((status) => {
+        console.log('Gamification channel subscription status:', status);
+      });
+
+      // Store the channel reference for cleanup
+      channelRef.current = channel;
 
       return () => {
-        supabase.removeChannel(xpChannel);
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current);
+          channelRef.current = null;
+        }
       };
     }
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id to avoid recreation
 
   // Auto-refresh on mount
   useEffect(() => {

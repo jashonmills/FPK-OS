@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,33 +18,50 @@ export const useGoals = () => {
   const { toast } = useToast();
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
     if (user) {
       loadGoals();
-      // Subscribe to real-time goal updates
-      const channel = supabase
-        .channel('goals-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'goals',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('Real-time goal update:', payload);
-            loadGoals(); // Refresh goals when changes occur
-          }
-        )
-        .subscribe();
+      
+      // Clean up any existing channel before creating a new one
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+
+      // Create a unique channel for goals
+      const channelName = `goals-changes-${user.id}`;
+      const channel = supabase.channel(channelName);
+
+      channel.on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'goals',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Real-time goal update:', payload);
+          loadGoals(); // Refresh goals when changes occur
+        }
+      );
+
+      channel.subscribe((status) => {
+        console.log('Goals channel subscription status:', status);
+      });
+
+      channelRef.current = channel;
 
       return () => {
-        supabase.removeChannel(channel);
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current);
+          channelRef.current = null;
+        }
       };
     }
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id
 
   const loadGoals = async () => {
     try {
