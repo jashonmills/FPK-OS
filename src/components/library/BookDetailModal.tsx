@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { Book } from '@/types/library';
-import { BookOpen, X } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import EPUBReader from './EPUBReader';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
@@ -60,13 +60,8 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({ book, onClose }) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span className={`text-xl ${getAccessibilityClasses('text')}`}>
-              Book Details
-            </span>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+          <DialogTitle className={`text-xl ${getAccessibilityClasses('text')}`}>
+            Book Details
           </DialogTitle>
         </DialogHeader>
 
