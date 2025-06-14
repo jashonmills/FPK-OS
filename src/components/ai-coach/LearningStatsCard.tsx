@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Trophy } from 'lucide-react';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamificationContext } from '@/contexts/GamificationContext';
 import XPProgressBar from '@/components/gamification/XPProgressBar';
 
 interface LearningStatsCardProps {
@@ -17,13 +16,9 @@ const LearningStatsCard: React.FC<LearningStatsCardProps> = ({
   currentStreak: propCurrentStreak,
   progressToNextLevel: propProgressToNextLevel
 }) => {
-  const { userStats, fetchUserStats, isLoading } = useGamification();
+  const { userStats, isLoading } = useGamificationContext();
 
-  useEffect(() => {
-    fetchUserStats();
-  }, [fetchUserStats]);
-
-  // Use data from gamification system if available, otherwise fall back to props
+  // Use data from gamification context if available, otherwise fall back to props
   const xpData = userStats?.xp || { total_xp: propTotalXP || 0, level: 1, next_level_xp: 100 };
   const streaks = userStats?.streaks || [];
   const currentStreak = streaks.find(s => s.streak_type === 'study')?.current_count || propCurrentStreak || 0;
@@ -40,6 +35,7 @@ const LearningStatsCard: React.FC<LearningStatsCardProps> = ({
           <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
             <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
             <span className="truncate">Learning Progress</span>
+            <div className="animate-spin h-4 w-4 border-2 border-purple-600 border-t-transparent rounded-full"></div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 pt-0">
@@ -75,13 +71,13 @@ const LearningStatsCard: React.FC<LearningStatsCardProps> = ({
       <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 pt-0">
         <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
           <div className="text-center min-w-0 overflow-hidden">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600 truncate">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600 truncate animate-fade-in">
               {xpData.total_xp.toLocaleString()}
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground truncate">Total XP</div>
           </div>
           <div className="text-center min-w-0 overflow-hidden">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600 truncate">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600 truncate animate-fade-in">
               {currentStreak}
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground truncate">Day Streak</div>

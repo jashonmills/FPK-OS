@@ -11,35 +11,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
+import { useGamificationContext } from '@/contexts/GamificationContext';
 
 const Goals = () => {
   const { t } = useDualLanguage();
   const { goals, loading: goalsLoading } = useGoals();
   const { user } = useAuth();
+  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
 
-  // Fetch user profile data for XP and streak
-  const { data: profile } = useQuery({
-    queryKey: ['profile', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('total_xp, current_streak')
-        .eq('id', user.id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return { total_xp: 0, current_streak: 0 };
-      }
-      return data || { total_xp: 0, current_streak: 0 };
-    },
-    enabled: !!user,
-  });
-
-  // Fetch achievements data
+  // Fetch achievements data with real-time invalidation
   const { data: achievements = [] } = useQuery({
-    queryKey: ['achievements', user?.id],
+    queryKey: ['achievements', user?.id, userStats?.xp?.total_xp], // Include XP in key to trigger refresh
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
@@ -60,10 +42,11 @@ const Goals = () => {
   // Filter active goals
   const activeGoals = goals.filter(goal => goal.status === 'active') || [];
 
-  // Calculate progress data from real goals
-  const totalXP = profile?.total_xp || 0;
+  // Use gamification context data
+  const totalXP = userStats?.xp?.total_xp || 0;
   const targetXP = 4000; // This could be made dynamic based on user level
-  const currentStreak = profile?.current_streak || 0;
+  const streaks = userStats?.streaks || [];
+  const currentStreak = streaks.find(s => s.streak_type === 'study')?.current_count || 0;
   const xpProgress = totalXP > 0 ? Math.round((totalXP / targetXP) * 100) : 0;
 
   // Goal reminders - these could be stored in database later
@@ -167,6 +150,9 @@ const Goals = () => {
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0" />
                 <span className="truncate">Achievements & Rewards</span>
+                {gamificationLoading && (
+                  <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full"></div>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-4 md:p-6 pt-0">
@@ -178,7 +164,7 @@ const Goals = () => {
                 </div>
               ) : (
                 achievements.slice(0, 5).map((achievement) => (
-                  <div key={achievement.id} className="flex items-center gap-2 sm:gap-3">
+                  <div key={achievement.id} className="flex items-center gap-2 sm:gap-3 animate-fade-in">
                     <span className="text-base sm:text-xl flex-shrink-0">🏆</span>
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="font-medium text-xs sm:text-sm truncate">
@@ -186,7 +172,7 @@ const Goals = () => {
                       </p>
                       <p className="text-xs text-gray-500">+{achievement.xp_reward} XP</p>
                     </div>
-                    <span className="text-gray-500 text-xs flex-shrink-0">✓</span>
+                    <span className="text-green-500 text-xs flex-shrink-0">✓</span>
                   </div>
                 ))
               )}
@@ -230,6 +216,9 @@ const Goals = () => {
                 <span className="text-lg sm:text-xl md:text-2xl font-bold text-amber-800 truncate">
                   {totalXP.toLocaleString()}
                 </span>
+                {gamificationLoading && (
+                  <div className="animate-pulse ml-2 h-4 w-8 bg-amber-200 rounded"></div>
+                )}
               </div>
               <p className="text-amber-700 font-medium text-sm sm:text-base">Total XP</p>
               {totalXP === 0 && (
@@ -246,6 +235,9 @@ const Goals = () => {
                 <span className="text-lg sm:text-xl md:text-2xl font-bold text-red-800 truncate">
                   {currentStreak}
                 </span>
+                {gamificationLoading && (
+                  <div className="animate-pulse ml-2 h-4 w-8 bg-red-200 rounded"></div>
+                )}
               </div>
               <p className="text-red-700 font-medium text-sm sm:text-base">Day Streak</p>
               {currentStreak === 0 && (
