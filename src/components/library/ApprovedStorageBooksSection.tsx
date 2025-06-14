@@ -6,17 +6,15 @@ import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { FileText, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import PDFViewer from './PDFViewer';
+import EnhancedPDFViewer from './EnhancedPDFViewer';
 import CommunityBooksListView from './CommunityBooksListView';
 import CommunityBooksGridView from './CommunityBooksGridView';
-import { validatePDFUrl } from '@/utils/pdfUtils';
 
 type ViewMode = 'list' | 'grid';
 
 const ApprovedStorageBooksSection: React.FC = () => {
   const { approvedUploads, isLoadingApproved } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
-  const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Collapsible and view mode state with localStorage persistence - defaulting to closed
@@ -40,42 +38,8 @@ const ApprovedStorageBooksSection: React.FC = () => {
   }, [viewMode]);
 
   const handlePDFOpen = async (book: any) => {
-    setValidatingPDF(book.id);
-    
-    try {
-      console.log('🔍 Validating PDF before opening:', book.file_name);
-      
-      const validation = await validatePDFUrl(book.file_url);
-      
-      if (!validation.isValid) {
-        toast({
-          title: "PDF Error",
-          description: validation.error || "The PDF file cannot be loaded.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Update the book with the processed URL if it was modified
-      const bookToOpen = validation.processedUrl !== book.file_url 
-        ? { ...book, file_url: validation.processedUrl }
-        : book;
-        
-      setSelectedPDF(bookToOpen);
-      
-    } catch (error) {
-      console.error('❌ PDF validation failed:', error);
-      toast({
-        title: "Validation Error",
-        description: "Could not validate the PDF file. It may still load.",
-        variant: "destructive"
-      });
-      
-      // Still try to open the PDF
-      setSelectedPDF(book);
-    } finally {
-      setValidatingPDF(null);
-    }
+    console.log('📖 Opening PDF with enhanced viewer:', book.file_name);
+    setSelectedPDF(book);
   };
 
   if (isLoadingApproved) {
@@ -164,13 +128,11 @@ const ApprovedStorageBooksSection: React.FC = () => {
                     <CommunityBooksListView 
                       books={approvedUploads} 
                       onView={handlePDFOpen}
-                      validatingPDF={validatingPDF}
                     />
                   ) : (
                     <CommunityBooksGridView 
                       books={approvedUploads} 
                       onView={handlePDFOpen}
-                      validatingPDF={validatingPDF}
                     />
                   )}
                 </div>
@@ -180,9 +142,9 @@ const ApprovedStorageBooksSection: React.FC = () => {
         </Collapsible>
       </Card>
 
-      {/* PDF Viewer Modal */}
+      {/* Enhanced PDF Viewer Modal */}
       {selectedPDF && (
-        <PDFViewer
+        <EnhancedPDFViewer
           fileUrl={selectedPDF.file_url}
           fileName={selectedPDF.file_name}
           onClose={() => setSelectedPDF(null)}
