@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, Brain, TrendingUp } from 'lucide-react';
@@ -92,6 +93,9 @@ const AIStudyCoach = () => {
         </CardContent>
       </Card>
 
+      {/* Quick Study Challenges Section */}
+      <QuickChallengesCard challenges={quickChallenges} flashcards={flashcards} />
+
       {/* Main Content Layout */}
       <div className="space-y-3 sm:space-y-4 lg:space-y-6 lg:grid lg:grid-cols-3 lg:gap-4 xl:gap-6 lg:space-y-0 overflow-hidden">
         {/* Chat Interface - Full width on mobile, 2/3 on desktop */}
@@ -108,7 +112,6 @@ const AIStudyCoach = () => {
         <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-1 lg:order-2 min-w-0 max-w-full">
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />
-          <QuickChallengesCard challenges={quickChallenges} flashcards={flashcards} />
           <LearningStatsCard
             totalXP={totalXP}
             currentStreak={currentStreak}
