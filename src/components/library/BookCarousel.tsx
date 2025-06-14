@@ -39,10 +39,10 @@ const BookCarousel: React.FC<BookCarouselProps> = ({
 }) => {
   const { getAccessibilityClasses } = useAccessibility();
   
-  // View mode state with localStorage persistence
+  // View mode state with localStorage persistence - defaulting to carousel
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = localStorage.getItem(`${sectionId}-viewMode`);
-    return (saved as ViewMode) || 'carousel';
+    return (saved as ViewMode) || 'carousel'; // Explicitly defaulting to carousel
   });
 
   // Persist view mode changes to localStorage

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -20,10 +19,10 @@ const ApprovedStorageBooksSection: React.FC = () => {
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Collapsible and view mode state with localStorage persistence
+  // Collapsible and view mode state with localStorage persistence - defaulting to closed
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem('communityLibrary-expanded');
-    return saved !== null ? JSON.parse(saved) : true;
+    return saved !== null ? JSON.parse(saved) : false; // Changed from true to false
   });
   
   const [viewMode, setViewMode] = useState<ViewMode>(() => {

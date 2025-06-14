@@ -16,10 +16,10 @@ const UserUploadsSection: React.FC = () => {
   const { userUploads, isLoadingUserUploads } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<UserUploadedBook | null>(null);
   
-  // Collapsible and view mode state with localStorage persistence
+  // Collapsible and view mode state with localStorage persistence - defaulting to closed
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem('userUploads-expanded');
-    return saved !== null ? JSON.parse(saved) : true;
+    return saved !== null ? JSON.parse(saved) : false; // Changed from true to false
   });
   
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
