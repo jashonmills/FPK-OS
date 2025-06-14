@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface PDFLoadingProgress {
@@ -6,6 +5,8 @@ export interface PDFLoadingProgress {
   percentage: number;
   message: string;
   estimatedTimeRemaining?: number;
+  bytesLoaded?: number;
+  totalBytes?: number;
 }
 
 export interface PDFValidationResult {

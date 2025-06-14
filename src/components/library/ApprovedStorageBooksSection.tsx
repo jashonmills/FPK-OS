@@ -15,6 +15,7 @@ type ViewMode = 'list' | 'grid';
 const ApprovedStorageBooksSection: React.FC = () => {
   const { approvedUploads, isLoadingApproved } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
+  const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Collapsible and view mode state with localStorage persistence - defaulting to closed
@@ -39,7 +40,21 @@ const ApprovedStorageBooksSection: React.FC = () => {
 
   const handlePDFOpen = async (book: any) => {
     console.log('📖 Opening PDF with enhanced viewer:', book.file_name);
-    setSelectedPDF(book);
+    setValidatingPDF(book.id);
+    
+    try {
+      // Add a small delay to show validation state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setSelectedPDF(book);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to open PDF viewer",
+        variant: "destructive"
+      });
+    } finally {
+      setValidatingPDF(null);
+    }
   };
 
   if (isLoadingApproved) {
@@ -128,11 +143,13 @@ const ApprovedStorageBooksSection: React.FC = () => {
                     <CommunityBooksListView 
                       books={approvedUploads} 
                       onView={handlePDFOpen}
+                      validatingPDF={validatingPDF}
                     />
                   ) : (
                     <CommunityBooksGridView 
                       books={approvedUploads} 
                       onView={handlePDFOpen}
+                      validatingPDF={validatingPDF}
                     />
                   )}
                 </div>
