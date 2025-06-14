@@ -4,7 +4,7 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
-import EPUBReader from './EPUBReader';
+import EnhancedEPUBReader from './EnhancedEPUBReader';
 
 const PublicDomainBooksSection: React.FC = () => {
   const { books, isLoading, error } = usePublicDomainBooks();
@@ -40,9 +40,9 @@ const PublicDomainBooksSection: React.FC = () => {
         error={error}
       />
 
-      {/* EPUB Reader Modal */}
+      {/* Enhanced EPUB Reader Modal */}
       {selectedBook && (
-        <EPUBReader book={selectedBook} onClose={handleCloseReader} />
+        <EnhancedEPUBReader book={selectedBook} onClose={handleCloseReader} />
       )}
     </>
   );

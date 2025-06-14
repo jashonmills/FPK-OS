@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useEnhancedEPUBLoader } from '@/hooks/useEnhancedEPUBLoader';
-import { useEPUBRendition } from '@/hooks/useEPUBRendition';
+import { useOptimizedEPUBLoader } from '@/hooks/useOptimizedEPUBLoader';
+import { useOptimizedEPUBRendition } from '@/hooks/useOptimizedEPUBRendition';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import {
@@ -33,7 +33,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     loadEPUB,
     retryLoad,
     abortLoad
-  } = useEnhancedEPUBLoader(book);
+  } = useOptimizedEPUBLoader(book);
 
   const {
     currentLocation,
@@ -44,7 +44,8 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     handleFontSizeChange: changeFontSize,
     handleTOCItemClick,
     forceLayoutRefresh,
-  } = useEPUBRendition(epubInstance);
+    isInitialized
+  } = useOptimizedEPUBRendition(epubInstance);
 
   const {
     progress: readingProgress,
@@ -54,31 +55,42 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     updateLocation,
   } = useReadingProgress(book.id);
 
-  // Initialize EPUB loading
+  // Initialize EPUB loading on mount
   useEffect(() => {
+    console.log('🚀 Starting optimized EPUB reader for:', book.title);
     loadEPUB();
+    
     return () => {
+      console.log('🛑 Aborting EPUB load for:', book.title);
       abortLoad();
     };
-  }, [loadEPUB, abortLoad]);
+  }, [loadEPUB, abortLoad, book.title]);
 
-  // Initialize rendition when EPUB is loaded
+  // Initialize rendition when EPUB is ready
   useEffect(() => {
-    if (!isLoading && !error && epubInstance && readerRef.current) {
+    if (!isLoading && !error && epubInstance && readerRef.current && !isInitialized) {
       console.log('🎨 Initializing enhanced EPUB rendition');
       initializeRendition(readerRef.current, fontSize);
       
       // Start reading session
-      startSession(readingProgress?.current_cfi);
-      
-      // Restore reading position
       if (readingProgress?.current_cfi) {
-        setTimeout(() => {
-          // The rendition will handle restoring position
-        }, 1000);
+        console.log('📖 Starting session with saved position');
+        startSession(readingProgress.current_cfi);
+      } else {
+        console.log('📖 Starting new reading session');
+        startSession();
       }
     }
-  }, [isLoading, error, epubInstance, initializeRendition, fontSize, startSession, readingProgress]);
+  }, [isLoading, error, epubInstance, initializeRendition, fontSize, isInitialized, startSession, readingProgress]);
+
+  // Restore reading position when rendition is ready
+  useEffect(() => {
+    if (isInitialized && currentLocation && readingProgress?.current_cfi && !isNavigating) {
+      // Only restore position once when first initialized
+      console.log('📍 Restoring reading position');
+      // The position restoration will be handled by the reading progress hook
+    }
+  }, [isInitialized, currentLocation, readingProgress, isNavigating]);
 
   const onFontSizeChange = (delta: number) => {
     const newSize = Math.max(12, Math.min(24, fontSize + delta));
@@ -88,23 +100,54 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
 
   // Track location changes for progress saving
   useEffect(() => {
-    if (currentLocation && !isNavigating) {
+    if (currentLocation && !isNavigating && isInitialized) {
       updateLocation(currentLocation);
     }
-  }, [currentLocation, isNavigating, updateLocation]);
+  }, [currentLocation, isNavigating, updateLocation, isInitialized]);
 
   // End session on unmount
   useEffect(() => {
     return () => {
       if (currentLocation) {
+        console.log('💾 Ending reading session');
         endSession(currentLocation);
       }
     };
   }, [endSession, currentLocation]);
 
+  // Add keyboard navigation
+  useEffect(() => {
+    if (isLoading || error || !isInitialized) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isNavigating) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          handlePrevPage();
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case ' ':
+          event.preventDefault();
+          handleNextPage();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          onClose();
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isLoading, error, isNavigating, handlePrevPage, handleNextPage, onClose, isInitialized]);
+
   // Add touch/swipe navigation
   useEffect(() => {
-    if (!readerRef.current || isLoading || error || isNavigating) return;
+    if (!readerRef.current || isLoading || error || !isInitialized) return;
 
     let startX = 0;
     let startY = 0;
@@ -115,7 +158,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     };
     
     const handleTouchEnd = (e: TouchEvent) => {
-      if (!startX || !startY) return;
+      if (!startX || !startY || isNavigating) return;
       
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
@@ -143,18 +186,18 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
       container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isLoading, error, isNavigating, handlePrevPage, handleNextPage]);
+  }, [isLoading, error, isNavigating, handlePrevPage, handleNextPage, isInitialized]);
 
-  // Layout refresh
+  // Layout refresh when needed
   useEffect(() => {
-    if (!isLoading && !error && !isNavigating) {
+    if (!isLoading && !error && !isNavigating && isInitialized) {
       const timer = setTimeout(() => {
         forceLayoutRefresh();
       }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [isLoading, error, isNavigating, forceLayoutRefresh]);
+  }, [isLoading, error, isNavigating, forceLayoutRefresh, isInitialized]);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -190,7 +233,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
             <div className="flex-1 relative overflow-hidden">
               <div
                 ref={readerRef}
-                className="w-full h-full"
+                className="w-full h-full bg-background"
                 tabIndex={0}
                 role="main"
                 aria-label={`Reading ${book.title} by ${book.author}`}
