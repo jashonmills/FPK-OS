@@ -21,14 +21,16 @@ const FileUploadSection: React.FC = () => {
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
-  // Set up real-time subscription for completion handling
+  // Set up real-time subscription for completion handling with unique channel name
   useEffect(() => {
     if (!user) return;
 
     console.log('🔄 Setting up enhanced real-time subscription for file uploads');
 
+    // Use a unique channel name to avoid conflicts
+    const channelName = `notes-file-uploads-${user.id}-${Date.now()}`;
     const channel = supabase
-      .channel('enhanced-file-uploads')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -140,7 +142,7 @@ const FileUploadSection: React.FC = () => {
       console.log('🔌 Cleaning up enhanced real-time subscription');
       supabase.removeChannel(channel);
     };
-  }, [user, toast, processingTimeouts, addPreviewCards, completeStage, errorStage]);
+  }, [user, toast, addPreviewCards, completeStage, errorStage]);
 
   // Clean up timeouts on component unmount
   useEffect(() => {

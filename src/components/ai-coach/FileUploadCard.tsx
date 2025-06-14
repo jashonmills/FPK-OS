@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,12 +33,14 @@ const FileUploadCard: React.FC = () => {
 
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  // Set up real-time subscription
+  // Set up real-time subscription with unique channel name
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name to avoid conflicts with other file upload components
+    const channelName = `ai-coach-file-uploads-${user.id}-${Date.now()}`;
     const channel = supabase
-      .channel('ai-coach-file-uploads')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -104,7 +105,7 @@ const FileUploadCard: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, toast, processingTimeouts]);
+  }, [user, toast]);
 
   // Clean up timeouts on component unmount
   useEffect(() => {

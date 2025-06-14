@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -125,14 +124,16 @@ export const useNotifications = () => {
     }
   };
 
-  // Set up real-time subscription
+  // Set up real-time subscription with unique channel name
   useEffect(() => {
     if (!user) return;
 
     loadNotifications();
 
+    // Use a unique channel name to avoid conflicts
+    const channelName = `notifications-${user.id}-${Date.now()}`;
     const channel = supabase
-      .channel('notifications')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
