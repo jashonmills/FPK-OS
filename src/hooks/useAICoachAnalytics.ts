@@ -71,7 +71,12 @@ export const useAICoachAnalytics = () => {
           .order('timestamp', { ascending: true });
 
         if (messagesError) throw messagesError;
-        messagesData = messages || [];
+        
+        // Type cast the role field to ensure it matches our expected union type
+        messagesData = (messages || []).map(msg => ({
+          ...msg,
+          role: msg.role as 'user' | 'assistant'
+        }));
       }
 
       // Calculate session durations and message counts
