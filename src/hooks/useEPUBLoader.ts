@@ -13,16 +13,11 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
   const epubRef = useRef<any>(null);
   const renditionRef = useRef<any>(null);
   const retryCountRef = useRef(0);
-  const maxRetries = 2; // Reduced retries
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const maxRetries = 2;
 
   useEffect(() => {
     loadEPUB();
     return () => {
-      // Enhanced cleanup
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
       if (epubRef.current) {
         try {
           epubRef.current.destroy();
@@ -51,12 +46,8 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Loading EPUB library...');
       setLoadingProgress(20);
       
-      // Dynamic import with shorter timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Library loading timed out')), 5000)
-      );
-      
-      const epubModule = await Promise.race([import('epubjs'), timeoutPromise]) as any;
+      // Load EPUB.js library
+      const epubModule = await import('epubjs');
       const ePub = epubModule.default;
       
       setLoadingStep('Connecting to book server...');
@@ -68,34 +59,28 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
       setLoadingStep('Creating EPUB instance...');
       setLoadingProgress(40);
       
-      // Test connection with shorter timeout
-      await testProxyConnection(proxyUrl);
-      
       const epubBook = ePub(proxyUrl);
       epubRef.current = epubBook;
 
       setLoadingStep('Downloading book content...');
       setLoadingProgress(50);
 
-      // Enhanced book ready handling with progressive parsing
-      await waitForBookReadyOptimized(epubBook);
+      // Simplified book ready handling
+      await waitForBookReady(epubBook);
       console.log('✅ EPUB book ready');
 
       setLoadingStep('Processing book structure...');
-      setLoadingProgress(85);
+      setLoadingProgress(80);
 
-      // Quick TOC loading with timeout
+      // Load TOC with simple timeout
       try {
-        const navPromise = epubBook.loaded.navigation.then(() => {
-          setToc(epubBook.navigation.toc || []);
-          console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
-        });
-        
-        const navTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Navigation timeout')), 3000)
-        );
-        
-        await Promise.race([navPromise, navTimeout]);
+        await Promise.race([
+          epubBook.loaded.navigation.then(() => {
+            setToc(epubBook.navigation.toc || []);
+            console.log('📚 TOC loaded:', epubBook.navigation.toc?.length || 0, 'items');
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('TOC timeout')), 3000))
+        ]);
       } catch (navError) {
         console.warn('⚠️ Could not load table of contents, continuing without it');
         setToc([]);
@@ -114,15 +99,13 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     } catch (err) {
       console.error('❌ Error loading EPUB:', err);
       
-      // Smart retry logic
+      // Simple retry logic
       if (retryCountRef.current < maxRetries) {
         retryCountRef.current++;
         console.log(`🔄 Retrying... Attempt ${retryCountRef.current}/${maxRetries}`);
-        setLoadingStep(`Retrying with optimized settings... (${retryCountRef.current}/${maxRetries})`);
+        setLoadingStep(`Retrying... (${retryCountRef.current}/${maxRetries})`);
         
-        const backoffDelay = retryCountRef.current * 1500; // Shorter backoff
-        await delay(backoffDelay);
-        
+        await delay(1000);
         return loadEPUB();
       }
       
@@ -130,72 +113,15 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     }
   };
 
-  const testProxyConnection = async (proxyUrl: string) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // Shorter timeout
-    
-    try {
-      const response = await fetch(proxyUrl, {
-        method: 'HEAD',
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`Proxy connection failed: ${response.status}`);
-      }
-    } catch (err) {
-      clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
-        throw new Error('Connection to book server timed out');
-      }
-      throw err;
-    }
-  };
+  const waitForBookReady = async (epubBook: any) => {
+    // Simple timeout approach - just wait for the book to be ready
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Book parsing timed out. This book may be too large or complex.'));
+      }, 15000); // 15 second timeout
+    });
 
-  const waitForBookReadyOptimized = async (epubBook: any) => {
-    // Set up cleanup function
-    let timeoutId: NodeJS.Timeout;
-    cleanupRef.current = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-
-    // Progressive timeout strategy with parsing optimization
-    const attempts = [
-      { timeout: 10000, message: 'Parsing book structure...' },
-      { timeout: 15000, message: 'Processing complex formatting...' },
-      { timeout: 20000, message: 'Finalizing book preparation...' }
-    ];
-    
-    for (let i = 0; i < attempts.length; i++) {
-      try {
-        setLoadingStep(attempts[i].message);
-        setLoadingProgress(50 + (i * 10)); // Progress from 50% to 80%
-        
-        const timeoutPromise = new Promise((_, reject) => {
-          timeoutId = setTimeout(() => {
-            reject(new Error(`Book parsing timed out (attempt ${i + 1})`));
-          }, attempts[i].timeout);
-        });
-
-        // Wait for book ready with current timeout
-        await Promise.race([epubBook.ready, timeoutPromise]);
-        
-        // Success - clear timeout and return
-        clearTimeout(timeoutId);
-        return;
-        
-      } catch (err) {
-        clearTimeout(timeoutId);
-        
-        if (i === attempts.length - 1) {
-          // Last attempt failed
-          throw new Error('The book file appears to be corrupted or too complex to process. Please try a different book or try again later.');
-        }
-        
-        console.warn(`⚠️ Parsing attempt ${i + 1} failed, trying with longer timeout...`);
-      }
-    }
+    await Promise.race([epubBook.ready, timeoutPromise]);
   };
 
   const handleLoadingError = (err: any) => {
@@ -203,8 +129,6 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     
     if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
       setError('This book is taking too long to load. It may be a large file or have complex formatting. Please try again or select a different book.');
-    } else if (errorMessage.includes('corrupted') || errorMessage.includes('complex')) {
-      setError('This book file cannot be processed. Please try selecting a different book from the library.');
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
       setError('Network connection issue. Please check your internet connection and try again.');
     } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
@@ -223,25 +147,24 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
 
     console.log('🎨 Initializing rendition...');
 
-    // Create rendition with optimized settings
+    // Create rendition
     const rendition = epubRef.current.renderTo(container, {
       width: '100%',
       height: '100%',
       flow: 'paginated',
       spread: 'none',
-      minSpreadWidth: 800 // Optimize for single page on smaller screens
+      minSpreadWidth: 800
     });
     renditionRef.current = rendition;
 
     // Set font size
     rendition.themes.fontSize(`${fontSize}px`);
 
-    // Display first page with error handling
+    // Display first page
     rendition.display().then(() => {
       console.log('📄 First page displayed successfully');
     }).catch((err: any) => {
       console.error('❌ Rendition display error:', err);
-      // Continue anyway - some books may have rendering issues but still be readable
     });
 
     // Track location changes
@@ -252,7 +175,6 @@ export const useEPUBLoader = (book: PublicDomainBook) => {
     // Handle rendition errors gracefully
     rendition.on('error', (err: any) => {
       console.warn('⚠️ Rendition warning:', err);
-      // Don't fail completely on rendition errors
     });
   };
 
