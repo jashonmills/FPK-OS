@@ -84,7 +84,7 @@ const ModelViewerModal: React.FC<ModelViewerModalProps> = ({
                 {item.title}
               </h2>
               <p className="text-sm text-gray-300">
-                {item.sourceAttribution}
+                {item.source === 'smithsonian' ? 'Smithsonian Institution' : 'The Metropolitan Museum'}
               </p>
             </div>
           </div>
@@ -149,7 +149,9 @@ const ModelViewerModal: React.FC<ModelViewerModalProps> = ({
                       <Building2 className="h-3 w-3 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="text-xs text-gray-400 font-medium">Source</p>
-                        <p className="text-xs text-gray-300">{item.sourceAttribution}</p>
+                        <p className="text-xs text-gray-300">
+                          {item.source === 'smithsonian' ? 'Smithsonian Institution' : 'The Metropolitan Museum'}
+                        </p>
                       </div>
                     </div>
                   </div>

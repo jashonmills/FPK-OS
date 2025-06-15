@@ -85,45 +85,50 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
           </div>
         ) : items && items.length > 0 ? (
           <div className="space-y-4">
-            <Carousel setApi={setApi} className="w-full">
-              <CarouselContent>
-                {items.map((item, index) => (
-                  <CarouselItem key={item.id}>
-                    <div 
-                      className="cursor-pointer group"
-                      onClick={() => handleItemClick(item)}
-                    >
-                      <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
-                        <img
-                          src={item.thumbnail}
-                          alt={item.title}
-                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        <div className="absolute bottom-2 left-2 right-2">
-                          <h4 className="text-sm font-semibold text-white line-clamp-2">
-                            {item.title}
-                          </h4>
-                          <p className="text-xs text-white/80 mt-1">
-                            {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'}
-                            {item.isThreeD && ' • 3D Model'}
-                          </p>
+            {/* Constrained Carousel Container */}
+            <div className="relative overflow-hidden">
+              <Carousel setApi={setApi} className="w-full">
+                <CarouselContent className="ml-0">
+                  {items.map((item, index) => (
+                    <CarouselItem key={item.id} className="pl-4">
+                      <div 
+                        className="cursor-pointer group"
+                        onClick={() => handleItemClick(item)}
+                      >
+                        <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
+                          <img
+                            src={item.thumbnail}
+                            alt={item.title}
+                            className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <h4 className="text-sm font-semibold text-white line-clamp-2">
+                              {item.title}
+                            </h4>
+                            <p className="text-xs text-white/80 mt-1">
+                              {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'}
+                              {item.isThreeD && ' • 3D Model'}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden sm:flex -left-4" />
-              <CarouselNext className="hidden sm:flex -right-4" />
-            </Carousel>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                
+                {/* Desktop Navigation - Positioned inside the carousel */}
+                <CarouselPrevious className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900" />
+                <CarouselNext className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900" />
+              </Carousel>
+            </div>
 
             {/* Mobile navigation */}
-            <div className="flex sm:hidden items-center justify-between">
+            <div className="flex sm:hidden items-center justify-between px-2">
               <Button
                 variant="ghost"
                 size="sm"
