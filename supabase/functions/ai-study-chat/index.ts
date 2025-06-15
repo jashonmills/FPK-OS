@@ -14,46 +14,46 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced system prompt for Claude Sonnet 4 with tool usage
-const SYSTEM_PROMPT = `You are the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
+// Enhanced system prompt for Claude with better tool instructions
+const SYSTEM_PROMPT = `You are Claude, the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
 
-**Your Role:**
-- Analyze the student's real flashcards, study sessions, and performance data using available tools
-- Provide specific, actionable advice based on their actual learning patterns
+**Your Core Role:**
+- Access and analyze the student's real flashcards, study sessions, and performance data using available tools
+- Provide specific, actionable advice based on their actual learning patterns and card content
+- Reference specific flashcard content when discussing study strategies
 - Be encouraging and supportive while offering concrete next steps
-- Always use tools to fetch current data when students ask about their progress, flashcards, or performance
+
+**Critical Tool Usage Guidelines:**
+- ALWAYS use tools when students ask about their data, progress, or flashcards
+- When they say "my flashcards" or "my cards", immediately call get_recent_flashcards or get_user_flashcards
+- When discussing specific cards, reference the actual front/back content from the tool results
+- Never ask users to "share their flashcard details" - you can see them directly via tools
 
 **Available Tools:**
-- get_recent_flashcards: Fetch the student's most recent flashcards (use when they ask about recent cards, last flashcards, or want to review what they've created)
-- get_flashcards_by_group: Get flashcards from a specific folder/subject (use when they mention a subject or folder)
-- search_flashcards: Search through their flashcards by content or performance (use when they want to find specific cards or cards they're struggling with)
-- get_study_stats: Get comprehensive study statistics and progress data (use when they ask about progress, performance, stats, or achievements)
-
-**Tool Usage Guidelines:**
-- ALWAYS use tools when students ask about their data, progress, or flashcards
-- Use get_study_stats for questions about performance, progress, streaks, or achievements
-- Use get_recent_flashcards when they want to see what they've been studying recently
-- Use search_flashcards to find specific content or struggling cards
-- Use get_flashcards_by_group for subject-specific questions
+1. get_recent_flashcards: Get the student's most recent flashcards (use for "recent cards", "last cards", "what I created")
+2. get_user_flashcards: Advanced flashcard search with filters (use for "struggling cards", "difficult cards", specific searches)
+3. get_study_stats: Comprehensive study statistics and progress (use for performance questions)
 
 **Response Style:**
-- Be direct and helpful with specific data-driven insights
-- Reference actual numbers and flashcard content from tool results
-- Offer specific next actions based on their real data
+- Reference actual flashcard content: "I see your card about [front content] - [back content]"
+- Provide specific insights: "Your card on X has a 45% success rate, let's work on that"
+- Offer concrete actions: "Try reviewing your 3 lowest-performing cards from yesterday"
 - Keep responses conversational and encouraging
 
-**Voice Mode:**
+**Voice Mode Optimization:**
 - If voiceActive=true, structure responses for natural speech with appropriate pauses
 - Use shorter sentences and clear transitions for voice output
 
-Always prioritize using tools to provide accurate, personalized guidance based on their current study data.`;
+Always prioritize using tools to provide accurate, personalized guidance based on their current study data. Never rely on hypothetical examples when you can access their real flashcards.`;
 
-// Tool implementations using Supabase edge functions
 async function executeToolCall(toolName: string, args: any) {
   try {
     console.log(`Executing tool: ${toolName} with args:`, args);
     
-    const { data, error } = await supabase.functions.invoke(toolName.replace('_', '-'), {
+    // Map tool names to actual function names
+    const functionName = toolName.replace('_', '-');
+    
+    const { data, error } = await supabase.functions.invoke(functionName, {
       body: args
     });
 
@@ -66,7 +66,12 @@ async function executeToolCall(toolName: string, args: any) {
     return data;
   } catch (error) {
     console.error(`Error executing tool ${toolName}:`, error);
-    return { error: `Failed to execute ${toolName}: ${error.message}` };
+    return { 
+      error: `Failed to execute ${toolName}: ${error.message}`,
+      flashcards: [],
+      total: 0,
+      message: 'Tool execution failed'
+    };
   }
 }
 
@@ -204,7 +209,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    console.log('Calling Claude Sonnet 4 with tools...');
+    console.log('Calling Claude Sonnet 4 with enhanced tools...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
@@ -236,26 +241,24 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
               }
             },
             {
-              name: 'get_flashcards_by_group',
-              description: 'Get flashcards from a specific folder or subject. Use when they mention a subject, folder, or category.',
+              name: 'get_user_flashcards',
+              description: 'Advanced flashcard search with filters. Use when they want specific cards, struggling cards, or filtered results.',
               input_schema: {
                 type: 'object',
                 properties: {
                   userId: { type: 'string', description: 'The user ID' },
-                  groupId: { type: 'string', description: 'The folder/group name or subject' }
-                },
-                required: ['userId', 'groupId']
-              }
-            },
-            {
-              name: 'search_flashcards',
-              description: 'Search through flashcards by content or find cards they\'re struggling with. Use when they want to find specific cards or review difficult material.',
-              input_schema: {
-                type: 'object',
-                properties: {
-                  userId: { type: 'string', description: 'The user ID' },
-                  query: { type: 'string', description: 'Search query or content to find' },
-                  filter: { type: 'string', description: 'Performance filter: "low success", "needs practice", etc.', enum: ['low success', 'needs practice', 'all'] }
+                  filter: { 
+                    type: 'object', 
+                    description: 'Filter options',
+                    properties: {
+                      difficulty: { type: 'integer', description: 'Filter by difficulty level' },
+                      needsPractice: { type: 'boolean', description: 'Show cards that need practice' },
+                      searchTerm: { type: 'string', description: 'Search in card content' }
+                    }
+                  },
+                  limit: { type: 'integer', description: 'Number of flashcards to return (default: 10)', default: 10 },
+                  sortBy: { type: 'string', description: 'Sort field', default: 'created_at' },
+                  sortOrder: { type: 'string', description: 'Sort order: asc or desc', default: 'desc' }
                 },
                 required: ['userId']
               }
@@ -301,7 +304,6 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         
         // Execute tool calls
         const toolResults = [];
-        const toolMessages = [];
         
         for (const contentBlock of data.content) {
           if (contentBlock.type === 'tool_use') {

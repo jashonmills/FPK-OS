@@ -24,13 +24,14 @@ serve(async (req) => {
       throw new Error('User ID is required');
     }
 
+    console.log('Fetching recent flashcards for user:', userId, 'limit:', limit);
+
     const { data: flashcards, error } = await supabase
       .from('flashcards')
       .select(`
         id,
         front_content,
         back_content,
-        folder_name,
         difficulty_level,
         times_reviewed,
         times_correct,
@@ -41,14 +42,18 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error:', error);
+      throw error;
+    }
 
-    // Calculate success rate and format response
+    console.log('Found flashcards:', flashcards?.length || 0);
+
+    // Format response for Claude to understand
     const formattedCards = flashcards?.map(card => ({
       id: card.id,
       front: card.front_content,
       back: card.back_content,
-      folder: card.folder_name || 'General',
       created_at: card.created_at,
       stats: {
         correct: card.times_correct || 0,
@@ -60,14 +65,25 @@ serve(async (req) => {
     })) || [];
 
     return new Response(
-      JSON.stringify({ flashcards: formattedCards }),
+      JSON.stringify({ 
+        flashcards: formattedCards,
+        total: formattedCards.length,
+        message: formattedCards.length > 0 
+          ? `Found ${formattedCards.length} recent flashcards`
+          : 'No flashcards found for this user'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error fetching recent flashcards:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        flashcards: [],
+        total: 0,
+        message: 'Failed to fetch flashcards'
+      }),
       {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
