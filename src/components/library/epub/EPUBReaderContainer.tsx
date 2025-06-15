@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useStreamingEPUBLoader } from '@/hooks/useStreamingEPUBLoader';
+import { useOptimizedEPUBLoader } from '@/hooks/useOptimizedEPUBLoader';
 import { useOptimizedEPUBRendition } from '@/hooks/useOptimizedEPUBRendition';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
@@ -15,18 +15,17 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
   const [fontSize, setFontSize] = useState(16);
   const [showTOC, setShowTOC] = useState(false);
 
+  // Use the working optimized loader instead of broken streaming
   const {
     isLoading,
     progress,
     error,
     epubInstance,
     toc,
-    metadata,
     loadEPUB,
     retryLoad,
-    abortLoad,
-    getChapterContent
-  } = useStreamingEPUBLoader(book);
+    abortLoad
+  } = useOptimizedEPUBLoader(book);
 
   const {
     currentLocation,
@@ -48,13 +47,13 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
     updateLocation,
   } = useReadingProgress(book.id);
 
-  // Initialize streaming EPUB loading on mount
+  // Initialize EPUB loading on mount
   useEffect(() => {
-    console.log('🚀 Starting streaming EPUB reader for:', book.title);
+    console.log('🚀 Starting optimized EPUB reader for:', book.title);
     loadEPUB();
     
     return () => {
-      console.log('🛑 Aborting streaming EPUB load for:', book.title);
+      console.log('🛑 Aborting EPUB load for:', book.title);
       abortLoad();
     };
   }, [loadEPUB, abortLoad, book.title]);
@@ -62,15 +61,15 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
   // Initialize rendition when EPUB is ready
   useEffect(() => {
     if (!isLoading && !error && epubInstance && readerRef.current && !isInitialized) {
-      console.log('🎨 Initializing streaming EPUB rendition');
+      console.log('🎨 Initializing EPUB rendition');
       initializeRendition(readerRef.current, fontSize);
       
-      // Start reading session with metadata
+      // Start reading session with saved position
       if (readingProgress?.current_cfi) {
         console.log('📖 Starting session with saved position');
         startSession(readingProgress.current_cfi);
       } else {
-        console.log('📖 Starting new streaming reading session');
+        console.log('📖 Starting new reading session');
         startSession();
       }
     }
@@ -82,21 +81,9 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
     changeFontSize(newSize);
   };
 
-  // Enhanced TOC click handler with chapter prefetching
-  const handleEnhancedTOCItemClick = async (tocItem: any) => {
-    console.log('📖 Loading chapter with streaming:', tocItem.label);
-    
-    // Prefetch chapter content if available
-    if (getChapterContent && tocItem.href) {
-      try {
-        await getChapterContent(tocItem.href);
-        console.log('✅ Chapter content prefetched');
-      } catch (chapterError) {
-        console.warn('Chapter prefetch failed, loading normally:', chapterError);
-      }
-    }
-    
-    // Use the original TOC handler
+  // Simplified TOC click handler
+  const handleEnhancedTOCItemClick = (tocItem: any) => {
+    console.log('📖 Loading chapter:', tocItem.label);
     handleTOCItemClick(tocItem);
     setShowTOC(false);
   };
@@ -112,7 +99,7 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
   useEffect(() => {
     return () => {
       if (currentLocation) {
-        console.log('💾 Ending streaming reading session');
+        console.log('💾 Ending reading session');
         endSession(currentLocation);
       }
     };
@@ -128,7 +115,6 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
     error,
     epubInstance,
     toc,
-    metadata,
     currentLocation,
     isNavigating,
     readingProgress,

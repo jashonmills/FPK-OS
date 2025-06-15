@@ -3,11 +3,10 @@ import React from 'react';
 import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { EPUBLoadingProgress, EPUBLoadError } from '@/hooks/useOptimizedEPUBLoader';
 import { PDFLoadingProgress } from '@/utils/enhancedPdfUtils';
-import { StreamingEPUBProgress, StreamingEPUBError } from '@/hooks/useStreamingProgressConverter';
 import { EPUBStreamingProgress, EPUBStreamingError } from '@/services/epub/EPUBStreamingTypes';
 
 // Union types for handling both EPUB and PDF
-type UnifiedProgress = EPUBLoadingProgress | PDFLoadingProgress | StreamingEPUBProgress;
+type UnifiedProgress = EPUBLoadingProgress | PDFLoadingProgress;
 
 interface UnifiedError {
   type: 'network' | 'timeout' | 'parsing' | 'rendering' | 'unknown';
@@ -19,7 +18,7 @@ interface UnifiedError {
 interface UnifiedLoadingProgressProps {
   title: string;
   progress?: UnifiedProgress | null;
-  error?: UnifiedError | EPUBLoadError | StreamingEPUBError | string | null;
+  error?: UnifiedError | EPUBLoadError | string | null;
   onRetry?: () => void;
   onCancel?: () => void;
   type?: 'epub' | 'pdf' | 'general';
@@ -35,17 +34,14 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
 }) => {
   // Convert progress to enhanced format (EPUBStreamingProgress)
   const enhancedProgress: EPUBStreamingProgress | null = progress ? {
-    stage: (progress as StreamingEPUBProgress).stage === 'prefetch' ? 'metadata' as const :
-           (progress as StreamingEPUBProgress).stage === 'downloading' ? 'structure' as const :
-           (progress as StreamingEPUBProgress).stage === 'processing' ? 'preloading' as const :
-           (progress as StreamingEPUBProgress).stage as 'streaming' | 'ready',
+    stage: (progress as EPUBLoadingProgress).stage === 'downloading' ? 'metadata' as const :
+           (progress as EPUBLoadingProgress).stage === 'processing' ? 'structure' as const :
+           (progress as EPUBLoadingProgress).stage === 'ready' ? 'ready' as const : 'streaming' as const,
     percentage: progress.percentage,
     message: progress.message,
     bytesLoaded: progress.bytesLoaded,
     totalBytes: progress.totalBytes,
-    estimatedTimeRemaining: progress.estimatedTimeRemaining,
-    totalChapters: (progress as any).totalChapters,
-    chaptersLoaded: (progress as any).chaptersLoaded || (progress as any).chapterProgress?.loaded
+    estimatedTimeRemaining: progress.estimatedTimeRemaining
   } : null;
 
   // Convert error to enhanced format (EPUBStreamingError)

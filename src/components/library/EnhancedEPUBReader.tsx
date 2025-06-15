@@ -13,7 +13,6 @@ import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { useEPUBReaderLogic } from './epub/EPUBReaderContainer';
 import { EPUBReaderNavigation } from './epub/EPUBReaderNavigation';
 import { EPUBReaderContent } from './epub/EPUBReaderContent';
-import { useStreamingProgressConverter } from '@/hooks/useStreamingProgressConverter';
 
 interface EnhancedEPUBReaderProps {
   book: PublicDomainBook;
@@ -42,24 +41,19 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     forceLayoutRefresh
   } = useEPUBReaderLogic(book);
 
-  // Convert progress/error to compatible types for EnhancedLoadingProgress
-  const { convertProgress, convertError } = useStreamingProgressConverter();
-
-  // Convert StreamingEPUBProgress to EPUBStreamingProgress
+  // Convert progress to EPUBStreamingProgress format for enhanced UI
   const convertedProgress = progress ? {
-    stage: progress.stage === 'prefetch' ? 'metadata' as const :
-           progress.stage === 'downloading' ? 'structure' as const :
-           progress.stage === 'processing' ? 'preloading' as const :
-           progress.stage as 'streaming' | 'ready',
+    stage: progress.stage === 'downloading' ? 'metadata' as const :
+           progress.stage === 'processing' ? 'structure' as const :
+           progress.stage === 'ready' ? 'ready' as const : 'streaming' as const,
     percentage: progress.percentage,
     message: progress.message,
-    chaptersLoaded: progress.chapterProgress?.loaded,
-    totalChapters: progress.totalChapters,
     bytesLoaded: progress.bytesLoaded,
     totalBytes: progress.totalBytes,
     estimatedTimeRemaining: progress.estimatedTimeRemaining
   } : null;
 
+  // Convert error to EPUBStreamingError format
   const convertedError = error ? {
     type: error.type as 'network' | 'timeout' | 'parsing' | 'metadata' | 'streaming' | 'unknown',
     message: error.message,
@@ -71,7 +65,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
         <DialogDescription className="sr-only">
-          Enhanced streaming EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
+          Enhanced EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
         </DialogDescription>
         
         {(isLoading || error) ? (
@@ -85,7 +79,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
           />
         ) : (
           <div className="flex flex-col h-full">
-            {/* Header with streaming indicators */}
+            {/* Header */}
             <EPUBReaderHeader
               title={book.title}
               isLoading={isLoading || isProgressLoading}
@@ -120,7 +114,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
           </div>
         )}
 
-        {/* Enhanced Table of Contents with streaming */}
+        {/* Table of Contents */}
         <EPUBTableOfContents
           isOpen={showTOC}
           onClose={() => setShowTOC(false)}
