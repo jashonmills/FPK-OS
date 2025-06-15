@@ -14,6 +14,7 @@ interface ReadingProgress {
   last_read_at: string;
   created_at: string;
   updated_at: string;
+  progress: number; // Add this for compatibility
 }
 
 interface ReadingSession {
@@ -28,6 +29,7 @@ interface ReadingSession {
   end_cfi: string | null;
 }
 
+// Hook for specific book reading progress
 export const useReadingProgress = (bookId: string) => {
   const { user } = useAuth();
   const { awardReadingSessionXP } = useXPIntegration();
@@ -222,5 +224,54 @@ export const useReadingProgress = (bookId: string) => {
     startSession,
     endSession,
     updateLocation,
+  };
+};
+
+// New hook for general reading progress (all books)
+export const useGeneralReadingProgress = () => {
+  const { user } = useAuth();
+  const [data, setData] = useState<ReadingProgress[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadProgress = useCallback(async () => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data: progressData, error } = await supabase
+        .from('reading_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('last_read_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading reading progress:', error);
+        return;
+      }
+
+      // Add progress property for compatibility
+      const formattedData = progressData?.map(item => ({
+        ...item,
+        progress: item.completion_percentage
+      })) || [];
+
+      setData(formattedData);
+    } catch (err) {
+      console.error('Error in loadProgress:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadProgress();
+  }, [loadProgress]);
+
+  return {
+    data,
+    isLoading,
+    refetch: loadProgress
   };
 };

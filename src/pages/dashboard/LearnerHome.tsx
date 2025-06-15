@@ -17,7 +17,7 @@ import {
 import { useQuickStats } from '@/hooks/useQuickStats';
 import { useGamification } from '@/hooks/useGamification';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { useGeneralReadingProgress } from '@/hooks/useReadingProgress';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
 import XPProgressBar from '@/components/gamification/XPProgressBar';
 import StreakDisplay from '@/components/gamification/StreakDisplay';
@@ -34,7 +34,7 @@ const LearnerHome = () => {
   const { data: stats, isLoading: statsLoading } = useQuickStats();
   const { userStats, isLoading: gamificationLoading } = useGamification();
   const { flashcards, isLoading: flashcardsLoading } = useFlashcards();
-  const { data: readingProgress, isLoading: readingLoading } = useReadingProgress();
+  const { data: readingProgress, isLoading: readingLoading } = useGeneralReadingProgress();
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const isNASAEnabled = featureFlagService.isEnabled('enableNASAImageExplorer');
@@ -80,27 +80,14 @@ const LearnerHome = () => {
   const getRecentActivities = () => {
     const activities = [];
     
-    // Add recent XP activities if available
-    if (userStats?.recent_activities) {
-      userStats.recent_activities.slice(0, 3).forEach(activity => {
-        activities.push({
-          type: 'xp',
-          icon: Award,
-          title: activity.description || 'XP Earned',
-          subtitle: `+${activity.xp_amount} XP • ${formatTimeAgo(activity.created_at)}`,
-          color: 'text-yellow-500'
-        });
-      });
-    }
-    
     // Add reading progress if available
     if (readingProgress && readingProgress.length > 0) {
       const recentReading = readingProgress[0];
       activities.push({
         type: 'reading',
         icon: BookOpen,
-        title: `Reading Progress: ${recentReading.progress}%`,
-        subtitle: formatTimeAgo(recentReading.updated_at),
+        title: `Reading Progress: ${recentReading.completion_percentage}%`,
+        subtitle: formatTimeAgo(recentReading.last_read_at),
         color: 'text-blue-500'
       });
     }
@@ -114,6 +101,17 @@ const LearnerHome = () => {
         title: `Study Streak: ${studyStreak.current_count} days`,
         subtitle: 'Keep it going!',
         color: 'text-orange-500'
+      });
+    }
+
+    // Add XP information if available
+    if (userStats?.xp?.total_xp) {
+      activities.push({
+        type: 'xp',
+        icon: Award,
+        title: 'Experience Points',
+        subtitle: `Total XP: ${userStats.xp.total_xp} • Level ${userStats.xp.level}`,
+        color: 'text-yellow-500'
       });
     }
     
