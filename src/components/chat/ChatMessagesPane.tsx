@@ -42,6 +42,10 @@ const ChatMessagesPane = ({
     originalQuestion?: string;
   } | null>(null);
 
+  // Text selection for the entire messages container
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const { selectedText, hasSelection, clearSelection } = useTextSelection(messagesContainerRef);
+
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
       hour: '2-digit', 
@@ -101,18 +105,36 @@ const ChatMessagesPane = ({
     }
   }, [isSending, isLoading, scrollToBottom]);
 
-  const handleSaveToNotes = (message: ChatMessage, selectedText?: string) => {
+  const handleSaveToNotes = (message: ChatMessage) => {
     // Find the corresponding user question for context
     const messageIndex = messages.findIndex(msg => msg.id === message.id);
     const previousMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
     const originalQuestion = previousMessage?.role === 'user' ? previousMessage.content : undefined;
 
+    // Check if we have selected text and it's within this message
+    const messageSelectedText = hasSelection ? selectedText : undefined;
+
     setSaveDialogData({
       content: message.content,
-      selectedText,
+      selectedText: messageSelectedText,
       originalQuestion
     });
     openDialog();
+  };
+
+  // Clear selection when dialog opens
+  useEffect(() => {
+    if (isDialogOpen) {
+      // Don't clear selection immediately - let the dialog use it first
+      return;
+    }
+  }, [isDialogOpen]);
+
+  // Clear selection when dialog closes
+  const handleDialogClose = () => {
+    closeDialog();
+    clearSelection();
+    setSaveDialogData(null);
   };
 
   if (isLoading) {
@@ -151,70 +173,63 @@ const ChatMessagesPane = ({
   return (
     <>
       <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
-        <div className="space-y-2 sm:space-y-3 md:space-y-4">
-          {messages.map((message) => {
-            // Create a ref for each message container for text selection
-            const messageRef = useRef<HTMLDivElement>(null);
-            const { selectedText, hasSelection } = useTextSelection(messageRef);
-
-            return (
+        <div ref={messagesContainerRef} className="space-y-2 sm:space-y-3 md:space-y-4">
+          {messages.map((message) => (
+            <div 
+              key={message.id} 
+              className={cn(
+                "flex",
+                message.role === 'user' ? 'justify-end' : 'justify-start'
+              )}
+            >
               <div 
-                key={message.id} 
                 className={cn(
-                  "flex",
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                  "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] p-2 sm:p-3 rounded-lg text-sm relative group safe-text",
+                  message.role === 'user' 
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto' 
+                    : 'bg-muted text-foreground mr-auto'
                 )}
               >
-                <div 
-                  ref={messageRef}
-                  className={cn(
-                    "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] p-2 sm:p-3 rounded-lg text-sm relative group safe-text",
-                    message.role === 'user' 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto' 
-                      : 'bg-muted text-foreground mr-auto'
-                  )}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
-                      <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
-                      <span className="text-xs font-medium text-purple-600 truncate">AI Coach</span>
+                {message.role === 'assistant' && (
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
+                    <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
+                    <span className="text-xs font-medium text-purple-600 truncate">AI Coach</span>
+                    
+                    {/* Action buttons for AI messages */}
+                    <div className="flex items-center gap-1 ml-auto">
+                      {ttsSupported && settings.enabled && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
+                          onClick={() => handleSpeakMessage(message.content)}
+                          title="Read aloud"
+                        >
+                          <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                        </Button>
+                      )}
                       
-                      {/* Action buttons for AI messages */}
-                      <div className="flex items-center gap-1 ml-auto">
-                        {ttsSupported && settings.enabled && (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
-                            onClick={() => handleSpeakMessage(message.content)}
-                            title="Read aloud"
-                          >
-                            <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
-                          </Button>
-                        )}
-                        
-                        <SaveToNotesButton
-                          onClick={() => handleSaveToNotes(message, hasSelection ? selectedText : undefined)}
-                          hasSelection={hasSelection}
-                        />
-                      </div>
+                      <SaveToNotesButton
+                        onClick={() => handleSaveToNotes(message)}
+                        hasSelection={hasSelection}
+                      />
                     </div>
-                  )}
-                  
-                  <div className="break-words leading-relaxed">
-                    {message.content}
                   </div>
-                  
-                  <div className={cn(
-                    "text-xs mt-1 sm:mt-2 opacity-70",
-                    message.role === 'user' ? 'text-right' : 'text-left'
-                  )}>
-                    {formatTime(message.timestamp)}
-                  </div>
+                )}
+                
+                <div className="break-words leading-relaxed">
+                  {message.content}
+                </div>
+                
+                <div className={cn(
+                  "text-xs mt-1 sm:mt-2 opacity-70",
+                  message.role === 'user' ? 'text-right' : 'text-left'
+                )}>
+                  {formatTime(message.timestamp)}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
           
           {isSending && (
             <div className="flex justify-start">
@@ -243,7 +258,7 @@ const ChatMessagesPane = ({
       {saveDialogData && (
         <SaveToNotesDialog
           isOpen={isDialogOpen}
-          onClose={closeDialog}
+          onClose={handleDialogClose}
           content={saveDialogData.content}
           selectedText={saveDialogData.selectedText}
           originalQuestion={saveDialogData.originalQuestion}

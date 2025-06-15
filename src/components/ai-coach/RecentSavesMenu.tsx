@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Clock, FileText, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useNotes } from '@/hooks/useNotes';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecentSave {
   id: string;
@@ -19,14 +21,33 @@ interface RecentSave {
 }
 
 interface RecentSavesMenuProps {
-  recentSaves: RecentSave[];
-  onOpenNote: (noteId: string) => void;
+  onOpenNote?: (noteId: string) => void;
 }
 
 const RecentSavesMenu: React.FC<RecentSavesMenuProps> = ({
-  recentSaves,
   onOpenNote
 }) => {
+  const { notes, isLoading } = useNotes();
+  const { toast } = useToast();
+  const [recentSaves, setRecentSaves] = useState<RecentSave[]>([]);
+
+  // Filter and format recent AI Insights notes
+  useEffect(() => {
+    if (notes) {
+      const aiInsightsNotes = notes
+        .filter(note => note.tags?.includes('AI Insights'))
+        .slice(0, 5) // Get the 5 most recent
+        .map(note => ({
+          id: note.id,
+          title: note.title,
+          savedAt: note.created_at,
+          hasFlashcards: note.tags?.some(tag => tag.toLowerCase().includes('flashcard')) || false
+        }));
+      
+      setRecentSaves(aiInsightsNotes);
+    }
+  }, [notes]);
+
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
     const saved = new Date(timestamp);
@@ -43,7 +64,21 @@ const RecentSavesMenu: React.FC<RecentSavesMenuProps> = ({
     return `${diffDays}d ago`;
   };
 
-  if (recentSaves.length === 0) {
+  const handleOpenNote = (noteId: string) => {
+    if (onOpenNote) {
+      onOpenNote(noteId);
+    } else {
+      // Default navigation to notes page with the specific note
+      window.location.href = `/dashboard/learner/notes?noteId=${noteId}`;
+    }
+    
+    toast({
+      title: "Opening note",
+      description: "Navigating to your saved note...",
+    });
+  };
+
+  if (isLoading || recentSaves.length === 0) {
     return null;
   }
 
@@ -60,17 +95,17 @@ const RecentSavesMenu: React.FC<RecentSavesMenuProps> = ({
           <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg z-50">
         <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-          Recent Saves
+          Recent AI Insights
         </div>
         <DropdownMenuSeparator />
         
         {recentSaves.slice(0, 3).map((save) => (
           <DropdownMenuItem
             key={save.id}
-            onClick={() => onOpenNote(save.id)}
-            className="flex flex-col items-start p-3 cursor-pointer"
+            onClick={() => handleOpenNote(save.id)}
+            className="flex flex-col items-start p-3 cursor-pointer hover:bg-gray-50"
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -98,7 +133,10 @@ const RecentSavesMenu: React.FC<RecentSavesMenuProps> = ({
         {recentSaves.length > 3 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-center text-sm text-muted-foreground">
+            <DropdownMenuItem 
+              className="text-center text-sm text-muted-foreground cursor-pointer"
+              onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
+            >
               +{recentSaves.length - 3} more in Notes
             </DropdownMenuItem>
           </>

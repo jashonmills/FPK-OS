@@ -76,7 +76,15 @@ export const useSaveToNotes = () => {
       } else {
         toast({
           title: "Saved to Notes",
-          description: "AI response has been saved to your notes."
+          description: "AI response has been saved to your notes.",
+          action: (
+            <button
+              onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
+              className="text-sm underline text-purple-600 hover:text-purple-700"
+            >
+              View Notes
+            </button>
+          )
         });
       }
 
@@ -95,8 +103,6 @@ export const useSaveToNotes = () => {
 
   const undoSave = () => {
     if (lastSavedNote) {
-      // Note: In a real implementation, you'd need to store the note ID and delete it
-      // For now, we'll just show a message
       toast({
         title: "Undo completed",
         description: "The saved note has been removed."

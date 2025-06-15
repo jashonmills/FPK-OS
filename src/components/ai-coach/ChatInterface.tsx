@@ -12,10 +12,11 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
 import RecentSavesMenu from '@/components/ai-coach/RecentSavesMenu';
+import ChatMessagesPane from '@/components/chat/ChatMessagesPane';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
-  message: string;
+  content: string;
   timestamp?: Date;
   id?: string;
 }
@@ -44,6 +45,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [lastReadMessageId, setLastReadMessageId] = useState<string>('');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [recentSaves, setRecentSaves] = useState<any[]>([]);
+  const [isSending, setIsSending] = useState(false);
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
   const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
@@ -91,25 +93,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (chatHistory.length > 0) {
       const lastMessage = chatHistory[chatHistory.length - 1];
       if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
-        const messageId = lastMessage.id || `${lastMessage.timestamp?.getTime()}-${lastMessage.message.substring(0, 20)}`;
+        const messageId = lastMessage.id || `${lastMessage.timestamp?.getTime()}-${lastMessage.content.substring(0, 20)}`;
         
-        // Only read if this is a new message we haven't read before
         if (messageId !== lastReadMessageId) {
-          console.log('🔊 New AI message detected, preparing to speak:', lastMessage.message.substring(0, 50) + '...');
+          console.log('🔊 New AI message detected, preparing to speak:', lastMessage.content.substring(0, 50) + '...');
           setLastReadMessageId(messageId);
           
           if (!settings.hasInteracted) {
             console.log('🔊 Warning: User has not interacted yet, speech may be blocked');
           }
           
-          // Add a small delay to ensure the UI has updated
           setTimeout(() => {
-            readAIMessage(lastMessage.message);
+            readAIMessage(lastMessage.content);
           }, 500);
-        }
-      } else {
-        if (lastMessage.role === 'assistant') {
-          console.log('🔊 AI message detected but speech skipped - enabled:', settings.enabled, 'autoRead:', settings.autoRead);
         }
       }
     }
@@ -134,7 +130,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setCurrentSessionId(data.id);
       setSessionStartTime(Date.now());
       
-      // Track session start analytics event
       console.log('📊 AI Coach Session Started:', {
         sessionId: data.id,
         userId: user.id,
@@ -174,7 +169,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       const greetingMessage = {
         role: 'assistant' as const,
-        message: personalizedGreeting,
+        content: personalizedGreeting,
         timestamp: new Date(),
         id: 'initial-greeting'
       };
@@ -203,7 +198,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isLoading) return;
 
-    // Stop any current speech when user sends a message
     if (settings.enabled && isSpeaking) {
       console.log('🔊 Stopping speech before sending message');
       stopSpeech();
@@ -213,20 +207,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setChatMessage('');
     const userMessageObj = { 
       role: 'user' as const, 
-      message: userMessage,
+      content: userMessage,
       timestamp: new Date(),
       id: `user-${Date.now()}`
     };
     setChatHistory(prev => [...prev, userMessageObj]);
     setIsLoading(true);
+    setIsSending(true);
     setIsAnalyzing(true);
     setConnectionStatus('good');
     setResponseTime(null);
 
-    // Reset scroll position tracking when user sends message
     setUserScrolledUp(false);
 
-    // Save user message to session
     await saveMessageToSession(userMessage, 'user');
 
     const startTime = Date.now();
@@ -238,7 +231,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         setConnectionStatus('slow');
       }, 8000);
 
-      // Enhanced request with voice status and user context
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
@@ -269,7 +261,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       const aiMessageObj = { 
         role: 'assistant' as const, 
-        message: aiResponse,
+        content: aiResponse,
         timestamp: new Date(),
         id: `ai-${Date.now()}`,
         hasPersonalData: data?.hasPersonalData || false,
@@ -278,10 +270,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       setChatHistory(prev => [...prev, aiMessageObj]);
 
-      // Save assistant message to session
       await saveMessageToSession(aiResponse, 'assistant');
 
-      // Enhanced analytics tracking
       console.log('📊 Enhanced AI Coach Interaction:', {
         sessionId: currentSessionId,
         userMessage: userMessage,
@@ -308,7 +298,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       const fallbackMessageObj = { 
         role: 'assistant' as const, 
-        message: randomFallback,
+        content: randomFallback,
         timestamp: new Date(),
         id: `fallback-${Date.now()}`
       };
@@ -317,6 +307,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       await saveMessageToSession(randomFallback, 'assistant');
     } finally {
       setIsLoading(false);
+      setIsSending(false);
       setIsAnalyzing(false);
     }
   };
@@ -538,6 +529,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     ]);
   }, []);
 
+  // Convert chatHistory to the format expected by ChatMessagesPane
+  const formattedMessages = chatHistory.map(msg => ({
+    id: msg.id || `${msg.timestamp?.getTime()}-${msg.role}`,
+    role: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp?.toISOString() || new Date().toISOString()
+  }));
+
   return (
     <Card className="h-[400px] sm:h-[500px] md:h-[600px] flex flex-col w-full overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-2 sm:p-3 md:p-4 lg:p-6 flex-shrink-0">
@@ -651,72 +650,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
-        {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
-          <div className="space-y-2 sm:space-y-3 md:space-y-4 min-w-0">
-            {chatHistory.map((msg, index) => (
-              <div key={index} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[90%] sm:max-w-[85%] md:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg relative group safe-text ${
-                  msg.role === 'user' 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-muted text-foreground'
-                }`}>
-                  {msg.role === 'assistant' && (
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
-                      <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
-                      <span className="text-xs font-medium text-purple-600 truncate">AI Learning Coach</span>
-                      {(msg as any).hasPersonalData && (
-                        <Badge variant="outline" className="text-xs px-1 py-0 h-4 flex-shrink-0">
-                          Personal Data
-                        </Badge>
-                      )}
-                      {(msg as any).toolUsed && (
-                        <Badge variant="outline" className="text-xs px-1 py-0 h-4 flex-shrink-0">
-                          {(msg as any).toolUsed.replace('-', ' ')}
-                        </Badge>
-                      )}
-                      {ttsSupported && settings.enabled && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
-                          onClick={() => handleSpeakMessage(msg.message)}
-                        >
-                          <Volume2 className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  <p className="text-xs sm:text-sm leading-relaxed sm:leading-normal break-words">{msg.message}</p>
-                  {msg.timestamp && (
-                    <p className="text-xs opacity-70 mt-1">
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex justify-start min-w-0">
-                <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg min-w-0">
-                  <div className="flex items-center gap-2">
-                    <div className="animate-pulse flex space-x-1 flex-shrink-0">
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                    </div>
-                    <span className="text-xs sm:text-sm text-muted-foreground">
-                      {isAnalyzing ? 'Claude is analyzing...' : 'Claude is thinking...'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+        <ChatMessagesPane
+          messages={formattedMessages}
+          isLoading={isLoading}
+          isSending={isSending}
+          messagesEndRef={messagesEndRef}
+        />
 
         {/* Scroll to Bottom Button */}
         {userScrolledUp && (
