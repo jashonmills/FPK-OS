@@ -105,6 +105,15 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
     setSaveFullResponse(true);
   };
 
+  // Handler functions to properly convert CheckedState to boolean
+  const handleSaveFullResponseChange = (checked: boolean | "indeterminate") => {
+    setSaveFullResponse(checked === true);
+  };
+
+  const handleGenerateFlashcardsChange = (checked: boolean | "indeterminate") => {
+    setGenerateFlashcards(checked === true);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -122,7 +131,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
               <Checkbox
                 id="save-full"
                 checked={saveFullResponse}
-                onCheckedChange={setSaveFullResponse}
+                onCheckedChange={handleSaveFullResponseChange}
               />
               <Label htmlFor="save-full" className="text-sm">
                 Save full response (uncheck to save only selected text)
@@ -196,7 +205,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
             <Checkbox
               id="generate-flashcards"
               checked={generateFlashcards}
-              onCheckedChange={setGenerateFlashcards}
+              onCheckedChange={handleGenerateFlashcardsChange}
             />
             <Label htmlFor="generate-flashcards" className="text-sm">
               Generate flashcards from this note
