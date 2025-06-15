@@ -1,4 +1,3 @@
-
 import { CLAUDE_MODEL, MAX_TOKENS, TIMEOUT_MS } from './constants.ts';
 import { TOOL_DEFINITIONS, executeToolCall } from './tools.ts';
 import { ToolResult } from './types.ts';
@@ -28,7 +27,6 @@ export async function callClaude(messages: any[]): Promise<any> {
         model: CLAUDE_MODEL,
         max_tokens: MAX_TOKENS,
         tools: TOOL_DEFINITIONS,
-        tool_choice: "auto",
         messages
       }),
       signal: controller.signal
