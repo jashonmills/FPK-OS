@@ -248,15 +248,11 @@ class EnhancedEPUBStreamingLoader {
         openAs: 'epub'
       });
 
-      // Set up custom headers if needed
-      if (epub.archive && epub.archive.request) {
-        epub.archive.request.setHeaders({
-          'X-Streaming-Mode': 'true',
-          'X-Metadata-Only': 'false'
-        });
-      }
-      
-      updateProgress('processing', 75, 'Preparing book for reading...');
+      this.onProgress?.({
+        stage: 'structure',
+        percentage: 60,
+        message: 'Preparing book for reading...'
+      });
       
       // Wait for book to be ready with proper error boundaries
       await Promise.race([
