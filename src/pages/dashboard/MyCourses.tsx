@@ -80,7 +80,7 @@ const MyCourses = () => {
       });
       
       if (isLearningStateCourse) {
-        return '/dashboard/learner/learning-state';
+        return `/dashboard/learner/learning-state/${course.id}`;
       }
       
       // For other courses, use slug if available, otherwise use id
