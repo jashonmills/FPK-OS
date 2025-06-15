@@ -153,67 +153,78 @@ const NotesSection: React.FC<NotesSectionProps> = ({
     }
   };
 
-  // Render accordion note (new layout)
+  // Render accordion note (enhanced layout)
   const renderAccordionNote = (note: any) => (
     <AccordionItem
       key={note.id}
       value={note.id}
       id={`note-${note.id}`}
-      className={`border rounded-lg transition-all duration-300 ${
+      className={`border border-gray-200 rounded-lg mb-3 overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300 ${
         highlightNoteId === note.id ? 'ring-2 ring-purple-500 ring-opacity-50' : ''
       }`}
     >
-      <AccordionTrigger className="px-4 py-3 hover:no-underline">
+      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 transition-colors">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {getCategoryIcon(note.category)}
-            <h3 className="font-medium text-left truncate">{note.title}</h3>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0 mr-2">
-            <span className="text-xs text-gray-500">
-              {new Date(note.created_at).toLocaleDateString()}
-            </span>
-            <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditNote(note);
-                }}
-                className="h-8 w-8 p-0"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteNote(note.id);
-                }}
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
+          <div className="flex items-start gap-3 flex-1 min-w-0 text-left">
+            <div className="flex-shrink-0 mt-0.5">
+              {getCategoryIcon(note.category)}
             </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 truncate">
+                {note.title}
+              </h3>
+              <div className="flex items-center gap-3 text-sm text-gray-500">
+                <span>Created {new Date(note.created_at).toLocaleDateString()}</span>
+                <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                  {note.category === 'ai-insights' ? 'AI Insight' : note.category}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditNote(note);
+              }}
+              className="h-8 w-8 p-0 hover:bg-gray-100"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteNote(note.id);
+              }}
+              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </AccordionTrigger>
-      <AccordionContent className="px-4 pb-4">
+      <AccordionContent className="px-6 pb-6 pt-2 bg-gray-50/50">
         {note.content && (
-          <p className="text-gray-600 whitespace-pre-wrap mb-3">{note.content}</p>
+          <div className="prose prose-sm max-w-none mb-4">
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {note.content}
+            </p>
+          </div>
         )}
-        <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
-          <Badge variant="secondary" className="text-xs">
-            {note.category === 'ai-insights' ? 'AI Insight' : note.category}
-          </Badge>
-          {note.tags?.map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-        </div>
+        {note.tags && note.tags.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tags:</span>
+            {note.tags.map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs bg-white">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
       </AccordionContent>
     </AccordionItem>
   );
@@ -378,7 +389,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
               collapsible 
               value={expandedNote || undefined}
               onValueChange={setExpandedNote}
-              className="space-y-2"
+              className="space-y-0"
             >
               {filteredNotes.map(renderAccordionNote)}
             </Accordion>
