@@ -1,6 +1,5 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,20 +14,12 @@ interface VirtualizedBookListProps {
 }
 
 interface BookItemProps {
-  index: number;
-  style: React.CSSProperties;
-  data: {
-    books: PublicDomainBook[];
-    onBookClick: (book: PublicDomainBook) => void;
-  };
+  book: PublicDomainBook;
+  onBookClick: (book: PublicDomainBook) => void;
 }
 
-const BookItem: React.FC<BookItemProps> = ({ index, style, data }) => {
-  const { books, onBookClick } = data;
-  const book = books[index];
+const BookItem: React.FC<BookItemProps> = ({ book, onBookClick }) => {
   const { getAccessibilityClasses } = useAccessibility();
-
-  if (!book) return null;
 
   const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
     const target = event.target as HTMLImageElement;
@@ -47,7 +38,7 @@ const BookItem: React.FC<BookItemProps> = ({ index, style, data }) => {
   };
 
   return (
-    <div style={style} className="px-4 py-2">
+    <div className="px-4 py-2">
       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 bg-background">
         <div className="flex gap-3">
           {/* Book Cover */}
@@ -144,11 +135,6 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
     return results;
   }, [books, debouncedSearchTerm]);
 
-  const itemData = useMemo(() => ({
-    books: filteredBooks,
-    onBookClick
-  }), [filteredBooks, onBookClick]);
-
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   }, []);
@@ -189,19 +175,24 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
         )}
       </div>
 
-      {/* Virtualized List */}
+      {/* Optimized Scrollable List */}
       {filteredBooks.length > 0 ? (
         <div className="border rounded-lg overflow-hidden">
-          <List
-            height={600} // Fixed height for virtualization
-            width="100%" // Added required width prop
-            itemCount={filteredBooks.length}
-            itemSize={120} // Height of each book item
-            itemData={itemData}
-            overscanCount={5} // Render 5 extra items for smooth scrolling
+          <div 
+            className="max-h-[600px] overflow-y-auto scroll-smooth"
+            style={{ 
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'hsl(var(--muted-foreground)) hsl(var(--muted))'
+            }}
           >
-            {BookItem}
-          </List>
+            {filteredBooks.map((book, index) => (
+              <BookItem
+                key={`${book.id}-${index}`}
+                book={book}
+                onBookClick={onBookClick}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="text-center py-12">
