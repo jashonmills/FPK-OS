@@ -246,9 +246,11 @@
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* Prevent text overflow */
+  /* Prevent text overflow - Fixed with correct Tailwind classes */
   .safe-text {
-    @apply break-words overflow-wrap-anywhere;
+    @apply break-words hyphens-auto;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   /* Quick Study Challenges Layout */
