@@ -3,12 +3,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, RefreshCw, X, Loader2, BookOpen, Download, FileText, Check } from 'lucide-react';
-import { StreamingEPUBProgress, StreamingEPUBError } from '@/hooks/useStreamingProgressConverter';
+import { EPUBStreamingProgress, EPUBStreamingError } from '@/services/epub/EPUBStreamingTypes';
 
 interface EnhancedLoadingProgressProps {
   title: string;
-  progress?: StreamingEPUBProgress | null;
-  error?: StreamingEPUBError | string | null;
+  progress?: EPUBStreamingProgress | null;
+  error?: EPUBStreamingError | string | null;
   onRetry?: () => void;
   onCancel?: () => void;
   type?: 'epub' | 'pdf' | 'general';
@@ -24,11 +24,11 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 }) => {
   const getStageIcon = (stage: string) => {
     switch (stage) {
-      case 'prefetch':
+      case 'metadata':
         return <FileText className="h-5 w-5" />;
-      case 'processing':
+      case 'structure':
         return <BookOpen className="h-5 w-5" />;
-      case 'downloading':
+      case 'preloading':
         return <Download className="h-5 w-5" />;
       case 'streaming':
         return <Loader2 className="h-5 w-5 animate-spin" />;
@@ -41,11 +41,11 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case 'prefetch':
+      case 'metadata':
         return 'text-blue-500';
-      case 'processing':
+      case 'structure':
         return 'text-purple-500';
-      case 'downloading':
+      case 'preloading':
         return 'text-orange-500';
       case 'streaming':
         return 'text-yellow-500';
@@ -58,11 +58,11 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
   const getProgressBarColor = (stage: string) => {
     switch (stage) {
-      case 'prefetch':
+      case 'metadata':
         return 'bg-blue-500';
-      case 'processing':
+      case 'structure':
         return 'bg-purple-500';
-      case 'downloading':
+      case 'preloading':
         return 'bg-orange-500';
       case 'streaming':
         return 'bg-yellow-500';
@@ -174,9 +174,9 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
             {/* Stage indicators */}
             <div className="flex justify-center space-x-4 pt-2">
-              {['prefetch', 'processing', 'streaming', 'ready'].map((stage, index) => {
+              {['metadata', 'structure', 'streaming', 'ready'].map((stage, index) => {
                 const isActive = progress.stage === stage;
-                const isCompleted = ['prefetch', 'processing', 'streaming', 'ready'].indexOf(progress.stage) > index;
+                const isCompleted = ['metadata', 'structure', 'streaming', 'ready'].indexOf(progress.stage) > index;
                 
                 return (
                   <div 
