@@ -1,9 +1,10 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useProgressTracking } from '@/hooks/useProgressTracking';
+import { Loader2 } from 'lucide-react';
 
 const CoursePlayer: React.FC = () => {
   const { t } = useTranslation();
@@ -11,6 +12,8 @@ const CoursePlayer: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { user } = useAuth();
   const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
@@ -52,6 +55,8 @@ const CoursePlayer: React.FC = () => {
 
           case 'READY':
             console.log('Course player is ready');
+            setIsLoading(false);
+            setError(null);
             // Send initialization data to the iframe
             if (iframeRef.current?.contentWindow && user?.id) {
               iframeRef.current.contentWindow.postMessage(
@@ -70,6 +75,7 @@ const CoursePlayer: React.FC = () => {
         }
       } catch (error) {
         console.error('Error handling course player message:', error);
+        setError('Failed to communicate with course content');
       }
     };
 
@@ -80,43 +86,102 @@ const CoursePlayer: React.FC = () => {
     };
   }, [updateProgress, user?.id, currentProgress]);
 
-  // Send initialization handshake when iframe loads
+  // Handle iframe load event
   useEffect(() => {
     const handleIframeLoad = () => {
-      if (iframeRef.current?.contentWindow && user?.id) {
-        console.log('Sending init handshake to course player');
-        iframeRef.current.contentWindow.postMessage(
-          { 
-            type: 'INIT', 
-            userId: user.id,
-            currentProgress: currentProgress 
-          }, 
-          'https://preview--course-start-kit-react.lovable.app'
-        );
-      }
+      console.log('Iframe loaded successfully');
+      // Give the iframe a moment to initialize before sending messages
+      setTimeout(() => {
+        if (iframeRef.current?.contentWindow && user?.id) {
+          console.log('Sending init handshake to course player');
+          iframeRef.current.contentWindow.postMessage(
+            { 
+              type: 'INIT', 
+              userId: user.id,
+              currentProgress: currentProgress 
+            }, 
+            'https://preview--course-start-kit-react.lovable.app'
+          );
+        }
+      }, 1000);
+    };
+
+    const handleIframeError = () => {
+      console.error('Iframe failed to load');
+      setIsLoading(false);
+      setError('Failed to load course content. Please check your internet connection and try again.');
     };
 
     const iframe = iframeRef.current;
     if (iframe) {
       iframe.addEventListener('load', handleIframeLoad);
-      return () => iframe.removeEventListener('load', handleIframeLoad);
+      iframe.addEventListener('error', handleIframeError);
+      
+      // Set a timeout to handle cases where the iframe never loads
+      const timeout = setTimeout(() => {
+        if (isLoading) {
+          console.warn('Iframe load timeout');
+          setIsLoading(false);
+          setError('Course content is taking too long to load. Please refresh the page.');
+        }
+      }, 15000);
+
+      return () => {
+        iframe.removeEventListener('load', handleIframeLoad);
+        iframe.removeEventListener('error', handleIframeError);
+        clearTimeout(timeout);
+      };
     }
-  }, [user?.id, currentProgress]);
+  }, [user?.id, currentProgress, isLoading]);
+
+  const minHeight = isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)';
 
   return (
-    <div className="relative z-20 bg-white" style={{ minHeight: isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)' }}>
+    <div className="relative z-20 bg-white" style={{ minHeight }}>
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
+            <p className="text-gray-600">Loading course content...</p>
+            <p className="text-sm text-gray-500 mt-2">This may take a few moments</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error overlay */}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+          <div className="text-center max-w-md p-6">
+            <div className="text-red-500 mb-4">
+              <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Content Loading Error</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      )}
+
       <iframe
         ref={iframeRef}
         src="https://preview--course-start-kit-react.lovable.app/"
         title={t('courses.learningState.playerTitle')}
         className="w-full h-full border-0"
         style={{ 
-          minHeight: isMobile ? 'calc(100vh - 48px)' : 'calc(100vh - 48px)',
+          minHeight,
           height: '100%'
         }}
         allowFullScreen
-        allow="clipboard-write; encrypted-media; fullscreen"
-        sandbox="allow-scripts allow-same-origin allow-forms"
+        allow="clipboard-write; encrypted-media; fullscreen; microphone; camera"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
       />
     </div>
   );
