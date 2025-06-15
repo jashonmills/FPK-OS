@@ -35,7 +35,7 @@ export const usePublicDomainBooks = (limit?: number) => {
       
       // Enhanced book processing with better URL handling
       return (data || []).map(book => {
-        const processedBook = {
+        const processedBook: PublicDomainBook = {
           ...book,
           download_status: book.download_status as 'pending' | 'downloading' | 'completed' | 'failed',
           is_user_added: book.is_user_added || false,
@@ -55,7 +55,7 @@ export const usePublicDomainBooks = (limit?: number) => {
         }
 
         return processedBook;
-      }) as PublicDomainBook[];
+      });
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 20 * 60 * 1000, // 20 minutes cache time
