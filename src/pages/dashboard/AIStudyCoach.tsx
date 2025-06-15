@@ -12,6 +12,7 @@ import FileUploadCard from '@/components/ai-coach/FileUploadCard';
 import StudyPlanCard from '@/components/ai-coach/StudyPlanCard';
 import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
 import LearningStatsCard from '@/components/ai-coach/LearningStatsCard';
+import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
 
 const AIStudyCoach = () => {
@@ -116,6 +117,7 @@ const AIStudyCoach = () => {
 
         {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
         <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full">
+          <VoiceSettingsCard />
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />
           <LearningStatsCard

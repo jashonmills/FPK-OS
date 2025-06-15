@@ -20,6 +20,10 @@ interface VoiceSettingsContextType {
   toggle: () => void;
   togglePaused: () => void;
   initializeVoice: () => Promise<void>;
+  setSelectedVoice: (voiceName: string) => void;
+  getSelectedVoiceObject: () => SpeechSynthesisVoice | null;
+  saveSettingsToStorage: () => void;
+  loadSettingsFromStorage: () => Partial<VoiceSettings>;
 }
 
 const VoiceSettingsContext = createContext<VoiceSettingsContextType | undefined>(undefined);
@@ -30,6 +34,53 @@ export const useVoiceSettings = () => {
     throw new Error('useVoiceSettings must be used within a VoiceSettingsProvider');
   }
   return context;
+};
+
+// Enhanced voice selection logic for finding good female English voices
+const findBestEnglishVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
+  if (voices.length === 0) return null;
+
+  // Priority list of female-sounding English voices
+  const femaleVoiceNames = [
+    'Zira', 'Hazel', 'Karen', 'Samantha', 'Victoria', 'Susan', 'Allison',
+    'Kate', 'Serena', 'Tessa', 'Moira', 'Fiona', 'Ava', 'Emma', 'Joanna',
+    'Kendra', 'Kimberly', 'Salli', 'Nicole', 'Amy', 'Emma', 'Brian', 'Aditi'
+  ];
+
+  // First try to find voices with female-sounding names
+  for (const femaleName of femaleVoiceNames) {
+    const voice = voices.find(v => 
+      v.lang.startsWith('en') && 
+      v.name.toLowerCase().includes(femaleName.toLowerCase())
+    );
+    if (voice) {
+      console.log('🔊 Found preferred female voice:', voice.name);
+      return voice;
+    }
+  }
+
+  // Fallback: look for any English voice that doesn't have obviously male names
+  const maleVoiceNames = ['david', 'mark', 'daniel', 'alex', 'thomas', 'james', 'male'];
+  const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+  
+  const nonMaleVoices = englishVoices.filter(v => 
+    !maleVoiceNames.some(maleName => v.name.toLowerCase().includes(maleName))
+  );
+
+  if (nonMaleVoices.length > 0) {
+    console.log('🔊 Found English non-male voice:', nonMaleVoices[0].name);
+    return nonMaleVoices[0];
+  }
+
+  // Final fallback: any English voice
+  if (englishVoices.length > 0) {
+    console.log('🔊 Fallback to first English voice:', englishVoices[0].name);
+    return englishVoices[0];
+  }
+
+  // Last resort: any voice
+  console.log('🔊 Last resort - using first available voice:', voices[0].name);
+  return voices[0];
 };
 
 export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,6 +97,51 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const isSupported = 'speechSynthesis' in window;
+
+  // Load settings from localStorage on mount
+  const loadSettingsFromStorage = (): Partial<VoiceSettings> => {
+    try {
+      const stored = localStorage.getItem('voiceSettings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        console.log('🔊 Loaded voice settings from storage:', parsed);
+        return parsed;
+      }
+    } catch (error) {
+      console.warn('Failed to load voice settings from storage:', error);
+    }
+    return {};
+  };
+
+  // Save settings to localStorage
+  const saveSettingsToStorage = () => {
+    try {
+      localStorage.setItem('voiceSettings', JSON.stringify({
+        enabled: settings.enabled,
+        autoRead: settings.autoRead,
+        selectedVoice: settings.selectedVoice,
+        rate: settings.rate,
+        pitch: settings.pitch,
+        volume: settings.volume
+      }));
+      console.log('🔊 Saved voice settings to storage');
+    } catch (error) {
+      console.warn('Failed to save voice settings to storage:', error);
+    }
+  };
+
+  // Load settings on mount
+  useEffect(() => {
+    const storedSettings = loadSettingsFromStorage();
+    if (Object.keys(storedSettings).length > 0) {
+      setSettings(prev => ({ ...prev, ...storedSettings }));
+    }
+  }, []);
+
+  // Save settings whenever they change
+  useEffect(() => {
+    saveSettingsToStorage();
+  }, [settings.enabled, settings.autoRead, settings.selectedVoice, settings.rate, settings.pitch, settings.volume]);
 
   // Track user interaction for browser speech policies
   useEffect(() => {
@@ -104,15 +200,19 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log('🔊 Loading voices:', voices.length, 'voices found');
       setAvailableVoices(voices);
       
-      // Auto-select a good English voice if none selected
-      if (!settings.selectedVoice && voices.length > 0) {
-        const englishVoice = voices.find(voice => 
-          voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
-        ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+      // Auto-select a good voice if none selected or if stored voice is not available
+      if (voices.length > 0) {
+        const storedVoice = settings.selectedVoice;
+        const voiceExists = storedVoice && voices.some(v => v.name === storedVoice);
         
-        if (englishVoice) {
-          console.log('🔊 Auto-selecting voice:', englishVoice.name);
-          setSettings(prev => ({ ...prev, selectedVoice: englishVoice.name }));
+        if (!storedVoice || !voiceExists) {
+          const bestVoice = findBestEnglishVoice(voices);
+          if (bestVoice) {
+            console.log('🔊 Auto-selecting best voice:', bestVoice.name);
+            setSettings(prev => ({ ...prev, selectedVoice: bestVoice.name }));
+          }
+        } else {
+          console.log('🔊 Using stored voice:', storedVoice);
         }
       }
     };
@@ -123,6 +223,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
+    // Trigger voice loading with a silent utterance
     if (availableVoices.length === 0) {
       const utterance = new SpeechSynthesisUtterance('');
       utterance.volume = 0;
@@ -155,6 +256,16 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings(prev => ({ ...prev, ...updates }));
   };
 
+  const setSelectedVoice = (voiceName: string) => {
+    console.log('🔊 Setting selected voice to:', voiceName);
+    setSettings(prev => ({ ...prev, selectedVoice: voiceName }));
+  };
+
+  const getSelectedVoiceObject = (): SpeechSynthesisVoice | null => {
+    if (!settings.selectedVoice) return null;
+    return availableVoices.find(v => v.name === settings.selectedVoice) || null;
+  };
+
   const toggle = () => {
     const newEnabled = !settings.enabled;
     console.log('🔊 Voice toggled:', newEnabled ? 'enabled' : 'disabled');
@@ -179,7 +290,11 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     isSupported,
     toggle,
     togglePaused,
-    initializeVoice
+    initializeVoice,
+    setSelectedVoice,
+    getSelectedVoiceObject,
+    saveSettingsToStorage,
+    loadSettingsFromStorage
   };
 
   return (
