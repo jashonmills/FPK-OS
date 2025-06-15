@@ -28,6 +28,16 @@ export function useXPIntegration() {
     await updateStreak('study');
   }, [awardXP, updateStreak]);
 
+  // Quizlet Import Events
+  const awardFlashcardImportXP = useCallback(async (termCount: number) => {
+    const baseXP = Math.min(50, termCount * 2); // 2 XP per term, max 50 XP
+    
+    await awardXP('flashcard_import', baseXP, {
+      term_count: termCount,
+      description: `Imported ${termCount} flashcards from Quizlet`
+    });
+  }, [awardXP]);
+
   // Module Events
   const awardModuleCompletionXP = useCallback(async (moduleId: string) => {
     await awardXP('module_completed', 50, {
@@ -119,6 +129,7 @@ export function useXPIntegration() {
   return {
     awardFlashcardCreationXP,
     awardFlashcardStudyXP,
+    awardFlashcardImportXP,
     awardModuleCompletionXP,
     awardReadingSessionXP,
     awardNoteCreationXP,

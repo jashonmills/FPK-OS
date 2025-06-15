@@ -1,4 +1,3 @@
-
 export interface FeatureFlag {
   id: string;
   name: string;
@@ -136,6 +135,14 @@ export class FeatureFlagService {
         id: 'collapsibleNotes',
         name: 'Collapsible Note Accordions',
         description: 'Render notes as collapsible accordions to save vertical space',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      // Quizlet Integration feature flag
+      {
+        id: 'quizletIntegration',
+        name: 'Quizlet Integration',
+        description: 'Enable Quizlet flashcard search and import functionality',
         enabled: true,
         rolloutPercentage: 100
       }

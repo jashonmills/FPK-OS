@@ -1,16 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
-import { Brain, Sparkles, Clock } from 'lucide-react';
+import { Brain, Sparkles, Clock, Search } from 'lucide-react';
 import type { Flashcard } from '@/hooks/useFlashcards';
 import FlashcardSelectionHeader from './FlashcardSelectionHeader';
 import FlashcardFolderList from './FlashcardFolderList';
 import FlashcardIndividualList from './FlashcardIndividualList';
+import QuizletSearchTab from './QuizletSearchTab';
+import { featureFlagService } from '@/services/FeatureFlagService';
 
 interface FlashcardSelectionModalProps {
   isOpen: boolean;
@@ -30,6 +32,11 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   const [selectedIndividualCards, setSelectedIndividualCards] = useState<string[]>([]);
   const [selectedRecentCards, setSelectedRecentCards] = useState<string[]>([]);
   const [showIndividualCards, setShowIndividualCards] = useState(false);
+  const [activeTab, setActiveTab] = useState('folders');
+  const [quizletCards, setQuizletCards] = useState<Array<{ term: string; definition: string }>>([]);
+  const [quizletSetTitle, setQuizletSetTitle] = useState('');
+
+  const isQuizletEnabled = featureFlagService.isEnabled('quizletIntegration');
 
   // Get recent cards (last 7 days) and sort by creation date
   const recentCards = React.useMemo(() => {
@@ -114,9 +121,32 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
     );
   };
 
+  const handleQuizletImport = (cards: Array<{ term: string; definition: string }>, setTitle: string) => {
+    setQuizletCards(cards);
+    setQuizletSetTitle(setTitle);
+    setActiveTab('quizlet');
+  };
+
   const getSelectedFlashcards = () => {
     let selectedCards: Flashcard[] = [];
     
+    if (activeTab === 'quizlet' && quizletCards.length > 0) {
+      // Convert Quizlet cards to Flashcard format for the study session
+      return quizletCards.map((card, index) => ({
+        id: `quizlet-${index}`,
+        user_id: '',
+        note_id: null,
+        front_content: card.term,
+        back_content: card.definition,
+        difficulty_level: 1,
+        times_reviewed: 0,
+        times_correct: 0,
+        last_reviewed_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })) as Flashcard[];
+    }
+
     // Add selected recent cards
     const selectedRecentFlashcards = flashcards.filter(card => 
       selectedRecentCards.includes(card.id)
@@ -157,6 +187,9 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
       setSelectedIndividualCards([]);
       setSelectedRecentCards([]);
       setShowIndividualCards(false);
+      setActiveTab('folders');
+      setQuizletCards([]);
+      setQuizletSetTitle('');
     }
   }, [isOpen]);
 
@@ -177,109 +210,178 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <FlashcardSelectionHeader
-            showIndividualCards={showIndividualCards}
-            onToggleView={setShowIndividualCards}
-            onSelectAll={handleSelectAll}
-            selectedCount={selectedCards.length}
-          />
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="folders" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                By Folders
+              </TabsTrigger>
+              <TabsTrigger value="individual" className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Individual Cards
+              </TabsTrigger>
+              {isQuizletEnabled && (
+                <TabsTrigger value="quizlet" className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Quizlet Search
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-          <ScrollArea className="flex-1 h-[400px] pr-4">
-            <div className="space-y-6">
-              {/* Recent Cards Section */}
-              {recentCards.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-green-600" />
-                      <h3 className="font-medium text-green-900">Recent Cards</h3>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
-                        {recentCards.length} new
-                      </Badge>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleSelectAllRecent}
-                      className="text-xs border-green-200 text-green-700 hover:bg-green-50"
-                    >
-                      {selectedRecentCards.length === recentCards.length ? 'Deselect All' : 'Select All Recent'}
-                    </Button>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    {recentCards.map((card) => (
-                      <div
-                        key={card.id}
-                        className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                          selectedRecentCards.includes(card.id)
-                            ? 'border-green-400 bg-green-50 shadow-sm'
-                            : 'border-green-200 bg-green-25 hover:border-green-300 hover:bg-green-50'
-                        }`}
-                        onClick={() => handleRecentCardToggle(card.id)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge className="bg-green-100 text-green-800 text-xs animate-pulse">
-                                <Sparkles className="h-3 w-3 mr-1" />
-                                NEW
-                              </Badge>
-                              <span className="text-xs text-green-600">
-                                <Clock className="h-3 w-3 inline mr-1" />
-                                {new Date(card.created_at).toLocaleDateString()}
-                              </span>
+            <div className="flex-1 overflow-hidden min-h-0 mt-4">
+              <TabsContent value="folders" className="h-full overflow-hidden mt-0">
+                <FlashcardSelectionHeader
+                  showIndividualCards={false}
+                  onToggleView={() => {}}
+                  onSelectAll={handleSelectAll}
+                  selectedCount={selectedCards.length}
+                />
+
+                <ScrollArea className="flex-1 h-[400px] pr-4">
+                  <div className="space-y-6">
+                    {/* Recent Cards Section */}
+                    {recentCards.length > 0 && (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-green-600" />
+                            <h3 className="font-medium text-green-900">Recent Cards</h3>
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                              {recentCards.length} new
+                            </Badge>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleSelectAllRecent}
+                            className="text-xs border-green-200 text-green-700 hover:bg-green-50"
+                          >
+                            {selectedRecentCards.length === recentCards.length ? 'Deselect All' : 'Select All Recent'}
+                          </Button>
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          {recentCards.map((card) => (
+                            <div
+                              key={card.id}
+                              className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                                selectedRecentCards.includes(card.id)
+                                  ? 'border-green-400 bg-green-50 shadow-sm'
+                                  : 'border-green-200 bg-green-25 hover:border-green-300 hover:bg-green-50'
+                              }`}
+                              onClick={() => handleRecentCardToggle(card.id)}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge className="bg-green-100 text-green-800 text-xs animate-pulse">
+                                      <Sparkles className="h-3 w-3 mr-1" />
+                                      NEW
+                                    </Badge>
+                                    <span className="text-xs text-green-600">
+                                      <Clock className="h-3 w-3 inline mr-1" />
+                                      {new Date(card.created_at).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {card.front_content.substring(0, 80)}...
+                                  </p>
+                                  <p className="text-xs text-gray-600 truncate mt-1">
+                                    {card.back_content.substring(0, 60)}...
+                                  </p>
+                                </div>
+                                <div className={`w-4 h-4 rounded border-2 flex-shrink-0 ml-2 ${
+                                  selectedRecentCards.includes(card.id)
+                                    ? 'bg-green-500 border-green-500'
+                                    : 'border-gray-300'
+                                }`}>
+                                  {selectedRecentCards.includes(card.id) && (
+                                    <div className="w-full h-full bg-white rounded-sm scale-50"></div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {card.front_content.substring(0, 80)}...
-                            </p>
-                            <p className="text-xs text-gray-600 truncate mt-1">
-                              {card.back_content.substring(0, 60)}...
-                            </p>
-                          </div>
-                          <div className={`w-4 h-4 rounded border-2 flex-shrink-0 ml-2 ${
-                            selectedRecentCards.includes(card.id)
-                              ? 'bg-green-500 border-green-500'
-                              : 'border-gray-300'
-                          }`}>
-                            {selectedRecentCards.includes(card.id) && (
-                              <div className="w-full h-full bg-white rounded-sm scale-50"></div>
-                            )}
-                          </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* Older Cards Section */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
+                        <h3 className="font-medium text-gray-700">Study Collection</h3>
+                        {Object.keys(groupedFlashcards).length > 0 && (
+                          <Badge variant="outline">
+                            {Object.values(groupedFlashcards).reduce((sum, cards) => sum + cards.length, 0)} cards
+                          </Badge>
+                        )}
+                      </div>
+
+                      <FlashcardFolderList
+                        groupedFlashcards={groupedFlashcards}
+                        selectedFolders={selectedFolders}
+                        onFolderToggle={handleFolderToggle}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                </ScrollArea>
+              </TabsContent>
 
-              {/* Older Cards Section */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
-                  <h3 className="font-medium text-gray-700">Study Collection</h3>
-                  {Object.keys(groupedFlashcards).length > 0 && (
-                    <Badge variant="outline">
-                      {Object.values(groupedFlashcards).reduce((sum, cards) => sum + cards.length, 0)} cards
-                    </Badge>
-                  )}
-                </div>
+              <TabsContent value="individual" className="h-full overflow-hidden mt-0">
+                <FlashcardSelectionHeader
+                  showIndividualCards={true}
+                  onToggleView={() => {}}
+                  onSelectAll={handleSelectAll}
+                  selectedCount={selectedCards.length}
+                />
 
-                {!showIndividualCards ? (
-                  <FlashcardFolderList
-                    groupedFlashcards={groupedFlashcards}
-                    selectedFolders={selectedFolders}
-                    onFolderToggle={handleFolderToggle}
-                  />
-                ) : (
+                <ScrollArea className="flex-1 h-[400px] pr-4">
                   <FlashcardIndividualList
                     flashcards={Object.values(groupedFlashcards).flat()}
                     selectedCards={selectedIndividualCards}
                     onCardToggle={handleIndividualCardToggle}
                   />
-                )}
-              </div>
+                </ScrollArea>
+              </TabsContent>
+
+              {isQuizletEnabled && (
+                <TabsContent value="quizlet" className="h-full overflow-hidden mt-0">
+                  {quizletCards.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Search className="h-4 w-4 text-blue-600" />
+                          <h3 className="font-medium text-blue-900">Imported from Quizlet</h3>
+                          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                            {quizletCards.length} cards
+                          </Badge>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setQuizletCards([]);
+                            setQuizletSetTitle('');
+                          }}
+                          className="text-xs"
+                        >
+                          Clear Import
+                        </Button>
+                      </div>
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-medium text-blue-900 mb-2">{quizletSetTitle}</h4>
+                        <p className="text-sm text-blue-700">
+                          Ready to study {quizletCards.length} flashcards from this Quizlet set.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <QuizletSearchTab onImport={handleQuizletImport} />
+                  )}
+                </TabsContent>
+              )}
             </div>
-          </ScrollArea>
+          </Tabs>
         </div>
 
         <DialogFooter className="border-t pt-4">
