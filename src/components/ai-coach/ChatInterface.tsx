@@ -524,108 +524,127 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <Card className="h-[400px] sm:h-[500px] md:h-[600px] flex flex-col w-full overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-2 sm:p-3 md:p-4 lg:p-6 flex-shrink-0">
-        <CardTitle className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-            <span className="text-sm sm:text-base font-semibold truncate">AI Learning Coach</span>
-            <Badge variant="secondary" className="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium border border-white/30 flex-shrink-0 shadow-sm">
-              Enhanced
-            </Badge>
-            {completedSessions.length > 0 && (
-              <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
-                <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Personal Data</span>
-                <span className="sm:hidden">Data ✓</span>
+        <CardTitle className="flex flex-col space-y-3">
+          {/* Top row - Title and main badges */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-sm sm:text-base font-semibold truncate">AI Learning Coach</span>
+              <Badge variant="secondary" className="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium border border-white/30 flex-shrink-0 shadow-sm">
+                Enhanced
               </Badge>
-            )}
-            {settings.enabled && (
-              <Badge variant="secondary" className="bg-blue-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-blue-400/50 shadow-sm flex-shrink-0">
-                <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden lg:inline">Voice Active</span>
-                <span className="lg:hidden">Voice</span>
-              </Badge>
-            )}
-            {isSpeaking && !isPaused && (
-              <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs animate-pulse px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
-                <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Speaking</span>
-                <span className="sm:hidden">🔊</span>
-              </Badge>
-            )}
-            {isPaused && (
-              <Badge variant="secondary" className="bg-yellow-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-yellow-400/50 shadow-sm flex-shrink-0">
-                <Pause className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Paused</span>
-                <span className="sm:hidden">⏸</span>
-              </Badge>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* Status indicator */}
-            <div className="flex items-center gap-1">
-              {getStatusIcon()}
-              <span className="text-xs hidden md:inline truncate">Connected</span>
             </div>
             
-            {/* Recent Saves Menu */}
-            <RecentSavesMenu onOpenNote={handleOpenNote} />
-            
-            {/* Smart Pause/Resume/Stop Speech Controls */}
-            {isSpeaking && (
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              {/* Status indicator */}
               <div className="flex items-center gap-1">
-                <Button
-                  onClick={handlePauseResumeSpeech}
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
-                  title={isPaused ? "Resume speaking (Ctrl+Space)" : "Pause speaking (Ctrl+Space)"}
-                >
-                  {isPaused ? (
-                    <Play className="h-4 w-4" />
-                  ) : (
-                    <Pause className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button
-                  onClick={handleStopSpeech}
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
-                  title="Stop speaking (ESC)"
-                >
-                  <Square className="h-4 w-4 fill-current" />
-                </Button>
+                {getStatusIcon()}
+                <span className="text-xs hidden md:inline truncate">Connected</span>
+              </div>
+              
+              {/* Recent Saves Menu */}
+              <RecentSavesMenu onOpenNote={handleOpenNote} />
+              
+              {/* Smart Pause/Resume/Stop Speech Controls */}
+              {isSpeaking && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    onClick={handlePauseResumeSpeech}
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
+                    title={isPaused ? "Resume speaking (Ctrl+Space)" : "Pause speaking (Ctrl+Space)"}
+                  >
+                    {isPaused ? (
+                      <Play className="h-4 w-4" />
+                    ) : (
+                      <Pause className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleStopSpeech}
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
+                    title="Stop speaking (ESC)"
+                  >
+                    <Square className="h-4 w-4 fill-current" />
+                  </Button>
+                </div>
+              )}
+              
+              {/* Options Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleResetChat}>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset Chat
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSaveChat}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Save Chat
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleArchiveChat}>
+                    <Archive className="h-4 w-4 mr-2" />
+                    Archive Chat
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={toggleVoice}>
+                    {settings.enabled ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                    {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {/* Second row - Feature badges */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {completedSessions.length > 0 && (
+                <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
+                  <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <span className="hidden sm:inline">Personal Data</span>
+                  <span className="sm:hidden">Data ✓</span>
+                </Badge>
+              )}
+              {settings.enabled && (
+                <Badge variant="secondary" className="bg-blue-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-blue-400/50 shadow-sm flex-shrink-0">
+                  <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <span className="hidden lg:inline">Voice Active</span>
+                  <span className="lg:hidden">Voice</span>
+                </Badge>
+              )}
+              {isSpeaking && !isPaused && (
+                <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs animate-pulse px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
+                  <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <span className="hidden sm:inline">Speaking</span>
+                  <span className="sm:hidden">🔊</span>
+                </Badge>
+              )}
+              {isPaused && (
+                <Badge variant="secondary" className="bg-yellow-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-yellow-400/50 shadow-sm flex-shrink-0">
+                  <Pause className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <span className="hidden sm:inline">Paused</span>
+                  <span className="sm:hidden">⏸</span>
+                </Badge>
+              )}
+            </div>
+            
+            {completedSessions.length > 0 && (
+              <div className="flex items-center justify-end gap-2 text-sm sm:text-base lg:text-lg font-semibold flex-shrink-0">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                <span className="break-words">{overallAccuracy}% Accuracy</span>
+                <p className="text-purple-200 text-xs sm:text-sm break-words ml-2">
+                  {currentStreak > 0 ? `${currentStreak} day streak!` : 'Start your streak today'}
+                </p>
               </div>
             )}
-            
-            {/* Options Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleResetChat}>
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Reset Chat
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSaveChat}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Save Chat
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleArchiveChat}>
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive Chat
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleVoice}>
-                  {settings.enabled ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
-                  {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </CardTitle>
       </CardHeader>
