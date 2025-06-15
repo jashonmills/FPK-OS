@@ -1,4 +1,3 @@
-
 export interface PublicDomainBook {
   id: string;
   title: string;
@@ -20,6 +19,8 @@ export interface PublicDomainBook {
   download_status?: 'pending' | 'downloading' | 'completed' | 'failed';
   last_download_attempt?: string;
   download_error_message?: string;
+  // Backup URLs for resilient loading
+  backup_urls?: string[];
 }
 
 export interface OPDSEntry {

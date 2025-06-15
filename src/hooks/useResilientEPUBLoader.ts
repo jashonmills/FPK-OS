@@ -16,6 +16,7 @@ export interface ResilientEPUBError {
   type: 'network' | 'timeout' | 'parsing' | 'all_urls_failed';
   message: string;
   recoverable: boolean;
+  retryCount: number;
   failedUrls: string[];
   lastAttemptUrl?: string;
 }
@@ -30,8 +31,10 @@ export const useResilientEPUBLoader = (book: PublicDomainBook) => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const epubModuleRef = useRef<any>(null);
   const failedUrlsRef = useRef<string[]>([]);
+  const retryCountRef = useRef(0);
   
   const TIMEOUT_DURATION = 15000; // 15 seconds per attempt
+  const MAX_RETRIES = 3;
 
   const updateProgress = useCallback((
     stage: ResilientEPUBProgress['stage'],
@@ -140,6 +143,7 @@ export const useResilientEPUBLoader = (book: PublicDomainBook) => {
       setEpubInstance(null);
       setToc([]);
       failedUrlsRef.current = [];
+      retryCountRef.current = 0;
       
       // Clean up any previous abort controller
       if (abortControllerRef.current) {
@@ -199,6 +203,7 @@ export const useResilientEPUBLoader = (book: PublicDomainBook) => {
         type: failedUrlsRef.current.length > 0 ? 'all_urls_failed' : 'network',
         message: `Unable to load "${book.title}". ${errorMessage}`,
         recoverable: true,
+        retryCount: retryCountRef.current, // Include retry count
         failedUrls: [...failedUrlsRef.current],
         lastAttemptUrl: failedUrlsRef.current[failedUrlsRef.current.length - 1]
       });
@@ -210,6 +215,7 @@ export const useResilientEPUBLoader = (book: PublicDomainBook) => {
 
   const retryLoad = useCallback(() => {
     failedUrlsRef.current = []; // Reset failed URLs for retry
+    retryCountRef.current++;
     setError(null);
     loadEPUB();
   }, [loadEPUB]);
