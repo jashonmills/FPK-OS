@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,9 @@ import {
 } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
 import { useGamification } from '@/hooks/useGamification';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 import XPProgressBar from '@/components/gamification/XPProgressBar';
 import StreakDisplay from '@/components/gamification/StreakDisplay';
 import BadgeDisplay from '@/components/gamification/BadgeDisplay';
@@ -25,9 +29,12 @@ import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import { featureFlagService } from '@/services/FeatureFlagService';
 
 const LearnerHome = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: stats, isLoading: statsLoading } = useQuickStats();
   const { userStats, isLoading: gamificationLoading } = useGamification();
+  const { flashcards, isLoading: flashcardsLoading } = useFlashcards();
+  const { data: readingProgress, isLoading: readingLoading } = useReadingProgress();
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const isNASAEnabled = featureFlagService.isEnabled('enableNASAImageExplorer');
@@ -41,8 +48,95 @@ const LearnerHome = () => {
     setIsAPODModalOpen(false);
   };
 
+  const handleContinueReading = () => {
+    if (readingLoading) return;
+    
+    if (readingProgress && readingProgress.length > 0) {
+      // Navigate to the most recent book being read
+      const mostRecent = readingProgress[0];
+      navigate(`/dashboard/learner/library?book=${mostRecent.book_id}`);
+    } else {
+      // Navigate to library to start reading
+      navigate('/dashboard/learner/library');
+    }
+  };
+
+  const handleStartStudy = () => {
+    if (flashcardsLoading) return;
+    
+    if (flashcards && flashcards.length > 0) {
+      // Navigate to notes page with flashcards section
+      navigate('/dashboard/learner/notes');
+    } else {
+      // Navigate to notes to create flashcards
+      navigate('/dashboard/learner/notes');
+    }
+  };
+
+  const handleViewProgress = () => {
+    navigate('/dashboard/learner/analytics');
+  };
+
+  const getRecentActivities = () => {
+    const activities = [];
+    
+    // Add recent XP activities if available
+    if (userStats?.recent_activities) {
+      userStats.recent_activities.slice(0, 3).forEach(activity => {
+        activities.push({
+          type: 'xp',
+          icon: Award,
+          title: activity.description || 'XP Earned',
+          subtitle: `+${activity.xp_amount} XP • ${formatTimeAgo(activity.created_at)}`,
+          color: 'text-yellow-500'
+        });
+      });
+    }
+    
+    // Add reading progress if available
+    if (readingProgress && readingProgress.length > 0) {
+      const recentReading = readingProgress[0];
+      activities.push({
+        type: 'reading',
+        icon: BookOpen,
+        title: `Reading Progress: ${recentReading.progress}%`,
+        subtitle: formatTimeAgo(recentReading.updated_at),
+        color: 'text-blue-500'
+      });
+    }
+    
+    // Add study streak if available
+    const studyStreak = userStats?.streaks?.find(s => s.streak_type === 'study');
+    if (studyStreak && studyStreak.current_count > 0) {
+      activities.push({
+        type: 'streak',
+        icon: Trophy,
+        title: `Study Streak: ${studyStreak.current_count} days`,
+        subtitle: 'Keep it going!',
+        color: 'text-orange-500'
+      });
+    }
+    
+    return activities;
+  };
+
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now.getTime() - past.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHours < 1) return 'Just now';
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  };
+
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
+
+  const recentActivities = getRecentActivities();
 
   return (
     <div className="space-y-6">
@@ -133,9 +227,20 @@ const LearnerHome = () => {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Pick up where you left off in your current book.
+              {readingLoading 
+                ? 'Loading your reading progress...' 
+                : readingProgress && readingProgress.length > 0
+                  ? 'Pick up where you left off in your current book.'
+                  : 'Start reading from our library collection.'
+              }
             </p>
-            <Button className="w-full">Resume</Button>
+            <Button 
+              className="w-full" 
+              onClick={handleContinueReading}
+              disabled={readingLoading}
+            >
+              {readingLoading ? 'Loading...' : readingProgress && readingProgress.length > 0 ? 'Resume' : 'Start Reading'}
+            </Button>
           </CardContent>
         </Card>
 
@@ -148,9 +253,21 @@ const LearnerHome = () => {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Review flashcards and test your knowledge.
+              {flashcardsLoading 
+                ? 'Loading your flashcards...' 
+                : flashcards && flashcards.length > 0
+                  ? 'Review flashcards and test your knowledge.'
+                  : 'Create flashcards to start studying.'
+              }
             </p>
-            <Button variant="outline" className="w-full">Start Study</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleStartStudy}
+              disabled={flashcardsLoading}
+            >
+              {flashcardsLoading ? 'Loading...' : flashcards && flashcards.length > 0 ? 'Start Study' : 'Create Flashcards'}
+            </Button>
           </CardContent>
         </Card>
 
@@ -165,7 +282,13 @@ const LearnerHome = () => {
             <p className="text-sm text-gray-600 mb-4">
               Check your learning analytics and achievements.
             </p>
-            <Button variant="outline" className="w-full">Analytics</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleViewProgress}
+            >
+              Analytics
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -180,20 +303,25 @@ const LearnerHome = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Award className="h-5 w-5 text-yellow-500" />
-              <div>
-                <p className="font-medium">Reading Achievement Unlocked!</p>
-                <p className="text-sm text-gray-600">Completed 10 pages today</p>
+            {recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <activity.icon className={`h-5 w-5 ${activity.color}`} />
+                  <div>
+                    <p className="font-medium">{activity.title}</p>
+                    <p className="text-sm text-gray-600">{activity.subtitle}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-sm mb-2">No recent activity</p>
+                <p className="text-xs text-gray-400">
+                  Start reading, studying, or completing goals to see your activity here
+                </p>
               </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <BookOpen className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="font-medium">Started "Introduction to Physics"</p>
-                <p className="text-sm text-gray-600">2 hours ago</p>
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
