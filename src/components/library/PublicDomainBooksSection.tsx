@@ -1,24 +1,52 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
 import OpenLibrarySearchBar from './OpenLibrarySearchBar';
-import OptimizedPublicDomainBooksList from './OptimizedPublicDomainBooksList';
+import VirtualizedBookList from './VirtualizedBookList';
 import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle, Zap } from 'lucide-react';
+import { performanceService } from '@/services/PerformanceOptimizationService';
 
-const INITIAL_LOAD_LIMIT = 5; // Reduced from 10 for faster initial load
-const LOAD_MORE_AMOUNT = 8; // Slightly reduced for better performance
+const INITIAL_LOAD_LIMIT = 10; // Increased slightly for better virtualization
+const LOAD_MORE_AMOUNT = 20; // Optimized batch size
 
 const PublicDomainBooksSection: React.FC = () => {
   const [loadLimit, setLoadLimit] = useState(INITIAL_LOAD_LIMIT);
   const [selectedBook, setSelectedBook] = useState<PublicDomainBook | null>(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
   
   const { books, isLoading, error, refetch, retryCount, hasMore } = usePublicDomainBooks(loadLimit);
+
+  // Initialize performance optimizations
+  useEffect(() => {
+    const initializePerformance = async () => {
+      console.log('🚀 Initializing performance optimizations...');
+      
+      // Preload critical resources
+      await performanceService.preloadCriticalResources();
+      
+      // Prefetch popular books when we have them
+      if (books.length > 0) {
+        await performanceService.prefetchPopularBooks(books);
+        
+        // Prefetch common search terms
+        const popularQueries = ['fiction', 'adventure', 'classic', 'science', 'history'];
+        await performanceService.prefetchSearchResults(popularQueries);
+      }
+      
+      // Get performance metrics
+      setPerformanceMetrics(performanceService.getMetrics());
+    };
+
+    if (!isLoading && books.length > 0) {
+      initializePerformance();
+    }
+  }, [books, isLoading]);
 
   const handleBookClick = (book: PublicDomainBook) => {
     setSelectedBook(book);
@@ -53,11 +81,35 @@ const PublicDomainBooksSection: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Performance Optimization Status */}
+      {performanceMetrics && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="h-5 w-5 text-green-600" />
+            <h3 className="font-semibold text-green-800">Performance Optimizations Active</h3>
+          </div>
+          <div className="text-sm text-green-700 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <span className="font-medium">Prefetched Books:</span> {performanceMetrics.prefetchedBooksCount}
+            </div>
+            <div>
+              <span className="font-medium">Cached Searches:</span> {performanceMetrics.cachedSearchesCount}
+            </div>
+            <div>
+              <span className="font-medium">CDN Connections:</span> {performanceMetrics.preconnectDomains}
+            </div>
+            <div>
+              <span className="font-medium">Virtualization:</span> Enabled
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Search Bar */}
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-4">Public Domain Collection</h2>
         <p className="text-muted-foreground mb-6">
-          Search and add books from OpenLibrary or browse our curated collection
+          Search and add books from OpenLibrary or browse our curated collection with enhanced performance
         </p>
         <OpenLibrarySearchBar />
       </div>
@@ -94,15 +146,30 @@ const PublicDomainBooksSection: React.FC = () => {
         <div className="text-center py-12">
           <div className="inline-flex items-center gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="text-muted-foreground">Loading books... (Starting with {INITIAL_LOAD_LIMIT} books for faster loading)</span>
+            <span className="text-muted-foreground">
+              Loading books with performance optimizations...
+            </span>
           </div>
         </div>
       )}
 
-      {/* Optimized Collapsible List of All Books */}
+      {/* Virtualized List of All Books - Enhanced Performance */}
       {books.length > 0 && (
         <>
-          <OptimizedPublicDomainBooksList books={books} isLoading={isLoading} />
+          <div className="bg-background border rounded-lg p-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">All Books - Virtualized View</h3>
+              <p className="text-sm text-muted-foreground">
+                Enhanced with virtualization, search caching, and streaming for optimal performance
+              </p>
+            </div>
+            
+            <VirtualizedBookList 
+              books={books} 
+              onBookClick={handleBookClick}
+              isLoading={isLoading}
+            />
+          </div>
           
           {/* Load More Button */}
           {hasMore && (
@@ -125,7 +192,7 @@ const PublicDomainBooksSection: React.FC = () => {
                 )}
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                Showing {books.length} books. Optimized loading for better performance.
+                Showing {books.length} books. Virtualized loading for better performance.
               </p>
             </div>
           )}
@@ -135,7 +202,7 @@ const PublicDomainBooksSection: React.FC = () => {
       {/* Curated Project Gutenberg Collection - Only show if we have books */}
       {curatedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
         <BookCarousel
-          books={curatedBooks.slice(0, 6)} // Reduced from 8 for performance
+          books={curatedBooks.slice(0, 8)} // Show more with better performance
           sectionId="curatedGutenberg"
           title="Curated Project Gutenberg Collection"
           description={`${curatedBooks.length} carefully selected educational classics`}
@@ -147,7 +214,7 @@ const PublicDomainBooksSection: React.FC = () => {
       {/* User-Added Books - Only show if we have books */}
       {userAddedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
         <BookCarousel
-          books={userAddedBooks.slice(0, 6)} // Reduced from 8 for performance
+          books={userAddedBooks.slice(0, 8)} // Show more with better performance
           sectionId="userAddedBooks"
           title="Community Added Books"
           description={`${userAddedBooks.length} books added by users from OpenLibrary`}
@@ -156,7 +223,7 @@ const PublicDomainBooksSection: React.FC = () => {
         />
       )}
 
-      {/* Enhanced EPUB Reader Modal */}
+      {/* Enhanced EPUB Reader Modal with Streaming */}
       {selectedBook && (
         <EnhancedEPUBReader book={selectedBook} onClose={handleCloseReader} />
       )}
