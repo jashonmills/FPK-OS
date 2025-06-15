@@ -31,8 +31,10 @@ export const usePublicDomainBooks = () => {
         openlibrary_key: book.openlibrary_key || undefined
       })) as PublicDomainBook[];
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes - shorter stale time for faster updates
-    refetchOnWindowFocus: false
+    staleTime: 5 * 60 * 1000, // 5 minutes - longer stale time for better performance
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    refetchOnWindowFocus: false,
+    refetchOnMount: false // Don't refetch on mount if we have cached data
   });
 
   return {

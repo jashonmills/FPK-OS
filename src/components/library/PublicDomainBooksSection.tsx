@@ -6,7 +6,7 @@ import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
 import OpenLibrarySearchBar from './OpenLibrarySearchBar';
-import PublicDomainBooksList from './PublicDomainBooksList';
+import OptimizedPublicDomainBooksList from './OptimizedPublicDomainBooksList';
 import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
 
 const PublicDomainBooksSection: React.FC = () => {
@@ -54,8 +54,8 @@ const PublicDomainBooksSection: React.FC = () => {
         </div>
       )}
 
-      {/* Collapsible List of All Books */}
-      <PublicDomainBooksList books={books} isLoading={isLoading} />
+      {/* Optimized Collapsible List of All Books */}
+      <OptimizedPublicDomainBooksList books={books} isLoading={isLoading} />
 
       {/* Curated Project Gutenberg Collection */}
       {curatedBooks.length > 0 && (
