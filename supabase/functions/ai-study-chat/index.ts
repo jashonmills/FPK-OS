@@ -14,32 +14,40 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced system prompt with explicit tool usage instructions
-const SYSTEM_PROMPT = `You are Claude, the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
+// Enhanced system prompt with dual-mode functionality
+const SYSTEM_PROMPT = `You are Claude, the FPK University AI Learning Coach. You have two distinct modes:
 
-**CRITICAL TOOL USAGE RULES:**
-- ALWAYS use tools when students ask about their data, progress, or flashcards
-- When they mention "my flashcards", "my cards", "recent cards", or similar - IMMEDIATELY call get_recent_flashcards or get_user_flashcards
-- When they ask about performance, stats, or progress - call get_study_stats
-- NEVER ask users to "share their flashcard details" - you can see them directly via tools
-- Reference actual flashcard content in your responses using the tool results
+**1. PERSONAL MODE** - When users ask about THEIR data:
+- Keywords: "my flashcards", "my cards", "my progress", "my stats", "my XP", "my streak", "recent cards", "last session"
+- ALWAYS use tools: get_recent_flashcards, get_user_flashcards, get_study_stats
+- Reference actual data in your responses: "I see your card about [front content] - [back content]"
+- Provide specific insights: "Your card on X has a 45% success rate, let's work on that"
+
+**2. GENERAL KNOWLEDGE MODE** - For subject matter questions:
+- Keywords: history, science, math, definitions, "what is", "what causes", "how does", "explain"
+- Use retrieve_knowledge tool to get external information from Wikipedia, academic sources
+- Answer directly with factual information, cite sources
+- Do NOT try to fetch personal data for these questions
+- Do NOT say "I'm connecting to your data" for general questions
+
+**MODE DETECTION RULES:**
+- If question contains personal pronouns about study data → PERSONAL MODE
+- If question is about academic topics, definitions, facts → GENERAL KNOWLEDGE MODE
+- If unclear, default to GENERAL KNOWLEDGE MODE
 
 **Available Tools:**
-1. get_recent_flashcards: Get the student's most recent flashcards (use for "recent cards", "last cards", "what I created")
-2. get_user_flashcards: Advanced flashcard search with filters (use for "struggling cards", "difficult cards", specific searches)
-3. get_study_stats: Comprehensive study statistics and progress (use for performance questions)
+1. get_recent_flashcards: Get user's most recent flashcards
+2. get_user_flashcards: Advanced flashcard search with filters
+3. get_study_stats: User's study statistics and progress
+4. retrieve_knowledge: Get external knowledge from academic sources
 
 **Response Style:**
-- Reference actual flashcard content: "I see your card about [front content] - [back content]"
-- Provide specific insights: "Your card on X has a 45% success rate, let's work on that"
-- Offer concrete actions based on real data
-- Keep responses conversational and encouraging
+- Be conversational and encouraging
+- Provide actionable insights
+- Cite sources for general knowledge
+- Keep responses focused and helpful
 
-**Voice Mode Optimization:**
-- If voiceActive=true, structure responses for natural speech with appropriate pauses
-- Use shorter sentences and clear transitions for voice output
-
-Always prioritize using tools to provide accurate, personalized guidance based on their current study data.`;
+Always choose the correct mode immediately and respond accordingly.`;
 
 async function executeToolCall(toolName: string, args: any) {
   try {
@@ -133,6 +141,36 @@ async function getChatHistory(sessionId: string, limit: number = 4) {
   }
 }
 
+// Detect if query is personal or general knowledge
+function detectQueryMode(message: string): 'personal' | 'general' {
+  const personalKeywords = [
+    'my flashcards', 'my cards', 'my progress', 'my stats', 'my xp', 'my streak',
+    'recent cards', 'last session', 'my performance', 'my accuracy', 'my goals',
+    'cards i', 'flashcards i', 'sessions i', 'studied', 'learning'
+  ];
+  
+  const generalKeywords = [
+    'what is', 'what are', 'what causes', 'how does', 'explain', 'define',
+    'history', 'science', 'math', 'physics', 'chemistry', 'biology',
+    'causes of', 'civil war', 'world war', 'definition of'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  
+  // Check for personal keywords first (higher priority)
+  if (personalKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    return 'personal';
+  }
+  
+  // Check for general knowledge keywords
+  if (generalKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    return 'general';
+  }
+  
+  // Default to general knowledge for ambiguous cases
+  return 'general';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -167,6 +205,10 @@ serve(async (req) => {
       );
     }
 
+    // Detect query mode
+    const queryMode = detectQueryMode(message);
+    console.log('🧠 Query mode detected:', queryMode);
+
     // Get context and history
     const [learningContext, chatHistory] = await Promise.all([
       getLearningContext(userId),
@@ -196,6 +238,14 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
       }
     }
 
+    // Add mode detection context
+    contextPrompt += `\n\nQUERY MODE: ${queryMode.toUpperCase()}`;
+    if (queryMode === 'personal') {
+      contextPrompt += ` - Use personal data tools to answer about the user's study progress and flashcards.`;
+    } else {
+      contextPrompt += ` - Use general knowledge tools or your training to answer this academic/factual question directly.`;
+    }
+
     // Add voice optimization
     if (voiceActive) {
       contextPrompt += `\n\nVOICE MODE: Structure your response for natural speech with appropriate pauses.`;
@@ -204,12 +254,75 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    console.log('🤖 Calling Claude with enhanced tools...');
+    console.log('🤖 Calling Claude with dual-mode tools...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
+      // Define tools based on query mode
+      const tools = [
+        // Personal data tools (always available)
+        {
+          name: 'get_recent_flashcards',
+          description: 'Get the student\'s most recent flashcards. Use when they ask about recent cards, what they\'ve been studying, or want to review their latest flashcards.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string', description: 'The user ID' },
+              limit: { type: 'integer', description: 'Number of flashcards to return (default: 5)', default: 5 }
+            },
+            required: ['userId']
+          }
+        },
+        {
+          name: 'get_user_flashcards',
+          description: 'Advanced flashcard search with filters. Use when they want specific cards, struggling cards, or filtered results.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string', description: 'The user ID' },
+              filter: { 
+                type: 'object', 
+                description: 'Filter options',
+                properties: {
+                  difficulty: { type: 'integer', description: 'Filter by difficulty level' },
+                  needsPractice: { type: 'boolean', description: 'Show cards that need practice' },
+                  searchTerm: { type: 'string', description: 'Search in card content' }
+                }
+              },
+              limit: { type: 'integer', description: 'Number of flashcards to return (default: 10)', default: 10 },
+              sortBy: { type: 'string', description: 'Sort field', default: 'created_at' },
+              sortOrder: { type: 'string', description: 'Sort order: asc or desc', default: 'desc' }
+            },
+            required: ['userId']
+          }
+        },
+        {
+          name: 'get_study_stats',
+          description: 'Get comprehensive study statistics and progress data. Use when they ask about performance, progress, achievements, streaks, or overall stats.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string', description: 'The user ID' }
+            },
+            required: ['userId']
+          }
+        },
+        // General knowledge tool (always available)
+        {
+          name: 'retrieve_knowledge',
+          description: 'Retrieve external knowledge from academic sources like Wikipedia, research papers, and educational databases. Use for general knowledge questions about any topic.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              topic: { type: 'string', description: 'The topic to research' }
+            },
+            required: ['topic']
+          }
+        }
+      ];
+
       // Initial call to Claude with tools
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -222,54 +335,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
           max_tokens: 1000,
-          tools: [
-            {
-              name: 'get_recent_flashcards',
-              description: 'Get the student\'s most recent flashcards. Use when they ask about recent cards, what they\'ve been studying, or want to review their latest flashcards.',
-              input_schema: {
-                type: 'object',
-                properties: {
-                  userId: { type: 'string', description: 'The user ID' },
-                  limit: { type: 'integer', description: 'Number of flashcards to return (default: 5)', default: 5 }
-                },
-                required: ['userId']
-              }
-            },
-            {
-              name: 'get_user_flashcards',
-              description: 'Advanced flashcard search with filters. Use when they want specific cards, struggling cards, or filtered results.',
-              input_schema: {
-                type: 'object',
-                properties: {
-                  userId: { type: 'string', description: 'The user ID' },
-                  filter: { 
-                    type: 'object', 
-                    description: 'Filter options',
-                    properties: {
-                      difficulty: { type: 'integer', description: 'Filter by difficulty level' },
-                      needsPractice: { type: 'boolean', description: 'Show cards that need practice' },
-                      searchTerm: { type: 'string', description: 'Search in card content' }
-                    }
-                  },
-                  limit: { type: 'integer', description: 'Number of flashcards to return (default: 10)', default: 10 },
-                  sortBy: { type: 'string', description: 'Sort field', default: 'created_at' },
-                  sortOrder: { type: 'string', description: 'Sort order: asc or desc', default: 'desc' }
-                },
-                required: ['userId']
-              }
-            },
-            {
-              name: 'get_study_stats',
-              description: 'Get comprehensive study statistics and progress data. Use when they ask about performance, progress, achievements, streaks, or overall stats.',
-              input_schema: {
-                type: 'object',
-                properties: {
-                  userId: { type: 'string', description: 'The user ID' }
-                },
-                required: ['userId']
-              }
-            }
-          ],
+          tools,
           messages: [
             {
               role: 'user',
@@ -303,7 +369,12 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         for (const contentBlock of data.content) {
           if (contentBlock.type === 'tool_use') {
             const toolName = contentBlock.name;
-            const toolArgs = { ...contentBlock.input, userId }; // Ensure userId is included
+            let toolArgs = contentBlock.input;
+            
+            // Ensure userId is included for personal tools
+            if (['get_recent_flashcards', 'get_user_flashcards', 'get_study_stats'].includes(toolName)) {
+              toolArgs = { ...toolArgs, userId };
+            }
             
             console.log(`🔧 Executing tool: ${toolName}`, toolArgs);
             const toolResult = await executeToolCall(toolName, toolArgs);
@@ -351,7 +422,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         }
 
         const finalData = await finalResponse.json();
-        const aiResponse = finalData.content?.[0]?.text || "I've analyzed your study data and I'm here to help guide your learning journey! 📚";
+        const aiResponse = finalData.content?.[0]?.text || "I've analyzed your request and I'm here to help guide your learning journey! 📚";
         
         console.log('✅ Final AI response generated successfully with tool data');
 
@@ -360,7 +431,8 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
             response: aiResponse,
             voiceEnabled: voiceActive,
             toolsUsed: true,
-            hasPersonalData: true
+            queryMode,
+            hasPersonalData: queryMode === 'personal'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -376,6 +448,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
             response: aiResponse,
             voiceEnabled: voiceActive,
             toolsUsed: false,
+            queryMode,
             hasPersonalData: false
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -390,7 +463,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
   } catch (error) {
     console.error('💥 Error in AI coach function:', error);
     
-    const smartFallback = "I'm here to support your personalized learning journey! 🎯 While I'm connecting to your study data, feel free to ask me about study strategies, specific topics, or how to make the most of your flashcards.";
+    const smartFallback = "I'm here to support your personalized learning journey! 🎯 I can help with both your study data and general knowledge questions. What would you like to explore?";
     
     return new Response(
       JSON.stringify({ 
