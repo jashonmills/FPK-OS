@@ -1,4 +1,3 @@
-
 /**
  * Performance Optimization Service
  * Refactored into smaller, focused components

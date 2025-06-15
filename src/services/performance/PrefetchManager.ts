@@ -12,7 +12,7 @@ export class PrefetchManager {
   /**
    * Enhanced prefetch with streaming support
    */
-  async prefetchPopularBooks(books: any[], popularBooksCount: number, streamingEnabled: boolean): Promise<void> {
+  async prefetchPopularBooks(books: any[], popularBooksCount: number, streamingEnabled: boolean): Promise<number> {
     const popularBooks = books.slice(0, popularBooksCount);
     
     console.log('🚀 Enhanced prefetching with streaming for', popularBooks.length, 'books...');
