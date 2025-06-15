@@ -58,6 +58,12 @@ serve(async (req) => {
       queryMode = detectQueryMode(message);
       console.log('🧠 Query mode detected:', queryMode);
       
+      // Enhanced detection for recent flashcards
+      const isRecentFlashcardsRequest = detectRecentFlashcardsRequest(message);
+      if (isRecentFlashcardsRequest) {
+        console.log('📚 Recent flashcards request detected - ensuring tool usage');
+      }
+      
       [learningContext, chatHistory] = await Promise.all([
         getLearningContext(userId),
         sessionId ? getChatHistory(sessionId, 6) : Promise.resolve([])

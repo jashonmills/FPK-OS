@@ -24,7 +24,7 @@ serve(async (req) => {
       throw new Error('User ID is required');
     }
 
-    console.log('Fetching recent flashcards for user:', userId, 'limit:', limit);
+    console.log('📚 Fetching recent flashcards for user:', userId, 'limit:', limit);
 
     const { data: flashcards, error } = await supabase
       .from('flashcards')
@@ -47,41 +47,74 @@ serve(async (req) => {
       throw error;
     }
 
-    console.log('Found flashcards:', flashcards?.length || 0);
+    console.log('📚 Found flashcards:', flashcards?.length || 0);
 
-    // Format response for Claude to understand
-    const formattedCards = flashcards?.map(card => ({
-      id: card.id,
-      front: card.front_content,
-      back: card.back_content,
-      created_at: card.created_at,
-      stats: {
-        correct: card.times_correct || 0,
-        attempts: card.times_reviewed || 0,
-        successRate: card.times_reviewed > 0 ? Math.round((card.times_correct / card.times_reviewed) * 100) : 0,
-        difficulty: card.difficulty_level || 1,
-        lastReviewed: card.last_reviewed_at
+    // Enhanced formatting for Claude to understand and present properly
+    const formattedCards = flashcards?.map(card => {
+      // Extract a meaningful title from the front content (first few words)
+      const title = card.front_content.length > 50 
+        ? card.front_content.substring(0, 50) + '...'
+        : card.front_content;
+      
+      // Extract snippet from back content (first few words)
+      const snippet = card.back_content.length > 30
+        ? card.back_content.substring(0, 30) + '...'
+        : card.back_content;
+
+      return {
+        id: card.id,
+        title: title,
+        question: card.front_content,
+        answer: card.back_content,
+        snippet: snippet,
+        created_at: card.created_at,
+        stats: {
+          correct: card.times_correct || 0,
+          attempts: card.times_reviewed || 0,
+          successRate: card.times_reviewed > 0 ? Math.round((card.times_correct / card.times_reviewed) * 100) : 0,
+          difficulty: card.difficulty_level || 1,
+          lastReviewed: card.last_reviewed_at
+        }
+      };
+    }) || [];
+
+    // Enhanced response structure for better AI parsing
+    const response = {
+      success: true,
+      flashcards: formattedCards,
+      total: formattedCards.length,
+      message: formattedCards.length > 0 
+        ? `Found ${formattedCards.length} recent flashcards`
+        : 'No flashcards found for this user',
+      isEmpty: formattedCards.length === 0,
+      // Add metadata for AI to understand context
+      metadata: {
+        userHasFlashcards: formattedCards.length > 0,
+        requestedLimit: limit,
+        actualCount: formattedCards.length
       }
-    })) || [];
+    };
+
+    console.log('📚 Returning enhanced flashcard response:', {
+      count: response.total,
+      isEmpty: response.isEmpty,
+      hasData: response.success
+    });
 
     return new Response(
-      JSON.stringify({ 
-        flashcards: formattedCards,
-        total: formattedCards.length,
-        message: formattedCards.length > 0 
-          ? `Found ${formattedCards.length} recent flashcards`
-          : 'No flashcards found for this user'
-      }),
+      JSON.stringify(response),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error fetching recent flashcards:', error);
+    console.error('❌ Error fetching recent flashcards:', error);
     return new Response(
       JSON.stringify({ 
+        success: false,
         error: error.message,
         flashcards: [],
         total: 0,
+        isEmpty: true,
         message: 'Failed to fetch flashcards'
       }),
       {

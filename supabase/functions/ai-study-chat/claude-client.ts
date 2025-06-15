@@ -18,13 +18,13 @@ export async function callClaude(messages: ClaudeMessage[], model?: string, chat
   const personalTools = [
     {
       name: "get_recent_flashcards",
-      description: "Get the user's recently studied flashcards with performance data",
+      description: "Get the user's recently studied flashcards with performance data. Use this when users ask for recent, latest, newest, or last flashcards they created.",
       input_schema: {
         type: "object",
         properties: {
           limit: {
             type: "number",
-            description: "Number of recent flashcards to retrieve (default: 10)"
+            description: "Number of recent flashcards to retrieve (default: 5)"
           }
         }
       }
@@ -128,10 +128,17 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
           if (chatMode === 'personal' || !chatMode) {
             switch (content.name) {
               case 'get_recent_flashcards':
-                result = await callEdgeFunction('get-user-flashcards', {
-                  user_id: userId,
-                  recent: true,
-                  limit: content.input.limit || 10
+                console.log('📚 Calling get_recent_flashcards with enhanced error handling');
+                result = await callEdgeFunction('get-recent-flashcards', {
+                  userId: userId,
+                  limit: content.input.limit || 5
+                });
+                
+                // Enhanced logging for flashcard retrieval
+                console.log('📚 Recent flashcards result:', {
+                  hasFlashcards: result?.flashcards?.length > 0,
+                  count: result?.flashcards?.length || 0,
+                  message: result?.message
                 });
                 break;
               
