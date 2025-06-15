@@ -1,12 +1,16 @@
-
 /**
  * Enhanced Streaming EPUB Loader Hook
- * Now uses the new EnhancedEPUBStreamingLoader service
+ * Now uses the refactored EnhancedEPUBStreamingLoader service
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
-import { EnhancedEPUBStreamingLoader, EPUBStreamingProgress, EPUBStreamingError, EPUBMetadata } from '@/services/EnhancedEPUBStreamingLoader';
+import { 
+  EnhancedEPUBStreamingLoader, 
+  EPUBStreamingProgress, 
+  EPUBStreamingError, 
+  EPUBMetadata 
+} from '@/services/EnhancedEPUBStreamingLoader';
 import { indexedDBCache } from '@/services/IndexedDBCacheService';
 
 export interface StreamingEPUBProgress {
