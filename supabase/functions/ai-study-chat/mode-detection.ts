@@ -1,40 +1,30 @@
 
 import { QueryMode } from './types.ts';
 
-// Detect if query is personal or general knowledge
+// Precise query classification based on explicit personal data references
 export function detectQueryMode(message: string): QueryMode {
   const personalKeywords = [
-    'my flashcards', 'my cards', 'my progress', 'my stats', 'my xp', 'my streak',
-    'recent cards', 'last session', 'my performance', 'my accuracy', 'my goals',
-    'cards i', 'flashcards i', 'sessions i', 'studied', 'my learning'
-  ];
-  
-  const generalKeywords = [
-    'what is', 'what are', 'what causes', 'what caused', 'how does', 'how do', 'explain', 'define',
-    'history', 'science', 'math', 'physics', 'chemistry', 'biology', 'geography',
-    'causes of', 'civil war', 'world war', 'definition of', 'american revolution',
-    'french revolution', 'industrial revolution', 'great depression', 'cold war',
-    'renaissance', 'enlightenment', 'reformation', 'constitution', 'declaration',
-    'who was', 'when did', 'where did', 'why did', 'how did', 'tell me about'
+    // Explicit personal possessive references
+    'my flashcards', 'my cards', 'my xp', 'my streak', 'my goals',
+    'my performance', 'my accuracy', 'my progress', 'my stats',
+    
+    // Personal study history references
+    'recent study', 'last session', 'sessions i', 'cards i',
+    'flashcards i', 'my learning', 'recent cards',
+    
+    // Personal activity references
+    'studied today', 'completed today', 'reviewed today',
+    'my recent', 'my latest', 'my current'
   ];
   
   const lowerMessage = message.toLowerCase();
   
-  // Check for personal keywords first (higher priority for user data)
+  // Check for explicit personal data references FIRST
   if (personalKeywords.some(keyword => lowerMessage.includes(keyword))) {
     return 'personal';
   }
   
-  // Check for general knowledge keywords (most academic questions)
-  if (generalKeywords.some(keyword => lowerMessage.includes(keyword))) {
-    return 'general';
-  }
-  
-  // Additional pattern matching for academic questions
-  if (lowerMessage.match(/\b(causes?|reasons?|factors?|start|beginning|origins?)\b.*\b(war|conflict|revolution|crisis|event)\b/)) {
-    return 'general';
-  }
-  
-  // Default to general knowledge for questions
+  // All other queries are general knowledge by default
+  // This includes: "What caused...", "Define...", "Explain...", "Who was...", etc.
   return 'general';
 }

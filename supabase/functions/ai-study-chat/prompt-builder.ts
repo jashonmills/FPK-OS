@@ -31,33 +31,45 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     }
   }
 
-  // Enhanced mode-specific instructions
-  contextPrompt += `\n\nQUERY MODE: ${queryMode.toUpperCase()}`;
+  // Strict execution protocol based on query mode
+  contextPrompt += `\n\n=== EXECUTION PROTOCOL ===`;
+  
   if (queryMode === 'personal') {
     contextPrompt += `
-- This is about the user's personal study data
-- REQUIRED: Use personal data tools (get_recent_flashcards, get_user_flashcards, get_study_stats)
-- Reference specific user data in your response`;
+CLASSIFICATION: Personal-Data Query
+MANDATORY ACTIONS:
+1. IMMEDIATELY use appropriate personal data tool:
+   - get_recent_flashcards (for recent cards/study history)
+   - get_user_flashcards (for specific searches/filters)  
+   - get_study_stats (for performance/progress data)
+2. WAIT for tool response
+3. Use actual returned data in your response
+4. Be encouraging and offer specific next steps
+
+DO NOT give generic responses - use the tools available to you.`;
   } else {
     contextPrompt += `
-- This is a general knowledge/academic question
-- REQUIRED: Use retrieve_knowledge tool to get authoritative information
-- Provide comprehensive factual answer with sources
-- DO NOT give generic responses - answer the specific question asked`;
+CLASSIFICATION: General-Knowledge Query
+MANDATORY ACTIONS:
+1. IMMEDIATELY use retrieve_knowledge tool with topic: "${message}"
+2. WAIT for external knowledge response
+3. Answer directly with source citation
+4. Offer to explore deeper aspects
+
+This is an academic/factual question that requires substantive information.
+DO NOT give generic responses - retrieve actual knowledge.`;
   }
 
-  // Add voice optimization
+  // Add voice optimization if needed
   if (voiceActive) {
-    contextPrompt += `\n\nVOICE MODE: Structure your response for natural speech with appropriate pauses.`;
+    contextPrompt += `\n\nVOICE MODE: Structure response naturally with pauses (*pause*) before key facts.`;
   }
 
   contextPrompt += conversationContext;
   contextPrompt += `\n\nStudent's question: "${message}"`;
   
-  // Add explicit instruction for current query
-  if (queryMode === 'general') {
-    contextPrompt += `\n\nIMPORTANT: This is a factual question that requires a substantive answer. Use the retrieve_knowledge tool to get accurate information and provide a comprehensive response.`;
-  }
+  // Final execution reminder
+  contextPrompt += `\n\nREMEMBER: You MUST use the specified tools above. No generic fallback responses allowed.`;
 
   return contextPrompt;
 }
