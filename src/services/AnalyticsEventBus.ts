@@ -1,4 +1,6 @@
 
+import { supabase } from '@/integrations/supabase/client';
+
 export interface AnalyticsEvent {
   id: string;
   userId: string;
@@ -15,10 +17,53 @@ export interface EventSubscriber {
   callback: (event: AnalyticsEvent) => void;
 }
 
+export interface TimeSeriesMetric {
+  metric_name: string;
+  value: number;
+  timestamp: string;
+  user_id: string;
+  metadata?: Record<string, any>;
+}
+
 class AnalyticsEventBus {
   private subscribers: Map<string, EventSubscriber> = new Map();
   private eventHistory: AnalyticsEvent[] = [];
   private maxHistorySize = 1000;
+  private realtimeChannel: any = null;
+
+  constructor() {
+    this.initializeRealtimeChannel();
+  }
+
+  private initializeRealtimeChannel() {
+    this.realtimeChannel = supabase
+      .channel('analytics-events')
+      .on('broadcast', { event: 'analytics_event' }, (payload) => {
+        this.handleRealtimeEvent(payload.payload);
+      })
+      .subscribe();
+
+    console.log('📊 Analytics realtime channel initialized');
+  }
+
+  private handleRealtimeEvent(event: AnalyticsEvent) {
+    // Add to local history
+    this.eventHistory.unshift(event);
+    if (this.eventHistory.length > this.maxHistorySize) {
+      this.eventHistory.pop();
+    }
+
+    // Notify local subscribers
+    this.subscribers.forEach(subscriber => {
+      if (subscriber.eventTypes.includes(event.eventType) || subscriber.eventTypes.includes('*')) {
+        try {
+          subscriber.callback(event);
+        } catch (error) {
+          console.error(`Error in analytics subscriber ${subscriber.id}:`, error);
+        }
+      }
+    });
+  }
 
   subscribe(subscriber: EventSubscriber): () => void {
     this.subscribers.set(subscriber.id, subscriber);
@@ -30,31 +75,71 @@ class AnalyticsEventBus {
     };
   }
 
-  publish(event: Omit<AnalyticsEvent, 'id' | 'timestamp'>): void {
+  async publish(event: Omit<AnalyticsEvent, 'id' | 'timestamp'>): Promise<void> {
     const fullEvent: AnalyticsEvent = {
       ...event,
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString()
     };
 
-    // Add to history
-    this.eventHistory.unshift(fullEvent);
-    if (this.eventHistory.length > this.maxHistorySize) {
-      this.eventHistory.pop();
+    try {
+      // Store in time-series table for high-frequency metrics
+      await this.storeTimeSeriesMetric(fullEvent);
+
+      // Broadcast to realtime channel
+      await this.realtimeChannel.send({
+        type: 'broadcast',
+        event: 'analytics_event',
+        payload: fullEvent
+      });
+
+      console.log(`📊 Analytics event published: ${event.eventType}`, fullEvent);
+    } catch (error) {
+      console.error('Error publishing analytics event:', error);
+      // Fallback to local handling if realtime fails
+      this.handleRealtimeEvent(fullEvent);
     }
+  }
 
-    // Notify subscribers
-    this.subscribers.forEach(subscriber => {
-      if (subscriber.eventTypes.includes(event.eventType) || subscriber.eventTypes.includes('*')) {
-        try {
-          subscriber.callback(fullEvent);
-        } catch (error) {
-          console.error(`Error in analytics subscriber ${subscriber.id}:`, error);
-        }
+  private async storeTimeSeriesMetric(event: AnalyticsEvent): Promise<void> {
+    const metricValue = this.extractMetricValue(event);
+    if (metricValue === null) return;
+
+    const metric: TimeSeriesMetric = {
+      metric_name: event.eventType,
+      value: metricValue,
+      timestamp: event.timestamp,
+      user_id: event.userId,
+      metadata: event.metadata
+    };
+
+    try {
+      const { error } = await supabase
+        .from('analytics_metrics')
+        .insert(metric);
+
+      if (error) {
+        console.error('Error storing time-series metric:', error);
       }
-    });
+    } catch (error) {
+      console.error('Error in storeTimeSeriesMetric:', error);
+    }
+  }
 
-    console.log(`📊 Analytics event published: ${event.eventType}`, fullEvent);
+  private extractMetricValue(event: AnalyticsEvent): number | null {
+    // Extract numeric values from common event types
+    switch (event.eventType) {
+      case ANALYTICS_EVENTS.XP_EARNED:
+        return event.metadata.amount || 0;
+      case ANALYTICS_EVENTS.READING_SESSION_END:
+        return event.metadata.duration || 0;
+      case ANALYTICS_EVENTS.FLASHCARD_REVIEWED:
+        return event.metadata.correct ? 1 : 0;
+      case ANALYTICS_EVENTS.STUDY_SESSION_COMPLETE:
+        return event.metadata.performance?.accuracy || 0;
+      default:
+        return 1; // Default metric value for counting events
+    }
   }
 
   getEventHistory(): AnalyticsEvent[] {
@@ -65,6 +150,41 @@ class AnalyticsEventBus {
     return this.eventHistory
       .filter(event => event.eventType === eventType)
       .slice(0, limit);
+  }
+
+  async getTimeSeriesData(metricName: string, timeRange: string = '24h'): Promise<TimeSeriesMetric[]> {
+    const { data, error } = await supabase
+      .from('analytics_metrics')
+      .select('*')
+      .eq('metric_name', metricName)
+      .gte('timestamp', new Date(Date.now() - this.parseTimeRange(timeRange)).toISOString())
+      .order('timestamp', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching time-series data:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  private parseTimeRange(range: string): number {
+    const unit = range.slice(-1);
+    const value = parseInt(range.slice(0, -1));
+    
+    switch (unit) {
+      case 'h': return value * 60 * 60 * 1000;
+      case 'd': return value * 24 * 60 * 60 * 1000;
+      case 'w': return value * 7 * 24 * 60 * 60 * 1000;
+      default: return 24 * 60 * 60 * 1000; // Default to 24 hours
+    }
+  }
+
+  disconnect() {
+    if (this.realtimeChannel) {
+      supabase.removeChannel(this.realtimeChannel);
+      this.realtimeChannel = null;
+    }
   }
 }
 

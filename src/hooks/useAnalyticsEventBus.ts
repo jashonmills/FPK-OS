@@ -6,10 +6,10 @@ import { useAuth } from '@/hooks/useAuth';
 export const useAnalyticsEventBus = () => {
   const { user } = useAuth();
 
-  const publishEvent = (eventType: string, metadata: Record<string, any>, source = 'web') => {
+  const publishEvent = async (eventType: string, metadata: Record<string, any>, source = 'web') => {
     if (!user?.id) return;
 
-    analyticsEventBus.publish({
+    await analyticsEventBus.publish({
       userId: user.id,
       eventType,
       metadata,
@@ -36,16 +36,21 @@ export const useAnalyticsEventBus = () => {
     return analyticsEventBus.getEventsByType(eventType, limit);
   };
 
+  const getTimeSeriesData = async (metricName: string, timeRange?: string) => {
+    return analyticsEventBus.getTimeSeriesData(metricName, timeRange);
+  };
+
   return {
     publishEvent,
     subscribe,
     getEventHistory,
     getEventsByType,
+    getTimeSeriesData,
     EVENTS: ANALYTICS_EVENTS
   };
 };
 
-// Hook for specific event publishing
+// Hook for specific event publishing with enhanced capabilities
 export const useAnalyticsPublisher = () => {
   const { publishEvent, EVENTS } = useAnalyticsEventBus();
 
@@ -69,25 +74,40 @@ export const useAnalyticsPublisher = () => {
     publishEvent(EVENTS.GOAL_COMPLETED, { goalId, ...metadata });
   };
 
+  const publishFlashcardReviewed = (cardId: string, correct: boolean, metadata = {}) => {
+    publishEvent(EVENTS.FLASHCARD_REVIEWED, { cardId, correct, ...metadata });
+  };
+
+  const publishStreakUpdated = (streakType: string, count: number, metadata = {}) => {
+    publishEvent(EVENTS.STREAK_UPDATED, { streakType, count, ...metadata });
+  };
+
   return {
     publishReadingSessionStart,
     publishReadingSessionEnd,
     publishStudySessionComplete,
     publishXPEarned,
     publishGoalCompleted,
+    publishFlashcardReviewed,
+    publishStreakUpdated,
     publishEvent
   };
 };
 
-// Hook for real-time analytics updates
+// Hook for real-time analytics updates with time-series support
 export const useRealtimeAnalytics = (eventTypes: string[] = ['*']) => {
-  const { subscribe } = useAnalyticsEventBus();
+  const { subscribe, getTimeSeriesData } = useAnalyticsEventBus();
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const callback = (event: AnalyticsEvent) => {
       // Dispatch custom event for components to listen to
-      window.dispatchEvent(new CustomEvent('analytics-event', { detail: event }));
+      window.dispatchEvent(new CustomEvent('analytics-event', { 
+        detail: { 
+          ...event, 
+          isRealtime: true 
+        } 
+      }));
     };
 
     unsubscribeRef.current = subscribe(eventTypes, callback);
@@ -99,7 +119,7 @@ export const useRealtimeAnalytics = (eventTypes: string[] = ['*']) => {
     };
   }, [eventTypes.join(',')]);
 
-  const useEventListener = (callback: (event: AnalyticsEvent) => void) => {
+  const useEventListener = (callback: (event: AnalyticsEvent & { isRealtime?: boolean }) => void) => {
     useEffect(() => {
       const handler = (event: CustomEvent) => {
         callback(event.detail);
@@ -110,5 +130,32 @@ export const useRealtimeAnalytics = (eventTypes: string[] = ['*']) => {
     }, [callback]);
   };
 
-  return { useEventListener };
+  const useTimeSeriesMetrics = (metricName: string, timeRange = '24h') => {
+    return getTimeSeriesData(metricName, timeRange);
+  };
+
+  return { 
+    useEventListener, 
+    useTimeSeriesMetrics 
+  };
+};
+
+// Hook for anomaly detection and alerting
+export const useAnomalyDetection = () => {
+  const { subscribe } = useAnalyticsEventBus();
+
+  useEffect(() => {
+    const unsubscribe = subscribe(['*'], (event) => {
+      // The AI Insights Engine handles anomaly detection automatically
+      // This hook can be used to add custom client-side anomaly detection logic
+      console.log('🔍 Event processed for anomaly detection:', event.eventType);
+    });
+
+    return unsubscribe;
+  }, [subscribe]);
+
+  return {
+    // Placeholder for future client-side anomaly detection methods
+    isMonitoring: true
+  };
 };
