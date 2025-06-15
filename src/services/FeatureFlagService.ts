@@ -1,3 +1,4 @@
+
 export interface FeatureFlag {
   id: string;
   name: string;
@@ -127,6 +128,14 @@ export class FeatureFlagService {
         id: 'quotesWidget',
         name: 'Quote of the Day Widget',
         description: 'Enable daily inspirational quotes on the learner home page',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      // Collapsible Notes feature flag
+      {
+        id: 'collapsibleNotes',
+        name: 'Collapsible Note Accordions',
+        description: 'Render notes as collapsible accordions to save vertical space',
         enabled: true,
         rolloutPercentage: 100
       }

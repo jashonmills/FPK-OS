@@ -59,7 +59,13 @@ export const useReadingProgress = (bookId: string) => {
         return;
       }
 
-      setProgress(data);
+      // Add progress property for compatibility
+      if (data) {
+        setProgress({
+          ...data,
+          progress: data.completion_percentage
+        });
+      }
     } catch (err) {
       console.error('Error in loadProgress:', err);
     } finally {
@@ -98,7 +104,11 @@ export const useReadingProgress = (bookId: string) => {
         return;
       }
 
-      setProgress(data);
+      // Add progress property for compatibility
+      setProgress({
+        ...data,
+        progress: data.completion_percentage
+      });
       console.log('📖 Reading progress saved:', { cfi, chapterIndex, completionPercentage });
     } catch (err) {
       console.error('Error in saveProgress:', err);
