@@ -113,7 +113,8 @@ const UserUploadsSection: React.FC = () => {
                   <ChevronDown className="h-4 w-4" />
                 )}
               </CardTitle>
-            </CollapsibleTrigger>
+            </CardHeader>
+          </CollapsibleTrigger>
           
           <CollapsibleContent>
             <CardContent>
