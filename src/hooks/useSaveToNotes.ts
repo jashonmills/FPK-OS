@@ -76,15 +76,11 @@ export const useSaveToNotes = () => {
       } else {
         toast({
           title: "Saved to Notes",
-          description: "AI response has been saved to your notes.",
-          action: (
-            <button
-              onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
-              className="text-sm underline text-purple-600 hover:text-purple-700"
-            >
-              View Notes
-            </button>
-          )
+          description: "AI response has been saved to your notes. Click to view your notes.",
+          action: {
+            label: "View Notes",
+            onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+          }
         });
       }
 
