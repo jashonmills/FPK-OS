@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -191,11 +190,8 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
         {/* Animated loading icon */}
         <div className="relative">
           <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
-          <div className={`relative z-10 ${progress ? getStageColor(progress.stage) : 'text-primary'}`}>
+          <div className={`relative z-10 ${progress ? getStageColor(progress.stage) : 'text-primary'} mx-auto w-12 h-12 flex items-center justify-center`}>
             {progress ? getStageIcon(progress.stage) : <Loader2 className="h-12 w-12 animate-spin" />}
-            <div className="mt-2">
-              {progress ? getStageIcon(progress.stage) : <BookOpen className="h-12 w-12 mx-auto" />}
-            </div>
           </div>
         </div>
         
