@@ -4,11 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, RefreshCw, X, Loader2 } from 'lucide-react';
 import { EPUBLoadingProgress, EPUBLoadError } from '@/hooks/useOptimizedEPUBLoader';
+import { PDFLoadingProgress } from '@/utils/enhancedPdfUtils';
+
+// Union types for handling both EPUB and PDF
+type UnifiedProgress = EPUBLoadingProgress | PDFLoadingProgress;
+
+interface UnifiedError {
+  type: 'network' | 'timeout' | 'parsing' | 'rendering' | 'unknown';
+  message: string;
+  recoverable: boolean;
+  retryCount: number;
+}
 
 interface UnifiedLoadingProgressProps {
   title: string;
-  progress?: EPUBLoadingProgress | null;
-  error?: EPUBLoadError | null;
+  progress?: UnifiedProgress | null;
+  error?: UnifiedError | EPUBLoadError | string | null;
   onRetry?: () => void;
   onCancel?: () => void;
   type?: 'epub' | 'pdf' | 'general';
@@ -28,13 +39,32 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
   };
 
   const getProgressColor = () => {
-    if (progress?.stage === 'downloading') return 'bg-blue-500';
-    if (progress?.stage === 'processing') return 'bg-yellow-500';
-    if (progress?.stage === 'ready') return 'bg-green-500';
+    if (!progress) return 'bg-primary';
+    
+    if (progress.stage === 'downloading') return 'bg-blue-500';
+    if (progress.stage === 'processing') return 'bg-yellow-500';
+    if (progress.stage === 'ready') return 'bg-green-500';
+    if (progress.stage === 'validating') return 'bg-purple-500'; // PDF specific
     return 'bg-primary';
   };
 
-  if (error) {
+  // Normalize error to a consistent format
+  const normalizedError = React.useMemo(() => {
+    if (!error) return null;
+    
+    if (typeof error === 'string') {
+      return {
+        type: 'unknown' as const,
+        message: error,
+        recoverable: true,
+        retryCount: 0
+      };
+    }
+    
+    return error as UnifiedError;
+  }, [error]);
+
+  if (normalizedError) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-background">
         <div className="text-center max-w-lg p-6">
@@ -42,28 +72,29 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
           <h3 className="text-xl font-semibold mb-4">Unable to Load</h3>
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
             <p className="text-destructive text-sm font-medium mb-2">
-              {error.type === 'timeout' ? 'Loading Timeout' : 
-               error.type === 'network' ? 'Network Error' : 
-               error.type === 'parsing' ? 'File Error' : 'Unknown Error'}
+              {normalizedError.type === 'timeout' ? 'Loading Timeout' : 
+               normalizedError.type === 'network' ? 'Network Error' : 
+               normalizedError.type === 'parsing' ? 'File Error' : 
+               normalizedError.type === 'rendering' ? 'Display Error' : 'Unknown Error'}
             </p>
-            <p className="text-destructive text-sm">{error.message}</p>
+            <p className="text-destructive text-sm">{normalizedError.message}</p>
           </div>
           
           <div className="mb-6 space-y-2">
             <p className="text-sm font-medium">Quick Solutions:</p>
             <ul className="text-xs text-muted-foreground space-y-1 text-left">
               <li>• Check your internet connection</li>
-              <li>• Try a different book if this persists</li>
-              <li>• Some books may have large file sizes</li>
-              {error.recoverable && <li>• This error can usually be resolved by retrying</li>}
+              <li>• Try a different {type === 'pdf' ? 'document' : 'book'} if this persists</li>
+              <li>• Some {type === 'pdf' ? 'documents' : 'books'} may have large file sizes</li>
+              {normalizedError.recoverable && <li>• This error can usually be resolved by retrying</li>}
             </ul>
           </div>
           
           <div className="flex gap-3 justify-center">
-            {error.recoverable && onRetry && (
+            {normalizedError.recoverable && onRetry && (
               <Button onClick={onRetry} variant="outline" className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4" />
-                Try Again ({error.retryCount + 1}/3)
+                Try Again ({normalizedError.retryCount + 1}/3)
               </Button>
             )}
             {onCancel && (
@@ -89,7 +120,7 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
         {progress && (
           <>
             <p className="text-sm text-muted-foreground mb-4 capitalize">
-              {progress.stage.replace('_', ' ')}: {progress.message}
+              {progress.stage === 'validating' ? 'Validating' : progress.stage.replace('_', ' ')}: {progress.message}
             </p>
             
             <div className="mb-4">
@@ -114,7 +145,8 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
         )}
         
         <p className="text-xs text-muted-foreground">
-          {type === 'epub' ? 'Preparing your reading experience...' : 'Please wait...'}
+          {type === 'epub' ? 'Preparing your reading experience...' : 
+           type === 'pdf' ? 'Preparing document viewer...' : 'Please wait...'}
         </p>
         
         {onCancel && (
