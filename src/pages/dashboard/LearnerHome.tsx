@@ -26,7 +26,7 @@ import { featureFlagService } from '@/services/FeatureFlagService';
 const LearnerHome = () => {
   const { user } = useAuth();
   const { data: stats, isLoading: statsLoading } = useQuickStats();
-  const { data: gamificationData, isLoading: gamificationLoading } = useGamification();
+  const { userStats, isLoading: gamificationLoading } = useGamification();
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const isNASAEnabled = featureFlagService.isEnabled('enableNASAImageExplorer');
@@ -70,10 +70,10 @@ const LearnerHome = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-900">
-              {statsLoading ? '...' : stats?.completedGoals || 0}
+              {statsLoading ? '...' : '0'}
             </div>
             <p className="text-xs text-green-700">
-              of {statsLoading ? '...' : stats?.totalGoals || 0} completed
+              of {statsLoading ? '...' : '3'} completed
             </p>
           </CardContent>
         </Card>
@@ -86,7 +86,7 @@ const LearnerHome = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-900">
-              {gamificationLoading ? '...' : gamificationData?.streak || 0}
+              {gamificationLoading ? '...' : userStats?.streaks?.find(s => s.streak_type === 'study')?.current_count || 0}
             </div>
             <p className="text-xs text-orange-700">days in a row</p>
           </CardContent>
@@ -94,17 +94,17 @@ const LearnerHome = () => {
       </div>
 
       {/* Gamification Section */}
-      {!gamificationLoading && gamificationData && (
+      {!gamificationLoading && userStats && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <XPProgressBar 
-            xp={gamificationData.totalXP || 0}
-            level={gamificationData.level || 1}
+            totalXP={userStats.xp?.total_xp || 0}
+            level={userStats.xp?.level || 1}
+            xpToNext={userStats.xp?.next_level_xp || 100}
           />
           <StreakDisplay 
-            streak={gamificationData.streak || 0}
-            longestStreak={gamificationData.longestStreak || 0}
+            streaks={userStats.streaks || []}
           />
-          <BadgeDisplay badges={gamificationData.badges || []} />
+          <BadgeDisplay badges={userStats.badges || []} />
         </div>
       )}
 
