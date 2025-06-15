@@ -82,12 +82,15 @@ const ReadingProgressWidget = () => {
             <div className="space-y-1">
               {analytics.favoriteBooks.slice(0, 2).map((book, index) => (
                 <div key={book.book_id} className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600 truncate max-w-[100px]">
-                    {book.book_id.split('-').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')}
-                  </span>
-                  <span className="text-xs font-medium text-blue-600">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs text-gray-600 truncate block">
+                      {book.book_title}
+                    </span>
+                    <span className="text-xs text-gray-400 truncate block">
+                      by {book.book_author}
+                    </span>
+                  </div>
+                  <span className="text-xs font-medium text-blue-600 ml-2 flex-shrink-0">
                     {formatTime(book.total_time)}
                   </span>
                 </div>

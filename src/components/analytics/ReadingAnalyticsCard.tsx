@@ -137,17 +137,20 @@ const ReadingAnalyticsCard = () => {
             <div className="space-y-3">
               {analytics.favoriteBooks.slice(0, 3).map((book, index) => (
                 <div key={book.book_id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600 flex-shrink-0">
                       {index + 1}
                     </div>
-                    <span className="text-sm text-gray-700 truncate max-w-[120px]">
-                      {book.book_id.split('-').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm text-gray-700 truncate block">
+                        {book.book_title}
+                      </span>
+                      <span className="text-xs text-gray-500 truncate block">
+                        by {book.book_author}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0 ml-2">
                     <div className="text-sm font-medium">{formatTime(book.total_time)}</div>
                     <div className="text-xs text-gray-500">{book.session_count} sessions</div>
                   </div>

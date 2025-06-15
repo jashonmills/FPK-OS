@@ -17,16 +17,20 @@ export interface ReadingSession {
   created_at: string;
 }
 
+export interface FavoriteBook {
+  book_id: string;
+  book_title: string;
+  book_author: string;
+  total_time: number;
+  session_count: number;
+}
+
 export interface ReadingAnalytics {
   totalReadingTime: number;
   sessionsThisWeek: number;
   averageSessionLength: number;
   longestSession: number;
-  favoriteBooks: Array<{
-    book_id: string;
-    total_time: number;
-    session_count: number;
-  }>;
+  favoriteBooks: FavoriteBook[];
   weeklyTrend: Array<{
     day: string;
     reading_time: number;
@@ -72,7 +76,7 @@ export const useReadingAnalytics = () => {
 
       const longestSession = Math.max(0, ...readingSessions.map(s => s.duration_seconds || 0));
 
-      // Calculate favorite books
+      // Calculate favorite books with titles
       const bookStats = new Map<string, { total_time: number; session_count: number }>();
       readingSessions.forEach(session => {
         const current = bookStats.get(session.book_id) || { total_time: 0, session_count: 0 };
@@ -82,10 +86,47 @@ export const useReadingAnalytics = () => {
         });
       });
 
-      const favoriteBooks = Array.from(bookStats.entries())
-        .map(([book_id, stats]) => ({ book_id, ...stats }))
-        .sort((a, b) => b.total_time - a.total_time)
-        .slice(0, 5);
+      // Get unique book IDs to fetch titles
+      const uniqueBookIds = Array.from(bookStats.keys());
+      let favoriteBooks: FavoriteBook[] = [];
+
+      if (uniqueBookIds.length > 0) {
+        // Fetch book details from public_domain_books table
+        const { data: books, error: booksError } = await supabase
+          .from('public_domain_books')
+          .select('id, title, author')
+          .in('id', uniqueBookIds);
+
+        if (booksError) {
+          console.warn('Failed to fetch book details:', booksError);
+          // Fallback to using book IDs
+          favoriteBooks = Array.from(bookStats.entries())
+            .map(([book_id, stats]) => ({
+              book_id,
+              book_title: book_id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              book_author: 'Unknown Author',
+              ...stats
+            }))
+            .sort((a, b) => b.total_time - a.total_time)
+            .slice(0, 5);
+        } else {
+          // Create a map of book details
+          const bookDetailsMap = new Map(books.map(book => [book.id, book]));
+          
+          favoriteBooks = Array.from(bookStats.entries())
+            .map(([book_id, stats]) => {
+              const bookDetails = bookDetailsMap.get(book_id);
+              return {
+                book_id,
+                book_title: bookDetails?.title || book_id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                book_author: bookDetails?.author || 'Unknown Author',
+                ...stats
+              };
+            })
+            .sort((a, b) => b.total_time - a.total_time)
+            .slice(0, 5);
+        }
+      }
 
       // Calculate weekly trend
       const weeklyTrend = Array.from({ length: 7 }, (_, i) => {
