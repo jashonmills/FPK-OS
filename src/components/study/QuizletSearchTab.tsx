@@ -15,19 +15,20 @@ interface QuizletSearchTabProps {
 }
 
 const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [importingSetId, setImportingSetId] = useState<string | null>(null);
   const { searchResults, isLoading, error, searchSets, getSetDetails } = useQuizletSearch();
   const { toast } = useToast();
 
   // Debounced search with 300ms delay
-  const debouncedSearch = useDebouncedSearch(searchSets, 300);
+  const { query, performSearch, isSearching: isDebouncingSearch } = useDebouncedSearch(
+    searchSets,
+    { debounceMs: 300 }
+  );
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchQuery(value);
-    debouncedSearch(value);
-  }, [debouncedSearch]);
+    performSearch(value);
+  }, [performSearch]);
 
   const handleImport = async (set: QuizletSet) => {
     if (importingSetId) return; // Prevent multiple imports
@@ -72,6 +73,8 @@ const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
     }
   };
 
+  const isSearchInProgress = isLoading || isDebouncingSearch;
+
   return (
     <div className="space-y-4">
       {/* Search Input */}
@@ -79,12 +82,12 @@ const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search Quizlet sets…"
-          value={searchQuery}
+          value={query}
           onChange={handleSearchChange}
           className="pl-10"
           aria-label="Search Quizlet flashcard sets"
         />
-        {isLoading && (
+        {isSearchInProgress && (
           <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
         )}
       </div>
@@ -145,7 +148,7 @@ const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
                 </div>
               </div>
             ))
-          ) : searchQuery && !isLoading ? (
+          ) : query && !isSearchInProgress ? (
             <div className="text-center py-8 text-gray-500">
               <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p className="text-sm mb-2">No Quizlet sets found</p>
@@ -153,7 +156,7 @@ const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
                 Try searching with different keywords
               </p>
             </div>
-          ) : !searchQuery ? (
+          ) : !query ? (
             <div className="text-center py-8 text-gray-500">
               <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p className="text-sm mb-2">Search Quizlet sets</p>
