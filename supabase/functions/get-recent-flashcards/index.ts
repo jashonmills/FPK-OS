@@ -30,7 +30,6 @@ serve(async (req) => {
         id,
         front_content,
         back_content,
-        category,
         folder_name,
         difficulty_level,
         times_reviewed,
@@ -49,7 +48,7 @@ serve(async (req) => {
       id: card.id,
       front: card.front_content,
       back: card.back_content,
-      folder: card.folder_name || card.category || 'General',
+      folder: card.folder_name || 'General',
       created_at: card.created_at,
       stats: {
         correct: card.times_correct || 0,

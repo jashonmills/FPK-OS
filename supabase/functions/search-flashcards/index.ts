@@ -30,7 +30,6 @@ serve(async (req) => {
         id,
         front_content,
         back_content,
-        category,
         folder_name,
         difficulty_level,
         times_reviewed,
@@ -54,7 +53,7 @@ serve(async (req) => {
     } else {
       // Full-text search
       supabaseQuery = supabaseQuery
-        .or(`front_content.ilike.%${query}%,back_content.ilike.%${query}%,category.ilike.%${query}%,folder_name.ilike.%${query}%`);
+        .or(`front_content.ilike.%${query}%,back_content.ilike.%${query}%,folder_name.ilike.%${query}%`);
     }
 
     const { data: flashcards, error } = await supabaseQuery
@@ -67,7 +66,7 @@ serve(async (req) => {
       id: card.id,
       front: card.front_content,
       back: card.back_content,
-      folder: card.folder_name || card.category || 'General',
+      folder: card.folder_name || 'General',
       created_at: card.created_at,
       stats: {
         correct: card.times_correct || 0,
