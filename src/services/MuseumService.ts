@@ -1,3 +1,4 @@
+
 export interface MuseumItem {
   id: string;
   title: string;
@@ -29,13 +30,13 @@ class MuseumService {
   private readonly CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
   private cache = new Map<string, CachedMuseumData>();
 
-  // Enhanced fallback data with properly matched images and descriptions
+  // Real museum fallback items with actual museum piece URLs as backup
   private readonly FALLBACK_ITEMS: MuseumItem[] = [
     {
       id: 'fallback-1',
       title: 'Ancient Greek Amphora',
       description: 'A beautifully preserved ancient Greek amphora featuring intricate geometric patterns and mythological scenes.',
-      thumbnail: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/248010/796108/main-image',
       source: 'met',
       isThreeD: false,
       metadata: {
@@ -49,7 +50,7 @@ class MuseumService {
       id: 'fallback-2',
       title: 'Roman Marble Sculpture',
       description: 'A classical Roman marble sculpture depicting a figure from mythology, showcasing the mastery of ancient sculptors.',
-      thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/248008/796104/main-image',
       source: 'smithsonian',
       isThreeD: true,
       metadata: {
@@ -62,7 +63,7 @@ class MuseumService {
       id: 'fallback-3',
       title: 'Egyptian Canopic Jar',
       description: 'An ancient Egyptian canopic jar used in the mummification process, decorated with hieroglyphic inscriptions.',
-      thumbnail: 'https://images.unsplash.com/photo-1539650116574-75c0c6d03f6f?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/544697/1080113/main-image',
       source: 'met',
       isThreeD: false,
       metadata: {
@@ -75,7 +76,7 @@ class MuseumService {
       id: 'fallback-4',
       title: 'Medieval Illuminated Manuscript',
       description: 'A page from a medieval illuminated manuscript featuring gold leaf and vibrant pigments.',
-      thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/464206/851002/main-image',
       source: 'smithsonian',
       isThreeD: false,
       metadata: {
@@ -88,7 +89,7 @@ class MuseumService {
       id: 'fallback-5',
       title: 'Chinese Porcelain Vase',
       description: 'An exquisite porcelain vase from the Ming Dynasty, featuring delicate blue and white patterns.',
-      thumbnail: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/39933/395923/main-image',
       source: 'met',
       isThreeD: true,
       metadata: {
@@ -101,7 +102,7 @@ class MuseumService {
       id: 'fallback-6',
       title: 'Native American Pottery',
       description: 'Traditional Native American pottery featuring geometric designs and natural earth tones.',
-      thumbnail: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/313595/818006/main-image',
       source: 'smithsonian',
       isThreeD: false,
       metadata: {
@@ -114,7 +115,7 @@ class MuseumService {
       id: 'fallback-7',
       title: 'Renaissance Bronze Medallion',
       description: 'A detailed Renaissance bronze medallion commemorating a historical figure, showcasing the artistry of the period.',
-      thumbnail: 'https://images.unsplash.com/photo-1527576539890-dfa815648363?w=400&h=300&fit=crop&auto=format',
+      thumbnail: 'https://collectionapi.metmuseum.org/api/collection/v1/iiif/207785/758828/main-image',
       source: 'met',
       isThreeD: true,
       metadata: {
@@ -176,68 +177,69 @@ class MuseumService {
       return cachedData;
     }
 
-    console.log('🏛️ Museum: No cached data, attempting to fetch from APIs');
+    console.log('🏛️ Museum: Attempting to fetch from APIs');
     
-    // For now, let's return fallback data immediately to ensure visuals show up
-    // The APIs may be having issues, so we'll rely on our curated fallback content
-    console.log('🏛️ Museum: Using fallback data for reliable display');
+    try {
+      // Try to fetch from both APIs with timeout
+      const [metItems, smithsonianItems] = await Promise.allSettled([
+        this.fetchMetItems().catch(err => {
+          console.warn('🏛️ Museum: Met API failed:', err.message);
+          return [];
+        }),
+        this.fetchSmithsonianItems().catch(err => {
+          console.warn('🏛️ Museum: Smithsonian API failed:', err.message);
+          return [];
+        })
+      ]);
+
+      const validMetItems = metItems.status === 'fulfilled' ? metItems.value : [];
+      const validSmithsonianItems = smithsonianItems.status === 'fulfilled' ? smithsonianItems.value : [];
+      
+      const combinedItems = [...validMetItems, ...validSmithsonianItems];
+      
+      if (combinedItems.length > 0) {
+        console.log('🏛️ Museum: Successfully fetched', combinedItems.length, 'items from APIs');
+        this.setCacheData(cacheKey, combinedItems);
+        return combinedItems;
+      } else {
+        console.log('🏛️ Museum: No valid items from APIs, using fallback data');
+      }
+    } catch (error) {
+      console.warn('🏛️ Museum: API fetch failed:', error);
+    }
+
+    // Use fallback data as last resort
+    console.log('🏛️ Museum: Using fallback data with real museum URLs');
     this.setCacheData(cacheKey, this.FALLBACK_ITEMS);
     return this.FALLBACK_ITEMS;
   }
 
-  // Keep the API methods for future use when the APIs are more reliable
-  private async fetchSmithsonianItems(): Promise<MuseumItem[]> {
-    const url = `${this.SMITHSONIAN_BASE_URL}/search?q=online_media_type:"3D Model"&rows=7&api_key=${this.SMITHSONIAN_API_KEY}`;
-    
-    const response = await this.fetchWithTimeout(url);
-    if (!response.ok) {
-      throw new Error(`Smithsonian API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    return (data.response?.rows || []).slice(0, 7).map((item: any, index: number) => ({
-      id: item.id || `smithsonian-${index}`,
-      title: item.title || `Smithsonian Item ${index + 1}`,
-      description: item.content?.freetext?.notes?.[0]?.content || 'A fascinating artifact from the Smithsonian collection.',
-      thumbnail: item.content?.descriptiveNonRepeating?.online_media?.media?.[0]?.thumbnail || 
-                `https://images.unsplash.com/photo-${1578321272176 + index}?w=400&h=300&fit=crop`,
-      modelUrl: item.content?.descriptiveNonRepeating?.online_media?.media?.[0]?.content,
-      source: 'smithsonian' as const,
-      isThreeD: true,
-      metadata: {
-        date: item.content?.indexedStructured?.date?.[0],
-        culture: item.content?.indexedStructured?.culture?.[0]
-      }
-    }));
-  }
-
   private async fetchMetItems(): Promise<MuseumItem[]> {
-    // Get random object IDs first
-    const searchUrl = `${this.MET_BASE_URL}/search?hasImages=true&q=*`;
+    // Get search results for artwork with images
+    const searchUrl = `${this.MET_BASE_URL}/search?hasImages=true&q=ancient OR classical OR sculpture OR pottery&departmentId=11`;
     const searchResponse = await this.fetchWithTimeout(searchUrl);
     
     if (!searchResponse.ok) {
-      throw new Error(`Met API search error: ${searchResponse.status}`);
+      throw new Error(`Met search API error: ${searchResponse.status}`);
     }
 
     const searchData = await searchResponse.json();
     const objectIDs = searchData.objectIDs || [];
     
     if (objectIDs.length === 0) {
-      throw new Error('No objects found in Met Museum API');
+      throw new Error('No objects found in Met Museum search');
     }
 
-    // Get random selection of 7 objects
-    const randomIDs = [];
-    for (let i = 0; i < 7 && i < objectIDs.length; i++) {
+    // Get random selection of 5 objects
+    const selectedIDs = [];
+    for (let i = 0; i < Math.min(5, objectIDs.length); i++) {
       const randomIndex = Math.floor(Math.random() * objectIDs.length);
-      randomIDs.push(objectIDs[randomIndex]);
+      selectedIDs.push(objectIDs[randomIndex]);
     }
 
     const items: MuseumItem[] = [];
     
-    for (const objectID of randomIDs) {
+    for (const objectID of selectedIDs) {
       try {
         const objectUrl = `${this.MET_BASE_URL}/objects/${objectID}`;
         const objectResponse = await this.fetchWithTimeout(objectUrl);
@@ -245,34 +247,101 @@ class MuseumService {
         if (objectResponse.ok) {
           const objectData = await objectResponse.json();
           
-          items.push({
-            id: `met-${objectID}`,
-            title: objectData.title || 'Met Museum Artifact',
-            description: objectData.artistDisplayName 
-              ? `An artwork by ${objectData.artistDisplayName} from the Metropolitan Museum of Art collection.`
-              : 'A beautiful artifact from the Metropolitan Museum of Art collection.',
-            thumbnail: objectData.primaryImageSmall || 
-                      `https://images.unsplash.com/photo-${1578662996442 + items.length}?w=400&h=300&fit=crop`,
-            source: 'met' as const,
-            isThreeD: false,
-            metadata: {
-              artist: objectData.artistDisplayName,
-              date: objectData.objectDate,
-              medium: objectData.medium,
-              culture: objectData.culture
-            }
-          });
+          // Only include items that have a primary image
+          if (objectData.primaryImage || objectData.primaryImageSmall) {
+            const imageUrl = objectData.primaryImage || objectData.primaryImageSmall;
+            console.log(`🏛️ Museum: Met object ${objectID} has valid image:`, imageUrl);
+            
+            items.push({
+              id: `met-${objectID}`,
+              title: objectData.title || 'Untitled Artwork',
+              description: this.generateDescription(objectData),
+              thumbnail: imageUrl,
+              source: 'met' as const,
+              isThreeD: false,
+              metadata: {
+                artist: objectData.artistDisplayName,
+                date: objectData.objectDate,
+                medium: objectData.medium,
+                culture: objectData.culture,
+                dimensions: objectData.dimensions
+              }
+            });
+          } else {
+            console.warn(`🏛️ Museum: Met object ${objectID} missing primaryImage`);
+          }
         }
       } catch (error) {
-        console.warn(`Failed to fetch Met object ${objectID}:`, error);
+        console.warn(`🏛️ Museum: Failed to fetch Met object ${objectID}:`, error);
       }
     }
 
-    if (items.length === 0) {
-      throw new Error('No valid Met Museum objects retrieved');
+    console.log(`🏛️ Museum: Retrieved ${items.length} valid Met items`);
+    return items;
+  }
+
+  private async fetchSmithsonianItems(): Promise<MuseumItem[]> {
+    const url = `${this.SMITHSONIAN_BASE_URL}/search?q=online_media_type:"Images"&rows=5&api_key=${this.SMITHSONIAN_API_KEY}`;
+    
+    const response = await this.fetchWithTimeout(url);
+    if (!response.ok) {
+      throw new Error(`Smithsonian API error: ${response.status}`);
     }
 
+    const data = await response.json();
+    const items: MuseumItem[] = [];
+    
+    (data.response?.rows || []).forEach((item: any, index: number) => {
+      const media = item.content?.descriptiveNonRepeating?.online_media?.media;
+      const imageUrl = media?.[0]?.content || media?.[0]?.thumbnail;
+      
+      if (imageUrl) {
+        console.log(`🏛️ Museum: Smithsonian item ${item.id} has valid image:`, imageUrl);
+        
+        items.push({
+          id: item.id || `smithsonian-${index}`,
+          title: item.title || 'Smithsonian Artifact',
+          description: this.generateSmithsonianDescription(item),
+          thumbnail: imageUrl,
+          embedUrl: media?.[0]?.content,
+          source: 'smithsonian' as const,
+          isThreeD: item.content?.descriptiveNonRepeating?.online_media?.mediaType === '3d model',
+          metadata: {
+            date: item.content?.indexedStructured?.date?.[0],
+            culture: item.content?.indexedStructured?.culture?.[0],
+            medium: item.content?.indexedStructured?.object_type?.[0]
+          }
+        });
+      } else {
+        console.warn(`🏛️ Museum: Smithsonian item ${item.id} missing image`);
+      }
+    });
+
+    console.log(`🏛️ Museum: Retrieved ${items.length} valid Smithsonian items`);
     return items;
+  }
+
+  private generateDescription(metData: any): string {
+    const parts = [];
+    
+    if (metData.objectName) parts.push(metData.objectName);
+    if (metData.artistDisplayName) parts.push(`by ${metData.artistDisplayName}`);
+    if (metData.culture) parts.push(`from ${metData.culture}`);
+    if (metData.period) parts.push(`(${metData.period})`);
+    
+    const description = parts.length > 0 
+      ? parts.join(' ') + ' from the Metropolitan Museum of Art collection.'
+      : 'An artwork from the Metropolitan Museum of Art collection.';
+    
+    return description;
+  }
+
+  private generateSmithsonianDescription(smithsonianData: any): string {
+    const notes = smithsonianData.content?.freetext?.notes;
+    if (notes && notes.length > 0) {
+      return notes[0].content || 'A fascinating artifact from the Smithsonian collection.';
+    }
+    return 'A remarkable piece from the Smithsonian Institution collection.';
   }
 
   clearCache(): void {

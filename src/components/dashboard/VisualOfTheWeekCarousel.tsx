@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
   const { elementRef, trackClick } = useViewportAnalytics('visual3d');
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     if (!api) return;
@@ -62,6 +62,21 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
   const handleItemClick = (item: MuseumItem) => {
     trackClick(item.id);
     onItemClick(item);
+  };
+
+  const handleImageError = (itemId: string, originalSrc: string) => {
+    console.warn(`🏛️ Museum: Image failed to load for ${itemId}:`, originalSrc);
+    setImageErrors(prev => new Set([...prev, itemId]));
+  };
+
+  const getImageSrc = (item: MuseumItem): string => {
+    // If this image has errored, use the generic fallback
+    if (imageErrors.has(item.id)) {
+      return 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop&auto=format';
+    }
+    
+    // Otherwise use the thumbnail (which should be a real museum image)
+    return item.thumbnail;
   };
 
   const handlePrevious = () => {
@@ -152,12 +167,13 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow h-full flex flex-col">
                           <div className="flex-1 relative">
                             <img
-                              src={item.thumbnail}
+                              src={getImageSrc(item)}
                               alt={item.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              style={{ backgroundColor: '#000' }}
                               onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop';
+                                handleImageError(item.id, item.thumbnail);
+                                // Don't change src here, let getImageSrc handle it on next render
                               }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

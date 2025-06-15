@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,47 +19,70 @@ const ModelViewerModal: React.FC<ModelViewerModalProps> = ({
   item 
 }) => {
   const isMobile = useIsMobile();
+  const [imageError, setImageError] = useState(false);
 
   if (!item) return null;
 
+  const handleImageError = () => {
+    console.warn(`🏛️ Museum: Modal image failed to load for ${item.id}:`, item.thumbnail);
+    setImageError(true);
+  };
+
+  const getImageSrc = () => {
+    if (imageError) {
+      return 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=800&h=600&fit=crop&auto=format';
+    }
+    return item.thumbnail;
+  };
+
   const renderMediaContent = () => {
     if (item.isThreeD && item.embedUrl) {
-      // For Smithsonian 3D models, try to create an embedded viewer
-      if (item.source === 'smithsonian') {
-        return (
-          <div className="w-full aspect-video bg-slate-900 rounded-lg flex items-center justify-center">
-            <div className="text-center text-white p-8">
-              <Building2 className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-              <h3 className="text-xl font-semibold mb-2">3D Model</h3>
-              <p className="text-gray-300 mb-4">
-                This is a 3D model from the Smithsonian collection.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => window.open(item.embedUrl, '_blank')}
-                className="bg-blue-600 border-blue-500 text-white hover:bg-blue-700"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View 3D Model
-              </Button>
-            </div>
+      return (
+        <div className="w-full aspect-video bg-slate-900 rounded-lg flex items-center justify-center">
+          <div className="text-center text-white p-8">
+            <Building2 className="h-16 w-16 mx-auto mb-4 text-blue-400" />
+            <h3 className="text-xl font-semibold mb-2">3D Model</h3>
+            <p className="text-gray-300 mb-4">
+              This is a 3D model from the {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'} collection.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => window.open(item.embedUrl, '_blank')}
+              className="bg-blue-600 border-blue-500 text-white hover:bg-blue-700"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View 3D Model
+            </Button>
           </div>
-        );
-      }
+        </div>
+      );
     }
 
-    // Default to showing the thumbnail image
     return (
       <img
-        src={item.thumbnail}
+        src={getImageSrc()}
         alt={item.title}
         className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=800&h=600&fit=crop';
-        }}
+        style={{ backgroundColor: '#000' }}
+        onError={handleImageError}
       />
     );
+  };
+
+  const getExternalUrl = () => {
+    if (item.embedUrl) return item.embedUrl;
+    
+    // Generate appropriate external URL based on source
+    if (item.source === 'met' && item.id.startsWith('met-')) {
+      const objectId = item.id.replace('met-', '');
+      return `https://www.metmuseum.org/art/collection/search/${objectId}`;
+    }
+    
+    if (item.source === 'smithsonian') {
+      return `https://www.si.edu/search?edan_q=${encodeURIComponent(item.title)}`;
+    }
+    
+    return null;
   };
 
   return (
@@ -144,6 +166,27 @@ const ModelViewerModal: React.FC<ModelViewerModalProps> = ({
                     <h4 className="font-semibold text-white mb-2 text-sm">{item.title}</h4>
                   </div>
 
+                  {item.metadata?.artist && (
+                    <div className="pt-3 border-t border-slate-700">
+                      <p className="text-xs text-gray-400 font-medium">Artist</p>
+                      <p className="text-xs text-gray-300">{item.metadata.artist}</p>
+                    </div>
+                  )}
+
+                  {item.metadata?.date && (
+                    <div className="pt-3 border-t border-slate-700">
+                      <p className="text-xs text-gray-400 font-medium">Date</p>
+                      <p className="text-xs text-gray-300">{item.metadata.date}</p>
+                    </div>
+                  )}
+
+                  {item.metadata?.medium && (
+                    <div className="pt-3 border-t border-slate-700">
+                      <p className="text-xs text-gray-400 font-medium">Medium</p>
+                      <p className="text-xs text-gray-300">{item.metadata.medium}</p>
+                    </div>
+                  )}
+
                   <div className="pt-3 border-t border-slate-700">
                     <div className="flex items-start gap-2">
                       <Building2 className="h-3 w-3 text-gray-400 mt-0.5 flex-shrink-0" />
@@ -163,18 +206,14 @@ const ModelViewerModal: React.FC<ModelViewerModalProps> = ({
                       } flex-shrink-0`}></span>
                       <span>Type: {item.isThreeD ? '3D Model' : 'Artwork'}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
-                      <span className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></span>
-                      <span>Collection: {item.source === 'smithsonian' ? 'Smithsonian Institution' : 'The Metropolitan Museum'}</span>
-                    </div>
                   </div>
 
-                  {item.embedUrl && (
+                  {getExternalUrl() && (
                     <div className="pt-3 border-t border-slate-700">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(item.embedUrl, '_blank')}
+                        onClick={() => window.open(getExternalUrl()!, '_blank')}
                         className="w-full bg-purple-600 border-purple-500 text-white hover:bg-purple-700"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
