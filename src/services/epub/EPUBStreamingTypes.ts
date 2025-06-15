@@ -8,6 +8,7 @@ export interface EPUBStreamingProgress {
   bytesLoaded?: number;
   totalBytes?: number;
   readingSpeed?: number;
+  estimatedTimeRemaining?: number;
 }
 
 export interface EPUBStreamingError {

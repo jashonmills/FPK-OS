@@ -3,9 +3,10 @@ import React from 'react';
 import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { EPUBLoadingProgress, EPUBLoadError } from '@/hooks/useOptimizedEPUBLoader';
 import { PDFLoadingProgress } from '@/utils/enhancedPdfUtils';
+import { StreamingEPUBProgress, StreamingEPUBError } from '@/hooks/useStreamingProgressConverter';
 
 // Union types for handling both EPUB and PDF
-type UnifiedProgress = EPUBLoadingProgress | PDFLoadingProgress;
+type UnifiedProgress = EPUBLoadingProgress | PDFLoadingProgress | StreamingEPUBProgress;
 
 interface UnifiedError {
   type: 'network' | 'timeout' | 'parsing' | 'rendering' | 'unknown';
@@ -17,7 +18,7 @@ interface UnifiedError {
 interface UnifiedLoadingProgressProps {
   title: string;
   progress?: UnifiedProgress | null;
-  error?: UnifiedError | EPUBLoadError | string | null;
+  error?: UnifiedError | EPUBLoadError | StreamingEPUBError | string | null;
   onRetry?: () => void;
   onCancel?: () => void;
   type?: 'epub' | 'pdf' | 'general';
@@ -32,8 +33,8 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
   type = 'general'
 }) => {
   // Convert progress to enhanced format
-  const enhancedProgress = progress ? {
-    stage: progress.stage,
+  const enhancedProgress: StreamingEPUBProgress | null = progress ? {
+    stage: (progress as StreamingEPUBProgress).stage || 'processing',
     percentage: progress.percentage,
     message: progress.message,
     bytesLoaded: progress.bytesLoaded,
@@ -47,7 +48,7 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
     <EnhancedLoadingProgress
       title={title}
       progress={enhancedProgress}
-      error={error}
+      error={error as StreamingEPUBError | string | null}
       onRetry={onRetry}
       onCancel={onCancel}
       type={type}

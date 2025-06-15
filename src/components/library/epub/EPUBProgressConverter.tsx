@@ -10,15 +10,31 @@ export const convertStreamingProgress = (
 ): EPUBLoadingProgress | null => {
   if (!progress) return null;
 
+  // Map streaming stages to loading stages
+  let mappedStage: 'downloading' | 'processing' | 'ready';
+  switch (progress.stage) {
+    case 'metadata':
+    case 'structure':
+      mappedStage = 'downloading';
+      break;
+    case 'preloading':
+    case 'streaming':
+      mappedStage = 'processing';
+      break;
+    case 'ready':
+      mappedStage = 'ready';
+      break;
+    default:
+      mappedStage = 'processing';
+  }
+
   return {
-    stage: progress.stage as 'downloading' | 'processing' | 'ready',
+    stage: mappedStage,
     percentage: progress.percentage,
     message: progress.message,
     bytesLoaded: progress.bytesLoaded,
     totalBytes: progress.totalBytes,
-    estimatedTimeRemaining: progress.estimatedTimeRemaining,
-    totalChapters: progress.totalChapters,
-    chaptersLoaded: progress.chaptersLoaded
+    estimatedTimeRemaining: progress.estimatedTimeRemaining
   };
 };
 
@@ -41,7 +57,6 @@ export const convertStreamingError = (
       break;
     case 'metadata':
     case 'streaming':
-    case 'chapter':
       mappedType = 'parsing';
       break;
     default:

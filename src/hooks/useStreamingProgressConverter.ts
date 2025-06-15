@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { EPUBStreamingProgress, EPUBStreamingError } from '@/services/EnhancedEPUBStreamingLoader';
+import { EPUBStreamingProgress, EPUBStreamingError } from '@/services/epub/EPUBStreamingTypes';
 
 export interface StreamingEPUBProgress {
   stage: 'prefetch' | 'downloading' | 'processing' | 'streaming' | 'ready';
@@ -9,6 +9,8 @@ export interface StreamingEPUBProgress {
   bytesLoaded?: number;
   totalBytes?: number;
   estimatedTimeRemaining?: number;
+  totalChapters?: number;
+  chaptersLoaded?: number;
   chapterProgress?: {
     loaded: number;
     total: number;
@@ -51,6 +53,9 @@ export const useStreamingProgressConverter = () => {
       message: streamingProgress.message,
       bytesLoaded: streamingProgress.bytesLoaded,
       totalBytes: streamingProgress.totalBytes,
+      estimatedTimeRemaining: streamingProgress.estimatedTimeRemaining,
+      totalChapters: streamingProgress.totalChapters,
+      chaptersLoaded: streamingProgress.chaptersLoaded,
       chapterProgress: streamingProgress.chaptersLoaded && streamingProgress.totalChapters ? {
         loaded: streamingProgress.chaptersLoaded,
         total: streamingProgress.totalChapters

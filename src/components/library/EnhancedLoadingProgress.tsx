@@ -24,13 +24,13 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 }) => {
   const getStageIcon = (stage: string) => {
     switch (stage) {
-      case 'metadata':
+      case 'prefetch':
         return <FileText className="h-5 w-5" />;
-      case 'structure':
+      case 'processing':
         return <BookOpen className="h-5 w-5" />;
       case 'downloading':
         return <Download className="h-5 w-5" />;
-      case 'preloading':
+      case 'streaming':
         return <Loader2 className="h-5 w-5 animate-spin" />;
       case 'ready':
         return <Check className="h-5 w-5" />;
@@ -41,13 +41,13 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case 'metadata':
+      case 'prefetch':
         return 'text-blue-500';
-      case 'structure':
+      case 'processing':
         return 'text-purple-500';
       case 'downloading':
         return 'text-orange-500';
-      case 'preloading':
+      case 'streaming':
         return 'text-yellow-500';
       case 'ready':
         return 'text-green-500';
@@ -58,13 +58,13 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
   const getProgressBarColor = (stage: string) => {
     switch (stage) {
-      case 'metadata':
+      case 'prefetch':
         return 'bg-blue-500';
-      case 'structure':
+      case 'processing':
         return 'bg-purple-500';
       case 'downloading':
         return 'bg-orange-500';
-      case 'preloading':
+      case 'streaming':
         return 'bg-yellow-500';
       case 'ready':
         return 'bg-green-500';
@@ -95,7 +95,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
             <p className="text-sm text-muted-foreground">
               {normalizedError.type === 'timeout' ? 'Loading Timeout' : 
                normalizedError.type === 'network' ? 'Network Error' : 
-               normalizedError.type === 'metadata' ? 'Book Processing Error' : 'Loading Error'}
+               normalizedError.type === 'streaming' ? 'Book Processing Error' : 'Loading Error'}
             </p>
           </div>
           
@@ -174,9 +174,9 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
 
             {/* Stage indicators */}
             <div className="flex justify-center space-x-4 pt-2">
-              {['metadata', 'structure', 'preloading', 'ready'].map((stage, index) => {
+              {['prefetch', 'processing', 'streaming', 'ready'].map((stage, index) => {
                 const isActive = progress.stage === stage;
-                const isCompleted = ['metadata', 'structure', 'preloading', 'ready'].indexOf(progress.stage) > index;
+                const isCompleted = ['prefetch', 'processing', 'streaming', 'ready'].indexOf(progress.stage) > index;
                 
                 return (
                   <div 
