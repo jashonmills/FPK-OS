@@ -31,12 +31,19 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     }
   }
 
-  // Add mode detection context
+  // Enhanced mode-specific instructions
   contextPrompt += `\n\nQUERY MODE: ${queryMode.toUpperCase()}`;
   if (queryMode === 'personal') {
-    contextPrompt += ` - Use personal data tools to answer about the user's study progress and flashcards.`;
+    contextPrompt += `
+- This is about the user's personal study data
+- REQUIRED: Use personal data tools (get_recent_flashcards, get_user_flashcards, get_study_stats)
+- Reference specific user data in your response`;
   } else {
-    contextPrompt += ` - Use general knowledge tools or your training to answer this academic/factual question directly.`;
+    contextPrompt += `
+- This is a general knowledge/academic question
+- REQUIRED: Use retrieve_knowledge tool to get authoritative information
+- Provide comprehensive factual answer with sources
+- DO NOT give generic responses - answer the specific question asked`;
   }
 
   // Add voice optimization
@@ -46,6 +53,11 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
 
   contextPrompt += conversationContext;
   contextPrompt += `\n\nStudent's question: "${message}"`;
+  
+  // Add explicit instruction for current query
+  if (queryMode === 'general') {
+    contextPrompt += `\n\nIMPORTANT: This is a factual question that requires a substantive answer. Use the retrieve_knowledge tool to get accurate information and provide a comprehensive response.`;
+  }
 
   return contextPrompt;
 }

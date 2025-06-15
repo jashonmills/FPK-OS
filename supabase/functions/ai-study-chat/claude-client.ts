@@ -14,7 +14,7 @@ export async function callClaude(messages: any[]): Promise<any> {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    console.log('🤖 Calling Claude with dual-mode tools...');
+    console.log('🤖 Calling Claude with enhanced mode detection...');
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -28,6 +28,7 @@ export async function callClaude(messages: any[]): Promise<any> {
         model: CLAUDE_MODEL,
         max_tokens: MAX_TOKENS,
         tools: TOOL_DEFINITIONS,
+        tool_choice: "auto",
         messages
       }),
       signal: controller.signal
@@ -36,12 +37,23 @@ export async function callClaude(messages: any[]): Promise<any> {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Claude API error:', response.status, errorText);
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('📨 Claude response received:', { 
+      hasContent: !!data.content, 
+      contentLength: data.content?.length,
+      stopReason: data.stop_reason,
+      hasToolUse: data.content?.some((block: any) => block.type === 'tool_use')
+    });
+    
+    return data;
   } catch (error) {
     clearTimeout(timeoutId);
+    console.error('💥 Error calling Claude:', error);
     throw error;
   }
 }
