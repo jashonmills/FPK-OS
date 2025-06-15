@@ -1,20 +1,22 @@
-
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
+const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
 interface ClaudeMessage {
   role: 'user' | 'assistant';
   content: any;
 }
 
+interface OpenAIMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 export async function callClaude(messages: ClaudeMessage[], model?: string, chatMode?: string) {
-  // Use latest Claude 4 models for better performance
-  const selectedModel = chatMode === 'general' 
-    ? model || 'claude-3-opus-20240229' // Use Opus for general knowledge (more capable for research)
-    : model || 'claude-3-5-sonnet-20241022'; // Keep Sonnet for personal data (efficient)
+  const selectedModel = model || 'claude-3-5-sonnet-20241022';
   
   console.log(`🤖 Calling Claude with model: ${selectedModel}, mode: ${chatMode}`);
   
-  // Define tool sets based on chat mode
+  // Personal mode tools only
   const personalTools = [
     {
       name: "get_recent_flashcards",
@@ -61,25 +63,8 @@ export async function callClaude(messages: ClaudeMessage[], model?: string, chat
     }
   ];
 
-  const generalTools = [
-    {
-      name: "retrieve_knowledge",
-      description: "Search external knowledge sources including Wikipedia, research papers, and educational content",
-      input_schema: {
-        type: "object",
-        properties: {
-          topic: {
-            type: "string",
-            description: "The topic to search for in external knowledge sources"
-          }
-        },
-        required: ["topic"]
-      }
-    }
-  ];
-
-  // Select tools based on chat mode
-  const tools = chatMode === 'general' ? generalTools : personalTools;
+  // Use tools only for personal mode
+  const tools = chatMode === 'personal' ? personalTools : [];
   
   console.log(`🔧 Using ${tools.length} tools for ${chatMode || 'personal'} mode:`, tools.map(t => t.name));
 
@@ -111,6 +96,61 @@ export async function callClaude(messages: ClaudeMessage[], model?: string, chat
   return await response.json();
 }
 
+export async function callOpenAI(messages: OpenAIMessage[], model?: string, chatMode?: string) {
+  const selectedModel = model || 'gpt-4o';
+  
+  console.log(`🤖 Calling OpenAI with model: ${selectedModel}, mode: ${chatMode}`);
+  
+  // General knowledge tools only (for future implementation)
+  const generalTools = [
+    {
+      type: "function",
+      function: {
+        name: "retrieve_knowledge",
+        description: "Search external knowledge sources including Wikipedia, research papers, and educational content",
+        parameters: {
+          type: "object",
+          properties: {
+            topic: {
+              type: "string",
+              description: "The topic to search for in external knowledge sources"
+            }
+          },
+          required: ["topic"]
+        }
+      }
+    }
+  ];
+
+  // Use tools only for general mode (for future implementation)
+  const tools = chatMode === 'general' ? [] : []; // Disable tools for now
+  
+  console.log(`🔧 Using ${tools.length} tools for ${chatMode || 'general'} mode`);
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${openaiApiKey!}`
+    },
+    body: JSON.stringify({
+      model: selectedModel,
+      messages: messages,
+      max_tokens: 2000,
+      temperature: 0.7,
+      ...(tools.length > 0 && { tools })
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('OpenAI API error:', errorText);
+    throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+  }
+
+  return await response.json();
+}
+
 export async function handleToolCalls(data: any, userId: string, chatMode?: string) {
   console.log('🔧 Processing tool calls for mode:', chatMode);
   console.log('🔍 Tool call data structure:', JSON.stringify(data, null, 2));
@@ -125,7 +165,7 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
         try {
           let result;
           
-          // Handle personal mode tools
+          // Handle personal mode tools only
           if (chatMode === 'personal' || !chatMode) {
             switch (content.name) {
               case 'get_recent_flashcards':
@@ -135,7 +175,6 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
                   limit: content.input.limit || 5
                 });
                 
-                // Enhanced logging for flashcard retrieval
                 console.log('📚 Recent flashcards result structure:', {
                   hasFlashcards: result?.flashcards?.length > 0,
                   count: result?.flashcards?.length || 0,
@@ -149,7 +188,7 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
               case 'get_user_flashcards':
                 console.log('📚 Calling get_user_flashcards with correct userId parameter');
                 result = await callEdgeFunction('get-user-flashcards', {
-                  userId: userId, // Fixed: using userId instead of user_id
+                  userId: userId,
                   topic_filter: content.input.topic_filter,
                   difficulty_filter: content.input.difficulty_filter
                 });
@@ -174,23 +213,11 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
                 console.warn(`Unknown personal tool: ${content.name}`);
                 result = { error: `Tool ${content.name} not available in personal mode` };
             }
-          } 
-          // Handle general mode tools
-          else if (chatMode === 'general') {
-            switch (content.name) {
-              case 'retrieve_knowledge':
-                result = await callEdgeFunction('retrieve-knowledge', {
-                  topic: content.input.topic
-                });
-                break;
-              
-              default:
-                console.warn(`Unknown general tool: ${content.name}`);
-                result = { error: `Tool ${content.name} not available in general mode` };
-            }
+          } else {
+            console.warn(`Tool calls not supported in ${chatMode} mode yet`);
+            result = { error: `Tools not available in ${chatMode} mode` };
           }
           
-          // Enhanced tool result formatting for better Claude understanding
           const formattedResult = {
             type: 'tool_result',
             tool_use_id: content.id,
@@ -228,7 +255,6 @@ function formatToolResultForClaude(result: any, toolName: string): string {
   // Special formatting for flashcard tools
   if (toolName === 'get_recent_flashcards' || toolName === 'get_user_flashcards') {
     if (result.success && result.flashcards && result.flashcards.length > 0) {
-      // Format flashcards in a structured way that Claude can easily parse
       const formattedData = {
         success: true,
         flashcard_count: result.flashcards.length,
@@ -263,7 +289,6 @@ function formatToolResultForClaude(result: any, toolName: string): string {
     }
   }
 
-  // Default formatting for other tools
   return JSON.stringify(result);
 }
 
@@ -272,28 +297,21 @@ export function postProcessResponse(response: string, chatMode: string): string 
     return response;
   }
 
-  // Remove any visible thinking or reasoning blocks
+  // Clean up any visible thinking or reasoning blocks for general mode
   let cleanedResponse = response;
   
-  // Remove <thinking> blocks
   cleanedResponse = cleanedResponse.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
-  
-  // Remove tool call syntax if any leaked through
   cleanedResponse = cleanedResponse.replace(/```json[\s\S]*?```/gi, '');
   cleanedResponse = cleanedResponse.replace(/\[Tool call:[\s\S]*?\]/gi, '');
   cleanedResponse = cleanedResponse.replace(/\{[\s\S]*?"tool_use"[\s\S]*?\}/gi, '');
-  
-  // Remove any debugging statements
   cleanedResponse = cleanedResponse.replace(/\[DEBUG:[\s\S]*?\]/gi, '');
   cleanedResponse = cleanedResponse.replace(/\[INTERNAL:[\s\S]*?\]/gi, '');
   
-  // Clean up extra whitespace
   cleanedResponse = cleanedResponse.replace(/\n\s*\n\s*\n/g, '\n\n');
   cleanedResponse = cleanedResponse.trim();
   
-  // Ensure the response follows the structured format for general knowledge
+  // Ensure structured format for general knowledge
   if (!cleanedResponse.includes('**') && !cleanedResponse.includes('•')) {
-    // If the response doesn't have structure, try to add some basic formatting
     const sentences = cleanedResponse.split('. ');
     if (sentences.length > 3) {
       const summary = sentences.slice(0, 2).join('. ') + '.';

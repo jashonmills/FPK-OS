@@ -22,6 +22,7 @@ interface ChatMessage {
   content: string;
   timestamp?: Date;
   id?: string;
+  chatMode?: 'personal' | 'general';
 }
 
 interface ChatInterfaceProps {
@@ -38,7 +39,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   insights
 }) => {
   const [chatMessage, setChatMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  // Separate chat histories for each mode
+  const [personalChatHistory, setPersonalChatHistory] = useState<ChatMessage[]>([]);
+  const [generalChatHistory, setGeneralChatHistory] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -60,6 +63,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   // Check if dual AI mode is enabled
   const isDualAIModeEnabled = featureFlagService.isEnabled('dualAIMode');
 
+  // Get current chat history based on mode
+  const currentChatHistory = chatMode === 'personal' ? personalChatHistory : generalChatHistory;
+  const setCurrentChatHistory = chatMode === 'personal' ? setPersonalChatHistory : setGeneralChatHistory;
+
   // Calculate study metrics
   const overallAccuracy = completedSessions.length > 0 
     ? Math.round((completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0) / 
@@ -74,6 +81,52 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         return diffDays <= 1;
       }).length)
     : 0;
+
+  // Handle mode switching with immediate feedback
+  const handleModeChange = (newMode: 'personal' | 'general') => {
+    console.log('🔄 Chat mode changing from', chatMode, 'to', newMode);
+    
+    if (settings.enabled && isSpeaking) {
+      console.log('🔊 Stopping speech before mode change');
+      stopSpeech();
+    }
+
+    changeChatMode(newMode);
+    
+    // Immediate feedback message
+    const modeMessage = newMode === 'personal' 
+      ? "🔒 Switched to **My Data** mode—I'll answer only from your study data. Ask me about your flashcards, sessions, or XP!"
+      : "🌐 Switched to **General Knowledge** mode—I'm ready to research any topic. What would you like to know? 🌟";
+    
+    const feedbackMessage: ChatMessage = {
+      role: 'assistant',
+      content: modeMessage,
+      timestamp: new Date(),
+      id: `mode-switch-${Date.now()}`,
+      chatMode: newMode
+    };
+
+    // Add feedback to the new mode's history
+    if (newMode === 'personal') {
+      setPersonalChatHistory(prev => [...prev, feedbackMessage]);
+    } else {
+      setGeneralChatHistory(prev => [...prev, feedbackMessage]);
+    }
+
+    setUserScrolledUp(false);
+    
+    // Auto-read the mode switch message
+    if (settings.enabled && settings.autoRead) {
+      setTimeout(() => readAIMessage(modeMessage), 300);
+    }
+
+    toast({
+      title: `Switched to ${newMode === 'personal' ? 'My Data' : 'General Knowledge'} mode`,
+      description: newMode === 'personal' 
+        ? "I can now access your study data and performance metrics."
+        : "I can now research general topics and provide educational content on any subject.",
+    });
+  };
 
   // Improved scroll handling
   const scrollToBottom = () => {
@@ -97,10 +150,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   // Only auto-scroll when appropriate
   useEffect(() => {
-    if (chatHistory.length > 0 && !userScrolledUp) {
+    if (currentChatHistory.length > 0 && !userScrolledUp) {
       setTimeout(scrollToBottom, 100);
     }
-  }, [chatHistory, userScrolledUp]);
+  }, [currentChatHistory, userScrolledUp]);
 
   // Create a new chat session when the interface loads
   useEffect(() => {
@@ -111,8 +164,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   // Auto-read new AI messages with better duplicate prevention
   useEffect(() => {
-    if (chatHistory.length > 0) {
-      const lastMessage = chatHistory[chatHistory.length - 1];
+    if (currentChatHistory.length > 0) {
+      const lastMessage = currentChatHistory[currentChatHistory.length - 1];
       if (lastMessage.role === 'assistant' && settings.enabled && settings.autoRead) {
         const messageId = lastMessage.id || `${lastMessage.timestamp?.getTime()}-${lastMessage.content.substring(0, 20)}`;
         
@@ -130,7 +183,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         }
       }
     }
-  }, [chatHistory, readAIMessage, settings.enabled, settings.autoRead, settings.hasInteracted, lastReadMessageId]);
+  }, [currentChatHistory, readAIMessage, settings.enabled, settings.autoRead, settings.hasInteracted, lastReadMessageId]);
 
   const createNewSession = async () => {
     if (!user) return;
@@ -140,8 +193,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         .from('chat_sessions')
         .insert({
           user_id: user.id,
-          title: 'AI Coach Session',
-          context_tag: 'AI Coaching'
+          title: `AI Coach Session (${chatMode})`,
+          context_tag: `AI Coaching - ${chatMode}`
         })
         .select()
         .single();
@@ -154,6 +207,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       console.log('📊 AI Coach Session Started:', {
         sessionId: data.id,
         userId: user.id,
+        chatMode,
         timestamp: new Date().toISOString()
       });
 
@@ -162,39 +216,44 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  // Generate personalized greeting based on user data
+  // Generate personalized greeting based on mode and user data
   useEffect(() => {
-    if (user && chatHistory.length === 0) {
+    if (user && currentChatHistory.length === 0) {
       const userName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'there';
       const totalSessions = completedSessions.length;
       const totalCards = flashcards?.length || 0;
       
       let personalizedGreeting = `Hi ${userName}! I'm Claude, your AI Learning Coach. `;
       
-      if (totalSessions > 0) {
-        personalizedGreeting += `I've been analyzing your ${totalSessions} study sessions and ${totalCards} flashcards. Your overall accuracy is ${overallAccuracy}%! `;
-        
-        if (overallAccuracy >= 80) {
-          personalizedGreeting += "You're doing excellent work! Let's discuss strategies to maintain this momentum.";
-        } else if (overallAccuracy >= 60) {
-          personalizedGreeting += "You're making solid progress! I have some specific suggestions to help boost your performance.";
+      if (chatMode === 'personal') {
+        if (totalSessions > 0) {
+          personalizedGreeting += `I've been analyzing your ${totalSessions} study sessions and ${totalCards} flashcards. Your overall accuracy is ${overallAccuracy}%! `;
+          
+          if (overallAccuracy >= 80) {
+            personalizedGreeting += "You're doing excellent work! Let's discuss strategies to maintain this momentum.";
+          } else if (overallAccuracy >= 60) {
+            personalizedGreeting += "You're making solid progress! I have some specific suggestions to help boost your performance.";
+          } else {
+            personalizedGreeting += "I see opportunities to strengthen your learning approach. Let's work together to identify what methods work best for you.";
+          }
         } else {
-          personalizedGreeting += "I see opportunities to strengthen your learning approach. Let's work together to identify what methods work best for you.";
+          personalizedGreeting += "I'm here to help guide your learning journey with personalized insights and strategies. Take a few study sessions and I'll analyze your learning patterns to provide tailored coaching!";
         }
       } else {
-        personalizedGreeting += "I'm here to help guide your learning journey with personalized insights and strategies. Take a few study sessions and I'll analyze your learning patterns to provide tailored coaching!";
+        personalizedGreeting = `Hi ${userName}! I'm your AI Research Assistant. I'm here to help you explore any topic with comprehensive research and analysis. What would you like to learn about today? 🌟`;
       }
 
-      const greetingMessage = {
-        role: 'assistant' as const,
+      const greetingMessage: ChatMessage = {
+        role: 'assistant',
         content: personalizedGreeting,
         timestamp: new Date(),
-        id: 'initial-greeting'
+        id: 'initial-greeting',
+        chatMode
       };
 
-      setChatHistory([greetingMessage]);
+      setCurrentChatHistory([greetingMessage]);
     }
-  }, [user, completedSessions, flashcards]);
+  }, [user, completedSessions, flashcards, chatMode]);
 
   const saveMessageToSession = async (content: string, role: 'user' | 'assistant') => {
     if (!currentSessionId) return;
@@ -223,19 +282,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     const userMessage = chatMessage;
     setChatMessage('');
-    const userMessageObj = { 
-      role: 'user' as const, 
+    const userMessageObj: ChatMessage = { 
+      role: 'user',
       content: userMessage,
       timestamp: new Date(),
-      id: `user-${Date.now()}`
+      id: `user-${Date.now()}`,
+      chatMode
     };
-    setChatHistory(prev => [...prev, userMessageObj]);
+    
+    setCurrentChatHistory(prev => [...prev, userMessageObj]);
     setIsLoading(true);
     setIsSending(true);
     setIsAnalyzing(true);
     setConnectionStatus('good');
     setResponseTime(null);
-
     setUserScrolledUp(false);
 
     await saveMessageToSession(userMessage, 'user');
@@ -261,7 +321,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           metadata: {
             hasInteracted: settings.hasInteracted,
             timestamp: new Date().toISOString(),
-            sessionLength: chatHistory.length,
+            sessionLength: currentChatHistory.length,
             userAgent: navigator.userAgent,
             voiceEnabled: settings.enabled,
             autoRead: settings.autoRead,
@@ -281,25 +341,27 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       }
 
       setConnectionStatus('good');
-      const aiResponse = data?.response || "I'm here to guide your personalized learning journey with your own study data! 🌟";
+      const aiResponse = data?.response || (chatMode === 'personal' 
+        ? "I'm here to guide your personalized learning journey with your own study data! 🌟"
+        : "I'm here to help you explore any topic with comprehensive research and analysis! 🌟");
       
       console.log('🎙️ AI response received for voice processing:', {
         hasVoiceActive: data?.voiceEnabled,
         responseLength: aiResponse.length,
         willAutoRead: settings.enabled && settings.autoRead,
-        chatMode: chatMode
+        chatMode,
+        aiProvider: data?.aiProvider
       });
       
-      const aiMessageObj = { 
-        role: 'assistant' as const, 
+      const aiMessageObj: ChatMessage = { 
+        role: 'assistant',
         content: aiResponse,
         timestamp: new Date(),
         id: `ai-${Date.now()}`,
-        hasPersonalData: data?.hasPersonalData || false,
-        toolUsed: data?.toolUsed || null
+        chatMode
       };
       
-      setChatHistory(prev => [...prev, aiMessageObj]);
+      setCurrentChatHistory(prev => [...prev, aiMessageObj]);
 
       await saveMessageToSession(aiResponse, 'assistant');
 
@@ -309,8 +371,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         responseTime: responseTimeMs,
         voiceEnabled: settings.enabled,
         hasPersonalData: data?.hasPersonalData,
-        toolUsed: data?.toolUsed,
-        chatMode: chatMode,
+        toolsUsed: data?.toolsUsed,
+        chatMode,
+        aiProvider: data?.aiProvider,
         timestamp: new Date().toISOString()
       });
 
@@ -318,24 +381,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       console.error('Enhanced AI coach error:', error);
       setConnectionStatus('error');
       
-      const personalizedFallbacks = [
+      const personalizedFallbacks = chatMode === 'personal' ? [
         "I'm getting ready to analyze your personal study data! 🎯 While I connect, try asking about study strategies or specific topics you're working on.",
         "Your personalized learning coach is warming up! 📚 I'll soon have access to your flashcards and performance data for tailored guidance.",
-        "I'm here to help with your unique learning journey! ✨ Ask me about study techniques while I prepare your personalized insights.",
-        "Building your custom learning profile! 💪 In the meantime, I can help with general study questions or subject-specific guidance.",
-        "Your data-driven learning coach is almost ready! 🌟 Feel free to ask about effective study methods or any academic topics."
+      ] : [
+        "I'm here to help with general knowledge questions! 🌐 While I connect to external sources, feel free to ask about any topic you'd like to explore.",
+        "Your research assistant is getting ready! ✨ I can help with explanations, facts, and educational content on any subject.",
       ];
       
       const randomFallback = personalizedFallbacks[Math.floor(Math.random() * personalizedFallbacks.length)];
       
-      const fallbackMessageObj = { 
-        role: 'assistant' as const, 
+      const fallbackMessageObj: ChatMessage = { 
+        role: 'assistant',
         content: randomFallback,
         timestamp: new Date(),
-        id: `fallback-${Date.now()}`
+        id: `fallback-${Date.now()}`,
+        chatMode
       };
       
-      setChatHistory(prev => [...prev, fallbackMessageObj]);
+      setCurrentChatHistory(prev => [...prev, fallbackMessageObj]);
       await saveMessageToSession(randomFallback, 'assistant');
     } finally {
       setIsLoading(false);
@@ -394,12 +458,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       console.log('📊 AI Coach Session Ended:', {
         sessionId: currentSessionId,
         duration: sessionDuration,
-        messageCount: chatHistory.length,
+        messageCount: currentChatHistory.length,
+        chatMode,
         timestamp: new Date().toISOString()
       });
     }
 
-    setChatHistory([]);
+    setCurrentChatHistory([]);
     setResponseTime(null);
     setCurrentSessionId(null);
     setSessionStartTime(null);
@@ -410,7 +475,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     
     toast({
       title: "Chat reset",
-      description: "Your conversation has been cleared.",
+      description: `Your ${chatMode} conversation has been cleared.`,
     });
   };
 
@@ -418,7 +483,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     const chatData = {
       sessionId: currentSessionId,
       timestamp: new Date().toISOString(),
-      messages: chatHistory,
+      messages: currentChatHistory,
+      chatMode,
       user: user?.email || 'unknown'
     };
     
@@ -428,7 +494,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ai-coach-chat-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `ai-coach-${chatMode}-chat-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -436,16 +502,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     
     toast({
       title: "Chat saved",
-      description: "Your conversation has been downloaded.",
+      description: `Your ${chatMode} conversation has been downloaded.`,
     });
   };
 
   const handleArchiveChat = () => {
-    const archiveKey = `ai-coach-archive-${Date.now()}`;
+    const archiveKey = `ai-coach-archive-${chatMode}-${Date.now()}`;
     const chatData = {
       sessionId: currentSessionId,
       timestamp: new Date().toISOString(),
-      messages: chatHistory,
+      messages: currentChatHistory,
+      chatMode,
       user: user?.email || 'unknown'
     };
     
@@ -453,7 +520,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     
     toast({
       title: "Chat archived",
-      description: "Your conversation has been saved to local archive.",
+      description: `Your ${chatMode} conversation has been saved to local archive.`,
     });
   };
 
@@ -493,8 +560,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   const getStatusText = () => {
+    const aiProvider = chatMode === 'personal' ? 'Claude' : 'GPT-4';
     switch (connectionStatus) {
-      case 'good': return responseTime ? `AI Coach Connected (${responseTime}ms)` : 'AI Coach Connected';
+      case 'good': return responseTime ? `${aiProvider} Connected (${responseTime}ms)` : `${aiProvider} Connected`;
       case 'slow': return 'Analyzing your data...';
       case 'error': return 'Coaching mode';
     }
@@ -506,12 +574,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     
     if (chatMode === 'personal') {
       return {
-        text: 'Personal Data Active',
+        text: 'My Data Active',
         className: 'bg-green-500/90 text-white'
       };
     } else {
       return {
-        text: 'Web Tools Active',
+        text: 'General Knowledge Active',
         className: 'bg-blue-500/90 text-white'
       };
     }
@@ -553,8 +621,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     });
   };
 
-  // Convert chatHistory to the format expected by ChatMessagesPane
-  const formattedMessages = chatHistory.map(msg => ({
+  // Convert currentChatHistory to the format expected by ChatMessagesPane
+  const formattedMessages = currentChatHistory.map(msg => ({
     id: msg.id || `${msg.timestamp?.getTime()}-${msg.role}`,
     role: msg.role,
     content: msg.content,
@@ -582,7 +650,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <div className="flex-shrink-0 order-first sm:order-none w-full sm:w-auto mb-2 sm:mb-0">
                 <ChatModeToggle
                   mode={chatMode}
-                  onModeChange={changeChatMode}
+                  onModeChange={handleModeChange}
                   className="w-full sm:w-auto"
                 />
               </div>
@@ -666,7 +734,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </Badge>
               )}
               
-              {completedSessions.length > 0 && (
+              {chatMode === 'personal' && completedSessions.length > 0 && (
                 <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
                   <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
                   <span className="hidden sm:inline">Personal Data</span>
@@ -674,8 +742,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </Badge>
               )}
               
-              {settings.enabled && (
+              {chatMode === 'general' && (
                 <Badge variant="secondary" className="bg-blue-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-blue-400/50 shadow-sm flex-shrink-0">
+                  <Brain className="h-2 w-2 sm:h-3 sm:w-3" />
+                  <span className="hidden sm:inline">Web Research</span>
+                  <span className="sm:hidden">Web ✓</span>
+                </Badge>
+              )}
+              
+              {settings.enabled && (
+                <Badge variant="secondary" className="bg-purple-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-purple-400/50 shadow-sm flex-shrink-0">
                   <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                   <span className="hidden lg:inline">Voice Active</span>
                   <span className="lg:hidden">Voice</span>
@@ -699,8 +775,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               )}
             </div>
             
-            {/* Accuracy stats - better responsive handling */}
-            {completedSessions.length > 0 && (
+            {/* Accuracy stats - only for personal mode */}
+            {chatMode === 'personal' && completedSessions.length > 0 && (
               <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base font-semibold flex-shrink-0">
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                 <span>{overallAccuracy}% Accuracy</span>
@@ -802,7 +878,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               ⏸ Speech paused... Press Ctrl+Space to resume, ESC to stop
             </p>
           )}
-          {completedSessions.length > 0 && chatMode === 'personal' && (
+          {chatMode === 'personal' && completedSessions.length > 0 && (
             <p className="text-xs text-purple-600 mt-2 text-center break-words px-1">
               🎯 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
               {settings.enabled && " • 🔊 Voice responses enabled"}

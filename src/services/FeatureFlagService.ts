@@ -146,11 +146,11 @@ export class FeatureFlagService {
         enabled: true,
         rolloutPercentage: 100
       },
-      // Dual AI Mode feature flag
+      // Dual AI Mode feature flag - ENABLED
       {
         id: 'dualAIMode',
-        name: 'Dual AI Mode',
-        description: 'Enable dual-model chat toggle between personal data and general knowledge modes',
+        name: 'Dual AI Chat Modes',
+        description: 'Enable dual-model chat toggle between personal data and general knowledge modes with Claude and OpenAI',
         enabled: true,
         rolloutPercentage: 100
       }
@@ -168,18 +168,15 @@ export class FeatureFlagService {
 
     if (!flag.enabled) return false;
 
-    // Check rollout percentage
     const hashNumber = this.hashStringToNumber(this.userHash + flagId);
     const userPercentile = hashNumber % 100;
     
     const isInRollout = userPercentile < flag.rolloutPercentage;
     
-    // Check conditions
     if (flag.conditions) {
       if (flag.conditions.userAgent && !this.matchesUserAgent(flag.conditions.userAgent)) {
         return false;
       }
-      // Add more condition checks as needed
     }
 
     return isInRollout;
@@ -202,7 +199,6 @@ export class FeatureFlagService {
   }
 
   private generateUserHash(): string {
-    // Create a stable hash based on browser fingerprint
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (ctx) {
@@ -227,7 +223,7 @@ export class FeatureFlagService {
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
+      hash = hash & hash;
     }
     return Math.abs(hash).toString(36);
   }
