@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,13 +71,25 @@ const MyCourses = () => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
 
-    // Determine the correct route for each course
+    // Fixed course route logic
     const getCourseRoute = () => {
+      console.log('Getting course route for:', { 
+        courseId: course.id, 
+        slug: course.slug, 
+        isLearningState: isLearningStateCourse 
+      });
+      
       if (isLearningStateCourse) {
         return '/dashboard/learner/learning-state';
       }
-      return `/dashboard/learner/course/${course.slug || course.id}`;
+      
+      // For other courses, use slug if available, otherwise use id
+      const identifier = course.slug || course.id;
+      return `/dashboard/learner/course/${identifier}`;
     };
+
+    const courseRoute = getCourseRoute();
+    console.log('Final course route:', courseRoute);
 
     return (
       <Card className="h-full hover:shadow-lg transition-shadow">
@@ -139,7 +150,7 @@ const MyCourses = () => {
               </div>
             )}
 
-            <Link to={getCourseRoute()}>
+            <Link to={courseRoute}>
               <Button className="w-full fpk-gradient text-white">
                 {isEnrolled ? 'Continue Learning' : 'View Course'}
               </Button>
