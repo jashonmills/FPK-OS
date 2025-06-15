@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface GutendexBook {
+interface GutendxBook {
   id: number;
   title: string;
   authors: Array<{ name: string }>;
@@ -16,38 +16,18 @@ interface GutendexBook {
   download_count: number;
 }
 
-// Pre-defined book data as fallback since Gutendx API is unreliable
-const GUTENBERG_BOOKS_DATA = [
-  { id: 2899, title: "The Wind in the Willows", author: "Kenneth Grahame", subjects: ["Children's literature", "Fantasy", "Classic"] },
-  { id: 271, title: "Black Beauty", author: "Anna Sewell", subjects: ["Children's literature", "Animal stories", "Classic"] },
-  { id: 103, title: "The Swiss Family Robinson", author: "Johann David Wyss", subjects: ["Adventure", "Children's literature", "Classic"] },
-  { id: 13358, title: "Tom Swift and His Motor-cycle", author: "Victor Appleton", subjects: ["Adventure", "Young adult", "Science fiction"] },
-  { id: 25373, title: "The Story of My Life", author: "Helen Keller", subjects: ["Biography", "Memoir", "Education"] },
-  { id: 164, title: "Twenty Thousand Leagues Under the Sea", author: "Jules Verne", subjects: ["Science fiction", "Adventure", "Classic"] },
-  { id: 18857, title: "Journey to the Center of the Earth", author: "Jules Verne", subjects: ["Science fiction", "Adventure", "Classic"] },
-  { id: 50012, title: "A Journey to the Center of the Earth", author: "Jules Verne", subjects: ["Science fiction", "Adventure", "Classic"] },
-  { id: 44212, title: "The Boy Scouts Book of Camping", author: "William Hillcourt", subjects: ["Outdoor life", "Scouting", "Recreation"] },
-  { id: 17384, title: "The Boy Mechanic: 200 Things for Boys to Do", author: "Popular Mechanics", subjects: ["Crafts", "Science", "Recreation"] },
-  { id: 45345, title: "Boys' Book of Inventions", author: "Milton Bradley", subjects: ["Inventions", "Science", "Education"] },
-  { id: 3876, title: "The Little Lame Prince", author: "Dinah Maria Mulock Craik", subjects: ["Children's literature", "Fantasy", "Classic"] },
-  { id: 55, title: "Dorothy and the Wizard in Oz", author: "L. Frank Baum", subjects: ["Children's literature", "Fantasy", "Classic"] },
-  { id: 81, title: "The Lost World", author: "Arthur Conan Doyle", subjects: ["Science fiction", "Adventure", "Classic"] },
-  { id: 19994, title: "The Merry Adventures of Robin Hood", author: "Howard Pyle", subjects: ["Adventure", "Children's literature", "Classic"] },
+// Reduced set of highly reliable, popular books for initial testing
+const RELIABLE_GUTENBERG_BOOKS = [
   { id: 1661, title: "The Adventures of Sherlock Holmes", author: "Arthur Conan Doyle", subjects: ["Mystery", "Detective", "Classic"] },
-  { id: 1686, title: "The Story of the Volsungs", author: "William Morris", subjects: ["Mythology", "Literature", "Classic"] },
-  { id: 1246, title: "Stories of Beowulf", author: "E. Wright", subjects: ["Mythology", "Literature", "Classic"] },
-  { id: 46663, title: "The Children of Odin", author: "Padraic Colum", subjects: ["Mythology", "Children's literature", "Classic"] },
-  { id: 3096, title: "Greek Heroes", author: "Charles Kingsley", subjects: ["Mythology", "Children's literature", "Classic"] },
-  { id: 201, title: "Stories of the Ancient Greeks", author: "Charles Morris", subjects: ["History", "Mythology", "Classic"] },
-  { id: 21690, title: "The Boys' Book of Experiments", author: "L. S. Marks", subjects: ["Science", "Experiments", "Education"] },
-  { id: 34076, title: "Elements of Physics", author: "Erasmus Wilson", subjects: ["Physics", "Science", "Education"] },
-  { id: 4331, title: "The Story of the Telescope", author: "Henry C. King", subjects: ["Science", "Astronomy", "Education"] },
-  { id: 7909, title: "The Educational Value of a Flower Garden", author: "Lou Henry Hoover", subjects: ["Gardening", "Education", "Nature"] },
-  { id: 20314, title: "The Sea and Its Wonders", author: "Frank Bullen", subjects: ["Marine life", "Nature", "Education"] },
-  { id: 30214, title: "The Young Student's Guide", author: "M. Sprinkle", subjects: ["Education", "Study skills", "Learning"] },
-  { id: 35914, title: "Manual of Drawing", author: "John Ruskin", subjects: ["Art", "Drawing", "Education"] },
-  { id: 7275, title: "Audio-Visual Education", author: "Paul La Farge", subjects: ["Education", "Technology", "Learning"] },
-  { id: 21856, title: "Famous Men of Science", author: "John Keltie", subjects: ["Biography", "Science", "Education"] }
+  { id: 164, title: "Twenty Thousand Leagues Under the Sea", author: "Jules Verne", subjects: ["Science fiction", "Adventure", "Classic"] },
+  { id: 2701, title: "Moby Dick", author: "Herman Melville", subjects: ["Adventure", "Classic", "Literature"] },
+  { id: 1342, title: "Pride and Prejudice", author: "Jane Austen", subjects: ["Romance", "Classic", "Literature"] },
+  { id: 84, title: "Frankenstein", author: "Mary Wollstonecraft Shelley", subjects: ["Horror", "Science fiction", "Classic"] },
+  { id: 11, title: "Alice's Adventures in Wonderland", author: "Lewis Carroll", subjects: ["Children's literature", "Fantasy", "Classic"] },
+  { id: 25344, title: "The Scarlet Letter", author: "Nathaniel Hawthorne", subjects: ["Classic", "Literature", "Historical fiction"] },
+  { id: 74, title: "The Adventures of Tom Sawyer", author: "Mark Twain", subjects: ["Adventure", "Children's literature", "Classic"] },
+  { id: 76, title: "Adventures of Huckleberry Finn", author: "Mark Twain", subjects: ["Adventure", "Classic", "Literature"] },
+  { id: 1232, title: "The Prince", author: "Niccolò Machiavelli", subjects: ["Philosophy", "Politics", "Classic"] }
 ];
 
 serve(async (req) => {
@@ -62,14 +42,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    console.log('🚀 Starting ingestion of 30 Project Gutenberg titles...');
+    console.log('🚀 Starting optimized ingestion of reliable Project Gutenberg titles...');
 
     const booksToInsert = [];
     let successCount = 0;
     let errorCount = 0;
     let skippedCount = 0;
 
-    for (const bookInfo of GUTENBERG_BOOKS_DATA) {
+    for (const bookInfo of RELIABLE_GUTENBERG_BOOKS) {
       try {
         console.log(`📚 Processing: ${bookInfo.title} (ID: ${bookInfo.id})`);
         
@@ -86,11 +66,21 @@ serve(async (req) => {
           continue;
         }
 
-        // Try to fetch from Gutendx API first, but fall back to predefined data
+        // Use multiple reliable URL formats for each book
+        const primaryEpubUrl = `https://www.gutenberg.org/ebooks/${bookInfo.id}.epub.noimages`;
+        const backupEpubUrls = [
+          `https://www.gutenberg.org/cache/epub/${bookInfo.id}/pg${bookInfo.id}.epub`,
+          `https://www.gutenberg.org/files/${bookInfo.id}/${bookInfo.id}-0.epub`
+        ];
+
+        const coverUrl = `https://www.gutenberg.org/cache/epub/${bookInfo.id}/pg${bookInfo.id}.cover.medium.jpg`;
+
+        // Try to fetch from Gutendx API for additional data, but don't fail if it's unavailable
         let apiData: GutendxBook | null = null;
         try {
           const response = await fetch(`https://gutendx.com/books/${bookInfo.id}/`, {
-            headers: { 'User-Agent': 'Supabase-Function/1.0' }
+            headers: { 'User-Agent': 'Supabase-Function/1.0' },
+            signal: AbortSignal.timeout(5000) // 5 second timeout
           });
           if (response.ok) {
             apiData = await response.json();
@@ -101,29 +91,25 @@ serve(async (req) => {
         }
 
         // Use API data if available, otherwise use predefined data
-        const coverUrl = apiData?.formats?.['image/jpeg'] || 
-                        `https://www.gutenberg.org/cache/epub/${bookInfo.id}/pg${bookInfo.id}.cover.medium.jpg`;
-
-        const epubUrl = apiData?.formats?.['application/epub+zip'] || 
-                       `https://www.gutenberg.org/ebooks/${bookInfo.id}.epub.noimages`;
-
         const author = apiData?.authors?.[0]?.name || bookInfo.author;
         const subjects = apiData?.subjects?.slice(0, 5) || bookInfo.subjects;
         const downloadCount = apiData?.download_count || 1000;
 
-        // Prepare book data
+        // Prepare book data with improved reliability
         const bookData = {
           id: `gutenberg-${bookInfo.id}`,
           title: apiData?.title || bookInfo.title,
           author: author,
           subjects: subjects,
           cover_url: coverUrl,
-          epub_url: epubUrl,
+          epub_url: primaryEpubUrl,
           gutenberg_id: bookInfo.id,
-          description: `A classic work from Project Gutenberg. Downloaded ${downloadCount} times.`,
+          description: `${downloadCount > 1000 ? 'Popular classic' : 'Classic work'} from Project Gutenberg. Downloaded ${downloadCount.toLocaleString()} times.`,
           language: 'en',
           is_user_added: false, // Mark as curated content
-          openlibrary_key: null
+          openlibrary_key: null,
+          // Store backup URLs for resilient loading
+          backup_urls: backupEpubUrls
         };
 
         booksToInsert.push(bookData);
@@ -138,7 +124,7 @@ serve(async (req) => {
 
     // Bulk insert all books
     if (booksToInsert.length > 0) {
-      console.log(`💾 Inserting ${booksToInsert.length} books into database...`);
+      console.log(`💾 Inserting ${booksToInsert.length} reliable books into database...`);
       
       const { data, error } = await supabaseClient
         .from('public_domain_books')
@@ -154,12 +140,18 @@ serve(async (req) => {
     }
 
     const summary = {
-      total_processed: GUTENBERG_BOOKS_DATA.length,
+      total_processed: RELIABLE_GUTENBERG_BOOKS.length,
       successful_insertions: successCount,
       errors: errorCount,
       skipped: skippedCount,
       books_inserted: booksToInsert.length,
-      message: `Successfully processed ${successCount}/${GUTENBERG_BOOKS_DATA.length} Project Gutenberg titles`
+      message: `Successfully processed ${successCount}/${RELIABLE_GUTENBERG_BOOKS.length} reliable Project Gutenberg titles. Optimized for performance and reliability.`,
+      optimization_notes: [
+        "Reduced initial set to 10 highly reliable books",
+        "Multiple backup URLs provided for each book",
+        "Faster loading with proven sources",
+        "Progressive loading implemented in frontend"
+      ]
     };
 
     console.log('📊 Final Summary:', summary);
@@ -170,11 +162,11 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('❌ Ingestion function error:', error);
+    console.error('❌ Optimized ingestion function error:', error);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        message: 'Failed to ingest Project Gutenberg titles'
+        message: 'Failed to ingest reliable Project Gutenberg titles'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

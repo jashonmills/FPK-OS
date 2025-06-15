@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useOptimizedEPUBLoader } from '@/hooks/useOptimizedEPUBLoader';
+import { useResilientEPUBLoader } from '@/hooks/useResilientEPUBLoader';
 import { useOptimizedEPUBRendition } from '@/hooks/useOptimizedEPUBRendition';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
@@ -33,7 +33,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     loadEPUB,
     retryLoad,
     abortLoad
-  } = useOptimizedEPUBLoader(book);
+  } = useResilientEPUBLoader(book);
 
   const {
     currentLocation,
@@ -57,7 +57,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
 
   // Initialize EPUB loading on mount
   useEffect(() => {
-    console.log('🚀 Starting optimized EPUB reader for:', book.title);
+    console.log('🚀 Starting resilient EPUB reader for:', book.title);
     loadEPUB();
     
     return () => {
@@ -69,7 +69,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
   // Initialize rendition when EPUB is ready
   useEffect(() => {
     if (!isLoading && !error && epubInstance && readerRef.current && !isInitialized) {
-      console.log('🎨 Initializing enhanced EPUB rendition');
+      console.log('🎨 Initializing resilient EPUB rendition');
       initializeRendition(readerRef.current, fontSize);
       
       // Start reading session
@@ -82,15 +82,6 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
       }
     }
   }, [isLoading, error, epubInstance, initializeRendition, fontSize, isInitialized, startSession, readingProgress]);
-
-  // Restore reading position when rendition is ready
-  useEffect(() => {
-    if (isInitialized && currentLocation && readingProgress?.current_cfi && !isNavigating) {
-      // Only restore position once when first initialized
-      console.log('📍 Restoring reading position');
-      // The position restoration will be handled by the reading progress hook
-    }
-  }, [isInitialized, currentLocation, readingProgress, isNavigating]);
 
   const onFontSizeChange = (delta: number) => {
     const newSize = Math.max(12, Math.min(24, fontSize + delta));
