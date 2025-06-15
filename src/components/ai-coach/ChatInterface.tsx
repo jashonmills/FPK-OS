@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +37,8 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
   const [voiceActive, setVoiceActive] = useState(false);
   const { toast } = useToast();
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
-  const { awardXP } = useXPIntegration();
-  const [sessionId, setSessionId] = useLocalStorage('ai_coach_session_id', null);
+  const { awardFlashcardStudyXP } = useXPIntegration();
+  const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -83,7 +84,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
         setMessages(data as ChatMessage[]);
       } else {
         // Add welcome message if no messages exist
-        const welcomeMessage = {
+        const welcomeMessage: ChatMessage = {
           id: 'welcome',
           role: 'assistant',
           content: "👋 Welcome to your AI Learning Coach! I'm here to help you study smarter and achieve your learning goals. Ask me about your flashcards, study strategies, or how to improve your learning habits!",
@@ -128,9 +129,9 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
     }
 
     // Add user message to state immediately for better UX
-    const userMessage = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      role: 'user' as const,
+      role: 'user',
       content: message,
       timestamp: new Date().toISOString()
     };
@@ -170,9 +171,9 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
       if (error) throw error;
 
       // Add AI response to state
-      const aiResponse = {
+      const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant' as const,
+        role: 'assistant',
         content: data.response || "I'm here to help with your learning journey!",
         timestamp: new Date().toISOString()
       };
@@ -193,10 +194,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
 
       // Award XP for meaningful interactions
       if (message.length > 15) {
-        awardXP('ai_coach_interaction', 2, {
-          message_length: message.length,
-          chat_mode: chatMode
-        });
+        await awardFlashcardStudyXP(1, 1, 30); // Award some XP for interaction
       }
 
     } catch (error) {
