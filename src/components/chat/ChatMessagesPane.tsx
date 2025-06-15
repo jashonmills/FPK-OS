@@ -1,7 +1,8 @@
+
 import React, { useEffect, useCallback, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Brain, Volume2, VolumeX, User } from 'lucide-react';
+import { Brain, Volume2, VolumeX, User, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
