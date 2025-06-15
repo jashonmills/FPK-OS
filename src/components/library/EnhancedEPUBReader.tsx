@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useStreamingEPUBLoader } from '@/hooks/useStreamingEPUBLoader';
 import { useOptimizedEPUBRendition } from '@/hooks/useOptimizedEPUBRendition';
@@ -245,7 +244,6 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
             onRetry={retryLoad}
             onCancel={onClose}
             type="epub"
-            metadata={metadata}
           />
         ) : (
           <div className="flex flex-col h-full">
