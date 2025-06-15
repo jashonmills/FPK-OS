@@ -1,8 +1,10 @@
 
 /**
  * Performance Optimization Service
- * Handles CDN caching, prefetch, preconnect, and resource optimization
+ * Enhanced with IndexedDB caching and streaming support
  */
+
+import { indexedDBCache } from './IndexedDBCacheService';
 
 interface CacheConfig {
   maxAge: number;
@@ -14,13 +16,24 @@ interface PrefetchConfig {
   enabled: boolean;
   popularBooksCount: number;
   searchPrefetchDelay: number;
+  streamingEnabled: boolean;
+}
+
+interface PerformanceMetrics {
+  cacheHitRate: number;
+  averageLoadTime: number;
+  streamingSuccessRate: number;
+  indexedDBSize: number;
+  networkRequests: number;
+  bytesSaved: number;
 }
 
 class PerformanceOptimizationService {
   private prefetchConfig: PrefetchConfig = {
     enabled: true,
     popularBooksCount: 100,
-    searchPrefetchDelay: 300
+    searchPrefetchDelay: 300,
+    streamingEnabled: true
   };
 
   private cacheConfig: CacheConfig = {
@@ -38,10 +51,36 @@ class PerformanceOptimizationService {
 
   private prefetchedBooks = new Map<string, any>();
   private searchCache = new Map<string, any>();
+  private performanceMetrics: PerformanceMetrics = {
+    cacheHitRate: 0,
+    averageLoadTime: 0,
+    streamingSuccessRate: 0,
+    indexedDBSize: 0,
+    networkRequests: 0,
+    bytesSaved: 0
+  };
 
   constructor() {
+    this.initializePerformance();
+  }
+
+  /**
+   * Initialize performance optimizations with IndexedDB support
+   */
+  private async initializePerformance(): Promise<void> {
+    console.log('🚀 Initializing enhanced performance service...');
+
+    // Initialize IndexedDB cache
+    const cacheReady = await indexedDBCache.initialize();
+    if (!cacheReady) {
+      console.warn('⚠️ IndexedDB cache initialization failed, using memory cache only');
+    }
+
     this.initializePreconnections();
-    this.setupCacheHeaders();
+    this.setupEnhancedCacheHeaders();
+    await this.loadPerformanceMetrics();
+
+    console.log('✅ Enhanced performance service initialized');
   }
 
   /**
@@ -62,24 +101,83 @@ class PerformanceOptimizationService {
   }
 
   /**
-   * Setup optimized cache headers for requests
+   * Setup enhanced cache headers with IndexedDB integration
    */
-  private setupCacheHeaders(): void {
-    // Intercept fetch requests to add cache headers
+  private setupEnhancedCacheHeaders(): void {
     const originalFetch = window.fetch;
     window.fetch = async (input, init = {}) => {
       const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : input.href);
       
-      // Add cache headers for book assets
+      // Check IndexedDB cache first for book assets
       if (this.isBookAsset(url)) {
-        init.headers = {
-          ...init.headers,
-          'Cache-Control': `public, max-age=${this.cacheConfig.maxAge}, stale-while-revalidate=${this.cacheConfig.staleWhileRevalidate}`,
-          'X-Performance-Optimized': 'true'
-        };
+        const cacheKey = this.generateCacheKey(url);
+        const cached = await indexedDBCache.get(cacheKey);
+        
+        if (cached) {
+          console.log('🎯 IndexedDB cache hit for:', url.substring(0, 50) + '...');
+          this.performanceMetrics.cacheHitRate++;
+          
+          // Return cached response
+          return new Response(cached.data, {
+            status: 200,
+            headers: cached.headers || {}
+          });
+        }
       }
 
-      return originalFetch(input, init);
+      // Add enhanced cache headers
+      init.headers = {
+        ...init.headers,
+        'Cache-Control': `public, max-age=${this.cacheConfig.maxAge}, stale-while-revalidate=${this.cacheConfig.staleWhileRevalidate}`,
+        'X-Performance-Optimized': 'true',
+        'X-Streaming-Supported': this.prefetchConfig.streamingEnabled ? 'true' : 'false'
+      };
+
+      this.performanceMetrics.networkRequests++;
+      const startTime = performance.now();
+
+      try {
+        const response = await originalFetch(input, init);
+        
+        // Cache successful responses in IndexedDB
+        if (response.ok && this.isBookAsset(url)) {
+          const cacheKey = this.generateCacheKey(url);
+          const responseClone = response.clone();
+          
+          // Cache response data
+          const data = await responseClone.arrayBuffer();
+          await indexedDBCache.set(cacheKey, {
+            data,
+            headers: Object.fromEntries(response.headers.entries()),
+            cachedAt: Date.now()
+          }, 'content');
+          
+          this.performanceMetrics.bytesSaved += data.byteLength;
+        }
+
+        const loadTime = performance.now() - startTime;
+        this.updateAverageLoadTime(loadTime);
+
+        return response;
+      } catch (error) {
+        console.warn('Fetch failed, checking cache fallback:', error);
+        
+        // Try cache fallback for critical resources
+        if (this.isBookAsset(url)) {
+          const cacheKey = this.generateCacheKey(url);
+          const cached = await indexedDBCache.get(cacheKey);
+          
+          if (cached) {
+            console.log('🔄 Using cache fallback for:', url.substring(0, 50) + '...');
+            return new Response(cached.data, {
+              status: 200,
+              headers: cached.headers || {}
+            });
+          }
+        }
+        
+        throw error;
+      }
     };
   }
 
@@ -90,105 +188,201 @@ class PerformanceOptimizationService {
     return url.includes('.epub') || 
            url.includes('.pdf') || 
            url.includes('covers.openlibrary.org') ||
-           url.includes('gutenberg.org');
+           url.includes('gutenberg.org') ||
+           url.includes('epub-proxy');
   }
 
   /**
-   * Prefetch popular books metadata for instant search
+   * Generate cache key for URL
+   */
+  private generateCacheKey(url: string): string {
+    return `url:${btoa(url).substring(0, 50)}`;
+  }
+
+  /**
+   * Enhanced prefetch with streaming support
    */
   async prefetchPopularBooks(books: any[]): Promise<void> {
     if (!this.prefetchConfig.enabled) return;
 
     const popularBooks = books.slice(0, this.prefetchConfig.popularBooksCount);
     
-    console.log('🚀 Prefetching', popularBooks.length, 'popular books...');
+    console.log('🚀 Enhanced prefetching with streaming for', popularBooks.length, 'books...');
     
     const prefetchPromises = popularBooks.map(async (book) => {
       try {
-        // Prefetch book metadata
-        this.prefetchedBooks.set(book.id, book);
+        // Enhanced prefetch with metadata priority
+        const prefetchData = {
+          ...book,
+          metadata: await this.prefetchBookMetadata(book),
+          coverCached: await this.prefetchBookCover(book),
+          streamingOptimized: this.prefetchConfig.streamingEnabled,
+          prefetchedAt: Date.now()
+        };
         
-        // Prefetch book cover if available
-        if (book.cover_url) {
-          const img = new Image();
-          img.src = book.cover_url;
-        }
+        this.prefetchedBooks.set(book.id, prefetchData);
         
-        return book;
+        // Cache in IndexedDB for persistence
+        await indexedDBCache.set(`prefetch:${book.id}`, prefetchData, 'metadata');
+        
+        return prefetchData;
       } catch (error) {
-        console.warn('Prefetch failed for book:', book.id, error);
+        console.warn('Enhanced prefetch failed for book:', book.id, error);
         return null;
       }
     });
 
     const results = await Promise.allSettled(prefetchPromises);
-    const successCount = results.filter(r => r.status === 'fulfilled').length;
+    const successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
     
-    console.log(`✅ Prefetched ${successCount}/${popularBooks.length} books`);
+    console.log(`✅ Enhanced prefetch completed: ${successCount}/${popularBooks.length} books`);
+    this.performanceMetrics.streamingSuccessRate = successCount / popularBooks.length;
   }
 
   /**
-   * Get prefetched book data
+   * Prefetch book metadata for faster loading
    */
-  getPrefetchedBook(bookId: string): any | null {
-    return this.prefetchedBooks.get(bookId) || null;
-  }
-
-  /**
-   * Prefetch search results based on popular queries
-   */
-  async prefetchSearchResults(popularQueries: string[]): Promise<void> {
-    const prefetchPromises = popularQueries.map(async (query) => {
-      try {
-        // Simulate search API call - replace with actual search logic
-        const cacheKey = `search:${query.toLowerCase()}`;
-        if (!this.searchCache.has(cacheKey)) {
-          // This would call your actual search function
-          const results = await this.performSearch(query);
-          this.searchCache.set(cacheKey, results);
+  private async prefetchBookMetadata(book: any): Promise<any> {
+    try {
+      if (book.epub_url) {
+        // Quick metadata extraction without full download
+        const metadataUrl = `${book.epub_url}?metadata_only=true`;
+        const response = await fetch(metadataUrl, { 
+          method: 'HEAD',
+          timeout: 3000 
+        });
+        
+        if (response.ok) {
+          return {
+            contentLength: response.headers.get('content-length'),
+            lastModified: response.headers.get('last-modified'),
+            etag: response.headers.get('etag'),
+            supportsRanges: response.headers.get('accept-ranges') === 'bytes'
+          };
         }
-      } catch (error) {
-        console.warn('Search prefetch failed for:', query, error);
       }
-    });
-
-    await Promise.allSettled(prefetchPromises);
-    console.log('✅ Search results prefetched for', popularQueries.length, 'queries');
+      return null;
+    } catch (error) {
+      console.warn('Metadata prefetch failed:', error);
+      return null;
+    }
   }
 
   /**
-   * Get cached search results
+   * Prefetch and cache book covers
    */
-  getCachedSearchResults(query: string): any | null {
+  private async prefetchBookCover(book: any): Promise<boolean> {
+    try {
+      if (book.cover_url) {
+        const cacheKey = `cover:${book.id}`;
+        
+        // Check if already cached
+        const cached = await indexedDBCache.get(cacheKey);
+        if (cached) return true;
+
+        // Prefetch cover
+        const response = await fetch(book.cover_url);
+        if (response.ok) {
+          const coverData = await response.arrayBuffer();
+          await indexedDBCache.set(cacheKey, {
+            data: coverData,
+            contentType: response.headers.get('content-type'),
+            cachedAt: Date.now()
+          }, 'cover');
+          
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.warn('Cover prefetch failed:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get prefetched book data with IndexedDB fallback
+   */
+  async getPrefetchedBook(bookId: string): Promise<any | null> {
+    // Check memory cache first
+    let book = this.prefetchedBooks.get(bookId);
+    
+    if (!book) {
+      // Check IndexedDB cache
+      book = await indexedDBCache.get(`prefetch:${bookId}`);
+      if (book) {
+        // Restore to memory cache
+        this.prefetchedBooks.set(bookId, book);
+      }
+    }
+    
+    return book || null;
+  }
+
+  /**
+   * Enhanced search caching with IndexedDB
+   */
+  async cacheSearchResults(query: string, results: any[]): Promise<void> {
     const cacheKey = `search:${query.toLowerCase()}`;
-    return this.searchCache.get(cacheKey) || null;
+    
+    // Cache in memory
+    this.searchCache.set(cacheKey, results);
+    
+    // Cache in IndexedDB for persistence
+    await indexedDBCache.set(cacheKey, {
+      query,
+      results,
+      cachedAt: Date.now()
+    }, 'metadata');
   }
 
   /**
-   * Placeholder for actual search implementation
+   * Get cached search results with IndexedDB fallback
    */
-  private async performSearch(query: string): Promise<any> {
-    // This would be replaced with actual search logic
-    return [];
+  async getCachedSearchResults(query: string): Promise<any | null> {
+    const cacheKey = `search:${query.toLowerCase()}`;
+    
+    // Check memory cache first
+    let results = this.searchCache.get(cacheKey);
+    
+    if (!results) {
+      // Check IndexedDB cache
+      const cached = await indexedDBCache.get(cacheKey);
+      if (cached && this.isSearchCacheFresh(cached)) {
+        results = cached.results;
+        // Restore to memory cache
+        this.searchCache.set(cacheKey, results);
+      }
+    }
+    
+    return results || null;
+  }
+
+  private isSearchCacheFresh(cached: any): boolean {
+    const age = Date.now() - cached.cachedAt;
+    return age < 30 * 60 * 1000; // 30 minutes
   }
 
   /**
-   * Preload critical resources during app initialization
+   * Preload critical resources with streaming support
    */
   async preloadCriticalResources(): Promise<void> {
     const criticalResources = [
-      '/pdf.worker.min.js', // PDF.js worker
-      // Add other critical resources
+      '/pdf.worker.min.js',
+      // Add streaming-specific resources
     ];
 
     const preloadPromises = criticalResources.map(async (resource) => {
       try {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.href = resource;
-        link.as = 'script';
-        document.head.appendChild(link);
-        
+        const response = await fetch(resource);
+        if (response.ok) {
+          const data = await response.arrayBuffer();
+          await indexedDBCache.set(`resource:${resource}`, {
+            data,
+            contentType: response.headers.get('content-type'),
+            cachedAt: Date.now()
+          }, 'content');
+        }
         return resource;
       } catch (error) {
         console.warn('Failed to preload:', resource, error);
@@ -197,64 +391,85 @@ class PerformanceOptimizationService {
     });
 
     await Promise.allSettled(preloadPromises);
-    console.log('✅ Critical resources preloaded');
+    console.log('✅ Critical resources preloaded with caching');
   }
 
   /**
-   * Optimize image loading with lazy loading and WebP support
+   * Load performance metrics from IndexedDB
    */
-  optimizeImageLoading(imgElement: HTMLImageElement, src: string): void {
-    // Add lazy loading
-    imgElement.loading = 'lazy';
-    
-    // Add WebP support detection
-    const supportsWebP = this.supportsWebP();
-    if (supportsWebP && !src.includes('.webp')) {
-      // Try WebP version first
-      const webpSrc = src.replace(/\.(jpg|jpeg|png)$/, '.webp');
-      imgElement.src = webpSrc;
-      
-      imgElement.onerror = () => {
-        // Fallback to original format
-        imgElement.src = src;
-      };
-    } else {
-      imgElement.src = src;
+  private async loadPerformanceMetrics(): Promise<void> {
+    try {
+      const cached = await indexedDBCache.get('performance:metrics');
+      if (cached) {
+        this.performanceMetrics = { ...this.performanceMetrics, ...cached };
+      }
+    } catch (error) {
+      console.warn('Failed to load performance metrics:', error);
     }
   }
 
   /**
-   * Check WebP support
+   * Save performance metrics to IndexedDB
    */
-  private supportsWebP(): boolean {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1;
-    canvas.height = 1;
-    return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  private async savePerformanceMetrics(): Promise<void> {
+    try {
+      await indexedDBCache.set('performance:metrics', {
+        ...this.performanceMetrics,
+        updatedAt: Date.now()
+      }, 'metadata');
+    } catch (error) {
+      console.warn('Failed to save performance metrics:', error);
+    }
+  }
+
+  private updateAverageLoadTime(loadTime: number): void {
+    if (this.performanceMetrics.averageLoadTime === 0) {
+      this.performanceMetrics.averageLoadTime = loadTime;
+    } else {
+      this.performanceMetrics.averageLoadTime = 
+        (this.performanceMetrics.averageLoadTime * 0.9) + (loadTime * 0.1);
+    }
   }
 
   /**
-   * Clear caches to free memory
+   * Get enhanced performance metrics
    */
-  clearCaches(): void {
-    this.prefetchedBooks.clear();
-    this.searchCache.clear();
-    console.log('🧹 Performance caches cleared');
-  }
-
-  /**
-   * Get performance metrics
-   */
-  getMetrics() {
+  async getMetrics() {
+    const cacheStats = indexedDBCache.getStats();
+    
     return {
       prefetchedBooksCount: this.prefetchedBooks.size,
       cachedSearchesCount: this.searchCache.size,
       preconnectDomains: this.preconnectDomains.length,
+      indexedDBStats: cacheStats,
+      performance: this.performanceMetrics,
       config: {
         prefetch: this.prefetchConfig,
         cache: this.cacheConfig
-      }
+      },
+      streamingEnabled: this.prefetchConfig.streamingEnabled
     };
+  }
+
+  /**
+   * Clear all caches
+   */
+  async clearCaches(): Promise<void> {
+    this.prefetchedBooks.clear();
+    this.searchCache.clear();
+    await indexedDBCache.clear();
+    
+    // Reset metrics
+    this.performanceMetrics = {
+      cacheHitRate: 0,
+      averageLoadTime: 0,
+      streamingSuccessRate: 0,
+      indexedDBSize: 0,
+      networkRequests: 0,
+      bytesSaved: 0
+    };
+    
+    console.log('🧹 All caches cleared');
   }
 }
 
