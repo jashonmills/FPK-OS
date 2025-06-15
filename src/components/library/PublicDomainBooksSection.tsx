@@ -6,7 +6,7 @@ import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
 import OpenLibrarySearchBar from './OpenLibrarySearchBar';
-import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
+import PublicDomainBooksList from './PublicDomainBooksList';
 
 const PublicDomainBooksSection: React.FC = () => {
   const { books, isLoading, error, refetch } = usePublicDomainBooks();
@@ -46,12 +46,8 @@ const PublicDomainBooksSection: React.FC = () => {
         <OpenLibrarySearchBar />
       </div>
 
-      {/* Ingestion Trigger - Show only if we have less than 40 curated books */}
-      {curatedBooks.length < 40 && (
-        <div className="py-6">
-          <GutenbergIngestionTrigger />
-        </div>
-      )}
+      {/* Collapsible List of All Books */}
+      <PublicDomainBooksList books={books} isLoading={isLoading} />
 
       {/* Curated Project Gutenberg Collection */}
       {curatedBooks.length > 0 && (
