@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import {
@@ -12,6 +13,7 @@ import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { useEPUBReaderLogic } from './epub/EPUBReaderContainer';
 import { EPUBReaderNavigation } from './epub/EPUBReaderNavigation';
 import { EPUBReaderContent } from './epub/EPUBReaderContent';
+import { useStreamingProgressConverter } from '@/hooks/useStreamingProgressConverter';
 
 interface EnhancedEPUBReaderProps {
   book: PublicDomainBook;
@@ -40,6 +42,31 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     forceLayoutRefresh
   } = useEPUBReaderLogic(book);
 
+  // Convert progress/error to compatible types for EnhancedLoadingProgress
+  const { convertProgress, convertError } = useStreamingProgressConverter();
+
+  // Convert StreamingEPUBProgress to EPUBStreamingProgress
+  const convertedProgress = progress ? {
+    stage: progress.stage === 'prefetch' ? 'metadata' as const :
+           progress.stage === 'downloading' ? 'structure' as const :
+           progress.stage === 'processing' ? 'preloading' as const :
+           progress.stage as 'streaming' | 'ready',
+    percentage: progress.percentage,
+    message: progress.message,
+    chaptersLoaded: progress.chapterProgress?.loaded,
+    totalChapters: progress.totalChapters,
+    bytesLoaded: progress.bytesLoaded,
+    totalBytes: progress.totalBytes,
+    estimatedTimeRemaining: progress.estimatedTimeRemaining
+  } : null;
+
+  const convertedError = error ? {
+    type: error.type as 'network' | 'timeout' | 'parsing' | 'metadata' | 'streaming' | 'unknown',
+    message: error.message,
+    recoverable: error.recoverable,
+    retryCount: error.retryCount
+  } : null;
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
@@ -50,8 +77,8 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
         {(isLoading || error) ? (
           <EnhancedLoadingProgress
             title={`${book.title} by ${book.author}`}
-            progress={progress}
-            error={error}
+            progress={convertedProgress}
+            error={convertedError}
             onRetry={retryLoad}
             onCancel={onClose}
             type="epub"
