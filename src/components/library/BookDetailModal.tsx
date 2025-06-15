@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -12,7 +11,7 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { Book } from '@/types/library';
 import { BookOpen } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import EnhancedEPUBReader from './EnhancedEPUBReader';
+import EPUBReader from './EPUBReader';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 
 interface BookDetailModalProps {
@@ -49,7 +48,7 @@ const BookDetailModal: React.FC<BookDetailModalProps> = ({ book, onClose }) => {
 
   if (showReader && hasEpubReader) {
     return (
-      <EnhancedEPUBReader 
+      <EPUBReader 
         book={convertToPublicDomainBook(book)} 
         onClose={() => setShowReader(false)} 
       />

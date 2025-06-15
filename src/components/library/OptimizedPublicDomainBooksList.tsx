@@ -36,7 +36,7 @@ const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListPro
 
   const handleReadClick = (book: PublicDomainBook) => {
     // Lazy load the EPUB reader only when needed
-    import('./EnhancedEPUBReader').then(({ default: EnhancedEPUBReader }) => {
+    import('./EPUBReader').then(({ default: EPUBReader }) => {
       // This would need to be handled by the parent component
       console.log('Opening book:', book.title);
     });
