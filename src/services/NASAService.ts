@@ -17,9 +17,9 @@ export interface CachedAPODData {
 }
 
 class NASAService {
-  private readonly API_KEY = 'DEMO_KEY'; // Using NASA's demo key for public use
+  private readonly API_KEY = 'DEMO_KEY';
   private readonly BASE_URL = 'https://api.nasa.gov/planetary/apod';
-  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
   private cache = new Map<string, CachedAPODData>();
 
   private getCacheKey(params: Record<string, string | number>): string {
@@ -54,7 +54,6 @@ class NASAService {
   async getTodaysAPOD(): Promise<APODData> {
     const cacheKey = this.getCacheKey({ today: new Date().toISOString().split('T')[0] });
     
-    // Check cache first
     const cachedData = this.getCachedData(cacheKey);
     if (cachedData && !Array.isArray(cachedData)) {
       return cachedData;
@@ -69,10 +68,7 @@ class NASAService {
       }
 
       const data: APODData = await response.json();
-      
-      // Cache the result
       this.setCacheData(cacheKey, data);
-      
       return data;
     } catch (error) {
       console.error('🚀 NASA APOD: Error fetching today\'s image:', error);
@@ -83,7 +79,6 @@ class NASAService {
   async getRecentAPODs(count: number = 7): Promise<APODData[]> {
     const cacheKey = this.getCacheKey({ count });
     
-    // Check cache first
     const cachedData = this.getCachedData(cacheKey);
     if (cachedData && Array.isArray(cachedData)) {
       return cachedData;
@@ -98,13 +93,9 @@ class NASAService {
       }
 
       const data: APODData[] = await response.json();
-      
-      // Sort by date (newest first)
       const sortedData = data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
-      // Cache the result
       this.setCacheData(cacheKey, sortedData);
-      
       return sortedData;
     } catch (error) {
       console.error('🚀 NASA APOD: Error fetching recent images:', error);

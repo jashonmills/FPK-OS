@@ -19,7 +19,6 @@ const APODCard: React.FC<APODCardProps> = ({ onOpenGallery }) => {
   };
 
   const getImageUrl = (apod: any): string => {
-    // Use thumbnail for videos, or regular URL for images
     if (apod.media_type === 'video' && apod.thumbnail_url) {
       return apod.thumbnail_url;
     }
@@ -56,7 +55,6 @@ const APODCard: React.FC<APODCardProps> = ({ onOpenGallery }) => {
           </div>
         ) : apod ? (
           <div className="h-full flex flex-col" onClick={onOpenGallery}>
-            {/* Image Section */}
             <div className="flex-1 relative overflow-hidden">
               <img
                 src={getImageUrl(apod)}
@@ -69,7 +67,6 @@ const APODCard: React.FC<APODCardProps> = ({ onOpenGallery }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
-              {/* Media Type Indicator */}
               {apod.media_type === 'video' && (
                 <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1">
                   <ExternalLink className="h-3 w-3 text-white" />
@@ -77,7 +74,6 @@ const APODCard: React.FC<APODCardProps> = ({ onOpenGallery }) => {
               )}
             </div>
 
-            {/* Content Section */}
             <div className="p-3 bg-gradient-to-t from-slate-900 to-transparent">
               <div className="flex items-center gap-1 text-blue-300 text-xs mb-1">
                 <Calendar className="h-3 w-3" />
