@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { AlertCircle, RefreshCw, X, Loader2 } from 'lucide-react';
+import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { EPUBLoadingProgress, EPUBLoadError } from '@/hooks/useOptimizedEPUBLoader';
 import { PDFLoadingProgress } from '@/utils/enhancedPdfUtils';
 
@@ -33,134 +31,27 @@ const UnifiedLoadingProgress: React.FC<UnifiedLoadingProgressProps> = ({
   onCancel,
   type = 'general'
 }) => {
-  const getIcon = () => {
-    if (error) return <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-6" />;
-    return <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-6" />;
-  };
-
-  const getProgressColor = () => {
-    if (!progress) return 'bg-primary';
-    
-    if (progress.stage === 'downloading') return 'bg-blue-500';
-    if (progress.stage === 'processing') return 'bg-yellow-500';
-    if (progress.stage === 'ready') return 'bg-green-500';
-    if (progress.stage === 'validating') return 'bg-purple-500'; // PDF specific
-    return 'bg-primary';
-  };
-
-  // Normalize error to a consistent format
-  const normalizedError = React.useMemo(() => {
-    if (!error) return null;
-    
-    if (typeof error === 'string') {
-      return {
-        type: 'unknown' as const,
-        message: error,
-        recoverable: true,
-        retryCount: 0
-      };
-    }
-    
-    return error as UnifiedError;
-  }, [error]);
-
-  if (normalizedError) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-background">
-        <div className="text-center max-w-lg p-6">
-          {getIcon()}
-          <h3 className="text-xl font-semibold mb-4">Unable to Load</h3>
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
-            <p className="text-destructive text-sm font-medium mb-2">
-              {normalizedError.type === 'timeout' ? 'Loading Timeout' : 
-               normalizedError.type === 'network' ? 'Network Error' : 
-               normalizedError.type === 'parsing' ? 'File Error' : 
-               normalizedError.type === 'rendering' ? 'Display Error' : 'Unknown Error'}
-            </p>
-            <p className="text-destructive text-sm">{normalizedError.message}</p>
-          </div>
-          
-          <div className="mb-6 space-y-2">
-            <p className="text-sm font-medium">Quick Solutions:</p>
-            <ul className="text-xs text-muted-foreground space-y-1 text-left">
-              <li>• Check your internet connection</li>
-              <li>• Try a different {type === 'pdf' ? 'document' : 'book'} if this persists</li>
-              <li>• Some {type === 'pdf' ? 'documents' : 'books'} may have large file sizes</li>
-              {normalizedError.recoverable && <li>• This error can usually be resolved by retrying</li>}
-            </ul>
-          </div>
-          
-          <div className="flex gap-3 justify-center">
-            {normalizedError.recoverable && onRetry && (
-              <Button onClick={onRetry} variant="outline" className="flex items-center gap-2">
-                <RefreshCw className="h-4 w-4" />
-                Try Again ({normalizedError.retryCount + 1}/3)
-              </Button>
-            )}
-            {onCancel && (
-              <Button onClick={onCancel}>
-                <X className="h-4 w-4 mr-2" />
-                Close
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Convert progress to enhanced format
+  const enhancedProgress = progress ? {
+    stage: progress.stage,
+    percentage: progress.percentage,
+    message: progress.message,
+    bytesLoaded: progress.bytesLoaded,
+    totalBytes: progress.totalBytes,
+    estimatedTimeRemaining: progress.estimatedTimeRemaining,
+    totalChapters: (progress as any).totalChapters,
+    chaptersLoaded: (progress as any).chaptersLoaded
+  } : null;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-background">
-      <div className="text-center max-w-md p-6">
-        {getIcon()}
-        <h3 className="text-lg font-semibold mb-2">
-          Loading "{title}"
-        </h3>
-        
-        {progress && (
-          <>
-            <p className="text-sm text-muted-foreground mb-4 capitalize">
-              {progress.stage === 'validating' ? 'Validating' : progress.stage.replace('_', ' ')}: {progress.message}
-            </p>
-            
-            <div className="mb-4">
-              <Progress 
-                value={progress.percentage} 
-                className="w-full h-3"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>{progress.percentage}% complete</span>
-                {progress.estimatedTimeRemaining && (
-                  <span>~{progress.estimatedTimeRemaining}s remaining</span>
-                )}
-              </div>
-            </div>
-
-            {progress.bytesLoaded && progress.totalBytes && (
-              <p className="text-xs text-muted-foreground mb-4">
-                {(progress.bytesLoaded / 1024 / 1024).toFixed(1)} MB / {(progress.totalBytes / 1024 / 1024).toFixed(1)} MB
-              </p>
-            )}
-          </>
-        )}
-        
-        <p className="text-xs text-muted-foreground">
-          {type === 'epub' ? 'Preparing your reading experience...' : 
-           type === 'pdf' ? 'Preparing document viewer...' : 'Please wait...'}
-        </p>
-        
-        {onCancel && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onCancel}
-            className="mt-4"
-          >
-            Cancel
-          </Button>
-        )}
-      </div>
-    </div>
+    <EnhancedLoadingProgress
+      title={title}
+      progress={enhancedProgress}
+      error={error}
+      onRetry={onRetry}
+      onCancel={onCancel}
+      type={type}
+    />
   );
 };
 

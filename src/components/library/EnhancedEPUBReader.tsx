@@ -9,7 +9,7 @@ import {
 import EPUBReaderHeader from './EPUBReaderHeader';
 import EPUBReaderFooter from './EPUBReaderFooter';
 import EPUBTableOfContents from './EPUBTableOfContents';
-import UnifiedLoadingProgress from './UnifiedLoadingProgress';
+import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { useEPUBReaderLogic } from './epub/EPUBReaderContainer';
 import { EPUBReaderNavigation } from './epub/EPUBReaderNavigation';
 import { EPUBReaderContent } from './epub/EPUBReaderContent';
@@ -42,7 +42,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     forceLayoutRefresh
   } = useEPUBReaderLogic(book);
 
-  // Convert streaming progress/error to compatible types for UnifiedLoadingProgress
+  // Convert streaming progress/error to compatible types for EnhancedLoadingProgress
   const convertedProgress = convertStreamingProgress(progress);
   const convertedError = convertStreamingError(error);
 
@@ -54,7 +54,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
         </DialogDescription>
         
         {(isLoading || error) ? (
-          <UnifiedLoadingProgress
+          <EnhancedLoadingProgress
             title={`${book.title} by ${book.author}`}
             progress={convertedProgress}
             error={convertedError}
