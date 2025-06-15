@@ -47,12 +47,12 @@ export const useThresholdManagement = () => {
     queryKey: ['threshold-configs'],
     queryFn: async (): Promise<ThresholdConfig[]> => {
       const { data, error } = await supabase
-        .from('threshold_configs' as any)
+        .from('threshold_configs')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data || []) as ThresholdConfig[];
+      return data || [];
     },
   });
 
@@ -61,12 +61,12 @@ export const useThresholdManagement = () => {
     queryKey: ['user-segments'],
     queryFn: async (): Promise<UserSegment[]> => {
       const { data, error } = await supabase
-        .from('user_segments' as any)
+        .from('user_segments')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data || []) as UserSegment[];
+      return data || [];
     },
   });
 
@@ -75,7 +75,7 @@ export const useThresholdManagement = () => {
     queryKey: ['threshold-audit-log'],
     queryFn: async (): Promise<AuditLogEntry[]> => {
       const { data, error } = await supabase
-        .from('threshold_audit_log' as any)
+        .from('threshold_audit_log')
         .select(`
           *,
           profiles!threshold_audit_log_user_id_fkey(full_name)
@@ -84,7 +84,7 @@ export const useThresholdManagement = () => {
         .limit(100);
 
       if (error) throw error;
-      return ((data || []) as any[]).map(entry => ({
+      return (data || []).map(entry => ({
         ...entry,
         user_email: entry.profiles?.full_name || 'Unknown User'
       }));
@@ -95,7 +95,7 @@ export const useThresholdManagement = () => {
   const updateThresholdMutation = useMutation({
     mutationFn: async (threshold: Partial<ThresholdConfig> & { id: string }) => {
       const { data, error } = await supabase
-        .from('threshold_configs' as any)
+        .from('threshold_configs')
         .update(threshold)
         .eq('id', threshold.id)
         .select()
@@ -114,7 +114,7 @@ export const useThresholdManagement = () => {
   const createSegmentMutation = useMutation({
     mutationFn: async (segment: Omit<UserSegment, 'id' | 'user_count' | 'created_at'>) => {
       const { data, error } = await supabase
-        .from('user_segments' as any)
+        .from('user_segments')
         .insert(segment)
         .select()
         .single();
@@ -131,7 +131,7 @@ export const useThresholdManagement = () => {
   const deleteThresholdMutation = useMutation({
     mutationFn: async (thresholdId: string) => {
       const { error } = await supabase
-        .from('threshold_configs' as any)
+        .from('threshold_configs')
         .delete()
         .eq('id', thresholdId);
 
