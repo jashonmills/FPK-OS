@@ -39,6 +39,75 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric_name: string
+          timestamp: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          timestamp?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          timestamp?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      anomaly_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metric_name: string
+          resolved: boolean
+          resolved_at: string | null
+          severity: string
+          threshold: number
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metric_name: string
+          resolved?: boolean
+          resolved_at?: string | null
+          severity: string
+          threshold: number
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metric_name?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+          threshold?: number
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_id: string

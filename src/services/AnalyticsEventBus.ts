@@ -105,11 +105,11 @@ class AnalyticsEventBus {
     const metricValue = this.extractMetricValue(event);
     if (metricValue === null) return;
 
-    const metric: TimeSeriesMetric = {
+    const metric = {
+      user_id: event.userId,
       metric_name: event.eventType,
       value: metricValue,
       timestamp: event.timestamp,
-      user_id: event.userId,
       metadata: event.metadata
     };
 
@@ -153,19 +153,30 @@ class AnalyticsEventBus {
   }
 
   async getTimeSeriesData(metricName: string, timeRange: string = '24h'): Promise<TimeSeriesMetric[]> {
-    const { data, error } = await supabase
-      .from('analytics_metrics')
-      .select('*')
-      .eq('metric_name', metricName)
-      .gte('timestamp', new Date(Date.now() - this.parseTimeRange(timeRange)).toISOString())
-      .order('timestamp', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('analytics_metrics')
+        .select('*')
+        .eq('metric_name', metricName)
+        .gte('timestamp', new Date(Date.now() - this.parseTimeRange(timeRange)).toISOString())
+        .order('timestamp', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching time-series data:', error);
+      if (error) {
+        console.error('Error fetching time-series data:', error);
+        return [];
+      }
+
+      return (data || []).map(item => ({
+        metric_name: item.metric_name,
+        value: Number(item.value),
+        timestamp: item.timestamp,
+        user_id: item.user_id,
+        metadata: item.metadata
+      }));
+    } catch (error) {
+      console.error('Error in getTimeSeriesData:', error);
       return [];
     }
-
-    return data || [];
   }
 
   private parseTimeRange(range: string): number {

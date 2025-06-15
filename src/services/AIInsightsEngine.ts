@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { analyticsEventBus, AnalyticsEvent } from './AnalyticsEventBus';
 
@@ -108,7 +109,7 @@ class AIInsightsEngine {
       console.log('🚨 Anomaly detected:', anomaly);
 
       // Store anomaly in database
-      await this.storeAnomaly(anomaly);
+      await this.storeAnomaly(anomaly, event.userId);
     }
   }
 
@@ -243,19 +244,19 @@ class AIInsightsEngine {
     }
   }
 
-  private async storeAnomaly(anomaly: AnomalyAlert) {
+  private async storeAnomaly(anomaly: AnomalyAlert, userId: string) {
     try {
       const { error } = await supabase
         .from('anomaly_alerts')
         .insert({
           id: anomaly.id,
+          user_id: userId,
           metric_name: anomaly.metric,
           value: anomaly.value,
           threshold: anomaly.threshold,
           severity: anomaly.severity,
           message: anomaly.message,
-          resolved: anomaly.resolved,
-          created_at: anomaly.timestamp
+          resolved: anomaly.resolved
         });
 
       if (error) {
@@ -282,7 +283,7 @@ class AIInsightsEngine {
       // Update in database
       await supabase
         .from('anomaly_alerts')
-        .update({ resolved: true })
+        .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq('id', anomalyId);
     }
   }
