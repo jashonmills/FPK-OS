@@ -62,11 +62,19 @@ function detectToolNeeds(message: string, context: any): { tool?: string, args?:
   const lowerMessage = message.toLowerCase();
   const userId = context.userId;
 
-  // Recent flashcards patterns
+  // Enhanced recent flashcards patterns - more comprehensive matching
   if (lowerMessage.match(/(recent|last|newest|latest).*(flashcard|card)/i) ||
-      lowerMessage.match(/(show|what).*(recent|last|newest|latest)/i)) {
+      lowerMessage.match(/(show|what|display).*(recent|last|newest|latest)/i) ||
+      lowerMessage.match(/(show|display).*me.*my.*(flashcard|card)/i) ||
+      lowerMessage.match(/(review|see).*my.*(recent|study|flashcard|card)/i) ||
+      lowerMessage.match(/my.*last.*\d*.*(flashcard|card)/i) ||
+      lowerMessage.includes('show me my recent') ||
+      lowerMessage.includes('what are my last') ||
+      lowerMessage.includes('review my recent')) {
+    
     const limitMatch = message.match(/(\d+)/);
-    const limit = limitMatch ? parseInt(limitMatch[1]) : 5;
+    const limit = limitMatch ? parseInt(limitMatch[1]) : 3; // Default to 3 cards
+    console.log(`Detected recent flashcards request with limit: ${limit}`);
     return { tool: 'get-recent-flashcards', args: { userId, limit } };
   }
 
@@ -260,7 +268,8 @@ serve(async (req) => {
       hasMessage: !!message, 
       hasUserId: !!userId, 
       voiceActive,
-      hasSessionId: !!sessionId
+      hasSessionId: !!sessionId,
+      message: message.substring(0, 100) + '...' // Log first 100 chars for debugging
     });
     
     if (!message || !userId) {
@@ -290,6 +299,8 @@ serve(async (req) => {
     const toolNeeds = detectToolNeeds(message, { userId, learningContext });
     let toolData = null;
     let toolUsed = null;
+
+    console.log('Tool detection result:', toolNeeds);
 
     // Execute tool if needed
     if (toolNeeds.tool) {
