@@ -4,8 +4,6 @@ import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { ToastAction } from '@/components/ui/toast';
-import React from 'react';
 
 interface SaveToNotesData {
   title: string;
@@ -73,33 +71,30 @@ export const useSaveToNotes = () => {
           toast({
             title: "Saved to Notes",
             description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment.",
-            action: (
-              <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
-                View Notes
-              </ToastAction>
-            )
+            action: {
+              label: "View Notes",
+              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+            }
           });
         } catch (error) {
           console.error('Error generating flashcards:', error);
           toast({
             title: "Saved to Notes",
             description: "Note saved successfully, but flashcard generation failed.",
-            action: (
-              <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
-                View Notes
-              </ToastAction>
-            )
+            action: {
+              label: "View Notes",
+              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+            }
           });
         }
       } else {
         toast({
           title: "Saved to Notes",
           description: "AI response has been saved to your notes.",
-          action: (
-            <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
-              View Notes
-            </ToastAction>
-          )
+          action: {
+            label: "View Notes",
+            onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+          }
         });
       }
 
