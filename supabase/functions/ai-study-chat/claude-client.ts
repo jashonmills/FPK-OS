@@ -1,3 +1,4 @@
+
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 interface ClaudeMessage {
@@ -112,6 +113,7 @@ export async function callClaude(messages: ClaudeMessage[], model?: string, chat
 
 export async function handleToolCalls(data: any, userId: string, chatMode?: string) {
   console.log('🔧 Processing tool calls for mode:', chatMode);
+  console.log('🔍 Tool call data structure:', JSON.stringify(data, null, 2));
   
   const toolResults = [];
   
@@ -134,10 +136,13 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
                 });
                 
                 // Enhanced logging for flashcard retrieval
-                console.log('📚 Recent flashcards result:', {
+                console.log('📚 Recent flashcards result structure:', {
                   hasFlashcards: result?.flashcards?.length > 0,
                   count: result?.flashcards?.length || 0,
-                  message: result?.message
+                  message: result?.message,
+                  success: result?.success,
+                  isEmpty: result?.isEmpty,
+                  fullResult: JSON.stringify(result, null, 2)
                 });
                 break;
               
@@ -147,6 +152,14 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
                   userId: userId, // Fixed: using userId instead of user_id
                   topic_filter: content.input.topic_filter,
                   difficulty_filter: content.input.difficulty_filter
+                });
+                
+                console.log('📚 User flashcards result structure:', {
+                  hasFlashcards: result?.flashcards?.length > 0,
+                  count: result?.flashcards?.length || 0,
+                  message: result?.message,
+                  success: result?.success,
+                  isEmpty: result?.isEmpty
                 });
                 break;
               
@@ -177,25 +190,81 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
             }
           }
           
-          toolResults.push({
+          // Enhanced tool result formatting for better Claude understanding
+          const formattedResult = {
             type: 'tool_result',
             tool_use_id: content.id,
-            content: JSON.stringify(result || { error: 'No result' })
-          });
+            content: formatToolResultForClaude(result, content.name)
+          };
+          
+          console.log(`✅ Tool result formatted for Claude:`, JSON.stringify(formattedResult, null, 2));
+          toolResults.push(formattedResult);
           
         } catch (error) {
           console.error(`Error calling tool ${content.name}:`, error);
           toolResults.push({
             type: 'tool_result',
             tool_use_id: content.id,
-            content: JSON.stringify({ error: error.message })
+            content: JSON.stringify({ 
+              error: error.message,
+              tool_name: content.name,
+              user_message: "I encountered an issue retrieving your data. Please try again."
+            })
           });
         }
       }
     }
   }
   
+  console.log(`🔄 Returning ${toolResults.length} tool results to Claude`);
   return toolResults;
+}
+
+function formatToolResultForClaude(result: any, toolName: string): string {
+  if (!result) {
+    return JSON.stringify({ error: 'No result returned from tool' });
+  }
+
+  // Special formatting for flashcard tools
+  if (toolName === 'get_recent_flashcards' || toolName === 'get_user_flashcards') {
+    if (result.success && result.flashcards && result.flashcards.length > 0) {
+      // Format flashcards in a structured way that Claude can easily parse
+      const formattedData = {
+        success: true,
+        flashcard_count: result.flashcards.length,
+        flashcards: result.flashcards.map((card: any, index: number) => ({
+          number: index + 1,
+          id: card.id,
+          question: card.question || card.front_content,
+          answer: card.answer || card.back_content,
+          title: card.title,
+          snippet: card.snippet,
+          created_at: card.created_at,
+          stats: card.stats,
+          performance: {
+            correct: card.stats?.correct || 0,
+            attempts: card.stats?.attempts || 0,
+            success_rate: card.stats?.successRate || 0
+          }
+        })),
+        message: `Found ${result.flashcards.length} flashcards for the user`,
+        instruction_to_claude: `Please present these ${result.flashcards.length} flashcards in a numbered list format. Show the question/title and a brief snippet for each one. Ask if the user wants to review any specific cards.`
+      };
+      
+      return JSON.stringify(formattedData);
+    } else if (result.success && result.isEmpty) {
+      return JSON.stringify({
+        success: true,
+        flashcard_count: 0,
+        flashcards: [],
+        message: "No flashcards found",
+        instruction_to_claude: "Tell the user they don't have any flashcards yet and suggest they create some."
+      });
+    }
+  }
+
+  // Default formatting for other tools
+  return JSON.stringify(result);
 }
 
 export function postProcessResponse(response: string, chatMode: string): string {

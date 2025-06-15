@@ -107,6 +107,7 @@ serve(async (req) => {
       
       if (toolResults.length > 0) {
         console.log('🔄 Sending tool results back to Claude...');
+        console.log('🔍 Tool results being sent:', JSON.stringify(toolResults, null, 2));
 
         // Send tool results back to Claude for final response with correct message structure
         const finalMessages = [
@@ -124,10 +125,13 @@ serve(async (req) => {
         const finalData = await callClaude(finalMessages, model, chatMode);
         let aiResponse = finalData.content?.[0]?.text || "I've analyzed your request and I'm here to help guide your learning journey! 📚";
         
+        console.log('🎯 Claude final response before processing:', aiResponse);
+        
         // Post-process the response to clean up any internal reasoning for general mode
         aiResponse = postProcessResponse(aiResponse, chatMode);
         
         console.log('✅ Final AI response generated successfully with tool data');
+        console.log('📝 Final processed response:', aiResponse);
 
         return new Response(
           JSON.stringify({ 
