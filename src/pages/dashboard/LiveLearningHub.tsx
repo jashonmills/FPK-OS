@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Compass, Calendar, Users, Video } from 'lucide-react';
 import DualLanguageText from '@/components/DualLanguageText';
 import LiveHubAPODCard from '@/components/dashboard/LiveHubAPODCard';
 import VisualOfTheWeekCarousel from '@/components/dashboard/VisualOfTheWeekCarousel';
+import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import ModelViewerModal from '@/components/dashboard/ModelViewerModal';
 import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
 import { MuseumItem } from '@/services/MuseumService';
@@ -46,12 +48,17 @@ const LiveLearningHub = () => {
       {/* Discovery Widgets Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800">Daily Discovery</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* NASA APOD Card */}
           <LiveHubAPODCard onLearnMore={handleAPODLearnMore} />
           
           {/* Visual of the Week Carousel */}
           <VisualOfTheWeekCarousel onItemClick={handleMuseumItemClick} />
+
+          {/* Weather & Science Lab Card */}
+          <div className="lg:col-span-2 xl:col-span-1">
+            <WeatherScienceLabCard />
+          </div>
         </div>
       </div>
 

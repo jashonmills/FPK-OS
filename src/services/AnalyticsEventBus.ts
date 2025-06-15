@@ -139,6 +139,9 @@ class AnalyticsEventBus {
         return event.metadata.performance?.accuracy || 0;
       case ANALYTICS_EVENTS.DISCOVERY_WIDGET_VIEW:
       case ANALYTICS_EVENTS.DISCOVERY_WIDGET_CLICK:
+      case ANALYTICS_EVENTS.WEATHER_WIDGET_VIEW:
+      case ANALYTICS_EVENTS.WEATHER_CHART_INTERACT:
+      case ANALYTICS_EVENTS.WEATHER_LESSON_GENERATE:
         return 1; // Count interaction events
       default:
         return 1; // Default metric value for counting events
@@ -218,7 +221,11 @@ export const ANALYTICS_EVENTS = {
   XP_EARNED: 'xp_earned',
   STREAK_UPDATED: 'streak_updated',
   BADGE_EARNED: 'badge_earned',
-  // New discovery widget events
+  // Discovery widget events
   DISCOVERY_WIDGET_VIEW: 'discovery.widget.view',
-  DISCOVERY_WIDGET_CLICK: 'discovery.widget.click'
+  DISCOVERY_WIDGET_CLICK: 'discovery.widget.click',
+  // Weather widget events
+  WEATHER_WIDGET_VIEW: 'weather.widget.view',
+  WEATHER_CHART_INTERACT: 'weather.chart.interact',
+  WEATHER_LESSON_GENERATE: 'weather.lesson.generate'
 } as const;
