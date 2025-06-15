@@ -161,6 +161,14 @@ export class FeatureFlagService {
         description: 'Enable inline speaker icon button for AI message bubbles to play voice responses',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Widget Chat Deletion feature flag
+      {
+        id: 'widgetChatDeletion',
+        name: 'Widget Chat Deletion',
+        description: 'Enable per-message deletion and clear chat functionality in widget chat with separate histories',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 

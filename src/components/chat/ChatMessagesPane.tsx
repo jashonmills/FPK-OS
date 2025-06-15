@@ -2,7 +2,7 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Brain, Volume2, VolumeX, User, Bot } from 'lucide-react';
+import { Brain, Volume2, VolumeX, User, Bot, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
@@ -22,13 +22,19 @@ interface ChatMessagesPaneProps {
   isLoading: boolean;
   isSending: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  isWidget?: boolean;
+  onDeleteMessage?: (messageId: string) => void;
+  showDeleteButtons?: boolean;
 }
 
 const ChatMessagesPane = ({ 
   messages, 
   isLoading, 
   isSending, 
-  messagesEndRef 
+  messagesEndRef,
+  isWidget = false,
+  onDeleteMessage,
+  showDeleteButtons = false
 }: ChatMessagesPaneProps) => {
   const { speak, stop, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
@@ -124,10 +130,14 @@ const ChatMessagesPane = ({
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2">Welcome to AI Learning Coach</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-2">
+            {isWidget ? 'Quick Chat Assistant' : 'Welcome to AI Learning Coach'}
+          </h3>
           <p className="text-muted-foreground text-xs sm:text-sm break-words leading-relaxed">
-            I'm here to help you with your studies, provide learning strategies, 
-            and answer questions about the platform. How can I assist you today?
+            {isWidget 
+              ? "I'm here for quick questions and assistance. How can I help you today?"
+              : "I'm here to help you with your studies, provide learning strategies, and answer questions about the platform. How can I assist you today?"
+            }
           </p>
           {settings.enabled && (
             <p className="text-purple-600 text-xs mt-2 break-words">
@@ -152,7 +162,7 @@ const ChatMessagesPane = ({
             <div 
               key={message.id} 
               className={cn(
-                "flex gap-3",
+                "flex gap-3 group",
                 message.role === 'user' ? "justify-end" : "justify-start"
               )}
             >
@@ -163,7 +173,7 @@ const ChatMessagesPane = ({
               )}
               
               <div className={cn(
-                "rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[75%] relative group safe-text",
+                "rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[75%] relative safe-text",
                 message.role === 'user' 
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto" 
                   : "bg-muted/50 border text-foreground mr-auto"
@@ -171,7 +181,9 @@ const ChatMessagesPane = ({
                 {message.role === 'assistant' && (
                   <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
                     <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
-                    <span className="text-xs font-medium text-purple-600 truncate">AI Coach</span>
+                    <span className="text-xs font-medium text-purple-600 truncate">
+                      {isWidget ? 'Assistant' : 'AI Coach'}
+                    </span>
                     
                     {/* Action buttons for AI messages */}
                     <div className="flex items-center gap-1 ml-auto">
@@ -206,17 +218,48 @@ const ChatMessagesPane = ({
                         </Button>
                       )}
                       
-                      <SaveToNotesButton
-                        content={message.content}
-                        selectedText={hasSelection ? selectedText : undefined}
-                        originalQuestion={originalQuestion}
-                        aiMode="AI Learning Coach"
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0"
-                      />
+                      {/* Save to Notes button - only for non-widget */}
+                      {!isWidget && (
+                        <SaveToNotesButton
+                          content={message.content}
+                          selectedText={hasSelection ? selectedText : undefined}
+                          originalQuestion={originalQuestion}
+                          aiMode="AI Learning Coach"
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0"
+                        />
+                      )}
+
+                      {/* Delete button for widget messages */}
+                      {showDeleteButtons && onDeleteMessage && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0 text-red-500 hover:text-red-700"
+                          onClick={() => onDeleteMessage(message.id)}
+                          aria-label="Delete message"
+                          title="Delete message"
+                        >
+                          <Trash2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                        </Button>
+                      )}
                     </div>
                   </div>
+                )}
+                
+                {/* User message delete button */}
+                {showDeleteButtons && onDeleteMessage && message.role === 'user' && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute top-1 right-1 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0 text-white/70 hover:text-white"
+                    onClick={() => onDeleteMessage(message.id)}
+                    aria-label="Delete message"
+                    title="Delete message"
+                  >
+                    <Trash2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                  </Button>
                 )}
                 
                 <div className="break-words leading-relaxed">
@@ -245,7 +288,9 @@ const ChatMessagesPane = ({
             <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
               <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
                 <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
-                <span className="text-xs font-medium text-purple-600">AI Coach</span>
+                <span className="text-xs font-medium text-purple-600">
+                  {isWidget ? 'Assistant' : 'AI Coach'}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="animate-pulse flex space-x-1">

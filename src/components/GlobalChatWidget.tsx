@@ -31,6 +31,7 @@ const GlobalChatWidget = () => {
         trigger={trigger}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
+        isWidget={true}
       />
     </div>
   );
