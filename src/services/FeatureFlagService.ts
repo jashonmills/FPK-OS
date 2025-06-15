@@ -57,6 +57,63 @@ export class FeatureFlagService {
         description: 'Test new reader interface components',
         enabled: false,
         rolloutPercentage: 10
+      },
+      // Analytics feature flags
+      {
+        id: 'reading_analytics_card',
+        name: 'Reading Analytics Card',
+        description: 'Show reading analytics in dashboard',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'xp_breakdown_card',
+        name: 'XP Breakdown Card',
+        description: 'Show XP source breakdown analytics',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'study_performance_card',
+        name: 'Study Performance Card',
+        description: 'Show study performance metrics',
+        enabled: true,
+        rolloutPercentage: 80
+      },
+      {
+        id: 'ai_coach_analytics_card',
+        name: 'AI Coach Analytics Card',
+        description: 'Show AI coach engagement metrics',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'weekly_activity_chart',
+        name: 'Weekly Activity Chart',
+        description: 'Show weekly learning activity chart',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'reading_trends_chart',
+        name: 'Reading Trends Chart',
+        description: 'Show reading time trends',
+        enabled: true,
+        rolloutPercentage: 90
+      },
+      {
+        id: 'study_accuracy_chart',
+        name: 'Study Accuracy Chart',
+        description: 'Show study accuracy over time',
+        enabled: true,
+        rolloutPercentage: 70
+      },
+      {
+        id: 'realtime_analytics',
+        name: 'Real-time Analytics',
+        description: 'Enable real-time updates for analytics',
+        enabled: true,
+        rolloutPercentage: 85
       }
     ];
 
