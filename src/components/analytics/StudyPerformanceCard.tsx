@@ -7,30 +7,35 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { useStudySessions } from '@/hooks/useStudySessions';
 
 const StudyPerformanceCard: React.FC = () => {
-  const { studySessions, loading } = useStudySessions();
+  const { sessions, isLoading } = useStudySessions();
 
   // Process study sessions to show performance over time
   const performanceData = React.useMemo(() => {
-    if (!studySessions || studySessions.length === 0) return [];
+    if (!sessions || sessions.length === 0) return [];
 
     // Group sessions by week and calculate average accuracy
-    const weeklyData = studySessions.reduce((acc: any[], session) => {
+    const weeklyData = sessions.reduce((acc: any[], session) => {
       const date = new Date(session.created_at);
       const weekStart = new Date(date.setDate(date.getDate() - date.getDay()));
       const weekKey = weekStart.toISOString().split('T')[0];
       
+      // Calculate accuracy percentage
+      const accuracy = session.total_cards > 0 
+        ? Math.round((session.correct_answers / session.total_cards) * 100)
+        : 0;
+      
       const existingWeek = acc.find(w => w.week === weekKey);
       if (existingWeek) {
         existingWeek.totalSessions += 1;
-        existingWeek.totalAccuracy += (session.accuracy || 0);
-        existingWeek.accuracy = existingWeek.totalAccuracy / existingWeek.totalSessions;
+        existingWeek.totalAccuracy += accuracy;
+        existingWeek.accuracy = Math.round(existingWeek.totalAccuracy / existingWeek.totalSessions);
       } else {
         acc.push({
           week: weekKey,
           date: weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          accuracy: session.accuracy || 0,
+          accuracy: accuracy,
           totalSessions: 1,
-          totalAccuracy: session.accuracy || 0
+          totalAccuracy: accuracy
         });
       }
       
@@ -38,7 +43,7 @@ const StudyPerformanceCard: React.FC = () => {
     }, []);
 
     return weeklyData.slice(-6); // Last 6 weeks
-  }, [studySessions]);
+  }, [sessions]);
 
   const chartConfig = {
     accuracy: {
@@ -54,7 +59,7 @@ const StudyPerformanceCard: React.FC = () => {
       description="Your accuracy trends over time"
       icon={TrendingUp}
       iconColor="text-green-600"
-      loading={loading}
+      loading={isLoading}
       featureFlag="study_performance_card"
     >
       {performanceData.length > 0 ? (
