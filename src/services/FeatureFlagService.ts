@@ -1,0 +1,155 @@
+
+export interface FeatureFlag {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  rolloutPercentage: number;
+  conditions?: {
+    userAgent?: string[];
+    versions?: string[];
+    userGroups?: string[];
+  };
+}
+
+export class FeatureFlagService {
+  private flags: Map<string, FeatureFlag> = new Map();
+  private userHash: string;
+
+  constructor() {
+    this.userHash = this.generateUserHash();
+    this.initializeDefaultFlags();
+  }
+
+  private initializeDefaultFlags(): void {
+    const defaultFlags: FeatureFlag[] = [
+      {
+        id: 'enhanced_pdf_viewer',
+        name: 'Enhanced PDF Viewer',
+        description: 'Use the new enhanced PDF viewer with improved performance',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'optimized_epub_renderer',
+        name: 'Optimized EPUB Renderer',
+        description: 'Use the optimized EPUB rendering engine',
+        enabled: true,
+        rolloutPercentage: 80
+      },
+      {
+        id: 'offline_cache',
+        name: 'Offline Document Cache',
+        description: 'Enable service worker caching for offline reading',
+        enabled: false,
+        rolloutPercentage: 30
+      },
+      {
+        id: 'advanced_telemetry',
+        name: 'Advanced Telemetry',
+        description: 'Collect detailed performance and usage metrics',
+        enabled: true,
+        rolloutPercentage: 100
+      },
+      {
+        id: 'experimental_reader_ui',
+        name: 'Experimental Reader UI',
+        description: 'Test new reader interface components',
+        enabled: false,
+        rolloutPercentage: 10
+      }
+    ];
+
+    defaultFlags.forEach(flag => this.flags.set(flag.id, flag));
+  }
+
+  isEnabled(flagId: string): boolean {
+    const flag = this.flags.get(flagId);
+    if (!flag) {
+      console.warn(`⚠️ Feature flag '${flagId}' not found`);
+      return false;
+    }
+
+    if (!flag.enabled) return false;
+
+    // Check rollout percentage
+    const hashNumber = this.hashStringToNumber(this.userHash + flagId);
+    const userPercentile = hashNumber % 100;
+    
+    const isInRollout = userPercentile < flag.rolloutPercentage;
+    
+    // Check conditions
+    if (flag.conditions) {
+      if (flag.conditions.userAgent && !this.matchesUserAgent(flag.conditions.userAgent)) {
+        return false;
+      }
+      // Add more condition checks as needed
+    }
+
+    return isInRollout;
+  }
+
+  getFlag(flagId: string): FeatureFlag | undefined {
+    return this.flags.get(flagId);
+  }
+
+  getAllFlags(): FeatureFlag[] {
+    return Array.from(this.flags.values());
+  }
+
+  updateFlag(flagId: string, updates: Partial<FeatureFlag>): void {
+    const flag = this.flags.get(flagId);
+    if (flag) {
+      this.flags.set(flagId, { ...flag, ...updates });
+      console.log(`🚩 Updated feature flag '${flagId}':`, updates);
+    }
+  }
+
+  private generateUserHash(): string {
+    // Create a stable hash based on browser fingerprint
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('User fingerprint', 2, 2);
+    }
+    
+    const fingerprint = [
+      navigator.userAgent,
+      navigator.language,
+      screen.width + 'x' + screen.height,
+      new Date().getTimezoneOffset(),
+      canvas.toDataURL()
+    ].join('|');
+    
+    return this.hashString(fingerprint);
+  }
+
+  private hashString(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  private hashStringToNumber(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash);
+  }
+
+  private matchesUserAgent(patterns: string[]): boolean {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return patterns.some(pattern => userAgent.includes(pattern.toLowerCase()));
+  }
+}
+
+export const featureFlagService = new FeatureFlagService();
