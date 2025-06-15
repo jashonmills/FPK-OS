@@ -93,7 +93,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
               onFontSizeChange={onFontSizeChange}
             />
 
-            {/* Reader Content */}
+            {/* Single Reader Content - Only the optimized version */}
             <EPUBReaderContent
               readerRef={readerRef}
               isNavigating={isNavigating}

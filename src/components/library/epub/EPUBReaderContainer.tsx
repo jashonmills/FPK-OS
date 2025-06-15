@@ -15,7 +15,7 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
   const [fontSize, setFontSize] = useState(16);
   const [showTOC, setShowTOC] = useState(false);
 
-  // Use the working optimized loader instead of broken streaming
+  // Use ONLY the optimized loader - no legacy systems
   const {
     isLoading,
     progress,
@@ -27,6 +27,7 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
     abortLoad
   } = useOptimizedEPUBLoader(book);
 
+  // Use ONLY the optimized rendition - no legacy systems
   const {
     currentLocation,
     isNavigating,
@@ -49,7 +50,7 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
 
   // Initialize EPUB loading on mount
   useEffect(() => {
-    console.log('🚀 Starting optimized EPUB reader for:', book.title);
+    console.log('🚀 Starting SINGLE optimized EPUB reader for:', book.title);
     loadEPUB();
     
     return () => {
@@ -58,10 +59,10 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
     };
   }, [loadEPUB, abortLoad, book.title]);
 
-  // Initialize rendition when EPUB is ready
+  // Initialize rendition when EPUB is ready - SINGLE INSTANCE ONLY
   useEffect(() => {
     if (!isLoading && !error && epubInstance && readerRef.current && !isInitialized) {
-      console.log('🎨 Initializing EPUB rendition');
+      console.log('🎨 Initializing SINGLE EPUB rendition - preventing duplicates');
       initializeRendition(readerRef.current, fontSize);
       
       // Start reading session with saved position

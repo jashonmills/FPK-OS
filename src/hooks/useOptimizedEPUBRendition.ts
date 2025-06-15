@@ -12,7 +12,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
   const cleanup = useCallback(() => {
     if (renditionRef.current) {
       try {
-        console.log('🧹 Cleaning up EPUB rendition');
+        console.log('🧹 Cleaning up SINGLE EPUB rendition - preventing duplicates');
         renditionRef.current.destroy();
       } catch (error) {
         console.warn('Rendition cleanup warning (non-critical):', error);
@@ -29,9 +29,9 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
       return;
     }
 
-    console.log('🎨 Initializing optimized EPUB rendition with scroll support');
+    console.log('🎨 Initializing SINGLE optimized EPUB rendition with scroll support');
     
-    // Cleanup any existing rendition
+    // Cleanup any existing rendition to prevent duplicates
     cleanup();
     
     // Store container reference
@@ -47,6 +47,8 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
         flow: 'scrolled-doc', // Enable scrolled document flow
         overflow: 'auto' // Allow content overflow for scrolling
       });
+
+      console.log('✅ SINGLE rendition created - no duplicates');
 
       // Configure styling for better scrolling experience
       rendition.themes.fontSize(`${fontSize}px`);
@@ -91,7 +93,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
 
       // Display the rendition
       rendition.display().then(() => {
-        console.log('✅ Rendition displayed successfully with scrolling enabled');
+        console.log('✅ SINGLE rendition displayed successfully with scrolling enabled');
         isInitializedRef.current = true;
       }).catch((error: any) => {
         console.error('❌ Rendition display error:', error);
