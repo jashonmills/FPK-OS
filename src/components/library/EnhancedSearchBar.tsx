@@ -1,3 +1,4 @@
+
 /**
  * Enhanced search bar with instant suggestions and typeahead
  */
@@ -6,7 +7,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Zap, TrendingUp, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
+import { searchIndexService } from '@/services/SearchIndexService';
 import { browsingPatternsAnalyzer } from '@/services/BrowsingPatternsAnalyzer';
 
 interface SearchSuggestion {
@@ -29,47 +30,57 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   onSuggestionSelect,
   className = ""
 }) => {
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Use the extended API pattern for suggestions
-  const {
-    query,
-    suggestions,
-    isSearching,
-    searchStats,
-    performSearch,
-    selectSuggestion,
-    clearSearch,
-    getPopularTerms
-  } = useDebouncedSearch({
-    debounceMs: 150, // Faster for better UX
-    minQueryLength: 2,
-    enableInstantSearch: true,
-    enableSuggestions: true
-  });
+  // Get search stats and popular terms
+  const searchStats = searchIndexService.getSearchStats();
+  const popularTerms = searchIndexService.getPopularTerms();
 
-  const popularTerms = getPopularTerms();
-
+  // Debounced suggestion fetching
   useEffect(() => {
-    setShowSuggestions(suggestions.length > 0 && query.length >= 2);
-    setSelectedIndex(-1);
-  }, [suggestions, query]);
+    const timer = setTimeout(() => {
+      if (query.trim() && query.length >= 2) {
+        setIsSearching(true);
+        console.log('🔍 Fetching suggestions for:', query);
+        
+        const fetchedSuggestions = searchIndexService.getInstantSuggestions(query, 8);
+        console.log('💡 Got suggestions:', fetchedSuggestions);
+        
+        setSuggestions(fetchedSuggestions);
+        setShowSuggestions(fetchedSuggestions.length > 0);
+        setIsSearching(false);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setIsSearching(false);
+      }
+      setSelectedIndex(-1);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [query]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    performSearch(value);
+    setQuery(value);
     
     // Record search event for pattern analysis
     if (value.length >= 2) {
       browsingPatternsAnalyzer.recordEvent('search', 'search', { query: value });
     }
+    
+    // Immediately notify parent of search
+    onSearch?.(value);
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    selectSuggestion(suggestion);
+    setQuery(suggestion.term);
     setShowSuggestions(false);
     onSuggestionSelect?.(suggestion);
     onSearch?.(suggestion.term);
@@ -105,8 +116,15 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   };
 
   const handlePopularTermClick = (term: string) => {
-    performSearch(term);
+    setQuery(term);
     onSearch?.(term);
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+    onSearch?.('');
   };
 
   const getSuggestionIcon = (type: string) => {

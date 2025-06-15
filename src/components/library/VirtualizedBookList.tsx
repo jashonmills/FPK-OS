@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { searchIndexService } from '@/services/SearchIndexService';
-import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
 import SearchControls from './SearchControls';
 import BookListDisplay from './BookListDisplay';
 
@@ -17,48 +16,64 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   onBookClick,
   isLoading
 }) => {
+  const [query, setQuery] = useState('');
   const [displayBooks, setDisplayBooks] = useState<PublicDomainBook[]>([]);
-
-  // Use the extended API pattern for library search with suggestions
-  const {
-    query,
-    instantResults,
-    isSearching,
-    searchStats,
-    clearSearch,
-    hasResults
-  } = useDebouncedSearch({
-    debounceMs: 200,
-    minQueryLength: 2,
-    enableInstantSearch: true,
-    enableSuggestions: true
-  });
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchStats, setSearchStats] = useState<any>(null);
 
   // Index books for instant search when books change
   useEffect(() => {
     if (books.length > 0) {
       console.log(`🔍 Indexing ${books.length} books for instant search...`);
       searchIndexService.indexBooks(books);
+      
+      // Update search stats
+      const stats = searchIndexService.getSearchStats();
+      setSearchStats(stats);
+      console.log('📊 Search stats updated:', stats);
     }
   }, [books]);
 
-  // Update displayed books based on search results
+  // Perform instant search when query changes
   useEffect(() => {
-    if (query && hasResults) {
-      console.log(`🔍 Showing ${instantResults.length} search results for "${query}"`);
-      setDisplayBooks(instantResults as PublicDomainBook[]);
-    } else {
-      console.log(`📚 Showing all ${books.length} books`);
-      setDisplayBooks(books);
-    }
-  }, [query, instantResults, hasResults, books]);
+    const performSearch = async () => {
+      if (query.trim() && query.length >= 2) {
+        setIsSearching(true);
+        console.log(`🔍 Performing instant search for: "${query}"`);
+        
+        // Use a small delay to show the searching state
+        setTimeout(() => {
+          const results = searchIndexService.instantSearch(query);
+          console.log(`✅ Found ${results.length} results for "${query}"`);
+          setDisplayBooks(results);
+          
+          // Record the search for analytics
+          searchIndexService.recordSearch(query);
+          setIsSearching(false);
+        }, 100);
+      } else {
+        console.log(`📚 Showing all ${books.length} books`);
+        setDisplayBooks(books);
+        setIsSearching(false);
+      }
+    };
+
+    performSearch();
+  }, [query, books]);
 
   const handleSearch = useCallback((searchQuery: string) => {
     console.log('🔍 Search executed:', searchQuery);
+    setQuery(searchQuery);
   }, []);
 
   const handleSuggestionSelect = useCallback((suggestion: any) => {
     console.log('💡 Suggestion selected:', suggestion);
+    setQuery(suggestion.term);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    console.log('🧹 Clearing search');
+    setQuery('');
   }, []);
 
   if (isLoading && books.length === 0) {
@@ -78,7 +93,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
         query={query}
         isSearching={isSearching}
         searchStats={searchStats}
-        hasResults={hasResults}
+        hasResults={displayBooks.length > 0}
         resultsCount={displayBooks.length}
         onSearch={handleSearch}
         onSuggestionSelect={handleSuggestionSelect}
