@@ -2,18 +2,20 @@
 import React, { useState, useMemo } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, BookOpen, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAccessibility } from '@/hooks/useAccessibility';
 
 interface OptimizedPublicDomainBooksListProps {
   books: PublicDomainBook[];
   isLoading: boolean;
+  onBookClick?: (book: PublicDomainBook) => void;
 }
 
 const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListProps> = ({
   books,
-  isLoading
+  isLoading,
+  onBookClick
 }) => {
   const { getAccessibilityClasses } = useAccessibility();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,11 +37,11 @@ const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListPro
   const displayBooks = isExpanded ? filteredBooks : filteredBooks.slice(0, 6);
 
   const handleReadClick = (book: PublicDomainBook) => {
-    // Lazy load the EPUB reader only when needed
-    import('./EPUBReader').then(({ default: EPUBReader }) => {
-      // This would need to be handled by the parent component
+    if (onBookClick) {
+      onBookClick(book);
+    } else {
       console.log('Opening book:', book.title);
-    });
+    }
   };
 
   return (
@@ -70,7 +72,9 @@ const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListPro
 
       {isExpanded && (
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground">
+            🔍
+          </div>
           <Input
             placeholder="Search books by title, author, or subject..."
             value={searchTerm}

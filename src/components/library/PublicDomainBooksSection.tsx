@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
@@ -30,25 +31,30 @@ const PublicDomainBooksSection: React.FC = () => {
     const initializeOptimizations = async () => {
       console.log('🚀 Initializing Phase 4 optimizations...');
       
-      // Preload critical resources
-      await performanceService.preloadCriticalResources();
-      
-      // Prefetch popular books when we have them
-      if (books.length > 0) {
-        await performanceService.prefetchPopularBooks(books);
+      try {
+        // Preload critical resources
+        await performanceService.preloadCriticalResources();
         
-        // Get intelligent prefetch suggestions
-        const suggestions = await browsingPatternsAnalyzer.getPrefetchSuggestions(books);
-        setPrefetchSuggestions(suggestions);
+        // Prefetch popular books when we have them
+        if (books.length > 0) {
+          await performanceService.prefetchPopularBooks(books);
+          
+          // Get intelligent prefetch suggestions
+          const suggestions = await browsingPatternsAnalyzer.getPrefetchSuggestions(books);
+          setPrefetchSuggestions(suggestions);
+        }
+        
+        // Get performance metrics
+        const metrics = await performanceService.getMetrics();
+        setPerformanceMetrics(metrics);
+        
+        // Get browsing analytics
+        const analytics = browsingPatternsAnalyzer.getAnalytics();
+        setBrowsingAnalytics(analytics);
+      } catch (error) {
+        console.warn('⚠️ Performance optimization failed:', error);
+        // Continue without performance optimizations
       }
-      
-      // Get performance metrics
-      const metrics = await performanceService.getMetrics();
-      setPerformanceMetrics(metrics);
-      
-      // Get browsing analytics
-      const analytics = browsingPatternsAnalyzer.getAnalytics();
-      setBrowsingAnalytics(analytics);
     };
 
     if (!isLoading && books.length > 0) {
@@ -59,8 +65,12 @@ const PublicDomainBooksSection: React.FC = () => {
   // Update analytics periodically
   useEffect(() => {
     const updateAnalytics = () => {
-      const analytics = browsingPatternsAnalyzer.getAnalytics();
-      setBrowsingAnalytics(analytics);
+      try {
+        const analytics = browsingPatternsAnalyzer.getAnalytics();
+        setBrowsingAnalytics(analytics);
+      } catch (error) {
+        console.warn('⚠️ Analytics update failed:', error);
+      }
     };
 
     const interval = setInterval(updateAnalytics, 10000); // Every 10 seconds
@@ -69,11 +79,15 @@ const PublicDomainBooksSection: React.FC = () => {
 
   const handleBookClick = (book: PublicDomainBook) => {
     // Record book click for pattern analysis
-    browsingPatternsAnalyzer.recordEvent(book.id, 'click', {
-      title: book.title,
-      author: book.author,
-      subjects: book.subjects
-    });
+    try {
+      browsingPatternsAnalyzer.recordEvent(book.id, 'click', {
+        title: book.title,
+        author: book.author,
+        subjects: book.subjects
+      });
+    } catch (error) {
+      console.warn('⚠️ Analytics recording failed:', error);
+    }
     
     setSelectedBook(book);
   };
@@ -104,11 +118,13 @@ const PublicDomainBooksSection: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Phase 4 Performance & Analytics Dashboard */}
-      <PerformanceMetricsDashboard
-        performanceMetrics={performanceMetrics}
-        browsingAnalytics={browsingAnalytics}
-        prefetchSuggestions={prefetchSuggestions}
-      />
+      {performanceMetrics && (
+        <PerformanceMetricsDashboard
+          performanceMetrics={performanceMetrics}
+          browsingAnalytics={browsingAnalytics}
+          prefetchSuggestions={prefetchSuggestions}
+        />
+      )}
 
       {/* Search Bar */}
       <LibraryHeader />
