@@ -29,20 +29,26 @@ export default defineConfig(({ mode }) => ({
     exclude: ['pdfjs-dist/legacy/build/pdf.worker.min.js']
   },
   assetsInclude: [
-    '**/*.pdf'
+    '**/*.pdf',
+    '**/pdf.worker.min.js'
   ],
   define: {
     global: 'globalThis',
   },
   build: {
     rollupOptions: {
-      external: ['pdfjs-dist/legacy/build/pdf.worker.min.js'],
       output: {
         manualChunks: {
-          'pdf-worker': ['pdfjs-dist']
+          'pdf-viewer': ['react-pdf', 'pdfjs-dist'],
+          'pdf-worker': ['pdfjs-dist/build/pdf.worker.min.js']
         }
       }
     },
-    sourcemap: mode === 'development'
+    sourcemap: mode === 'development',
+    chunkSizeWarningLimit: 1000, // Increase limit for PDF.js chunks
+    assetsInlineLimit: 0 // Don't inline assets, serve them separately for better caching
+  },
+  worker: {
+    format: 'es'
   }
 }));

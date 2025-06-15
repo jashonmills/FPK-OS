@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -6,7 +7,7 @@ import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { FileText, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import EnhancedPDFViewer from './EnhancedPDFViewer';
+import OptimizedPDFViewer from './OptimizedPDFViewer';
 import CommunityBooksListView from './CommunityBooksListView';
 import CommunityBooksGridView from './CommunityBooksGridView';
 
@@ -39,7 +40,7 @@ const ApprovedStorageBooksSection: React.FC = () => {
   }, [viewMode]);
 
   const handlePDFOpen = async (book: any) => {
-    console.log('📖 Opening PDF with enhanced viewer:', book.file_name);
+    console.log('📖 Opening PDF with optimized viewer:', book.file_name);
     setValidatingPDF(book.id);
     
     try {
@@ -159,9 +160,9 @@ const ApprovedStorageBooksSection: React.FC = () => {
         </Collapsible>
       </Card>
 
-      {/* Enhanced PDF Viewer Modal */}
+      {/* Optimized PDF Viewer Modal */}
       {selectedPDF && (
-        <EnhancedPDFViewer
+        <OptimizedPDFViewer
           fileUrl={selectedPDF.file_url}
           fileName={selectedPDF.file_name}
           onClose={() => setSelectedPDF(null)}
