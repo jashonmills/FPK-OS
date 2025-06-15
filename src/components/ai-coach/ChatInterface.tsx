@@ -44,7 +44,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [lastReadMessageId, setLastReadMessageId] = useState<string>('');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
-  const [recentSaves, setRecentSaves] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
@@ -504,31 +503,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     });
   };
 
-  // Load recent saves (mock data for now - would integrate with actual notes)
-  useEffect(() => {
-    // Mock recent saves data - in real implementation, fetch from notes with AI Insights category
-    setRecentSaves([
-      {
-        id: '1',
-        title: 'Causes of the Civil War',
-        savedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
-        hasFlashcards: true
-      },
-      {
-        id: '2',
-        title: 'Photosynthesis Process',
-        savedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-        hasFlashcards: false
-      },
-      {
-        id: '3',
-        title: 'Study Strategy Tips',
-        savedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-        hasFlashcards: false
-      }
-    ]);
-  }, []);
-
   // Convert chatHistory to the format expected by ChatMessagesPane
   const formattedMessages = chatHistory.map(msg => ({
     id: msg.id || `${msg.timestamp?.getTime()}-${msg.role}`,
@@ -544,32 +518,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             <span className="text-sm sm:text-base font-semibold truncate">AI Learning Coach</span>
-            <Badge variant="secondary" className="bg-white/20 text-white text-xs flex-shrink-0">
+            <Badge variant="secondary" className="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium border border-white/30 flex-shrink-0 shadow-sm">
               Enhanced
             </Badge>
             {completedSessions.length > 0 && (
-              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs flex-shrink-0">
+              <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
                 <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Personal Data</span>
                 <span className="sm:hidden">Data ✓</span>
               </Badge>
             )}
             {settings.enabled && (
-              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs flex-shrink-0">
+              <Badge variant="secondary" className="bg-blue-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-blue-400/50 shadow-sm flex-shrink-0">
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden lg:inline">Voice Active</span>
                 <span className="lg:hidden">Voice</span>
               </Badge>
             )}
             {isSpeaking && !isPaused && (
-              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs animate-pulse flex-shrink-0">
+              <Badge variant="secondary" className="bg-green-500/90 text-white flex items-center gap-1 text-xs animate-pulse px-2 py-1 rounded-full font-medium border border-green-400/50 shadow-sm flex-shrink-0">
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Speaking</span>
                 <span className="sm:hidden">🔊</span>
               </Badge>
             )}
             {isPaused && (
-              <Badge variant="secondary" className="bg-yellow-500/80 text-white flex items-center gap-1 text-xs flex-shrink-0">
+              <Badge variant="secondary" className="bg-yellow-500/90 text-white flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border border-yellow-400/50 shadow-sm flex-shrink-0">
                 <Pause className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Paused</span>
                 <span className="sm:hidden">⏸</span>
@@ -580,15 +554,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* Status indicator */}
             <div className="flex items-center gap-1">
-              {/* ... keep existing code (status icon logic) */}
+              {getStatusIcon()}
               <span className="text-xs hidden md:inline truncate">Connected</span>
             </div>
             
             {/* Recent Saves Menu */}
-            <RecentSavesMenu 
-              recentSaves={recentSaves}
-              onOpenNote={handleOpenNote}
-            />
+            <RecentSavesMenu onOpenNote={handleOpenNote} />
             
             {/* Smart Pause/Resume/Stop Speech Controls */}
             {isSpeaking && (
@@ -597,23 +568,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   onClick={handlePauseResumeSpeech}
                   size="icon"
                   variant="ghost"
-                  className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target"
+                  className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
                   title={isPaused ? "Resume speaking (Ctrl+Space)" : "Pause speaking (Ctrl+Space)"}
                 >
                   {isPaused ? (
-                    <Play className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <Play className="h-4 w-4" />
                   ) : (
-                    <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <Pause className="h-4 w-4" />
                   )}
                 </Button>
                 <Button
                   onClick={handleStopSpeech}
                   size="icon"
                   variant="ghost"
-                  className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target"
+                  className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target"
                   title="Stop speaking (ESC)"
                 >
-                  <Square className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />
+                  <Square className="h-4 w-4 fill-current" />
                 </Button>
               </div>
             )}
@@ -621,8 +592,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             {/* Options Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target">
-                  <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105 touch-target">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -681,14 +652,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading || isRecording}
-              className="flex-1 min-w-0 text-sm safe-text"
+              className="flex-1 min-w-0 text-sm safe-text rounded-lg border-2 border-gray-200 focus:border-purple-500 transition-colors"
             />
             <Button 
               onClick={handleVoiceRecording}
               disabled={isLoading || isProcessing}
               size="icon"
               variant={isRecording ? "destructive" : "outline"}
-              className={`flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 touch-target ${isRecording ? "animate-pulse" : ""}`}
+              className={`flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 rounded-lg border-2 transition-all duration-200 hover:scale-105 touch-target ${isRecording ? "animate-pulse border-red-400" : "border-gray-200 hover:border-purple-400"}`}
             >
               {isProcessing ? (
                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -702,7 +673,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleSendMessage}
               disabled={isLoading || !chatMessage.trim() || isRecording}
               size="icon"
-              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 touch-target"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 touch-target"
             >
               <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>

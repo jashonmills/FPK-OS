@@ -88,11 +88,11 @@ const RecentSavesMenu: React.FC<RecentSavesMenuProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-white hover:bg-white/20"
+          className="h-7 w-7 p-0 text-white hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-105"
           title="Recent Saves"
           aria-label="View recent saves"
         >
-          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+          <Clock className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg z-50">

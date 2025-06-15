@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
@@ -76,11 +75,7 @@ export const useSaveToNotes = () => {
       } else {
         toast({
           title: "Saved to Notes",
-          description: "AI response has been saved to your notes. Click to view your notes.",
-          action: {
-            label: "View Notes",
-            onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
-          }
+          description: "AI response has been saved to your notes. Click 'View Notes' to see it.",
         });
       }
 
