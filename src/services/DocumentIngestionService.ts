@@ -29,7 +29,7 @@ class OPDSProcessor implements SourceProcessor {
 
   async ingest(config: Record<string, any>, filters?: Record<string, any>): Promise<DocumentMetadata[]> {
     try {
-      const feed = await OPDSService.fetchOPDSFeed(config.feedUrl);
+      const feed = await OPDSService.fetchOPDSFeed();
       let entries = feed.entries;
 
       // Apply filters
@@ -41,12 +41,19 @@ class OPDSProcessor implements SourceProcessor {
         );
       }
 
-      if (filters?.language) {
-        entries = entries.filter(entry => entry.language === filters.language);
-      }
-
-      return entries.map(entry => OPDSService.convertToPublicDomainBook(entry))
-        .filter(book => book !== null) as DocumentMetadata[];
+      return entries.map(entry => {
+        const book = OPDSService.convertToPublicDomainBook(entry);
+        if (!book) return null;
+        
+        // Convert PublicDomainBook to DocumentMetadata
+        return {
+          title: book.title,
+          author: book.author,
+          format: 'epub' as const, // Most OPDS books are EPUB
+          language: book.language,
+          fileSize: book.file_size
+        } as DocumentMetadata;
+      }).filter(book => book !== null) as DocumentMetadata[];
     } catch (error) {
       console.error('OPDS ingestion failed:', error);
       return [];
