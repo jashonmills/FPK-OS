@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,6 +69,12 @@ const LearnerHome = () => {
         {/* Reading Progress */}
         <ReadingProgressWidget />
 
+        {/* Empty placeholder to maintain grid alignment */}
+        <div className="hidden lg:block"></div>
+      </div>
+
+      {/* Goals and Streak Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Today's Goals */}
         <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
