@@ -181,23 +181,6 @@
     background-color: #eff6ff !important;
     color: #1e3a8a !important;
   }
-
-  /* VISUAL DEBUG INDICATOR */
-  html.accessibility-active::before {
-    content: "🎨 Accessibility Active";
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: #10b981;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 0.8;
-    font-family: system-ui !important;
-  }
 }
 
 @layer utilities {
