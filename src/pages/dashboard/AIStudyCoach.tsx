@@ -44,10 +44,7 @@ const AIStudyCoach = () => {
   const quickChallenges = generateQuickChallenges(flashcards, completedSessions);
 
   return (
-    <div className={cn(
-      "responsive-container responsive-spacing min-h-screen overflow-x-hidden",
-      fixedHeightEnabled && "h-screen flex flex-col"
-    )}>
+    <div className="responsive-container responsive-spacing min-h-screen overflow-x-hidden">
       {/* Header Section - Fully Responsive */}
       <div className="text-center responsive-spacing max-w-full flex-shrink-0">
         <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
@@ -112,23 +109,27 @@ const AIStudyCoach = () => {
         <QuickChallengesCard challenges={quickChallenges} />
       </div>
 
-      {/* Main Content Layout - Responsive Grid */}
+      {/* Main Content Layout - Responsive Grid with Height Constraint Only for Chat */}
       <div className={cn(
-        "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full overflow-hidden",
-        fixedHeightEnabled ? "flex-1 min-h-0" : ""
+        "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full",
+        fixedHeightEnabled ? "min-h-[70vh]" : ""
       )}>
         {/* Chat Interface - Takes 2/3 on desktop, full width on mobile */}
         <div className={cn(
           "lg:col-span-2 min-w-0 w-full",
-          fixedHeightEnabled && "flex flex-col min-h-0"
+          fixedHeightEnabled ? "flex flex-col" : ""
         )}>
-          <ChatInterface
-            user={user}
-            completedSessions={completedSessions}
-            flashcards={flashcards}
-            insights={insights}
-            fixedHeight={fixedHeightEnabled}
-          />
+          <div className={cn(
+            fixedHeightEnabled ? "h-[70vh] min-h-0" : "min-h-[600px]"
+          )}>
+            <ChatInterface
+              user={user}
+              completedSessions={completedSessions}
+              flashcards={flashcards}
+              insights={insights}
+              fixedHeight={fixedHeightEnabled}
+            />
+          </div>
         </div>
 
         {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
