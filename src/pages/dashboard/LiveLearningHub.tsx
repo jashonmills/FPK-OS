@@ -1,11 +1,37 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Compass, Calendar, Users, Video } from 'lucide-react';
 import DualLanguageText from '@/components/DualLanguageText';
+import LiveHubAPODCard from '@/components/dashboard/LiveHubAPODCard';
+import VisualOfTheWeekCarousel from '@/components/dashboard/VisualOfTheWeekCarousel';
+import ModelViewerModal from '@/components/dashboard/ModelViewerModal';
+import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
+import { MuseumItem } from '@/services/MuseumService';
 
 const LiveLearningHub = () => {
+  const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
+  const [isModelViewerOpen, setIsModelViewerOpen] = useState(false);
+  const [selectedMuseumItem, setSelectedMuseumItem] = useState<MuseumItem | null>(null);
+
+  const handleAPODLearnMore = () => {
+    setIsAPODModalOpen(true);
+  };
+
+  const handleCloseAPODModal = () => {
+    setIsAPODModalOpen(false);
+  };
+
+  const handleMuseumItemClick = (item: MuseumItem) => {
+    setSelectedMuseumItem(item);
+    setIsModelViewerOpen(true);
+  };
+
+  const handleCloseModelViewer = () => {
+    setIsModelViewerOpen(false);
+    setSelectedMuseumItem(null);
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -17,6 +43,19 @@ const LiveLearningHub = () => {
         </p>
       </div>
 
+      {/* Discovery Widgets Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800">Daily Discovery</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* NASA APOD Card */}
+          <LiveHubAPODCard onLearnMore={handleAPODLearnMore} />
+          
+          {/* Visual of the Week Carousel */}
+          <VisualOfTheWeekCarousel onItemClick={handleMuseumItemClick} />
+        </div>
+      </div>
+
+      {/* Existing Live Sessions Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="fpk-card border-0 shadow-lg">
           <CardHeader>
@@ -57,6 +96,18 @@ const LiveLearningHub = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modals */}
+      <APODGalleryModal
+        isOpen={isAPODModalOpen}
+        onClose={handleCloseAPODModal}
+      />
+
+      <ModelViewerModal
+        isOpen={isModelViewerOpen}
+        onClose={handleCloseModelViewer}
+        item={selectedMuseumItem}
+      />
     </div>
   );
 };

@@ -137,6 +137,9 @@ class AnalyticsEventBus {
         return event.metadata.correct ? 1 : 0;
       case ANALYTICS_EVENTS.STUDY_SESSION_COMPLETE:
         return event.metadata.performance?.accuracy || 0;
+      case ANALYTICS_EVENTS.DISCOVERY_WIDGET_VIEW:
+      case ANALYTICS_EVENTS.DISCOVERY_WIDGET_CLICK:
+        return 1; // Count interaction events
       default:
         return 1; // Default metric value for counting events
     }
@@ -214,5 +217,8 @@ export const ANALYTICS_EVENTS = {
   FILE_UPLOADED: 'file_uploaded',
   XP_EARNED: 'xp_earned',
   STREAK_UPDATED: 'streak_updated',
-  BADGE_EARNED: 'badge_earned'
+  BADGE_EARNED: 'badge_earned',
+  // New discovery widget events
+  DISCOVERY_WIDGET_VIEW: 'discovery.widget.view',
+  DISCOVERY_WIDGET_CLICK: 'discovery.widget.click'
 } as const;
