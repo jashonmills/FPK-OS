@@ -1,38 +1,60 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { BookOpen, Loader2 } from 'lucide-react';
+import SaveToNotesDialog from './SaveToNotesDialog';
 
 interface SaveToNotesButtonProps {
-  onClick: () => void;
+  content: string;
+  selectedText?: string;
+  originalQuestion?: string;
+  aiMode?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'sm' | 'default' | 'lg';
   className?: string;
-  hasSelection?: boolean;
 }
 
 const SaveToNotesButton: React.FC<SaveToNotesButtonProps> = ({
-  onClick,
-  className,
-  hasSelection = false
+  content,
+  selectedText,
+  originalQuestion,
+  aiMode,
+  variant = 'outline',
+  size = 'sm',
+  className = ''
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={onClick}
-      className={cn(
-        "h-6 w-6 sm:h-7 sm:w-7 opacity-0 group-hover:opacity-100 transition-opacity touch-target",
-        "focus:opacity-100 focus:ring-2 focus:ring-purple-500 focus:ring-offset-1",
-        "md:opacity-0 md:group-hover:opacity-100", // Hide on desktop unless hover
-        "sm:opacity-100", // Always visible on mobile
-        hasSelection && "opacity-100 bg-purple-100 hover:bg-purple-200",
-        className
-      )}
-      title={hasSelection ? "Save selected text to Notes" : "Save this message to Notes"}
-      aria-label={hasSelection ? "Save selected text to Notes" : "Save this message to Notes"}
-    >
-      <Save className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
-    </Button>
+    <>
+      <Button
+        variant={variant}
+        size={size}
+        onClick={handleOpenDialog}
+        className={`gap-2 ${className}`}
+        title="Save this AI response to your notes"
+      >
+        <BookOpen className="h-4 w-4" />
+        Save to Notes
+      </Button>
+
+      <SaveToNotesDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        content={content}
+        selectedText={selectedText}
+        originalQuestion={originalQuestion}
+        aiMode={aiMode}
+      />
+    </>
   );
 };
 

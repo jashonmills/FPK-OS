@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -28,6 +27,46 @@ interface ProcessFileRequest {
   source?: string;
 }
 
+// Enhanced markdown cleanup utility
+function stripMarkdownForFlashcards(text: string): string {
+  if (!text) return '';
+
+  let cleanText = text;
+
+  // Remove markdown headers (##, ###, etc.)
+  cleanText = cleanText.replace(/^#{1,6}\s+/gm, '');
+  
+  // Remove bold/italic markdown (**text**, *text*)
+  cleanText = cleanText.replace(/\*\*([^*]+)\*\*/g, '$1');
+  cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1');
+  
+  // Remove code blocks and inline code
+  cleanText = cleanText.replace(/```[\s\S]*?```/g, '');
+  cleanText = cleanText.replace(/`([^`]+)`/g, '$1');
+  
+  // Remove links [text](url) - keep only the text
+  cleanText = cleanText.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  
+  // Remove literal pause indicators
+  cleanText = cleanText.replace(/\*pause\*/gi, '');
+  cleanText = cleanText.replace(/\(pause\)/gi, '');
+  
+  // Remove various brackets and parenthetical markup
+  cleanText = cleanText.replace(/\[([^\]]+)\]/g, '$1');
+  
+  // Remove bullet points and list markers but preserve content
+  cleanText = cleanText.replace(/^[-*+]\s+/gm, '');
+  cleanText = cleanText.replace(/^\d+\.\s+/gm, '');
+  
+  // Clean up SSML tags if any
+  cleanText = cleanText.replace(/<[^>]+>/g, '');
+  
+  // Remove extra whitespace and line breaks
+  cleanText = cleanText.replace(/\s+/g, ' ').trim();
+  
+  return cleanText;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -48,7 +87,7 @@ serve(async (req) => {
       source
     } = requestData;
     
-    console.log('Processing request:', { 
+    console.log('🎯 Processing flashcard request:', { 
       uploadId, 
       fileName, 
       fileType, 
@@ -56,17 +95,28 @@ serve(async (req) => {
       fetchOnly, 
       source,
       hasContent: !!content,
-      contentLength: content?.length || 0
+      contentLength: content?.length || 0,
+      userId
     });
 
     // Handle AI Coach content directly
     if (source === 'ai-coach-note' && content && title) {
-      console.log('Processing AI Coach content for flashcard generation');
+      console.log('🤖 Processing AI Coach content for flashcard generation');
+      console.log('Original content preview:', content.substring(0, 200) + '...');
+      
+      // Clean the content before processing
+      const cleanedContent = stripMarkdownForFlashcards(content);
+      console.log('Cleaned content preview:', cleanedContent.substring(0, 200) + '...');
+      console.log('Content length after cleaning:', cleanedContent.length);
+      
+      if (cleanedContent.length < 50) {
+        throw new Error('Content too short to generate meaningful flashcards');
+      }
       
       try {
-        const flashcards = await generateFlashcardsWithAI(content, title, 'ai-coach-content');
+        const flashcards = await generateFlashcardsWithAI(cleanedContent, title, 'ai-coach-content');
         
-        console.log(`Generated ${flashcards.length} flashcards from AI Coach content`);
+        console.log(`✅ Generated ${flashcards.length} flashcards from AI Coach content`);
         
         // In preview mode, return flashcards without saving to database
         if (previewMode) {
@@ -95,15 +145,19 @@ serve(async (req) => {
             difficulty_level: card.difficulty || 1
           }));
 
+          console.log('💾 Saving flashcards to database:', flashcardInserts.length);
+
           const { data: insertedCards, error: insertError } = await supabase
             .from('flashcards')
             .insert(flashcardInserts)
             .select();
 
           if (insertError) {
-            console.error('Error inserting flashcards:', insertError);
+            console.error('❌ Error inserting flashcards:', insertError);
             throw new Error(`Failed to save flashcards: ${insertError.message}`);
           }
+
+          console.log('✅ Successfully saved flashcards:', insertedCards?.length);
 
           return new Response(
             JSON.stringify({ 
@@ -119,7 +173,7 @@ serve(async (req) => {
           );
         }
       } catch (error) {
-        console.error('Error processing AI Coach content:', error);
+        console.error('❌ Error processing AI Coach content:', error);
         throw new Error(`Failed to process AI Coach content: ${error.message}`);
       }
     }
@@ -182,18 +236,15 @@ serve(async (req) => {
       const rtfText = await fileData.text();
       textContent = rtfText.replace(/\\[a-z]+\d*\s?/g, '').replace(/[{}]/g, '');
     } else {
-      // Enhanced sample content for complex documents
       textContent = generateEnhancedSampleContent(fileName, fileType);
     }
 
     console.log('Extracted text length:', textContent.length);
 
-    // Chunk processing for very large content
     const maxChunkSize = 3000;
     let allFlashcards: any[] = [];
 
     if (textContent.length > maxChunkSize) {
-      // Process in chunks
       const chunks = chunkText(textContent, maxChunkSize);
       console.log(`Processing ${chunks.length} chunks`);
       
@@ -222,10 +273,8 @@ serve(async (req) => {
     let savedFlashcards = null;
 
     if (previewMode) {
-      // In preview mode, return the flashcards without saving to database
       console.log('Preview mode: returning flashcards without saving to database');
       
-      // Update upload record to completed with preview data
       const { error: updateError } = await supabase
         .from('file_uploads')
         .update({
@@ -239,7 +288,6 @@ serve(async (req) => {
         console.error('Error updating upload record:', updateError);
       }
 
-      // Return flashcards for preview
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -254,7 +302,6 @@ serve(async (req) => {
         }
       );
     } else {
-      // Legacy mode: save directly to database
       const flashcardInserts = allFlashcards.map(card => ({
         user_id: userId,
         front_content: card.front,
@@ -274,7 +321,6 @@ serve(async (req) => {
 
       savedFlashcards = insertedCards;
 
-      // Update upload record with completion status
       const { error: updateError } = await supabase
         .from('file_uploads')
         .update({
@@ -302,9 +348,8 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in process-file-flashcards function:', error);
+    console.error('❌ Error in process-file-flashcards function:', error);
     
-    // Update upload record with error status if uploadId exists
     try {
       const body = await req.clone().json();
       if (body.uploadId) {
@@ -323,7 +368,10 @@ serve(async (req) => {
     }
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -414,25 +462,34 @@ async function generateFlashcardsWithAI(textContent: string, fileName: string, f
 
   // Special handling for AI Coach content
   const isAICoachContent = fileType === 'ai-coach-content';
-  const promptPrefix = isAICoachContent 
-    ? `Create exactly ${targetFlashcards} high-quality study flashcards from this AI Learning Coach response: "${fileName}"`
-    : `Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}" content.`;
+  
+  let prompt: string;
+  
+  if (isAICoachContent) {
+    prompt = `Create exactly ${targetFlashcards} high-quality study flashcards from this AI Learning Coach response: "${fileName}"
 
-  const prompt = `${promptPrefix}
+Content: ${textContent.substring(0, 2500)}
+
+Focus on extracting key learning concepts, study strategies, and actionable insights from this AI coaching response. 
+Create flashcards that help students remember and apply the guidance provided.
+Make questions clear and answers comprehensive but concise.
+Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1-3}]`;
+  } else {
+    prompt = `Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}" content.
 
 Content: ${textContent.substring(0, 2000)}
 
-${isAICoachContent 
-  ? 'Focus on key concepts, insights, and actionable learning points from this AI coaching response.' 
-  : 'Generate diverse flashcards covering key concepts, definitions, and important details.'
-} Make them clear and educational.
+Generate diverse flashcards covering key concepts, definitions, and important details. Make them clear and educational.
 Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1-3}]`;
+  }
 
   try {
-    console.log('Calling OpenAI API for flashcard generation...');
+    console.log('🤖 Calling OpenAI API for flashcard generation...');
+    console.log('Content type:', isAICoachContent ? 'AI Coach' : 'File');
+    console.log('Target flashcards:', targetFlashcards);
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -445,12 +502,12 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
         messages: [
           { 
             role: 'system', 
-            content: 'You are an expert at creating educational flashcards. Generate exactly the requested number in valid JSON format only.' 
+            content: 'You are an expert at creating educational flashcards. Generate exactly the requested number in valid JSON format only. Focus on key concepts and make questions clear and educational.' 
           },
           { role: 'user', content: prompt }
         ],
         temperature: 0.3,
-        max_tokens: 800
+        max_tokens: 1000
       }),
       signal: controller.signal
     });
@@ -458,31 +515,46 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
     const generatedText = data.choices[0].message.content;
     
-    console.log('OpenAI response received');
+    console.log('✅ OpenAI response received');
+    console.log('Response preview:', generatedText.substring(0, 200) + '...');
     
     const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
+      console.error('No valid JSON found in response:', generatedText);
       throw new Error('Invalid JSON response from AI');
     }
     
-    const flashcards = JSON.parse(jsonMatch[0]);
+    let flashcards;
+    try {
+      flashcards = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Raw JSON:', jsonMatch[0]);
+      throw new Error('Failed to parse AI response as JSON');
+    }
     
-    return flashcards.filter((card: any) => 
+    const validFlashcards = flashcards.filter((card: any) => 
       card.front && card.back && 
       typeof card.front === 'string' && 
       typeof card.back === 'string' &&
-      card.front.length > 3 && 
-      card.back.length > 5
+      card.front.trim().length > 3 && 
+      card.back.trim().length > 5
     ).slice(0, targetFlashcards);
 
+    console.log(`✅ Generated ${validFlashcards.length} valid flashcards`);
+    
+    return validFlashcards;
+
   } catch (error) {
-    console.error('Error generating flashcards with AI:', error);
+    console.error('❌ Error generating flashcards with AI:', error);
     return generateFallbackFlashcards(fileName, fileType);
   }
 }

@@ -18,16 +18,23 @@ interface SaveToNotesData {
 export const useSaveToNotes = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingFlashcards, setIsGeneratingFlashcards] = useState(false);
   const [lastSavedNote, setLastSavedNote] = useState<any>(null);
+  const [flashcardGenerationError, setFlashcardGenerationError] = useState<string | null>(null);
   const { createNote } = useNotes();
   const { user } = useAuth();
   const { toast } = useToast();
 
   const openDialog = () => setIsDialogOpen(true);
-  const closeDialog = () => setIsDialogOpen(false);
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setFlashcardGenerationError(null);
+  };
 
   const saveToNotes = async (data: SaveToNotesData) => {
     setIsSaving(true);
+    setFlashcardGenerationError(null);
+    
     try {
       // Prepare metadata
       const metadata = {
@@ -54,12 +61,22 @@ export const useSaveToNotes = () => {
         generateFlashcards: data.generateFlashcards
       });
 
+      // Show note saved confirmation
+      toast({
+        title: "Note Saved",
+        description: "Your AI response has been saved to notes.",
+      });
+
       // Generate flashcards if requested
       if (data.generateFlashcards && user) {
+        setIsGeneratingFlashcards(true);
+        
         try {
-          console.log('Generating flashcards from AI Coach content...');
+          console.log('🎯 Starting flashcard generation for AI Coach content...');
+          console.log('Content length:', data.content.length);
+          console.log('Content preview:', data.content.substring(0, 100) + '...');
           
-          await supabase.functions.invoke('process-file-flashcards', {
+          const { data: result, error } = await supabase.functions.invoke('process-file-flashcards', {
             body: {
               content: data.content,
               title: data.title,
@@ -69,46 +86,51 @@ export const useSaveToNotes = () => {
             }
           });
           
-          toast({
-            title: "Saved to Notes",
-            description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment.",
-            action: (
-              <ToastAction
-                altText="View notes"
-                onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
-              >
-                View Notes
-              </ToastAction>
-            )
-          });
+          if (error) {
+            console.error('❌ Edge function error:', error);
+            throw new Error(`Flashcard generation failed: ${error.message}`);
+          }
+
+          console.log('✅ Flashcard generation result:', result);
+          
+          if (result?.flashcardsGenerated > 0) {
+            toast({
+              title: "🎉 Flashcards Created!",
+              description: `Generated ${result.flashcardsGenerated} flashcards from your AI response. Check your Flashcard Manager!`,
+              action: (
+                <ToastAction
+                  altText="View flashcards"
+                  onClick={() => window.location.href = '/dashboard/learner/flashcards'}
+                >
+                  View Flashcards
+                </ToastAction>
+              )
+            });
+          } else {
+            throw new Error('No flashcards were generated from the content');
+          }
+          
         } catch (error) {
-          console.error('Error generating flashcards:', error);
+          console.error('💥 Flashcard generation error:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          setFlashcardGenerationError(errorMessage);
+          
           toast({
-            title: "Saved to Notes",
-            description: "Note saved successfully, but flashcard generation failed.",
+            title: "⚠️ Flashcard Generation Failed",
+            description: `Note saved successfully, but flashcard generation failed: ${errorMessage}`,
+            variant: "destructive",
             action: (
               <ToastAction
-                altText="View notes"
-                onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
+                altText="Retry"
+                onClick={() => retryFlashcardGeneration(data)}
               >
-                View Notes
+                Retry
               </ToastAction>
             )
           });
+        } finally {
+          setIsGeneratingFlashcards(false);
         }
-      } else {
-        toast({
-          title: "Saved to Notes",
-          description: "AI response has been saved to your notes.",
-          action: (
-            <ToastAction
-              altText="View notes"
-              onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}
-            >
-              View Notes
-            </ToastAction>
-          )
-        });
       }
 
       closeDialog();
@@ -121,6 +143,53 @@ export const useSaveToNotes = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const retryFlashcardGeneration = async (data: SaveToNotesData) => {
+    if (!user || !data.generateFlashcards) return;
+    
+    setIsGeneratingFlashcards(true);
+    setFlashcardGenerationError(null);
+    
+    try {
+      console.log('🔄 Retrying flashcard generation...');
+      
+      const { data: result, error } = await supabase.functions.invoke('process-file-flashcards', {
+        body: {
+          content: data.content,
+          title: data.title,
+          source: 'ai-coach-note',
+          userId: user.id,
+          previewMode: false
+        }
+      });
+      
+      if (error) {
+        throw new Error(`Retry failed: ${error.message}`);
+      }
+
+      if (result?.flashcardsGenerated > 0) {
+        toast({
+          title: "✅ Flashcards Generated!",
+          description: `Successfully created ${result.flashcardsGenerated} flashcards on retry.`,
+        });
+      } else {
+        throw new Error('Retry generated no flashcards');
+      }
+      
+    } catch (error) {
+      console.error('Retry failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Retry failed';
+      setFlashcardGenerationError(errorMessage);
+      
+      toast({
+        title: "Retry Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingFlashcards(false);
     }
   };
 
@@ -163,12 +232,11 @@ export const useSaveToNotes = () => {
       commonTags.push('Test Prep');
     }
 
-    return commonTags.slice(0, 3); // Limit to 3 suggestions
+    return commonTags.slice(0, 3);
   };
 
   const generateTitle = (content: string, originalQuestion?: string): string => {
     if (originalQuestion && originalQuestion.length > 0) {
-      // Use the original question as base, clean it up
       let title = originalQuestion.replace(/^(what|how|why|when|where|who)\s+/i, '');
       title = title.charAt(0).toUpperCase() + title.slice(1);
       if (title.length > 60) {
@@ -177,7 +245,6 @@ export const useSaveToNotes = () => {
       return title;
     }
 
-    // Extract from content - take first meaningful sentence
     const sentences = content.split(/[.!?]+/);
     const firstSentence = sentences[0]?.trim();
     
@@ -195,10 +262,13 @@ export const useSaveToNotes = () => {
   return {
     isDialogOpen,
     isSaving,
+    isGeneratingFlashcards,
+    flashcardGenerationError,
     lastSavedNote,
     openDialog,
     closeDialog,
     saveToNotes,
+    retryFlashcardGeneration,
     undoSave,
     generateSuggestedTags,
     generateTitle

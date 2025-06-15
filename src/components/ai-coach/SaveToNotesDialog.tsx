@@ -13,7 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { X, Sparkles } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { X, Sparkles, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useSaveToNotes } from '@/hooks/useSaveToNotes';
 
 interface SaveToNotesDialogProps {
@@ -33,7 +34,15 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
   originalQuestion,
   aiMode
 }) => {
-  const { saveToNotes, isSaving, generateSuggestedTags, generateTitle } = useSaveToNotes();
+  const { 
+    saveToNotes, 
+    isSaving, 
+    isGeneratingFlashcards, 
+    flashcardGenerationError,
+    retryFlashcardGeneration,
+    generateSuggestedTags, 
+    generateTitle 
+  } = useSaveToNotes();
   
   const [title, setTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
@@ -49,7 +58,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
       setNoteContent(textToSave);
       setTitle(generateTitle(textToSave, originalQuestion));
       setTags(generateSuggestedTags(textToSave, originalQuestion));
-      setSaveFullResponse(!selectedText); // Default to selection if available
+      setSaveFullResponse(!selectedText);
     }
   }, [isOpen, content, selectedText, originalQuestion]);
 
@@ -84,14 +93,16 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
   };
 
   const handleSave = async () => {
-    await saveToNotes({
+    const saveData = {
       title,
       content: noteContent,
       tags,
       originalQuestion,
       aiMode,
       generateFlashcards
-    });
+    };
+
+    await saveToNotes(saveData);
   };
 
   const handleClose = () => {
@@ -105,6 +116,18 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
     setSaveFullResponse(true);
   };
 
+  const handleRetry = () => {
+    const saveData = {
+      title,
+      content: noteContent,
+      tags,
+      originalQuestion,
+      aiMode,
+      generateFlashcards: true
+    };
+    retryFlashcardGeneration(saveData);
+  };
+
   // Handler functions to properly convert CheckedState to boolean
   const handleSaveFullResponseChange = (checked: boolean | "indeterminate") => {
     setSaveFullResponse(checked === true);
@@ -114,6 +137,8 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
     setGenerateFlashcards(checked === true);
   };
 
+  const isProcessing = isSaving || isGeneratingFlashcards;
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -121,10 +146,39 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-600" />
             Save to Notes
+            {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Processing Status */}
+          {isGeneratingFlashcards && (
+            <Alert>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <AlertDescription>
+                Generating flashcards from your AI response... This may take a moment.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Error Display */}
+          {flashcardGenerationError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>Flashcard generation failed: {flashcardGenerationError}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  disabled={isProcessing}
+                >
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Toggle for full response vs selection */}
           {selectedText && (
             <div className="flex items-center space-x-2 p-3 bg-purple-50 rounded-lg">
@@ -132,6 +186,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
                 id="save-full"
                 checked={saveFullResponse}
                 onCheckedChange={handleSaveFullResponseChange}
+                disabled={isProcessing}
               />
               <Label htmlFor="save-full" className="text-sm">
                 Save full response (uncheck to save only selected text)
@@ -148,6 +203,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter note title..."
               className="w-full"
+              disabled={isProcessing}
             />
           </div>
 
@@ -160,6 +216,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
               onChange={(e) => setNoteContent(e.target.value)}
               placeholder="Note content..."
               className="min-h-[120px] max-h-[200px]"
+              disabled={isProcessing}
             />
             <p className="text-xs text-muted-foreground">
               {noteContent.length} characters
@@ -184,6 +241,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
                     onClick={() => handleRemoveTag(tag)}
                     className="ml-1 hover:bg-red-100 rounded-full p-0.5"
                     aria-label={`Remove ${tag} tag`}
+                    disabled={isProcessing}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -197,6 +255,7 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
               onKeyDown={handleTagInputKeyPress}
               placeholder="Add tags (press Enter or comma to add)..."
               className="w-full"
+              disabled={isProcessing}
             />
           </div>
 
@@ -206,9 +265,15 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
               id="generate-flashcards"
               checked={generateFlashcards}
               onCheckedChange={handleGenerateFlashcardsChange}
+              disabled={isProcessing}
             />
             <Label htmlFor="generate-flashcards" className="text-sm">
               Generate flashcards from this note
+              {generateFlashcards && (
+                <span className="block text-xs text-muted-foreground mt-1">
+                  AI will create study flashcards from the key concepts in your note
+                </span>
+              )}
             </Label>
           </div>
 
@@ -229,16 +294,23 @@ const SaveToNotesDialog: React.FC<SaveToNotesDialogProps> = ({
           <Button
             variant="outline"
             onClick={handleClose}
-            disabled={isSaving}
+            disabled={isProcessing}
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isSaving || !title.trim() || !noteContent.trim()}
+            disabled={isProcessing || !title.trim() || !noteContent.trim()}
             className="bg-purple-600 hover:bg-purple-700"
           >
-            {isSaving ? 'Saving...' : 'Save to Notes'}
+            {isProcessing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                {isSaving ? 'Saving...' : 'Generating...'}
+              </>
+            ) : (
+              'Save to Notes'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
