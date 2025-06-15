@@ -10,6 +10,11 @@ interface PerformanceMetrics {
   errors: string[];
 }
 
+// Declare gtag function if it exists
+declare global {
+  function gtag(...args: any[]): void;
+}
+
 export const usePDFPerformanceMonitoring = () => {
   const metricsRef = useRef<PerformanceMetrics>({
     loadStartTime: 0,
@@ -34,8 +39,8 @@ export const usePDFPerformanceMonitoring = () => {
     console.log(`✅ PDF loaded in ${metricsRef.current.totalLoadTime.toFixed(2)}ms`);
     
     // Log to analytics if available
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'pdf_load_time', {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as any).gtag('event', 'pdf_load_time', {
         custom_parameter_1: metricsRef.current.totalLoadTime,
         event_category: 'performance'
       });
@@ -53,8 +58,8 @@ export const usePDFPerformanceMonitoring = () => {
     console.error('❌ PDF Error recorded:', error);
     
     // Log to analytics if available
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'pdf_error', {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as any).gtag('event', 'pdf_error', {
         custom_parameter_1: error,
         event_category: 'errors'
       });

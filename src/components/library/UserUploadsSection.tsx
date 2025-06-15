@@ -15,7 +15,7 @@ import PDFUploadComponent from './PDFUploadComponent';
 type ViewMode = 'list' | 'grid';
 
 const UserUploadsSection: React.FC = () => {
-  const { userUploads, isLoadingUser, refetchUserUploads } = useUserUploadedBooks();
+  const { userUploads, isLoadingUserUploads } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
@@ -60,14 +60,13 @@ const UserUploadsSection: React.FC = () => {
   };
 
   const handleUploadSuccess = () => {
-    refetchUserUploads();
     toast({
       title: "Upload Successful",
       description: "Your PDF has been uploaded and is ready to read.",
     });
   };
 
-  if (isLoadingUser) {
+  if (isLoadingUserUploads) {
     return (
       <Card>
         <CardHeader>
@@ -118,7 +117,7 @@ const UserUploadsSection: React.FC = () => {
           
           <CollapsibleContent>
             <CardContent>
-              <PDFUploadComponent onUploadSuccess={handleUploadSuccess} />
+              <PDFUploadComponent />
               
               {userUploads.length === 0 ? (
                 <div className="text-center py-12">
@@ -153,15 +152,13 @@ const UserUploadsSection: React.FC = () => {
                   {/* Content based on view mode */}
                   {viewMode === 'list' ? (
                     <UserUploadsListView 
-                      books={userUploads} 
+                      uploads={userUploads} 
                       onView={handlePDFOpen}
-                      validatingPDF={validatingPDF}
                     />
                   ) : (
                     <UserUploadsGridView 
-                      books={userUploads} 
+                      uploads={userUploads} 
                       onView={handlePDFOpen}
-                      validatingPDF={validatingPDF}
                     />
                   )}
                 </div>
