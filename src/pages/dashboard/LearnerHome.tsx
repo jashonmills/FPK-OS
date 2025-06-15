@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +44,9 @@ import { useGoals } from '@/hooks/useGoals';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AIInsightsSection from '@/components/insights/AIInsightsSection';
+import APODCard from '@/components/dashboard/APODCard';
+import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
+import { featureFlagService } from '@/services/FeatureFlagService';
 
 const LearnerHome = () => {
   const navigate = useNavigate();
@@ -53,6 +55,10 @@ const LearnerHome = () => {
   const { goals, loading: goalsLoading, refetch } = useGoals();
   const { t } = useDualLanguage();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showAPODGallery, setShowAPODGallery] = useState(false);
+
+  // Check if NASA Image Explorer is enabled
+  const isNASAExplorerEnabled = featureFlagService.isEnabled('enableNASAImageExplorer');
 
   // Fetch user profile data for XP and streak - same as Goals page
   const { data: profileData } = useQuery({
@@ -244,6 +250,14 @@ const LearnerHome = () => {
         </DialogContent>
       </Dialog>
 
+      {/* APOD Gallery Modal */}
+      {isNASAExplorerEnabled && (
+        <APODGalleryModal
+          isOpen={showAPODGallery}
+          onClose={() => setShowAPODGallery(false)}
+        />
+      )}
+
       {/* Main Container - Optimized for mobile width */}
       <div className="px-2 py-2 md:p-4 lg:p-6 space-y-3 md:space-y-4 lg:space-y-6 w-full max-w-7xl mx-auto">
         {/* Profile Header - Mobile Optimized */}
@@ -278,6 +292,18 @@ const LearnerHome = () => {
             </div>
           </div>
         </div>
+
+        {/* NASA APOD Card Section - Conditionally Rendered */}
+        {isNASAExplorerEnabled && (
+          <div className="w-full">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
+              Discover Today's Astronomy
+            </h2>
+            <div className="max-w-sm">
+              <APODCard onOpenGallery={() => setShowAPODGallery(true)} />
+            </div>
+          </div>
+        )}
 
         {/* Quick Stats - Mobile Grid Optimized */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4">

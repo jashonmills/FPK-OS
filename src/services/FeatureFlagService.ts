@@ -1,4 +1,3 @@
-
 export interface FeatureFlag {
   id: string;
   name: string;
@@ -114,6 +113,14 @@ export class FeatureFlagService {
         description: 'Enable real-time updates for analytics',
         enabled: true,
         rolloutPercentage: 85
+      },
+      // NASA Image Explorer feature flag
+      {
+        id: 'enableNASAImageExplorer',
+        name: 'NASA Image Explorer',
+        description: 'Enable NASA Astronomy Picture of the Day integration',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 
