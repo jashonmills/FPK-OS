@@ -1,7 +1,7 @@
 
 import { QueryMode } from './types.ts';
 
-// Precise query classification based on explicit personal data references
+// Precise query classification with strict personal data detection
 export function detectQueryMode(message: string): QueryMode {
   const personalKeywords = [
     // Explicit personal possessive references
@@ -20,11 +20,14 @@ export function detectQueryMode(message: string): QueryMode {
   const lowerMessage = message.toLowerCase();
   
   // Check for explicit personal data references FIRST
-  if (personalKeywords.some(keyword => lowerMessage.includes(keyword))) {
+  const hasPersonalKeyword = personalKeywords.some(keyword => lowerMessage.includes(keyword));
+  
+  if (hasPersonalKeyword) {
+    console.log('🔍 Personal data query detected with keyword match');
     return 'personal';
   }
   
   // All other queries are general knowledge by default
-  // This includes: "What caused...", "Define...", "Explain...", "Who was...", etc.
+  console.log('🔍 General knowledge query detected - no personal keywords found');
   return 'general';
 }

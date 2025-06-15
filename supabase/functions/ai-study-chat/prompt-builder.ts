@@ -32,32 +32,27 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
   }
 
   // Strict execution protocol based on query mode
-  contextPrompt += `\n\n=== EXECUTION PROTOCOL ===`;
+  contextPrompt += `\n\n=== MANDATORY EXECUTION PROTOCOL ===`;
   
   if (queryMode === 'personal') {
     contextPrompt += `
-CLASSIFICATION: Personal-Data Query
-MANDATORY ACTIONS:
-1. IMMEDIATELY use appropriate personal data tool:
-   - get_recent_flashcards (for recent cards/study history)
-   - get_user_flashcards (for specific searches/filters)  
-   - get_study_stats (for performance/progress data)
-2. WAIT for tool response
-3. Use actual returned data in your response
-4. Be encouraging and offer specific next steps
+QUERY TYPE: Personal Data Request
+REQUIRED ACTION: You MUST immediately use personal data tools:
+- get_recent_flashcards: For recent cards/study history
+- get_user_flashcards: For specific searches/filters  
+- get_study_stats: For performance/progress data
 
-DO NOT give generic responses - use the tools available to you.`;
+DO NOT provide generic responses. USE THE TOOLS.`;
   } else {
     contextPrompt += `
-CLASSIFICATION: General-Knowledge Query
-MANDATORY ACTIONS:
-1. IMMEDIATELY use retrieve_knowledge tool with topic: "${message}"
-2. WAIT for external knowledge response
-3. Answer directly with source citation
-4. Offer to explore deeper aspects
+QUERY TYPE: General Knowledge Question
+REQUIRED ACTION: You MUST immediately use retrieve_knowledge tool with topic: "${message}"
+- Extract the core topic from the question
+- Call retrieve_knowledge with that topic
+- Wait for external knowledge response
+- Answer with source citation
 
-This is an academic/factual question that requires substantive information.
-DO NOT give generic responses - retrieve actual knowledge.`;
+DO NOT provide generic responses. USE THE RETRIEVE_KNOWLEDGE TOOL.`;
   }
 
   // Add voice optimization if needed
@@ -69,7 +64,7 @@ DO NOT give generic responses - retrieve actual knowledge.`;
   contextPrompt += `\n\nStudent's question: "${message}"`;
   
   // Final execution reminder
-  contextPrompt += `\n\nREMEMBER: You MUST use the specified tools above. No generic fallback responses allowed.`;
+  contextPrompt += `\n\nCRITICAL: You MUST use the specified tools above. Generic responses are FORBIDDEN.`;
 
   return contextPrompt;
 }

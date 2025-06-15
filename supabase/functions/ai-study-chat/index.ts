@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, SYSTEM_PROMPT } from './constants.ts';
@@ -65,7 +64,7 @@ serve(async (req) => {
     // Initial call to Claude
     const messages = [{
       role: 'user',
-      content: SYSTEM_PROMPT + contextPrompt
+      content: contextPrompt
     }];
 
     const data = await callClaude(messages);
@@ -78,15 +77,12 @@ serve(async (req) => {
 
     // Check if Claude wants to use tools
     if (data.stop_reason === 'tool_use') {
-      const toolResultsContent = await handleToolCalls(data, userId);
+      const toolResults = await handleToolCalls(data, userId);
       
-      if (toolResultsContent) {
+      if (toolResults.length > 0) {
         console.log('🔄 Sending tool results back to Claude...');
 
-        // Parse the tool results correctly
-        const toolResults = JSON.parse(toolResultsContent);
-
-        // Send tool results back to Claude for final response with proper message structure
+        // Send tool results back to Claude for final response with correct message structure
         const finalMessages = [
           ...messages,
           {
