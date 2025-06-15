@@ -32,14 +32,14 @@ export const useAddPublicDomainBook = () => {
       // Generate a unique ID and create book record
       const bookId = `openlibrary-${bookData.openlibrary_key.replace('/works/', '')}`;
       
-      const newBook: Partial<PublicDomainBook> = {
+      const newBook = {
         id: bookId,
         title: bookData.title,
         author: bookData.author,
         subjects: ['literature', 'public domain'],
         cover_url: bookData.cover_i 
           ? `https://covers.openlibrary.org/b/id/${bookData.cover_i}-L.jpg`
-          : undefined,
+          : null,
         epub_url: `https://openlibrary.org${bookData.openlibrary_key}`, // Placeholder for now
         gutenberg_id: Math.floor(Math.random() * 999999) + 100000, // Generate pseudo-ID
         description: `Added from OpenLibrary. First published: ${bookData.first_publish_year || 'Unknown'}`,
