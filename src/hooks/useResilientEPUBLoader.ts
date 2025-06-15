@@ -13,7 +13,7 @@ export interface ResilientEPUBProgress {
 }
 
 export interface ResilientEPUBError {
-  type: 'network' | 'timeout' | 'parsing' | 'all_urls_failed';
+  type: 'network' | 'timeout' | 'parsing' | 'unknown';
   message: string;
   recoverable: boolean;
   retryCount: number;
@@ -199,11 +199,21 @@ export const useResilientEPUBLoader = (book: PublicDomainBook) => {
       
       const errorMessage = err instanceof Error ? err.message : String(err);
       
+      // Map the error type to compatible types
+      let errorType: 'network' | 'timeout' | 'parsing' | 'unknown' = 'unknown';
+      if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
+        errorType = 'timeout';
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        errorType = 'network';
+      } else if (errorMessage.includes('parse') || errorMessage.includes('Parse')) {
+        errorType = 'parsing';
+      }
+      
       setError({
-        type: failedUrlsRef.current.length > 0 ? 'all_urls_failed' : 'network',
+        type: errorType,
         message: `Unable to load "${book.title}". ${errorMessage}`,
         recoverable: true,
-        retryCount: retryCountRef.current, // Include retry count
+        retryCount: retryCountRef.current,
         failedUrls: [...failedUrlsRef.current],
         lastAttemptUrl: failedUrlsRef.current[failedUrlsRef.current.length - 1]
       });

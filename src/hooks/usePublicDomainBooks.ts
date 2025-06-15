@@ -44,13 +44,14 @@ export const usePublicDomainBooks = (limit?: number) => {
           epub_url: book.epub_url || `https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`
         };
 
-        // Add backup URLs for Project Gutenberg books
+        // Add backup URLs for Project Gutenberg books (not from database, generated here)
         if (book.gutenberg_id && !book.storage_url) {
-          processedBook.backup_urls = [
+          const backupUrls = [
             `https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`,
             `https://www.gutenberg.org/cache/epub/${book.gutenberg_id}/pg${book.gutenberg_id}.epub`,
             `https://www.gutenberg.org/files/${book.gutenberg_id}/${book.gutenberg_id}-0.epub`
           ];
+          processedBook.backup_urls = backupUrls;
         }
 
         return processedBook;
