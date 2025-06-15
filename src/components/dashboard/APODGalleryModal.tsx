@@ -64,15 +64,11 @@ const APODGalleryModal: React.FC<APODGalleryModalProps> = ({
           break;
         case 'ArrowLeft':
           event.preventDefault();
-          setCurrentIndex(prev => 
-            apods && prev > 0 ? prev - 1 : (apods?.length || 1) - 1
-          );
+          prevImage();
           break;
         case 'ArrowRight':
           event.preventDefault();
-          setCurrentIndex(prev => 
-            apods && prev < (apods.length - 1) ? prev + 1 : 0
-          );
+          nextImage();
           break;
       }
     };
@@ -84,15 +80,13 @@ const APODGalleryModal: React.FC<APODGalleryModalProps> = ({
   const currentAPOD = apods?.[currentIndex];
 
   const nextImage = () => {
-    setCurrentIndex(prev => 
-      apods && prev < (apods.length - 1) ? prev + 1 : 0
-    );
+    if (!apods || apods.length === 0) return;
+    setCurrentIndex(prev => prev < (apods.length - 1) ? prev + 1 : 0);
   };
 
   const prevImage = () => {
-    setCurrentIndex(prev => 
-      apods && prev > 0 ? prev - 1 : (apods?.length || 1) - 1
-    );
+    if (!apods || apods.length === 0) return;
+    setCurrentIndex(prev => prev > 0 ? prev - 1 : (apods.length - 1));
   };
 
   const renderMediaContent = (apod: APODData) => {
