@@ -7,6 +7,7 @@ import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useStudyInsights } from '@/hooks/useStudyInsights';
 import { useProactiveCoaching } from '@/hooks/useProactiveCoaching';
+import { featureFlagService } from '@/services/FeatureFlagService';
 import ChatInterface from '@/components/ai-coach/ChatInterface';
 import FileUploadCard from '@/components/ai-coach/FileUploadCard';
 import StudyPlanCard from '@/components/ai-coach/StudyPlanCard';
@@ -14,6 +15,7 @@ import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
 import LearningStatsCard from '@/components/ai-coach/LearningStatsCard';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
+import { cn } from '@/lib/utils';
 
 const AIStudyCoach = () => {
   const { user } = useAuth();
@@ -23,6 +25,8 @@ const AIStudyCoach = () => {
 
   // Enable proactive coaching
   useProactiveCoaching();
+
+  const fixedHeightEnabled = featureFlagService.isEnabled('aiCoachFixedHeight');
 
   // Calculate live stats
   const completedSessions = sessions?.filter(s => s.completed_at) || [];
@@ -40,9 +44,12 @@ const AIStudyCoach = () => {
   const quickChallenges = generateQuickChallenges(flashcards, completedSessions);
 
   return (
-    <div className="responsive-container responsive-spacing min-h-screen overflow-x-hidden">
+    <div className={cn(
+      "responsive-container responsive-spacing min-h-screen overflow-x-hidden",
+      fixedHeightEnabled && "h-screen flex flex-col"
+    )}>
       {/* Header Section - Fully Responsive */}
-      <div className="text-center responsive-spacing max-w-full">
+      <div className="text-center responsive-spacing max-w-full flex-shrink-0">
         <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
           AI Learning Coach
         </h1>
@@ -67,7 +74,7 @@ const AIStudyCoach = () => {
       </div>
 
       {/* AI Coach Status Card - Enhanced Mobile Layout */}
-      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 w-full overflow-hidden">
+      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 w-full overflow-hidden flex-shrink-0">
         <CardContent className="responsive-card-padding">
           <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -101,22 +108,31 @@ const AIStudyCoach = () => {
       </Card>
 
       {/* Quick Study Challenges - Mobile Optimized */}
-      <QuickChallengesCard challenges={quickChallenges} />
+      <div className="flex-shrink-0">
+        <QuickChallengesCard challenges={quickChallenges} />
+      </div>
 
       {/* Main Content Layout - Responsive Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full overflow-hidden">
+      <div className={cn(
+        "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full overflow-hidden",
+        fixedHeightEnabled ? "flex-1 min-h-0" : ""
+      )}>
         {/* Chat Interface - Takes 2/3 on desktop, full width on mobile */}
-        <div className="lg:col-span-2 min-w-0 w-full">
+        <div className={cn(
+          "lg:col-span-2 min-w-0 w-full",
+          fixedHeightEnabled && "flex flex-col min-h-0"
+        )}>
           <ChatInterface
             user={user}
             completedSessions={completedSessions}
             flashcards={flashcards}
             insights={insights}
+            fixedHeight={fixedHeightEnabled}
           />
         </div>
 
         {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
-        <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full">
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full flex-shrink-0">
           <VoiceSettingsCard />
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />

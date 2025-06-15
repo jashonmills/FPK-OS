@@ -19,6 +19,7 @@ interface ChatInterfaceProps {
   completedSessions: any[];
   flashcards: any[];
   insights: any;
+  fixedHeight?: boolean;
 }
 
 interface ChatMessage {
@@ -28,7 +29,7 @@ interface ChatMessage {
   timestamp: string;
 }
 
-const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatInterfaceProps) => {
+const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHeight = false }: ChatInterfaceProps) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -278,10 +279,13 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
   };
 
   return (
-    <Card className="h-full flex flex-col bg-gradient-to-br from-white to-purple-50/30">
-      <CardContent className="p-0 flex-1 flex flex-col">
+    <Card className={cn(
+      "bg-gradient-to-br from-white to-purple-50/30",
+      fixedHeight ? "h-full flex flex-col" : "h-full flex flex-col"
+    )}>
+      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="p-3 sm:p-4 border-b flex items-center justify-between">
+        <div className="p-3 sm:p-4 border-b flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-600" />
             <h2 className="font-semibold text-lg">AI Learning Coach</h2>
@@ -314,8 +318,11 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
           </div>
         </div>
 
-        {/* Messages Area - Now using ChatMessagesPane */}
-        <div className="flex-1 overflow-hidden">
+        {/* Messages Area - Now constrained when fixedHeight is true */}
+        <div className={cn(
+          "flex-1 overflow-hidden",
+          fixedHeight && "min-h-0"
+        )}>
           {/* Quiz Session Widget */}
           {sessionState.isActive && (
             <div className="p-3 sm:p-4">
@@ -328,18 +335,23 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
 
           {/* Chat Messages using ChatMessagesPane */}
           {!sessionState.isActive && (
-            <ChatMessagesPane
-              messages={messages}
-              isLoading={false}
-              isSending={isSending}
-              messagesEndRef={messagesEndRef}
-            />
+            <div className={cn(
+              fixedHeight ? "h-full" : "flex-1"
+            )}>
+              <ChatMessagesPane
+                messages={messages}
+                isLoading={false}
+                isSending={isSending}
+                messagesEndRef={messagesEndRef}
+                fixedHeight={fixedHeight}
+              />
+            </div>
           )}
         </div>
 
         {/* Input Area */}
         {!sessionState.isActive && (
-          <div className="border-t p-3 sm:p-4 bg-background/80 backdrop-blur-sm">
+          <div className="border-t p-3 sm:p-4 bg-background/80 backdrop-blur-sm flex-shrink-0">
             {/* Voice Recording Status */}
             {(isRecording || isProcessing) && (
               <div className="mb-3 p-2 bg-purple-50 rounded-lg border border-purple-200">

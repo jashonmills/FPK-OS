@@ -25,6 +25,7 @@ interface ChatMessagesPaneProps {
   isWidget?: boolean;
   onDeleteMessage?: (messageId: string) => void;
   showDeleteButtons?: boolean;
+  fixedHeight?: boolean;
 }
 
 const ChatMessagesPane = ({ 
@@ -34,7 +35,8 @@ const ChatMessagesPane = ({
   messagesEndRef,
   isWidget = false,
   onDeleteMessage,
-  showDeleteButtons = false
+  showDeleteButtons = false,
+  fixedHeight = false
 }: ChatMessagesPaneProps) => {
   const { speak, stop, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
@@ -150,7 +152,10 @@ const ChatMessagesPane = ({
   }
 
   return (
-    <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
+    <ScrollArea className={cn(
+      "p-2 sm:p-3 md:p-4",
+      fixedHeight ? "h-full" : "flex-1"
+    )}>
       <div ref={messagesContainerRef} className="space-y-2 sm:space-y-3 md:space-y-4">
         {messages.map((message) => {
           // Find the corresponding user question for context

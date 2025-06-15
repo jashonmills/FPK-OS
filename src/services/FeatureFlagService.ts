@@ -169,6 +169,14 @@ export class FeatureFlagService {
         description: 'Enable per-message deletion and clear chat functionality in widget chat with separate histories',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // AI Coach Fixed Height feature flag
+      {
+        id: 'aiCoachFixedHeight',
+        name: 'AI Coach Fixed Height Chat',
+        description: 'Constrain AI Coach chat to fixed height with internal scrolling to prevent page expansion',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 
