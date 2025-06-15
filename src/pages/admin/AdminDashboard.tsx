@@ -4,7 +4,7 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, BookOpen, Upload, Settings, BarChart3 } from 'lucide-react';
+import { Users, BookOpen, Upload, Settings, BarChart3, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PopulateApprovedBooks from '@/components/admin/PopulateApprovedBooks';
 import CommunityBooksApproval from '@/components/admin/CommunityBooksApproval';
@@ -36,6 +36,13 @@ const AdminDashboard = () => {
       badge: "Beta"
     },
     {
+      title: "Threshold Management",
+      description: "Configure anomaly detection and thresholds",
+      icon: AlertTriangle,
+      href: "/dashboard/admin/thresholds",
+      badge: "Enterprise"
+    },
+    {
       title: "Module Manager",
       description: "Manage course modules and content",
       icon: Upload,
@@ -58,7 +65,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {adminCards.map((card) => {
             const Icon = card.icon;
             return (

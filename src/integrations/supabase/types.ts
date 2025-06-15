@@ -1045,6 +1045,86 @@ export type Database = {
         }
         Relationships: []
       }
+      threshold_audit_log: {
+        Row: {
+          action: string
+          changes: Json
+          id: string
+          threshold_id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          changes?: Json
+          id?: string
+          threshold_id: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          changes?: Json
+          id?: string
+          threshold_id?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "threshold_audit_log_threshold_id_fkey"
+            columns: ["threshold_id"]
+            isOneToOne: false
+            referencedRelation: "threshold_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      threshold_configs: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          lower_threshold: number
+          metric_name: string
+          risk_level: string
+          status: string
+          time_window: string
+          updated_at: string
+          upper_threshold: number
+          user_segment: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          lower_threshold: number
+          metric_name: string
+          risk_level?: string
+          status?: string
+          time_window: string
+          updated_at?: string
+          upper_threshold: number
+          user_segment?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          lower_threshold?: number
+          metric_name?: string
+          risk_level?: string
+          status?: string
+          time_window?: string
+          updated_at?: string
+          upper_threshold?: number
+          user_segment?: string | null
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           awarded_at: string
@@ -1162,6 +1242,33 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_segments: {
+        Row: {
+          created_at: string
+          criteria: Json
+          description: string
+          id: string
+          name: string
+          user_count: number
+        }
+        Insert: {
+          created_at?: string
+          criteria?: Json
+          description: string
+          id?: string
+          name: string
+          user_count?: number
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          description?: string
+          id?: string
+          name?: string
+          user_count?: number
         }
         Relationships: []
       }
