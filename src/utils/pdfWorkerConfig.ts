@@ -37,14 +37,20 @@ export const initializePDFWorker = async (): Promise<boolean> => {
     try {
       console.log(`🧪 Testing PDF worker: ${workerUrl}`);
       
-      // Test URL accessibility
+      // Test URL accessibility with proper timeout handling
       if (workerUrl.startsWith('http')) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+
           const response = await fetch(workerUrl, { 
             method: 'HEAD', 
             mode: 'cors',
-            timeout: 3000 
+            signal: controller.signal
           });
+
+          clearTimeout(timeoutId);
+
           if (!response.ok) {
             console.warn(`❌ Worker URL not accessible: ${workerUrl} (${response.status})`);
             continue;
