@@ -25,7 +25,7 @@ export interface StreamingEPUBError {
 }
 
 export const useStreamingProgressConverter = () => {
-  // Convert streaming progress to legacy format
+  // Convert EPUBStreamingProgress to StreamingEPUBProgress format
   const convertProgress = useCallback((streamingProgress: EPUBStreamingProgress): StreamingEPUBProgress => {
     let stage: StreamingEPUBProgress['stage'] = 'streaming';
     
@@ -63,7 +63,7 @@ export const useStreamingProgressConverter = () => {
     };
   }, []);
 
-  // Convert streaming error to legacy format
+  // Convert EPUBStreamingError to StreamingEPUBError format
   const convertError = useCallback((streamingError: EPUBStreamingError): StreamingEPUBError => {
     let type: StreamingEPUBError['type'] = 'unknown';
     
