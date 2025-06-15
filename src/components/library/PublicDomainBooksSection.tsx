@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAccessibility } from '@/hooks/useAccessibility';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
-import OpenLibrarySearchBar from './OpenLibrarySearchBar';
 import VirtualizedBookList from './VirtualizedBookList';
 import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertCircle, Zap, TrendingUp } from 'lucide-react';
+import PerformanceMetricsDashboard from './PerformanceMetricsDashboard';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorHandler from './ErrorHandler';
+import LoadMoreSection from './LoadMoreSection';
+import LibraryHeader from './LibraryHeader';
 import { performanceService } from '@/services/PerformanceOptimizationService';
 import { browsingPatternsAnalyzer } from '@/services/BrowsingPatternsAnalyzer';
 
@@ -86,10 +87,6 @@ const PublicDomainBooksSection: React.FC = () => {
     setLoadLimit(prev => prev + LOAD_MORE_AMOUNT);
   };
 
-  const handleRetry = () => {
-    refetch();
-  };
-
   // Transform books into the format expected by BookCarousel
   const carouselBooks = books.map(book => ({
     id: book.id,
@@ -108,86 +105,22 @@ const PublicDomainBooksSection: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Phase 4 Performance & Analytics Dashboard */}
-      {(performanceMetrics || browsingAnalytics) && (
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="h-5 w-5 text-green-600" />
-            <h3 className="font-semibold text-green-800">Phase 4: Search & UX Optimizations Active</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            {performanceMetrics && (
-              <>
-                <div className="text-green-700">
-                  <span className="font-medium">Search Index:</span> {performanceMetrics.prefetchedBooksCount} books
-                </div>
-                <div className="text-green-700">
-                  <span className="font-medium">Instant Search:</span> Enabled
-                </div>
-              </>
-            )}
-            
-            {browsingAnalytics && (
-              <>
-                <div className="text-blue-700">
-                  <span className="font-medium">Session Events:</span> {browsingAnalytics.currentSession.eventCount}
-                </div>
-                <div className="text-blue-700">
-                  <span className="font-medium">Smart Prefetch:</span> {prefetchSuggestions.length} books
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Browsing Patterns */}
-          {browsingAnalytics?.currentSession?.patterns?.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-green-200">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">Detected Patterns:</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {browsingAnalytics.currentSession.patterns.map((pattern: string, index: number) => (
-                  <span 
-                    key={index}
-                    className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
-                  >
-                    {pattern.replace(':', ': ')}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      <PerformanceMetricsDashboard
+        performanceMetrics={performanceMetrics}
+        browsingAnalytics={browsingAnalytics}
+        prefetchSuggestions={prefetchSuggestions}
+      />
 
       {/* Search Bar */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Public Domain Collection</h2>
-        <p className="text-muted-foreground mb-6">
-          Enhanced with instant search, smart suggestions, and intelligent prefetching
-        </p>
-        <OpenLibrarySearchBar />
-      </div>
+      <LibraryHeader />
 
       {/* Error handling with retry */}
       {error && (
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-            <h3 className="font-semibold text-destructive">Loading Error</h3>
-          </div>
-          <p className="text-sm text-destructive mb-3">{error}</p>
-          {retryCount > 0 && (
-            <p className="text-xs text-muted-foreground mb-3">
-              Retry attempt: {retryCount}/3
-            </p>
-          )}
-          <Button onClick={handleRetry} variant="outline" size="sm" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Try Again
-          </Button>
-        </div>
+        <ErrorHandler
+          error={error}
+          retryCount={retryCount}
+          onRetry={refetch}
+        />
       )}
 
       {/* Temporary Ingestion Trigger - Remove after books are added */}
@@ -199,14 +132,7 @@ const PublicDomainBooksSection: React.FC = () => {
 
       {/* Loading indicator for initial load */}
       {isLoading && books.length === 0 && (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="text-muted-foreground">
-              Loading books with Phase 4 optimizations...
-            </span>
-          </div>
-        </div>
+        <LoadingIndicator />
       )}
 
       {/* Enhanced Virtualized List with Instant Search */}
@@ -228,30 +154,13 @@ const PublicDomainBooksSection: React.FC = () => {
           </div>
           
           {/* Load More Button */}
-          {hasMore && (
-            <div className="text-center">
-              <Button 
-                onClick={handleLoadMore} 
-                variant="outline" 
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Loading more books...
-                  </>
-                ) : (
-                  <>
-                    Load {LOAD_MORE_AMOUNT} More Books
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                Showing {books.length} books. Smart prefetching and instant search enabled.
-              </p>
-            </div>
-          )}
+          <LoadMoreSection
+            hasMore={hasMore}
+            isLoading={isLoading}
+            onLoadMore={handleLoadMore}
+            booksCount={books.length}
+            loadMoreAmount={LOAD_MORE_AMOUNT}
+          />
         </>
       )}
 
