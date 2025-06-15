@@ -83,7 +83,10 @@ serve(async (req) => {
       if (toolResultsContent) {
         console.log('🔄 Sending tool results back to Claude...');
 
-        // Send tool results back to Claude for final response
+        // Parse the tool results correctly
+        const toolResults = JSON.parse(toolResultsContent);
+
+        // Send tool results back to Claude for final response with proper message structure
         const finalMessages = [
           ...messages,
           {
@@ -92,7 +95,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: JSON.parse(toolResultsContent)
+            content: toolResults
           }
         ];
 
