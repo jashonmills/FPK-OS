@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SaveToNotesData {
@@ -17,6 +18,7 @@ export const useSaveToNotes = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedNote, setLastSavedNote] = useState<any>(null);
   const { createNote } = useNotes();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const openDialog = () => setIsDialogOpen(true);
@@ -51,31 +53,47 @@ export const useSaveToNotes = () => {
       });
 
       // Generate flashcards if requested
-      if (data.generateFlashcards) {
+      if (data.generateFlashcards && user) {
         try {
+          console.log('Generating flashcards from AI Coach content...');
+          
           await supabase.functions.invoke('process-file-flashcards', {
             body: {
               content: data.content,
               title: data.title,
-              source: 'ai-coach-note'
+              source: 'ai-coach-note',
+              userId: user.id,
+              previewMode: false // Save directly to database
             }
           });
           
           toast({
             title: "Saved to Notes",
-            description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment."
+            description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment.",
+            action: {
+              label: "View Notes",
+              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+            }
           });
         } catch (error) {
           console.error('Error generating flashcards:', error);
           toast({
             title: "Saved to Notes",
-            description: "Note saved successfully, but flashcard generation failed."
+            description: "Note saved successfully, but flashcard generation failed.",
+            action: {
+              label: "View Notes",
+              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+            }
           });
         }
       } else {
         toast({
           title: "Saved to Notes",
-          description: "AI response has been saved to your notes. Click 'View Notes' to see it.",
+          description: "AI response has been saved to your notes.",
+          action: {
+            label: "View Notes",
+            onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
+          }
         });
       }
 

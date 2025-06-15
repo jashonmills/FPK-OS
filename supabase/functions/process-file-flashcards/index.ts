@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -14,13 +15,17 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface ProcessFileRequest {
-  uploadId: string;
-  filePath: string;
-  fileName: string;
-  fileType: string;
-  userId: string;
+  uploadId?: string;
+  filePath?: string;
+  fileName?: string;
+  fileType?: string;
+  userId?: string;
   previewMode?: boolean;
-  fetchOnly?: boolean; // New flag for just fetching existing cards
+  fetchOnly?: boolean;
+  // New properties for AI Coach content
+  content?: string;
+  title?: string;
+  source?: string;
 }
 
 serve(async (req) => {
@@ -29,17 +34,101 @@ serve(async (req) => {
   }
 
   try {
-    const { uploadId, filePath, fileName, fileType, userId, previewMode = true, fetchOnly = false }: ProcessFileRequest = await req.json();
+    const requestData: ProcessFileRequest = await req.json();
+    const { 
+      uploadId, 
+      filePath, 
+      fileName, 
+      fileType, 
+      userId, 
+      previewMode = true, 
+      fetchOnly = false,
+      content,
+      title,
+      source
+    } = requestData;
     
-    console.log('Processing file request:', { uploadId, fileName, fileType, previewMode, fetchOnly });
+    console.log('Processing request:', { 
+      uploadId, 
+      fileName, 
+      fileType, 
+      previewMode, 
+      fetchOnly, 
+      source,
+      hasContent: !!content,
+      contentLength: content?.length || 0
+    });
+
+    // Handle AI Coach content directly
+    if (source === 'ai-coach-note' && content && title) {
+      console.log('Processing AI Coach content for flashcard generation');
+      
+      try {
+        const flashcards = await generateFlashcardsWithAI(content, title, 'ai-coach-content');
+        
+        console.log(`Generated ${flashcards.length} flashcards from AI Coach content`);
+        
+        // In preview mode, return flashcards without saving to database
+        if (previewMode) {
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              flashcardsGenerated: flashcards.length,
+              flashcards: flashcards,
+              previewMode: true,
+              source: 'ai-coach'
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        } else {
+          // Save directly to database if not preview mode
+          if (!userId) {
+            throw new Error('User ID is required for saving flashcards');
+          }
+
+          const flashcardInserts = flashcards.map(card => ({
+            user_id: userId,
+            front_content: card.front,
+            back_content: card.back,
+            difficulty_level: card.difficulty || 1
+          }));
+
+          const { data: insertedCards, error: insertError } = await supabase
+            .from('flashcards')
+            .insert(flashcardInserts)
+            .select();
+
+          if (insertError) {
+            console.error('Error inserting flashcards:', insertError);
+            throw new Error(`Failed to save flashcards: ${insertError.message}`);
+          }
+
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              flashcardsGenerated: insertedCards?.length || 0,
+              flashcards: insertedCards,
+              previewMode: false,
+              source: 'ai-coach'
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      } catch (error) {
+        console.error('Error processing AI Coach content:', error);
+        throw new Error(`Failed to process AI Coach content: ${error.message}`);
+      }
+    }
 
     // If fetchOnly, just return any stored flashcard data
     if (fetchOnly) {
       console.log('Fetch-only mode: retrieving stored flashcards for upload:', uploadId);
       
-      // For now, we'll generate sample cards since we don't store them in DB in preview mode
-      // In a production app, you might store them temporarily or generate them again
-      const sampleCards = generateFallbackFlashcards(fileName, fileType);
+      const sampleCards = generateFallbackFlashcards(fileName || 'Unknown', fileType || 'text');
       
       return new Response(
         JSON.stringify({ 
@@ -53,6 +142,11 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
+    }
+
+    // Handle regular file processing
+    if (!uploadId || !filePath || !fileName || !fileType) {
+      throw new Error('Missing required parameters for file processing');
     }
 
     // Update status to processing immediately
@@ -210,7 +304,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in process-file-flashcards function:', error);
     
-    // Update upload record with error status
+    // Update upload record with error status if uploadId exists
     try {
       const body = await req.clone().json();
       if (body.uploadId) {
@@ -317,16 +411,25 @@ async function generateFlashcardsWithAI(textContent: string, fileName: string, f
   
   if (contentLength > 1500) targetFlashcards = targetCount || 8;
   if (contentLength > 3000) targetFlashcards = targetCount || 10;
-  
-  const prompt = `Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}" content.
 
-Content: ${textContent.substring(0, 1500)}
+  // Special handling for AI Coach content
+  const isAICoachContent = fileType === 'ai-coach-content';
+  const promptPrefix = isAICoachContent 
+    ? `Create exactly ${targetFlashcards} high-quality study flashcards from this AI Learning Coach response: "${fileName}"`
+    : `Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}" content.`;
 
-Generate diverse flashcards covering key concepts, definitions, and important details. Make them clear and educational.
+  const prompt = `${promptPrefix}
+
+Content: ${textContent.substring(0, 2000)}
+
+${isAICoachContent 
+  ? 'Focus on key concepts, insights, and actionable learning points from this AI coaching response.' 
+  : 'Generate diverse flashcards covering key concepts, definitions, and important details.'
+} Make them clear and educational.
 Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1-3}]`;
 
   try {
-    console.log('Calling OpenAI API...');
+    console.log('Calling OpenAI API for flashcard generation...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
@@ -385,6 +488,33 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
 }
 
 function generateFallbackFlashcards(fileName: string, fileType: string) {
+  const isAICoach = fileType === 'ai-coach-content';
+  
+  if (isAICoach) {
+    return [
+      {
+        front: `What was the main insight from this AI coaching session?`,
+        back: `This session provided personalized learning guidance and strategies tailored to your specific needs and progress.`,
+        difficulty: 1
+      },
+      {
+        front: `What learning strategy was recommended in this session?`,
+        back: `The AI coach provided specific recommendations based on your learning patterns and performance data.`,
+        difficulty: 2
+      },
+      {
+        front: `How can you apply the concepts from this AI coaching session?`,
+        back: `The concepts can be applied through consistent practice, implementing suggested study techniques, and tracking progress over time.`,
+        difficulty: 2
+      },
+      {
+        front: `What key learning principle was emphasized in this session?`,
+        back: `The session focused on data-driven learning approaches and personalized study methods for improved retention and understanding.`,
+        difficulty: 1
+      }
+    ];
+  }
+
   return [
     {
       front: `What is the main subject of ${fileName}?`,

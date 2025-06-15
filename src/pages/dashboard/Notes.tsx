@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import DualLanguageText from '@/components/DualLanguageText';
 import NotesSection from '@/components/notes/NotesSection';
@@ -7,9 +8,35 @@ import FlashcardsSection from '@/components/notes/FlashcardsSection';
 import FileUploadSection from '@/components/notes/FileUploadSection';
 import ProgressSection from '@/components/notes/ProgressSection';
 import FlashcardPreviewModule from '@/components/notes/FlashcardPreviewModule';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Notes = () => {
   const { getAccessibilityClasses } = useAccessibility();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState('all');
+
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const filter = searchParams.get('filter');
+    const noteId = searchParams.get('noteId');
+    
+    if (filter === 'ai-insights') {
+      setActiveTab('ai-insights');
+    } else if (noteId) {
+      setActiveTab('all');
+      // Note ID will be handled by NotesSection component
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without noteId when switching tabs
+    const newParams = new URLSearchParams();
+    if (value === 'ai-insights') {
+      newParams.set('filter', 'ai-insights');
+    }
+    setSearchParams(newParams);
+  };
 
   return (
     <div className={`p-3 sm:p-6 space-y-4 sm:space-y-6 ${getAccessibilityClasses('container')}`}>
@@ -31,20 +58,68 @@ const Notes = () => {
       {/* Flashcard Preview Module - Always visible when there are preview cards */}
       <FlashcardPreviewModule />
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Left Column */}
-        <div className="space-y-4 sm:space-y-6">
-          <NotesSection />
-          <FileUploadSection />
-        </div>
+      {/* Notes Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="all">All Notes</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="study">Study Notes</TabsTrigger>
+        </TabsList>
 
-        {/* Right Column */}
-        <div className="space-y-4 sm:space-y-6">
-          <FlashcardsSection />
-          <ProgressSection />
-        </div>
-      </div>
+        <TabsContent value="all" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Left Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <NotesSection filterCategory={null} highlightNoteId={searchParams.get('noteId')} />
+              <FileUploadSection />
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <FlashcardsSection />
+              <ProgressSection />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ai-insights" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Left Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <NotesSection filterCategory="ai-insights" highlightNoteId={searchParams.get('noteId')} />
+              <div className="text-center p-6 bg-purple-50 rounded-lg border border-purple-200">
+                <h3 className="text-lg font-semibold text-purple-900 mb-2">AI Learning Coach Insights</h3>
+                <p className="text-sm text-purple-700">
+                  Notes saved from your AI Learning Coach conversations appear here. 
+                  These insights are automatically tagged for easy organization.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <FlashcardsSection />
+              <ProgressSection />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="study" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Left Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <NotesSection filterCategory="study" highlightNoteId={null} />
+              <FileUploadSection />
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4 sm:space-y-6">
+              <FlashcardsSection />
+              <ProgressSection />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
