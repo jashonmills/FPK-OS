@@ -32,6 +32,7 @@ import ModuleManagerPage from '@/pages/admin/ModuleManagerPage';
 import UserManagement from '@/pages/admin/UserManagement';
 import Analytics from '@/pages/admin/Analytics';
 import ThresholdManagementPage from '@/pages/admin/ThresholdManagement';
+import EPUBIngestionManager from '@/components/admin/EPUBIngestionManager';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -66,11 +67,14 @@ function App() {
                       <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
                       
                       <Route path="admin" element={<AdminDashboard />} />
+                      <Route path="admin/course-manager" element={<CourseManager />} />
                       <Route path="admin/courses" element={<CourseManager />} />
                       <Route path="admin/modules" element={<ModuleManagerPage />} />
+                      <Route path="admin/user-management" element={<UserManagement />} />
                       <Route path="admin/users" element={<UserManagement />} />
                       <Route path="admin/analytics" element={<Analytics />} />
                       <Route path="admin/thresholds" element={<ThresholdManagementPage />} />
+                      <Route path="admin/epub-storage" element={<EPUBIngestionManager />} />
                     </Route>
                     
                     <Route path="*" element={<NotFound />} />
