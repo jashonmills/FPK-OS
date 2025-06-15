@@ -11,8 +11,8 @@ import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 
-const INITIAL_LOAD_LIMIT = 10; // Start with fewer books
-const LOAD_MORE_AMOUNT = 10;
+const INITIAL_LOAD_LIMIT = 5; // Reduced from 10 for faster initial load
+const LOAD_MORE_AMOUNT = 8; // Slightly reduced for better performance
 
 const PublicDomainBooksSection: React.FC = () => {
   const [loadLimit, setLoadLimit] = useState(INITIAL_LOAD_LIMIT);
@@ -83,7 +83,7 @@ const PublicDomainBooksSection: React.FC = () => {
       )}
 
       {/* Temporary Ingestion Trigger - Remove after books are added */}
-      {books.length < 5 && !isLoading && (
+      {books.length < 3 && !isLoading && (
         <div className="mb-8">
           <GutenbergIngestionTrigger />
         </div>
@@ -94,7 +94,7 @@ const PublicDomainBooksSection: React.FC = () => {
         <div className="text-center py-12">
           <div className="inline-flex items-center gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="text-muted-foreground">Loading books... (Starting with {INITIAL_LOAD_LIMIT} books)</span>
+            <span className="text-muted-foreground">Loading books... (Starting with {INITIAL_LOAD_LIMIT} books for faster loading)</span>
           </div>
         </div>
       )}
@@ -125,17 +125,17 @@ const PublicDomainBooksSection: React.FC = () => {
                 )}
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                Showing {books.length} books. Progressive loading for better performance.
+                Showing {books.length} books. Optimized loading for better performance.
               </p>
             </div>
           )}
         </>
       )}
 
-      {/* Curated Project Gutenberg Collection */}
-      {curatedBooks.length > 0 && (
+      {/* Curated Project Gutenberg Collection - Only show if we have books */}
+      {curatedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
         <BookCarousel
-          books={curatedBooks.slice(0, 8)} // Limit carousel items for performance
+          books={curatedBooks.slice(0, 6)} // Reduced from 8 for performance
           sectionId="curatedGutenberg"
           title="Curated Project Gutenberg Collection"
           description={`${curatedBooks.length} carefully selected educational classics`}
@@ -144,27 +144,15 @@ const PublicDomainBooksSection: React.FC = () => {
         />
       )}
 
-      {/* User-Added Books */}
-      {userAddedBooks.length > 0 && (
+      {/* User-Added Books - Only show if we have books */}
+      {userAddedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
         <BookCarousel
-          books={userAddedBooks.slice(0, 8)} // Limit carousel items for performance
+          books={userAddedBooks.slice(0, 6)} // Reduced from 8 for performance
           sectionId="userAddedBooks"
           title="Community Added Books"
           description={`${userAddedBooks.length} books added by users from OpenLibrary`}
           isLoading={false}
           error={null}
-        />
-      )}
-
-      {/* Show all books together if we don't have the separation */}
-      {curatedBooks.length === 0 && userAddedBooks.length === 0 && books.length > 0 && (
-        <BookCarousel
-          books={carouselBooks.slice(0, 8)} // Limit carousel items for performance
-          sectionId="publicDomain"
-          title="Available Books"
-          description="Educational books from Project Gutenberg and user-added titles"
-          isLoading={isLoading}
-          error={error}
         />
       )}
 

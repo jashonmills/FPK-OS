@@ -5,48 +5,54 @@ import { pdfjs } from 'react-pdf';
 const PDFJS_VERSION = '4.8.69';
 
 /**
- * Reliable PDF worker configuration with fallbacks
+ * Optimized PDF worker configuration with better error handling
  */
 const WORKER_URLS = [
-  // Try local worker first (most reliable)
+  // Try local worker first (most reliable and fastest)
   '/pdf.worker.min.js',
-  // Fallback to reliable CDNs
+  // Fallback to reliable CDNs with proper ordering
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`
 ];
 
 /**
- * Initialize PDF worker with robust error handling
+ * Initialize PDF worker with optimized performance and robust error handling
  */
 export const initializePDFWorker = async (): Promise<boolean> => {
   // If already configured and working, don't reconfigure
   if (pdfjs.GlobalWorkerOptions.workerSrc) {
     try {
-      // Test if current worker is actually working
-      const testDoc = await pdfjs.getDocument('data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPJ4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3NAolJUVPRgo=').promise;
-      console.log('✅ PDF worker is already working');
+      // Quick test with minimal PDF
+      const testDoc = await Promise.race([
+        pdfjs.getDocument('data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPJ4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3NAolJUVPRgo=').promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Test timeout')), 2000))
+      ]);
+      console.log('✅ PDF worker is already working optimally');
       return true;
     } catch (error) {
-      console.warn('⚠️ Current PDF worker failed test, reinitializing...');
+      console.warn('⚠️ Current PDF worker failed test, reinitializing for better performance...');
     }
   }
 
-  console.log('🔧 Initializing PDF.js worker...');
+  console.log('🔧 Optimizing PDF.js worker initialization...');
 
-  for (const workerUrl of WORKER_URLS) {
+  for (let i = 0; i < WORKER_URLS.length; i++) {
+    const workerUrl = WORKER_URLS[i];
+    
     try {
-      console.log(`🧪 Testing PDF worker: ${workerUrl}`);
+      console.log(`🧪 Testing optimized PDF worker: ${workerUrl}`);
       
-      // Test URL accessibility with proper timeout handling
+      // Faster URL accessibility test for performance
       if (workerUrl.startsWith('http')) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          const timeoutId = setTimeout(() => controller.abort(), 2000); // Reduced timeout
 
           const response = await fetch(workerUrl, { 
             method: 'HEAD', 
             mode: 'cors',
-            signal: controller.signal
+            signal: controller.signal,
+            priority: 'high' // Prioritize worker loading
           });
 
           clearTimeout(timeoutId);
@@ -61,13 +67,16 @@ export const initializePDFWorker = async (): Promise<boolean> => {
         }
       }
 
-      // Set the worker
+      // Set the worker with performance optimization
       pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
       
-      // Test with a minimal PDF
+      // Quick test with timeout
       try {
-        const testDoc = await pdfjs.getDocument('data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPJ4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3NAolJUVPRgo=').promise;
-        console.log(`✅ PDF worker successfully initialized with: ${workerUrl}`);
+        const testDoc = await Promise.race([
+          pdfjs.getDocument('data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPJ4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3NAolJUVPRgo=').promise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Worker test timeout')), 3000))
+        ]);
+        console.log(`✅ PDF worker successfully initialized with optimized performance: ${workerUrl}`);
         return true;
       } catch (testError) {
         console.warn(`❌ Worker test failed for: ${workerUrl}`, testError);
@@ -78,7 +87,7 @@ export const initializePDFWorker = async (): Promise<boolean> => {
     }
   }
 
-  console.error('❌ All PDF worker initialization attempts failed');
+  console.error('❌ All PDF worker initialization attempts failed - PDF viewing may be impacted');
   return false;
 };
 
@@ -97,14 +106,25 @@ export const getWorkerInfo = () => {
     workerSrc: pdfjs.GlobalWorkerOptions.workerSrc,
     reactPdfVersion: pdfjs.version,
     configuredVersion: PDFJS_VERSION,
-    isConfigured: !!pdfjs.GlobalWorkerOptions.workerSrc
+    isConfigured: !!pdfjs.GlobalWorkerOptions.workerSrc,
+    optimized: true
   };
 };
 
 /**
- * Retry worker initialization
+ * Optimized worker reinitialization
  */
 export const reinitializeWorker = async (): Promise<boolean> => {
   pdfjs.GlobalWorkerOptions.workerSrc = '';
   return initializePDFWorker();
 };
+
+// Auto-initialize worker on module load for better performance
+if (typeof window !== 'undefined') {
+  // Initialize worker in next tick to avoid blocking main thread
+  setTimeout(() => {
+    initializePDFWorker().catch(error => {
+      console.warn('Background PDF worker initialization failed:', error);
+    });
+  }, 100);
+}

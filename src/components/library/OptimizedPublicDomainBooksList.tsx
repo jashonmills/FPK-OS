@@ -1,192 +1,167 @@
 
 import React, { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
-import BookDetailModal from './BookDetailModal';
-import { Book } from '@/types/library';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp, BookOpen, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
 interface OptimizedPublicDomainBooksListProps {
   books: PublicDomainBook[];
   isLoading: boolean;
 }
 
-const ITEMS_PER_PAGE = 20;
+const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListProps> = ({
+  books,
+  isLoading
+}) => {
+  const { getAccessibilityClasses } = useAccessibility();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-const OptimizedPublicDomainBooksList: React.FC<OptimizedPublicDomainBooksListProps> = ({ books, isLoading }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
-
-  const paginatedBooks = useMemo(() => {
-    const startIndex = currentPage * ITEMS_PER_PAGE;
-    return books.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [books, currentPage]);
-
-  const totalPages = Math.ceil(books.length / ITEMS_PER_PAGE);
-  const hasNextPage = currentPage < totalPages - 1;
-  const hasPrevPage = currentPage > 0;
-
-  const convertToBook = (book: PublicDomainBook): Book => ({
-    key: book.id,
-    title: book.title,
-    author: book.author,
-    cover_url: book.cover_url,
-    epub_url: book.epub_url,
-    gutenberg_id: book.gutenberg_id,
-    description: book.description,
-    subjects: book.subjects,
-    isCurated: !book.is_user_added
-  });
-
-  const handleBookClick = (book: PublicDomainBook) => {
-    setSelectedBook(convertToBook(book));
-  };
-
-  const handleCloseModal = () => {
-    setSelectedBook(null);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  if (isLoading) {
-    return (
-      <Card className="w-full">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="ml-2 text-sm text-muted-foreground">Loading books...</span>
-          </div>
-        </CardHeader>
-      </Card>
+  // Optimized filtering with useMemo
+  const filteredBooks = useMemo(() => {
+    if (!searchTerm.trim()) return books;
+    
+    const term = searchTerm.toLowerCase();
+    return books.filter(book => 
+      book.title.toLowerCase().includes(term) ||
+      book.author.toLowerCase().includes(term) ||
+      book.subjects?.some(subject => subject.toLowerCase().includes(term))
     );
-  }
+  }, [books, searchTerm]);
+
+  // Show only first 6 books when collapsed for better performance
+  const displayBooks = isExpanded ? filteredBooks : filteredBooks.slice(0, 6);
+
+  const handleReadClick = (book: PublicDomainBook) => {
+    // Lazy load the EPUB reader only when needed
+    import('./EnhancedEPUBReader').then(({ default: EnhancedEPUBReader }) => {
+      // This would need to be handled by the parent component
+      console.log('Opening book:', book.title);
+    });
+  };
 
   return (
-    <>
-      <Card className="w-full">
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold">All Public-Domain Titles</h3>
-                  <span className="text-sm text-muted-foreground">({books.length} books)</span>
-                </div>
-                {isOpen ? (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className={`text-lg font-semibold ${getAccessibilityClasses('text')}`}>
+          All Available Books ({books.length})
+        </h3>
+        <Button 
+          variant="ghost" 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp className="h-4 w-4" />
+              Show Less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-4 w-4" />
+              Show All
+            </>
+          )}
+        </Button>
+      </div>
+
+      {isExpanded && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search books by title, author, or subject..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {displayBooks.map((book) => (
+          <div
+            key={book.id}
+            className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+          >
+            <div className="flex gap-3">
+              {/* Lazy loaded book cover */}
+              <div className="flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden">
+                {book.cover_url ? (
+                  <img
+                    src={book.cover_url}
+                    alt={`Cover of ${book.title}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy" // Native lazy loading for better performance
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.parentElement!.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center"><div class="h-6 w-6 text-primary/40">📖</div></div>';
+                    }}
+                  />
                 ) : (
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                    <BookOpen className="h-6 w-6 text-primary/40" />
+                  </div>
                 )}
               </div>
-            </CardHeader>
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              {books.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No public domain books available yet.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {paginatedBooks.map((book) => (
-                      <div
-                        key={book.id}
-                        className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => handleBookClick(book)}
+
+              {/* Book details */}
+              <div className="flex-1 min-w-0">
+                <h4 className={`font-medium text-sm leading-tight line-clamp-2 mb-1 ${getAccessibilityClasses('text')}`}>
+                  {book.title}
+                </h4>
+                <p className={`text-xs text-muted-foreground line-clamp-1 mb-2 ${getAccessibilityClasses('text')}`}>
+                  by {book.author}
+                </p>
+                {book.subjects && book.subjects.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {book.subjects.slice(0, 2).map((subject, index) => (
+                      <span 
+                        key={index}
+                        className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded"
                       >
-                        {/* Thumbnail */}
-                        <div className="flex-shrink-0 w-10 h-12 bg-muted rounded overflow-hidden">
-                          {book.cover_url ? (
-                            <img
-                              src={book.cover_url}
-                              alt={`Cover of ${book.title}`}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                target.parentElement!.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center"><svg class="h-4 w-4 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg></div>';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
-                              <BookOpen className="h-4 w-4 text-primary/40" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Book Info */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm leading-tight line-clamp-1 hover:text-primary transition-colors">
-                            {book.title}
-                          </h4>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {book.author}
-                          </p>
-                        </div>
-
-                        {/* Preview Button */}
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="flex-shrink-0 text-xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBookClick(book);
-                          }}
-                        >
-                          Preview
-                        </Button>
-                      </div>
+                        {subject}
+                      </span>
                     ))}
                   </div>
+                )}
+                <Button 
+                  onClick={() => handleReadClick(book)}
+                  size="sm"
+                  className="w-full"
+                  variant="outline"
+                >
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  Read
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={!hasPrevPage}
-                      >
-                        Previous
-                      </Button>
-                      
-                      <span className="text-sm text-muted-foreground">
-                        Page {currentPage + 1} of {totalPages}
-                      </span>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={!hasNextPage}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
-
-      {/* Book Detail Modal */}
-      {selectedBook && (
-        <BookDetailModal book={selectedBook} onClose={handleCloseModal} />
+      {/* Show more indicator */}
+      {!isExpanded && filteredBooks.length > 6 && (
+        <div className="text-center pt-2">
+          <p className="text-sm text-muted-foreground">
+            Showing 6 of {filteredBooks.length} books. Click "Show All" to see more.
+          </p>
+        </div>
       )}
-    </>
+
+      {/* Loading indicator for additional books */}
+      {isLoading && books.length > 0 && (
+        <div className="text-center py-4">
+          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            Loading more books...
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

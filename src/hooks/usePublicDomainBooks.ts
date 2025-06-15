@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const usePublicDomainBooks = (limit?: number) => {
   const [retryCount, setRetryCount] = useState(0);
-  const maxRetries = 3;
+  const maxRetries = 2; // Reduced from 3 for faster failure handling
 
   const { data: books = [], isLoading, error, refetch } = useQuery({
     queryKey: ['publicDomainBooks', limit],
@@ -19,7 +19,7 @@ export const usePublicDomainBooks = (limit?: number) => {
         .order('is_user_added', { ascending: true })
         .order('created_at', { ascending: false });
 
-      // Apply limit for progressive loading
+      // Apply limit for progressive loading with better performance
       if (limit) {
         query = query.limit(limit);
       }
@@ -33,7 +33,7 @@ export const usePublicDomainBooks = (limit?: number) => {
       
       console.log(`✅ Loaded ${data?.length || 0} books from database`);
       
-      // Enhanced book processing with better URL handling
+      // Enhanced book processing with better URL handling and performance
       return (data || []).map(book => {
         const processedBook: PublicDomainBook = {
           ...book,
@@ -41,24 +41,20 @@ export const usePublicDomainBooks = (limit?: number) => {
           is_user_added: book.is_user_added || false,
           openlibrary_key: book.openlibrary_key || undefined,
           // Ensure we have reliable EPUB URLs
-          epub_url: book.epub_url || `https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`
-        };
-
-        // Add backup URLs for Project Gutenberg books (not from database, generated here)
-        if (book.gutenberg_id && !book.storage_url) {
-          const backupUrls = [
+          epub_url: book.epub_url || `https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`,
+          // Generate backup URLs dynamically to avoid database bloat
+          backup_urls: book.gutenberg_id ? [
             `https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`,
             `https://www.gutenberg.org/cache/epub/${book.gutenberg_id}/pg${book.gutenberg_id}.epub`,
             `https://www.gutenberg.org/files/${book.gutenberg_id}/${book.gutenberg_id}-0.epub`
-          ];
-          processedBook.backup_urls = backupUrls;
-        }
+          ] : []
+        };
 
         return processedBook;
       });
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 20 * 60 * 1000, // 20 minutes cache time
+    staleTime: 15 * 60 * 1000, // Increased from 10 to 15 minutes for better caching
+    gcTime: 30 * 60 * 1000, // Increased from 20 to 30 minutes cache time
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: (failureCount, error) => {
@@ -69,7 +65,8 @@ export const usePublicDomainBooks = (limit?: number) => {
       }
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retryDelay: (attemptIndex) => Math.min(800 * 2 ** attemptIndex, 20000), // Faster initial retry
+    networkMode: 'online' // Only fetch when online for better performance
   });
 
   const handleManualRetry = () => {
