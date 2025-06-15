@@ -13,7 +13,7 @@ import EnhancedLoadingProgress from './EnhancedLoadingProgress';
 import { useEPUBReaderLogic } from './epub/EPUBReaderContainer';
 import { EPUBReaderNavigation } from './epub/EPUBReaderNavigation';
 import { EPUBReaderContent } from './epub/EPUBReaderContent';
-import { convertStreamingProgress, convertStreamingError } from './epub/EPUBProgressConverter';
+import { useStreamingProgressConverter } from '@/hooks/useStreamingProgressConverter';
 
 interface EnhancedEPUBReaderProps {
   book: PublicDomainBook;
@@ -42,9 +42,10 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     forceLayoutRefresh
   } = useEPUBReaderLogic(book);
 
-  // Convert streaming progress/error to compatible types for EnhancedLoadingProgress
-  const convertedProgress = convertStreamingProgress(progress);
-  const convertedError = convertStreamingError(error);
+  // Convert progress/error to compatible types for EnhancedLoadingProgress
+  const { convertProgress, convertError } = useStreamingProgressConverter();
+  const convertedProgress = progress ? convertProgress(progress) : null;
+  const convertedError = error ? convertError(error) : null;
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
