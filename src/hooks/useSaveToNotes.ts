@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
@@ -72,30 +73,33 @@ export const useSaveToNotes = () => {
           toast({
             title: "Saved to Notes",
             description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment.",
-            action: React.createElement(ToastAction, {
-              altText: "View notes",
-              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
-            }, "View Notes")
+            action: (
+              <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
+                View Notes
+              </ToastAction>
+            )
           });
         } catch (error) {
           console.error('Error generating flashcards:', error);
           toast({
             title: "Saved to Notes",
             description: "Note saved successfully, but flashcard generation failed.",
-            action: React.createElement(ToastAction, {
-              altText: "View notes",
-              onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
-            }, "View Notes")
+            action: (
+              <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
+                View Notes
+              </ToastAction>
+            )
           });
         }
       } else {
         toast({
           title: "Saved to Notes",
           description: "AI response has been saved to your notes.",
-          action: React.createElement(ToastAction, {
-            altText: "View notes",
-            onClick: () => window.location.href = '/dashboard/learner/notes?filter=ai-insights'
-          }, "View Notes")
+          action: (
+            <ToastAction altText="View notes" onClick={() => window.location.href = '/dashboard/learner/notes?filter=ai-insights'}>
+              View Notes
+            </ToastAction>
+          )
         });
       }
 
