@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +12,7 @@ import { useActivityDistribution } from '@/hooks/useActivityDistribution';
 import { useStreakCalculation } from '@/hooks/useStreakCalculation';
 import { useTranslation } from 'react-i18next';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
+import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
 
 const LearningAnalytics = () => {
   const { t } = useTranslation();
@@ -256,89 +256,92 @@ const LearningAnalytics = () => {
         </Card>
       </div>
 
-      {/* AI Coach Engagement Card - NEW */}
+      {/* Reading Analytics Card - NEW */}
+      <ReadingAnalyticsCard />
+
+      {/* AI Coach Engagement Card */}
       <AICoachEngagementCard />
 
-      {/* Weekly Engagement Chart */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
-            Weekly Learning Activity
-          </CardTitle>
-          <p className="text-xs sm:text-sm text-gray-500">
-            Current week (Sunday to {currentDayName}) • Only showing completed days
-          </p>
-        </CardHeader>
-        <CardContent className="p-2 sm:p-6 pt-0">
-          {weeklyActivity.length > 0 ? (
-            <>
-              <div className="w-full overflow-x-auto">
-                <div className="min-w-[300px] w-full">
-                  <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] lg:h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart 
-                        data={weeklyActivity} 
-                        margin={{ 
-                          top: 10, 
-                          right: 10, 
-                          left: 10, 
-                          bottom: 10 
-                        }}
-                        barCategoryGap="20%"
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="day" 
-                          fontSize={10}
-                          tick={{ fontSize: 10 }}
-                          interval={0}
-                        />
-                        <YAxis 
-                          fontSize={10}
-                          tick={{ fontSize: 10 }}
-                          width={30}
-                        />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar 
-                          dataKey="studySessions" 
-                          fill="var(--color-studySessions)" 
-                          radius={[2, 2, 0, 0]}
-                          maxBarSize={40}
-                        />
-                        <Bar 
-                          dataKey="studyTime" 
-                          fill="var(--color-studyTime)" 
-                          radius={[2, 2, 0, 0]}
-                          maxBarSize={40}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+      {/* Weekly Engagement Chart and Progress Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Weekly Engagement Chart */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+              Weekly Learning Activity
+            </CardTitle>
+            <p className="text-xs sm:text-sm text-gray-500">
+              Current week (Sunday to {currentDayName}) • Only showing completed days
+            </p>
+          </CardHeader>
+          <CardContent className="p-2 sm:p-6 pt-0">
+            {weeklyActivity.length > 0 ? (
+              <>
+                <div className="w-full overflow-x-auto">
+                  <div className="min-w-[300px] w-full">
+                    <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] lg:h-[300px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart 
+                          data={weeklyActivity} 
+                          margin={{ 
+                            top: 10, 
+                            right: 10, 
+                            left: 10, 
+                            bottom: 10 
+                          }}
+                          barCategoryGap="20%"
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="day" 
+                            fontSize={10}
+                            tick={{ fontSize: 10 }}
+                            interval={0}
+                          />
+                          <YAxis 
+                            fontSize={10}
+                            tick={{ fontSize: 10 }}
+                            width={30}
+                          />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar 
+                            dataKey="studySessions" 
+                            fill="var(--color-studySessions)" 
+                            radius={[2, 2, 0, 0]}
+                            maxBarSize={40}
+                          />
+                          <Bar 
+                            dataKey="studyTime" 
+                            fill="var(--color-studyTime)" 
+                            radius={[2, 2, 0, 0]}
+                            maxBarSize={40}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                </div>
+                <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4 px-2">
+                  {weeklyActivity.some(day => day.studySessions > 0) ? (
+                    <>Showing real study activity from Sunday through {currentDayName}. Future days are not displayed.</>
+                  ) : (
+                    <>No study sessions yet this week (Sunday to {currentDayName}). Start learning to see your daily activity patterns.</>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="h-[200px] sm:h-[250px] lg:h-[300px] flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <Activity className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
+                  <p className="font-medium text-sm sm:text-base">No activity data yet</p>
+                  <p className="text-xs sm:text-sm">Complete study sessions to see your weekly activity</p>
                 </div>
               </div>
-              <div className="text-center text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4 px-2">
-                {weeklyActivity.some(day => day.studySessions > 0) ? (
-                  <>Showing real study activity from Sunday through {currentDayName}. Future days are not displayed.</>
-                ) : (
-                  <>No study sessions yet this week (Sunday to {currentDayName}). Start learning to see your daily activity patterns.</>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="h-[200px] sm:h-[250px] lg:h-[300px] flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <Activity className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
-                <p className="font-medium text-sm sm:text-base">No activity data yet</p>
-                <p className="text-xs sm:text-sm">Complete study sessions to see your weekly activity</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Progress Overview and Activity Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Learning Progress Overview */}
         <Card className="border-0 shadow-lg">
           <CardHeader className="p-4 sm:p-6">
@@ -365,65 +368,65 @@ const LearningAnalytics = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Learning Activity Distribution */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
-              Learning Activity Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="text-center mb-3 sm:mb-4">
-              <p className="text-xs sm:text-sm text-gray-500">
-                Last 7 Days • Total: {activityDistribution.reduce((sum, item) => sum + item.value, 0)} minutes
-              </p>
-            </div>
-            {activityDistribution.length > 0 ? (
-              <>
-                <ChartContainer config={pieChartConfig} className="h-[180px] sm:h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={activityDistribution}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={60}
-                        dataKey="value"
-                      >
-                        {activityDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-                <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm">
-                  {activityDistribution.map((item, index) => (
-                    <div key={index} className="flex items-center gap-1 sm:gap-2">
-                      <div 
-                        className="w-2 h-2 sm:w-3 sm:h-3 rounded flex-shrink-0" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span>{item.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="h-[180px] sm:h-[200px] flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
-                  <p className="font-medium text-sm sm:text-base">No activity data yet</p>
-                  <p className="text-xs sm:text-sm">Complete study sessions to see your activity distribution</p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
+
+      {/* Learning Activity Distribution */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+            Learning Activity Distribution
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="text-center mb-3 sm:mb-4">
+            <p className="text-xs sm:text-sm text-gray-500">
+              Last 7 Days • Total: {activityDistribution.reduce((sum, item) => sum + item.value, 0)} minutes
+            </p>
+          </div>
+          {activityDistribution.length > 0 ? (
+            <>
+              <ChartContainer config={pieChartConfig} className="h-[180px] sm:h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={activityDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={60}
+                      dataKey="value"
+                    >
+                      {activityDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm">
+                {activityDistribution.map((item, index) => (
+                  <div key={index} className="flex items-center gap-1 sm:gap-2">
+                    <div 
+                      className="w-2 h-2 sm:w-3 sm:h-3 rounded flex-shrink-0" 
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span>{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="h-[180px] sm:h-[200px] flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-gray-300" />
+                <p className="font-medium text-sm sm:text-base">No activity data yet</p>
+                <p className="text-xs sm:text-sm">Complete study sessions to see your activity distribution</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* AI Study Recommendations */}
       <Card className="border-0 shadow-lg">

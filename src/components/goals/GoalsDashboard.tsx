@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import GoalCreateForm from './GoalCreateForm';
 import GoalCard from './GoalCard';
+import ReadingProgressWidget from './ReadingProgressWidget';
 
 export const GoalsDashboard = () => {
   const { goals, loading } = useGoals();
@@ -48,8 +48,8 @@ export const GoalsDashboard = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      {/* Stats Overview - Fixed tablet layout */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+      {/* Stats Overview and Reading Widget */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-4">
         <Card className="fpk-card border-0 shadow-md">
           <CardContent className="p-2 sm:p-3 md:p-4">
             <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
@@ -115,6 +115,9 @@ export const GoalsDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Reading Progress Widget - NEW */}
+        <ReadingProgressWidget />
       </div>
 
       {/* Goals Management - Improved tablet layout */}

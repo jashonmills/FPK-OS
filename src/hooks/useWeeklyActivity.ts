@@ -2,111 +2,92 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { startOfWeek, format, addDays } from 'date-fns';
 
-interface WeeklyActivityData {
-  day: string;
-  studySessions: number;
-  studyTime: number;
-}
-
-export function useWeeklyActivity() {
+export const useWeeklyActivity = () => {
   const { user } = useAuth();
 
   const { data: weeklyActivity = [], isLoading } = useQuery({
     queryKey: ['weekly-activity', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
-      // Get current date in user's local timezone
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      // Find the start of this week (Sunday)
-      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - currentDay);
-      
-      console.log('Date calculations:', {
-        now: now.toString(),
-        today: today.toDateString(),
-        currentDay: currentDay,
-        dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDay],
-        weekStart: weekStart.toDateString()
-      });
+      if (!user?.id) return [];
 
-      // Fetch study sessions for the current week up to today
-      const { data: sessions, error } = await supabase
+      const now = new Date();
+      const weekStart = startOfWeek(now, { weekStartsOn: 0 }); // Sunday
+      const weekEnd = now;
+
+      // Fetch study sessions
+      const { data: studySessions, error: studyError } = await supabase
         .from('study_sessions')
         .select('*')
         .eq('user_id', user.id)
         .gte('created_at', weekStart.toISOString())
-        .lte('created_at', new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString())
-        .order('created_at', { ascending: true });
+        .lte('created_at', weekEnd.toISOString());
 
-      if (error) {
-        console.error('Error fetching weekly activity:', error);
-        throw error;
+      if (studyError) {
+        console.error('Error fetching study sessions:', studyError);
       }
 
-      console.log('Fetched sessions for week:', sessions);
+      // Fetch reading sessions
+      const { data: readingSessions, error: readingError } = await supabase
+        .from('reading_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('created_at', weekStart.toISOString())
+        .lte('created_at', weekEnd.toISOString());
 
-      // Create array for each day from Sunday up to today ONLY
-      const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const weekData: WeeklyActivityData[] = [];
+      if (readingError) {
+        console.error('Error fetching reading sessions:', readingError);
+      }
 
-      // IMPORTANT: Only include days from Sunday (0) up to currentDay (today)
-      for (let dayOffset = 0; dayOffset <= currentDay; dayOffset++) {
-        const targetDate = new Date(weekStart);
-        targetDate.setDate(weekStart.getDate() + dayOffset);
-        
-        const dayLabel = dayLabels[dayOffset];
-        
-        console.log(`Processing day ${dayOffset}: ${dayLabel} (${targetDate.toDateString()})`);
+      // Create data for each day of the week
+      const weeklyData = Array.from({ length: 7 }, (_, i) => {
+        const day = addDays(weekStart, i);
+        const dayName = format(day, 'EEE');
         
         // Filter sessions for this specific day
-        const daySessions = sessions.filter(session => {
+        const dayStudySessions = (studySessions || []).filter(session => {
           const sessionDate = new Date(session.created_at);
-          const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
-          const matches = sessionDateOnly.getTime() === targetDate.getTime();
-          
-          if (matches) {
-            console.log(`Session found for ${dayLabel}:`, session);
-          }
-          
-          return matches;
+          return sessionDate.toDateString() === day.toDateString();
         });
 
-        // Calculate total study time for this day (convert seconds to minutes)
-        const studyTime = daySessions.reduce((acc, session) => {
-          return acc + (session.session_duration_seconds || 0);
-        }, 0) / 60;
-
-        weekData.push({
-          day: dayLabel,
-          studySessions: daySessions.length,
-          studyTime: Math.round(studyTime)
+        const dayReadingSessions = (readingSessions || []).filter(session => {
+          const sessionDate = new Date(session.created_at);
+          return sessionDate.toDateString() === day.toDateString();
         });
 
-        console.log(`Day ${dayLabel} final data:`, {
-          sessions: daySessions.length,
-          minutes: Math.round(studyTime)
-        });
-      }
+        // Calculate study time in minutes
+        const studyTime = dayStudySessions.reduce((total, session) => {
+          return total + (session.session_duration_seconds || 0);
+        }, 0);
 
-      // Extra safety check: ensure no future days are included
-      const finalData = weekData.filter((_, index) => index <= currentDay);
-      
-      console.log('Final weekly data (no future days):', finalData);
-      console.log(`Should have ${currentDay + 1} days (Sunday=0 to today=${currentDay})`);
+        // Calculate reading time in minutes
+        const readingTime = dayReadingSessions.reduce((total, session) => {
+          return total + (session.duration_seconds || 0);
+        }, 0);
 
-      return finalData;
+        const totalTime = Math.round((studyTime + readingTime) / 60); // Convert to minutes
+        const totalSessions = dayStudySessions.length + dayReadingSessions.length;
+
+        return {
+          day: dayName,
+          studySessions: totalSessions,
+          studyTime: totalTime,
+        };
+      });
+
+      // Only return days that have passed (including today)
+      const today = new Date();
+      return weeklyData.filter((_, index) => {
+        const dayDate = addDays(weekStart, index);
+        return dayDate <= today;
+      });
     },
-    enabled: !!user,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!user?.id,
   });
 
   return {
     weeklyActivity,
-    isLoading
+    isLoading,
   };
-}
+};

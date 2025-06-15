@@ -1,7 +1,7 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPIntegration } from '@/hooks/useXPIntegration';
 
 interface ReadingProgress {
   id: string;
@@ -30,6 +30,7 @@ interface ReadingSession {
 
 export const useReadingProgress = (bookId: string) => {
   const { user } = useAuth();
+  const { awardReadingSessionXP } = useXPIntegration();
   const [progress, setProgress] = useState<ReadingProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSession, setCurrentSession] = useState<ReadingSession | null>(null);
@@ -124,12 +125,25 @@ export const useReadingProgress = (bookId: string) => {
     console.log('📚 Reading session started');
   }, [user?.id, bookId]);
 
-  // End reading session
+  // Enhanced endSession with XP integration
   const endSession = useCallback(async (endCfi: string | null = null) => {
     if (!currentSession || !sessionStartTime.current) return;
 
     const endTime = new Date();
     const duration = Math.floor((endTime.getTime() - sessionStartTime.current.getTime()) / 1000);
+
+    // Only award XP for sessions longer than 30 seconds
+    if (duration >= 30) {
+      try {
+        // Estimate pages read based on duration (rough estimate: 1 page per 2 minutes)
+        const estimatedPages = Math.max(1, Math.floor(duration / 120));
+        await awardReadingSessionXP(duration, estimatedPages);
+        console.log('✅ Reading session XP awarded:', { duration, estimatedPages });
+      } catch (xpError) {
+        console.error('Error awarding reading session XP:', xpError);
+        // Don't fail the session save if XP fails
+      }
+    }
 
     const sessionData = {
       ...currentSession,
@@ -171,7 +185,7 @@ export const useReadingProgress = (bookId: string) => {
       sessionStartTime.current = null;
       lastCfi.current = null;
     }
-  }, [currentSession, progress, user?.id, bookId]);
+  }, [currentSession, progress, user?.id, bookId, awardReadingSessionXP]);
 
   // Update current location during reading
   const updateLocation = useCallback((cfi: string, chapterIndex?: number) => {
