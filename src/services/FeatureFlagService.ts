@@ -121,6 +121,14 @@ export class FeatureFlagService {
         description: 'Enable NASA Astronomy Picture of the Day integration',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Quote of the Day widget feature flag
+      {
+        id: 'quotesWidget',
+        name: 'Quote of the Day Widget',
+        description: 'Enable daily inspirational quotes on the learner home page',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 

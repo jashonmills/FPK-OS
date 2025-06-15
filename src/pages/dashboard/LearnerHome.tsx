@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +20,7 @@ import BadgeDisplay from '@/components/gamification/BadgeDisplay';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
 import APODCard from '@/components/dashboard/APODCard';
 import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
+import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import { featureFlagService } from '@/services/FeatureFlagService';
 
 const LearnerHome = () => {
@@ -30,6 +30,7 @@ const LearnerHome = () => {
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const isNASAEnabled = featureFlagService.isEnabled('enableNASAImageExplorer');
+  const isQuotesEnabled = featureFlagService.isEnabled('quotesWidget');
 
   const handleOpenAPODGallery = () => {
     setIsAPODModalOpen(true);
@@ -57,6 +58,11 @@ const LearnerHome = () => {
         {/* NASA APOD Card - Only render if feature flag is enabled */}
         {isNASAEnabled && (
           <APODCard onOpenGallery={handleOpenAPODGallery} />
+        )}
+
+        {/* Quote of the Day Card - Only render if feature flag is enabled */}
+        {isQuotesEnabled && (
+          <QuoteOfTheDayCard />
         )}
 
         {/* Reading Progress */}
