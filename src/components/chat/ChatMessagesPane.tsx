@@ -1,4 +1,3 @@
-
 import React, { useEffect, useCallback, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -8,8 +7,6 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useTextSelection } from '@/hooks/useTextSelection';
 import SaveToNotesButton from '@/components/ai-coach/SaveToNotesButton';
-import SaveToNotesDialog from '@/components/ai-coach/SaveToNotesDialog';
-import { useSaveToNotes } from '@/hooks/useSaveToNotes';
 
 interface ChatMessage {
   id: string;
@@ -33,14 +30,6 @@ const ChatMessagesPane = ({
 }: ChatMessagesPaneProps) => {
   const { speak, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
-  const { isDialogOpen, openDialog, closeDialog } = useSaveToNotes();
-  
-  // State for save dialog
-  const [saveDialogData, setSaveDialogData] = React.useState<{
-    content: string;
-    selectedText?: string;
-    originalQuestion?: string;
-  } | null>(null);
 
   // Text selection for the entire messages container
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -105,38 +94,6 @@ const ChatMessagesPane = ({
     }
   }, [isSending, isLoading, scrollToBottom]);
 
-  const handleSaveToNotes = (message: ChatMessage) => {
-    // Find the corresponding user question for context
-    const messageIndex = messages.findIndex(msg => msg.id === message.id);
-    const previousMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
-    const originalQuestion = previousMessage?.role === 'user' ? previousMessage.content : undefined;
-
-    // Check if we have selected text and it's within this message
-    const messageSelectedText = hasSelection ? selectedText : undefined;
-
-    setSaveDialogData({
-      content: message.content,
-      selectedText: messageSelectedText,
-      originalQuestion
-    });
-    openDialog();
-  };
-
-  // Clear selection when dialog opens
-  useEffect(() => {
-    if (isDialogOpen) {
-      // Don't clear selection immediately - let the dialog use it first
-      return;
-    }
-  }, [isDialogOpen]);
-
-  // Clear selection when dialog closes
-  const handleDialogClose = () => {
-    closeDialog();
-    clearSelection();
-    setSaveDialogData(null);
-  };
-
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center p-4">
@@ -171,10 +128,15 @@ const ChatMessagesPane = ({
   }
 
   return (
-    <>
-      <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
-        <div ref={messagesContainerRef} className="space-y-2 sm:space-y-3 md:space-y-4">
-          {messages.map((message) => (
+    <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
+      <div ref={messagesContainerRef} className="space-y-2 sm:space-y-3 md:space-y-4">
+        {messages.map((message) => {
+          // Find the corresponding user question for context
+          const messageIndex = messages.findIndex(msg => msg.id === message.id);
+          const previousMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
+          const originalQuestion = previousMessage?.role === 'user' ? previousMessage.content : undefined;
+
+          return (
             <div 
               key={message.id} 
               className={cn(
@@ -210,8 +172,13 @@ const ChatMessagesPane = ({
                       )}
                       
                       <SaveToNotesButton
-                        onClick={() => handleSaveToNotes(message)}
-                        hasSelection={hasSelection}
+                        content={message.content}
+                        selectedText={hasSelection ? selectedText : undefined}
+                        originalQuestion={originalQuestion}
+                        aiMode="AI Learning Coach"
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0"
                       />
                     </div>
                   </div>
@@ -229,43 +196,31 @@ const ChatMessagesPane = ({
                 </div>
               </div>
             </div>
-          ))}
-          
-          {isSending && (
-            <div className="flex justify-start">
-              <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
-                <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
-                  <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
-                  <span className="text-xs font-medium text-purple-600">AI Coach</span>
+          );
+        })}
+        
+        {isSending && (
+          <div className="flex justify-start">
+            <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+                <span className="text-xs font-medium text-purple-600">AI Coach</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="animate-pulse flex space-x-1">
+                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="animate-pulse flex space-x-1">
-                    <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce"></div>
-                    <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Thinking...</span>
-                </div>
+                <span className="text-xs text-muted-foreground">Thinking...</span>
               </div>
             </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-
-      {/* Save to Notes Dialog */}
-      {saveDialogData && (
-        <SaveToNotesDialog
-          isOpen={isDialogOpen}
-          onClose={handleDialogClose}
-          content={saveDialogData.content}
-          selectedText={saveDialogData.selectedText}
-          originalQuestion={saveDialogData.originalQuestion}
-          aiMode="AI Learning Coach"
-        />
-      )}
-    </>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+    </ScrollArea>
   );
 };
 
