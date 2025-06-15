@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { AnalyticsCard } from './AnalyticsCard';
 import { useAnalyticsCards } from '@/hooks/useAnalyticsCards';
 import { featureFlagService } from '@/services/FeatureFlagService';
@@ -47,6 +47,8 @@ export const AnalyticsCardContainer: React.FC<AnalyticsCardContainerProps> = ({
           return null;
         }
 
+        const CardComponent = cardConfig.component;
+
         return (
           <Suspense
             key={cardConfig.id}
@@ -60,74 +62,10 @@ export const AnalyticsCardContainer: React.FC<AnalyticsCardContainerProps> = ({
               </AnalyticsCard>
             }
           >
-            <LazyAnalyticsCard cardConfig={cardConfig} />
+            <CardComponent {...(cardConfig.props || {})} />
           </Suspense>
         );
       })}
     </div>
   );
-};
-
-// Helper component to handle lazy loading
-const LazyAnalyticsCard: React.FC<{ cardConfig: any }> = ({ cardConfig }) => {
-  const [CardComponent, setCardComponent] = React.useState<React.ComponentType | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const loadComponent = async () => {
-      try {
-        let component;
-        
-        // Map card IDs to their components
-        switch (cardConfig.id) {
-          case 'reading-analytics':
-            component = await import('@/components/analytics/ReadingAnalyticsCard');
-            break;
-          case 'ai-coach-engagement':
-            component = await import('@/components/analytics/AICoachEngagementCard');
-            break;
-          default:
-            throw new Error(`Unknown card component: ${cardConfig.id}`);
-        }
-        
-        setCardComponent(() => component.default);
-      } catch (err) {
-        console.error(`Error loading card component ${cardConfig.id}:`, err);
-        setError(`Failed to load ${cardConfig.title}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadComponent();
-  }, [cardConfig.id, cardConfig.title]);
-
-  if (loading || !CardComponent) {
-    return (
-      <AnalyticsCard
-        id={cardConfig.id}
-        title={cardConfig.title}
-        loading={true}
-        featureFlag={cardConfig.featureFlag}
-      >
-        <div />
-      </AnalyticsCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <AnalyticsCard
-        id={cardConfig.id}
-        title={cardConfig.title}
-        error={error}
-        featureFlag={cardConfig.featureFlag}
-      >
-        <div />
-      </AnalyticsCard>
-    );
-  }
-
-  return <CardComponent {...(cardConfig.props || {})} />;
 };

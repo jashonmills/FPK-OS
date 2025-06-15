@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { featureFlagService } from '@/services/FeatureFlagService';
+import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
+import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 
 export interface AnalyticsCardConfig {
   id: string;
@@ -20,37 +22,41 @@ export const useAnalyticsCards = () => {
     // Load analytics cards configuration
     const loadCards = async () => {
       try {
-        // This would normally come from a database or config service
-        // For now, we'll define them here
+        // Import missing components dynamically
+        const [XPBreakdownCard, StudyPerformanceCard] = await Promise.all([
+          import('@/components/analytics/XPBreakdownCard').then(m => m.default).catch(() => null),
+          import('@/components/analytics/StudyPerformanceCard').then(m => m.default).catch(() => null)
+        ]);
+
         const cardConfigs: AnalyticsCardConfig[] = [
           {
             id: 'reading-analytics',
             title: 'Reading Analytics',
-            component: () => import('@/components/analytics/ReadingAnalyticsCard'),
+            component: ReadingAnalyticsCard,
             featureFlag: 'reading_analytics_card',
             order: 1,
             enabled: true
           },
-          {
+          ...(XPBreakdownCard ? [{
             id: 'xp-breakdown',
             title: 'XP Breakdown',
-            component: () => import('@/components/analytics/XPBreakdownCard'),
+            component: XPBreakdownCard,
             featureFlag: 'xp_breakdown_card',
             order: 2,
             enabled: true
-          },
-          {
+          }] : []),
+          ...(StudyPerformanceCard ? [{
             id: 'study-performance',
             title: 'Study Performance',
-            component: () => import('@/components/analytics/StudyPerformanceCard'),
+            component: StudyPerformanceCard,
             featureFlag: 'study_performance_card',
             order: 3,
             enabled: true
-          },
+          }] : []),
           {
             id: 'ai-coach-engagement',
             title: 'AI Coach Engagement',
-            component: () => import('@/components/analytics/AICoachEngagementCard'),
+            component: AICoachEngagementCard,
             featureFlag: 'ai_coach_analytics_card',
             order: 4,
             enabled: true
