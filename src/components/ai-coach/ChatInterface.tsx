@@ -3,17 +3,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Mic, MicOff, Brain, Bot, User, Sparkles, Loader2 } from 'lucide-react';
+import { Send, Mic, MicOff, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { formatDistanceToNow } from 'date-fns';
 import QuizSessionWidget from './QuizSessionWidget';
 import { useQuizSession } from '@/hooks/useQuizSession';
+import ChatMessagesPane from '@/components/chat/ChatMessagesPane';
 
 interface ChatInterfaceProps {
   user: any;
@@ -82,15 +81,6 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
 
       if (data && data.length > 0) {
         setMessages(data as ChatMessage[]);
-      } else {
-        // Add welcome message if no messages exist
-        const welcomeMessage: ChatMessage = {
-          id: 'welcome',
-          role: 'assistant',
-          content: "👋 Welcome to your AI Learning Coach! I'm here to help you study smarter and achieve your learning goals. Ask me about your flashcards, study strategies, or how to improve your learning habits!",
-          timestamp: new Date().toISOString()
-        };
-        setMessages([welcomeMessage]);
       }
     };
 
@@ -98,13 +88,6 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
       loadMessages();
     }
   }, [user?.id, sessionId]);
-
-  // Scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
 
   // Quiz trigger detection
   const detectQuizRequest = (message: string): boolean => {
@@ -331,90 +314,27 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights }: ChatIn
           </div>
         </div>
 
-        {/* Messages Area */}
+        {/* Messages Area - Now using ChatMessagesPane */}
         <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-              {/* Welcome Message */}
-              {messages.length === 0 && (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center space-y-2 max-w-md">
-                    <Bot className="h-12 w-12 mx-auto text-purple-600" />
-                    <h3 className="text-lg font-medium">Welcome to your AI Learning Coach!</h3>
-                    <p className="text-muted-foreground text-sm">
-                      I'm here to help you study smarter and achieve your learning goals.
-                      Ask me about your flashcards, study strategies, or how to improve your learning habits!
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Quiz Session Widget */}
-              {sessionState.isActive && (
-                <div className="mx-auto max-w-2xl">
-                  <QuizSessionWidget
-                    onComplete={handleQuizComplete}
-                    onCancel={handleQuizCancel}
-                  />
-                </div>
-              )}
-
-              {/* Regular Chat Messages */}
-              {!sessionState.isActive && messages.map((msg, index) => (
-                <div 
-                  key={msg.id} 
-                  className={cn(
-                    "flex gap-3",
-                    msg.role === 'user' ? "justify-end" : "justify-start"
-                  )}
-                >
-                  {msg.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <Bot className="h-4 w-4 text-purple-600" />
-                    </div>
-                  )}
-                  
-                  <div className={cn(
-                    "rounded-lg p-3 max-w-[85%] sm:max-w-[75%]",
-                    msg.role === 'user' 
-                      ? "bg-purple-600 text-white" 
-                      : "bg-muted/50 border"
-                  )}>
-                    <div className="whitespace-pre-wrap text-sm">
-                      {msg.content}
-                    </div>
-                    <div className="mt-1 text-xs opacity-70 text-right">
-                      {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
-                    </div>
-                  </div>
-                  
-                  {msg.role === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-                      <User className="h-4 w-4 text-white" />
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Loading Indicator */}
-              {isSending && (
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-4 w-4 text-purple-600 animate-pulse" />
-                  </div>
-                  <div className="rounded-lg p-3 bg-muted/50 border max-w-[85%] sm:max-w-[75%]">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Invisible element to scroll to */}
-              <div ref={messagesEndRef} />
+          {/* Quiz Session Widget */}
+          {sessionState.isActive && (
+            <div className="p-3 sm:p-4">
+              <QuizSessionWidget
+                onComplete={handleQuizComplete}
+                onCancel={handleQuizCancel}
+              />
             </div>
-          </ScrollArea>
+          )}
+
+          {/* Chat Messages using ChatMessagesPane */}
+          {!sessionState.isActive && (
+            <ChatMessagesPane
+              messages={messages}
+              isLoading={false}
+              isSending={isSending}
+              messagesEndRef={messagesEndRef}
+            />
+          )}
         </div>
 
         {/* Input Area */}
