@@ -30,9 +30,9 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
   const startTimeRef = useRef<number>(0);
   const epubModuleRef = useRef<any>(null);
   
-  const MAX_RETRIES = 3; // Increased retries
-  const BASE_TIMEOUT = 60000; // Increased to 60 seconds
-  const MAX_TIMEOUT = 120000; // Increased to 2 minutes max
+  const MAX_RETRIES = 4; // Increased retries for better reliability
+  const BASE_TIMEOUT = 45000; // Base 45 seconds
+  const MAX_TIMEOUT = 120000; // Max 2 minutes
 
   const updateProgress = useCallback((
     stage: EPUBLoadingProgress['stage'],
@@ -57,30 +57,44 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
   }, []);
 
   const getOptimalEPUBUrl = useCallback(() => {
-    // Try multiple URL strategies for better success rate
     const urls = [];
     
-    // First priority: storage URL if available
-    if (book.storage_url) {
-      console.log('📚 Using local storage URL');
+    // PRIORITY 1: Storage URL (fastest and most reliable)
+    if (book.storage_url && book.download_status === 'completed') {
+      console.log('📚 Using optimized storage URL');
       urls.push(book.storage_url);
     }
     
-    // Second priority: direct Gutenberg URLs if we have the ID
+    // PRIORITY 2: Direct Gutenberg URLs
     if (book.gutenberg_id) {
       urls.push(`https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`);
       urls.push(`https://www.gutenberg.org/cache/epub/${book.gutenberg_id}/pg${book.gutenberg_id}.epub`);
+      urls.push(`https://www.gutenberg.org/files/${book.gutenberg_id}/${book.gutenberg_id}-0.epub`);
     }
     
-    // Third priority: proxy URL
+    // PRIORITY 3: Backup URLs if available
+    if (book.backup_urls?.length) {
+      urls.push(...book.backup_urls);
+    }
+    
+    // PRIORITY 4: Original EPUB URL
+    urls.push(book.epub_url);
+    
+    // PRIORITY 5: Proxy URL as last resort
     const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}&timeout=120`;
     urls.push(proxyUrl);
     
     // Return the URL to try based on retry count
     const urlIndex = Math.min(retryCountRef.current, urls.length - 1);
-    console.log(`🔗 Trying URL strategy ${urlIndex + 1}/${urls.length}:`, urls[urlIndex].substring(0, 50) + '...');
-    return urls[urlIndex];
-  }, [book.storage_url, book.epub_url, book.gutenberg_id]);
+    const selectedUrl = urls[urlIndex];
+    
+    console.log(`🔗 URL Strategy ${urlIndex + 1}/${urls.length}:`, 
+      selectedUrl.includes('storage') ? 'Storage (Fast)' :
+      selectedUrl.includes('gutenberg.org') ? 'Direct Gutenberg' :
+      selectedUrl.includes('proxy') ? 'Proxy Fallback' : 'Standard');
+    
+    return selectedUrl;
+  }, [book.storage_url, book.download_status, book.epub_url, book.gutenberg_id, book.backup_urls]);
 
   const createOptimizedError = useCallback((
     error: any,
@@ -91,18 +105,22 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
 
     if (error.message?.includes('timeout') || error.name === 'TimeoutError') {
       type = 'timeout';
-      message = `This book is taking longer than expected to download. We're trying different servers to help speed this up.`;
+      message = book.storage_url 
+        ? `Book is taking longer than expected to download. Trying alternative servers...`
+        : `Large book detected. Using faster download methods...`;
     } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
       type = 'network';
-      message = 'Connection issue detected. Trying alternative download methods...';
+      message = book.storage_url 
+        ? 'Storage temporarily unavailable. Trying Project Gutenberg directly...'
+        : 'Connection issue detected. Trying alternative download methods...';
     } else if (error.message?.includes('parse') || error.message?.includes('invalid')) {
       type = 'parsing';
-      message = 'This book file appears to be corrupted. Trying alternative sources...';
-      recoverable = true; // Even parsing errors might be recoverable with different URLs
+      message = 'Book file appears corrupted. Trying alternative sources...';
+      recoverable = true;
     }
 
     return { type, message, recoverable, retryCount: retryCountRef.current };
-  }, []);
+  }, [book.storage_url]);
 
   const cleanup = useCallback(() => {
     if (abortControllerRef.current) {
@@ -123,27 +141,39 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       cleanup();
       abortControllerRef.current = new AbortController();
       
-      console.log(`📖 Starting EPUB load attempt ${retryCountRef.current + 1}/${MAX_RETRIES + 1} for:`, book.title);
+      console.log(`📖 Starting optimized EPUB load attempt ${retryCountRef.current + 1}/${MAX_RETRIES + 1} for:`, book.title);
       
-      updateProgress('downloading', 10, 'Initializing download...');
+      updateProgress('downloading', 10, 'Initializing optimized reader...');
       
       // Load EPUB.js module if not already loaded
       if (!epubModuleRef.current) {
-        updateProgress('downloading', 20, 'Loading EPUB reader...');
+        updateProgress('downloading', 20, 'Loading EPUB engine...');
         epubModuleRef.current = await import('epubjs');
       }
       
       const EPubLib = epubModuleRef.current.default;
       
-      updateProgress('downloading', 30, 'Connecting to book server...');
-      
       const epubUrl = getOptimalEPUBUrl();
+      const isStorageUrl = epubUrl.includes('storage');
+      const isProxyUrl = epubUrl.includes('proxy');
       
-      // Progressive timeout based on retry count
-      const timeout = Math.min(BASE_TIMEOUT + (retryCountRef.current * 30000), MAX_TIMEOUT);
-      console.log(`⏱️ Using timeout: ${timeout / 1000}s for attempt ${retryCountRef.current + 1}`);
+      updateProgress('downloading', 30, 
+        isStorageUrl ? 'Connecting to optimized storage...' :
+        isProxyUrl ? 'Using enhanced proxy server...' :
+        'Connecting to Project Gutenberg...'
+      );
       
-      updateProgress('downloading', 50, 'Downloading book content...');
+      // Progressive timeout based on source and retry count
+      const timeout = isStorageUrl ? 30000 : // Storage should be fast
+                     isProxyUrl ? MAX_TIMEOUT : // Proxy gets max time
+                     Math.min(BASE_TIMEOUT + (retryCountRef.current * 15000), MAX_TIMEOUT);
+      
+      console.log(`⏱️ Using ${timeout / 1000}s timeout for ${isStorageUrl ? 'storage' : isProxyUrl ? 'proxy' : 'direct'} download`);
+      
+      updateProgress('downloading', 50, 
+        isStorageUrl ? 'Loading from optimized storage...' :
+        'Downloading book content...'
+      );
       
       // Create EPUB instance with enhanced error handling
       const newEpubInstance = EPubLib(epubUrl);
@@ -156,7 +186,7 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       
       updateProgress('processing', 70, 'Processing book structure...');
       
-      // Wait for book to be ready with proper error boundaries
+      // Wait for book to be ready
       await Promise.race([
         newEpubInstance.ready,
         new Promise((_, reject) => {
@@ -169,21 +199,20 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       clearTimeout(timeoutId);
       console.log('✅ EPUB instance ready');
       
-      // Set the instance early to prevent race conditions
       setEpubInstance(newEpubInstance);
       
-      updateProgress('processing', 85, 'Loading table of contents...');
+      updateProgress('processing', 85, 'Loading navigation...');
       
-      // Load navigation with longer timeout for complex books
+      // Load navigation with extended timeout for complex books
       try {
         await Promise.race([
           newEpubInstance.loaded.navigation.then(() => {
             const tocItems = newEpubInstance.navigation?.toc || [];
             setToc(tocItems);
-            console.log('📚 TOC loaded:', tocItems.length, 'items');
+            console.log('📚 Navigation loaded:', tocItems.length, 'items');
           }),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Navigation timeout')), 10000)
+            setTimeout(() => reject(new Error('Navigation timeout')), 15000)
           )
         ]);
       } catch (navError) {
@@ -200,7 +229,7 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       setProgress(null);
       retryCountRef.current = 0;
       
-      console.log('✅ EPUB loading completed successfully');
+      console.log('✅ Optimized EPUB loading completed successfully');
       
     } catch (err) {
       console.error(`❌ EPUB loading error (attempt ${retryCountRef.current + 1}):`, err);
@@ -209,10 +238,12 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       
       if (optimizedError.recoverable && retryCountRef.current < MAX_RETRIES) {
         retryCountRef.current++;
-        const retryDelay = 2000 + (retryCountRef.current * 2000); // Progressive delay: 2s, 4s, 6s
+        const retryDelay = 1500 + (retryCountRef.current * 1500); // Progressive delay
         
-        console.log(`🔄 Retrying with different strategy... Attempt ${retryCountRef.current}/${MAX_RETRIES}`);
-        updateProgress('downloading', 5, `Retrying with alternative download method... (${retryCountRef.current}/${MAX_RETRIES})`);
+        console.log(`🔄 Retrying with next strategy... Attempt ${retryCountRef.current}/${MAX_RETRIES}`);
+        updateProgress('downloading', 5, 
+          `Trying alternative download method... (${retryCountRef.current}/${MAX_RETRIES})`
+        );
         
         setTimeout(() => {
           loadEPUB();
