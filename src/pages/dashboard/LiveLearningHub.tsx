@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,7 @@ const LiveLearningHub = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
           <DualLanguageText translationKey="liveHub.title" />
@@ -45,20 +44,19 @@ const LiveLearningHub = () => {
         </p>
       </div>
 
-      {/* Discovery Widgets Section */}
+      {/* Daily Discovery Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800">Daily Discovery</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* NASA APOD Card */}
-          <LiveHubAPODCard onLearnMore={handleAPODLearnMore} />
-          
-          {/* Visual of the Week Carousel */}
-          <VisualOfTheWeekCarousel onItemClick={handleMuseumItemClick} />
+        
+        {/* Top Row: Weather spans full width */}
+        <div className="w-full">
+          <WeatherScienceLabCard />
+        </div>
 
-          {/* Weather & Science Lab Card */}
-          <div className="lg:col-span-2 xl:col-span-1">
-            <WeatherScienceLabCard />
-          </div>
+        {/* Second Row: NASA APOD and Visual of the Week side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LiveHubAPODCard onLearnMore={handleAPODLearnMore} />
+          <VisualOfTheWeekCarousel onItemClick={handleMuseumItemClick} />
         </div>
       </div>
 

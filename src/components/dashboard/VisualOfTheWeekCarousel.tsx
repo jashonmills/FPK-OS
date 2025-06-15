@@ -29,16 +29,54 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
   React.useEffect(() => {
     if (!api) return;
 
-    setCurrent(api.selectedScrollSnap());
-
-    api.on('select', () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap());
-    });
+    };
+
+    setCurrent(api.selectedScrollSnap());
+    api.on('select', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+    };
   }, [api]);
+
+  // Keyboard navigation
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!api || !items?.length) return;
+      
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        api.scrollPrev();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        api.scrollNext();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [api, items]);
 
   const handleItemClick = (item: MuseumItem) => {
     trackClick(item.id);
     onItemClick(item);
+  };
+
+  const handlePrevious = () => {
+    if (!api) return;
+    api.scrollPrev();
+  };
+
+  const handleNext = () => {
+    if (!api) return;
+    api.scrollNext();
+  };
+
+  const goToSlide = (index: number) => {
+    if (!api) return;
+    api.scrollTo(index);
   };
 
   if (error) {
@@ -85,15 +123,31 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
           </div>
         ) : items && items.length > 0 ? (
           <div className="space-y-4">
-            {/* Constrained Carousel Container */}
-            <div className="relative overflow-hidden">
-              <Carousel setApi={setApi} className="w-full">
-                <CarouselContent className="ml-0">
+            {/* Carousel Container */}
+            <div className="relative">
+              <Carousel 
+                setApi={setApi} 
+                className="w-full"
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+              >
+                <CarouselContent>
                   {items.map((item, index) => (
-                    <CarouselItem key={item.id} className="pl-4">
+                    <CarouselItem key={item.id}>
                       <div 
                         className="cursor-pointer group"
                         onClick={() => handleItemClick(item)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View ${item.title}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleItemClick(item);
+                          }
+                        }}
                       >
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
                           <img
@@ -121,34 +175,44 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                   ))}
                 </CarouselContent>
                 
-                {/* Desktop Navigation - Positioned inside the carousel */}
-                <CarouselPrevious className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900" />
-                <CarouselNext className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900" />
+                {/* Desktop Navigation Controls */}
+                <CarouselPrevious 
+                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  onClick={handlePrevious}
+                  aria-label="Previous image"
+                />
+                <CarouselNext 
+                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  onClick={handleNext}
+                  aria-label="Next image"
+                />
               </Carousel>
             </div>
 
-            {/* Mobile navigation */}
+            {/* Mobile Navigation and Indicators */}
             <div className="flex sm:hidden items-center justify-between px-2">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => api?.scrollPrev()}
-                disabled={current === 0}
+                onClick={handlePrevious}
                 className="text-purple-700 hover:text-purple-900 hover:bg-purple-100"
+                aria-label="Previous image"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Prev
               </Button>
               
-              <div className="flex space-x-1">
+              <div className="flex space-x-1" role="tablist" aria-label="Image indicators">
                 {items.map((_, index) => (
                   <button
                     key={index}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       index === current ? 'bg-purple-600' : 'bg-purple-300'
                     }`}
-                    onClick={() => api?.scrollTo(index)}
+                    onClick={() => goToSlide(index)}
                     aria-label={`Go to slide ${index + 1}`}
+                    role="tab"
+                    aria-selected={index === current}
                   />
                 ))}
               </div>
@@ -156,16 +220,20 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => api?.scrollNext()}
-                disabled={current === items.length - 1}
+                onClick={handleNext}
                 className="text-purple-700 hover:text-purple-900 hover:bg-purple-100"
+                aria-label="Next image"
               >
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
 
-            <div className="text-center">
+            {/* Item Counter and Info */}
+            <div className="text-center space-y-1">
+              <div className="text-sm font-medium text-purple-800">
+                {current + 1} of {items.length}
+              </div>
               <p className="text-xs text-purple-600">
                 {items.length} curated visuals • Updated weekly
               </p>
