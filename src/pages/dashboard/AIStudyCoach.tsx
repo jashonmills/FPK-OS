@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, Brain, TrendingUp } from 'lucide-react';
@@ -38,38 +39,43 @@ const AIStudyCoach = () => {
   const quickChallenges = generateQuickChallenges(flashcards, completedSessions);
 
   return (
-    <div className="p-2 sm:p-4 lg:p-6 max-w-7xl mx-auto space-y-3 sm:space-y-4 lg:space-y-6 overflow-hidden">
-      {/* Header */}
-      <div className="text-center space-y-2 sm:space-y-3 lg:space-y-4 max-w-full overflow-hidden">
-        <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-foreground px-2 break-words">
+    <div className="responsive-container responsive-spacing min-h-screen overflow-x-hidden">
+      {/* Header Section - Fully Responsive */}
+      <div className="text-center responsive-spacing max-w-full">
+        <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
           AI Learning Coach
         </h1>
-        <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-2xl mx-auto px-3 sm:px-4 leading-relaxed break-words">
+        <p className="responsive-text text-muted-foreground max-w-4xl mx-auto leading-relaxed break-words">
           Your personalized AI coach analyzes your learning patterns, identifies strengths and weaknesses, 
           and provides tailored guidance to accelerate your educational journey.
         </p>
-        <div className="hidden sm:flex justify-center gap-4 lg:gap-6 text-xs sm:text-sm text-muted-foreground flex-wrap px-4">
-          <span className="break-words">• Personalized learning analysis from your study data</span>
-          <span className="break-words">• Proactive guidance to build strengths from weaknesses</span>
-          <span className="break-words">• Continuous support and motivation on your learning path</span>
+        
+        {/* Feature Highlights - Responsive Layout */}
+        <div className="hidden sm:flex justify-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-muted-foreground flex-wrap mt-4">
+          <span className="break-words text-center">• Personalized learning analysis</span>
+          <span className="break-words text-center">• Proactive guidance</span>
+          <span className="break-words text-center">• Continuous support</span>
         </div>
+        
         {/* Mobile-friendly feature list */}
-        <div className="sm:hidden space-y-1 text-xs text-muted-foreground px-4">
+        <div className="sm:hidden mt-4 space-y-1 text-xs text-muted-foreground">
           <div className="break-words">• Personalized learning analysis</div>
           <div className="break-words">• Proactive guidance and support</div>
           <div className="break-words">• Continuous motivation</div>
         </div>
       </div>
 
-      {/* AI Coach Status Card */}
-      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 overflow-hidden">
-        <CardContent className="p-3 sm:p-4 lg:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0 overflow-hidden">
-              <Brain className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 flex-shrink-0" />
-              <div className="min-w-0 flex-1 overflow-hidden">
-                <h2 className="text-base sm:text-lg lg:text-2xl font-bold truncate">AI Learning Coach</h2>
-                <p className="text-purple-100 text-xs sm:text-sm lg:text-base leading-relaxed break-words">
+      {/* AI Coach Status Card - Enhanced Mobile Layout */}
+      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 w-full overflow-hidden">
+        <CardContent className="responsive-card-padding">
+          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <Brain className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold break-words leading-tight">
+                  AI Learning Coach
+                </h2>
+                <p className="text-purple-100 text-xs sm:text-sm lg:text-base leading-snug break-words mt-1">
                   {completedSessions.length > 0 ? 
                     `Analyzing your ${completedSessions.length} study sessions and ${flashcards?.length || 0} flashcards` :
                     'Ready to analyze your learning patterns once you start studying'
@@ -77,14 +83,15 @@ const AIStudyCoach = () => {
                 </p>
               </div>
             </div>
+            
             {completedSessions.length > 0 && (
-              <div className="w-full sm:w-auto sm:text-right flex-shrink-0 overflow-hidden">
-                <div className="flex items-center justify-between sm:justify-end gap-2 text-sm sm:text-base lg:text-lg font-semibold mb-1">
+              <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:text-right gap-2 sm:gap-1 flex-shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base lg:text-lg font-semibold">
                   <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-                  <span className="truncate">{overallAccuracy}% Overall Accuracy</span>
+                  <span className="break-words">{overallAccuracy}% Accuracy</span>
                 </div>
-                <p className="text-purple-200 text-xs sm:text-sm leading-relaxed break-words">
-                  {currentStreak > 0 ? `${currentStreak} day learning streak!` : 'Start your learning streak today'}
+                <p className="text-purple-200 text-xs sm:text-sm break-words">
+                  {currentStreak > 0 ? `${currentStreak} day streak!` : 'Start your streak today'}
                 </p>
               </div>
             )}
@@ -92,13 +99,13 @@ const AIStudyCoach = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Study Challenges Section */}
+      {/* Quick Study Challenges - Mobile Optimized */}
       <QuickChallengesCard challenges={quickChallenges} />
 
-      {/* Main Content Layout */}
-      <div className="space-y-3 sm:space-y-4 lg:space-y-6 lg:grid lg:grid-cols-3 lg:gap-4 xl:gap-6 lg:space-y-0 overflow-hidden">
-        {/* Chat Interface - Full width on mobile, 2/3 on desktop */}
-        <div className="lg:col-span-2 order-2 lg:order-1 min-w-0">
+      {/* Main Content Layout - Responsive Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full overflow-hidden">
+        {/* Chat Interface - Takes 2/3 on desktop, full width on mobile */}
+        <div className="lg:col-span-2 min-w-0 w-full">
           <ChatInterface
             user={user}
             completedSessions={completedSessions}
@@ -107,8 +114,8 @@ const AIStudyCoach = () => {
           />
         </div>
 
-        {/* Right Sidebar - Stack on mobile, sidebar on desktop */}
-        <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-1 lg:order-2 min-w-0 max-w-full">
+        {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full">
           <FileUploadCard />
           <StudyPlanCard todaysFocus={todaysFocus} />
           <LearningStatsCard

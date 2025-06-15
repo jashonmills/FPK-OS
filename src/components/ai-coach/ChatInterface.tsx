@@ -489,63 +489,60 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [isSpeaking, isPaused, stopSpeech, togglePauseSpeech, toast]);
 
   return (
-    <Card className="h-[500px] sm:h-[600px] flex flex-col">
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-3 sm:p-6">
-        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-2 w-full">
+    <Card className="h-[400px] sm:h-[500px] md:h-[600px] flex flex-col w-full overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-2 sm:p-3 md:p-4 lg:p-6 flex-shrink-0">
+        <CardTitle className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-            <span className="text-sm sm:text-base">AI Learning Coach</span>
-            <Badge variant="secondary" className="ml-2 bg-white/20 text-white text-xs">
+            <span className="text-sm sm:text-base font-semibold truncate">AI Learning Coach</span>
+            <Badge variant="secondary" className="bg-white/20 text-white text-xs flex-shrink-0">
               Enhanced
             </Badge>
             {completedSessions.length > 0 && (
-              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs">
+              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs flex-shrink-0">
                 <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Personal Data Active</span>
+                <span className="hidden sm:inline">Personal Data</span>
                 <span className="sm:hidden">Data ✓</span>
               </Badge>
             )}
             {settings.enabled && (
-              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs">
+              <Badge variant="secondary" className="bg-white/20 text-white flex items-center gap-1 text-xs flex-shrink-0">
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
-                <span className="hidden sm:inline">Voice Active</span>
-                <span className="sm:hidden">Voice</span>
+                <span className="hidden lg:inline">Voice Active</span>
+                <span className="lg:hidden">Voice</span>
               </Badge>
             )}
             {isSpeaking && !isPaused && (
-              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs animate-pulse">
+              <Badge variant="secondary" className="bg-green-500/80 text-white flex items-center gap-1 text-xs animate-pulse flex-shrink-0">
                 <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Speaking</span>
                 <span className="sm:hidden">🔊</span>
               </Badge>
             )}
             {isPaused && (
-              <Badge variant="secondary" className="bg-yellow-500/80 text-white flex items-center gap-1 text-xs">
+              <Badge variant="secondary" className="bg-yellow-500/80 text-white flex items-center gap-1 text-xs flex-shrink-0">
                 <Pause className="h-2 w-2 sm:h-3 sm:w-3" />
                 <span className="hidden sm:inline">Paused</span>
                 <span className="sm:hidden">⏸</span>
               </Badge>
             )}
-            {!settings.hasInteracted && settings.enabled && (
-              <Badge variant="secondary" className="bg-orange-500/80 text-white flex items-center gap-1 text-xs">
-                <span className="hidden sm:inline">Click to enable voice</span>
-                <span className="sm:hidden">Click for voice</span>
-              </Badge>
-            )}
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="flex items-center gap-1 sm:gap-2">
-              {/* ... keep existing status display code */}
-              <span className="text-xs hidden sm:inline">{/* status text */}</span>
+          
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            {/* Status indicator */}
+            <div className="flex items-center gap-1">
+              {getStatusIcon()}
+              <span className="text-xs hidden md:inline truncate">{getStatusText()}</span>
             </div>
+            
             {/* Smart Pause/Resume/Stop Speech Controls */}
             {isSpeaking && (
               <div className="flex items-center gap-1">
                 <Button
-                  onClick={togglePauseSpeech}
+                  onClick={handlePauseResumeSpeech}
                   size="icon"
                   variant="ghost"
-                  className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
+                  className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target"
                   title={isPaused ? "Resume speaking (Ctrl+Space)" : "Pause speaking (Ctrl+Space)"}
                 >
                   {isPaused ? (
@@ -555,42 +552,70 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   )}
                 </Button>
                 <Button
-                  onClick={stopSpeech}
+                  onClick={handleStopSpeech}
                   size="icon"
                   variant="ghost"
-                  className="h-6 w-6 sm:h-8 sm:w-8 text-white hover:bg-white/20"
+                  className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target"
                   title="Stop speaking (ESC)"
                 >
                   <Square className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />
                 </Button>
               </div>
             )}
-            {/* ... keep existing dropdown menu code */}
+            
+            {/* Options Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 text-white hover:bg-white/20 touch-target">
+                  <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleResetChat}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset Chat
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSaveChat}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Save Chat
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleArchiveChat}>
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive Chat
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleVoice}>
+                  {settings.enabled ? <VolumeX className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                  {settings.enabled ? 'Disable Voice' : 'Enable Voice'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0 relative overflow-hidden">
+      
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
         {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
-          <div className="space-y-3 sm:space-y-4 min-w-0">
+        <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4" ref={scrollAreaRef} onScrollCapture={handleScroll}>
+          <div className="space-y-2 sm:space-y-3 md:space-y-4 min-w-0">
             {chatHistory.map((msg, index) => (
               <div key={index} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] sm:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg relative group ${
+                <div className={`max-w-[90%] sm:max-w-[85%] md:max-w-[80%] min-w-0 p-2 sm:p-3 rounded-lg relative group safe-text ${
                   msg.role === 'user' 
-                    ? 'bg-purple-600 text-white ml-2 sm:ml-4' 
-                    : 'bg-muted text-foreground mr-2 sm:mr-4'
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-muted text-foreground'
                 }`}>
                   {msg.role === 'assistant' && (
-                    <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
                       <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
-                      <span className="text-xs font-medium text-purple-600">AI Learning Coach</span>
+                      <span className="text-xs font-medium text-purple-600 truncate">AI Learning Coach</span>
                       {(msg as any).hasPersonalData && (
-                        <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                        <Badge variant="outline" className="text-xs px-1 py-0 h-4 flex-shrink-0">
                           Personal Data
                         </Badge>
                       )}
                       {(msg as any).toolUsed && (
-                        <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                        <Badge variant="outline" className="text-xs px-1 py-0 h-4 flex-shrink-0">
                           {(msg as any).toolUsed.replace('-', ' ')}
                         </Badge>
                       )}
@@ -598,7 +623,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity touch-target"
                           onClick={() => handleSpeakMessage(msg.message)}
                         >
                           <Volume2 className="h-3 w-3" />
@@ -606,7 +631,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       )}
                     </div>
                   )}
-                  <p className="text-xs sm:text-sm break-words overflow-wrap-anywhere min-w-0">{msg.message}</p>
+                  <p className="text-xs sm:text-sm leading-relaxed sm:leading-normal break-words">{msg.message}</p>
                   {msg.timestamp && (
                     <p className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -615,17 +640,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
               </div>
             ))}
-            {/* Only show thinking indicator when actually loading */}
+            
+            {/* Loading indicator */}
             {isLoading && (
               <div className="flex justify-start min-w-0">
-                <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg mr-2 sm:mr-4 min-w-0">
+                <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg min-w-0">
                   <div className="flex items-center gap-2">
                     <div className="animate-pulse flex space-x-1 flex-shrink-0">
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce"></div>
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                       <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
-                    <span className="text-xs sm:text-sm text-muted-foreground min-w-0">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       {isAnalyzing ? 'Claude is analyzing...' : 'Claude is thinking...'}
                     </span>
                   </div>
@@ -642,14 +668,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onClick={scrollToBottom}
             size="icon"
             variant="outline"
-            className="absolute bottom-16 sm:bottom-20 right-2 sm:right-4 rounded-full shadow-lg z-10 h-8 w-8 sm:h-10 sm:w-10"
+            className="absolute bottom-14 sm:bottom-16 md:bottom-20 right-2 sm:right-4 rounded-full shadow-lg z-10 h-8 w-8 sm:h-10 sm:w-10 touch-target"
           >
             <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         )}
 
         {/* Chat Input */}
-        <div className="border-t p-2 sm:p-4 flex-shrink-0">
+        <div className="border-t p-2 sm:p-3 md:p-4 flex-shrink-0 bg-background">
           <div className="flex gap-1 sm:gap-2">
             <Input
               placeholder="Ask about your flashcards, study progress, or get personalized guidance..."
@@ -657,14 +683,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading || isRecording}
-              className="flex-1 min-w-0 text-sm"
+              className="flex-1 min-w-0 text-sm safe-text"
             />
             <Button 
               onClick={handleVoiceRecording}
               disabled={isLoading || isProcessing}
               size="icon"
               variant={isRecording ? "destructive" : "outline"}
-              className={`flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 ${isRecording ? "animate-pulse" : ""}`}
+              className={`flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 touch-target ${isRecording ? "animate-pulse" : ""}`}
             >
               {isProcessing ? (
                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -678,46 +704,47 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleSendMessage}
               disabled={isLoading || !chatMessage.trim() || isRecording}
               size="icon"
-              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10"
+              className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 touch-target"
             >
               <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
-          {/* Enhanced status messages */}
+          
+          {/* Status messages with responsive text */}
           {isNativeListening && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center break-words">
               🎤 Listening... Speak clearly {transcript && `(${transcript})`}
             </p>
           )}
           {isRecording && !isNativeListening && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center break-words">
               Recording audio... Click the microphone again to stop
             </p>
           )}
           {isProcessing && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center break-words">
               Processing your voice...
             </p>
           )}
           {isSpeaking && !isPaused && (
-            <p className="text-xs text-green-600 mt-2 text-center animate-pulse">
+            <p className="text-xs text-green-600 mt-2 text-center animate-pulse break-words">
               🔊 AI is speaking... Press Ctrl+Space to pause, ESC to stop
             </p>
           )}
           {isPaused && (
-            <p className="text-xs text-yellow-600 mt-2 text-center">
+            <p className="text-xs text-yellow-600 mt-2 text-center break-words">
               ⏸ Speech paused... Press Ctrl+Space to resume, ESC to stop
             </p>
           )}
           {completedSessions.length > 0 && (
-            <p className="text-xs text-purple-600 mt-2 text-center px-2">
+            <p className="text-xs text-purple-600 mt-2 text-center break-words px-1">
               🎯 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
               {settings.enabled && " • 🔊 Voice responses enabled"}
               • Ask about your recent cards, study stats, or specific topics!
             </p>
           )}
           {responseTime && (
-            <p className="text-xs text-muted-foreground mt-1 text-center">
+            <p className="text-xs text-muted-foreground mt-1 text-center break-words">
               Response time: {responseTime}ms
               {completedSessions.length > 0 && " • Enhanced with personal data"}
             </p>

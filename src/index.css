@@ -101,8 +101,12 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     transition: all 0.2s ease;
   }
@@ -212,34 +216,77 @@
     background-clip: text;
   }
 
-  /* Enhanced Quick Study Challenges Layout */
-  .challenge-container {
-    display: grid;
-    gap: 1rem;
+  /* Enhanced Responsive Layout Utilities */
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6;
   }
 
-  /* Desktop: Two-column layout */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 lg:gap-6;
+  }
+
+  .responsive-text {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  .responsive-heading {
+    @apply text-lg sm:text-xl lg:text-2xl xl:text-3xl;
+  }
+
+  .responsive-card-padding {
+    @apply p-2 sm:p-4 lg:p-6;
+  }
+
+  .responsive-spacing {
+    @apply space-y-2 sm:space-y-4 lg:space-y-6;
+  }
+
+  /* Touch-friendly buttons */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Prevent text overflow */
+  .safe-text {
+    @apply break-words overflow-wrap-anywhere;
+  }
+
+  /* Quick Study Challenges Layout */
+  .challenge-container {
+    @apply grid gap-3 sm:gap-4;
+    grid-template-columns: 1fr;
+  }
+
+  /* Tablet and up: side-by-side layout */
+  @media (min-width: 768px) {
+    .challenge-container {
+      grid-template-columns: 300px 1fr;
+    }
+  }
+
+  /* Large screens: more space for details */
   @media (min-width: 1024px) {
     .challenge-container {
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 350px 1fr;
     }
   }
 
-  /* Mobile: Stacked layout with spacing */
+  /* Mobile-specific adjustments */
   @media (max-width: 640px) {
-    .challenge-container {
-      grid-template-columns: 1fr;
+    .mobile-stack {
+      @apply flex-col;
     }
     
-    .challenge-detail {
-      margin-top: 1rem;
+    .mobile-full-width {
+      @apply w-full;
     }
-  }
-
-  /* Very small screens: Modal overlay */
-  @media (max-width: 480px) {
-    .challenge-detail:not(.modal) {
-      display: none;
+    
+    .mobile-text-sm {
+      @apply text-sm;
+    }
+    
+    .mobile-p-2 {
+      @apply p-2;
     }
   }
 }

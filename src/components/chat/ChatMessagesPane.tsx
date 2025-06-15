@@ -45,7 +45,7 @@ const ChatMessagesPane = ({
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center p-4">
         <div className="text-center text-muted-foreground">
           <div className="animate-spin w-6 h-6 border border-purple-600 border-t-transparent rounded-full mx-auto mb-2"></div>
           <p className="text-sm">Loading messages...</p>
@@ -56,18 +56,18 @@ const ChatMessagesPane = ({
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Brain className="h-8 w-8 text-white" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Welcome to AI Learning Coach</h3>
-          <p className="text-muted-foreground text-sm">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Welcome to AI Learning Coach</h3>
+          <p className="text-muted-foreground text-xs sm:text-sm break-words leading-relaxed">
             I'm here to help you with your studies, provide learning strategies, 
             and answer questions about the platform. How can I assist you today?
           </p>
           {settings.enabled && (
-            <p className="text-purple-600 text-xs mt-2">
+            <p className="text-purple-600 text-xs mt-2 break-words">
               🔊 Voice responses are enabled - I'll read my replies aloud!
             </p>
           )}
@@ -77,8 +77,8 @@ const ChatMessagesPane = ({
   }
 
   return (
-    <ScrollArea className="flex-1 p-4">
-      <div className="space-y-4">
+    <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
+      <div className="space-y-2 sm:space-y-3 md:space-y-4">
         {messages.map((message) => (
           <div 
             key={message.id} 
@@ -88,35 +88,35 @@ const ChatMessagesPane = ({
             )}
           >
             <div className={cn(
-              "max-w-[80%] p-3 rounded-lg text-sm relative group",
+              "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] p-2 sm:p-3 rounded-lg text-sm relative group safe-text",
               message.role === 'user' 
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto' 
                 : 'bg-muted text-foreground mr-auto'
             )}>
               {message.role === 'assistant' && (
-                <div className="flex items-center gap-2 mb-2">
-                  <Brain className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs font-medium text-purple-600">AI Coach</span>
+                <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
+                  <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
+                  <span className="text-xs font-medium text-purple-600 truncate">AI Coach</span>
                   {ttsSupported && settings.enabled && (
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+                      className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity ml-auto touch-target"
                       onClick={() => handleSpeakMessage(message.content)}
                       title="Read aloud"
                     >
-                      <Volume2 className="h-3 w-3" />
+                      <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
                     </Button>
                   )}
                 </div>
               )}
               
-              <div className="whitespace-pre-wrap break-words">
+              <div className="break-words leading-relaxed">
                 {message.content}
               </div>
               
               <div className={cn(
-                "text-xs mt-2 opacity-70",
+                "text-xs mt-1 sm:mt-2 opacity-70",
                 message.role === 'user' ? 'text-right' : 'text-left'
               )}>
                 {formatTime(message.timestamp)}
@@ -127,9 +127,9 @@ const ChatMessagesPane = ({
         
         {isSending && (
           <div className="flex justify-start">
-            <div className="bg-muted text-foreground p-3 rounded-lg max-w-[80%]">
-              <div className="flex items-center gap-2 mb-2">
-                <Brain className="h-4 w-4 text-purple-600" />
+            <div className="bg-muted text-foreground p-2 sm:p-3 rounded-lg max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
                 <span className="text-xs font-medium text-purple-600">AI Coach</span>
               </div>
               <div className="flex items-center gap-2">

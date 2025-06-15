@@ -13,12 +13,14 @@ const DashboardLayout = () => {
     <VoiceSettingsProvider>
       <GamificationProvider>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full">
+          <div className="min-h-screen flex w-full overflow-x-hidden">
             <AppSidebar />
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
               <GlobalHeader />
-              <main className="flex-1 overflow-auto bg-gray-50">
-                <Outlet />
+              <main className="flex-1 bg-gray-50 overflow-x-hidden">
+                <div className="w-full h-full overflow-x-hidden">
+                  <Outlet />
+                </div>
               </main>
             </div>
             <GlobalChatWidget />
