@@ -109,35 +109,35 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
   }
 
   return (
-    <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-full flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 flex-shrink-0">
         <CardTitle className="text-sm font-medium text-purple-800">Visual of the Week</CardTitle>
         <Palette className="h-4 w-4 text-purple-600" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col">
         {isLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-32 w-full rounded-lg" />
+          <div className="space-y-3 flex-1">
+            <Skeleton className="flex-1 w-full rounded-lg min-h-[200px]" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />
           </div>
         ) : items && items.length > 0 ? (
-          <div className="space-y-4">
-            {/* Carousel Container */}
-            <div className="relative">
+          <div className="flex flex-col h-full space-y-4">
+            {/* Carousel Container - Takes available space */}
+            <div className="relative flex-1 min-h-[200px]">
               <Carousel 
                 setApi={setApi} 
-                className="w-full"
+                className="w-full h-full"
                 opts={{
                   align: "start",
                   loop: true,
                 }}
               >
-                <CarouselContent>
+                <CarouselContent className="h-full">
                   {items.map((item, index) => (
-                    <CarouselItem key={item.id}>
+                    <CarouselItem key={item.id} className="h-full">
                       <div 
-                        className="cursor-pointer group"
+                        className="cursor-pointer group h-full"
                         onClick={() => handleItemClick(item)}
                         role="button"
                         tabIndex={0}
@@ -149,25 +149,27 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                           }
                         }}
                       >
-                        <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow">
-                          <img
-                            src={item.thumbnail}
-                            alt={item.title}
-                            className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop';
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute bottom-2 left-2 right-2">
-                            <h4 className="text-sm font-semibold text-white line-clamp-2">
-                              {item.title}
-                            </h4>
-                            <p className="text-xs text-white/80 mt-1">
-                              {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'}
-                              {item.isThreeD && ' • 3D Model'}
-                            </p>
+                        <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow h-full flex flex-col">
+                          <div className="flex-1 relative">
+                            <img
+                              src={item.thumbnail}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                            <div className="absolute bottom-2 left-2 right-2">
+                              <h4 className="text-sm font-semibold text-white line-clamp-2">
+                                {item.title}
+                              </h4>
+                              <p className="text-xs text-white/80 mt-1">
+                                {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'}
+                                {item.isThreeD && ' • 3D Model'}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -189,8 +191,8 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
               </Carousel>
             </div>
 
-            {/* Mobile Navigation and Indicators */}
-            <div className="flex sm:hidden items-center justify-between px-2">
+            {/* Mobile Navigation and Indicators - Fixed at bottom */}
+            <div className="flex sm:hidden items-center justify-between px-2 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
@@ -229,8 +231,8 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
               </Button>
             </div>
 
-            {/* Item Counter and Info */}
-            <div className="text-center space-y-1">
+            {/* Item Counter and Info - Fixed at bottom */}
+            <div className="text-center space-y-1 flex-shrink-0">
               <div className="text-sm font-medium text-purple-800">
                 {current + 1} of {items.length}
               </div>
