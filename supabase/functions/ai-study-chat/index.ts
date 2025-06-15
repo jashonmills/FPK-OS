@@ -6,7 +6,7 @@ import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
 import { detectQueryMode } from './mode-detection.ts';
 import { buildContextPrompt } from './prompt-builder.ts';
-import { callClaude, handleToolCalls } from './claude-client.ts';
+import { callClaude, handleToolCalls, postProcessResponse } from './claude-client.ts';
 
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -45,8 +45,8 @@ serve(async (req) => {
       );
     }
 
-    // Determine model and tools based on chat mode
-    const model = chatMode === 'personal' ? 'claude-3-5-sonnet-20241022' : 'claude-3-opus-20240229';
+    // Determine model based on chat mode - use latest Claude 4 models for general knowledge
+    const model = chatMode === 'general' ? 'claude-3-opus-20240229' : 'claude-3-5-sonnet-20241022';
     console.log(`🤖 Using model: ${model} for ${chatMode} mode`);
 
     // Detect query mode and get context based on chat mode
@@ -60,12 +60,13 @@ serve(async (req) => {
       
       [learningContext, chatHistory] = await Promise.all([
         getLearningContext(userId),
-        sessionId ? getChatHistory(sessionId, 4) : Promise.resolve([])
+        sessionId ? getChatHistory(sessionId, 6) : Promise.resolve([])
       ]);
     } else {
       // For general mode, always use general query mode and don't fetch personal data
       queryMode = 'general';
-      console.log('🌐 General knowledge mode - no personal data access');
+      chatHistory = sessionId ? await getChatHistory(sessionId, 6) : [];
+      console.log('🌐 General knowledge mode - using external knowledge sources only');
     }
 
     // Build context prompt with mode-specific system prompts
@@ -115,7 +116,10 @@ serve(async (req) => {
         ];
 
         const finalData = await callClaude(finalMessages, model, chatMode);
-        const aiResponse = finalData.content?.[0]?.text || "I've analyzed your request and I'm here to help guide your learning journey! 📚";
+        let aiResponse = finalData.content?.[0]?.text || "I've analyzed your request and I'm here to help guide your learning journey! 📚";
+        
+        // Post-process the response to clean up any internal reasoning for general mode
+        aiResponse = postProcessResponse(aiResponse, chatMode);
         
         console.log('✅ Final AI response generated successfully with tool data');
 
@@ -139,7 +143,10 @@ serve(async (req) => {
       ? "I'm here to guide your personalized learning journey! What would you like to work on together? 📚"
       : "I'm here to help you explore any topic with comprehensive research and analysis! What would you like to learn about? 🌟";
       
-    const aiResponse = data.content?.[0]?.text || defaultResponse;
+    let aiResponse = data.content?.[0]?.text || defaultResponse;
+    
+    // Post-process the response for general mode
+    aiResponse = postProcessResponse(aiResponse, chatMode);
     
     console.log('✅ Direct AI response generated successfully');
 

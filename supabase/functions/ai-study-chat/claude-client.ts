@@ -7,7 +7,10 @@ interface ClaudeMessage {
 }
 
 export async function callClaude(messages: ClaudeMessage[], model?: string, chatMode?: string) {
-  const selectedModel = model || 'claude-3-5-sonnet-20241022';
+  // Use latest Claude 4 models for better performance
+  const selectedModel = chatMode === 'general' 
+    ? model || 'claude-3-opus-20240229' // Use Opus for general knowledge (more capable for research)
+    : model || 'claude-3-5-sonnet-20241022'; // Keep Sonnet for personal data (efficient)
   
   console.log(`🤖 Calling Claude with model: ${selectedModel}, mode: ${chatMode}`);
   
@@ -186,6 +189,44 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
   }
   
   return toolResults;
+}
+
+export function postProcessResponse(response: string, chatMode: string): string {
+  if (chatMode !== 'general') {
+    return response;
+  }
+
+  // Remove any visible thinking or reasoning blocks
+  let cleanedResponse = response;
+  
+  // Remove <thinking> blocks
+  cleanedResponse = cleanedResponse.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+  
+  // Remove tool call syntax if any leaked through
+  cleanedResponse = cleanedResponse.replace(/```json[\s\S]*?```/gi, '');
+  cleanedResponse = cleanedResponse.replace(/\[Tool call:[\s\S]*?\]/gi, '');
+  cleanedResponse = cleanedResponse.replace(/\{[\s\S]*?"tool_use"[\s\S]*?\}/gi, '');
+  
+  // Remove any debugging statements
+  cleanedResponse = cleanedResponse.replace(/\[DEBUG:[\s\S]*?\]/gi, '');
+  cleanedResponse = cleanedResponse.replace(/\[INTERNAL:[\s\S]*?\]/gi, '');
+  
+  // Clean up extra whitespace
+  cleanedResponse = cleanedResponse.replace(/\n\s*\n\s*\n/g, '\n\n');
+  cleanedResponse = cleanedResponse.trim();
+  
+  // Ensure the response follows the structured format for general knowledge
+  if (!cleanedResponse.includes('**') && !cleanedResponse.includes('•')) {
+    // If the response doesn't have structure, try to add some basic formatting
+    const sentences = cleanedResponse.split('. ');
+    if (sentences.length > 3) {
+      const summary = sentences.slice(0, 2).join('. ') + '.';
+      const details = sentences.slice(2).map(s => `• ${s}`).join('\n');
+      cleanedResponse = `**Summary:** ${summary}\n\n**Key Points:**\n${details}`;
+    }
+  }
+  
+  return cleanedResponse;
 }
 
 async function callEdgeFunction(functionName: string, payload: any) {

@@ -29,20 +29,49 @@ Available tools for personal coaching:
 
 If the user asks about topics not in their study data, encourage them to switch to General Knowledge mode for broader research.`;
   } else {
-    systemPrompt = `You are a General Knowledge AI Assistant with access to external knowledge sources. Your role is to:
+    systemPrompt = `You are a General Knowledge AI Assistant with access to external knowledge sources. Your role is to provide clear, direct, and well-structured answers without showing any internal reasoning or processing steps.
 
-1. Research any topic using external APIs and knowledge bases
-2. Provide comprehensive, well-sourced information
-3. Answer broad questions across all domains of knowledge
-4. Help with research, definitions, explanations, and learning about new topics
-5. Use external knowledge tools: retrieve_knowledge, and other research APIs
+## CRITICAL RESPONSE RULES:
 
-IMPORTANT: In general mode, you DO NOT have access to personal user data. Do not attempt to access flashcards, study sessions, or personal statistics. Focus on providing general knowledge and research capabilities.
+1. **NEVER display internal reasoning, thinking blocks, or tool call syntax**
+   - No <thinking> tags, no tool call logs, no processing steps
+   - User should only see the polished final answer
+
+2. **STRUCTURED ANSWER FORMAT - Follow this EXACT structure:**
+   - Start with a brief direct summary (1-2 sentences)
+   - Follow with 2-3 bullet points of key details or timeline
+   - End with source citation or "Further Reading" link when available
+   - Use clear headings and formatting for readability
+
+3. **CONTEXT-AWARE FOLLOW-UPS:**
+   - If user asks "now that you thought about it..." or similar follow-ups, refer to their LAST explicit question
+   - Do NOT ask them to repeat questions they just asked
+   - Only request clarification if the previous message truly lacks any actionable query
+
+4. **SILENT TOOL INTEGRATION:**
+   - Use retrieve_knowledge tool seamlessly behind the scenes
+   - Integrate retrieved facts naturally into responses
+   - NEVER show tool syntax, API calls, or retrieval processes
+
+5. **ERROR HANDLING:**
+   - If tools fail, provide general knowledge from model training
+   - Say "Based on available information..." rather than exposing tool failures
+   - Never prompt users to "try different search terms"
+
+## EXAMPLE RESPONSE FORMAT:
+**Direct Answer:** [Brief 1-2 sentence summary]
+
+**Key Points:**
+• [Supporting detail 1]
+• [Supporting detail 2] 
+• [Supporting detail 3]
+
+**Further Reading:** [Source or link if available]
+
+IMPORTANT: In general mode, you DO NOT have access to personal user data. Focus on providing comprehensive external knowledge and research capabilities.
 
 Available tools for general research:
-- retrieve_knowledge: Search Wikipedia, research papers, and educational content
-
-If the user asks about their personal study data, direct them to switch to Personal Data mode.`;
+- retrieve_knowledge: Search external knowledge sources including Wikipedia and educational content`;
   }
 
   // Add voice-specific instructions
@@ -71,8 +100,13 @@ If the user asks about their personal study data, direct them to switch to Perso
 
   let chatHistorySection = '';
   if (chatHistory.length > 0) {
+    const lastExplicitQuestion = extractLastQuestion(chatHistory, message);
     chatHistorySection = `\n\nRECENT CONVERSATION:
 ${chatHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}`;
+    
+    if (lastExplicitQuestion && isFollowUpQuestion(message)) {
+      chatHistorySection += `\n\nLAST EXPLICIT QUESTION: ${lastExplicitQuestion}`;
+    }
   }
 
   const modeIndicator = chatMode === 'personal' 
@@ -82,4 +116,37 @@ ${chatHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')
   return `${systemPrompt}${contextSection}${chatHistorySection}${modeIndicator}
 
 USER MESSAGE: ${message}`;
+}
+
+function extractLastQuestion(chatHistory: any[], currentMessage: string): string | null {
+  // Look through chat history in reverse to find the last user message that contains a question
+  for (let i = chatHistory.length - 1; i >= 0; i--) {
+    const msg = chatHistory[i];
+    if (msg.role === 'user' && (msg.content.includes('?') || 
+        msg.content.toLowerCase().includes('what') ||
+        msg.content.toLowerCase().includes('how') ||
+        msg.content.toLowerCase().includes('why') ||
+        msg.content.toLowerCase().includes('when') ||
+        msg.content.toLowerCase().includes('where') ||
+        msg.content.toLowerCase().includes('tell me about') ||
+        msg.content.toLowerCase().includes('explain'))) {
+      return msg.content;
+    }
+  }
+  return null;
+}
+
+function isFollowUpQuestion(message: string): boolean {
+  const followUpPatterns = [
+    'now that you thought about it',
+    'what is your answer',
+    'what do you think',
+    'your thoughts',
+    'reconsider',
+    'think again',
+    'on second thought'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  return followUpPatterns.some(pattern => lowerMessage.includes(pattern));
 }
