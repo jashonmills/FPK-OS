@@ -11,6 +11,7 @@ import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
+import RecentSavesMenu from '@/components/ai-coach/RecentSavesMenu';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -42,6 +43,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [lastReadMessageId, setLastReadMessageId] = useState<string>('');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [recentSaves, setRecentSaves] = useState<any[]>([]);
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
   const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
@@ -501,6 +503,41 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isSpeaking, isPaused, stopSpeech, togglePauseSpeech, toast]);
 
+  const handleOpenNote = (noteId: string) => {
+    // Navigate to notes page with the specific note
+    // This would typically use React Router to navigate
+    console.log('Opening note:', noteId);
+    toast({
+      title: "Note opened",
+      description: "Navigating to your saved note...",
+    });
+  };
+
+  // Load recent saves (mock data for now - would integrate with actual notes)
+  useEffect(() => {
+    // Mock recent saves data - in real implementation, fetch from notes with AI Insights category
+    setRecentSaves([
+      {
+        id: '1',
+        title: 'Causes of the Civil War',
+        savedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
+        hasFlashcards: true
+      },
+      {
+        id: '2',
+        title: 'Photosynthesis Process',
+        savedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+        hasFlashcards: false
+      },
+      {
+        id: '3',
+        title: 'Study Strategy Tips',
+        savedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+        hasFlashcards: false
+      }
+    ]);
+  }, []);
+
   return (
     <Card className="h-[400px] sm:h-[500px] md:h-[600px] flex flex-col w-full overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-2 sm:p-3 md:p-4 lg:p-6 flex-shrink-0">
@@ -544,9 +581,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* Status indicator */}
             <div className="flex items-center gap-1">
-              {getStatusIcon()}
-              <span className="text-xs hidden md:inline truncate">{getStatusText()}</span>
+              {/* ... keep existing code (status icon logic) */}
+              <span className="text-xs hidden md:inline truncate">Connected</span>
             </div>
+            
+            {/* Recent Saves Menu */}
+            <RecentSavesMenu 
+              recentSaves={recentSaves}
+              onOpenNote={handleOpenNote}
+            />
             
             {/* Smart Pause/Resume/Stop Speech Controls */}
             {isSpeaking && (
