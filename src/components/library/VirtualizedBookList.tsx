@@ -31,13 +31,16 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
       const stats = searchIndexService.getSearchStats();
       setSearchStats(stats);
       console.log('📊 Search stats updated:', stats);
+      
+      // Show all books initially
+      setDisplayBooks(books);
     }
   }, [books]);
 
   // Perform instant search when query changes
   useEffect(() => {
     const performSearch = async () => {
-      if (query.trim() && query.length >= 2) {
+      if (query.trim() && query.length >= 1) {
         setIsSearching(true);
         console.log(`🔍 Performing instant search for: "${query}"`);
         

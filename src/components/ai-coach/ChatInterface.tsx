@@ -53,6 +53,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Calculate study metrics
+  const overallAccuracy = completedSessions.length > 0 
+    ? Math.round((completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0) / 
+        completedSessions.reduce((sum, s) => sum + (s.total_cards || 1), 0)) * 100)
+    : 0;
+
+  const currentStreak = completedSessions.length > 0 
+    ? Math.max(0, completedSessions.filter(s => {
+        const sessionDate = new Date(s.created_at);
+        const today = new Date();
+        const diffDays = Math.floor((today.getTime() - sessionDate.getTime()) / (1000 * 3600 * 24));
+        return diffDays <= 1;
+      }).length)
+    : 0;
+
   // Improved scroll handling
   const scrollToBottom = () => {
     if (messagesEndRef.current && !userScrolledUp) {
@@ -150,14 +165,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       let personalizedGreeting = `Hi ${userName}! I'm Claude, your AI Learning Coach. `;
       
       if (totalSessions > 0) {
-        const accuracy = completedSessions.reduce((sum, s) => sum + (s.correct_answers || 0), 0) / 
-                        completedSessions.reduce((sum, s) => sum + (s.total_cards || 0), 1) * 100;
+        personalizedGreeting += `I've been analyzing your ${totalSessions} study sessions and ${totalCards} flashcards. Your overall accuracy is ${overallAccuracy}%! `;
         
-        personalizedGreeting += `I've been analyzing your ${totalSessions} study sessions and ${totalCards} flashcards. Your overall accuracy is ${Math.round(accuracy)}%! `;
-        
-        if (accuracy >= 80) {
+        if (overallAccuracy >= 80) {
           personalizedGreeting += "You're doing excellent work! Let's discuss strategies to maintain this momentum.";
-        } else if (accuracy >= 60) {
+        } else if (overallAccuracy >= 60) {
           personalizedGreeting += "You're making solid progress! I have some specific suggestions to help boost your performance.";
         } else {
           personalizedGreeting += "I see opportunities to strengthen your learning approach. Let's work together to identify what methods work best for you.";
