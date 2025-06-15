@@ -29,7 +29,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
       return;
     }
 
-    console.log('🎨 Initializing optimized EPUB rendition');
+    console.log('🎨 Initializing optimized EPUB rendition with scroll support');
     
     // Cleanup any existing rendition
     cleanup();
@@ -38,22 +38,30 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
     containerRef.current = container;
     
     try {
-      // Create rendition with correct EPUB.js API
+      // Create rendition with scroll-friendly configuration
       const rendition = book.renderTo(container, {
         width: '100%',
         height: '100%',
         spread: 'none',
-        allowScriptedContent: false // Security and performance
+        allowScriptedContent: false,
+        flow: 'scrolled-doc', // Enable scrolled document flow
+        overflow: 'auto' // Allow content overflow for scrolling
       });
 
-      // Configure styling
+      // Configure styling for better scrolling experience
       rendition.themes.fontSize(`${fontSize}px`);
       rendition.themes.default({
         body: {
           'font-family': 'system-ui, -apple-system, sans-serif !important',
           'line-height': '1.6 !important',
           'margin': '0 !important',
-          'padding': '20px !important'
+          'padding': '20px !important',
+          'overflow-y': 'auto !important',
+          'height': 'auto !important'
+        },
+        html: {
+          'overflow': 'auto !important',
+          'height': '100% !important'
         }
       });
 
@@ -72,7 +80,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
       });
 
       rendition.on('rendered', () => {
-        console.log('📄 Page rendered successfully');
+        console.log('📄 Page rendered successfully with scroll support');
         setIsNavigating(false);
       });
 
@@ -83,7 +91,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
 
       // Display the rendition
       rendition.display().then(() => {
-        console.log('✅ Rendition displayed successfully');
+        console.log('✅ Rendition displayed successfully with scrolling enabled');
         isInitializedRef.current = true;
       }).catch((error: any) => {
         console.error('❌ Rendition display error:', error);
@@ -162,7 +170,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
         try {
           const container = containerRef.current;
           renditionRef.current.resize(container.offsetWidth, container.offsetHeight);
-          console.log('🔄 Layout refreshed');
+          console.log('🔄 Layout refreshed with scroll support');
         } catch (error) {
           console.warn('Layout refresh error:', error);
         }

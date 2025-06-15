@@ -22,22 +22,22 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
   onClose,
   readerRef
 }) => {
-  // Add keyboard navigation
+  // Add keyboard navigation that doesn't interfere with scrolling
   useEffect(() => {
     if (isLoading || error || !isInitialized) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isNavigating) return;
       
+      // Only handle navigation keys, not scroll-related keys
       switch (event.key) {
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'PageUp':
           event.preventDefault();
           onPrevPage();
           break;
         case 'ArrowRight':
-        case 'ArrowDown':
-        case ' ':
+        case 'PageDown':
           event.preventDefault();
           onNextPage();
           break;
@@ -45,6 +45,8 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
           event.preventDefault();
           onClose();
           break;
+        // Allow arrow up/down and space for scrolling within content
+        // Don't prevent these events
       }
     };
 
@@ -52,20 +54,37 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isLoading, error, isNavigating, onPrevPage, onNextPage, onClose, isInitialized]);
 
-  // Add touch/swipe navigation
+  // Add enhanced touch/swipe navigation that respects scrolling
   useEffect(() => {
     if (!readerRef.current || isLoading || error || !isInitialized) return;
 
     let startX = 0;
     let startY = 0;
+    let isScrolling = false;
     
     const handleTouchStart = (e: TouchEvent) => {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      isScrolling = false;
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!startX || !startY) return;
+      
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      
+      const deltaX = Math.abs(startX - currentX);
+      const deltaY = Math.abs(startY - currentY);
+      
+      // Detect if user is scrolling vertically
+      if (deltaY > deltaX && deltaY > 10) {
+        isScrolling = true;
+      }
     };
     
     const handleTouchEnd = (e: TouchEvent) => {
-      if (!startX || !startY || isNavigating) return;
+      if (!startX || !startY || isNavigating || isScrolling) return;
       
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
@@ -73,6 +92,7 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
       const deltaX = startX - endX;
       const deltaY = startY - endY;
       
+      // Only trigger page navigation for horizontal swipes
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
         if (deltaX > 0) {
           onNextPage();
@@ -83,14 +103,17 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
       
       startX = 0;
       startY = 0;
+      isScrolling = false;
     };
 
     const container = readerRef.current;
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
     container.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
     };
   }, [isLoading, error, isNavigating, onPrevPage, onNextPage, isInitialized]);
