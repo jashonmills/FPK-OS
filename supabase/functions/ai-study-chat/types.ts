@@ -1,35 +1,19 @@
 
-// Type definitions for the AI study chat function
 export interface ChatRequest {
   message: string;
   userId: string;
-  sessionId: string;
+  sessionId?: string;
+  chatMode?: 'personal' | 'general';
   voiceActive?: boolean;
-  metadata?: any;
-}
-
-export interface LearningContext {
-  profile: {
-    name: string;
-    currentStreak: number;
-    totalXP: number;
-  };
-  recentActivity: {
-    sessionCount: number;
-    lastSession: string | null;
-    recentAccuracy: number;
+  metadata?: {
+    hasInteracted?: boolean;
+    timestamp?: string;
+    sessionLength?: number;
+    userAgent?: string;
+    voiceEnabled?: boolean;
+    autoRead?: boolean;
+    dualAIMode?: boolean;
   };
 }
 
-export interface ChatMessage {
-  role: string;
-  content: string;
-  timestamp: string;
-}
-
-export interface ToolResult {
-  tool_use_id: string;
-  content: string;
-}
-
-export type QueryMode = 'personal' | 'general';
+export type QueryMode = 'personal' | 'general' | 'mixed';

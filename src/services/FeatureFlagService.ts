@@ -145,6 +145,14 @@ export class FeatureFlagService {
         description: 'Enable Quizlet flashcard search and import functionality',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Dual AI Mode feature flag
+      {
+        id: 'dualAIMode',
+        name: 'Dual AI Mode',
+        description: 'Enable dual-model chat toggle between personal data and general knowledge modes',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 

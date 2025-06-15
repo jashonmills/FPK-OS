@@ -11,8 +11,11 @@ import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
+import { featureFlagService } from '@/services/FeatureFlagService';
+import { useChatMode } from '@/hooks/useChatMode';
 import RecentSavesMenu from '@/components/ai-coach/RecentSavesMenu';
 import ChatMessagesPane from '@/components/chat/ChatMessagesPane';
+import ChatModeToggle from '@/components/ai-coach/ChatModeToggle';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -49,9 +52,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
   const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
   const { settings, toggle: toggleVoice, isSupported: voiceSupported } = useVoiceSettings();
+  const { chatMode, changeChatMode } = useChatMode();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if dual AI mode is enabled
+  const isDualAIModeEnabled = featureFlagService.isEnabled('dualAIMode');
 
   // Calculate study metrics
   const overallAccuracy = completedSessions.length > 0 
@@ -242,13 +249,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         setConnectionStatus('slow');
       }, 8000);
 
-      console.log('🎙️ Sending message with voice processing enabled:', settings.enabled && settings.autoRead);
+      console.log('🎙️ Sending message with chat mode:', chatMode);
 
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
           userId: user?.id,
           sessionId: currentSessionId,
+          chatMode: isDualAIModeEnabled ? chatMode : 'personal',
           voiceActive: settings.enabled && settings.autoRead,
           metadata: {
             hasInteracted: settings.hasInteracted,
@@ -256,7 +264,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             sessionLength: chatHistory.length,
             userAgent: navigator.userAgent,
             voiceEnabled: settings.enabled,
-            autoRead: settings.autoRead
+            autoRead: settings.autoRead,
+            dualAIMode: isDualAIModeEnabled
           }
         }
       });
@@ -277,7 +286,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       console.log('🎙️ AI response received for voice processing:', {
         hasVoiceActive: data?.voiceEnabled,
         responseLength: aiResponse.length,
-        willAutoRead: settings.enabled && settings.autoRead
+        willAutoRead: settings.enabled && settings.autoRead,
+        chatMode: chatMode
       });
       
       const aiMessageObj = { 
@@ -300,6 +310,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         voiceEnabled: settings.enabled,
         hasPersonalData: data?.hasPersonalData,
         toolUsed: data?.toolUsed,
+        chatMode: chatMode,
         timestamp: new Date().toISOString()
       });
 
@@ -489,6 +500,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
+  // Get current mode badge info
+  const getCurrentModeBadge = () => {
+    if (!isDualAIModeEnabled) return null;
+    
+    if (chatMode === 'personal') {
+      return {
+        text: 'Personal Data Active',
+        className: 'bg-green-500/90 text-white'
+      };
+    } else {
+      return {
+        text: 'Web Tools Active',
+        className: 'bg-blue-500/90 text-white'
+      };
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Escape key to stop speech completely
@@ -533,6 +561,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     timestamp: msg.timestamp?.toISOString() || new Date().toISOString()
   }));
 
+  const currentModeBadge = getCurrentModeBadge();
+
   return (
     <Card className="h-[400px] sm:h-[500px] md:h-[600px] flex flex-col w-full overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-2 sm:p-3 md:p-4 lg:p-6 flex-shrink-0">
@@ -545,9 +575,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <Badge variant="secondary" className="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium border border-white/30 flex-shrink-0 shadow-sm">
                 Enhanced
               </Badge>
+              {currentModeBadge && (
+                <Badge variant="secondary" className={`${currentModeBadge.className} text-xs px-2 py-1 rounded-full font-medium border border-white/30 flex-shrink-0 shadow-sm`}>
+                  {currentModeBadge.text}
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              {/* Chat Mode Toggle */}
+              {isDualAIModeEnabled && (
+                <ChatModeToggle
+                  mode={chatMode}
+                  onModeChange={changeChatMode}
+                  className="mr-2"
+                />
+              )}
+              
               {/* Status indicator */}
               <div className="flex items-center gap-1">
                 {getStatusIcon()}
@@ -688,7 +732,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="border-t p-2 sm:p-3 md:p-4 flex-shrink-0 bg-background">
           <div className="flex gap-1 sm:gap-2">
             <Input
-              placeholder="Ask about your flashcards, study progress, or get personalized guidance..."
+              placeholder={chatMode === 'personal' 
+                ? "Ask about your flashcards, study progress, or get personalized guidance..."
+                : "Ask any question - I can research topics and provide comprehensive answers..."
+              }
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -746,17 +793,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               ⏸ Speech paused... Press Ctrl+Space to resume, ESC to stop
             </p>
           )}
-          {completedSessions.length > 0 && (
+          {completedSessions.length > 0 && chatMode === 'personal' && (
             <p className="text-xs text-purple-600 mt-2 text-center break-words px-1">
               🎯 I have access to your {completedSessions.length} study sessions and {flashcards?.length || 0} flashcards for personalized guidance
               {settings.enabled && " • 🔊 Voice responses enabled"}
               • Ask about your recent cards, study stats, or specific topics!
             </p>
           )}
+          {chatMode === 'general' && (
+            <p className="text-xs text-blue-600 mt-2 text-center break-words px-1">
+              🌐 General knowledge mode active - I can research any topic and provide comprehensive answers
+              {settings.enabled && " • 🔊 Voice responses enabled"}
+              • Ask me anything!
+            </p>
+          )}
           {responseTime && (
             <p className="text-xs text-muted-foreground mt-1 text-center break-words">
               Response time: {responseTime}ms
-              {completedSessions.length > 0 && " • Enhanced with personal data"}
+              {chatMode === 'personal' && completedSessions.length > 0 && " • Enhanced with personal data"}
+              {chatMode === 'general' && " • Enhanced with external knowledge"}
             </p>
           )}
         </div>
