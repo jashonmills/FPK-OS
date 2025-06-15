@@ -1,3 +1,4 @@
+
 /**
  * Performance Optimization Service
  * Refactored into smaller, focused components
@@ -8,6 +9,7 @@ import { CacheConfigManager, CacheConfig, PrefetchConfig } from './performance/C
 import { PrefetchManager } from './performance/PrefetchManager';
 import { PerformanceMetricsTracker, PerformanceMetrics } from './performance/PerformanceMetricsTracker';
 import { ImageOptimizer } from './performance/ImageOptimizer';
+import { sloMonitoringService } from './monitoring/SLOMonitoringService';
 
 class PerformanceOptimizationService {
   private cacheConfigManager = new CacheConfigManager();
@@ -35,7 +37,7 @@ class PerformanceOptimizationService {
     this.setupEnhancedCacheHeaders();
     await this.metricsTracker.loadPerformanceMetrics();
 
-    console.log('✅ Enhanced performance service initialized');
+    console.log('✅ Enhanced performance service initialized with monitoring');
   }
 
   /**
@@ -99,6 +101,11 @@ class PerformanceOptimizationService {
         const loadTime = performance.now() - startTime;
         this.metricsTracker.updateAverageLoadTime(loadTime);
 
+        // Track performance metrics for monitoring
+        if (url.includes('.epub') || url.includes('.pdf')) {
+          sloMonitoringService['webVitalsTracker'].recordCustomMetric('document_load_time', loadTime);
+        }
+
         return response;
       } catch (error) {
         console.warn('Fetch failed, checking cache fallback:', error);
@@ -158,7 +165,7 @@ class PerformanceOptimizationService {
   }
 
   /**
-   * Get enhanced performance metrics
+   * Get enhanced performance metrics with monitoring data
    */
   async getMetrics() {
     const cacheStats = indexedDBCache.getStats();
@@ -166,6 +173,7 @@ class PerformanceOptimizationService {
     const performanceMetrics = this.metricsTracker.getMetrics();
     const cacheConfig = this.cacheConfigManager.getCacheConfig();
     const prefetchConfig = this.cacheConfigManager.getPrefetchConfig();
+    const monitoringData = sloMonitoringService.getDashboardData();
     
     return {
       ...prefetchStats,
@@ -176,7 +184,12 @@ class PerformanceOptimizationService {
         prefetch: prefetchConfig,
         cache: cacheConfig
       },
-      streamingEnabled: prefetchConfig.streamingEnabled
+      streamingEnabled: prefetchConfig.streamingEnabled,
+      monitoring: {
+        sloStatus: monitoringData.sloStatus,
+        webVitals: monitoringData.webVitals,
+        alerts: monitoringData.alerts
+      }
     };
   }
 
