@@ -171,7 +171,7 @@ class AnalyticsEventBus {
         value: Number(item.value),
         timestamp: item.timestamp,
         user_id: item.user_id,
-        metadata: item.metadata
+        metadata: (item.metadata as Record<string, any>) || {}
       }));
     } catch (error) {
       console.error('Error in getTimeSeriesData:', error);
