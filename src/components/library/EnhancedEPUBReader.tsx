@@ -211,6 +211,25 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
     }
   }, [isLoading, error, isNavigating, forceLayoutRefresh, isInitialized]);
 
+  // Convert streaming progress/error to compatible types for UnifiedLoadingProgress
+  const convertedProgress = progress ? {
+    stage: progress.stage === 'prefetch' ? 'downloading' as const : 
+           progress.stage === 'streaming' ? 'processing' as const :
+           progress.stage as 'downloading' | 'processing' | 'ready',
+    percentage: progress.percentage,
+    message: progress.message,
+    bytesLoaded: progress.bytesLoaded,
+    totalBytes: progress.totalBytes,
+    estimatedTimeRemaining: progress.estimatedTimeRemaining
+  } : null;
+
+  const convertedError = error ? {
+    type: error.type === 'streaming' ? 'network' as const : error.type as 'network' | 'timeout' | 'parsing' | 'unknown',
+    message: error.message,
+    recoverable: error.recoverable,
+    retryCount: error.retryCount
+  } : null;
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
@@ -221,8 +240,8 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
         {(isLoading || error) ? (
           <UnifiedLoadingProgress
             title={`${book.title} by ${book.author}`}
-            progress={progress}
-            error={error}
+            progress={convertedProgress}
+            error={convertedError}
             onRetry={retryLoad}
             onCancel={onClose}
             type="epub"

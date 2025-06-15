@@ -30,6 +30,22 @@ const BookItem: React.FC<BookItemProps> = ({ index, style, data }) => {
 
   if (!book) return null;
 
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = event.target as HTMLImageElement;
+    target.style.display = 'none';
+    const parent = target.parentElement;
+    if (parent) {
+      parent.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center"><div class="h-6 w-6 text-primary/40">📖</div></div>';
+    }
+  };
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = event.target as HTMLImageElement;
+    if (book.cover_url) {
+      performanceService.optimizeImageLoading(target, book.cover_url);
+    }
+  };
+
   return (
     <div style={style} className="px-4 py-2">
       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 bg-background">
@@ -42,15 +58,8 @@ const BookItem: React.FC<BookItemProps> = ({ index, style, data }) => {
                 alt={`Cover of ${book.title}`}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.parentElement!.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center"><div class="h-6 w-6 text-primary/40">📖</div></div>';
-                }}
-                onLoad={() => {
-                  // Optimize image loading
-                  performanceService.optimizeImageLoading(e.target as HTMLImageElement, book.cover_url!);
-                }}
+                onError={handleImageError}
+                onLoad={handleImageLoad}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
@@ -185,6 +194,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
         <div className="border rounded-lg overflow-hidden">
           <List
             height={600} // Fixed height for virtualization
+            width="100%" // Added required width prop
             itemCount={filteredBooks.length}
             itemSize={120} // Height of each book item
             itemData={itemData}

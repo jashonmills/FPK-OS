@@ -68,7 +68,7 @@ class PerformanceOptimizationService {
     // Intercept fetch requests to add cache headers
     const originalFetch = window.fetch;
     window.fetch = async (input, init = {}) => {
-      const url = typeof input === 'string' ? input : input.url;
+      const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : input.href);
       
       // Add cache headers for book assets
       if (this.isBookAsset(url)) {
