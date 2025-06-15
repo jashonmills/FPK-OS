@@ -1,4 +1,3 @@
-
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 interface ClaudeMessage {
@@ -143,8 +142,9 @@ export async function handleToolCalls(data: any, userId: string, chatMode?: stri
                 break;
               
               case 'get_user_flashcards':
+                console.log('📚 Calling get_user_flashcards with correct userId parameter');
                 result = await callEdgeFunction('get-user-flashcards', {
-                  user_id: userId,
+                  userId: userId, // Fixed: using userId instead of user_id
                   topic_filter: content.input.topic_filter,
                   difficulty_filter: content.input.difficulty_filter
                 });
@@ -237,7 +237,7 @@ export function postProcessResponse(response: string, chatMode: string): string 
 }
 
 async function callEdgeFunction(functionName: string, payload: any) {
-  console.log(`📡 Calling edge function: ${functionName}`);
+  console.log(`📡 Calling edge function: ${functionName}`, payload);
   
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const response = await fetch(`${supabaseUrl}/functions/v1/${functionName}`, {
@@ -250,6 +250,8 @@ async function callEdgeFunction(functionName: string, payload: any) {
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Edge function ${functionName} failed:`, response.status, errorText);
     throw new Error(`Edge function ${functionName} failed: ${response.status}`);
   }
 

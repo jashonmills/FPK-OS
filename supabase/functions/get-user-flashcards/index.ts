@@ -18,13 +18,20 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, filter = {}, limit = 10, sortBy = 'created_at', sortOrder = 'desc' } = await req.json();
+    const { userId, user_id, topic_filter, difficulty_filter } = await req.json();
     
-    if (!userId) {
+    // Accept both userId and user_id for backwards compatibility
+    const actualUserId = userId || user_id;
+    
+    if (!actualUserId) {
+      console.error('❌ Missing user ID in request:', { userId, user_id });
       throw new Error('User ID is required');
     }
 
-    console.log('Fetching user flashcards:', { userId, filter, limit, sortBy, sortOrder });
+    console.log('📚 Fetching user flashcards for user:', actualUserId, {
+      topic_filter,
+      difficulty_filter
+    });
 
     let query = supabase
       .from('flashcards')
@@ -36,81 +43,107 @@ serve(async (req) => {
         times_reviewed,
         times_correct,
         last_reviewed_at,
-        created_at,
-        updated_at
+        created_at
       `)
-      .eq('user_id', userId);
+      .eq('user_id', actualUserId)
+      .order('created_at', { ascending: false });
 
-    // Apply filters
-    if (filter.difficulty) {
-      query = query.eq('difficulty_level', filter.difficulty);
+    // Apply filters if provided
+    if (topic_filter) {
+      query = query.ilike('front_content', `%${topic_filter}%`);
     }
 
-    if (filter.needsPractice) {
-      // Cards with low success rate or not reviewed recently
-      query = query.or('times_correct.lt.times_reviewed,last_reviewed_at.lt.2024-01-01');
+    if (difficulty_filter) {
+      let difficultyLevel;
+      switch (difficulty_filter.toLowerCase()) {
+        case 'easy':
+          difficultyLevel = 1;
+          break;
+        case 'medium':
+          difficultyLevel = 2;
+          break;
+        case 'hard':
+          difficultyLevel = 3;
+          break;
+        default:
+          difficultyLevel = null;
+      }
+      
+      if (difficultyLevel) {
+        query = query.eq('difficulty_level', difficultyLevel);
+      }
     }
-
-    if (filter.searchTerm) {
-      query = query.or(`front_content.ilike.%${filter.searchTerm}%,back_content.ilike.%${filter.searchTerm}%`);
-    }
-
-    // Apply sorting
-    const ascending = sortOrder === 'asc';
-    query = query.order(sortBy, { ascending }).limit(limit);
 
     const { data: flashcards, error } = await query;
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('❌ Database error:', error);
       throw error;
     }
 
-    console.log('Found flashcards:', flashcards?.length || 0);
+    console.log('📚 Found flashcards:', flashcards?.length || 0);
 
-    // Format response for Claude
+    // Format flashcards for response
     const formattedCards = flashcards?.map(card => {
-      const successRate = card.times_reviewed > 0 ? Math.round((card.times_correct / card.times_reviewed) * 100) : 0;
-      const daysSinceReview = card.last_reviewed_at 
-        ? Math.floor((Date.now() - new Date(card.last_reviewed_at).getTime()) / (1000 * 60 * 60 * 24))
-        : null;
+      const title = card.front_content.length > 50 
+        ? card.front_content.substring(0, 50) + '...'
+        : card.front_content;
+      
+      const snippet = card.back_content.length > 30
+        ? card.back_content.substring(0, 30) + '...'
+        : card.back_content;
 
       return {
         id: card.id,
-        front: card.front_content,
-        back: card.back_content,
+        title: title,
+        question: card.front_content,
+        answer: card.back_content,
+        snippet: snippet,
         created_at: card.created_at,
         stats: {
           correct: card.times_correct || 0,
           attempts: card.times_reviewed || 0,
-          successRate,
+          successRate: card.times_reviewed > 0 ? Math.round((card.times_correct / card.times_reviewed) * 100) : 0,
           difficulty: card.difficulty_level || 1,
-          lastReviewed: card.last_reviewed_at,
-          daysSinceReview,
-          needsPractice: successRate < 70 || (daysSinceReview && daysSinceReview > 7)
+          lastReviewed: card.last_reviewed_at
         }
       };
     }) || [];
 
+    const response = {
+      success: true,
+      flashcards: formattedCards,
+      total: formattedCards.length,
+      message: formattedCards.length > 0 
+        ? `Found ${formattedCards.length} flashcards`
+        : 'No flashcards found for this user',
+      isEmpty: formattedCards.length === 0,
+      filters: {
+        topic_filter,
+        difficulty_filter
+      }
+    };
+
+    console.log('✅ Returning flashcard response:', {
+      count: response.total,
+      isEmpty: response.isEmpty,
+      hasFilters: !!(topic_filter || difficulty_filter)
+    });
+
     return new Response(
-      JSON.stringify({ 
-        flashcards: formattedCards,
-        total: formattedCards.length,
-        filter: filter,
-        message: formattedCards.length > 0 
-          ? `Found ${formattedCards.length} flashcards matching your criteria`
-          : 'No flashcards found matching your criteria'
-      }),
+      JSON.stringify(response),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error fetching user flashcards:', error);
+    console.error('❌ Error fetching user flashcards:', error);
     return new Response(
       JSON.stringify({ 
+        success: false,
         error: error.message,
         flashcards: [],
         total: 0,
+        isEmpty: true,
         message: 'Failed to fetch flashcards'
       }),
       {
