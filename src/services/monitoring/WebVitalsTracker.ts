@@ -1,4 +1,3 @@
-
 /**
  * Web Vitals Performance Tracking
  * Tracks Core Web Vitals and custom performance metrics
@@ -185,8 +184,8 @@ export class WebVitalsTracker {
   private trackNavigationTiming(): void {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (navigation) {
-      const domLoad = navigation.domContentLoadedEventEnd - navigation.navigationStart;
-      const windowLoad = navigation.loadEventEnd - navigation.navigationStart;
+      const domLoad = navigation.domContentLoadedEventEnd - navigation.fetchStart;
+      const windowLoad = navigation.loadEventEnd - navigation.fetchStart;
       
       this.recordCustomMetric('dom_load_time', domLoad);
       this.recordCustomMetric('window_load_time', windowLoad);

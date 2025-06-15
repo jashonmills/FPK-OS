@@ -61,7 +61,7 @@ const MonitoringDashboard: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    return status === 'passing' ? 'success' : 'destructive';
+    return status === 'passing' ? 'secondary' : 'destructive';
   };
 
   return (
@@ -188,7 +188,7 @@ const MonitoringDashboard: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     {metric.name}
-                    <Badge variant={metric.rating === 'good' ? 'success' : metric.rating === 'needs-improvement' ? 'secondary' : 'destructive'}>
+                    <Badge variant={metric.rating === 'good' ? 'secondary' : metric.rating === 'needs-improvement' ? 'secondary' : 'destructive'}>
                       {metric.rating}
                     </Badge>
                   </CardTitle>
