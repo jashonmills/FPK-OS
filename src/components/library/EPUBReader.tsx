@@ -63,7 +63,10 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
+      <DialogContent 
+        className="max-w-full max-h-full w-screen h-screen p-0 overflow-hidden"
+        hideCloseButton={true}
+      >
         <DialogDescription className="sr-only">
           Enhanced EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
         </DialogDescription>
@@ -78,7 +81,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
             type="epub"
           />
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full overflow-hidden">
             {/* Header */}
             <EPUBReaderHeader
               title={book.title}

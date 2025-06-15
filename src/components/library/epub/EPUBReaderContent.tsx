@@ -34,16 +34,17 @@ export const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
   }, [isLoading, error, isNavigating, forceLayoutRefresh, isInitialized]);
 
   return (
-    <div className="flex-1 relative">
+    <div className="flex-1 relative overflow-hidden">
       <div
         ref={readerRef}
-        className="w-full h-full bg-background overflow-auto"
+        className="w-full h-full bg-background"
         tabIndex={0}
         role="main"
         aria-label={`Reading ${bookTitle} by ${bookAuthor}`}
         style={{ 
           opacity: isNavigating ? 0.7 : 1,
-          minHeight: '100%'
+          height: '100%',
+          overflow: 'auto'
         }}
       />
       
