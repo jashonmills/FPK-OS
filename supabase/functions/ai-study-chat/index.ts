@@ -14,54 +14,26 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced FPK University AI Learning Coach System Prompt with Tool Integration
-const ENHANCED_SYSTEM_PROMPT = `You are the FPK University AI Learning Coach—a Claude-based assistant embedded in the FPK Learner Portal. Your mission is to help each student study more effectively by tapping into their **own** flashcards, study materials, and performance data.
+// Simplified system prompt focused on direct responses
+const SYSTEM_PROMPT = `You are the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
 
-**AVAILABLE TOOLS:**
-You have access to these authenticated Supabase tools to fetch user-specific data:
+**Your Role:**
+- Analyze the student's real flashcards, study sessions, and performance data
+- Provide specific, actionable advice based on their actual learning patterns
+- Be encouraging and supportive while offering concrete next steps
+- Always reference their specific flashcards and study data when available
 
-1. **getRecentFlashcards(userId, limit)** - Returns the N most recent flashcards created by this user
-2. **getFlashcardsByGroup(userId, groupId)** - Returns all flashcards in a specific folder/group  
-3. **searchFlashcards(userId, query)** - Full-text search across user's flashcards
-4. **getStudyStats(userId)** - Returns comprehensive study statistics and performance metrics
+**Response Style:**
+- Be direct and helpful - no placeholder text or generic advice
+- Use the student's actual data to provide personalized insights
+- Offer specific next actions they can take
+- Keep responses conversational and encouraging
 
-**TOOL CALLING GUIDELINES:**
-- When a user asks about their **own** flashcards or study history, you **MUST** invoke the appropriate tool
-- Format tool calls as: {"tool": "toolName", "arguments": {"userId": "abc123", "param": "value"}}
-- After receiving tool data, synthesize it into clear, supportive, actionable guidance
+**Voice Mode:**
+- If voiceActive=true, structure responses for natural speech with appropriate pauses
+- Use shorter sentences and clear transitions for voice output
 
-**WHEN TO CALL EACH TOOL:**
-- **getRecentFlashcards**: "What were my last 5 flashcards?" "Show my newest uploads" "Which card did I create recently?"
-- **getFlashcardsByGroup**: "Let's review my Biology flashcards" "Show cards in my Math folder"
-- **searchFlashcards**: "Find my cards about 'photosynthesis'" "Search for cards with 'calculus'"
-- **getStudyStats**: "How many flashcards have I studied?" "What's my accuracy?" "Show my learning progress"
-
-**VOICE INTEGRATION:**
-- Check for voiceActive flag in the request
-- If voiceActive=true: structure responses for natural speech with appropriate pauses
-- If voiceActive=false: optimize for text readability
-- Always provide both text and voice-optimized versions when voice is enabled
-
-**COACHING APPROACH:**
-- Warm, encouraging, and personalized based on actual user data
-- Always suggest specific next steps: "Let's focus on these 3 challenging cards"
-- Celebrate progress and gently guide through difficulties
-- Use emojis sparingly for emphasis: 🎯📚✨💡
-- Reference specific flashcards, folders, and performance trends
-
-**RESPONSE STRUCTURE:**
-1. Acknowledge their current progress/question
-2. Use tools to fetch relevant data when needed
-3. Provide specific, data-driven insights
-4. Suggest concrete next actions
-5. Encourage continued learning
-
-**FALLBACK BEHAVIOR:**
-- For general study questions ("What is spaced repetition?"), answer from knowledge without tools
-- For mixed requests ("Teach me about my weak areas in biology"), first fetch weak biology cards, then provide targeted teaching
-- Always prioritize user-specific data over general advice when available
-
-Remember: You're not just an AI assistant—you're their personal learning coach who knows their study history, strengths, and areas for improvement. Make every interaction feel personalized and actionable.`;
+You have access to the student's personal study data through various tools. When data is provided, use it directly to give specific, personalized guidance.`;
 
 // Tool function implementations
 async function callTool(toolName: string, args: any) {
@@ -133,10 +105,90 @@ function detectToolNeeds(message: string, context: any): { tool?: string, args?:
   return {};
 }
 
-// Enhanced user context fetching
-async function getEnhancedLearningContext(userId: string) {
+// Format tool data into readable context
+function formatToolDataForContext(toolData: any, toolUsed: string): string {
+  if (!toolData || !toolUsed) return '';
+
+  switch (toolUsed) {
+    case 'get-recent-flashcards':
+      if (toolData.flashcards && toolData.flashcards.length > 0) {
+        const cardsText = toolData.flashcards.map((card: any, index: number) => {
+          const createdDate = new Date(card.created_at).toLocaleDateString();
+          const successRate = card.stats?.successRate || 0;
+          return `${index + 1}. **${card.front}**
+   Answer: ${card.back}
+   Created: ${createdDate} | Success Rate: ${successRate}% | Folder: ${card.folder}`;
+        }).join('\n\n');
+        
+        return `Here are the student's ${toolData.flashcards.length} most recent flashcards:\n\n${cardsText}`;
+      }
+      return 'The student has no recent flashcards yet.';
+
+    case 'get-flashcards-by-group':
+      if (toolData.flashcards && toolData.flashcards.length > 0) {
+        const cardsText = toolData.flashcards.map((card: any, index: number) => {
+          const createdDate = new Date(card.created_at).toLocaleDateString();
+          const successRate = card.stats?.successRate || 0;
+          return `${index + 1}. **${card.front}**
+   Answer: ${card.back}
+   Success Rate: ${successRate}% | Created: ${createdDate}`;
+        }).join('\n\n');
+        
+        return `Here are the flashcards from "${toolData.groupId}" folder (${toolData.flashcards.length} cards):\n\n${cardsText}`;
+      }
+      return `No flashcards found in the "${toolData.groupId}" folder.`;
+
+    case 'search-flashcards':
+      if (toolData.flashcards && toolData.flashcards.length > 0) {
+        const cardsText = toolData.flashcards.map((card: any, index: number) => {
+          const successRate = card.stats?.successRate || 0;
+          return `${index + 1}. **${card.front}**
+   Answer: ${card.back}
+   Success Rate: ${successRate}% | Folder: ${card.folder}`;
+        }).join('\n\n');
+        
+        return `Found ${toolData.resultsCount} flashcards matching "${toolData.query}":\n\n${cardsText}`;
+      }
+      return `No flashcards found matching "${toolData.query}".`;
+
+    case 'get-study-stats':
+      if (toolData.stats) {
+        const stats = toolData.stats;
+        return `Student's Learning Progress:
+
+**Study Sessions:**
+- Total sessions completed: ${stats.sessions.total}
+- Sessions this week: ${stats.sessions.recentWeek}
+- Average session duration: ${stats.sessions.avgDuration} minutes
+- Total study time: ${stats.sessions.totalMinutes} minutes
+
+**Performance:**
+- Overall accuracy: ${stats.accuracy.overall}%
+- Recent accuracy: ${stats.accuracy.recent}%
+- Correct answers: ${stats.accuracy.totalCorrect}/${stats.accuracy.totalAnswered}
+
+**Flashcard Progress:**
+- Total flashcards: ${stats.flashcards.total}
+- Cards reviewed: ${stats.flashcards.reviewed}
+- Cards mastered: ${stats.flashcards.mastered} (${stats.flashcards.masteryRate}% mastery rate)
+- Cards needing practice: ${stats.flashcards.struggling}
+
+**Achievements:**
+- Current streak: ${stats.progress.currentStreak} days
+- Total XP earned: ${stats.progress.totalXP}
+- Study frequency: ${stats.progress.studyFrequency} sessions per day`;
+      }
+      return 'No study statistics available yet.';
+
+    default:
+      return '';
+  }
+}
+
+// Get user context
+async function getLearningContext(userId: string) {
   try {
-    console.log('Fetching enhanced learning context for user:', userId);
+    console.log('Fetching learning context for user:', userId);
     
     const [profileData, recentActivity] = await Promise.all([
       supabase
@@ -172,13 +224,13 @@ async function getEnhancedLearningContext(userId: string) {
       }
     };
   } catch (error) {
-    console.error('Error fetching enhanced context:', error);
+    console.error('Error fetching learning context:', error);
     return null;
   }
 }
 
-// Enhanced chat history
-async function getEnhancedChatHistory(sessionId: string, limit: number = 6) {
+// Get chat history
+async function getChatHistory(sessionId: string, limit: number = 4) {
   try {
     const { data, error } = await supabase
       .from('chat_messages')
@@ -191,7 +243,7 @@ async function getEnhancedChatHistory(sessionId: string, limit: number = 6) {
     
     return (data || []).reverse();
   } catch (error) {
-    console.error('Error fetching enhanced chat history:', error);
+    console.error('Error fetching chat history:', error);
     return [];
   }
 }
@@ -204,7 +256,7 @@ serve(async (req) => {
   try {
     const { message, userId, sessionId, voiceActive = false, metadata } = await req.json();
     
-    console.log('Enhanced AI Coach request:', { 
+    console.log('AI Coach request:', { 
       hasMessage: !!message, 
       hasUserId: !!userId, 
       voiceActive,
@@ -231,8 +283,8 @@ serve(async (req) => {
 
     // Get context and detect tool needs
     const [learningContext, chatHistory] = await Promise.all([
-      getEnhancedLearningContext(userId),
-      sessionId ? getEnhancedChatHistory(sessionId, 4) : Promise.resolve([])
+      getLearningContext(userId),
+      sessionId ? getChatHistory(sessionId, 4) : Promise.resolve([])
     ]);
 
     const toolNeeds = detectToolNeeds(message, { userId, learningContext });
@@ -258,44 +310,37 @@ serve(async (req) => {
         chatHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n';
     }
 
-    // Build comprehensive context prompt
-    let contextPrompt = `\nCurrent learner: ${learningContext?.profile.name || 'Student'}`;
+    // Build user context
+    let contextPrompt = `\nStudent: ${learningContext?.profile.name || 'Student'}`;
     
     if (learningContext) {
       contextPrompt += `
-📊 Quick Profile:
-• Current Streak: ${learningContext.profile.currentStreak} days
-• Total XP: ${learningContext.profile.totalXP}
-• Recent Sessions: ${learningContext.recentActivity.sessionCount}
-• Recent Accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
+Current streak: ${learningContext.profile.currentStreak} days
+Total XP: ${learningContext.profile.totalXP}
+Recent sessions: ${learningContext.recentActivity.sessionCount}
+Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
 
       if (learningContext.recentActivity.lastSession) {
         const daysSince = Math.floor((Date.now() - new Date(learningContext.recentActivity.lastSession).getTime()) / (1000 * 60 * 60 * 24));
-        contextPrompt += `\n• Last Study: ${daysSince === 0 ? 'Today' : `${daysSince} days ago`}`;
+        contextPrompt += `\nLast study session: ${daysSince === 0 ? 'Today' : `${daysSince} days ago`}`;
       }
     }
 
-    // Add tool data if available
+    // Add formatted tool data if available
     if (toolData && toolUsed) {
-      contextPrompt += `\n\n🔧 Tool Data Retrieved (${toolUsed}):\n${JSON.stringify(toolData, null, 2)}
-      
-IMPORTANT: Use this specific user data to provide personalized, actionable guidance. Reference their actual flashcards, performance metrics, and study patterns.`;
+      const formattedData = formatToolDataForContext(toolData, toolUsed);
+      contextPrompt += `\n\n${formattedData}`;
     }
 
-    // Add voice optimization instruction
+    // Add voice optimization
     if (voiceActive) {
-      contextPrompt += `\n\n🎤 VOICE MODE ACTIVE: Structure your response for natural speech with appropriate pauses. Keep it conversational and easy to listen to.`;
+      contextPrompt += `\n\nVOICE MODE: Structure your response for natural speech with appropriate pauses.`;
     }
 
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    // Add coaching guidance
-    if (learningContext && toolData) {
-      contextPrompt += `\n\n💡 Coaching Focus: Provide specific, data-driven insights based on their actual study data. Suggest concrete next steps and celebrate their progress.`;
-    }
-
-    console.log('Calling enhanced Anthropic API with personalized context and tool data...');
+    console.log('Calling Anthropic API...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -315,7 +360,7 @@ IMPORTANT: Use this specific user data to provide personalized, actionable guida
           messages: [
             {
               role: 'user',
-              content: ENHANCED_SYSTEM_PROMPT + contextPrompt
+              content: SYSTEM_PROMPT + contextPrompt
             }
           ]
         }),
@@ -331,7 +376,7 @@ IMPORTANT: Use this specific user data to provide personalized, actionable guida
       const data = await response.json();
       const aiResponse = data.content?.[0]?.text || "I'm here to guide your personalized learning journey! What would you like to work on together? 📚";
       
-      console.log('Enhanced AI Coach response generated successfully');
+      console.log('AI Coach response generated successfully');
 
       return new Response(
         JSON.stringify({ 
@@ -349,7 +394,7 @@ IMPORTANT: Use this specific user data to provide personalized, actionable guida
     }
 
   } catch (error) {
-    console.error('Error in enhanced AI coach function:', error);
+    console.error('Error in AI coach function:', error);
     
     const smartFallback = "I'm here to support your personalized learning journey! 🎯 While I'm connecting to your study data, feel free to ask me about study strategies, specific topics, or how to make the most of your flashcards.";
     
