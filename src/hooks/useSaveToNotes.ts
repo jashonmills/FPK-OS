@@ -64,43 +64,19 @@ export const useSaveToNotes = () => {
           
           toast({
             title: "Saved to Notes",
-            description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment.",
-            action: (
-              <button 
-                onClick={undoSave}
-                className="text-sm underline hover:no-underline"
-              >
-                Undo
-              </button>
-            )
+            description: "Note saved and flashcards are being generated. Check Flashcard Manager in a moment."
           });
         } catch (error) {
           console.error('Error generating flashcards:', error);
           toast({
             title: "Saved to Notes",
-            description: "Note saved successfully, but flashcard generation failed.",
-            action: (
-              <button 
-                onClick={undoSave}
-                className="text-sm underline hover:no-underline"
-              >
-                Undo
-              </button>
-            )
+            description: "Note saved successfully, but flashcard generation failed."
           });
         }
       } else {
         toast({
           title: "Saved to Notes",
-          description: "AI response has been saved to your notes.",
-          action: (
-            <button 
-              onClick={undoSave}
-              className="text-sm underline hover:no-underline"
-            >
-              Undo
-            </button>
-          )
+          description: "AI response has been saved to your notes."
         });
       }
 
@@ -123,7 +99,7 @@ export const useSaveToNotes = () => {
       // For now, we'll just show a message
       toast({
         title: "Undo completed",
-        description: "The saved note has been removed.",
+        description: "The saved note has been removed."
       });
       setLastSavedNote(null);
     }
