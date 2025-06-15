@@ -29,13 +29,13 @@ class MuseumService {
   private readonly CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
   private cache = new Map<string, CachedMuseumData>();
 
-  // Enhanced fallback data for when APIs are unavailable
+  // Enhanced fallback data with properly matched images and descriptions
   private readonly FALLBACK_ITEMS: MuseumItem[] = [
     {
       id: 'fallback-1',
       title: 'Ancient Greek Amphora',
       description: 'A beautifully preserved ancient Greek amphora featuring intricate geometric patterns and mythological scenes.',
-      thumbnail: 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=300&fit=crop&auto=format',
       source: 'met',
       isThreeD: false,
       metadata: {
@@ -49,7 +49,7 @@ class MuseumService {
       id: 'fallback-2',
       title: 'Roman Marble Sculpture',
       description: 'A classical Roman marble sculpture depicting a figure from mythology, showcasing the mastery of ancient sculptors.',
-      thumbnail: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&auto=format',
       source: 'smithsonian',
       isThreeD: true,
       metadata: {
@@ -62,7 +62,7 @@ class MuseumService {
       id: 'fallback-3',
       title: 'Egyptian Canopic Jar',
       description: 'An ancient Egyptian canopic jar used in the mummification process, decorated with hieroglyphic inscriptions.',
-      thumbnail: 'https://images.unsplash.com/photo-1539650116574-75c0c6d03f6f?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1539650116574-75c0c6d03f6f?w=400&h=300&fit=crop&auto=format',
       source: 'met',
       isThreeD: false,
       metadata: {
@@ -75,7 +75,7 @@ class MuseumService {
       id: 'fallback-4',
       title: 'Medieval Illuminated Manuscript',
       description: 'A page from a medieval illuminated manuscript featuring gold leaf and vibrant pigments.',
-      thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&auto=format',
       source: 'smithsonian',
       isThreeD: false,
       metadata: {
@@ -86,9 +86,9 @@ class MuseumService {
     },
     {
       id: 'fallback-5',
-      title: 'Asian Porcelain Vase',
+      title: 'Chinese Porcelain Vase',
       description: 'An exquisite porcelain vase from the Ming Dynasty, featuring delicate blue and white patterns.',
-      thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400&h=300&fit=crop&auto=format',
       source: 'met',
       isThreeD: true,
       metadata: {
@@ -101,7 +101,7 @@ class MuseumService {
       id: 'fallback-6',
       title: 'Native American Pottery',
       description: 'Traditional Native American pottery featuring geometric designs and natural earth tones.',
-      thumbnail: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&auto=format',
       source: 'smithsonian',
       isThreeD: false,
       metadata: {
@@ -114,7 +114,7 @@ class MuseumService {
       id: 'fallback-7',
       title: 'Renaissance Bronze Medallion',
       description: 'A detailed Renaissance bronze medallion commemorating a historical figure, showcasing the artistry of the period.',
-      thumbnail: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=300&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1527576539890-dfa815648363?w=400&h=300&fit=crop&auto=format',
       source: 'met',
       isThreeD: true,
       metadata: {
