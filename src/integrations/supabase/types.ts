@@ -772,9 +772,11 @@ export type Database = {
           file_size: number | null
           gutenberg_id: number
           id: string
+          is_user_added: boolean | null
           language: string | null
           last_download_attempt: string | null
           last_updated: string | null
+          openlibrary_key: string | null
           storage_url: string | null
           subjects: string[] | null
           title: string
@@ -790,9 +792,11 @@ export type Database = {
           file_size?: number | null
           gutenberg_id: number
           id: string
+          is_user_added?: boolean | null
           language?: string | null
           last_download_attempt?: string | null
           last_updated?: string | null
+          openlibrary_key?: string | null
           storage_url?: string | null
           subjects?: string[] | null
           title: string
@@ -808,9 +812,11 @@ export type Database = {
           file_size?: number | null
           gutenberg_id?: number
           id?: string
+          is_user_added?: boolean | null
           language?: string | null
           last_download_attempt?: string | null
           last_updated?: string | null
+          openlibrary_key?: string | null
           storage_url?: string | null
           subjects?: string[] | null
           title?: string

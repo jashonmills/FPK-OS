@@ -1,3 +1,4 @@
+
 export interface PublicDomainBook {
   id: string;
   title: string;
@@ -10,7 +11,10 @@ export interface PublicDomainBook {
   language?: string;
   last_updated: string;
   created_at: string;
-  // New storage-related fields
+  // New OpenLibrary integration fields
+  openlibrary_key?: string;
+  is_user_added?: boolean;
+  // Storage-related fields
   storage_url?: string;
   file_size?: number;
   download_status?: 'pending' | 'downloading' | 'completed' | 'failed';

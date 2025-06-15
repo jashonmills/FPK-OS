@@ -13,7 +13,8 @@ export const usePublicDomainBooks = () => {
       const { data, error } = await supabase
         .from('public_domain_books')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('is_user_added', { ascending: true }) // Show curated books first
+        .order('created_at', { ascending: false }); // Then newest user-added books
       
       if (error) {
         console.error('❌ Error fetching public domain books:', error);
@@ -25,10 +26,12 @@ export const usePublicDomainBooks = () => {
       // Type assertion to ensure the data conforms to our PublicDomainBook interface
       return (data || []).map(book => ({
         ...book,
-        download_status: book.download_status as 'pending' | 'downloading' | 'completed' | 'failed'
+        download_status: book.download_status as 'pending' | 'downloading' | 'completed' | 'failed',
+        is_user_added: book.is_user_added || false,
+        openlibrary_key: book.openlibrary_key || undefined
       })) as PublicDomainBook[];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes - shorter stale time for faster updates
     refetchOnWindowFocus: false
   });
 

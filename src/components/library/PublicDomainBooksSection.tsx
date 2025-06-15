@@ -5,6 +5,7 @@ import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
+import OpenLibrarySearchBar from './OpenLibrarySearchBar';
 
 const PublicDomainBooksSection: React.FC = () => {
   const { books, isLoading, error } = usePublicDomainBooks();
@@ -30,12 +31,22 @@ const PublicDomainBooksSection: React.FC = () => {
   }));
 
   return (
-    <>
+    <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">Public Domain Collection</h2>
+        <p className="text-muted-foreground mb-6">
+          Search and add books from OpenLibrary or browse our curated collection
+        </p>
+        <OpenLibrarySearchBar />
+      </div>
+
+      {/* Book Collection */}
       <BookCarousel
         books={carouselBooks}
         sectionId="publicDomain"
-        title="Public Domain Collection"
-        description="Curated educational books from Project Gutenberg focused on learning and neurodiversity"
+        title="Available Books"
+        description="Educational books from Project Gutenberg and user-added titles"
         isLoading={isLoading}
         error={error}
       />
@@ -44,7 +55,7 @@ const PublicDomainBooksSection: React.FC = () => {
       {selectedBook && (
         <EnhancedEPUBReader book={selectedBook} onClose={handleCloseReader} />
       )}
-    </>
+    </div>
   );
 };
 
