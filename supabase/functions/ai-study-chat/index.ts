@@ -14,33 +14,46 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Simplified system prompt focused on direct responses
+// Enhanced system prompt for Claude Sonnet 4 with tool usage
 const SYSTEM_PROMPT = `You are the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
 
 **Your Role:**
-- Analyze the student's real flashcards, study sessions, and performance data
+- Analyze the student's real flashcards, study sessions, and performance data using available tools
 - Provide specific, actionable advice based on their actual learning patterns
 - Be encouraging and supportive while offering concrete next steps
-- Always reference their specific flashcards and study data when available
+- Always use tools to fetch current data when students ask about their progress, flashcards, or performance
+
+**Available Tools:**
+- get_recent_flashcards: Fetch the student's most recent flashcards (use when they ask about recent cards, last flashcards, or want to review what they've created)
+- get_flashcards_by_group: Get flashcards from a specific folder/subject (use when they mention a subject or folder)
+- search_flashcards: Search through their flashcards by content or performance (use when they want to find specific cards or cards they're struggling with)
+- get_study_stats: Get comprehensive study statistics and progress data (use when they ask about progress, performance, stats, or achievements)
+
+**Tool Usage Guidelines:**
+- ALWAYS use tools when students ask about their data, progress, or flashcards
+- Use get_study_stats for questions about performance, progress, streaks, or achievements
+- Use get_recent_flashcards when they want to see what they've been studying recently
+- Use search_flashcards to find specific content or struggling cards
+- Use get_flashcards_by_group for subject-specific questions
 
 **Response Style:**
-- Be direct and helpful - no placeholder text or generic advice
-- Use the student's actual data to provide personalized insights
-- Offer specific next actions they can take
+- Be direct and helpful with specific data-driven insights
+- Reference actual numbers and flashcard content from tool results
+- Offer specific next actions based on their real data
 - Keep responses conversational and encouraging
 
 **Voice Mode:**
 - If voiceActive=true, structure responses for natural speech with appropriate pauses
 - Use shorter sentences and clear transitions for voice output
 
-You have access to the student's personal study data through various tools. When data is provided, use it directly to give specific, personalized guidance.`;
+Always prioritize using tools to provide accurate, personalized guidance based on their current study data.`;
 
-// Tool function implementations
-async function callTool(toolName: string, args: any) {
+// Tool implementations using Supabase edge functions
+async function executeToolCall(toolName: string, args: any) {
   try {
-    console.log(`Calling tool: ${toolName} with args:`, args);
+    console.log(`Executing tool: ${toolName} with args:`, args);
     
-    const { data, error } = await supabase.functions.invoke(toolName, {
+    const { data, error } = await supabase.functions.invoke(toolName.replace('_', '-'), {
       body: args
     });
 
@@ -52,148 +65,12 @@ async function callTool(toolName: string, args: any) {
     console.log(`Tool ${toolName} response:`, data);
     return data;
   } catch (error) {
-    console.error(`Error calling tool ${toolName}:`, error);
-    throw error;
+    console.error(`Error executing tool ${toolName}:`, error);
+    return { error: `Failed to execute ${toolName}: ${error.message}` };
   }
 }
 
-// Detect if user needs tool data
-function detectToolNeeds(message: string, context: any): { tool?: string, args?: any } {
-  const lowerMessage = message.toLowerCase();
-  const userId = context.userId;
-
-  // Enhanced recent flashcards patterns - more comprehensive matching
-  if (lowerMessage.match(/(recent|last|newest|latest).*(flashcard|card)/i) ||
-      lowerMessage.match(/(show|what|display).*(recent|last|newest|latest)/i) ||
-      lowerMessage.match(/(show|display).*me.*my.*(flashcard|card)/i) ||
-      lowerMessage.match(/(review|see).*my.*(recent|study|flashcard|card)/i) ||
-      lowerMessage.match(/my.*last.*\d*.*(flashcard|card)/i) ||
-      lowerMessage.includes('show me my recent') ||
-      lowerMessage.includes('what are my last') ||
-      lowerMessage.includes('review my recent')) {
-    
-    const limitMatch = message.match(/(\d+)/);
-    const limit = limitMatch ? parseInt(limitMatch[1]) : 3; // Default to 3 cards
-    console.log(`Detected recent flashcards request with limit: ${limit}`);
-    return { tool: 'get-recent-flashcards', args: { userId, limit } };
-  }
-
-  // Group/folder flashcards patterns
-  if (lowerMessage.match(/(folder|group|category).*(flashcard|card)/i) ||
-      lowerMessage.match(/(review|show).*(biology|math|history|science|english)/i)) {
-    const groupMatch = message.match(/(biology|math|history|science|english|\w+\s+folder|\w+\s+group)/i);
-    const groupId = groupMatch ? groupMatch[1].toLowerCase() : 'general';
-    return { tool: 'get-flashcards-by-group', args: { userId, groupId } };
-  }
-
-  // Search patterns
-  if (lowerMessage.match(/(search|find|look for).*(flashcard|card)/i) ||
-      lowerMessage.match(/cards?.*(about|with|containing)/i)) {
-    const queryMatch = message.match(/(?:about|with|containing|for)\s+['"]?([^'"]+)['"]?/i);
-    const query = queryMatch ? queryMatch[1].trim() : '';
-    
-    // Check for performance filters
-    let filter = undefined;
-    if (lowerMessage.includes('weak') || lowerMessage.includes('struggling') || lowerMessage.includes('difficult')) {
-      filter = 'low success';
-    } else if (lowerMessage.includes('practice') || lowerMessage.includes('review needed')) {
-      filter = 'needs practice';
-    }
-    
-    return { tool: 'search-flashcards', args: { userId, query, filter } };
-  }
-
-  // Stats patterns
-  if (lowerMessage.match(/(stats|statistics|progress|accuracy|performance)/i) ||
-      lowerMessage.match(/(how many|total).*(session|card|study)/i) ||
-      lowerMessage.match(/(streak|xp|level)/i)) {
-    return { tool: 'get-study-stats', args: { userId } };
-  }
-
-  return {};
-}
-
-// Format tool data into readable context
-function formatToolDataForContext(toolData: any, toolUsed: string): string {
-  if (!toolData || !toolUsed) return '';
-
-  switch (toolUsed) {
-    case 'get-recent-flashcards':
-      if (toolData.flashcards && toolData.flashcards.length > 0) {
-        const cardsText = toolData.flashcards.map((card: any, index: number) => {
-          const createdDate = new Date(card.created_at).toLocaleDateString();
-          const successRate = card.stats?.successRate || 0;
-          return `${index + 1}. **${card.front}**
-   Answer: ${card.back}
-   Created: ${createdDate} | Success Rate: ${successRate}% | Folder: ${card.folder}`;
-        }).join('\n\n');
-        
-        return `Here are the student's ${toolData.flashcards.length} most recent flashcards:\n\n${cardsText}`;
-      }
-      return 'The student has no recent flashcards yet.';
-
-    case 'get-flashcards-by-group':
-      if (toolData.flashcards && toolData.flashcards.length > 0) {
-        const cardsText = toolData.flashcards.map((card: any, index: number) => {
-          const createdDate = new Date(card.created_at).toLocaleDateString();
-          const successRate = card.stats?.successRate || 0;
-          return `${index + 1}. **${card.front}**
-   Answer: ${card.back}
-   Success Rate: ${successRate}% | Created: ${createdDate}`;
-        }).join('\n\n');
-        
-        return `Here are the flashcards from "${toolData.groupId}" folder (${toolData.flashcards.length} cards):\n\n${cardsText}`;
-      }
-      return `No flashcards found in the "${toolData.groupId}" folder.`;
-
-    case 'search-flashcards':
-      if (toolData.flashcards && toolData.flashcards.length > 0) {
-        const cardsText = toolData.flashcards.map((card: any, index: number) => {
-          const successRate = card.stats?.successRate || 0;
-          return `${index + 1}. **${card.front}**
-   Answer: ${card.back}
-   Success Rate: ${successRate}% | Folder: ${card.folder}`;
-        }).join('\n\n');
-        
-        return `Found ${toolData.resultsCount} flashcards matching "${toolData.query}":\n\n${cardsText}`;
-      }
-      return `No flashcards found matching "${toolData.query}".`;
-
-    case 'get-study-stats':
-      if (toolData.stats) {
-        const stats = toolData.stats;
-        return `Student's Learning Progress:
-
-**Study Sessions:**
-- Total sessions completed: ${stats.sessions.total}
-- Sessions this week: ${stats.sessions.recentWeek}
-- Average session duration: ${stats.sessions.avgDuration} minutes
-- Total study time: ${stats.sessions.totalMinutes} minutes
-
-**Performance:**
-- Overall accuracy: ${stats.accuracy.overall}%
-- Recent accuracy: ${stats.accuracy.recent}%
-- Correct answers: ${stats.accuracy.totalCorrect}/${stats.accuracy.totalAnswered}
-
-**Flashcard Progress:**
-- Total flashcards: ${stats.flashcards.total}
-- Cards reviewed: ${stats.flashcards.reviewed}
-- Cards mastered: ${stats.flashcards.mastered} (${stats.flashcards.masteryRate}% mastery rate)
-- Cards needing practice: ${stats.flashcards.struggling}
-
-**Achievements:**
-- Current streak: ${stats.progress.currentStreak} days
-- Total XP earned: ${stats.progress.totalXP}
-- Study frequency: ${stats.progress.studyFrequency} sessions per day`;
-      }
-      return 'No study statistics available yet.';
-
-    default:
-      return '';
-  }
-}
-
-// Get user context
+// Get user context for personalization
 async function getLearningContext(userId: string) {
   try {
     console.log('Fetching learning context for user:', userId);
@@ -237,7 +114,7 @@ async function getLearningContext(userId: string) {
   }
 }
 
-// Get chat history
+// Get chat history for context
 async function getChatHistory(sessionId: string, limit: number = 4) {
   try {
     const { data, error } = await supabase
@@ -269,7 +146,7 @@ serve(async (req) => {
       hasUserId: !!userId, 
       voiceActive,
       hasSessionId: !!sessionId,
-      message: message.substring(0, 100) + '...' // Log first 100 chars for debugging
+      message: message.substring(0, 100) + '...'
     });
     
     if (!message || !userId) {
@@ -290,29 +167,11 @@ serve(async (req) => {
       );
     }
 
-    // Get context and detect tool needs
+    // Get context and history
     const [learningContext, chatHistory] = await Promise.all([
       getLearningContext(userId),
       sessionId ? getChatHistory(sessionId, 4) : Promise.resolve([])
     ]);
-
-    const toolNeeds = detectToolNeeds(message, { userId, learningContext });
-    let toolData = null;
-    let toolUsed = null;
-
-    console.log('Tool detection result:', toolNeeds);
-
-    // Execute tool if needed
-    if (toolNeeds.tool) {
-      try {
-        toolData = await callTool(toolNeeds.tool, toolNeeds.args);
-        toolUsed = toolNeeds.tool;
-        console.log('Tool executed successfully:', toolUsed);
-      } catch (error) {
-        console.error('Tool execution failed:', error);
-        // Continue without tool data
-      }
-    }
 
     // Build conversation context
     let conversationContext = '';
@@ -337,12 +196,6 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
       }
     }
 
-    // Add formatted tool data if available
-    if (toolData && toolUsed) {
-      const formattedData = formatToolDataForContext(toolData, toolUsed);
-      contextPrompt += `\n\n${formattedData}`;
-    }
-
     // Add voice optimization
     if (voiceActive) {
       contextPrompt += `\n\nVOICE MODE: Structure your response for natural speech with appropriate pauses.`;
@@ -351,12 +204,13 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    console.log('Calling Anthropic API...');
+    console.log('Calling Claude Sonnet 4 with tools...');
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
+      // Initial call to Claude with tools
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -366,8 +220,58 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
           'x-api-key': anthropicApiKey,
         },
         body: JSON.stringify({
-          model: 'claude-3-5-haiku-20241022',
-          max_tokens: 400,
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1000,
+          tools: [
+            {
+              name: 'get_recent_flashcards',
+              description: 'Get the student\'s most recent flashcards. Use when they ask about recent cards, what they\'ve been studying, or want to review their latest flashcards.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  userId: { type: 'string', description: 'The user ID' },
+                  limit: { type: 'integer', description: 'Number of flashcards to return (default: 5)', default: 5 }
+                },
+                required: ['userId']
+              }
+            },
+            {
+              name: 'get_flashcards_by_group',
+              description: 'Get flashcards from a specific folder or subject. Use when they mention a subject, folder, or category.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  userId: { type: 'string', description: 'The user ID' },
+                  groupId: { type: 'string', description: 'The folder/group name or subject' }
+                },
+                required: ['userId', 'groupId']
+              }
+            },
+            {
+              name: 'search_flashcards',
+              description: 'Search through flashcards by content or find cards they\'re struggling with. Use when they want to find specific cards or review difficult material.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  userId: { type: 'string', description: 'The user ID' },
+                  query: { type: 'string', description: 'Search query or content to find' },
+                  filter: { type: 'string', description: 'Performance filter: "low success", "needs practice", etc.', enum: ['low success', 'needs practice', 'all'] }
+                },
+                required: ['userId']
+              }
+            },
+            {
+              name: 'get_study_stats',
+              description: 'Get comprehensive study statistics and progress data. Use when they ask about performance, progress, achievements, streaks, or overall stats.',
+              input_schema: {
+                type: 'object',
+                properties: {
+                  userId: { type: 'string', description: 'The user ID' }
+                },
+                required: ['userId']
+              }
+            }
+          ],
           messages: [
             {
               role: 'user',
@@ -381,23 +285,103 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
       clearTimeout(timeoutId);
       
       if (!response.ok) {
-        throw new Error(`Anthropic API error: ${response.status}`);
+        throw new Error(`Claude API error: ${response.status}`);
       }
 
       const data = await response.json();
-      const aiResponse = data.content?.[0]?.text || "I'm here to guide your personalized learning journey! What would you like to work on together? 📚";
-      
-      console.log('AI Coach response generated successfully');
+      console.log('Claude response received:', { 
+        hasContent: !!data.content, 
+        contentLength: data.content?.length,
+        stopReason: data.stop_reason 
+      });
 
-      return new Response(
-        JSON.stringify({ 
-          response: aiResponse,
-          voiceEnabled: voiceActive,
-          toolUsed: toolUsed,
-          hasPersonalData: !!toolData
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      // Check if Claude wants to use tools
+      if (data.stop_reason === 'tool_use') {
+        console.log('Claude requested tool usage');
+        
+        // Execute tool calls
+        const toolResults = [];
+        const toolMessages = [];
+        
+        for (const contentBlock of data.content) {
+          if (contentBlock.type === 'tool_use') {
+            const toolName = contentBlock.name;
+            const toolArgs = { ...contentBlock.input, userId }; // Ensure userId is included
+            
+            console.log(`Executing tool: ${toolName}`, toolArgs);
+            const toolResult = await executeToolCall(toolName, toolArgs);
+            
+            toolResults.push({
+              tool_use_id: contentBlock.id,
+              content: JSON.stringify(toolResult)
+            });
+          }
+        }
+
+        // Send tool results back to Claude for final response
+        const finalResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anthropicApiKey}`,
+            'Content-Type': 'application/json',
+            'anthropic-version': '2023-06-01',
+            'x-api-key': anthropicApiKey,
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 800,
+            messages: [
+              {
+                role: 'user',
+                content: SYSTEM_PROMPT + contextPrompt
+              },
+              {
+                role: 'assistant',
+                content: data.content
+              },
+              {
+                role: 'user',
+                content: toolResults
+              }
+            ]
+          })
+        });
+
+        if (!finalResponse.ok) {
+          throw new Error(`Claude final API error: ${finalResponse.status}`);
+        }
+
+        const finalData = await finalResponse.json();
+        const aiResponse = finalData.content?.[0]?.text || "I've analyzed your study data and I'm here to help guide your learning journey! 📚";
+        
+        console.log('Final AI response generated successfully with tool data');
+
+        return new Response(
+          JSON.stringify({ 
+            response: aiResponse,
+            voiceEnabled: voiceActive,
+            toolsUsed: toolResults.length > 0,
+            hasPersonalData: true
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+
+      } else {
+        // Direct response without tools
+        const aiResponse = data.content?.[0]?.text || "I'm here to guide your personalized learning journey! What would you like to work on together? 📚";
+        
+        console.log('Direct AI response generated successfully');
+
+        return new Response(
+          JSON.stringify({ 
+            response: aiResponse,
+            voiceEnabled: voiceActive,
+            toolsUsed: false,
+            hasPersonalData: false
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
     } catch (error) {
       clearTimeout(timeoutId);
