@@ -2,6 +2,7 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useToast } from '@/hooks/use-toast';
+import { prepareTextForSpeech, supportsSSML } from '@/utils/speechUtils';
 
 export const useTextToSpeech = () => {
   const { settings, isSupported, initializeVoice, togglePaused } = useVoiceSettings();
@@ -62,7 +63,7 @@ export const useTextToSpeech = () => {
     }
   }, [isSupported, settings.paused, pauseSpeech, resumeSpeech]);
 
-  // Speak the given text
+  // Speak the given text with intelligent preprocessing
   const speak = useCallback((text: string, options?: { interrupt?: boolean }) => {
     if (!isSupported) {
       console.warn('🔊 Speech synthesis not supported');
@@ -79,8 +80,13 @@ export const useTextToSpeech = () => {
       return;
     }
 
+    // Process text for optimal speech synthesis
+    const processedText = prepareTextForSpeech(text, supportsSSML());
+    console.log('🔊 Original text:', text.substring(0, 50) + '...');
+    console.log('🔊 Processed text:', processedText.substring(0, 50) + '...');
+
     // Prevent speaking the same message multiple times
-    if (lastSpokenMessageRef.current === text && isCurrentlySpeaking.current) {
+    if (lastSpokenMessageRef.current === processedText && isCurrentlySpeaking.current) {
       console.log('🔊 Already speaking this message, skipping');
       return;
     }
@@ -95,9 +101,7 @@ export const useTextToSpeech = () => {
     }
 
     try {
-      console.log('🔊 Speaking text:', text.substring(0, 50) + (text.length > 50 ? '...' : ''));
-      
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(processedText);
       
       // Apply voice settings
       if (settings.selectedVoice) {
@@ -119,7 +123,7 @@ export const useTextToSpeech = () => {
       utterance.onstart = () => {
         console.log('🔊 Speech started');
         isCurrentlySpeaking.current = true;
-        lastSpokenMessageRef.current = text;
+        lastSpokenMessageRef.current = processedText;
       };
 
       utterance.onend = () => {
@@ -164,15 +168,18 @@ export const useTextToSpeech = () => {
     }
   }, [isSupported, settings, stopSpeech, toast]);
 
-  // Auto-read AI messages with duplicate prevention
+  // Auto-read AI messages with duplicate prevention and text processing
   const readAIMessage = useCallback((message: string) => {
     if (!settings.autoRead) {
       console.log('🔊 Auto-read disabled, skipping speech');
       return;
     }
 
-    // Prevent reading the same message multiple times
-    if (lastSpokenMessageRef.current === message) {
+    // Process the message for speech before checking duplicates
+    const processedMessage = prepareTextForSpeech(message, supportsSSML());
+    
+    // Prevent reading the same processed message multiple times
+    if (lastSpokenMessageRef.current === processedMessage) {
       console.log('🔊 Message already spoken, skipping auto-read');
       return;
     }

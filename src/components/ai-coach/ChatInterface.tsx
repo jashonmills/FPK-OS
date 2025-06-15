@@ -230,6 +230,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         setConnectionStatus('slow');
       }, 8000);
 
+      console.log('🎙️ Sending message with voice processing enabled:', settings.enabled && settings.autoRead);
+
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: userMessage,
@@ -240,7 +242,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             hasInteracted: settings.hasInteracted,
             timestamp: new Date().toISOString(),
             sessionLength: chatHistory.length,
-            userAgent: navigator.userAgent
+            userAgent: navigator.userAgent,
+            voiceEnabled: settings.enabled,
+            autoRead: settings.autoRead
           }
         }
       });
@@ -257,6 +261,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       setConnectionStatus('good');
       const aiResponse = data?.response || "I'm here to guide your personalized learning journey with your own study data! 🌟";
+      
+      console.log('🎙️ AI response received for voice processing:', {
+        hasVoiceActive: data?.voiceEnabled,
+        responseLength: aiResponse.length,
+        willAutoRead: settings.enabled && settings.autoRead
+      });
       
       const aiMessageObj = { 
         role: 'assistant' as const, 
