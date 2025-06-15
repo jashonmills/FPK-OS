@@ -1,89 +1,101 @@
-// Utility functions for processing text for speech synthesis
 
 /**
- * Strips markdown and markup tokens from text for clean TTS output
+ * Safe Text-to-Speech utilities that handle deprecated APIs properly
  */
-export function stripMarkdownForSpeech(text: string): string {
-  if (!text) return '';
 
-  let cleanText = text;
-
-  // Remove markdown headers (##, ###, etc.)
-  cleanText = cleanText.replace(/^#{1,6}\s+/gm, '');
-  
-  // Remove bold/italic markdown (**text**, *text*)
-  cleanText = cleanText.replace(/\*\*([^*]+)\*\*/g, '$1');
-  cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1');
-  
-  // Remove code blocks and inline code
-  cleanText = cleanText.replace(/```[\s\S]*?```/g, '');
-  cleanText = cleanText.replace(/`([^`]+)`/g, '$1');
-  
-  // Remove links [text](url) - keep only the text
-  cleanText = cleanText.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  
-  // Remove literal pause indicators
-  cleanText = cleanText.replace(/\*pause\*/gi, '');
-  cleanText = cleanText.replace(/\(pause\)/gi, '');
-  
-  // Remove various brackets and parenthetical markup
-  cleanText = cleanText.replace(/\[([^\]]+)\]/g, '$1');
-  
-  // Remove bullet points and list markers
-  cleanText = cleanText.replace(/^[-*+]\s+/gm, '');
-  cleanText = cleanText.replace(/^\d+\.\s+/gm, '');
-  
-  // Remove extra whitespace and line breaks
-  cleanText = cleanText.replace(/\s+/g, ' ').trim();
-  
-  return cleanText;
+interface SpeechOptions {
+  rate?: number;
+  pitch?: number;
+  volume?: number;
+  voice?: SpeechSynthesisVoice;
+  interrupt?: boolean;
 }
 
-/**
- * Converts text with natural pause points to SSML for better speech synthesis
- */
-export function convertToSSML(text: string): string {
-  if (!text) return '';
+class SafeTextToSpeech {
+  private isSupported: boolean;
+  private hasUserInteracted: boolean = false;
 
-  let ssmlText = stripMarkdownForSpeech(text);
-  
-  // Add natural pauses after sentences
-  ssmlText = ssmlText.replace(/\.\s+/g, '. <break time="300ms"/>');
-  ssmlText = ssmlText.replace(/!\s+/g, '! <break time="300ms"/>');
-  ssmlText = ssmlText.replace(/\?\s+/g, '? <break time="300ms"/>');
-  
-  // Add pauses after colons (for lists or explanations)
-  ssmlText = ssmlText.replace(/:\s+/g, ': <break time="200ms"/>');
-  
-  // Add emphasis for words that were likely bolded
-  // This is a simple heuristic - in practice, the AI should generate SSML directly
-  ssmlText = ssmlText.replace(/\b(important|key|critical|essential|remember)\b/gi, '<emphasis level="moderate">$1</emphasis>');
-  
-  // Wrap in SSML speak tags
-  return `<speak>${ssmlText}</speak>`;
-}
-
-/**
- * Checks if the browser supports SSML
- */
-export function supportsSSML(): boolean {
-  if (typeof window === 'undefined' || !window.speechSynthesis) {
-    return false;
+  constructor() {
+    this.isSupported = 'speechSynthesis' in window;
+    
+    // Listen for user interaction to enable TTS
+    this.setupUserInteractionListener();
   }
-  
-  // Most modern browsers support basic SSML tags
-  return true;
-}
 
-/**
- * Processes AI response for optimal speech synthesis
- */
-export function prepareTextForSpeech(text: string, useSSML: boolean = true): string {
-  if (!text) return '';
-  
-  if (useSSML && supportsSSML()) {
-    return convertToSSML(text);
-  } else {
-    return stripMarkdownForSpeech(text);
+  private setupUserInteractionListener() {
+    const enableTTS = () => {
+      this.hasUserInteracted = true;
+      // Remove listeners after first interaction
+      document.removeEventListener('click', enableTTS);
+      document.removeEventListener('touchstart', enableTTS);
+      document.removeEventListener('keydown', enableTTS);
+    };
+
+    document.addEventListener('click', enableTTS, { once: true });
+    document.addEventListener('touchstart', enableTTS, { once: true });
+    document.addEventListener('keydown', enableTTS, { once: true });
+  }
+
+  speak(text: string, options: SpeechOptions = {}) {
+    if (!this.isSupported) {
+      console.warn('Text-to-speech not supported in this browser');
+      return false;
+    }
+
+    if (!this.hasUserInteracted) {
+      console.warn('Text-to-speech requires user interaction first');
+      return false;
+    }
+
+    try {
+      // Stop any current speech if interrupt is requested
+      if (options.interrupt && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Set options
+      if (options.rate !== undefined) utterance.rate = options.rate;
+      if (options.pitch !== undefined) utterance.pitch = options.pitch;
+      if (options.volume !== undefined) utterance.volume = options.volume;
+      if (options.voice) utterance.voice = options.voice;
+
+      // Add error handling
+      utterance.onerror = (event) => {
+        console.warn('Speech synthesis error:', event.error);
+      };
+
+      utterance.onend = () => {
+        console.log('Speech synthesis completed');
+      };
+
+      window.speechSynthesis.speak(utterance);
+      return true;
+    } catch (error) {
+      console.error('Speech synthesis failed:', error);
+      return false;
+    }
+  }
+
+  stop() {
+    if (this.isSupported && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  getVoices(): SpeechSynthesisVoice[] {
+    if (!this.isSupported) return [];
+    return window.speechSynthesis.getVoices();
+  }
+
+  isAvailable(): boolean {
+    return this.isSupported && this.hasUserInteracted;
   }
 }
+
+// Export singleton instance
+export const safeTextToSpeech = new SafeTextToSpeech();
+
+// Export the class for direct instantiation if needed
+export { SafeTextToSpeech };

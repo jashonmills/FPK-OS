@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+      'Cross-Origin-Opener-Policy': 'same-origin'
+    }
   },
   plugins: [
     react(),
@@ -32,7 +36,13 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      external: ['pdfjs-dist/legacy/build/pdf.worker.min.js']
-    }
+      external: ['pdfjs-dist/legacy/build/pdf.worker.min.js'],
+      output: {
+        manualChunks: {
+          'pdf-worker': ['pdfjs-dist']
+        }
+      }
+    },
+    sourcemap: mode === 'development'
   }
 }));
