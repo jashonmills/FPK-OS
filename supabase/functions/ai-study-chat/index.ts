@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, SYSTEM_PROMPT } from './constants.ts';
 import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
-import { detectQueryMode } from './mode-detection.ts';
+import { detectQueryMode, detectRecentFlashcardsRequest } from './mode-detection.ts';
 import { buildContextPrompt } from './prompt-builder.ts';
 import { callClaude, handleToolCalls, postProcessResponse } from './claude-client.ts';
 
