@@ -1,4 +1,3 @@
-
 /**
  * Enhanced search bar with instant suggestions and typeahead
  */
@@ -35,6 +34,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
+  // Use the extended API pattern for suggestions
   const {
     query,
     suggestions,

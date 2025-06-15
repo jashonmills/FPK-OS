@@ -19,7 +19,7 @@ const QuizletSearchTab: React.FC<QuizletSearchTabProps> = ({ onImport }) => {
   const { searchResults, isLoading, error, searchSets, getSetDetails } = useQuizletSearch();
   const { toast } = useToast();
 
-  // Debounced search with 300ms delay
+  // Use the simple API pattern for Quizlet search
   const { query, performSearch, isSearching: isDebouncingSearch } = useDebouncedSearch(
     searchSets,
     { debounceMs: 300 }

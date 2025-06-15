@@ -19,6 +19,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
 }) => {
   const [displayBooks, setDisplayBooks] = useState<PublicDomainBook[]>([]);
 
+  // Use the extended API pattern for library search with suggestions
   const {
     query,
     instantResults,
@@ -45,7 +46,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   useEffect(() => {
     if (query && hasResults) {
       console.log(`🔍 Showing ${instantResults.length} search results for "${query}"`);
-      setDisplayBooks(instantResults);
+      setDisplayBooks(instantResults as PublicDomainBook[]);
     } else {
       console.log(`📚 Showing all ${books.length} books`);
       setDisplayBooks(books);
