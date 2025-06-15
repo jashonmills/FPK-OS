@@ -55,7 +55,7 @@ const LearnerHome = () => {
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* NASA APOD Card - Only render if feature flag is enabled */}
         {isNASAEnabled && (
           <APODCard onOpenGallery={handleOpenAPODGallery} />
@@ -68,13 +68,10 @@ const LearnerHome = () => {
 
         {/* Reading Progress */}
         <ReadingProgressWidget />
-
-        {/* Empty placeholder to maintain grid alignment */}
-        <div className="hidden lg:block"></div>
       </div>
 
       {/* Goals and Streak Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Today's Goals */}
         <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -90,6 +87,10 @@ const LearnerHome = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Empty space to push Study Streak to the right */}
+        <div className="hidden lg:block"></div>
+        <div className="hidden lg:block"></div>
 
         {/* Study Streak */}
         <Card className="bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200">
