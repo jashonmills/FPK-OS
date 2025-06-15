@@ -2,10 +2,13 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, BookOpen } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { performanceService } from '@/services/PerformanceOptimizationService';
+import { searchIndexService } from '@/services/SearchIndexService';
+import { browsingPatternsAnalyzer } from '@/services/BrowsingPatternsAnalyzer';
+import { useDebouncedSearch } from '@/hooks/useDebouncedSearch';
+import EnhancedSearchBar from './EnhancedSearchBar';
 
 interface VirtualizedBookListProps {
   books: PublicDomainBook[];
@@ -35,6 +38,17 @@ const BookItem: React.FC<BookItemProps> = ({ book, onBookClick }) => {
     if (book.cover_url) {
       performanceService.optimizeImageLoading(target, book.cover_url);
     }
+  };
+
+  const handleBookView = () => {
+    // Record browsing event for pattern analysis
+    browsingPatternsAnalyzer.recordEvent(book.id, 'view', {
+      title: book.title,
+      author: book.author,
+      subjects: book.subjects
+    });
+    
+    onBookClick(book);
   };
 
   return (
@@ -80,7 +94,7 @@ const BookItem: React.FC<BookItemProps> = ({ book, onBookClick }) => {
               </div>
             )}
             <Button 
-              onClick={() => onBookClick(book)}
+              onClick={handleBookView}
               size="sm"
               className="w-full"
               variant="outline"
@@ -101,71 +115,46 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   isLoading
 }) => {
   const { getAccessibilityClasses } = useAccessibility();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [cachedSearchResults, setCachedSearchResults] = useState<PublicDomainBook[] | null>(null);
+  const [displayBooks, setDisplayBooks] = useState<PublicDomainBook[]>([]);
 
-  // Debounce search input for performance
+  const {
+    query,
+    instantResults,
+    isSearching,
+    searchStats,
+    clearSearch,
+    hasResults
+  } = useDebouncedSearch({
+    debounceMs: 200,
+    minQueryLength: 2,
+    enableInstantSearch: true,
+    enableSuggestions: true
+  });
+
+  // Index books for instant search when books change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
+    if (books.length > 0) {
+      console.log('🔍 Indexing books for instant search...');
+      searchIndexService.indexBooks(books);
+    }
+  }, [books]);
 
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Check for cached search results
+  // Update displayed books based on search results
   useEffect(() => {
-    const checkCachedResults = async () => {
-      if (!debouncedSearchTerm.trim()) {
-        setCachedSearchResults(null);
-        return;
-      }
-      
-      try {
-        const cached = await performanceService.getCachedSearchResults(debouncedSearchTerm);
-        if (cached) {
-          console.log('✅ Using cached search results for:', debouncedSearchTerm);
-          setCachedSearchResults(cached);
-        } else {
-          setCachedSearchResults(null);
-        }
-      } catch (error) {
-        console.warn('Failed to get cached search results:', error);
-        setCachedSearchResults(null);
-      }
-    };
-
-    checkCachedResults();
-  }, [debouncedSearchTerm]);
-
-  // Filter books with caching
-  const filteredBooks = useMemo(() => {
-    if (!debouncedSearchTerm.trim()) return books;
-    
-    // Use cached results if available
-    if (cachedSearchResults) {
-      return cachedSearchResults;
+    if (query && hasResults) {
+      setDisplayBooks(instantResults);
+    } else {
+      setDisplayBooks(books);
     }
-    
-    // Perform client-side filtering
-    const term = debouncedSearchTerm.toLowerCase();
-    const results = books.filter(book => 
-      book.title.toLowerCase().includes(term) ||
-      book.author.toLowerCase().includes(term) ||
-      book.subjects?.some(subject => subject.toLowerCase().includes(term))
-    );
-    
-    // Cache the results for future use
-    if (results.length > 0) {
-      performanceService.cacheSearchResults(debouncedSearchTerm, results);
-    }
-    
-    return results;
-  }, [books, debouncedSearchTerm, cachedSearchResults]);
+  }, [query, instantResults, hasResults, books]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = useCallback((searchQuery: string) => {
+    // Search is handled by the debounced search hook
+    console.log('🔍 Search executed:', searchQuery);
+  }, []);
+
+  const handleSuggestionSelect = useCallback((suggestion: any) => {
+    console.log('💡 Suggestion selected:', suggestion);
   }, []);
 
   if (isLoading && books.length === 0) {
@@ -181,31 +170,41 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search books by title, author, or subject..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="pl-10"
-        />
-      </div>
+      {/* Enhanced Search Bar */}
+      <EnhancedSearchBar
+        placeholder="Search books with instant suggestions and typeahead..."
+        onSearch={handleSearch}
+        onSuggestionSelect={handleSuggestionSelect}
+      />
+
+      {/* Search Performance Indicator */}
+      {searchStats && (
+        <div className="text-xs text-muted-foreground text-center bg-green-50 border border-green-200 rounded p-2">
+          ⚡ Search index: {searchStats.indexedBooks} books • 
+          History: {searchStats.totalSearches} searches • 
+          Instant results enabled
+        </div>
+      )}
 
       {/* Results Count */}
       <div className="flex items-center justify-between">
         <h3 className={`text-lg font-semibold ${getAccessibilityClasses('text')}`}>
-          Available Books ({filteredBooks.length})
+          {query ? 'Search Results' : 'Available Books'} ({displayBooks.length})
         </h3>
-        {filteredBooks.length !== books.length && (
-          <span className="text-sm text-muted-foreground">
-            Filtered from {books.length} total books
-          </span>
+        {query && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {isSearching ? 'Searching...' : `Found ${displayBooks.length} books`}
+            </span>
+            <Button onClick={clearSearch} variant="outline" size="sm">
+              Clear
+            </Button>
+          </div>
         )}
       </div>
 
       {/* Optimized Scrollable List */}
-      {filteredBooks.length > 0 ? (
+      {displayBooks.length > 0 ? (
         <div className="border rounded-lg overflow-hidden">
           <div 
             className="max-h-[600px] overflow-y-auto scroll-smooth"
@@ -214,7 +213,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
               scrollbarColor: 'hsl(var(--muted-foreground)) hsl(var(--muted))'
             }}
           >
-            {filteredBooks.map((book, index) => (
+            {displayBooks.map((book, index) => (
               <BookItem
                 key={`${book.id}-${index}`}
                 book={book}
@@ -227,10 +226,10 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
         <div className="text-center py-12">
           <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <p className={`text-muted-foreground mb-4 ${getAccessibilityClasses('text')}`}>
-            No books found matching your search.
+            {query ? 'No books found matching your search.' : 'No books available.'}
           </p>
-          {searchTerm && (
-            <Button onClick={() => setSearchTerm('')} variant="outline">
+          {query && (
+            <Button onClick={clearSearch} variant="outline">
               Clear search
             </Button>
           )}
