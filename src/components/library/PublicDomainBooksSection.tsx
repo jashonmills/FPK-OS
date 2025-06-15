@@ -7,6 +7,7 @@ import BookCarousel from './BookCarousel';
 import EnhancedEPUBReader from './EnhancedEPUBReader';
 import OpenLibrarySearchBar from './OpenLibrarySearchBar';
 import PublicDomainBooksList from './PublicDomainBooksList';
+import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
 
 const PublicDomainBooksSection: React.FC = () => {
   const { books, isLoading, error, refetch } = usePublicDomainBooks();
@@ -45,6 +46,13 @@ const PublicDomainBooksSection: React.FC = () => {
         </p>
         <OpenLibrarySearchBar />
       </div>
+
+      {/* Temporary Ingestion Trigger - Remove after books are added */}
+      {books.length < 20 && (
+        <div className="mb-8">
+          <GutenbergIngestionTrigger />
+        </div>
+      )}
 
       {/* Collapsible List of All Books */}
       <PublicDomainBooksList books={books} isLoading={isLoading} />
