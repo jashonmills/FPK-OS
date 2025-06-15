@@ -141,7 +141,7 @@ class EnhancedEPUBStreamingLoader {
       }
 
       // Try prefetched metadata from performance service
-      const prefetchedBook = performanceService.getPrefetchedBook(cacheKey);
+      const prefetchedBook = await performanceService.getPrefetchedBook(cacheKey);
       if (prefetchedBook?.metadata) {
         console.log('🚀 Using prefetched EPUB metadata:', cacheKey);
         return { success: true, metadata: prefetchedBook.metadata };
@@ -183,7 +183,7 @@ class EnhancedEPUBStreamingLoader {
       
       const metadataError: EPUBStreamingError = {
         type: 'metadata',
-        message: `Failed to load EPUB metadata: ${error.message}`,
+        message: `Failed to load EPUB metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
         recoverable: true,
         retryCount: 0,
         context: 'metadata_extraction'
@@ -269,7 +269,7 @@ class EnhancedEPUBStreamingLoader {
     } catch (error) {
       const structureError: EPUBStreamingError = {
         type: 'streaming',
-        message: `Failed to create streaming EPUB: ${error.message}`,
+        message: `Failed to create streaming EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`,
         recoverable: true,
         retryCount: 0,
         context: 'epub_creation'

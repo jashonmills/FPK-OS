@@ -33,14 +33,11 @@ const PublicDomainBooksSection: React.FC = () => {
       // Prefetch popular books when we have them
       if (books.length > 0) {
         await performanceService.prefetchPopularBooks(books);
-        
-        // Prefetch common search terms
-        const popularQueries = ['fiction', 'adventure', 'classic', 'science', 'history'];
-        await performanceService.prefetchSearchResults(popularQueries);
       }
       
       // Get performance metrics
-      setPerformanceMetrics(performanceService.getMetrics());
+      const metrics = await performanceService.getMetrics();
+      setPerformanceMetrics(metrics);
     };
 
     if (!isLoading && books.length > 0) {

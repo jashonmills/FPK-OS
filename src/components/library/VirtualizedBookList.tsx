@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,9 +103,10 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   const { getAccessibilityClasses } = useAccessibility();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [cachedSearchResults, setCachedSearchResults] = useState<PublicDomainBook[] | null>(null);
 
   // Debounce search input for performance
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, 300);
@@ -113,15 +114,38 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Check for cached search results first
+  // Check for cached search results
+  useEffect(() => {
+    const checkCachedResults = async () => {
+      if (!debouncedSearchTerm.trim()) {
+        setCachedSearchResults(null);
+        return;
+      }
+      
+      try {
+        const cached = await performanceService.getCachedSearchResults(debouncedSearchTerm);
+        if (cached) {
+          console.log('✅ Using cached search results for:', debouncedSearchTerm);
+          setCachedSearchResults(cached);
+        } else {
+          setCachedSearchResults(null);
+        }
+      } catch (error) {
+        console.warn('Failed to get cached search results:', error);
+        setCachedSearchResults(null);
+      }
+    };
+
+    checkCachedResults();
+  }, [debouncedSearchTerm]);
+
+  // Filter books with caching
   const filteredBooks = useMemo(() => {
     if (!debouncedSearchTerm.trim()) return books;
     
-    // Try to get cached results first
-    const cachedResults = performanceService.getCachedSearchResults(debouncedSearchTerm);
-    if (cachedResults) {
-      console.log('✅ Using cached search results for:', debouncedSearchTerm);
-      return cachedResults;
+    // Use cached results if available
+    if (cachedSearchResults) {
+      return cachedSearchResults;
     }
     
     // Perform client-side filtering
@@ -132,8 +156,13 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
       book.subjects?.some(subject => subject.toLowerCase().includes(term))
     );
     
+    // Cache the results for future use
+    if (results.length > 0) {
+      performanceService.cacheSearchResults(debouncedSearchTerm, results);
+    }
+    
     return results;
-  }, [books, debouncedSearchTerm]);
+  }, [books, debouncedSearchTerm, cachedSearchResults]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);

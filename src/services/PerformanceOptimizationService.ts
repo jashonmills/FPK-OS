@@ -247,10 +247,17 @@ class PerformanceOptimizationService {
       if (book.epub_url) {
         // Quick metadata extraction without full download
         const metadataUrl = `${book.epub_url}?metadata_only=true`;
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
         const response = await fetch(metadataUrl, { 
           method: 'HEAD',
-          timeout: 3000 
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (response.ok) {
           return {
@@ -356,6 +363,55 @@ class PerformanceOptimizationService {
     }
     
     return results || null;
+  }
+
+  /**
+   * Prefetch search results for popular queries
+   */
+  async prefetchSearchResults(queries: string[]): Promise<void> {
+    console.log('🔍 Prefetching search results for popular queries...');
+    
+    for (const query of queries) {
+      try {
+        // Check if already cached
+        const cached = await this.getCachedSearchResults(query);
+        if (cached) continue;
+        
+        // This would typically make an API call to prefetch results
+        console.log(`📝 Would prefetch results for: "${query}"`);
+      } catch (error) {
+        console.warn(`Failed to prefetch search for "${query}":`, error);
+      }
+    }
+  }
+
+  /**
+   * Optimize image loading with lazy loading and caching
+   */
+  optimizeImageLoading(img: HTMLImageElement, src: string): void {
+    // Add loading optimization attributes
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    
+    // Add intersection observer for advanced lazy loading
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const image = entry.target as HTMLImageElement;
+            if (!image.src && src) {
+              image.src = src;
+              observer.unobserve(image);
+            }
+          }
+        });
+      });
+      
+      observer.observe(img);
+    } else {
+      // Fallback for browsers without IntersectionObserver
+      img.src = src;
+    }
   }
 
   private isSearchCacheFresh(cached: any): boolean {
