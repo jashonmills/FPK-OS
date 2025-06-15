@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCarousel from './BookCarousel';
-import EnhancedEPUBReader from './EnhancedEPUBReader';
+import EPUBReader from './EPUBReader';
 import VirtualizedBookList from './VirtualizedBookList';
 import GutenbergIngestionTrigger from './GutenbergIngestionTrigger';
 import PerformanceMetricsDashboard from './PerformanceMetricsDashboard';
@@ -210,7 +209,7 @@ const PublicDomainBooksSection: React.FC = () => {
 
       {/* Enhanced EPUB Reader Modal with Streaming */}
       {selectedBook && (
-        <EnhancedEPUBReader 
+        <EPUBReader 
           book={selectedBook} 
           onClose={handleCloseReader}
         />

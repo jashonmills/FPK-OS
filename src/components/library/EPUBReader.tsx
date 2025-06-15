@@ -1,6 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useEPUBLoader } from '@/hooks/useEPUBLoader';
+import React from 'react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import {
   Dialog,
@@ -8,146 +7,103 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import EPUBReaderHeader from './EPUBReaderHeader';
-import EPUBReaderContent from './EPUBReaderContent';
 import EPUBReaderFooter from './EPUBReaderFooter';
 import EPUBTableOfContents from './EPUBTableOfContents';
+import EnhancedLoadingProgress from './EnhancedLoadingProgress';
+import { useEPUBReaderLogic } from './epub/EPUBReaderContainer';
+import { EPUBReaderNavigation } from './epub/EPUBReaderNavigation';
+import { EPUBReaderContent } from './epub/EPUBReaderContent';
 
-interface EPUBReaderProps {
+interface EnhancedEPUBReaderProps {
   book: PublicDomainBook;
   onClose: () => void;
 }
 
-const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
-  const readerRef = useRef<HTMLDivElement>(null);
-  const [fontSize, setFontSize] = useState(16);
-  const [showTOC, setShowTOC] = useState(false);
-
+const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }) => {
   const {
+    readerRef,
+    fontSize,
+    showTOC,
+    setShowTOC,
     isLoading,
+    progress,
     error,
-    loadingStep,
-    loadingProgress,
-    isNavigating,
     toc,
+    isNavigating,
     readingProgress,
-    initializeRendition,
-    handleRetry,
+    isProgressLoading,
+    isInitialized,
+    onFontSizeChange,
     handlePrevPage,
     handleNextPage,
-    handleFontSizeChange,
-    handleTOCItemClick,
+    handleEnhancedTOCItemClick,
+    retryLoad,
     forceLayoutRefresh
-  } = useEPUBLoader(book);
+  } = useEPUBReaderLogic(book);
 
-  // Initialize rendition when EPUB is loaded and container is ready
-  useEffect(() => {
-    if (!isLoading && !error && readerRef.current) {
-      console.log('🎨 Initializing EPUB rendition with container');
-      initializeRendition(readerRef.current, fontSize);
-    }
-  }, [isLoading, error, initializeRendition, fontSize]);
+  // Convert progress to EPUBStreamingProgress format for enhanced UI
+  const convertedProgress = progress ? {
+    stage: progress.stage === 'downloading' ? 'metadata' as const :
+           progress.stage === 'processing' ? 'structure' as const :
+           progress.stage === 'ready' ? 'ready' as const : 'streaming' as const,
+    percentage: progress.percentage,
+    message: progress.message,
+    bytesLoaded: progress.bytesLoaded,
+    totalBytes: progress.totalBytes,
+    estimatedTimeRemaining: progress.estimatedTimeRemaining
+  } : null;
 
-  const onFontSizeChange = (delta: number) => {
-    const newSize = Math.max(12, Math.min(24, fontSize + delta));
-    setFontSize(newSize);
-    handleFontSizeChange(newSize);
-  };
-
-  // Add touch/swipe navigation for mobile
-  useEffect(() => {
-    if (!readerRef.current || isLoading || error || isNavigating) return;
-
-    let startX = 0;
-    let startY = 0;
-    
-    const handleTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    };
-    
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!startX || !startY) return;
-      
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
-      
-      const deltaX = startX - endX;
-      const deltaY = startY - endY;
-      
-      // Only trigger if horizontal swipe is more significant than vertical
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-        if (deltaX > 0) {
-          // Swipe left - next page
-          handleNextPage();
-        } else {
-          // Swipe right - previous page
-          handlePrevPage();
-        }
-      }
-      
-      startX = 0;
-      startY = 0;
-    };
-
-    const container = readerRef.current;
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-    return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isLoading, error, isNavigating, handlePrevPage, handleNextPage]);
-
-  // Force layout refresh when container size might have changed
-  useEffect(() => {
-    if (!isLoading && !error && !isNavigating) {
-      const timer = setTimeout(() => {
-        forceLayoutRefresh();
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, error, isNavigating, forceLayoutRefresh]);
+  // Convert error to EPUBStreamingError format
+  const convertedError = error ? {
+    type: error.type as 'network' | 'timeout' | 'parsing' | 'metadata' | 'streaming' | 'unknown',
+    message: error.message,
+    recoverable: error.recoverable,
+    retryCount: error.retryCount
+  } : null;
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
         <DialogDescription className="sr-only">
-          EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
+          Enhanced EPUB reader for {book.title} by {book.author}. Use arrow keys or swipe to navigate pages.
         </DialogDescription>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <EPUBReaderHeader
-            title={book.title}
-            isLoading={isLoading}
-            error={error}
-            fontSize={fontSize}
-            readingProgress={readingProgress}
-            onClose={onClose}
-            onShowTOC={() => setShowTOC(true)}
-            onFontSizeChange={onFontSizeChange}
+        
+        {(isLoading || error) ? (
+          <EnhancedLoadingProgress
+            title={`${book.title} by ${book.author}`}
+            progress={convertedProgress}
+            error={convertedError}
+            onRetry={retryLoad}
+            onCancel={onClose}
+            type="epub"
           />
+        ) : (
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <EPUBReaderHeader
+              title={book.title}
+              isLoading={isLoading || isProgressLoading}
+              error={null}
+              fontSize={fontSize}
+              readingProgress={readingProgress}
+              onClose={onClose}
+              onShowTOC={() => setShowTOC(true)}
+              onFontSizeChange={onFontSizeChange}
+            />
 
-          {/* Reader Content */}
-          <div className="flex-1 relative overflow-hidden">
+            {/* Reader Content */}
             <EPUBReaderContent
-              book={book}
+              readerRef={readerRef}
+              isNavigating={isNavigating}
+              bookTitle={book.title}
+              bookAuthor={book.author}
+              forceLayoutRefresh={forceLayoutRefresh}
               isLoading={isLoading}
               error={error}
-              loadingStep={loadingStep}
-              loadingProgress={loadingProgress}
-              readerRef={readerRef}
-              onRetry={handleRetry}
-              onClose={onClose}
-              onPrevPage={handlePrevPage}
-              onNextPage={handleNextPage}
-              isNavigating={isNavigating}
+              isInitialized={isInitialized}
             />
-          </div>
 
-          {/* Navigation Footer */}
-          {!isLoading && !error && (
+            {/* Navigation Footer */}
             <EPUBReaderFooter
               onClose={onClose}
               onPrevPage={handlePrevPage}
@@ -155,20 +111,32 @@ const EPUBReader: React.FC<EPUBReaderProps> = ({ book, onClose }) => {
               isNavigating={isNavigating}
               readingProgress={readingProgress}
             />
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Table of Contents Modal */}
+        {/* Table of Contents */}
         <EPUBTableOfContents
           isOpen={showTOC}
           onClose={() => setShowTOC(false)}
           toc={toc}
-          onItemClick={handleTOCItemClick}
+          onItemClick={handleEnhancedTOCItemClick}
           isNavigating={isNavigating}
+        />
+
+        {/* Navigation Logic Component */}
+        <EPUBReaderNavigation
+          isLoading={isLoading}
+          error={error}
+          isNavigating={isNavigating}
+          isInitialized={isInitialized}
+          onPrevPage={handlePrevPage}
+          onNextPage={handleNextPage}
+          onClose={onClose}
+          readerRef={readerRef}
         />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default EPUBReader;
+export default EnhancedEPUBReader;
