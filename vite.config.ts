@@ -39,8 +39,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'pdf-viewer': ['react-pdf', 'pdfjs-dist'],
-          'pdf-worker': ['pdfjs-dist/build/pdf.worker.min.js']
+          'pdf-viewer': ['react-pdf', 'pdfjs-dist']
         }
       }
     },
