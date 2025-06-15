@@ -16,7 +16,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   message: string;
   timestamp?: Date;
-  id?: string; // Add unique ID to prevent duplicate speaking
+  id?: string;
 }
 
 interface ChatInterfaceProps {
@@ -37,11 +37,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'good' | 'slow' | 'error'>('good');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(true);
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [lastReadMessageId, setLastReadMessageId] = useState<string>('');
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
   
   const { isRecording, isProcessing, startRecording, stopRecording, isNativeListening, transcript } = useEnhancedVoiceInput();
   const { speak, stopSpeech, togglePauseSpeech, readAIMessage, isSupported: ttsSupported, isSpeaking, isPaused } = useTextToSpeech();
@@ -50,23 +50,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Improved scroll handling
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current && !userScrolledUp) {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        });
+      });
+    }
   };
 
-  useEffect(() => {
-    if (isAtBottom) {
-      scrollToBottom();
-    }
-  }, [chatHistory, isAtBottom]);
-
-  // Handle scroll to detect if user is at bottom
+  // Monitor user scroll behavior
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-    const isBottom = scrollHeight - scrollTop === clientHeight;
-    setIsAtBottom(isBottom);
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setUserScrolledUp(!isAtBottom);
   };
+
+  // Only auto-scroll when appropriate
+  useEffect(() => {
+    if (chatHistory.length > 0 && !userScrolledUp) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [chatHistory, userScrolledUp]);
 
   // Create a new chat session when the interface loads
   useEffect(() => {
@@ -211,6 +220,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsAnalyzing(true);
     setConnectionStatus('good');
     setResponseTime(null);
+
+    // Reset scroll position tracking when user sends message
+    setUserScrolledUp(false);
 
     // Save user message to session
     await saveMessageToSession(userMessage, 'user');
@@ -366,6 +378,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setResponseTime(null);
     setCurrentSessionId(null);
     setSessionStartTime(null);
+    setUserScrolledUp(false);
     
     // Create a new session for the next conversation
     createNewSession();
@@ -663,9 +676,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </ScrollArea>
 
         {/* Scroll to Bottom Button */}
-        {!isAtBottom && (
+        {userScrolledUp && (
           <Button
-            onClick={scrollToBottom}
+            onClick={() => {
+              setUserScrolledUp(false);
+              scrollToBottom();
+            }}
             size="icon"
             variant="outline"
             className="absolute bottom-14 sm:bottom-16 md:bottom-20 right-2 sm:right-4 rounded-full shadow-lg z-10 h-8 w-8 sm:h-10 sm:w-10 touch-target"

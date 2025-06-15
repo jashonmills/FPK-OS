@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Brain, Volume2 } from 'lucide-react';
@@ -42,6 +42,52 @@ const ChatMessagesPane = ({
       speak(content, { interrupt: true });
     }
   };
+
+  // Improved auto-scroll logic that respects user scroll position
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        });
+      });
+    }
+  }, [messagesEndRef]);
+
+  // Only auto-scroll when new messages arrive and user is near bottom
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Check if user is near the bottom before auto-scrolling
+      const scrollArea = messagesEndRef.current?.parentElement?.parentElement;
+      if (scrollArea) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+        
+        // Only auto-scroll if user is near bottom or this is the first message
+        if (isNearBottom || messages.length === 1) {
+          setTimeout(scrollToBottom, 100);
+        }
+      }
+    }
+  }, [messages.length, scrollToBottom]);
+
+  // Auto-scroll for loading states only if user is at bottom
+  useEffect(() => {
+    if (isSending || isLoading) {
+      const scrollArea = messagesEndRef.current?.parentElement?.parentElement;
+      if (scrollArea) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+        
+        if (isAtBottom) {
+          setTimeout(scrollToBottom, 50);
+        }
+      }
+    }
+  }, [isSending, isLoading, scrollToBottom]);
 
   if (isLoading) {
     return (
