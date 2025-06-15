@@ -153,6 +153,14 @@ export class FeatureFlagService {
         description: 'Enable dual-model chat toggle between personal data and general knowledge modes with Claude and OpenAI',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Voice Play Button feature flag
+      {
+        id: 'voicePlayButton',
+        name: 'Voice Play Button',
+        description: 'Enable inline speaker icon button for AI message bubbles to play voice responses',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 

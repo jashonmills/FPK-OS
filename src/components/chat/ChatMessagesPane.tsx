@@ -1,11 +1,12 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Brain, Volume2 } from 'lucide-react';
+import { Brain, Volume2, VolumeX, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useTextSelection } from '@/hooks/useTextSelection';
+import { featureFlagService } from '@/services/FeatureFlagService';
 import SaveToNotesButton from '@/components/ai-coach/SaveToNotesButton';
 
 interface ChatMessage {
@@ -28,8 +29,9 @@ const ChatMessagesPane = ({
   isSending, 
   messagesEndRef 
 }: ChatMessagesPaneProps) => {
-  const { speak, isSupported: ttsSupported } = useTextToSpeech();
+  const { speak, stop, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
+  const voicePlayButtonEnabled = featureFlagService.isEnabled('voicePlayButton');
 
   // Text selection for the entire messages container
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,15 @@ const ChatMessagesPane = ({
       speak(content, { interrupt: true });
     }
   };
+
+  const handlePlayVoice = useCallback((messageId: string, content: string) => {
+    if (ttsSupported) {
+      // Stop any current speech
+      stop();
+      // Start speaking the specific message
+      speak(content, { interrupt: true });
+    }
+  }, [speak, stop, ttsSupported]);
 
   // Improved auto-scroll logic that respects user scroll position
   const scrollToBottom = useCallback(() => {
@@ -140,18 +151,22 @@ const ChatMessagesPane = ({
             <div 
               key={message.id} 
               className={cn(
-                "flex",
-                message.role === 'user' ? 'justify-end' : 'justify-start'
+                "flex gap-3",
+                message.role === 'user' ? "justify-end" : "justify-start"
               )}
             >
-              <div 
-                className={cn(
-                  "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] p-2 sm:p-3 rounded-lg text-sm relative group safe-text",
-                  message.role === 'user' 
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto' 
-                    : 'bg-muted text-foreground mr-auto'
-                )}
-              >
+              {message.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-4 w-4 text-purple-600" />
+                </div>
+              )}
+              
+              <div className={cn(
+                "rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[75%] relative group safe-text",
+                message.role === 'user' 
+                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white ml-auto" 
+                  : "bg-muted/50 border text-foreground mr-auto"
+              )}>
                 {message.role === 'assistant' && (
                   <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 flex-wrap">
                     <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
@@ -159,7 +174,26 @@ const ChatMessagesPane = ({
                     
                     {/* Action buttons for AI messages */}
                     <div className="flex items-center gap-1 ml-auto">
-                      {ttsSupported && settings.enabled && (
+                      {/* Voice Play Button - Feature Flagged */}
+                      {voicePlayButtonEnabled && ttsSupported && message.role === 'assistant' && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-4 w-4 sm:h-5 sm:w-5 opacity-0 group-hover:opacity-100 transition-opacity touch-target p-0"
+                          onClick={() => handlePlayVoice(message.id, message.content)}
+                          aria-label="Play voice response"
+                          title="Play voice response"
+                        >
+                          {isSpeaking ? (
+                            <VolumeX className="h-2 w-2 sm:h-3 sm:w-3" />
+                          ) : (
+                            <Volume2 className="h-2 w-2 sm:h-3 sm:w-3" />
+                          )}
+                        </Button>
+                      )}
+
+                      {/* Legacy TTS button when feature flag is disabled */}
+                      {!voicePlayButtonEnabled && ttsSupported && settings.enabled && (
                         <Button
                           size="icon"
                           variant="ghost"
@@ -195,6 +229,12 @@ const ChatMessagesPane = ({
                   {formatTime(message.timestamp)}
                 </div>
               </div>
+              
+              {message.role === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+              )}
             </div>
           );
         })}
