@@ -1,4 +1,3 @@
-
 /**
  * Enhanced EPUB Streaming Loader
  * Implements metadata-first loading and chapter-level streaming
@@ -244,20 +243,33 @@ class EnhancedEPUBStreamingLoader {
       const epubModule = await import('epubjs');
       const EPubLib = epubModule.default;
 
-      // Create EPUB with streaming optimizations
+      // Create EPUB with basic configuration
       const epub = EPubLib(url, {
-        openAs: 'epub',
-        requestMethod: 'fetch',
-        requestCredentials: 'same-origin',
-        requestHeaders: {
-          'X-Streaming-Mode': 'true',
-          'X-Metadata-Only': 'false'
-        }
+        openAs: 'epub'
       });
 
-      // Wait for basic structure
-      await epub.ready;
-
+      // Set up custom headers if needed
+      if (epub.archive && epub.archive.request) {
+        epub.archive.request.setHeaders({
+          'X-Streaming-Mode': 'true',
+          'X-Metadata-Only': 'false'
+        });
+      }
+      
+      updateProgress('processing', 75, 'Preparing book for reading...');
+      
+      // Wait for book to be ready with proper error boundaries
+      await Promise.race([
+        epub.ready,
+        new Promise((_, reject) => {
+          this.abortController?.signal.addEventListener('abort', () => {
+            reject(new Error(`Book loading timed out`));
+          });
+        })
+      ]);
+      
+      console.log('✅ EPUB instance ready');
+      
       this.onProgress?.({
         stage: 'structure',
         percentage: 50,
