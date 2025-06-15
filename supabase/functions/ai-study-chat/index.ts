@@ -14,20 +14,15 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced system prompt for Claude with better tool instructions
+// Enhanced system prompt with explicit tool usage instructions
 const SYSTEM_PROMPT = `You are Claude, the FPK University AI Learning Coach. You help students by providing personalized guidance based on their actual study data.
 
-**Your Core Role:**
-- Access and analyze the student's real flashcards, study sessions, and performance data using available tools
-- Provide specific, actionable advice based on their actual learning patterns and card content
-- Reference specific flashcard content when discussing study strategies
-- Be encouraging and supportive while offering concrete next steps
-
-**Critical Tool Usage Guidelines:**
+**CRITICAL TOOL USAGE RULES:**
 - ALWAYS use tools when students ask about their data, progress, or flashcards
-- When they say "my flashcards" or "my cards", immediately call get_recent_flashcards or get_user_flashcards
-- When discussing specific cards, reference the actual front/back content from the tool results
-- Never ask users to "share their flashcard details" - you can see them directly via tools
+- When they mention "my flashcards", "my cards", "recent cards", or similar - IMMEDIATELY call get_recent_flashcards or get_user_flashcards
+- When they ask about performance, stats, or progress - call get_study_stats
+- NEVER ask users to "share their flashcard details" - you can see them directly via tools
+- Reference actual flashcard content in your responses using the tool results
 
 **Available Tools:**
 1. get_recent_flashcards: Get the student's most recent flashcards (use for "recent cards", "last cards", "what I created")
@@ -37,18 +32,18 @@ const SYSTEM_PROMPT = `You are Claude, the FPK University AI Learning Coach. You
 **Response Style:**
 - Reference actual flashcard content: "I see your card about [front content] - [back content]"
 - Provide specific insights: "Your card on X has a 45% success rate, let's work on that"
-- Offer concrete actions: "Try reviewing your 3 lowest-performing cards from yesterday"
+- Offer concrete actions based on real data
 - Keep responses conversational and encouraging
 
 **Voice Mode Optimization:**
 - If voiceActive=true, structure responses for natural speech with appropriate pauses
 - Use shorter sentences and clear transitions for voice output
 
-Always prioritize using tools to provide accurate, personalized guidance based on their current study data. Never rely on hypothetical examples when you can access their real flashcards.`;
+Always prioritize using tools to provide accurate, personalized guidance based on their current study data.`;
 
 async function executeToolCall(toolName: string, args: any) {
   try {
-    console.log(`Executing tool: ${toolName} with args:`, args);
+    console.log(`🔧 Executing tool: ${toolName} with args:`, args);
     
     // Map tool names to actual function names
     const functionName = toolName.replace('_', '-');
@@ -58,14 +53,14 @@ async function executeToolCall(toolName: string, args: any) {
     });
 
     if (error) {
-      console.error(`Tool ${toolName} error:`, error);
+      console.error(`❌ Tool ${toolName} error:`, error);
       throw error;
     }
 
-    console.log(`Tool ${toolName} response:`, data);
+    console.log(`✅ Tool ${toolName} response:`, data);
     return data;
   } catch (error) {
-    console.error(`Error executing tool ${toolName}:`, error);
+    console.error(`💥 Error executing tool ${toolName}:`, error);
     return { 
       error: `Failed to execute ${toolName}: ${error.message}`,
       flashcards: [],
@@ -78,7 +73,7 @@ async function executeToolCall(toolName: string, args: any) {
 // Get user context for personalization
 async function getLearningContext(userId: string) {
   try {
-    console.log('Fetching learning context for user:', userId);
+    console.log('📊 Fetching learning context for user:', userId);
     
     const [profileData, recentActivity] = await Promise.all([
       supabase
@@ -114,7 +109,7 @@ async function getLearningContext(userId: string) {
       }
     };
   } catch (error) {
-    console.error('Error fetching learning context:', error);
+    console.error('❌ Error fetching learning context:', error);
     return null;
   }
 }
@@ -133,7 +128,7 @@ async function getChatHistory(sessionId: string, limit: number = 4) {
     
     return (data || []).reverse();
   } catch (error) {
-    console.error('Error fetching chat history:', error);
+    console.error('❌ Error fetching chat history:', error);
     return [];
   }
 }
@@ -146,7 +141,7 @@ serve(async (req) => {
   try {
     const { message, userId, sessionId, voiceActive = false, metadata } = await req.json();
     
-    console.log('AI Coach request:', { 
+    console.log('🎯 AI Coach request:', { 
       hasMessage: !!message, 
       hasUserId: !!userId, 
       voiceActive,
@@ -209,7 +204,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     contextPrompt += conversationContext;
     contextPrompt += `\n\nStudent's question: "${message}"`;
 
-    console.log('Calling Claude Sonnet 4 with enhanced tools...');
+    console.log('🤖 Calling Claude with enhanced tools...');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
@@ -292,7 +287,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
       }
 
       const data = await response.json();
-      console.log('Claude response received:', { 
+      console.log('📨 Claude response received:', { 
         hasContent: !!data.content, 
         contentLength: data.content?.length,
         stopReason: data.stop_reason 
@@ -300,7 +295,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
 
       // Check if Claude wants to use tools
       if (data.stop_reason === 'tool_use') {
-        console.log('Claude requested tool usage');
+        console.log('🛠️ Claude requested tool usage');
         
         // Execute tool calls
         const toolResults = [];
@@ -310,7 +305,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
             const toolName = contentBlock.name;
             const toolArgs = { ...contentBlock.input, userId }; // Ensure userId is included
             
-            console.log(`Executing tool: ${toolName}`, toolArgs);
+            console.log(`🔧 Executing tool: ${toolName}`, toolArgs);
             const toolResult = await executeToolCall(toolName, toolArgs);
             
             toolResults.push({
@@ -319,6 +314,8 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
             });
           }
         }
+
+        console.log('🔄 Sending tool results back to Claude...');
 
         // Send tool results back to Claude for final response
         const finalResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -356,13 +353,13 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         const finalData = await finalResponse.json();
         const aiResponse = finalData.content?.[0]?.text || "I've analyzed your study data and I'm here to help guide your learning journey! 📚";
         
-        console.log('Final AI response generated successfully with tool data');
+        console.log('✅ Final AI response generated successfully with tool data');
 
         return new Response(
           JSON.stringify({ 
             response: aiResponse,
             voiceEnabled: voiceActive,
-            toolsUsed: toolResults.length > 0,
+            toolsUsed: true,
             hasPersonalData: true
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -372,7 +369,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
         // Direct response without tools
         const aiResponse = data.content?.[0]?.text || "I'm here to guide your personalized learning journey! What would you like to work on together? 📚";
         
-        console.log('Direct AI response generated successfully');
+        console.log('✅ Direct AI response generated successfully');
 
         return new Response(
           JSON.stringify({ 
@@ -391,7 +388,7 @@ Recent accuracy: ${learningContext.recentActivity.recentAccuracy}%`;
     }
 
   } catch (error) {
-    console.error('Error in AI coach function:', error);
+    console.error('💥 Error in AI coach function:', error);
     
     const smartFallback = "I'm here to support your personalized learning journey! 🎯 While I'm connecting to your study data, feel free to ask me about study strategies, specific topics, or how to make the most of your flashcards.";
     
