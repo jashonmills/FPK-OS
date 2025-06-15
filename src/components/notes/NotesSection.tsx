@@ -153,7 +153,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
     }
   };
 
-  // Render accordion note (enhanced layout)
+  // Render accordion note (enhanced layout with fixed overflow)
   const renderAccordionNote = (note: any) => (
     <AccordionItem
       key={note.id}
@@ -164,24 +164,24 @@ const NotesSection: React.FC<NotesSectionProps> = ({
       }`}
     >
       <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 transition-colors">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-start gap-3 flex-1 min-w-0 text-left">
+        <div className="flex items-center justify-between w-full min-w-0">
+          <div className="flex items-start gap-3 flex-1 min-w-0 text-left pr-4">
             <div className="flex-shrink-0 mt-0.5">
               {getCategoryIcon(note.category)}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 truncate">
+              <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 break-words hyphens-auto">
                 {note.title}
               </h3>
-              <div className="flex items-center gap-3 text-sm text-gray-500">
-                <span>Created {new Date(note.created_at).toLocaleDateString()}</span>
-                <Badge variant="secondary" className="text-xs px-2 py-0.5">
+              <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
+                <span className="whitespace-nowrap">Created {new Date(note.created_at).toLocaleDateString()}</span>
+                <Badge variant="secondary" className="text-xs px-2 py-0.5 shrink-0">
                   {note.category === 'ai-insights' ? 'AI Insight' : note.category}
                 </Badge>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             <Button 
               size="sm" 
               variant="ghost" 
@@ -210,16 +210,16 @@ const NotesSection: React.FC<NotesSectionProps> = ({
       <AccordionContent className="px-6 pb-6 pt-2 bg-gray-50/50">
         {note.content && (
           <div className="prose prose-sm max-w-none mb-4">
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words">
               {note.content}
             </p>
           </div>
         )}
         {note.tags && note.tags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tags:</span>
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide shrink-0">Tags:</span>
             {note.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-white">
+              <Badge key={index} variant="outline" className="text-xs bg-white break-all">
                 {tag}
               </Badge>
             ))}
@@ -229,7 +229,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
     </AccordionItem>
   );
 
-  // Render traditional note layout
+  // Render traditional note layout (enhanced with fixed overflow)
   const renderTraditionalNote = (note: any) => (
     <div 
       key={note.id} 
@@ -277,10 +277,10 @@ const NotesSection: React.FC<NotesSectionProps> = ({
         </>
       ) : (
         <>
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {getCategoryIcon(note.category)}
-              <h3 className="font-medium text-lg truncate">{note.title}</h3>
+              <h3 className="font-medium text-lg break-words hyphens-auto">{note.title}</h3>
             </div>
             <div className="flex gap-2 flex-shrink-0">
               <Button size="sm" variant="ghost" onClick={() => handleEditNote(note)}>
@@ -297,18 +297,18 @@ const NotesSection: React.FC<NotesSectionProps> = ({
             </div>
           </div>
           {note.content && (
-            <p className="text-gray-600 whitespace-pre-wrap">{note.content}</p>
+            <p className="text-gray-600 whitespace-pre-wrap break-words">{note.content}</p>
           )}
           <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs shrink-0">
               {note.category === 'ai-insights' ? 'AI Insight' : note.category}
             </Badge>
             {note.tags?.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+              <Badge key={index} variant="outline" className="text-xs break-all">
                 {tag}
               </Badge>
             ))}
-            <span>Created: {new Date(note.created_at).toLocaleDateString()}</span>
+            <span className="shrink-0">Created: {new Date(note.created_at).toLocaleDateString()}</span>
           </div>
         </>
       )}
