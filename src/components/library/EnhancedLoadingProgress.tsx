@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, RefreshCw, X, Loader2, BookOpen, Download, FileText, Check } from 'lucide-react';
+import { AlertCircle, RefreshCw, X, Loader2, BookOpen, Download, FileText, Check, Wifi, Clock } from 'lucide-react';
 import { EPUBStreamingProgress, EPUBStreamingError } from '@/services/epub/EPUBStreamingTypes';
 
 interface EnhancedLoadingProgressProps {
@@ -73,7 +73,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
     }
   };
 
-  // Handle error display
+  // Handle error display with improved messaging
   if (error) {
     const normalizedError = typeof error === 'string' ? {
       type: 'unknown' as const,
@@ -82,34 +82,85 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
       retryCount: 0
     } : error;
 
+    const getErrorIcon = () => {
+      switch (normalizedError.type) {
+        case 'timeout':
+          return <Clock className="h-20 w-20 text-orange-500 mx-auto relative z-10" />;
+        case 'network':
+          return <Wifi className="h-20 w-20 text-red-500 mx-auto relative z-10" />;
+        default:
+          return <AlertCircle className="h-20 w-20 text-destructive mx-auto relative z-10" />;
+      }
+    };
+
+    const getErrorTitle = () => {
+      switch (normalizedError.type) {
+        case 'timeout':
+          return 'Book is Taking Longer Than Expected';
+        case 'network':
+          return 'Connection Issue';
+        default:
+          return 'Unable to Load Book';
+      }
+    };
+
+    const getErrorDescription = () => {
+      switch (normalizedError.type) {
+        case 'timeout':
+          return 'Large books sometimes take extra time to download';
+        case 'network':
+          return 'Having trouble connecting to the book server';
+        default:
+          return 'Something went wrong while loading this book';
+      }
+    };
+
+    const getQuickSolutions = () => {
+      const solutions = ['Check your internet connection'];
+      
+      if (normalizedError.type === 'timeout') {
+        solutions.push('This book may be large - trying alternative servers');
+        solutions.push('We automatically use faster download methods on retry');
+      } else if (normalizedError.type === 'network') {
+        solutions.push('The book server might be temporarily busy');
+        solutions.push('We\'ll try different servers when you retry');
+      } else {
+        solutions.push('This book may have a large file size');
+        solutions.push('The book server might be temporarily busy');
+      }
+      
+      if (normalizedError.recoverable) {
+        solutions.push('This usually resolves itself when you try again');
+      }
+      
+      return solutions;
+    };
+
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-background">
         <div className="text-center max-w-lg p-8 space-y-6">
           <div className="relative">
-            <div className="absolute inset-0 bg-destructive/10 rounded-full animate-pulse"></div>
-            <AlertCircle className="h-20 w-20 text-destructive mx-auto relative z-10" />
+            <div className={`absolute inset-0 ${normalizedError.type === 'timeout' ? 'bg-orange-500/10' : normalizedError.type === 'network' ? 'bg-red-500/10' : 'bg-destructive/10'} rounded-full animate-pulse`}></div>
+            {getErrorIcon()}
           </div>
           
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold">Unable to Load Book</h3>
-            <p className="text-sm text-muted-foreground">
-              {normalizedError.type === 'timeout' ? 'Loading Timeout' : 
-               normalizedError.type === 'network' ? 'Network Error' : 
-               normalizedError.type === 'streaming' ? 'Book Processing Error' : 'Loading Error'}
+            <h3 className="text-xl font-semibold">{getErrorTitle()}</h3>
+            <p className="text-sm text-muted-foreground">{getErrorDescription()}</p>
+          </div>
+          
+          <div className={`${normalizedError.type === 'timeout' ? 'bg-orange-500/5 border-orange-500/20' : normalizedError.type === 'network' ? 'bg-red-500/5 border-red-500/20' : 'bg-destructive/5 border-destructive/20'} border rounded-lg p-4`}>
+            <p className={`${normalizedError.type === 'timeout' ? 'text-orange-700' : normalizedError.type === 'network' ? 'text-red-700' : 'text-destructive'} text-sm`}>
+              {normalizedError.message}
             </p>
           </div>
           
-          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
-            <p className="text-destructive text-sm">{normalizedError.message}</p>
-          </div>
-          
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">Quick Solutions:</p>
+            <p className="text-sm font-medium text-muted-foreground">What we're doing to help:</p>
             <ul className="text-xs text-muted-foreground space-y-1 text-left">
-              <li>• Check your internet connection</li>
-              <li>• This book may have a large file size</li>
-              <li>• The book server might be temporarily busy</li>
-              {normalizedError.recoverable && <li>• This error can usually be resolved by retrying</li>}
+              {getQuickSolutions().map((solution, index) => (
+                <li key={index}>• {solution}</li>
+              ))}
             </ul>
           </div>
           
@@ -117,7 +168,8 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
             {normalizedError.recoverable && onRetry && (
               <Button onClick={onRetry} variant="outline" className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4" />
-                Try Again {normalizedError.retryCount > 0 && `(${normalizedError.retryCount + 1}/3)`}
+                {normalizedError.type === 'timeout' ? 'Try Faster Servers' : 'Try Again'} 
+                {normalizedError.retryCount > 0 && ` (${normalizedError.retryCount + 1}/4)`}
               </Button>
             )}
             {onCancel && (
@@ -166,8 +218,8 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{progress.percentage}% complete</span>
-                {progress.estimatedTimeRemaining && (
-                  <span>~{progress.estimatedTimeRemaining}s remaining</span>
+                {progress.estimatedTimeRemaining && progress.estimatedTimeRemaining > 0 && (
+                  <span>~{Math.max(1, progress.estimatedTimeRemaining)}s remaining</span>
                 )}
               </div>
             </div>
@@ -218,7 +270,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
         )}
         
         <p className="text-xs text-muted-foreground">
-          {type === 'epub' ? 'Preparing your enhanced reading experience...' : 'Please wait...'}
+          {type === 'epub' ? 'We\'re optimizing your reading experience...' : 'Please wait...'}
         </p>
         
         {onCancel && (

@@ -30,9 +30,9 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
   const startTimeRef = useRef<number>(0);
   const epubModuleRef = useRef<any>(null);
   
-  const MAX_RETRIES = 2;
-  const BASE_TIMEOUT = 20000; // 20 seconds
-  const MAX_TIMEOUT = 45000; // 45 seconds max
+  const MAX_RETRIES = 3; // Increased retries
+  const BASE_TIMEOUT = 60000; // Increased to 60 seconds
+  const MAX_TIMEOUT = 120000; // Increased to 2 minutes max
 
   const updateProgress = useCallback((
     stage: EPUBLoadingProgress['stage'],
@@ -57,17 +57,30 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
   }, []);
 
   const getOptimalEPUBUrl = useCallback(() => {
-    // Prioritize storage_url (local/cached) over external URLs
+    // Try multiple URL strategies for better success rate
+    const urls = [];
+    
+    // First priority: storage URL if available
     if (book.storage_url) {
-      console.log('📚 Using optimized storage URL');
-      return book.storage_url;
+      console.log('📚 Using local storage URL');
+      urls.push(book.storage_url);
     }
     
-    // Use proxy for external URLs with optimized parameters
-    const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}&optimize=true`;
-    console.log('🔗 Using optimized proxy URL');
-    return proxyUrl;
-  }, [book.storage_url, book.epub_url]);
+    // Second priority: direct Gutenberg URLs if we have the ID
+    if (book.gutenberg_id) {
+      urls.push(`https://www.gutenberg.org/ebooks/${book.gutenberg_id}.epub.noimages`);
+      urls.push(`https://www.gutenberg.org/cache/epub/${book.gutenberg_id}/pg${book.gutenberg_id}.epub`);
+    }
+    
+    // Third priority: proxy URL
+    const proxyUrl = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/epub-proxy?url=${encodeURIComponent(book.epub_url)}&timeout=120`;
+    urls.push(proxyUrl);
+    
+    // Return the URL to try based on retry count
+    const urlIndex = Math.min(retryCountRef.current, urls.length - 1);
+    console.log(`🔗 Trying URL strategy ${urlIndex + 1}/${urls.length}:`, urls[urlIndex].substring(0, 50) + '...');
+    return urls[urlIndex];
+  }, [book.storage_url, book.epub_url, book.gutenberg_id]);
 
   const createOptimizedError = useCallback((
     error: any,
@@ -78,14 +91,14 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
 
     if (error.message?.includes('timeout') || error.name === 'TimeoutError') {
       type = 'timeout';
-      message = 'This book is taking too long to download. It might be large or the connection is slow.';
+      message = `This book is taking longer than expected to download. We're trying different servers to help speed this up.`;
     } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
       type = 'network';
-      message = 'Network connection issue. Please check your internet connection.';
+      message = 'Connection issue detected. Trying alternative download methods...';
     } else if (error.message?.includes('parse') || error.message?.includes('invalid')) {
       type = 'parsing';
-      message = 'This book file appears to be corrupted or incompatible.';
-      recoverable = false;
+      message = 'This book file appears to be corrupted. Trying alternative sources...';
+      recoverable = true; // Even parsing errors might be recoverable with different URLs
     }
 
     return { type, message, recoverable, retryCount: retryCountRef.current };
@@ -110,32 +123,38 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       cleanup();
       abortControllerRef.current = new AbortController();
       
-      console.log('📖 Starting optimized EPUB load for:', book.title);
+      console.log(`📖 Starting EPUB load attempt ${retryCountRef.current + 1}/${MAX_RETRIES + 1} for:`, book.title);
       
-      updateProgress('downloading', 25, 'Downloading book content...');
+      updateProgress('downloading', 10, 'Initializing download...');
       
       // Load EPUB.js module if not already loaded
       if (!epubModuleRef.current) {
-        updateProgress('processing', 35, 'Loading EPUB reader...');
+        updateProgress('downloading', 20, 'Loading EPUB reader...');
         epubModuleRef.current = await import('epubjs');
       }
       
       const EPubLib = epubModuleRef.current.default;
       
-      updateProgress('processing', 50, 'Processing book structure...');
+      updateProgress('downloading', 30, 'Connecting to book server...');
       
       const epubUrl = getOptimalEPUBUrl();
       
-      // Create EPUB instance with proper error handling
+      // Progressive timeout based on retry count
+      const timeout = Math.min(BASE_TIMEOUT + (retryCountRef.current * 30000), MAX_TIMEOUT);
+      console.log(`⏱️ Using timeout: ${timeout / 1000}s for attempt ${retryCountRef.current + 1}`);
+      
+      updateProgress('downloading', 50, 'Downloading book content...');
+      
+      // Create EPUB instance with enhanced error handling
       const newEpubInstance = EPubLib(epubUrl);
       
-      // Set up timeout with adaptive timing
-      const timeout = Math.min(BASE_TIMEOUT + (retryCountRef.current * 10000), MAX_TIMEOUT);
+      // Set up timeout
       const timeoutId = setTimeout(() => {
+        console.log(`⏰ Timeout reached after ${timeout / 1000}s`);
         abortControllerRef.current?.abort();
       }, timeout);
       
-      updateProgress('processing', 75, 'Preparing book for reading...');
+      updateProgress('processing', 70, 'Processing book structure...');
       
       // Wait for book to be ready with proper error boundaries
       await Promise.race([
@@ -153,7 +172,9 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       // Set the instance early to prevent race conditions
       setEpubInstance(newEpubInstance);
       
-      // Load navigation with timeout and error handling
+      updateProgress('processing', 85, 'Loading table of contents...');
+      
+      // Load navigation with longer timeout for complex books
       try {
         await Promise.race([
           newEpubInstance.loaded.navigation.then(() => {
@@ -162,7 +183,7 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
             console.log('📚 TOC loaded:', tocItems.length, 'items');
           }),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Navigation timeout')), 5000)
+            setTimeout(() => reject(new Error('Navigation timeout')), 10000)
           )
         ]);
       } catch (navError) {
@@ -173,25 +194,25 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
       updateProgress('ready', 100, 'Book ready to read!');
       
       // Small delay for smooth UX
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       setIsLoading(false);
       setProgress(null);
       retryCountRef.current = 0;
       
-      console.log('✅ Optimized EPUB loading completed successfully');
+      console.log('✅ EPUB loading completed successfully');
       
     } catch (err) {
-      console.error('❌ Optimized EPUB loading error:', err);
+      console.error(`❌ EPUB loading error (attempt ${retryCountRef.current + 1}):`, err);
       
       const optimizedError = createOptimizedError(err);
       
       if (optimizedError.recoverable && retryCountRef.current < MAX_RETRIES) {
         retryCountRef.current++;
-        const retryDelay = 1000 + (retryCountRef.current * 1500); // Progressive delay
+        const retryDelay = 2000 + (retryCountRef.current * 2000); // Progressive delay: 2s, 4s, 6s
         
-        console.log(`🔄 Retrying optimized load... Attempt ${retryCountRef.current}/${MAX_RETRIES}`);
-        updateProgress('downloading', 10, `Retrying with different settings... (${retryCountRef.current}/${MAX_RETRIES})`);
+        console.log(`🔄 Retrying with different strategy... Attempt ${retryCountRef.current}/${MAX_RETRIES}`);
+        updateProgress('downloading', 5, `Retrying with alternative download method... (${retryCountRef.current}/${MAX_RETRIES})`);
         
         setTimeout(() => {
           loadEPUB();
@@ -207,12 +228,14 @@ export const useOptimizedEPUBLoader = (book: PublicDomainBook) => {
   }, [book, updateProgress, createOptimizedError, getOptimalEPUBUrl, cleanup]);
 
   const retryLoad = useCallback(() => {
+    console.log('🔄 Manual retry requested');
     retryCountRef.current = 0;
     setError(null);
     loadEPUB();
   }, [loadEPUB]);
 
   const abortLoad = useCallback(() => {
+    console.log('🛑 Load aborted by user');
     cleanup();
     setIsLoading(false);
     setProgress(null);
