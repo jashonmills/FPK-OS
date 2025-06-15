@@ -70,10 +70,10 @@ const LearnerHome = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-900">
-              {statsLoading ? '...' : stats?.todayGoalsCompleted || 0}
+              {statsLoading ? '...' : stats?.completedGoals || 0}
             </div>
             <p className="text-xs text-green-700">
-              of {statsLoading ? '...' : stats?.todayGoalsTotal || 0} completed
+              of {statsLoading ? '...' : stats?.totalGoals || 0} completed
             </p>
           </CardContent>
         </Card>
@@ -97,11 +97,11 @@ const LearnerHome = () => {
       {!gamificationLoading && gamificationData && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <XPProgressBar 
-            currentXP={gamificationData.totalXP || 0}
+            xp={gamificationData.totalXP || 0}
             level={gamificationData.level || 1}
           />
           <StreakDisplay 
-            currentStreak={gamificationData.streak || 0}
+            streak={gamificationData.streak || 0}
             longestStreak={gamificationData.longestStreak || 0}
           />
           <BadgeDisplay badges={gamificationData.badges || []} />
