@@ -36,7 +36,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   // Index books for instant search when books change
   useEffect(() => {
     if (books.length > 0) {
-      console.log('🔍 Indexing books for instant search...');
+      console.log(`🔍 Indexing ${books.length} books for instant search...`);
       searchIndexService.indexBooks(books);
     }
   }, [books]);
@@ -44,14 +44,15 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   // Update displayed books based on search results
   useEffect(() => {
     if (query && hasResults) {
+      console.log(`🔍 Showing ${instantResults.length} search results for "${query}"`);
       setDisplayBooks(instantResults);
     } else {
+      console.log(`📚 Showing all ${books.length} books`);
       setDisplayBooks(books);
     }
   }, [query, instantResults, hasResults, books]);
 
   const handleSearch = useCallback((searchQuery: string) => {
-    // Search is handled by the debounced search hook
     console.log('🔍 Search executed:', searchQuery);
   }, []);
 

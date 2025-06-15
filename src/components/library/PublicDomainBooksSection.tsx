@@ -14,8 +14,9 @@ import LibraryHeader from './LibraryHeader';
 import { performanceService } from '@/services/PerformanceOptimizationService';
 import { browsingPatternsAnalyzer } from '@/services/BrowsingPatternsAnalyzer';
 
-const INITIAL_LOAD_LIMIT = 10;
-const LOAD_MORE_AMOUNT = 20;
+// Remove artificial limits - show all available books
+const INITIAL_LOAD_LIMIT = 100; // Increased to show all books
+const LOAD_MORE_AMOUNT = 50;
 
 const PublicDomainBooksSection: React.FC = () => {
   const [loadLimit, setLoadLimit] = useState(INITIAL_LOAD_LIMIT);
@@ -24,7 +25,8 @@ const PublicDomainBooksSection: React.FC = () => {
   const [browsingAnalytics, setBrowsingAnalytics] = useState<any>(null);
   const [prefetchSuggestions, setPrefetchSuggestions] = useState<PublicDomainBook[]>([]);
   
-  const { books, isLoading, error, refetch, retryCount, hasMore } = usePublicDomainBooks(loadLimit);
+  // Load all books without artificial limits
+  const { books, isLoading, error, refetch, retryCount, hasMore } = usePublicDomainBooks();
 
   // Initialize performance optimizations and browsing analysis
   useEffect(() => {
@@ -73,7 +75,7 @@ const PublicDomainBooksSection: React.FC = () => {
       }
     };
 
-    const interval = setInterval(updateAnalytics, 10000); // Every 10 seconds
+    const interval = setInterval(updateAnalytics, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -115,6 +117,8 @@ const PublicDomainBooksSection: React.FC = () => {
   const curatedBooks = carouselBooks.filter((_, index) => !books[index].is_user_added);
   const userAddedBooks = carouselBooks.filter((_, index) => books[index].is_user_added);
 
+  console.log(`📚 Displaying ${books.length} books total (${curatedBooks.length} curated, ${userAddedBooks.length} user-added)`);
+
   return (
     <div className="space-y-8">
       {/* Phase 4 Performance & Analytics Dashboard */}
@@ -139,7 +143,7 @@ const PublicDomainBooksSection: React.FC = () => {
       )}
 
       {/* Temporary Ingestion Trigger - Remove after books are added */}
-      {books.length < 3 && !isLoading && (
+      {books.length < 10 && !isLoading && (
         <div className="mb-8">
           <GutenbergIngestionTrigger />
         </div>
@@ -150,14 +154,14 @@ const PublicDomainBooksSection: React.FC = () => {
         <LoadingIndicator />
       )}
 
-      {/* Enhanced Virtualized List with Instant Search */}
+      {/* Enhanced Virtualized List with Instant Search - Show all books */}
       {books.length > 0 && (
         <>
           <div className="bg-background border rounded-lg p-6">
             <div className="mb-4">
               <h3 className="text-xl font-semibold mb-2">All Books - Enhanced Search & UX</h3>
               <p className="text-sm text-muted-foreground">
-                Features instant search trie, debounced queries, and intelligent browsing pattern analysis
+                Showing {books.length} available books with instant search and intelligent browsing patterns
               </p>
             </div>
             
@@ -167,20 +171,11 @@ const PublicDomainBooksSection: React.FC = () => {
               isLoading={isLoading}
             />
           </div>
-          
-          {/* Load More Button */}
-          <LoadMoreSection
-            hasMore={hasMore}
-            isLoading={isLoading}
-            onLoadMore={handleLoadMore}
-            booksCount={books.length}
-            loadMoreAmount={LOAD_MORE_AMOUNT}
-          />
         </>
       )}
 
       {/* Intelligent Prefetch Suggestions */}
-      {prefetchSuggestions.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
+      {prefetchSuggestions.length > 0 && books.length >= 10 && (
         <BookCarousel
           books={prefetchSuggestions.slice(0, 8).map(book => ({
             id: book.id,
@@ -200,9 +195,9 @@ const PublicDomainBooksSection: React.FC = () => {
       )}
 
       {/* Curated Project Gutenberg Collection - Only show if we have books */}
-      {curatedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
+      {curatedBooks.length > 0 && books.length >= 10 && (
         <BookCarousel
-          books={curatedBooks.slice(0, 8)}
+          books={curatedBooks.slice(0, 12)}
           sectionId="curatedGutenberg"
           title="Curated Project Gutenberg Collection"
           description={`${curatedBooks.length} carefully selected educational classics`}
@@ -212,7 +207,7 @@ const PublicDomainBooksSection: React.FC = () => {
       )}
 
       {/* User-Added Books - Only show if we have books */}
-      {userAddedBooks.length > 0 && books.length >= INITIAL_LOAD_LIMIT && (
+      {userAddedBooks.length > 0 && books.length >= 10 && (
         <BookCarousel
           books={userAddedBooks.slice(0, 8)}
           sectionId="userAddedBooks"

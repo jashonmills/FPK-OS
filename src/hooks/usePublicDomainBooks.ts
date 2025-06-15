@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const usePublicDomainBooks = (limit?: number) => {
   const [retryCount, setRetryCount] = useState(0);
-  const maxRetries = 2; // Reduced from 3 for faster failure handling
+  const maxRetries = 2;
 
   const { data: books = [], isLoading, error, refetch } = useQuery({
     queryKey: ['publicDomainBooks', limit],
@@ -16,11 +16,13 @@ export const usePublicDomainBooks = (limit?: number) => {
       let query = supabase
         .from('public_domain_books')
         .select('*')
+        // Only show successfully downloaded books
+        .eq('download_status', 'completed')
         .order('is_user_added', { ascending: true })
         .order('created_at', { ascending: false });
 
-      // Apply limit for progressive loading with better performance
-      if (limit) {
+      // Apply limit only if specified and reasonable
+      if (limit && limit > 0) {
         query = query.limit(limit);
       }
       
@@ -31,7 +33,7 @@ export const usePublicDomainBooks = (limit?: number) => {
         throw new Error(`Failed to fetch books: ${error.message}`);
       }
       
-      console.log(`✅ Loaded ${data?.length || 0} books from database`);
+      console.log(`✅ Loaded ${data?.length || 0} completed books from database`);
       
       // Enhanced book processing with better URL handling and performance
       return (data || []).map(book => {
@@ -53,8 +55,8 @@ export const usePublicDomainBooks = (limit?: number) => {
         return processedBook;
       });
     },
-    staleTime: 15 * 60 * 1000, // Increased from 10 to 15 minutes for better caching
-    gcTime: 30 * 60 * 1000, // Increased from 20 to 30 minutes cache time
+    staleTime: 15 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: (failureCount, error) => {
@@ -65,8 +67,8 @@ export const usePublicDomainBooks = (limit?: number) => {
       }
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(800 * 2 ** attemptIndex, 20000), // Faster initial retry
-    networkMode: 'online' // Only fetch when online for better performance
+    retryDelay: (attemptIndex) => Math.min(800 * 2 ** attemptIndex, 20000),
+    networkMode: 'online'
   });
 
   const handleManualRetry = () => {
