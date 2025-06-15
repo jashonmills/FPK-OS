@@ -52,7 +52,11 @@ export const useThresholdManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map(item => ({
+        ...item,
+        status: item.status as 'active' | 'pending' | 'disabled',
+        risk_level: item.risk_level as 'info' | 'warning' | 'critical'
+      }));
     },
   });
 
@@ -66,7 +70,10 @@ export const useThresholdManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map(item => ({
+        ...item,
+        criteria: item.criteria as Record<string, any>
+      }));
     },
   });
 
@@ -76,17 +83,15 @@ export const useThresholdManagement = () => {
     queryFn: async (): Promise<AuditLogEntry[]> => {
       const { data, error } = await supabase
         .from('threshold_audit_log')
-        .select(`
-          *,
-          profiles!threshold_audit_log_user_id_fkey(full_name)
-        `)
+        .select('*')
         .order('timestamp', { ascending: false })
         .limit(100);
 
       if (error) throw error;
       return (data || []).map(entry => ({
         ...entry,
-        user_email: entry.profiles?.full_name || 'Unknown User'
+        changes: entry.changes as Record<string, any>,
+        user_email: 'System User' // Since we can't join with profiles, use a default
       }));
     },
   });

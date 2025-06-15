@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { AccessibilityProvider } from '@/components/AccessibilityProvider';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import AccessibilityProvider from '@/components/AccessibilityProvider';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import Index from '@/pages/Index';
