@@ -34,8 +34,12 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
       
       // Create enhanced streaming loader
       loaderRef.current = new EnhancedEPUBStreamingLoader(
-        (progress) => setProgress(convertProgress(progress)),
+        (progress) => {
+          console.log('📊 EPUB Loading Progress:', progress);
+          setProgress(convertProgress(progress));
+        },
         (error) => {
+          console.error('❌ EPUB Loading Error:', error);
           const convertedError = convertError(error);
           handleRetryableError(convertedError);
         }
@@ -44,14 +48,23 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
       const epubUrl = getOptimalEPUBUrl();
       const cacheKey = book.id;
       
+      console.log('📚 Loading EPUB from URL:', epubUrl);
+      console.log('🔑 Using cache key:', cacheKey);
+      
       const result = await loaderRef.current.loadEPUB(epubUrl, cacheKey);
       
       if (result.success) {
+        console.log('✅ EPUB loading successful:', result);
         setEpubInstance(result.epubInstance);
         
         if (result.metadata) {
           setMetadata(result.metadata);
           setToc(result.metadata.toc || []);
+          console.log('📖 Metadata loaded:', {
+            title: result.metadata.title,
+            chaptersCount: result.metadata.spine.length,
+            tocItemsCount: result.metadata.toc.length
+          });
         }
         
         setIsLoading(false);
@@ -59,6 +72,11 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
         resetRetryCount();
         
         console.log('✅ Enhanced streaming EPUB loading completed successfully');
+      } else {
+        console.error('❌ EPUB loading failed:', result.error);
+        if (result.error) {
+          handleRetryableError(convertError(result.error));
+        }
       }
       
     } catch (err) {
@@ -81,12 +99,14 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
     resetRetryCount,
     retryLoad
   } = useStreamingRetryLogic(2, (error) => {
+    console.error('❌ Final EPUB loading error:', error);
     setError(error);
     setIsLoading(false);
     setProgress(null);
   }, loadEPUBInternal);
 
   const abortLoad = useCallback(() => {
+    console.log('🛑 Aborting EPUB load');
     if (loaderRef.current) {
       loaderRef.current.abort();
       loaderRef.current = null;
@@ -102,6 +122,7 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
     }
     
     try {
+      console.log('📄 Getting chapter content:', chapterHref);
       return await loaderRef.current.getChapterContent(chapterHref);
     } catch (error) {
       console.error('Failed to get enhanced chapter content:', error);
@@ -111,6 +132,7 @@ export const useStreamingEPUBCore = (book: PublicDomainBook) => {
 
   const updateReadingPosition = useCallback((chapterIndex: number, readingSpeed?: number) => {
     if (loaderRef.current) {
+      console.log('📍 Updating reading position:', chapterIndex, readingSpeed);
       loaderRef.current.updateReadingPosition(chapterIndex, readingSpeed);
     }
   }, []);

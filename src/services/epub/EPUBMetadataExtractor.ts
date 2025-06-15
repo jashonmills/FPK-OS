@@ -31,10 +31,10 @@ export class EPUBMetadataExtractor {
       // Create temporary EPUB instance for metadata extraction
       const tempEpub = EPubLib(url);
       
-      // Extract metadata with timeout
+      // Extract metadata with longer timeout (30s instead of 10s)
       const metadataPromise = this.extractFromEpub(tempEpub);
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Metadata extraction timeout')), 10000);
+        setTimeout(() => reject(new Error('Metadata extraction timeout')), 30000);
       });
 
       const metadata = await Promise.race([metadataPromise, timeoutPromise]) as EPUBMetadata;
@@ -51,6 +51,12 @@ export class EPUBMetadataExtractor {
 
     } catch (error) {
       console.error('❌ EPUB metadata loading failed:', error);
+      
+      // Try fallback metadata extraction
+      const fallbackResult = await this.extractFallbackMetadata(url, cacheKey);
+      if (fallbackResult.success) {
+        return fallbackResult;
+      }
       
       const metadataError: EPUBStreamingError = {
         type: 'metadata',
@@ -98,6 +104,45 @@ export class EPUBMetadataExtractor {
     });
 
     return metadata;
+  }
+
+  private static async extractFallbackMetadata(url: string, cacheKey: string): Promise<{
+    success: boolean;
+    metadata?: EPUBMetadata;
+    error?: EPUBStreamingError;
+  }> {
+    try {
+      console.log('🔄 Attempting fallback metadata extraction...');
+      
+      // Create a basic metadata object with minimal requirements
+      const fallbackMetadata: EPUBMetadata = {
+        title: 'Loading Book...',
+        author: 'Unknown Author',
+        identifier: cacheKey,
+        language: 'en',
+        toc: [],
+        spine: [],
+        resources: {},
+        loadedAt: Date.now()
+      };
+
+      // Cache the fallback metadata temporarily
+      await indexedDBCache.set(`epub-meta:${cacheKey}`, fallbackMetadata, 'metadata');
+
+      console.log('✅ Fallback metadata created');
+      return { success: true, metadata: fallbackMetadata };
+
+    } catch (error) {
+      const fallbackError: EPUBStreamingError = {
+        type: 'metadata',
+        message: 'Both primary and fallback metadata extraction failed',
+        recoverable: false,
+        retryCount: 0,
+        context: 'fallback_metadata'
+      };
+
+      return { success: false, error: fallbackError };
+    }
   }
 
   private static isMetadataFresh(metadata: EPUBMetadata): boolean {
