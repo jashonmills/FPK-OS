@@ -61,7 +61,7 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
         <CardTitle className="text-base font-medium text-blue-200">Today's Astronomy</CardTitle>
         <Telescope className="h-5 w-5 text-blue-400" />
       </CardHeader>
-      <CardContent className="h-60 flex flex-col">
+      <CardContent className="h-60 flex flex-col p-4">
         {isLoading ? (
           <div className="space-y-3 flex-1">
             <Skeleton className="h-32 w-full rounded-lg bg-slate-700" />
@@ -71,8 +71,8 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
           </div>
         ) : apod ? (
           <div className="space-y-3 h-full flex flex-col">
-            {/* Main Image */}
-            <div className="relative overflow-hidden rounded-lg h-32 flex-shrink-0">
+            {/* Main Image Container */}
+            <div className="relative overflow-hidden rounded-lg h-28 flex-shrink-0">
               <img
                 src={apod.media_type === 'video' && apod.thumbnail_url ? apod.thumbnail_url : apod.url}
                 alt={apod.title}
@@ -90,27 +90,29 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
               </div>
             </div>
 
-            {/* Content */}
+            {/* Content Section */}
             <div className="flex-1 min-h-0 space-y-2">
-              <h3 className="text-lg font-semibold text-white line-clamp-2">
+              <h3 className="text-base font-semibold text-white line-clamp-2">
                 {apod.title}
               </h3>
-              <p className="text-sm text-blue-200 line-clamp-3">
+              <p className="text-sm text-blue-200 line-clamp-2">
                 {truncateText(apod.explanation)}
               </p>
             </div>
 
-            {/* Action Button */}
-            <Button 
-              onClick={handleLearnMore}
-              size="default"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0"
-            >
-              Learn More
-            </Button>
+            {/* Learn More Button - Now positioned below content */}
+            <div className="flex-shrink-0 mt-4">
+              <Button 
+                onClick={handleLearnMore}
+                size="default"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 fpk-gradient"
+              >
+                Learn More
+              </Button>
+            </div>
 
             {/* Attribution */}
-            <div className="flex items-center justify-between text-xs text-blue-300 pt-1">
+            <div className="flex items-center justify-between text-xs text-blue-300 pt-1 flex-shrink-0">
               <span>NASA APOD</span>
               <span>{apod.media_type === 'video' ? 'Video' : 'Image'}</span>
             </div>

@@ -130,17 +130,17 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
         <CardTitle className="text-base font-medium text-purple-800">Visual of the Week</CardTitle>
         <Palette className="h-5 w-5 text-purple-600" />
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col min-h-0">
+      <CardContent className="flex-1 flex flex-col min-h-0 p-4">
         {isLoading ? (
           <div className="space-y-3 flex-1">
-            <Skeleton className="flex-1 w-full rounded-lg min-h-[160px]" />
+            <Skeleton className="flex-1 w-full rounded-lg min-h-[120px]" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
           </div>
         ) : items && items.length > 0 ? (
           <div className="flex flex-col h-full space-y-3">
-            {/* Carousel Container */}
-            <div className="relative flex-1 min-h-[160px]">
+            {/* Carousel Container with fixed aspect ratio */}
+            <div className="relative flex-1 min-h-[120px]">
               <Carousel 
                 setApi={setApi} 
                 className="w-full h-full"
@@ -166,11 +166,12 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                         }}
                       >
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow h-full flex flex-col">
-                          <div className="flex-1 relative">
+                          {/* Image wrapper with controlled aspect ratio */}
+                          <div className="visual-week__image-wrapper relative w-full overflow-hidden rounded-lg" style={{ paddingTop: '60%' }}>
                             <img
                               src={getImageSrc(item)}
                               alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              className="absolute top-1/2 left-1/2 h-auto w-full transform -translate-x-1/2 -translate-y-1/2 group-hover:scale-105 transition-transform duration-200"
                               style={{ backgroundColor: '#000' }}
                               onError={(e) => {
                                 handleImageError(item.id, item.thumbnail);
