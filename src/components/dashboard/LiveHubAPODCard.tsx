@@ -70,9 +70,9 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
             <Skeleton className="h-8 w-full bg-slate-700" />
           </div>
         ) : apod ? (
-          <div className="flex flex-col h-full space-y-3">
+          <div className="flex flex-col h-full">
             {/* Main Image Container - Fixed height to prevent overflow */}
-            <div className="relative overflow-hidden rounded-lg h-24 flex-shrink-0">
+            <div className="relative overflow-hidden rounded-lg h-24 flex-shrink-0 mb-3">
               <img
                 src={apod.media_type === 'video' && apod.thumbnail_url ? apod.thumbnail_url : apod.url}
                 alt={apod.title}
@@ -91,7 +91,7 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
             </div>
 
             {/* Content Section - Flexible height */}
-            <div className="flex-1 min-h-0 space-y-2">
+            <div className="flex-1 min-h-0 space-y-2 mb-3">
               <h3 className="text-sm font-semibold text-white line-clamp-2">
                 {apod.title}
               </h3>
@@ -100,21 +100,21 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
               </p>
             </div>
 
-            {/* Learn More Button - Fixed at bottom */}
-            <div className="flex-shrink-0 mt-3">
+            {/* Attribution - Above button */}
+            <div className="flex items-center justify-between text-xs text-blue-300 mb-3 flex-shrink-0">
+              <span>NASA APOD</span>
+              <span>{apod.media_type === 'video' ? 'Video' : 'Image'}</span>
+            </div>
+
+            {/* Learn More Button - Centered at bottom with limited width */}
+            <div className="flex justify-center flex-shrink-0">
               <Button 
                 onClick={handleLearnMore}
                 size="default"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 fpk-gradient"
+                className="bg-blue-600 hover:bg-blue-700 text-white border-0 fpk-gradient px-8"
               >
                 Learn More
               </Button>
-            </div>
-
-            {/* Attribution - Bottom */}
-            <div className="flex items-center justify-between text-xs text-blue-300 pt-1 flex-shrink-0">
-              <span>NASA APOD</span>
-              <span>{apod.media_type === 'video' ? 'Video' : 'Image'}</span>
             </div>
           </div>
         ) : (
