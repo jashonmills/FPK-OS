@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import OpenDyslexic font */
+@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
+
 /* FPK University Design System */
 
 @layer base {
@@ -55,6 +58,7 @@
     /* Accessibility Variables - Default Values */
     --accessibility-font-size: 16px;
     --accessibility-line-height: 1.5;
+    --active-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   .dark {
@@ -107,7 +111,7 @@
 
   body {
     @apply bg-background text-foreground overflow-x-hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--active-font-family);
     transition: all 0.2s ease;
   }
 
@@ -116,43 +120,111 @@
     font-size: var(--accessibility-font-size) !important;
   }
 
-  html.accessibility-active * {
+  html.accessibility-active *,
+  html.accessibility-active body,
+  html.accessibility-active body * {
     line-height: var(--accessibility-line-height) !important;
+    font-family: var(--active-font-family) !important;
   }
 
-  /* FONT FAMILIES - Apply to html and all descendants with higher specificity */
+  /* FONT FAMILIES - Apply globally with maximum specificity */
   html.font-opendyslexic,
   html.font-opendyslexic *,
   html.font-opendyslexic body,
-  html.font-opendyslexic body * {
+  html.font-opendyslexic body *,
+  html.font-opendyslexic div,
+  html.font-opendyslexic p,
+  html.font-opendyslexic span,
+  html.font-opendyslexic h1,
+  html.font-opendyslexic h2,
+  html.font-opendyslexic h3,
+  html.font-opendyslexic h4,
+  html.font-opendyslexic h5,
+  html.font-opendyslexic h6,
+  html.font-opendyslexic button,
+  html.font-opendyslexic input,
+  html.font-opendyslexic textarea,
+  html.font-opendyslexic label {
     font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
   html.font-arial,
   html.font-arial *,
   html.font-arial body,
-  html.font-arial body * {
+  html.font-arial body *,
+  html.font-arial div,
+  html.font-arial p,
+  html.font-arial span,
+  html.font-arial h1,
+  html.font-arial h2,
+  html.font-arial h3,
+  html.font-arial h4,
+  html.font-arial h5,
+  html.font-arial h6,
+  html.font-arial button,
+  html.font-arial input,
+  html.font-arial textarea,
+  html.font-arial label {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
   html.font-georgia,
   html.font-georgia *,
   html.font-georgia body,
-  html.font-georgia body * {
+  html.font-georgia body *,
+  html.font-georgia div,
+  html.font-georgia p,
+  html.font-georgia span,
+  html.font-georgia h1,
+  html.font-georgia h2,
+  html.font-georgia h3,
+  html.font-georgia h4,
+  html.font-georgia h5,
+  html.font-georgia h6,
+  html.font-georgia button,
+  html.font-georgia input,
+  html.font-georgia textarea,
+  html.font-georgia label {
     font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
   html.font-cursive,
   html.font-cursive *,
   html.font-cursive body,
-  html.font-cursive body * {
+  html.font-cursive body *,
+  html.font-cursive div,
+  html.font-cursive p,
+  html.font-cursive span,
+  html.font-cursive h1,
+  html.font-cursive h2,
+  html.font-cursive h3,
+  html.font-cursive h4,
+  html.font-cursive h5,
+  html.font-cursive h6,
+  html.font-cursive button,
+  html.font-cursive input,
+  html.font-cursive textarea,
+  html.font-cursive label {
     font-family: "Dancing Script", "Brush Script MT", cursive !important;
   }
 
   html.font-system,
   html.font-system *,
   html.font-system body,
-  html.font-system body * {
+  html.font-system body *,
+  html.font-system div,
+  html.font-system p,
+  html.font-system span,
+  html.font-system h1,
+  html.font-system h2,
+  html.font-system h3,
+  html.font-system h4,
+  html.font-system h5,
+  html.font-system h6,
+  html.font-system button,
+  html.font-system input,
+  html.font-system textarea,
+  html.font-system label {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 

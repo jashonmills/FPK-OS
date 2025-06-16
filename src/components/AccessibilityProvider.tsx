@@ -36,6 +36,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
       // Reset CSS variables to defaults
       html.style.setProperty('--accessibility-font-size', '16px');
       html.style.setProperty('--accessibility-line-height', '1.5');
+      html.style.setProperty('--active-font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
       // Ensure system font is applied when no profile
       html.classList.add('font-system');
       return;
@@ -75,7 +76,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const fontClass = `font-${fontFamily.toLowerCase()}`;
     html.classList.add(fontClass);
     
-    // Force font family application on mobile by setting CSS custom property
+    // Force font family application with CSS custom property and direct style
     const fontFamilyMap = {
       'system': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       'opendyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
@@ -86,6 +87,9 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     
     const fontFamilyValue = fontFamilyMap[fontFamily.toLowerCase()] || fontFamilyMap.system;
     html.style.setProperty('--active-font-family', fontFamilyValue);
+    
+    // Force immediate font application on body and all elements
+    body.style.fontFamily = fontFamilyValue;
     
     console.log('🎨 Applied font class and CSS property:', { 
       fontClass, 
