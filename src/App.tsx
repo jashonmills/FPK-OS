@@ -26,6 +26,7 @@ import Notes from '@/pages/dashboard/Notes';
 import Settings from '@/pages/dashboard/Settings';
 import Gamification from '@/pages/dashboard/Gamification';
 import FlashcardManagerPage from '@/pages/dashboard/FlashcardManagerPage';
+import StudySessionRouter from '@/components/study/StudySessionRouter';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import CourseManager from '@/pages/admin/CourseManager';
 import ModuleManagerPage from '@/pages/admin/ModuleManagerPage';
@@ -65,6 +66,7 @@ function App() {
                       <Route path="learner/settings" element={<Settings />} />
                       <Route path="learner/gamification" element={<Gamification />} />
                       <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
+                      <Route path="learner/study/:mode" element={<StudySessionRouter />} />
                       
                       <Route path="admin" element={<AdminDashboard />} />
                       <Route path="admin/course-manager" element={<CourseManager />} />
