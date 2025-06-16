@@ -120,29 +120,39 @@
     line-height: var(--accessibility-line-height) !important;
   }
 
-  /* FONT FAMILIES - Apply to html when body has the class */
+  /* FONT FAMILIES - Apply to html and all descendants with higher specificity */
   html.font-opendyslexic,
-  html.font-opendyslexic * {
+  html.font-opendyslexic *,
+  html.font-opendyslexic body,
+  html.font-opendyslexic body * {
     font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
   html.font-arial,
-  html.font-arial * {
+  html.font-arial *,
+  html.font-arial body,
+  html.font-arial body * {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
   html.font-georgia,
-  html.font-georgia * {
+  html.font-georgia *,
+  html.font-georgia body,
+  html.font-georgia body * {
     font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
   html.font-cursive,
-  html.font-cursive * {
+  html.font-cursive *,
+  html.font-cursive body,
+  html.font-cursive body * {
     font-family: "Dancing Script", "Brush Script MT", cursive !important;
   }
 
   html.font-system,
-  html.font-system * {
+  html.font-system *,
+  html.font-system body,
+  html.font-system body * {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 

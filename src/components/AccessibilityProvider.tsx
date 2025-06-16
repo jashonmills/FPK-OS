@@ -13,8 +13,9 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     console.log('🎨 AccessibilityProvider: Profile changed', profile);
     
     const html = document.documentElement;
+    const body = document.body;
     
-    // Clear all accessibility classes
+    // Clear all accessibility classes from both html and body
     const existingClasses = Array.from(html.classList).filter(cls => 
       cls.startsWith('font-') || 
       cls.startsWith('high-') || 
@@ -24,11 +25,19 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     );
     html.classList.remove(...existingClasses);
     
+    // Also clear from body as a fallback
+    const bodyClasses = Array.from(body.classList).filter(cls => 
+      cls.startsWith('font-')
+    );
+    body.classList.remove(...bodyClasses);
+    
     if (!profile) {
       console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility');
       // Reset CSS variables to defaults
       html.style.setProperty('--accessibility-font-size', '16px');
       html.style.setProperty('--accessibility-line-height', '1.5');
+      // Ensure system font is applied when no profile
+      html.classList.add('font-system');
       return;
     }
 
@@ -61,10 +70,27 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     // Apply main accessibility class to activate the CSS
     html.classList.add('accessibility-active');
     
-    // Apply font family class to HTML
-    const fontClass = `font-${(profile.font_family || 'system').toLowerCase()}`;
+    // Apply font family class to HTML with more robust handling
+    const fontFamily = profile.font_family || 'System';
+    const fontClass = `font-${fontFamily.toLowerCase()}`;
     html.classList.add(fontClass);
-    console.log('🎨 Applied font class:', fontClass);
+    
+    // Force font family application on mobile by setting CSS custom property
+    const fontFamilyMap = {
+      'system': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      'opendyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
+      'arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+      'georgia': 'Georgia, "Times New Roman", Times, serif',
+      'cursive': '"Dancing Script", "Brush Script MT", cursive'
+    };
+    
+    const fontFamilyValue = fontFamilyMap[fontFamily.toLowerCase()] || fontFamilyMap.system;
+    html.style.setProperty('--active-font-family', fontFamilyValue);
+    
+    console.log('🎨 Applied font class and CSS property:', { 
+      fontClass, 
+      fontFamilyValue 
+    });
     
     // Apply contrast mode to HTML
     if (profile.color_contrast === 'High') {
@@ -83,7 +109,8 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     
     console.log('✅ Applied CSS variables:', {
       fontSize: html.style.getPropertyValue('--accessibility-font-size'),
-      lineHeight: html.style.getPropertyValue('--accessibility-line-height')
+      lineHeight: html.style.getPropertyValue('--accessibility-line-height'),
+      fontFamily: html.style.getPropertyValue('--active-font-family')
     });
     
     console.log('✅ Applied classes to HTML:', Array.from(html.classList));
