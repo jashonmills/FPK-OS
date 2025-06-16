@@ -15,7 +15,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const html = document.documentElement;
     const body = document.body;
     
-    // Clear all accessibility classes from both html and body
+    // Clear all accessibility classes
     const existingClasses = Array.from(html.classList).filter(cls => 
       cls.startsWith('font-') || 
       cls.startsWith('high-') || 
@@ -25,24 +25,16 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     );
     html.classList.remove(...existingClasses);
     
-    // Also clear from body as a fallback
-    const bodyClasses = Array.from(body.classList).filter(cls => 
-      cls.startsWith('font-')
-    );
-    body.classList.remove(...bodyClasses);
-    
     // Remove any existing font override styles
-    const existingOverrides = document.querySelectorAll('#accessibility-font-override, #opendyslexic-override');
+    const existingOverrides = document.querySelectorAll('#accessibility-font-override');
     existingOverrides.forEach(el => el.remove());
     
     if (!profile) {
       console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility');
-      // Reset CSS variables to defaults
+      // Reset to system font
+      body.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       html.style.setProperty('--accessibility-font-size', '16px');
       html.style.setProperty('--accessibility-line-height', '1.5');
-      html.style.setProperty('--active-font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
-      // Ensure system font is applied when no profile
-      html.classList.add('font-system');
       return;
     }
 
@@ -55,143 +47,57 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     });
 
     // Calculate and set CSS variables for text size and line height
-    const baseSize = 16; // Base font size in px
-    const sizeMultiplier = 0.75 + ((profile.text_size || 3) - 1) * 0.125; // Range: 0.75x to 1.25x
+    const baseSize = 16;
+    const sizeMultiplier = 0.75 + ((profile.text_size || 3) - 1) * 0.125;
     const fontSize = `${baseSize * sizeMultiplier}px`;
-    const lineHeightValue = 1 + ((profile.line_spacing || 3) - 1) * 0.25; // Range: 1 to 2
+    const lineHeightValue = 1 + ((profile.line_spacing || 3) - 1) * 0.25;
     const lineHeight = lineHeightValue.toString();
     
-    console.log('🎨 Setting CSS variables:', { 
-      fontSize, 
-      lineHeight,
-      sizeMultiplier,
-      lineHeightValue
-    });
+    console.log('🎨 Setting CSS variables:', { fontSize, lineHeight });
 
     // Set CSS variables
     html.style.setProperty('--accessibility-font-size', fontSize);
     html.style.setProperty('--accessibility-line-height', lineHeight);
-    
-    // Apply main accessibility class to activate the CSS
     html.classList.add('accessibility-active');
     
-    // Apply font family class to HTML with maximum specificity
+    // Apply font family directly to body - this is the key fix
     const fontFamily = profile.font_family || 'System';
-    const fontClass = `font-${fontFamily.toLowerCase()}`;
-    html.classList.add(fontClass);
+    console.log('🎨 Setting font family:', fontFamily);
     
-    // Force font family application with CSS custom property and direct style
-    const fontFamilyMap = {
-      'system': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      'opendyslexic': '"OpenDyslexic", "Comic Sans MS", cursive',
-      'arial': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-      'georgia': 'Georgia, "Times New Roman", Times, serif',
-      'cursive': '"Dancing Script", "Brush Script MT", cursive'
-    };
-    
-    const fontFamilyValue = fontFamilyMap[fontFamily.toLowerCase()] || fontFamilyMap.system;
-    html.style.setProperty('--active-font-family', fontFamilyValue);
-    
-    // NUCLEAR OPTION: Create the most aggressive font override possible
-    if (fontFamily.toLowerCase() === 'opendyslexic') {
-      console.log('🎨 Applying NUCLEAR OpenDyslexic override');
-      
-      // Remove all existing font styles from body
-      body.style.fontFamily = '';
-      body.className = body.className.replace(/font-\w+/g, '');
-      
-      // Create ultra-aggressive style injection
-      const styleElement = document.createElement('style');
-      styleElement.id = 'opendyslexic-override';
-      styleElement.innerHTML = `
-        /* NUCLEAR OPENDYSLEXIC OVERRIDE - Maximum possible specificity */
-        html, html *, html body, html body *, 
-        body, body *, 
-        div, div *, 
-        span, span *,
-        p, p *,
-        h1, h1 *, h2, h2 *, h3, h3 *, h4, h4 *, h5, h5 *, h6, h6 *,
-        button, button *, 
-        input, input *, 
-        textarea, textarea *,
-        label, label *,
-        a, a *,
-        li, li *,
-        td, td *,
-        th, th *,
-        .font-cursive, .font-cursive *,
-        .font-serif, .font-serif *,
-        .font-sans, .font-sans *,
-        .font-mono, .font-mono *,
-        [class*="font-"], [class*="font-"] *,
-        [style*="font-family"], [style*="font-family"] * {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        /* Override any potential inherited cursive styles */
-        * {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        /* Force on all possible selectors */
-        html.font-opendyslexic,
-        html.font-opendyslexic *,
-        html.font-opendyslexic **,
-        html.font-opendyslexic ***,
-        html.font-opendyslexic ****,
-        html.font-opendyslexic *****,
-        html.font-opendyslexic ****** {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-      `;
-      document.head.appendChild(styleElement);
-      
-      // Also set it directly on body with maximum priority
-      body.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
-      
-      // Set it on the HTML element too
-      html.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
-      
-      // Force it on all existing elements
-      const allElements = document.querySelectorAll('*');
-      allElements.forEach(element => {
-        if (element instanceof HTMLElement) {
-          element.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
-        }
-      });
-      
-    } else {
-      // For other fonts, use the previous method
-      body.style.fontFamily = fontFamilyValue;
+    switch (fontFamily) {
+      case 'OpenDyslexic':
+        // DIRECT BODY FONT APPLICATION - no CSS classes or overrides
+        body.style.fontFamily = '"OpenDyslexic", "Comic Sans MS", cursive';
+        console.log('🎨 Applied OpenDyslexic directly to body');
+        break;
+      case 'Arial':
+        body.style.fontFamily = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
+        break;
+      case 'Georgia':
+        body.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
+        break;
+      case 'Cursive':
+        body.style.fontFamily = '"Dancing Script", "Brush Script MT", cursive';
+        break;
+      case 'System':
+      default:
+        body.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        break;
     }
     
-    console.log('🎨 Applied font class and CSS property:', { 
-      fontClass, 
-      fontFamilyValue 
-    });
-    
-    // Apply contrast mode to HTML
+    // Apply contrast mode
     if (profile.color_contrast === 'High') {
       html.classList.add('high-contrast');
-      console.log('🎨 Applied high contrast mode');
     }
     
-    // Apply comfort mode to HTML
+    // Apply comfort mode
     if (profile.comfort_mode === 'Focus Mode') {
       html.classList.add('focus-mode');
-      console.log('🎨 Applied focus mode');
     } else if (profile.comfort_mode === 'Low-Stimulus') {
       html.classList.add('low-stimulus');
-      console.log('🎨 Applied low-stimulus mode');
     }
     
-    console.log('✅ Applied CSS variables:', {
-      fontSize: html.style.getPropertyValue('--accessibility-font-size'),
-      lineHeight: html.style.getPropertyValue('--accessibility-line-height'),
-      fontFamily: html.style.getPropertyValue('--active-font-family')
-    });
-    
-    console.log('✅ Applied classes to HTML:', Array.from(html.classList));
+    console.log('✅ Accessibility settings applied successfully');
     
   }, [profile]);
 
