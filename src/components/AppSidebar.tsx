@@ -106,6 +106,12 @@ export function AppSidebar() {
       url: "/dashboard/admin/users",
       icon: Users,
     },
+    {
+      title: 'Course Builder',
+      url: "https://themed-course-compass.lovable.app/dashboard/admin/course-builder",
+      icon: Book,
+      isExternal: true,
+    },
   ];
 
   const footerItems = [
@@ -142,7 +148,19 @@ export function AppSidebar() {
   };
 
   const isActive = (url: string) => {
+    if (url.startsWith('http')) {
+      // For external URLs, check if current location matches the path
+      return location.pathname === '/dashboard/admin/course-builder';
+    }
     return location.pathname === url;
+  };
+
+  const handleNavigation = (item: any) => {
+    if (item.isExternal) {
+      window.open(item.url, '_blank');
+    } else {
+      navigate(item.url);
+    }
   };
 
   // Helper function to render dual language text
@@ -197,7 +215,7 @@ export function AppSidebar() {
                       }`}
                     >
                       <button
-                        onClick={() => navigate(item.url)}
+                        onClick={() => handleNavigation(item)}
                         className="flex items-center gap-3 w-full text-left"
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />

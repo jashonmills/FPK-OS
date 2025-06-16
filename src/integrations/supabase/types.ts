@@ -39,6 +39,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_outputs: {
+        Row: {
+          approved_at: string | null
+          content: Json
+          created_at: string
+          id: string
+          lesson_id: string
+          output_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          content: Json
+          created_at?: string
+          id?: string
+          lesson_id: string
+          output_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          output_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_metrics: {
         Row: {
           created_at: string
@@ -320,6 +353,7 @@ export type Database = {
         Row: {
           asset_path: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
           difficulty_level: string | null
           duration_minutes: number | null
@@ -328,6 +362,7 @@ export type Database = {
           instructor_name: string | null
           is_free: boolean | null
           price: number | null
+          published_at: string | null
           slug: string | null
           status: string | null
           tags: string[] | null
@@ -338,6 +373,7 @@ export type Database = {
         Insert: {
           asset_path?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           difficulty_level?: string | null
           duration_minutes?: number | null
@@ -346,6 +382,7 @@ export type Database = {
           instructor_name?: string | null
           is_free?: boolean | null
           price?: number | null
+          published_at?: string | null
           slug?: string | null
           status?: string | null
           tags?: string[] | null
@@ -356,6 +393,7 @@ export type Database = {
         Update: {
           asset_path?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           difficulty_level?: string | null
           duration_minutes?: number | null
@@ -364,6 +402,7 @@ export type Database = {
           instructor_name?: string | null
           is_free?: boolean | null
           price?: number | null
+          published_at?: string | null
           slug?: string | null
           status?: string | null
           tags?: string[] | null
@@ -544,6 +583,175 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number | null
+          course_id: string
+          created_at: string
+          id: string
+          lesson_id: string
+          status: string
+          time_spent_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          status?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          status?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_scos: {
+        Row: {
+          created_at: string
+          id: string
+          launch_path: string
+          lesson_id: string
+          mastery_score: number | null
+          metadata: Json | null
+          sco_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          launch_path: string
+          lesson_id: string
+          mastery_score?: number | null
+          metadata?: Json | null
+          sco_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          launch_path?: string
+          lesson_id?: string
+          mastery_score?: number | null
+          metadata?: Json | null
+          sco_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_scos_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          audio_url: string | null
+          content_type: string | null
+          course_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          lesson_number: number
+          scorm_completion_criteria: Json | null
+          scorm_manifest: Json | null
+          scorm_package_url: string | null
+          sort_order: number | null
+          title: string
+          transcript: string | null
+          transcript_url: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          content_type?: string | null
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          lesson_number: number
+          scorm_completion_criteria?: Json | null
+          scorm_manifest?: Json | null
+          scorm_package_url?: string | null
+          sort_order?: number | null
+          title: string
+          transcript?: string | null
+          transcript_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          content_type?: string | null
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          lesson_number?: number
+          scorm_completion_criteria?: Json | null
+          scorm_manifest?: Json | null
+          scorm_package_url?: string | null
+          sort_order?: number | null
+          title?: string
+          transcript?: string | null
+          transcript_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       modules: {
         Row: {
@@ -939,6 +1147,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      scorm_progress: {
+        Row: {
+          cmi_core_lesson_location: string | null
+          cmi_core_lesson_status: string | null
+          cmi_core_score_max: number | null
+          cmi_core_score_min: number | null
+          cmi_core_score_raw: number | null
+          cmi_core_session_time: string | null
+          cmi_core_total_time: string | null
+          cmi_suspend_data: string | null
+          course_id: string
+          created_at: string
+          id: string
+          lesson_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cmi_core_lesson_location?: string | null
+          cmi_core_lesson_status?: string | null
+          cmi_core_score_max?: number | null
+          cmi_core_score_min?: number | null
+          cmi_core_score_raw?: number | null
+          cmi_core_session_time?: string | null
+          cmi_core_total_time?: string | null
+          cmi_suspend_data?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cmi_core_lesson_location?: string | null
+          cmi_core_lesson_status?: string | null
+          cmi_core_score_max?: number | null
+          cmi_core_score_min?: number | null
+          cmi_core_score_raw?: number | null
+          cmi_core_session_time?: string | null
+          cmi_core_total_time?: string | null
+          cmi_suspend_data?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shop_items: {
         Row: {
