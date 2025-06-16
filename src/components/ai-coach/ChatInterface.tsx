@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +34,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
   const [isSending, setIsSending] = useState(false);
   const [chatMode, setChatMode] = useState<'personal' | 'general'>('personal');
   const [voiceActive, setVoiceActive] = useState(false);
+  const [showQuizWidget, setShowQuizWidget] = useState(false);
   const { toast } = useToast();
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { awardFlashcardStudyXP } = useXPIntegration();
@@ -105,11 +105,9 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
 
     // Check for quiz session request
     if (detectQuizRequest(message) && flashcards && flashcards.length > 0) {
-      const cardCount = await startQuizSession();
-      if (cardCount > 0) {
-        setMessage(''); // Clear input
-        return; // Don't send to AI, start quiz instead
-      }
+      setShowQuizWidget(true);
+      setMessage(''); // Clear input
+      return; // Don't send to AI, show quiz widget instead
     }
 
     // Add user message to state immediately for better UX
@@ -257,6 +255,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
   };
 
   const handleQuizComplete = (results: any) => {
+    setShowQuizWidget(false);
     // Add a message showing quiz results
     const resultMessage = `🎉 Quiz session completed! You got ${results.correctOnFirstTry}/${results.totalCards} correct on the first try with ${results.accuracy}% overall accuracy. Great work!`;
     
@@ -269,6 +268,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
   };
 
   const handleQuizCancel = () => {
+    setShowQuizWidget(false);
     endSession();
     setMessages(prev => [...prev, {
       id: Date.now().toString(),
@@ -324,17 +324,18 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           fixedHeight && "min-h-0"
         )}>
           {/* Quiz Session Widget */}
-          {sessionState.isActive && (
+          {(sessionState.isActive || showQuizWidget) && (
             <div className="p-3 sm:p-4">
               <QuizSessionWidget
                 onComplete={handleQuizComplete}
                 onCancel={handleQuizCancel}
+                autoStart={showQuizWidget && !sessionState.isActive}
               />
             </div>
           )}
 
           {/* Chat Messages using ChatMessagesPane */}
-          {!sessionState.isActive && (
+          {!sessionState.isActive && !showQuizWidget && (
             <div className={cn(
               fixedHeight ? "h-full" : "flex-1"
             )}>
@@ -350,7 +351,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
         </div>
 
         {/* Input Area */}
-        {!sessionState.isActive && (
+        {!sessionState.isActive && !showQuizWidget && (
           <div className="border-t p-3 sm:p-4 bg-background/80 backdrop-blur-sm flex-shrink-0">
             {/* Voice Recording Status */}
             {(isRecording || isProcessing) && (

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -11,11 +11,13 @@ import { useQuizSession, QuizCard } from '@/hooks/useQuizSession';
 interface QuizSessionWidgetProps {
   onComplete?: (results: any) => void;
   onCancel?: () => void;
+  autoStart?: boolean;
 }
 
-const QuizSessionWidget = ({ onComplete, onCancel }: QuizSessionWidgetProps) => {
+const QuizSessionWidget = ({ onComplete, onCancel, autoStart = false }: QuizSessionWidgetProps) => {
   const {
     sessionState,
+    startQuizSession,
     submitAnswer,
     nextCard,
     endSession,
@@ -32,11 +34,81 @@ const QuizSessionWidget = ({ onComplete, onCancel }: QuizSessionWidgetProps) => 
     correctAnswer?: string;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+
+  // Auto-start session if requested
+  useEffect(() => {
+    if (autoStart && !sessionState.isActive && !isInitializing) {
+      handleStartSession();
+    }
+  }, [autoStart, sessionState.isActive]);
+
+  const handleStartSession = async () => {
+    setIsInitializing(true);
+    try {
+      await startQuizSession(undefined, 5); // Start with 5 cards
+    } catch (error) {
+      console.error('Failed to start quiz session:', error);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
   const currentCard = getCurrentCard();
 
-  if (!sessionState.isActive || !currentCard) {
-    return null;
+  // Show loading state while initializing
+  if (isInitializing) {
+    return (
+      <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+        <CardContent className="p-6 text-center">
+          <div className="animate-spin w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Starting quiz session...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show start button if session is not active
+  if (!sessionState.isActive) {
+    return (
+      <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Target className="h-5 w-5 text-purple-600" />
+            Quiz Session
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground">
+            Ready to test your knowledge? Start a quiz session to practice with your flashcards!
+          </p>
+          <Button 
+            onClick={handleStartSession}
+            className="w-full bg-purple-600 hover:bg-purple-700"
+            disabled={isInitializing}
+          >
+            Start Quiz Session
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state if no current card
+  if (!currentCard) {
+    return (
+      <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
+        <CardContent className="p-6 text-center">
+          <p className="text-red-600 mb-4">No quiz questions available.</p>
+          <Button 
+            onClick={onCancel}
+            variant="outline"
+          >
+            Close Quiz
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   const handleAnswerSelect = (option: 'A' | 'B' | 'C' | 'D') => {
