@@ -97,18 +97,18 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
 
   if (error) {
     return (
-      <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-64">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-purple-800">Visual of the Week</CardTitle>
-          <Palette className="h-4 w-4 text-purple-600" />
+      <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-80">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-base font-medium text-purple-800">Visual of the Week</CardTitle>
+          <Palette className="h-5 w-5 text-purple-600" />
         </CardHeader>
-        <CardContent className="h-48 flex items-center justify-center">
+        <CardContent className="h-60 flex items-center justify-center">
           <div className="text-center">
-            <RotateCcw className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-            <div className="text-lg font-bold text-purple-900 mb-1">
+            <RotateCcw className="h-12 w-12 text-purple-400 mx-auto mb-3" />
+            <div className="text-xl font-bold text-purple-900 mb-2">
               Unable to Load
             </div>
-            <p className="text-xs text-purple-700 mb-3">Failed to fetch visual content</p>
+            <p className="text-sm text-purple-700 mb-4">Failed to fetch visual content</p>
             <Button 
               variant="outline" 
               size="sm" 
@@ -125,22 +125,22 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
   }
 
   return (
-    <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-64 flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 flex-shrink-0">
-        <CardTitle className="text-sm font-medium text-purple-800">Visual of the Week</CardTitle>
-        <Palette className="h-4 w-4 text-purple-600" />
+    <Card ref={elementRef} className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-80 flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 flex-shrink-0">
+        <CardTitle className="text-base font-medium text-purple-800">Visual of the Week</CardTitle>
+        <Palette className="h-5 w-5 text-purple-600" />
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
         {isLoading ? (
-          <div className="space-y-2 flex-1">
-            <Skeleton className="flex-1 w-full rounded-lg min-h-[120px]" />
-            <Skeleton className="h-3 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
+          <div className="space-y-3 flex-1">
+            <Skeleton className="flex-1 w-full rounded-lg min-h-[160px]" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
           </div>
         ) : items && items.length > 0 ? (
-          <div className="flex flex-col h-full space-y-2">
-            {/* Compact Carousel Container */}
-            <div className="relative flex-1 min-h-[120px]">
+          <div className="flex flex-col h-full space-y-3">
+            {/* Carousel Container */}
+            <div className="relative flex-1 min-h-[160px]">
               <Carousel 
                 setApi={setApi} 
                 className="w-full h-full"
@@ -178,11 +178,11 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                               }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                            <div className="absolute bottom-1 left-1 right-1">
-                              <h4 className="text-xs font-semibold text-white line-clamp-2">
+                            <div className="absolute bottom-2 left-2 right-2">
+                              <h4 className="text-sm font-semibold text-white line-clamp-2 mb-1">
                                 {item.title}
                               </h4>
-                              <p className="text-xs text-white/80 mt-1">
+                              <p className="text-xs text-white/80">
                                 {item.source === 'smithsonian' ? 'Smithsonian' : 'Met Museum'}
                                 {item.isThreeD && ' • 3D Model'}
                               </p>
@@ -196,36 +196,36 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                 
                 {/* Desktop Navigation Controls */}
                 <CarouselPrevious 
-                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
                   onClick={handlePrevious}
                   aria-label="Previous image"
                 />
                 <CarouselNext 
-                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
                   onClick={handleNext}
                   aria-label="Next image"
                 />
               </Carousel>
             </div>
 
-            {/* Compact Mobile Navigation and Indicators */}
+            {/* Mobile Navigation and Indicators */}
             <div className="flex sm:hidden items-center justify-between px-2 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handlePrevious}
-                className="text-purple-700 hover:text-purple-900 hover:bg-purple-100 h-6 px-2"
+                className="text-purple-700 hover:text-purple-900 hover:bg-purple-100 h-8 px-3"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="h-3 w-3 mr-1" />
-                <span className="text-xs">Prev</span>
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                <span className="text-sm">Prev</span>
               </Button>
               
               <div className="flex space-x-1" role="tablist" aria-label="Image indicators">
                 {items.map((_, index) => (
                   <button
                     key={index}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                    className={`w-2 h-2 rounded-full transition-colors ${
                       index === current ? 'bg-purple-600' : 'bg-purple-300'
                     }`}
                     onClick={() => goToSlide(index)}
@@ -240,17 +240,17 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                 variant="ghost"
                 size="sm"
                 onClick={handleNext}
-                className="text-purple-700 hover:text-purple-900 hover:bg-purple-100 h-6 px-2"
+                className="text-purple-700 hover:text-purple-900 hover:bg-purple-100 h-8 px-3"
                 aria-label="Next image"
               >
-                <span className="text-xs">Next</span>
-                <ChevronRight className="h-3 w-3 ml-1" />
+                <span className="text-sm">Next</span>
+                <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
 
-            {/* Compact Item Counter */}
+            {/* Item Counter */}
             <div className="text-center space-y-1 flex-shrink-0">
-              <div className="text-xs font-medium text-purple-800">
+              <div className="text-sm font-medium text-purple-800">
                 {current + 1} of {items.length}
               </div>
               <p className="text-xs text-purple-600">
@@ -259,12 +259,12 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
             </div>
           </div>
         ) : (
-          <div className="text-center py-4 flex-1 flex flex-col items-center justify-center">
-            <Palette className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-            <div className="text-sm font-semibold text-purple-900 mb-1">
+          <div className="text-center py-8 flex-1 flex flex-col items-center justify-center">
+            <Palette className="h-12 w-12 text-purple-400 mx-auto mb-3" />
+            <div className="text-lg font-semibold text-purple-900 mb-2">
               No Visuals Available
             </div>
-            <p className="text-xs text-purple-700">Check back later for new content</p>
+            <p className="text-sm text-purple-700">Check back later for new content</p>
           </div>
         )}
       </CardContent>
