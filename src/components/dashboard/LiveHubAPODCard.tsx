@@ -33,7 +33,7 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
           <CardTitle className="text-base font-medium text-blue-200">Today's Astronomy</CardTitle>
           <Telescope className="h-5 w-5 text-blue-400" />
         </CardHeader>
-        <CardContent className="h-60 flex items-center justify-center">
+        <CardContent className="flex items-center justify-center flex-1">
           <div className="text-center">
             <RotateCcw className="h-12 w-12 text-blue-400 mx-auto mb-3" />
             <div className="text-xl font-bold text-white mb-2">
@@ -56,23 +56,23 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
   }
 
   return (
-    <Card ref={elementRef} className="bg-gradient-to-br from-slate-800 to-blue-900 border-slate-700 h-80">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+    <Card ref={elementRef} className="bg-gradient-to-br from-slate-800 to-blue-900 border-slate-700 h-80 flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 flex-shrink-0">
         <CardTitle className="text-base font-medium text-blue-200">Today's Astronomy</CardTitle>
         <Telescope className="h-5 w-5 text-blue-400" />
       </CardHeader>
-      <CardContent className="h-60 flex flex-col p-4">
+      <CardContent className="flex flex-col flex-1 min-h-0 p-4">
         {isLoading ? (
           <div className="space-y-3 flex-1">
-            <Skeleton className="h-32 w-full rounded-lg bg-slate-700" />
+            <Skeleton className="h-28 w-full rounded-lg bg-slate-700" />
             <Skeleton className="h-4 w-3/4 bg-slate-700" />
             <Skeleton className="h-4 w-1/2 bg-slate-700" />
             <Skeleton className="h-8 w-full bg-slate-700" />
           </div>
         ) : apod ? (
-          <div className="space-y-3 h-full flex flex-col">
-            {/* Main Image Container */}
-            <div className="relative overflow-hidden rounded-lg h-28 flex-shrink-0">
+          <div className="flex flex-col h-full space-y-3">
+            {/* Main Image Container - Fixed height to prevent overflow */}
+            <div className="relative overflow-hidden rounded-lg h-24 flex-shrink-0">
               <img
                 src={apod.media_type === 'video' && apod.thumbnail_url ? apod.thumbnail_url : apod.url}
                 alt={apod.title}
@@ -84,24 +84,24 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-2 left-3 right-3">
-                <div className="text-lg font-bold text-white">
+                <div className="text-sm font-bold text-white">
                   {format(new Date(apod.date), 'MMM dd')}
                 </div>
               </div>
             </div>
 
-            {/* Content Section */}
+            {/* Content Section - Flexible height */}
             <div className="flex-1 min-h-0 space-y-2">
-              <h3 className="text-base font-semibold text-white line-clamp-2">
+              <h3 className="text-sm font-semibold text-white line-clamp-2">
                 {apod.title}
               </h3>
-              <p className="text-sm text-blue-200 line-clamp-2">
+              <p className="text-xs text-blue-200 line-clamp-2">
                 {truncateText(apod.explanation)}
               </p>
             </div>
 
-            {/* Learn More Button - Now positioned below content */}
-            <div className="flex-shrink-0 mt-4">
+            {/* Learn More Button - Fixed at bottom */}
+            <div className="flex-shrink-0 mt-3">
               <Button 
                 onClick={handleLearnMore}
                 size="default"
@@ -111,14 +111,14 @@ const LiveHubAPODCard: React.FC<LiveHubAPODCardProps> = ({ onLearnMore }) => {
               </Button>
             </div>
 
-            {/* Attribution */}
+            {/* Attribution - Bottom */}
             <div className="flex items-center justify-between text-xs text-blue-300 pt-1 flex-shrink-0">
               <span>NASA APOD</span>
               <span>{apod.media_type === 'video' ? 'Video' : 'Image'}</span>
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 flex-1 flex flex-col items-center justify-center">
+          <div className="text-center flex-1 flex flex-col items-center justify-center">
             <Telescope className="h-12 w-12 text-blue-400 mx-auto mb-3" />
             <div className="text-lg font-semibold text-white mb-2">
               No Content Available
