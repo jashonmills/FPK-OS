@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,13 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { analyzeFlashcardTopic } from '@/utils/flashcardTopicAnalyzer';
-import { Brain, Sparkles, Clock, Search } from 'lucide-react';
+import { Brain, Sparkles, Clock } from 'lucide-react';
 import type { Flashcard } from '@/hooks/useFlashcards';
 import FlashcardSelectionHeader from './FlashcardSelectionHeader';
 import FlashcardFolderList from './FlashcardFolderList';
 import FlashcardIndividualList from './FlashcardIndividualList';
-import QuizletSearchTab from './QuizletSearchTab';
-import { featureFlagService } from '@/services/FeatureFlagService';
 
 interface FlashcardSelectionModalProps {
   isOpen: boolean;
@@ -33,10 +32,6 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   const [selectedRecentCards, setSelectedRecentCards] = useState<string[]>([]);
   const [showIndividualCards, setShowIndividualCards] = useState(false);
   const [activeTab, setActiveTab] = useState('folders');
-  const [quizletCards, setQuizletCards] = useState<Array<{ term: string; definition: string }>>([]);
-  const [quizletSetTitle, setQuizletSetTitle] = useState('');
-
-  const isQuizletEnabled = featureFlagService.isEnabled('quizletIntegration');
 
   // Get recent cards (last 7 days) and sort by creation date
   const recentCards = React.useMemo(() => {
@@ -121,32 +116,9 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
     );
   };
 
-  const handleQuizletImport = (cards: Array<{ term: string; definition: string }>, setTitle: string) => {
-    setQuizletCards(cards);
-    setQuizletSetTitle(setTitle);
-    setActiveTab('quizlet');
-  };
-
   const getSelectedFlashcards = () => {
     let selectedCards: Flashcard[] = [];
     
-    if (activeTab === 'quizlet' && quizletCards.length > 0) {
-      // Convert Quizlet cards to Flashcard format for the study session
-      return quizletCards.map((card, index) => ({
-        id: `quizlet-${index}`,
-        user_id: '',
-        note_id: null,
-        front_content: card.term,
-        back_content: card.definition,
-        difficulty_level: 1,
-        times_reviewed: 0,
-        times_correct: 0,
-        last_reviewed_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })) as Flashcard[];
-    }
-
     // Add selected recent cards
     const selectedRecentFlashcards = flashcards.filter(card => 
       selectedRecentCards.includes(card.id)
@@ -188,8 +160,6 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
       setSelectedRecentCards([]);
       setShowIndividualCards(false);
       setActiveTab('folders');
-      setQuizletCards([]);
-      setQuizletSetTitle('');
     }
   }, [isOpen]);
 
@@ -211,7 +181,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
 
         <div className="flex-1 overflow-hidden min-h-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="folders" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
                 By Folders
@@ -220,12 +190,6 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
                 <Sparkles className="h-4 w-4" />
                 Individual Cards
               </TabsTrigger>
-              {isQuizletEnabled && (
-                <TabsTrigger value="quizlet" className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  Quizlet Search
-                </TabsTrigger>
-              )}
             </TabsList>
 
             <div className="flex-1 overflow-hidden min-h-0 mt-4">
@@ -343,43 +307,6 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
                   />
                 </ScrollArea>
               </TabsContent>
-
-              {isQuizletEnabled && (
-                <TabsContent value="quizlet" className="h-full overflow-hidden mt-0">
-                  {quizletCards.length > 0 ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Search className="h-4 w-4 text-blue-600" />
-                          <h3 className="font-medium text-blue-900">Imported from Quizlet</h3>
-                          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                            {quizletCards.length} cards
-                          </Badge>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setQuizletCards([]);
-                            setQuizletSetTitle('');
-                          }}
-                          className="text-xs"
-                        >
-                          Clear Import
-                        </Button>
-                      </div>
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="font-medium text-blue-900 mb-2">{quizletSetTitle}</h4>
-                        <p className="text-sm text-blue-700">
-                          Ready to study {quizletCards.length} flashcards from this Quizlet set.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <QuizletSearchTab onImport={handleQuizletImport} />
-                  )}
-                </TabsContent>
-              )}
             </div>
           </Tabs>
         </div>
