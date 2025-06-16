@@ -127,7 +127,7 @@
     font-family: var(--active-font-family) !important;
   }
 
-  /* FONT FAMILIES - Apply globally with maximum specificity */
+  /* MAXIMUM SPECIFICITY FONT OVERRIDES - These override ALL other font declarations */
   html.font-opendyslexic,
   html.font-opendyslexic *,
   html.font-opendyslexic body,
@@ -144,7 +144,11 @@
   html.font-opendyslexic button,
   html.font-opendyslexic input,
   html.font-opendyslexic textarea,
-  html.font-opendyslexic label {
+  html.font-opendyslexic label,
+  html.font-opendyslexic .font-cursive,
+  html.font-opendyslexic .font-serif,
+  html.font-opendyslexic .font-sans,
+  html.font-opendyslexic .font-mono {
     font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
   }
 
@@ -164,7 +168,11 @@
   html.font-arial button,
   html.font-arial input,
   html.font-arial textarea,
-  html.font-arial label {
+  html.font-arial label,
+  html.font-arial .font-cursive,
+  html.font-arial .font-serif,
+  html.font-arial .font-sans,
+  html.font-arial .font-mono {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
   }
 
@@ -184,7 +192,11 @@
   html.font-georgia button,
   html.font-georgia input,
   html.font-georgia textarea,
-  html.font-georgia label {
+  html.font-georgia label,
+  html.font-georgia .font-cursive,
+  html.font-georgia .font-serif,
+  html.font-georgia .font-sans,
+  html.font-georgia .font-mono {
     font-family: Georgia, "Times New Roman", Times, serif !important;
   }
 
@@ -224,7 +236,11 @@
   html.font-system button,
   html.font-system input,
   html.font-system textarea,
-  html.font-system label {
+  html.font-system label,
+  html.font-system .font-cursive,
+  html.font-system .font-serif,
+  html.font-system .font-sans,
+  html.font-system .font-mono {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 

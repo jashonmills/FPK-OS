@@ -71,7 +71,7 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     // Apply main accessibility class to activate the CSS
     html.classList.add('accessibility-active');
     
-    // Apply font family class to HTML with more robust handling
+    // Apply font family class to HTML with maximum specificity
     const fontFamily = profile.font_family || 'System';
     const fontClass = `font-${fontFamily.toLowerCase()}`;
     html.classList.add(fontClass);
@@ -88,8 +88,33 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const fontFamilyValue = fontFamilyMap[fontFamily.toLowerCase()] || fontFamilyMap.system;
     html.style.setProperty('--active-font-family', fontFamilyValue);
     
-    // Force immediate font application on body and all elements
+    // AGGRESSIVE FONT OVERRIDE: Set font-family directly on body and all elements
     body.style.fontFamily = fontFamilyValue;
+    
+    // Override any existing font classes by setting the style attribute directly
+    if (fontFamily.toLowerCase() === 'opendyslexic') {
+      // Add an aggressive style override for OpenDyslexic
+      let existingStyle = document.getElementById('accessibility-font-override');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      const styleElement = document.createElement('style');
+      styleElement.id = 'accessibility-font-override';
+      styleElement.innerHTML = `
+        html.font-opendyslexic * {
+          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
+        }
+        html.font-opendyslexic .font-cursive,
+        html.font-opendyslexic .font-serif,
+        html.font-opendyslexic .font-sans,
+        html.font-opendyslexic .font-mono,
+        html.font-opendyslexic [class*="font-"] {
+          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
+        }
+      `;
+      document.head.appendChild(styleElement);
+    }
     
     console.log('🎨 Applied font class and CSS property:', { 
       fontClass, 
