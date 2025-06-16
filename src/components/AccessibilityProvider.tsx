@@ -31,6 +31,10 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     );
     body.classList.remove(...bodyClasses);
     
+    // Remove any existing font override styles
+    const existingOverrides = document.querySelectorAll('#accessibility-font-override, #opendyslexic-override');
+    existingOverrides.forEach(el => el.remove());
+    
     if (!profile) {
       console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility');
       // Reset CSS variables to defaults
@@ -88,32 +92,77 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     const fontFamilyValue = fontFamilyMap[fontFamily.toLowerCase()] || fontFamilyMap.system;
     html.style.setProperty('--active-font-family', fontFamilyValue);
     
-    // AGGRESSIVE FONT OVERRIDE: Set font-family directly on body and all elements
-    body.style.fontFamily = fontFamilyValue;
-    
-    // Override any existing font classes by setting the style attribute directly
+    // NUCLEAR OPTION: Create the most aggressive font override possible
     if (fontFamily.toLowerCase() === 'opendyslexic') {
-      // Add an aggressive style override for OpenDyslexic
-      let existingStyle = document.getElementById('accessibility-font-override');
-      if (existingStyle) {
-        existingStyle.remove();
-      }
+      console.log('🎨 Applying NUCLEAR OpenDyslexic override');
       
+      // Remove all existing font styles from body
+      body.style.fontFamily = '';
+      body.className = body.className.replace(/font-\w+/g, '');
+      
+      // Create ultra-aggressive style injection
       const styleElement = document.createElement('style');
-      styleElement.id = 'accessibility-font-override';
+      styleElement.id = 'opendyslexic-override';
       styleElement.innerHTML = `
-        html.font-opendyslexic * {
+        /* NUCLEAR OPENDYSLEXIC OVERRIDE - Maximum possible specificity */
+        html, html *, html body, html body *, 
+        body, body *, 
+        div, div *, 
+        span, span *,
+        p, p *,
+        h1, h1 *, h2, h2 *, h3, h3 *, h4, h4 *, h5, h5 *, h6, h6 *,
+        button, button *, 
+        input, input *, 
+        textarea, textarea *,
+        label, label *,
+        a, a *,
+        li, li *,
+        td, td *,
+        th, th *,
+        .font-cursive, .font-cursive *,
+        .font-serif, .font-serif *,
+        .font-sans, .font-sans *,
+        .font-mono, .font-mono *,
+        [class*="font-"], [class*="font-"] *,
+        [style*="font-family"], [style*="font-family"] * {
           font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
         }
-        html.font-opendyslexic .font-cursive,
-        html.font-opendyslexic .font-serif,
-        html.font-opendyslexic .font-sans,
-        html.font-opendyslexic .font-mono,
-        html.font-opendyslexic [class*="font-"] {
+        
+        /* Override any potential inherited cursive styles */
+        * {
+          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
+        }
+        
+        /* Force on all possible selectors */
+        html.font-opendyslexic,
+        html.font-opendyslexic *,
+        html.font-opendyslexic **,
+        html.font-opendyslexic ***,
+        html.font-opendyslexic ****,
+        html.font-opendyslexic *****,
+        html.font-opendyslexic ****** {
           font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
         }
       `;
       document.head.appendChild(styleElement);
+      
+      // Also set it directly on body with maximum priority
+      body.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
+      
+      // Set it on the HTML element too
+      html.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
+      
+      // Force it on all existing elements
+      const allElements = document.querySelectorAll('*');
+      allElements.forEach(element => {
+        if (element instanceof HTMLElement) {
+          element.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
+        }
+      });
+      
+    } else {
+      // For other fonts, use the previous method
+      body.style.fontFamily = fontFamilyValue;
     }
     
     console.log('🎨 Applied font class and CSS property:', { 
