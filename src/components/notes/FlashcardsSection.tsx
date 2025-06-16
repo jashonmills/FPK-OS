@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,9 +54,9 @@ const FlashcardsSection = () => {
       
       // Navigate to study session with both session and flashcards
       const routeMap = {
-        memory_test: '/study/memory-test',
-        multiple_choice: '/study/multiple-choice',
-        timed_challenge: '/study/timed-challenge'
+        memory_test: '/dashboard/learner/study/memory-test',
+        multiple_choice: '/dashboard/learner/study/multiple-choice',
+        timed_challenge: '/dashboard/learner/study/timed-challenge'
       };
       
       console.log('Navigating to', routeMap[selectedStudyMode], 'with session and flashcards');
