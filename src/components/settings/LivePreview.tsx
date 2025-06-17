@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Eye, Settings } from 'lucide-react';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
 interface LivePreviewProps {
   fontFamily: string;
@@ -20,7 +20,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   colorContrast,
   comfortMode
 }) => {
-  const { t } = useTranslation('settings');
+  const { t, renderText } = useGlobalTranslation('settings');
 
   const getTextSizeLabel = (value: number) => {
     const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
@@ -37,10 +37,10 @@ const LivePreview: React.FC<LivePreviewProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-purple-700">
           <Eye className="h-5 w-5" />
-          Live Preview
+          {renderText(t('preview.title'))}
         </CardTitle>
         <p className="text-sm text-gray-600">
-          This preview shows how your accessibility settings affect the display
+          {renderText(t('preview.description'))}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -66,17 +66,17 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           <div className="bg-muted p-3 rounded-lg">
             <h4 className="font-medium mb-2">Current Settings:</h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <span><strong>Font:</strong> {fontFamily}</span>
-              <span><strong>Size:</strong> {getTextSizeLabel(textSize)}</span>
-              <span><strong>Spacing:</strong> {getLineSpacingLabel(lineSpacing)}</span>
-              <span><strong>Contrast:</strong> {colorContrast}</span>
-              <span><strong>Comfort Mode:</strong> {comfortMode}</span>
+              <span><strong>{renderText(t('preview.fontLabel'))}:</strong> {fontFamily}</span>
+              <span><strong>{renderText(t('preview.sizeLabel'))}:</strong> {getTextSizeLabel(textSize)}</span>
+              <span><strong>{renderText(t('preview.spacingLabel'))}:</strong> {getLineSpacingLabel(lineSpacing)}</span>
+              <span><strong>{renderText(t('preview.contrastLabel'))}:</strong> {colorContrast}</span>
+              <span><strong>{renderText(t('preview.comfortLabel'))}:</strong> {comfortMode}</span>
             </div>
           </div>
           
           <div className="border-l-4 border-amber-400 bg-amber-50 p-3 rounded-r">
             <p className="text-amber-800 font-medium text-sm">
-              💡 Pro Tip: These settings apply to the entire application immediately. Navigate to other pages to see the global effect!
+              💡 {renderText(t('preview.tip'))}
             </p>
           </div>
         </div>

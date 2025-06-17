@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Eye, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useTranslation } from 'react-i18next';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
 interface AccessibilitySettingsProps {
   fontFamily: string;
@@ -30,7 +30,7 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
   speechToTextEnabled,
   onChange
 }) => {
-  const { t } = useTranslation('settings');
+  const { t, renderText } = useGlobalTranslation('settings');
 
   const getTextSizeLabel = (value: number) => {
     const labels = [
@@ -59,20 +59,20 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Eye className="h-5 w-5 text-green-600" />
-          {t('accessibility.title')}
+          {renderText(t('accessibility.title'))}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Font Family */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Label>{t('accessibility.fontFamily')}</Label>
+            <Label>{renderText(t('accessibility.fontFamily'))}</Label>
             <Tooltip>
               <TooltipTrigger>
                 <HelpCircle className="h-4 w-4 text-gray-400" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t('accessibility.fontHelp')}</p>
+                <p>{renderText(t('accessibility.fontHelp'))}</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -84,7 +84,7 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="System">{t('accessibility.systemFont')}</SelectItem>
+              <SelectItem value="System">{renderText(t('accessibility.systemFont'))}</SelectItem>
               <SelectItem value="OpenDyslexic">OpenDyslexic</SelectItem>
               <SelectItem value="Arial">Arial</SelectItem>
               <SelectItem value="Georgia">Georgia</SelectItem>
@@ -95,7 +95,7 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
 
         {/* Color Contrast */}
         <div className="space-y-3">
-          <Label>{t('accessibility.colorContrast')}</Label>
+          <Label>{renderText(t('accessibility.colorContrast'))}</Label>
           <RadioGroup
             value={colorContrast}
             onValueChange={(value) => onChange('color_contrast', value)}
@@ -103,11 +103,11 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Standard" id="standard" />
-              <Label htmlFor="standard">{t('accessibility.standard')}</Label>
+              <Label htmlFor="standard">{renderText(t('accessibility.standard'))}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="High" id="high" />
-              <Label htmlFor="high">{t('accessibility.highContrast')}</Label>
+              <Label htmlFor="high">{renderText(t('accessibility.highContrast'))}</Label>
             </div>
           </RadioGroup>
         </div>
@@ -115,13 +115,13 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
         {/* Comfort Mode */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Label>{t('accessibility.comfortMode')}</Label>
+            <Label>{renderText(t('accessibility.comfortMode'))}</Label>
             <Tooltip>
               <TooltipTrigger>
                 <HelpCircle className="h-4 w-4 text-gray-400" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t('accessibility.comfortHelp')}</p>
+                <p>{renderText(t('accessibility.comfortHelp'))}</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -132,22 +132,22 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Normal" id="normal" />
-              <Label htmlFor="normal">{t('accessibility.normal')}</Label>
+              <Label htmlFor="normal">{renderText(t('accessibility.normal'))}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Low-Stimulus" id="low-stimulus" />
-              <Label htmlFor="low-stimulus">{t('accessibility.lowStimulus')}</Label>
+              <Label htmlFor="low-stimulus">{renderText(t('accessibility.lowStimulus'))}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Focus Mode" id="focus" />
-              <Label htmlFor="focus">{t('accessibility.focusMode')}</Label>
+              <Label htmlFor="focus">{renderText(t('accessibility.focusMode'))}</Label>
             </div>
           </RadioGroup>
         </div>
 
         {/* Text Size */}
         <div className="space-y-3">
-          <Label>{t('accessibility.textSize')}: {getTextSizeLabel(textSize)}</Label>
+          <Label>{renderText(t('accessibility.textSize'))}: {getTextSizeLabel(textSize)}</Label>
           <Slider
             value={[textSize]}
             onValueChange={([value]) => onChange('text_size', value)}
@@ -167,7 +167,7 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
 
         {/* Line Spacing */}
         <div className="space-y-3">
-          <Label>{t('accessibility.lineSpacing')}: {getLineSpacingLabel(lineSpacing)}</Label>
+          <Label>{renderText(t('accessibility.lineSpacing'))}: {getLineSpacingLabel(lineSpacing)}</Label>
           <Slider
             value={[lineSpacing]}
             onValueChange={([value]) => onChange('line_spacing', value)}
@@ -190,8 +190,8 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
         {/* Speech to Text */}
         <div className="flex items-center justify-between">
           <div>
-            <Label htmlFor="speech_to_text">{t('accessibility.speechToText')}</Label>
-            <p className="text-sm text-gray-500">{t('accessibility.speechToTextDesc')}</p>
+            <Label htmlFor="speech_to_text">{renderText(t('accessibility.speechToText'))}</Label>
+            <p className="text-sm text-gray-500">{renderText(t('accessibility.speechToTextDesc'))}</p>
           </div>
           <Switch
             id="speech_to_text"
