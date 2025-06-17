@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { pdfjs } from 'react-pdf'
+import './i18n'  // Import i18n configuration to initialize it globally
 
 console.log('🚀 Application starting...');
 

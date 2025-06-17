@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -14,9 +13,10 @@ import {
 import { Globe, Check } from 'lucide-react';
 import { supportedLanguages } from '@/i18n';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
 const LanguageSwitcher = () => {
-  const { i18n, t } = useTranslation();
+  const { i18n, tString } = useGlobalTranslation('settings');
   const { profile, updateProfile } = useUserProfile();
   const [dualLanguageEnabled, setDualLanguageEnabled] = useState(false);
 
@@ -42,7 +42,6 @@ const LanguageSwitcher = () => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'fpk-dual-language') {
         const newValue = e.newValue === 'true';
-        console.log('LanguageSwitcher: Storage changed, updating to:', newValue);
         setDualLanguageEnabled(newValue);
       }
     };
@@ -50,7 +49,6 @@ const LanguageSwitcher = () => {
     const handleCustomStorageChange = (e: CustomEvent) => {
       if (e.detail.key === 'fpk-dual-language') {
         const newValue = e.detail.newValue === 'true';
-        console.log('LanguageSwitcher: Custom storage event, updating to:', newValue);
         setDualLanguageEnabled(newValue);
       }
     };
@@ -89,8 +87,6 @@ const LanguageSwitcher = () => {
   };
 
   const handleDualLanguageToggle = async (enabled: boolean) => {
-    console.log('LanguageSwitcher: Toggling dual language to:', enabled);
-    
     setDualLanguageEnabled(enabled);
     
     // Save to localStorage immediately
@@ -119,7 +115,6 @@ const LanguageSwitcher = () => {
           },
           true // silent update
         );
-        console.log('LanguageSwitcher: Profile updated with dual language:', enabled);
       } catch (error) {
         console.error('Failed to update dual language setting:', error);
         // Revert local state if update fails
@@ -139,7 +134,7 @@ const LanguageSwitcher = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg">
         <div className="px-3 py-2">
-          <h4 className="font-medium text-sm">{t('settings.language.primaryLanguage')}</h4>
+          <h4 className="font-medium text-sm">{tString('language.primaryLanguage')}</h4>
         </div>
         {supportedLanguages.map((language) => (
           <DropdownMenuItem
@@ -165,10 +160,10 @@ const LanguageSwitcher = () => {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dual-language-switcher" className="text-sm font-medium">
-                {t('settings.language.dualLanguageMode')}
+                {tString('language.dualLanguageMode')}
               </Label>
               <p className="text-xs text-gray-500">
-                {t('settings.language.dualLanguageDescription')}
+                {tString('language.dualLanguageDescription')}
               </p>
             </div>
             <Switch
