@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useEffect, useState } from 'react';
@@ -77,11 +78,11 @@ export const useGlobalTranslation = (namespace?: string) => {
       return text;
     }
     
-    return (
-      <span className={className}>
-        <span className="block font-medium">{text.primary}</span>
-        <span className="block text-sm text-gray-500 italic">{text.english}</span>
-      </span>
+    return React.createElement(
+      'span',
+      { className },
+      React.createElement('span', { className: 'block font-medium' }, text.primary),
+      React.createElement('span', { className: 'block text-sm text-gray-500 italic' }, text.english)
     );
   };
 
