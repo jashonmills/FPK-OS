@@ -1,9 +1,16 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import { 
@@ -233,8 +240,8 @@ const Goals = () => {
             </div>
           ) : (
             <EmptyState 
-              title={renderText(t('empty.allTitle'))}
-              description={renderText(t('empty.allDescription'))}
+              title={tString('empty.allTitle', 'No goals yet')}
+              description={tString('empty.allDescription', 'Create your first goal to get started')}
               textClasses={textClasses}
               cardClasses={cardClasses}
             />
@@ -250,8 +257,8 @@ const Goals = () => {
             </div>
           ) : (
             <EmptyState 
-              title={renderText(t('empty.activeTitle'))}
-              description={renderText(t('empty.activeDescription'))}
+              title={tString('empty.activeTitle', 'No active goals')}
+              description={tString('empty.activeDescription', 'Set an active goal to track your progress')}
               textClasses={textClasses}
               cardClasses={cardClasses}
             />
@@ -267,8 +274,8 @@ const Goals = () => {
             </div>
           ) : (
             <EmptyState 
-              title={renderText(t('empty.completedTitle'))}
-              description={renderText(t('empty.completedDescription'))}
+              title={tString('empty.completedTitle', 'No completed goals')}
+              description={tString('empty.completedDescription', 'Complete a goal to see it here')}
               textClasses={textClasses}
               cardClasses={cardClasses}
             />
@@ -284,8 +291,8 @@ const Goals = () => {
             </div>
           ) : (
             <EmptyState 
-              title={renderText(t('empty.pausedTitle'))}
-              description={renderText(t('empty.pausedDescription'))}
+              title={tString('empty.pausedTitle', 'No paused goals')}
+              description={tString('empty.pausedDescription', 'Paused goals will appear here')}
               textClasses={textClasses}
               cardClasses={cardClasses}
             />
