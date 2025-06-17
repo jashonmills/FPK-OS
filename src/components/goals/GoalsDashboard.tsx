@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,15 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Target, Trophy, Calendar, Filter } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import { useDualLanguage } from '@/hooks/useDualLanguage';
-import DualLanguageText from '@/components/DualLanguageText';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import GoalCreateForm from './GoalCreateForm';
 import GoalCard from './GoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
 
 export const GoalsDashboard = () => {
   const { goals, loading } = useGoals();
-  const { t } = useDualLanguage();
+  const { t, renderText } = useGlobalTranslation('goals');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
@@ -40,7 +40,7 @@ export const GoalsDashboard = () => {
     return (
       <div className="flex items-center justify-center p-4 sm:p-8">
         <div className="text-gray-500 text-sm sm:text-base">
-          <DualLanguageText translationKey="common.loading" fallback="Loading..." />
+          {renderText(t('common.loading', 'Loading...'))}
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ export const GoalsDashboard = () => {
               </div>
               <div className="min-w-0 overflow-hidden">
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
-                  <DualLanguageText translationKey="goals.stats.totalGoals" fallback="Total Goals" />
+                  {renderText(t('stats.totalGoals', 'Total Goals'))}
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold">{goals.length}</p>
               </div>
@@ -74,7 +74,7 @@ export const GoalsDashboard = () => {
               </div>
               <div className="min-w-0 overflow-hidden">
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
-                  <DualLanguageText translationKey="goals.stats.activeGoals" fallback="Active" />
+                  {renderText(t('stats.activeGoals', 'Active'))}
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold">{activeGoals.length}</p>
               </div>
@@ -90,7 +90,7 @@ export const GoalsDashboard = () => {
               </div>
               <div className="min-w-0 overflow-hidden">
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
-                  <DualLanguageText translationKey="goals.stats.completedGoals" fallback="Complete" />
+                  {renderText(t('stats.completedGoals', 'Complete'))}
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold">{completedGoals.length}</p>
               </div>
@@ -106,7 +106,7 @@ export const GoalsDashboard = () => {
               </div>
               <div className="min-w-0 overflow-hidden">
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
-                  <DualLanguageText translationKey="goals.stats.completionRate" fallback="Rate" />
+                  {renderText(t('stats.completionRate', 'Rate'))}
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold">
                   {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
@@ -116,18 +116,18 @@ export const GoalsDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Reading Progress Widget - NEW */}
+        {/* Reading Progress Widget */}
         <ReadingProgressWidget />
       </div>
 
-      {/* Goals Management - Improved tablet layout */}
+      {/* Goals Management */}
       <Card className="fpk-card border-0 shadow-lg">
         <CardHeader className="p-3 sm:p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
               <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
               <span className="truncate">
-                <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
+                {renderText(t('myGoals', 'My Goals'))}
               </span>
             </CardTitle>
             <Button 
@@ -136,20 +136,19 @@ export const GoalsDashboard = () => {
             >
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="truncate">
-                <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+                {renderText(t('createNew', 'Create Goal'))}
               </span>
             </Button>
           </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {/* Improved tablet-friendly tabs */}
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 sm:mb-6 h-auto gap-1">
               <TabsTrigger value="all" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
                   <Filter className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="hidden sm:inline truncate">
-                    <DualLanguageText translationKey="goals.tabs.all" fallback="All" />
+                    {renderText(t('tabs.all', 'All'))}
                   </span>
                   <span className="sm:hidden">All</span>
                 </div>
@@ -159,7 +158,7 @@ export const GoalsDashboard = () => {
                 <div className="flex items-center gap-1">
                   <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="hidden sm:inline truncate">
-                    <DualLanguageText translationKey="goals.tabs.active" fallback="Active" />
+                    {renderText(t('tabs.active', 'Active'))}
                   </span>
                   <span className="sm:hidden">Active</span>
                 </div>
@@ -169,7 +168,7 @@ export const GoalsDashboard = () => {
                 <div className="flex items-center gap-1">
                   <Trophy className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="hidden sm:inline truncate">
-                    <DualLanguageText translationKey="goals.tabs.completed" fallback="Done" />
+                    {renderText(t('tabs.completed', 'Done'))}
                   </span>
                   <span className="sm:hidden">Done</span>
                 </div>
@@ -179,7 +178,7 @@ export const GoalsDashboard = () => {
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span className="hidden sm:inline truncate">
-                    <DualLanguageText translationKey="goals.tabs.paused" fallback="Paused" />
+                    {renderText(t('tabs.paused', 'Paused'))}
                   </span>
                   <span className="sm:hidden">Paused</span>
                 </div>
@@ -192,16 +191,10 @@ export const GoalsDashboard = () => {
                 <div className="text-center py-6 sm:py-8">
                   <Target className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
-                    <DualLanguageText 
-                      translationKey={`goals.empty.${activeTab}Title`} 
-                      fallback="No goals found" 
-                    />
+                    {renderText(t(`empty.${activeTab}Title`, 'No goals found'))}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 px-4 leading-relaxed">
-                    <DualLanguageText 
-                      translationKey={`goals.empty.${activeTab}Description`} 
-                      fallback="Start by creating your first goal to track your learning progress" 
-                    />
+                    {renderText(t(`empty.${activeTab}Description`, 'Start by creating your first goal to track your learning progress'))}
                   </p>
                   {activeTab === 'all' || activeTab === 'active' ? (
                     <Button 
@@ -209,7 +202,7 @@ export const GoalsDashboard = () => {
                       className="fpk-gradient text-white text-sm px-4 py-2"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      <DualLanguageText translationKey="goals.createFirst" fallback="Create Your First Goal" />
+                      {renderText(t('createFirst', 'Create Your First Goal'))}
                     </Button>
                   ) : null}
                 </div>
@@ -243,7 +236,7 @@ export const GoalsDashboard = () => {
           <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base sm:text-lg font-semibold truncate mr-2">
-                <DualLanguageText translationKey="goals.createNew" fallback="Create New Goal" />
+                {renderText(t('createNew', 'Create New Goal'))}
               </h2>
               <Button 
                 variant="ghost" 
