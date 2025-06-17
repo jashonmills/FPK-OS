@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -36,7 +37,16 @@ const resources = {
       liveHub: enLiveHub,
       preview: enPreview
     },
-    settings: enSettings
+    // Make settings directly accessible as a namespace
+    settings: enSettings,
+    common: enCommon,
+    dashboard: enDashboard,
+    courses: enCourses,
+    auth: enAuth,
+    goals: enGoals,
+    navigation: enNavigation,
+    liveHub: enLiveHub,
+    preview: enPreview
   },
   zh: {
     translation: zh

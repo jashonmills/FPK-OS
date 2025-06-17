@@ -10,9 +10,13 @@
   "delete": "Delete",
   "edit": "Edit",
   "search": "Search",
+  "searchPlaceholder": "Search courses, notes, and more...",
   "learningDashboard": "Learning Dashboard",
   "support": "Support",
   "signOut": "Sign Out",
   "beta": "Beta",
-  "back": "Back"
+  "back": "Back",
+  "myAccount": "My Account",
+  "profileSettings": "Profile Settings",
+  "preferences": "Preferences"
 }

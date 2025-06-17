@@ -41,7 +41,8 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Settings = () => {
-  const { t } = useTranslation();
+  // Use the 'settings' namespace for all translations
+  const { t } = useTranslation('settings');
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, saving, updateProfile, changePassword } = useUserProfile();
   const { getAccessibilityClasses } = useAccessibility();
@@ -335,27 +336,27 @@ const Settings = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
-              {t('settings.title')}
+              {t('title')}
             </h1>
-            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>{t('settings.subtitle')}</p>
+            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>{t('subtitle')}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
             {saving && (
               <div className={`flex items-center gap-2 text-sm text-blue-600 ${textClasses}`}>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {t('settings.saving')}
+                {t('saving')}
               </div>
             )}
             {!saving && hasUnsavedChanges && (
               <div className={`flex items-center gap-2 text-sm text-amber-600 ${textClasses}`}>
                 <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
-                {t('settings.autoSavePending')}
+                {t('autoSavePending')}
               </div>
             )}
             {!saving && !hasUnsavedChanges && !isInitializing.current && (
               <div className={`flex items-center gap-2 text-sm text-green-600 ${textClasses}`}>
                 <Check className="h-4 w-4" />
-                {t('settings.allChangesSaved')}
+                {t('allChangesSaved')}
               </div>
             )}
             <Button
@@ -365,7 +366,7 @@ const Settings = () => {
               className={`gap-2 w-full sm:w-auto ${textClasses}`}
             >
               <RotateCcw className="h-4 w-4" />
-              {t('settings.restoreDefaults')}
+              {t('restoreDefaults')}
             </Button>
           </div>
         </div>
@@ -428,7 +429,7 @@ const Settings = () => {
                 <CardHeader>
                   <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                     <User className="h-5 w-5 text-purple-600" />
-                    {t('settings.profile.title')}
+                    {t('profile.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -440,29 +441,29 @@ const Settings = () => {
 
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="full_name" className={textClasses}>{t('settings.profile.fullName')}</Label>
+                      <Label htmlFor="full_name" className={textClasses}>{t('profile.fullName')}</Label>
                       <Input
                         id="full_name"
                         value={formData.full_name}
                         onChange={(e) => handleFormChange('full_name', e.target.value)}
-                        placeholder={t('settings.profile.fullNamePlaceholder')}
+                        placeholder={t('profile.fullNamePlaceholder')}
                         className={textClasses}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="display_name" className={textClasses}>{t('settings.profile.displayName')}</Label>
+                      <Label htmlFor="display_name" className={textClasses}>{t('profile.displayName')}</Label>
                       <Input
                         id="display_name"
                         value={formData.display_name}
                         onChange={(e) => handleFormChange('display_name', e.target.value)}
-                        placeholder={t('settings.profile.displayNamePlaceholder')}
+                        placeholder={t('profile.displayNamePlaceholder')}
                         className={textClasses}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className={textClasses}>{t('settings.profile.email')}</Label>
+                    <Label htmlFor="email" className={textClasses}>{t('profile.email')}</Label>
                     <Input
                       id="email"
                       value={user?.email || ''}
@@ -472,12 +473,12 @@ const Settings = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio" className={textClasses}>{t('settings.profile.bio')}</Label>
+                    <Label htmlFor="bio" className={textClasses}>{t('profile.bio')}</Label>
                     <Textarea
                       id="bio"
                       value={formData.bio}
                       onChange={(e) => handleFormChange('bio', e.target.value)}
-                      placeholder={t('settings.profile.bioPlaceholder')}
+                      placeholder={t('profile.bioPlaceholder')}
                       rows={3}
                       className={textClasses}
                     />
@@ -538,14 +539,14 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Bell className="h-5 w-5 text-amber-600" />
-                  {t('settings.notifications.emailTitle')}
+                  {t('notifications.emailTitle')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="new_courses" className={textClasses}>{t('settings.notifications.newCourses')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.newCoursesDesc')}</p>
+                    <Label htmlFor="new_courses" className={textClasses}>{t('notifications.newCourses')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.newCoursesDesc')}</p>
                   </div>
                   <Switch
                     id="new_courses"
@@ -558,8 +559,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="weekly_summary" className={textClasses}>{t('settings.notifications.weeklySum')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.weeklySumDesc')}</p>
+                    <Label htmlFor="weekly_summary" className={textClasses}>{t('notifications.weeklySum')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.weeklySumDesc')}</p>
                   </div>
                   <Switch
                     id="weekly_summary"
@@ -572,8 +573,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="ai_prompts" className={textClasses}>{t('settings.notifications.aiPrompts')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.aiPromptsDesc')}</p>
+                    <Label htmlFor="ai_prompts" className={textClasses}>{t('notifications.aiPrompts')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.aiPromptsDesc')}</p>
                   </div>
                   <Switch
                     id="ai_prompts"
@@ -586,13 +587,13 @@ const Settings = () => {
 
             <Card className={`fpk-card border-0 shadow-lg ${cardClasses}`}>
               <CardHeader>
-                <CardTitle className={textClasses}>{t('settings.notifications.appTitle')}</CardTitle>
+                <CardTitle className={textClasses}>{t('notifications.appTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="push_notifications" className={textClasses}>{t('settings.notifications.pushNotifications')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.pushNotificationsDesc')}</p>
+                    <Label htmlFor="push_notifications" className={textClasses}>{t('notifications.pushNotifications')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.pushNotificationsDesc')}</p>
                   </div>
                   <Switch
                     id="push_notifications"
@@ -605,8 +606,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="study_streak" className={textClasses}>{t('settings.notifications.studyStreak')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.studyStreakDesc')}</p>
+                    <Label htmlFor="study_streak" className={textClasses}>{t('notifications.studyStreak')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.studyStreakDesc')}</p>
                   </div>
                   <Switch
                     id="study_streak"
@@ -619,8 +620,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="module_nudges" className={textClasses}>{t('settings.notifications.moduleNudges')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.notifications.moduleNudgesDesc')}</p>
+                    <Label htmlFor="module_nudges" className={textClasses}>{t('notifications.moduleNudges')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('notifications.moduleNudgesDesc')}</p>
                   </div>
                   <Switch
                     id="module_nudges"
@@ -637,7 +638,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Shield className="h-5 w-5 text-red-600" />
-                  {t('settings.security.title')}
+                  {t('security.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -647,8 +648,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="two_factor" className={textClasses}>{t('settings.security.twoFactor')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.security.twoFactorDesc')}</p>
+                    <Label htmlFor="two_factor" className={textClasses}>{t('security.twoFactor')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('security.twoFactorDesc')}</p>
                   </div>
                   <Switch
                     id="two_factor"
@@ -665,14 +666,14 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
                   <Link className="h-5 w-5 text-blue-600" />
-                  {t('settings.integrations.title')}
+                  {t('integrations.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="google_calendar" className={textClasses}>{t('settings.integrations.googleCalendar')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.googleDesc')}</p>
+                    <Label htmlFor="google_calendar" className={textClasses}>{t('integrations.googleCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('integrations.googleDesc')}</p>
                   </div>
                   <Switch
                     id="google_calendar"
@@ -685,8 +686,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="outlook_calendar" className={textClasses}>{t('settings.integrations.outlookCalendar')}</Label>
-                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('settings.integrations.outlookDesc')}</p>
+                    <Label htmlFor="outlook_calendar" className={textClasses}>{t('integrations.outlookCalendar')}</Label>
+                    <p className={`text-sm text-gray-500 ${textClasses}`}>{t('integrations.outlookDesc')}</p>
                   </div>
                   <Switch
                     id="outlook_calendar"
