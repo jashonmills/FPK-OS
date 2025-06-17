@@ -1,272 +1,297 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Target, Trophy, Flame, Calendar, CheckSquare, Bell } from 'lucide-react';
-import { useDualLanguage } from '@/hooks/useDualLanguage';
-import DualLanguageText from '@/components/DualLanguageText';
-import { useGoals } from '@/hooks/useGoals';
-import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
-import { useGamificationContext } from '@/contexts/GamificationContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAccessibility } from '@/hooks/useAccessibility';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import { 
+  Target, 
+  Plus, 
+  Calendar, 
+  TrendingUp, 
+  CheckCircle, 
+  Clock, 
+  Pause,
+  MoreHorizontal,
+  Award,
+  Flag
+} from 'lucide-react';
 
 const Goals = () => {
-  const { t } = useDualLanguage();
-  const { goals, loading: goalsLoading } = useGoals();
-  const { user } = useAuth();
-  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
+  const { t, renderText, tString } = useGlobalTranslation('goals');
+  const { getAccessibilityClasses } = useAccessibility();
+  const [activeTab, setActiveTab] = useState('all');
 
-  // Fetch achievements data with real-time invalidation
-  const { data: achievements = [] } = useQuery({
-    queryKey: ['achievements', user?.id, userStats?.xp?.total_xp], // Include XP in key to trigger refresh
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('achievements')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('unlocked_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching achievements:', error);
-        return [];
-      }
-      return data || [];
+  // Apply accessibility classes
+  const containerClasses = getAccessibilityClasses('container');
+  const textClasses = getAccessibilityClasses('text');
+  const cardClasses = getAccessibilityClasses('card');
+
+  // Mock data for goals
+  const mockGoals = [
+    {
+      id: 1,
+      title: 'Complete React Course',
+      description: 'Finish all modules in the React course by the end of the month.',
+      status: 'in-progress',
+      progress: 60,
+      dueDate: '2024-08-31',
     },
-    enabled: !!user,
-  });
-
-  // Filter active goals
-  const activeGoals = goals.filter(goal => goal.status === 'active') || [];
-
-  // Use gamification context data
-  const totalXP = userStats?.xp?.total_xp || 0;
-  const targetXP = 4000; // This could be made dynamic based on user level
-  const streaks = userStats?.streaks || [];
-  const currentStreak = streaks.find(s => s.streak_type === 'study')?.current_count || 0;
-  const xpProgress = totalXP > 0 ? Math.round((totalXP / targetXP) * 100) : 0;
-
-  // Goal reminders - these could be stored in database later
-  const reminders = [
-    { id: 1, title: "Daily check-in", enabled: true },
-    { id: 2, title: "Weekly progress update", enabled: true },
-    { id: 3, title: "Motivational messages", enabled: false }
+    {
+      id: 2,
+      title: 'Study 30 Minutes Daily',
+      description: 'Dedicate at least 30 minutes each day to studying new material.',
+      status: 'active',
+      progress: 30,
+      dueDate: '2024-09-15',
+    },
+    {
+      id: 3,
+      title: 'Learn a New JavaScript Framework',
+      description: 'Explore and understand the basics of Vue.js.',
+      status: 'paused',
+      progress: 0,
+      dueDate: '2024-10-01',
+    },
+    {
+      id: 4,
+      title: 'Master TypeScript',
+      description: 'Become proficient in TypeScript by completing advanced tutorials.',
+      status: 'completed',
+      progress: 100,
+      dueDate: '2024-07-31',
+    },
+    {
+      id: 5,
+      title: 'Contribute to Open Source',
+      description: 'Make a meaningful contribution to a project on GitHub.',
+      status: 'active',
+      progress: 80,
+      dueDate: '2024-09-30',
+    },
   ];
 
+  const EmptyState = ({ title, description, textClasses, cardClasses }: { title: string, description: string, textClasses: string, cardClasses: string }) => (
+    <Card className={`fpk-card text-center py-12 ${cardClasses}`}>
+      <CardContent>
+        <Target className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+        <h3 className={`text-lg font-semibold mb-2 ${textClasses}`}>{title}</h3>
+        <p className={`text-gray-600 mb-4 ${textClasses}`}>{description}</p>
+        <Button className={textClasses}>Create New Goal</Button>
+      </CardContent>
+    </Card>
+  );
+
+  const GoalCard = ({ goal, textClasses, cardClasses }: { goal: any, textClasses: string, cardClasses: string }) => (
+    <Card className={`fpk-card hover:shadow-lg transition-shadow ${cardClasses}`}>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className={`text-lg font-semibold ${textClasses}`}>{goal.title}</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>Edit Goal</DropdownMenuItem>
+              <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
+              <DropdownMenuItem>Pause Goal</DropdownMenuItem>
+              <DropdownMenuItem>Delete Goal</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Calendar className="h-4 w-4" />
+          <span className={textClasses}>Due: {goal.dueDate}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className={`text-sm text-gray-600 ${textClasses}`}>{goal.description}</p>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className={`text-gray-600 ${textClasses}`}>Progress</span>
+            <span className={`font-medium ${textClasses}`}>{goal.progress}%</span>
+          </div>
+          <Progress value={goal.progress} className="h-2" />
+        </div>
+        <div className="flex items-center justify-between">
+          <Badge variant="secondary" className={textClasses}>{goal.status}</Badge>
+          {goal.status === 'active' && (
+            <Button variant="outline" size="sm" className={textClasses}>
+              <Pause className="h-4 w-4 mr-2" />
+              Pause Goal
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
-      {/* Header Section - Improved tablet layout */}
-      <div className="text-center space-y-2 sm:space-y-4 px-2">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 break-words">
-          <DualLanguageText translationKey="nav.goals" fallback="Goals & Progress" />
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Set, track, and achieve your learning goals with our comprehensive goal management system.
-        </p>
-        <div className="text-xs sm:text-sm text-gray-500 space-y-1 hidden md:block">
-          <p className="break-words">Create and manage personalized learning goals</p>
-          <p className="break-words">Track your progress with interactive visualizations</p>
-          <p className="break-words">Earn rewards and achievements as you reach milestones</p>
-        </div>
-      </div>
-
-      {/* Goal & XP Tracker Hero Banner - Responsive padding */}
-      <Card className="fpk-gradient text-white border-0">
-        <CardContent className="p-3 sm:p-6 md:p-8 text-center">
-          <div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
-            <Target className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 mr-2 sm:mr-3 flex-shrink-0" />
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold break-words">Goal & XP Tracker</h2>
-          </div>
-          <p className="text-sm sm:text-base md:text-lg opacity-90 break-words leading-relaxed">
-            Set your study goals, track XP, and unlock achievements!
+    <div className={`p-3 md:p-6 space-y-4 md:space-y-6 ${containerClasses}`}>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div>
+          <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
+            {renderText(t('myGoals'))}
+          </h1>
+          <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>
+            Track your learning objectives and celebrate your achievements.
           </p>
-        </CardContent>
-      </Card>
-
-      {/* Goals Dashboard Component - This is the main goals management interface */}
-      <GoalsDashboard />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Active Learning Goals - Improved tablet responsive */}
-        <div className="lg:col-span-2">
-          <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
-                <span className="truncate">Active Learning Goals</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6 pt-0">
-              {goalsLoading ? (
-                <div className="text-center py-6 sm:py-8 text-gray-500 text-sm">
-                  Loading goals...
-                </div>
-              ) : activeGoals.length === 0 ? (
-                <div className="text-center py-6 sm:py-8 text-gray-500">
-                  <Target className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
-                  <p className="text-base sm:text-lg font-medium mb-2">No active goals yet</p>
-                  <p className="text-xs sm:text-sm">Create your first learning goal to get started!</p>
-                </div>
-              ) : (
-                activeGoals.map((goal) => (
-                  <div key={goal.id} className="space-y-2 break-inside-avoid">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-gray-900 text-sm sm:text-base truncate flex-1">
-                        {goal.title}
-                      </span>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">
-                        {goal.category}
-                      </Badge>
-                    </div>
-                    <div className="w-full">
-                      <Progress 
-                        value={goal.progress} 
-                        className="h-2 sm:h-3 bg-gray-200"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{goal.progress}% complete</span>
-                        {goal.target_date && (
-                          <span className="truncate ml-2">
-                            Due: {new Date(goal.target_date).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
         </div>
-
-        {/* Right Sidebar - Improved tablet responsive */}
-        <div className="space-y-4 sm:space-y-6">
-          {/* Achievements & Rewards */}
-          <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0" />
-                <span className="truncate">Achievements & Rewards</span>
-                {gamificationLoading && (
-                  <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full"></div>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-4 md:p-6 pt-0">
-              {achievements.length === 0 ? (
-                <div className="text-center py-3 sm:py-4 text-gray-500">
-                  <Trophy className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-300" />
-                  <p className="text-xs sm:text-sm">No achievements yet</p>
-                  <p className="text-xs">Complete goals to earn rewards!</p>
-                </div>
-              ) : (
-                achievements.slice(0, 5).map((achievement) => (
-                  <div key={achievement.id} className="flex items-center gap-2 sm:gap-3 animate-fade-in">
-                    <span className="text-base sm:text-xl flex-shrink-0">🏆</span>
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <p className="font-medium text-xs sm:text-sm truncate">
-                        {achievement.achievement_name}
-                      </p>
-                      <p className="text-xs text-gray-500">+{achievement.xp_reward} XP</p>
-                    </div>
-                    <span className="text-green-500 text-xs flex-shrink-0">✓</span>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Goal Reminders */}
-          <Card className="fpk-card border-0 shadow-md">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
-                <span className="truncate">Goal Reminders</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-3 p-3 sm:p-4 md:p-6 pt-0">
-              {reminders.map((reminder) => (
-                <div key={reminder.id} className="flex items-center gap-2 sm:gap-3">
-                  <CheckSquare className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${reminder.enabled ? 'text-green-600' : 'text-gray-400'}`} />
-                  <span className="text-xs sm:text-sm font-medium truncate">{reminder.title}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+        
+        <Button className={`gap-2 ${textClasses}`}>
+          <Plus className="h-4 w-4" />
+          {renderText(t('createNew'))}
+        </Button>
       </div>
 
-      {/* XP & Milestones Section - Improved tablet responsive */}
-      <Card className="fpk-card border-0 shadow-md">
-        <CardHeader className="p-3 sm:p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
-            <span className="truncate">XP & Milestones</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-4 sm:mb-6">
-            {/* Total XP */}
-            <div className="text-center p-3 sm:p-4 md:p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg">
-              <div className="flex items-center justify-center mb-2">
-                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-amber-600 mr-2 flex-shrink-0" />
-                <span className="text-lg sm:text-xl md:text-2xl font-bold text-amber-800 truncate">
-                  {totalXP.toLocaleString()}
-                </span>
-                {gamificationLoading && (
-                  <div className="animate-pulse ml-2 h-4 w-8 bg-amber-200 rounded"></div>
-                )}
-              </div>
-              <p className="text-amber-700 font-medium text-sm sm:text-base">Total XP</p>
-              {totalXP === 0 && (
-                <p className="text-xs text-amber-600 mt-1 break-words">
-                  Complete activities to earn XP!
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Card className={`fpk-card ${cardClasses}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs md:text-sm font-medium text-gray-600 ${textClasses}`}>
+                  {renderText(t('stats.totalGoals'))}
                 </p>
-              )}
-            </div>
-
-            {/* Day Streak */}
-            <div className="text-center p-3 sm:p-4 md:p-6 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg">
-              <div className="flex items-center justify-center mb-2">
-                <Flame className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-red-600 mr-2 flex-shrink-0" />
-                <span className="text-lg sm:text-xl md:text-2xl font-bold text-red-800 truncate">
-                  {currentStreak}
-                </span>
-                {gamificationLoading && (
-                  <div className="animate-pulse ml-2 h-4 w-8 bg-red-200 rounded"></div>
-                )}
+                <p className={`text-xl md:text-2xl font-bold ${textClasses}`}>12</p>
               </div>
-              <p className="text-red-700 font-medium text-sm sm:text-base">Day Streak</p>
-              {currentStreak === 0 && (
-                <p className="text-xs text-red-600 mt-1 break-words">
-                  Start your learning streak today!
-                </p>
-              )}
+              <Target className="h-4 w-4 md:h-6 md:w-6 text-blue-600" />
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Progress Bar */}
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs sm:text-sm font-medium text-gray-700 truncate flex-1">
-                Progress to {targetXP.toLocaleString()} XP
-              </span>
-              <span className="text-xs sm:text-sm font-bold text-gray-900 flex-shrink-0">
-                {xpProgress}%
-              </span>
+        <Card className={`fpk-card ${cardClasses}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs md:text-sm font-medium text-gray-600 ${textClasses}`}>
+                  {renderText(t('stats.activeGoals'))}
+                </p>
+                <p className={`text-xl md:text-2xl font-bold ${textClasses}`}>7</p>
+              </div>
+              <Flag className="h-4 w-4 md:h-6 md:w-6 text-green-600" />
             </div>
-            <Progress value={xpProgress} className="h-3 sm:h-4 bg-gray-200" />
-            {totalXP === 0 && (
-              <p className="text-xs text-gray-500 text-center break-words leading-relaxed">
-                Complete Learning State modules and activities to start earning XP!
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card className={`fpk-card ${cardClasses}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs md:text-sm font-medium text-gray-600 ${textClasses}`}>
+                  {renderText(t('stats.completedGoals'))}
+                </p>
+                <p className={`text-xl md:text-2xl font-bold ${textClasses}`}>5</p>
+              </div>
+              <CheckCircle className="h-4 w-4 md:h-6 md:w-6 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={`fpk-card ${cardClasses}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-xs md:text-sm font-medium text-gray-600 ${textClasses}`}>
+                  {renderText(t('stats.completionRate'))}
+                </p>
+                <p className={`text-xl md:text-2xl font-bold ${textClasses}`}>68%</p>
+              </div>
+              <TrendingUp className="h-4 w-4 md:h-6 md:w-6 text-amber-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Goals Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className={`w-full ${textClasses}`}>
+          <TabsTrigger value="all" className={textClasses}>
+            {renderText(t('tabs.all'))}
+          </TabsTrigger>
+          <TabsTrigger value="active" className={textClasses}>
+            {renderText(t('tabs.active'))}
+          </TabsTrigger>
+          <TabsTrigger value="completed" className={textClasses}>
+            {renderText(t('tabs.completed'))}
+          </TabsTrigger>
+          <TabsTrigger value="paused" className={textClasses}>
+            {renderText(t('tabs.paused'))}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-4">
+          {mockGoals.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {mockGoals.map((goal) => (
+                <GoalCard key={goal.id} goal={goal} textClasses={textClasses} cardClasses={cardClasses} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              title={renderText(t('empty.allTitle'))}
+              description={renderText(t('empty.allDescription'))}
+              textClasses={textClasses}
+              cardClasses={cardClasses}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="active" className="space-y-4">
+          {mockGoals.filter(goal => goal.status === 'active').length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {mockGoals.filter(goal => goal.status === 'active').map((goal) => (
+                <GoalCard key={goal.id} goal={goal} textClasses={textClasses} cardClasses={cardClasses} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              title={renderText(t('empty.activeTitle'))}
+              description={renderText(t('empty.activeDescription'))}
+              textClasses={textClasses}
+              cardClasses={cardClasses}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="completed" className="space-y-4">
+          {mockGoals.filter(goal => goal.status === 'completed').length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {mockGoals.filter(goal => goal.status === 'completed').map((goal) => (
+                <GoalCard key={goal.id} goal={goal} textClasses={textClasses} cardClasses={cardClasses} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              title={renderText(t('empty.completedTitle'))}
+              description={renderText(t('empty.completedDescription'))}
+              textClasses={textClasses}
+              cardClasses={cardClasses}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="paused" className="space-y-4">
+          {mockGoals.filter(goal => goal.status === 'paused').length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {mockGoals.filter(goal => goal.status === 'paused').map((goal) => (
+                <GoalCard key={goal.id} goal={goal} textClasses={textClasses} cardClasses={cardClasses} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              title={renderText(t('empty.pausedTitle'))}
+              description={renderText(t('empty.pausedDescription'))}
+              textClasses={textClasses}
+              cardClasses={cardClasses}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
