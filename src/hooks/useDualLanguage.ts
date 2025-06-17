@@ -1,15 +1,12 @@
 
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
-export const useDualLanguage = (namespace?: string) => {
-  const { t, isDualLanguageEnabled, isEnglish } = useGlobalTranslation(namespace);
-
-  const getDualText = (key: string, fallback?: string) => {
-    return t(key, fallback);
-  };
+export const useDualLanguage = (namespace: string = 'common') => {
+  const { t, tString, isDualLanguageEnabled, isEnglish } = useGlobalTranslation(namespace);
 
   return {
-    t: getDualText,
+    t,
+    tString,
     isDualLanguageEnabled,
     isEnglish,
   };

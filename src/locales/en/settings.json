@@ -27,12 +27,18 @@
     "bioPlaceholder": "Tell us a bit about yourself..."
   },
   "language": {
+    "title": "Language & Localization",
     "primaryLanguage": "Primary Language",
     "dualLanguageMode": "Dual Language Mode",
     "dualLanguageDescription": "Show English alongside your language",
     "timeFormat": "Time Format",
     "dateFormat": "Date Format",
-    "timezone": "Timezone"
+    "timezone": "Timezone",
+    "12hour": "12-hour (AM/PM)",
+    "24hour": "24-hour",
+    "usDate": "US (MM/DD/YYYY)",
+    "intlDate": "International (DD/MM/YYYY)",
+    "preview": "Preview"
   },
   "accessibility": {
     "title": "Accessibility & Display",

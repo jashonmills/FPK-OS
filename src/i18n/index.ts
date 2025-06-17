@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -13,7 +14,7 @@ import enNavigation from '@/locales/en/navigation.json';
 import enLiveHub from '@/locales/en/liveHub.json';
 import enPreview from '@/locales/en/preview.json';
 
-// Keep legacy imports for other languages (to be refactored separately)
+// Import other language files
 import zh from '@/locales/zh.json';
 import de from '@/locales/de.json';
 
@@ -26,32 +27,37 @@ export const supportedLanguages = [
 
 const resources = {
   en: {
-    translation: {
-      common: enCommon,
-      dashboard: enDashboard,
-      courses: enCourses,
-      auth: enAuth,
-      goals: enGoals,
-      nav: enNavigation,
-      liveHub: enLiveHub,
-      preview: enPreview
-    },
-    // Make settings directly accessible as a namespace
-    settings: enSettings,
     common: enCommon,
     dashboard: enDashboard,
     courses: enCourses,
     auth: enAuth,
+    settings: enSettings,
     goals: enGoals,
     navigation: enNavigation,
     liveHub: enLiveHub,
     preview: enPreview
   },
   zh: {
-    translation: zh
+    common: zh,
+    dashboard: zh,
+    courses: zh,
+    auth: zh,
+    settings: zh,
+    goals: zh,
+    navigation: zh,
+    liveHub: zh,
+    preview: zh
   },
   de: {
-    translation: de
+    common: de,
+    dashboard: de,
+    courses: de,
+    auth: de,
+    settings: de,
+    goals: de,
+    navigation: de,
+    liveHub: de,
+    preview: de
   }
 };
 
@@ -61,6 +67,7 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
+    defaultNS: 'common',
     debug: false,
     interpolation: {
       escapeValue: false,
@@ -68,6 +75,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
+      lookupLocalStorage: 'fpk-language'
     },
   });
 

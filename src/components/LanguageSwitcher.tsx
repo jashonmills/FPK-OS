@@ -134,7 +134,7 @@ const LanguageSwitcher = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg">
         <div className="px-3 py-2">
-          <h4 className="font-medium text-sm">{tString('language.primaryLanguage')}</h4>
+          <h4 className="font-medium text-sm">{tString('language.primaryLanguage', 'Primary Language')}</h4>
         </div>
         {supportedLanguages.map((language) => (
           <DropdownMenuItem
@@ -160,10 +160,10 @@ const LanguageSwitcher = () => {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dual-language-switcher" className="text-sm font-medium">
-                {tString('language.dualLanguageMode')}
+                {tString('language.dualLanguageMode', 'Dual Language Mode')}
               </Label>
               <p className="text-xs text-gray-500">
-                {tString('language.dualLanguageDescription')}
+                {tString('language.dualLanguageDescription', 'Show English alongside your language')}
               </p>
             </div>
             <Switch

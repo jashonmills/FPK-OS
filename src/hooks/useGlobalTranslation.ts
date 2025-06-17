@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useEffect, useState } from 'react';
 
-export const useGlobalTranslation = (namespace?: string) => {
-  const { t: originalT, i18n } = useTranslation(namespace || 'common');
+export const useGlobalTranslation = (namespace: string = 'common') => {
+  const { t: originalT, i18n } = useTranslation(namespace);
   const { profile } = useUserProfile();
   const [isDualLanguageEnabled, setIsDualLanguageEnabled] = useState(false);
   
@@ -48,19 +48,14 @@ export const useGlobalTranslation = (namespace?: string) => {
   }, []);
 
   const t = (key: string, fallback?: string): string | { primary: string; english: string } => {
-    const primaryText = originalT(key, fallback);
+    const primaryText = originalT(key, fallback || key);
     
     if (!isDualLanguageEnabled || isEnglish) {
       return primaryText;
     }
     
     // Get English version for dual language mode
-    const englishText = i18n.getResourceBundle('en', namespace || 'common');
-    const getNestedValue = (obj: any, path: string) => {
-      return path.split('.').reduce((current, key) => current?.[key], obj);
-    };
-    
-    const englishTranslation = getNestedValue(englishText, key) || fallback || key;
+    const englishTranslation = i18n.getResourceBundle('en', namespace)?.[key] || fallback || key;
     
     return {
       primary: primaryText,
