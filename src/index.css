@@ -3,8 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import OpenDyslexic font */
-@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
+/* Import accessible fonts */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
 /* FPK University Design System */
 
@@ -113,7 +114,7 @@
     transition: all 0.2s ease;
   }
 
-  /* Simple accessibility system - just apply font size and line height when active */
+  /* Accessibility font size and line height system */
   html.accessibility-active {
     font-size: var(--accessibility-font-size) !important;
   }
@@ -122,40 +123,69 @@
     line-height: var(--accessibility-line-height) !important;
   }
 
-  /* HIGH CONTRAST MODE */
+  /* HIGH CONTRAST MODE - Selective approach */
   html.high-contrast {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 10%;
   }
 
-  html.high-contrast * {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border-color: #000000 !important;
+  html.high-contrast .fpk-card,
+  html.high-contrast .bg-card {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+  }
+
+  html.high-contrast button {
+    background-color: black !important;
+    color: white !important;
+    border: 2px solid black !important;
+  }
+
+  html.high-contrast button:hover {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  html.high-contrast input,
+  html.high-contrast textarea,
+  html.high-contrast select {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
   }
 
   html.high-contrast svg {
-    color: #000000 !important;
-    fill: #000000 !important;
+    color: currentColor !important;
+    fill: currentColor !important;
   }
 
-  /* COMFORT MODES */
+  /* COMFORT MODES - Targeted approach */
+  html.low-stimulus .fpk-card,
+  html.low-stimulus .bg-card {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+  }
+
   html.low-stimulus {
-    background-color: #f9fafb !important;
+    --card: 248 250 252;
+    --card-foreground: 51 65 85;
   }
 
-  html.low-stimulus * {
-    background-color: #f9fafb !important;
-    color: #1f2937 !important;
+  html.focus-mode .fpk-card,
+  html.focus-mode .bg-card {
+    background-color: #eff6ff !important;
+    color: #1e3a8a !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   }
 
   html.focus-mode {
-    background-color: #eff6ff !important;
-  }
-
-  html.focus-mode * {
-    background-color: #eff6ff !important;
-    color: #1e3a8a !important;
+    --card: 239 246 255;
+    --card-foreground: 30 58 138;
   }
 }
 

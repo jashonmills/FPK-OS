@@ -70,10 +70,30 @@ export default {
 			},
 			fontFamily: {
 				// Accessibility fonts with proper fallbacks
-				'opendyslexic': ['OpenDyslexic', 'Atkinson Hyperlegible', 'Comic Sans MS', 'Trebuchet MS', 'cursive'],
-				'arial': ['Arial', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
-				'georgia': ['Georgia', 'Times New Roman', 'Times', 'serif'],
-				'cursive': ['Dancing Script', 'Brush Script MT', 'cursive'],
+				'opendyslexic': [
+					'Atkinson Hyperlegible', 
+					'Comic Sans MS', 
+					'Trebuchet MS', 
+					'Verdana', 
+					'sans-serif'
+				],
+				'arial': [
+					'Arial', 
+					'Helvetica Neue', 
+					'Helvetica', 
+					'sans-serif'
+				],
+				'georgia': [
+					'Georgia', 
+					'Times New Roman', 
+					'Times', 
+					'serif'
+				],
+				'cursive': [
+					'Dancing Script', 
+					'Brush Script MT', 
+					'cursive'
+				],
 				'system': [
 					'system-ui', 
 					'-apple-system', 

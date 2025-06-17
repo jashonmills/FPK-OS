@@ -25,14 +25,11 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     );
     html.classList.remove(...existingClasses);
     
-    // Remove any existing font override styles
-    const existingOverrides = document.querySelectorAll('#accessibility-font-override, #opendyslexic-override');
-    existingOverrides.forEach(el => el.remove());
+    // Reset font family
+    body.style.fontFamily = '';
     
     if (!profile) {
       console.log('🎨 AccessibilityProvider: No profile, clearing all accessibility');
-      // Reset to system font
-      body.style.fontFamily = '';
       html.style.setProperty('--accessibility-font-size', '16px');
       html.style.setProperty('--accessibility-line-height', '1.5');
       return;
@@ -60,66 +57,32 @@ const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ children 
     html.style.setProperty('--accessibility-line-height', lineHeight);
     html.classList.add('accessibility-active');
     
-    // Apply font family with extreme measures for OpenDyslexic
+    // Apply font family using CSS class approach
     const fontFamily = profile.font_family || 'System';
     console.log('🎨 Setting font family:', fontFamily);
     
-    if (fontFamily === 'OpenDyslexic') {
-      // NUCLEAR OPTION: Create a style element that forces OpenDyslexic on EVERYTHING
-      const styleElement = document.createElement('style');
-      styleElement.id = 'opendyslexic-override';
-      styleElement.innerHTML = `
-        * {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        body, body *, html, html * {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        input, textarea, select, button {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        .font-system, .font-arial, .font-georgia, .font-cursive {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-        
-        [style*="font-family"] {
-          font-family: "OpenDyslexic", "Comic Sans MS", cursive !important;
-        }
-      `;
-      document.head.appendChild(styleElement);
-      
-      // Also set it directly on body
-      body.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
-      
-      // Force apply to all existing elements
-      const allElements = document.querySelectorAll('*');
-      allElements.forEach(element => {
-        if (element instanceof HTMLElement) {
-          element.style.setProperty('font-family', '"OpenDyslexic", "Comic Sans MS", cursive', 'important');
-        }
-      });
-      
-      console.log('🎨 Applied NUCLEAR OpenDyslexic override to all elements');
-    } else {
-      // For other fonts, use normal approach
-      switch (fontFamily) {
-        case 'Arial':
-          body.style.fontFamily = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
-          break;
-        case 'Georgia':
-          body.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
-          break;
-        case 'Cursive':
-          body.style.fontFamily = '"Dancing Script", "Brush Script MT", cursive';
-          break;
-        case 'System':
-        default:
-          body.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-          break;
-      }
+    switch (fontFamily) {
+      case 'OpenDyslexic':
+        html.classList.add('font-opendyslexic');
+        body.style.fontFamily = 'Atkinson Hyperlegible, Comic Sans MS, Trebuchet MS, Verdana, sans-serif';
+        break;
+      case 'Arial':
+        html.classList.add('font-arial');
+        body.style.fontFamily = 'Arial, Helvetica Neue, Helvetica, sans-serif';
+        break;
+      case 'Georgia':
+        html.classList.add('font-georgia');
+        body.style.fontFamily = 'Georgia, Times New Roman, Times, serif';
+        break;
+      case 'Cursive':
+        html.classList.add('font-cursive');
+        body.style.fontFamily = 'Dancing Script, Brush Script MT, cursive';
+        break;
+      case 'System':
+      default:
+        html.classList.add('font-system');
+        body.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+        break;
     }
     
     // Apply contrast mode
