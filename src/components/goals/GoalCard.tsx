@@ -14,12 +14,14 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { Calendar, MoreHorizontal, Pause } from 'lucide-react';
 
 interface Goal {
-  id: number;
+  id: string; // Changed from number to string to match UUID
   title: string;
   description: string;
-  status: string;
+  status: 'active' | 'completed' | 'paused';
   progress: number;
-  dueDate: string;
+  target_date: string | null; // Updated to match the actual data structure
+  created_at: string;
+  priority: 'low' | 'medium' | 'high';
 }
 
 interface GoalCardProps {
@@ -30,6 +32,12 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
   const { getAccessibilityClasses } = useAccessibility();
   const textClasses = getAccessibilityClasses('text');
   const cardClasses = getAccessibilityClasses('card');
+
+  // Format the target date for display
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'No due date';
+    return new Date(dateString).toLocaleDateString();
+  };
 
   return (
     <Card className={`fpk-card hover:shadow-lg transition-shadow ${cardClasses}`}>
@@ -52,7 +60,7 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Calendar className="h-4 w-4" />
-          <span className={textClasses}>Due: {goal.dueDate}</span>
+          <span className={textClasses}>Due: {formatDate(goal.target_date)}</span>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
