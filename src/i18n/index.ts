@@ -1,4 +1,3 @@
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -32,12 +31,12 @@ const resources = {
       dashboard: enDashboard,
       courses: enCourses,
       auth: enAuth,
-      settings: enSettings,
       goals: enGoals,
       nav: enNavigation,
       liveHub: enLiveHub,
       preview: enPreview
-    }
+    },
+    settings: enSettings
   },
   zh: {
     translation: zh

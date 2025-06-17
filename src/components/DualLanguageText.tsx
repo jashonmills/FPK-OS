@@ -8,6 +8,7 @@ interface DualLanguageTextProps {
   translationKey: string;
   fallback?: string;
   className?: string;
+  namespace?: string;
   children?: never;
 }
 
@@ -15,8 +16,9 @@ const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   translationKey,
   fallback,
   className = "",
+  namespace = 'translation',
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(namespace);
   const { profile } = useUserProfile();
   const [isDualLanguageEnabled, setIsDualLanguageEnabled] = useState(false);
   
@@ -65,6 +67,7 @@ const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   
   console.log('DualLanguageText render:', { 
     translationKey, 
+    namespace,
     isDualLanguageEnabled, 
     isEnglish, 
     primaryText 
@@ -75,7 +78,7 @@ const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   }
   
   // Get English version for dual language mode
-  const englishText = i18n.getResourceBundle('en', 'translation');
+  const englishText = i18n.getResourceBundle('en', namespace);
   const getNestedValue = (obj: any, path: string) => {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   };

@@ -34,24 +34,24 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
 
   const getTextSizeLabel = (value: number) => {
     const labels = [
-      t('accessibility.extraSmall'),
-      t('accessibility.small'), 
-      t('accessibility.medium'),
-      t('accessibility.large'),
-      t('accessibility.extraLarge')
+      'Extra Small',
+      'Small', 
+      'Medium',
+      'Large',
+      'Extra Large'
     ];
-    return labels[value - 1] || t('accessibility.medium');
+    return labels[value - 1] || 'Medium';
   };
 
   const getLineSpacingLabel = (value: number) => {
     const labels = [
-      t('accessibility.compact'),
-      t('accessibility.tight'),
-      t('accessibility.normal'),
-      t('accessibility.relaxed'),
-      t('accessibility.loose')
+      'Compact',
+      'Tight',
+      'Normal',
+      'Relaxed',
+      'Loose'
     ];
-    return labels[value - 1] || t('accessibility.normal');
+    return labels[value - 1] || 'Normal';
   };
 
   return (
@@ -157,11 +157,11 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
             className="mt-2"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>{t('accessibility.extraSmall')}</span>
-            <span>{t('accessibility.small')}</span>
-            <span>{t('accessibility.medium')}</span>
-            <span>{t('accessibility.large')}</span>
-            <span>{t('accessibility.extraLarge')}</span>
+            <span>Extra Small</span>
+            <span>Small</span>
+            <span>Medium</span>
+            <span>Large</span>
+            <span>Extra Large</span>
           </div>
         </div>
 
@@ -177,11 +177,11 @@ const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({
             className="mt-2"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>{t('accessibility.compact')}</span>
-            <span>{t('accessibility.tight')}</span>
-            <span>{t('accessibility.normal')}</span>
-            <span>{t('accessibility.relaxed')}</span>
-            <span>{t('accessibility.loose')}</span>
+            <span>Compact</span>
+            <span>Tight</span>
+            <span>Normal</span>
+            <span>Relaxed</span>
+            <span>Loose</span>
           </div>
         </div>
 

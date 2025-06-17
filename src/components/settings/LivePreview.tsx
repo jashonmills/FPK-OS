@@ -37,20 +37,20 @@ const LivePreview: React.FC<LivePreviewProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-purple-700">
           <Eye className="h-5 w-5" />
-          {t('preview.title')}
+          Live Preview
         </CardTitle>
         <p className="text-sm text-gray-600">
-          {t('preview.description')}
+          This preview shows how your accessibility settings affect the display
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Sample content that shows accessibility settings in action */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Sample Content</h3>
+          <h3 className="text-lg font-semibold">Sample Learning Content</h3>
           
           <p className="text-base">
-            This text demonstrates how your accessibility settings affect readability. 
-            You can see the font family, size, and spacing changes applied in real-time.
+            This is how your learning content will appear with your current settings. 
+            You can adjust the font, size, spacing, and other preferences to create the most comfortable reading experience for you.
           </p>
           
           <div className="flex gap-2">
@@ -66,17 +66,17 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           <div className="bg-muted p-3 rounded-lg">
             <h4 className="font-medium mb-2">Current Settings:</h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <span><strong>{t('preview.fontLabel')}:</strong> {fontFamily}</span>
-              <span><strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)}</span>
-              <span><strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)}</span>
-              <span><strong>{t('preview.contrastLabel')}:</strong> {colorContrast}</span>
-              <span><strong>{t('preview.comfortLabel')}:</strong> {comfortMode}</span>
+              <span><strong>Font:</strong> {fontFamily}</span>
+              <span><strong>Size:</strong> {getTextSizeLabel(textSize)}</span>
+              <span><strong>Spacing:</strong> {getLineSpacingLabel(lineSpacing)}</span>
+              <span><strong>Contrast:</strong> {colorContrast}</span>
+              <span><strong>Comfort Mode:</strong> {comfortMode}</span>
             </div>
           </div>
           
           <div className="border-l-4 border-amber-400 bg-amber-50 p-3 rounded-r">
             <p className="text-amber-800 font-medium text-sm">
-              💡 {t('preview.tip')}
+              💡 Pro Tip: These settings apply to the entire application immediately. Navigate to other pages to see the global effect!
             </p>
           </div>
         </div>
