@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from '@/hooks/useAuth';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { I18nextProvider } from 'react-i18next';
@@ -49,56 +50,58 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <GamificationProvider>
-          <VoiceSettingsProvider>
-            <AccessibilityProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/login" element={<Login />} />
-                      
-                      {/* Dashboard Routes */}
-                      <Route path="/dashboard/*" element={<DashboardLayout />}>
-                        <Route path="learner" element={<LearnerHome />} />
-                        <Route path="learner/library" element={<Library />} />
-                        <Route path="learner/courses" element={<MyCourses />} />
-                        <Route path="learner/goals" element={<Goals />} />
-                        <Route path="learner/notes" element={<Notes />} />
-                        <Route path="learner/gamification" element={<Gamification />} />
-                        <Route path="learner/settings" element={<Settings />} />
-                        <Route path="learner/analytics" element={<LearningAnalytics />} />
-                        <Route path="learner/ai-coach" element={<AIStudyCoach />} />
-                        <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
-                        <Route path="learner/live-hub" element={<LiveLearningHub />} />
-                        <Route path="learner/course/:courseId" element={<DynamicCourse />} />
-                        <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
-                        <Route path="learner/learning-state-embed/:moduleId" element={<LearningStateEmbed />} />
+        <AuthProvider>
+          <GamificationProvider>
+            <VoiceSettingsProvider>
+              <AccessibilityProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/login" element={<Login />} />
                         
-                        {/* Admin Routes */}
-                        <Route path="admin" element={<AdminDashboard />} />
-                        <Route path="admin/users" element={<UserManagement />} />
-                        <Route path="admin/courses" element={<CourseManager />} />
-                        <Route path="admin/analytics" element={<Analytics />} />
-                        <Route path="admin/modules" element={<ModuleManagerPage />} />
-                        <Route path="admin/thresholds" element={<ThresholdManagement />} />
+                        {/* Dashboard Routes */}
+                        <Route path="/dashboard/*" element={<DashboardLayout />}>
+                          <Route path="learner" element={<LearnerHome />} />
+                          <Route path="learner/library" element={<Library />} />
+                          <Route path="learner/courses" element={<MyCourses />} />
+                          <Route path="learner/goals" element={<Goals />} />
+                          <Route path="learner/notes" element={<Notes />} />
+                          <Route path="learner/gamification" element={<Gamification />} />
+                          <Route path="learner/settings" element={<Settings />} />
+                          <Route path="learner/analytics" element={<LearningAnalytics />} />
+                          <Route path="learner/ai-coach" element={<AIStudyCoach />} />
+                          <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
+                          <Route path="learner/live-hub" element={<LiveLearningHub />} />
+                          <Route path="learner/course/:courseId" element={<DynamicCourse />} />
+                          <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
+                          <Route path="learner/learning-state-embed/:moduleId" element={<LearningStateEmbed />} />
+                          
+                          {/* Admin Routes */}
+                          <Route path="admin" element={<AdminDashboard />} />
+                          <Route path="admin/users" element={<UserManagement />} />
+                          <Route path="admin/courses" element={<CourseManager />} />
+                          <Route path="admin/analytics" element={<Analytics />} />
+                          <Route path="admin/modules" element={<ModuleManagerPage />} />
+                          <Route path="admin/thresholds" element={<ThresholdManagement />} />
+                          
+                          {/* Default redirect */}
+                          <Route index element={<Navigate to="learner" replace />} />
+                        </Route>
                         
-                        {/* Default redirect */}
-                        <Route index element={<Navigate to="learner" replace />} />
-                      </Route>
-                      
-                      {/* 404 Route */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                </BrowserRouter>
-              </TooltipProvider>
-            </AccessibilityProvider>
-          </VoiceSettingsProvider>
-        </GamificationProvider>
+                        {/* 404 Route */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </Suspense>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </AccessibilityProvider>
+            </VoiceSettingsProvider>
+          </GamificationProvider>
+        </AuthProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );
