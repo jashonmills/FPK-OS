@@ -18,6 +18,33 @@
     "bio": "Bio",
     "bioPlaceholder": "Tell us a bit about yourself..."
   },
+  "accessibility": {
+    "title": "Accessibility & Display",
+    "fontFamily": "Font Family",
+    "fontHelp": "Choose a font that's comfortable for reading. OpenDyslexic is designed for dyslexia.",
+    "systemFont": "System Default",
+    "colorContrast": "Color Contrast",
+    "standard": "Standard",
+    "highContrast": "High Contrast",
+    "comfortMode": "Comfort Mode",
+    "comfortHelp": "Adjust the interface to reduce distractions and improve focus.",
+    "normal": "Normal",
+    "lowStimulus": "Low-Stimulus",
+    "focusMode": "Focus Mode",
+    "textSize": "Text Size",
+    "extraSmall": "Extra Small",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "extraLarge": "Extra Large",
+    "lineSpacing": "Line Spacing",
+    "compact": "Compact",
+    "tight": "Tight",
+    "relaxed": "Relaxed",
+    "loose": "Loose",
+    "speechToText": "Speech to Text",
+    "speechToTextDesc": "Enable voice input for accessibility"
+  },
   "notifications": {
     "emailTitle": "Email Notifications",
     "newCourses": "New Course Announcements",
@@ -53,6 +80,7 @@
     "sizeLabel": "Text Size",
     "spacingLabel": "Line Spacing",
     "contrastLabel": "Color Contrast",
-    "comfortLabel": "Comfort Mode"
+    "comfortLabel": "Comfort Mode",
+    "tip": "Pro Tip: These settings apply to the entire application immediately. Navigate to other pages to see the global effect!"
   }
 }

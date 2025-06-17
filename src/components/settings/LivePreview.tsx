@@ -2,6 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { Eye, Settings } from 'lucide-react';
 
 interface LivePreviewProps {
   fontFamily: string;
@@ -18,7 +20,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   colorContrast,
   comfortMode
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('settings');
 
   const getTextSizeLabel = (value: number) => {
     const labels = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large'];
@@ -30,38 +32,51 @@ const LivePreview: React.FC<LivePreviewProps> = ({
     return labels[value - 1] || 'Normal';
   };
 
-  console.log('LivePreview props:', { fontFamily, textSize, lineSpacing, colorContrast, comfortMode });
-
   return (
-    <Card className="fpk-card border-2 border-purple-200 shadow-lg">
+    <Card className="border-2 border-purple-200 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-purple-700">
-          {t('preview.title')} - Live Preview
+        <CardTitle className="flex items-center gap-2 text-purple-700">
+          <Eye className="h-5 w-5" />
+          {t('preview.title')}
         </CardTitle>
         <p className="text-sm text-gray-600">
-          This preview shows how your accessibility settings affect the actual interface. 
-          Changes apply globally across the entire application.
+          {t('preview.description')}
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="space-y-4">
+        {/* Sample content that shows accessibility settings in action */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Sample Content</h3>
+          
           <p className="text-base">
-            {t('preview.description')}
+            This text demonstrates how your accessibility settings affect readability. 
+            You can see the font family, size, and spacing changes applied in real-time.
           </p>
           
-          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-            <p className="font-semibold">Current Settings:</p>
-            <p><strong>{t('preview.fontLabel')}:</strong> {fontFamily}</p>
-            <p><strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)}</p>
-            <p><strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)}</p>
-            <p><strong>{t('preview.contrastLabel')}:</strong> {colorContrast}</p>
-            <p><strong>{t('preview.comfortLabel')}:</strong> <em>{comfortMode}</em></p>
+          <div className="flex gap-2">
+            <Button size="sm" variant="default">
+              <Settings className="h-4 w-4 mr-2" />
+              Sample Button
+            </Button>
+            <Button size="sm" variant="outline">
+              Secondary Action
+            </Button>
           </div>
           
-          <div className="border-l-4 border-amber-400 bg-amber-50 p-3">
-            <p className="text-amber-800 font-medium">
-              💡 Pro Tip: These settings apply to the entire application immediately. 
-              Navigate to other pages to see the global effect!
+          <div className="bg-muted p-3 rounded-lg">
+            <h4 className="font-medium mb-2">Current Settings:</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <span><strong>{t('preview.fontLabel')}:</strong> {fontFamily}</span>
+              <span><strong>{t('preview.sizeLabel')}:</strong> {getTextSizeLabel(textSize)}</span>
+              <span><strong>{t('preview.spacingLabel')}:</strong> {getLineSpacingLabel(lineSpacing)}</span>
+              <span><strong>{t('preview.contrastLabel')}:</strong> {colorContrast}</span>
+              <span><strong>{t('preview.comfortLabel')}:</strong> {comfortMode}</span>
+            </div>
+          </div>
+          
+          <div className="border-l-4 border-amber-400 bg-amber-50 p-3 rounded-r">
+            <p className="text-amber-800 font-medium text-sm">
+              💡 {t('preview.tip')}
             </p>
           </div>
         </div>
