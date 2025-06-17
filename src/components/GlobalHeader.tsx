@@ -55,7 +55,7 @@ const GlobalHeader = () => {
               <span className="text-white font-bold text-sm">FPK</span>
             </div>
             <span className="font-semibold text-lg">
-              <DualLanguageText translationKey="common.learnerPortal" />
+              Learner Portal
             </span>
           </div>
         </div>
@@ -65,7 +65,7 @@ const GlobalHeader = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t('common.searchPlaceholder')}
+              placeholder="Search courses, notes, and more..."
               className="pl-10 bg-muted/50"
             />
           </div>
@@ -99,20 +99,20 @@ const GlobalHeader = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
-                <DualLanguageText translationKey="common.myAccount" />
+                My Account
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
                 <User className="mr-2 h-4 w-4" />
-                <DualLanguageText translationKey="common.profileSettings" />
+                Profile Settings
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
-                <DualLanguageText translationKey="common.preferences" />
+                Preferences
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                <DualLanguageText translationKey="common.signOut" />
+                Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

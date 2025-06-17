@@ -18,7 +18,12 @@ const DualLanguageText: React.FC<DualLanguageTextProps> = ({
 }) => {
   const { t, renderText } = useGlobalTranslation(namespace);
   
-  const translatedText = t(translationKey, fallback);
+  // Extract the actual key from the full path (e.g., "nav.home" from "nav.home")
+  const keyParts = translationKey.split('.');
+  const actualKey = keyParts.length > 1 ? keyParts[keyParts.length - 1] : translationKey;
+  
+  // Try to get translation, fallback to the actual key or provided fallback
+  const translatedText = t(translationKey, fallback || actualKey);
   
   return (
     <span className={className}>

@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -31,7 +32,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useDualLanguage } from "@/hooks/useDualLanguage";
+import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 
 export function AppSidebar() {
@@ -40,31 +41,31 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const { isAdmin, isInstructor } = useUserRole();
-  const { t } = useDualLanguage();
+  const { t, tString } = useGlobalTranslation();
 
   const learnerMenuItems = [
     {
-      title: 'nav.home',
+      title: 'Home',
       url: "/dashboard/learner",
       icon: Home,
     },
     {
-      title: 'nav.courses',
+      title: 'Courses',
       url: "/dashboard/learner/courses",
       icon: Book,
     },
     {
-      title: 'nav.library',
+      title: 'Library',
       url: "/dashboard/learner/library",
       icon: BookOpen,
     },
     {
-      title: 'nav.analytics',
+      title: 'Analytics',
       url: "/dashboard/learner/analytics",
       icon: BarChart,
     },
     {
-      title: 'nav.liveHub',
+      title: 'Live Hub',
       url: "/dashboard/learner/live-hub",
       icon: Compass,
     },
@@ -74,12 +75,12 @@ export function AppSidebar() {
       icon: BookUser,
     },
     {
-      title: 'nav.goals',
+      title: 'Goals',
       url: "/dashboard/learner/goals",
       icon: Award,
     },
     {
-      title: 'nav.notes',
+      title: 'Notes',
       url: "/dashboard/learner/notes",
       icon: StickyNote,
     },
@@ -116,7 +117,7 @@ export function AppSidebar() {
 
   const footerItems = [
     {
-      title: 'nav.settings',
+      title: 'Settings',
       url: "/dashboard/learner/settings",
       icon: Settings,
     },
@@ -163,22 +164,6 @@ export function AppSidebar() {
     }
   };
 
-  // Helper function to render dual language text
-  const renderDualText = (translationKey: string, className?: string) => {
-    const text = t(translationKey);
-    
-    if (typeof text === 'string') {
-      return <span className={className}>{text}</span>;
-    }
-    
-    return (
-      <span className={className}>
-        <span className="block">{text.primary}</span>
-        <span className="block text-xs text-sidebar-foreground/50 italic">{text.english}</span>
-      </span>
-    );
-  };
-
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
@@ -189,7 +174,7 @@ export function AppSidebar() {
           <div>
             <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
             <p className="text-xs text-sidebar-foreground/70">
-              <DualLanguageText translationKey="common.learnerPortal" />
+              Learner Portal
               {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
             </p>
           </div>
@@ -231,7 +216,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            <DualLanguageText translationKey="common.learningDashboard" />
+            Learning Dashboard
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -250,7 +235,7 @@ export function AppSidebar() {
                       className="flex items-center gap-3 w-full text-left"
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {renderDualText(item.title)}
+                      <span>{item.title}</span>
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -261,7 +246,7 @@ export function AppSidebar() {
 
         <SidebarGroup className="mt-8">
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            <DualLanguageText translationKey="common.support" />
+            Support
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -280,7 +265,7 @@ export function AppSidebar() {
                       className="flex items-center gap-3 w-full text-left"
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {renderDualText(item.title)}
+                      <span>{item.title}</span>
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -309,7 +294,7 @@ export function AppSidebar() {
           size="sm" 
           className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
         >
-          <DualLanguageText translationKey="common.signOut" />
+          Sign Out
         </Button>
       </SidebarFooter>
     </Sidebar>

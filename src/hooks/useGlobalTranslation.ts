@@ -47,19 +47,38 @@ export const useGlobalTranslation = (namespace: string = 'common') => {
     };
   }, []);
 
+  // Simple translation function with fallbacks
+  const getTranslation = (key: string, fallback?: string) => {
+    // Try to get translation from current namespace
+    const translation = originalT(key);
+    
+    // If translation equals the key (meaning no translation found), use fallback
+    if (translation === key) {
+      if (fallback) return fallback;
+      
+      // Extract readable text from key (e.g., "nav.home" -> "Home")
+      const keyParts = key.split('.');
+      const lastPart = keyParts[keyParts.length - 1];
+      return lastPart.charAt(0).toUpperCase() + lastPart.slice(1);
+    }
+    
+    return translation;
+  };
+
   const t = (key: string, fallback?: string): string | { primary: string; english: string } => {
-    const primaryText = originalT(key, fallback || key);
+    const primaryText = getTranslation(key, fallback);
     
     if (!isDualLanguageEnabled || isEnglish) {
       return primaryText;
     }
     
-    // Get English version for dual language mode
-    const englishTranslation = i18n.getResourceBundle('en', namespace)?.[key] || fallback || key;
+    // For dual language mode, try to get English version
+    const englishTranslation = i18n.getResourceBundle('en', namespace)?.[key];
+    const englishText = englishTranslation || fallback || primaryText;
     
     return {
       primary: primaryText,
-      english: englishTranslation,
+      english: englishText,
     };
   };
 
@@ -68,7 +87,7 @@ export const useGlobalTranslation = (namespace: string = 'common') => {
     return typeof result === 'string' ? result : result.primary;
   };
 
-  const renderText = (text: string | { primary: string; english: string }, className?: string) => {
+  const renderText = (text: string | { primary: string; english: string }, className?: string): React.ReactNode => {
     if (typeof text === 'string') {
       return text;
     }
