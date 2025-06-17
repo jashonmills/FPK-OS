@@ -1,3 +1,4 @@
+
 import { Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -17,7 +18,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import LearnerHome from "./pages/dashboard/LearnerHome";
 import Library from "./pages/dashboard/Library";
 import MyCourses from "./pages/dashboard/MyCourses";
-import { GoalsDashboard } from "./components/goals/GoalsDashboard";
+import Goals from "./pages/dashboard/Goals";
 import Notes from "./pages/dashboard/Notes";
 import Gamification from "./pages/dashboard/Gamification";
 import Settings from "./pages/dashboard/Settings";
@@ -67,7 +68,7 @@ function App() {
                           <Route path="learner" element={<LearnerHome />} />
                           <Route path="learner/library" element={<Library />} />
                           <Route path="learner/courses" element={<MyCourses />} />
-                          <Route path="learner/goals" element={<GoalsDashboard />} />
+                          <Route path="learner/goals" element={<Goals />} />
                           <Route path="learner/notes" element={<Notes />} />
                           <Route path="learner/gamification" element={<Gamification />} />
                           <Route path="learner/settings" element={<Settings />} />

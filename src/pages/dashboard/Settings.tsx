@@ -41,6 +41,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Settings = () => {
+  // Use the 'settings' namespace for all translations
   const { t, tString, renderText } = useGlobalTranslation('settings');
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, saving, updateProfile, changePassword } = useUserProfile();
@@ -309,8 +310,8 @@ const Settings = () => {
     
     setFormData(defaultData);
     toast({
-      title: tString('settingsRestored'),
-      description: tString('defaultsMessage'),
+      title: renderText(t('settingsRestored')),
+      description: renderText(t('defaultsMessage')),
     });
   };
 
@@ -337,27 +338,25 @@ const Settings = () => {
             <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
               {renderText(t('title'))}
             </h1>
-            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>
-              {renderText(t('subtitle'))}
-            </p>
+            <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>{renderText(t('subtitle'))}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
             {saving && (
               <div className={`flex items-center gap-2 text-sm text-blue-600 ${textClasses}`}>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {tString('saving')}
+                {renderText(t('saving'))}
               </div>
             )}
             {!saving && hasUnsavedChanges && (
               <div className={`flex items-center gap-2 text-sm text-amber-600 ${textClasses}`}>
                 <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
-                {tString('autoSavePending')}
+                {renderText(t('autoSavePending'))}
               </div>
             )}
             {!saving && !hasUnsavedChanges && !isInitializing.current && (
               <div className={`flex items-center gap-2 text-sm text-green-600 ${textClasses}`}>
                 <Check className="h-4 w-4" />
-                {tString('allChangesSaved')}
+                {renderText(t('allChangesSaved'))}
               </div>
             )}
             <Button
@@ -367,7 +366,7 @@ const Settings = () => {
               className={`gap-2 w-full sm:w-auto ${textClasses}`}
             >
               <RotateCcw className="h-4 w-4" />
-              {tString('restoreDefaults')}
+              {renderText(t('restoreDefaults'))}
             </Button>
           </div>
         </div>

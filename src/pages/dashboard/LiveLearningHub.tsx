@@ -1,231 +1,118 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAccessibility } from '@/hooks/useAccessibility';
-import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
-import { 
-  Video, 
-  Users, 
-  Calendar, 
-  Clock, 
-  Plus, 
-  Play, 
-  Mic, 
-  MicOff, 
-  Camera, 
-  CameraOff,
-  Share,
-  MessageCircle,
-  BookOpen,
-  Globe
-} from 'lucide-react';
+import { Compass, Calendar, Users, Video } from 'lucide-react';
+import DualLanguageText from '@/components/DualLanguageText';
+import LiveHubAPODCard from '@/components/dashboard/LiveHubAPODCard';
+import VisualOfTheWeekCarousel from '@/components/dashboard/VisualOfTheWeekCarousel';
+import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
+import ModelViewerModal from '@/components/dashboard/ModelViewerModal';
+import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
+import { MuseumItem } from '@/services/MuseumService';
 
 const LiveLearningHub = () => {
-  const { t, renderText, tString } = useGlobalTranslation('liveHub');
-  const { getAccessibilityClasses } = useAccessibility();
+  const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
+  const [isModelViewerOpen, setIsModelViewerOpen] = useState(false);
+  const [selectedMuseumItem, setSelectedMuseumItem] = useState<MuseumItem | null>(null);
 
-  // Apply accessibility classes
-  const containerClasses = getAccessibilityClasses('container');
-  const textClasses = getAccessibilityClasses('text');
-  const cardClasses = getAccessibilityClasses('card');
+  const handleAPODLearnMore = () => {
+    setIsAPODModalOpen(true);
+  };
 
-  // Mock data for live sessions
-  const mockSessions = [
-    {
-      id: 'session1',
-      title: 'Advanced React Patterns',
-      instructor: 'Sarah Drasner',
-      time: '14:00 - 15:30',
-      attendees: 45,
-      avatar: 'https://avatars1.githubusercontent.com/u/12679192?s=460&v=4',
-    },
-    {
-      id: 'session2',
-      title: 'AI and Machine Learning Basics',
-      instructor: 'Andrej Karpathy',
-      time: '16:00 - 17:00',
-      attendees: 62,
-      avatar: 'https://avatars4.githubusercontent.com/u/874851?s=460&v=4',
-    },
-  ];
+  const handleCloseAPODModal = () => {
+    setIsAPODModalOpen(false);
+  };
 
-  // Mock data for upcoming events
-  const mockEvents = [
-    {
-      id: 'event1',
-      title: 'React Native Workshop',
-      date: 'July 22, 2024',
-      time: '10:00 - 16:00',
-    },
-    {
-      id: 'event2',
-      title: 'GraphQL Deep Dive',
-      date: 'July 28, 2024',
-      time: '13:00 - 15:00',
-    },
-  ];
+  const handleMuseumItemClick = (item: MuseumItem) => {
+    setSelectedMuseumItem(item);
+    setIsModelViewerOpen(true);
+  };
 
-  const SessionCard = ({ session, textClasses }: any) => (
-    <Card className={`fpk-card ${textClasses}`}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={session.avatar} alt={session.instructor} />
-              <AvatarFallback>{session.instructor.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle className={textClasses}>{session.title}</CardTitle>
-              <p className={`text-sm text-gray-600 ${textClasses}`}>{session.instructor}</p>
-            </div>
-          </div>
-          <Badge variant="secondary" className={textClasses}>Live</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-gray-500" />
-          <span className={`text-sm text-gray-600 ${textClasses}`}>{session.time}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-gray-500" />
-          <span className={`text-sm text-gray-600 ${textClasses}`}>{session.attendees}</span>
-        </div>
-        <Button variant="outline" size="sm" className={`col-span-2 w-full justify-center gap-2 ${textClasses}`}>
-          <Play className="h-4 w-4" />
-          Join Session
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  const EventCard = ({ event, textClasses }: any) => (
-    <Card className={`fpk-card ${textClasses}`}>
-      <CardHeader>
-        <CardTitle className={textClasses}>{event.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <span className={`text-sm text-gray-600 ${textClasses}`}>{event.date}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-gray-500" />
-          <span className={`text-sm text-gray-600 ${textClasses}`}>{event.time}</span>
-        </div>
-        <Button variant="outline" size="sm" className={`w-full justify-center gap-2 ${textClasses}`}>
-          <BookOpen className="h-4 w-4" />
-          View Details
-        </Button>
-      </CardContent>
-    </Card>
-  );
+  const handleCloseModelViewer = () => {
+    setIsModelViewerOpen(false);
+    setSelectedMuseumItem(null);
+  };
 
   return (
-    <div className={`p-3 md:p-6 space-y-4 md:space-y-6 ${containerClasses}`}>
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        <div>
-          <h1 className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-700 to-amber-600 bg-clip-text text-transparent ${textClasses}`}>
-            {renderText(t('title'))}
-          </h1>
-          <p className={`text-gray-600 mt-1 text-sm md:text-base ${textClasses}`}>
-            {renderText(t('subtitle'))}
-          </p>
-        </div>
+    <div className="p-4 sm:p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          <DualLanguageText translationKey="liveHub.title" />
+        </h1>
+        <p className="text-gray-600">
+          <DualLanguageText translationKey="liveHub.subtitle" />
+        </p>
+      </div>
+
+      {/* Daily Discovery Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800">Daily Discovery</h2>
         
-        <Button className={`gap-2 ${textClasses}`}>
-          <Plus className="h-4 w-4" />
-          {renderText(t('scheduleSession'))}
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Live Sessions */}
-        <div className="lg:col-span-2">
-          <Card className={`fpk-card mb-6 ${cardClasses}`}>
-            <CardHeader>
-              <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                <Video className="h-5 w-5 text-red-600" />
-                {renderText(t('liveSessions'))}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {mockSessions.length > 0 ? (
-                <div className="space-y-4">
-                  {mockSessions.map((session) => (
-                    <SessionCard key={session.id} session={session} textClasses={textClasses} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Video className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className={`text-lg font-semibold mb-2 ${textClasses}`}>
-                    {renderText(t('noSessions'))}
-                  </h3>
-                  <p className={`text-gray-600 mb-4 ${textClasses}`}>
-                    {renderText(t('noSessionsDesc'))}
-                  </p>
-                  <Button className={textClasses}>
-                    {renderText(t('scheduleSession'))}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Top Row: Weather spans full width */}
+        <div className="w-full">
+          <WeatherScienceLabCard />
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-4 md:space-y-6">
-          {/* Upcoming Events */}
-          <Card className={`fpk-card ${cardClasses}`}>
-            <CardHeader>
-              <CardTitle className={`flex items-center gap-2 ${textClasses}`}>
-                <Calendar className="h-5 w-5 text-blue-600" />
-                {renderText(t('upcomingEvents'))}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {mockEvents.length > 0 ? (
-                <div className="space-y-3">
-                  {mockEvents.map((event) => (
-                    <EventCard key={event.id} event={event} textClasses={textClasses} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <Calendar className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                  <p className={`text-sm text-gray-600 ${textClasses}`}>
-                    {renderText(t('noEventsDesc'))}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className={`fpk-card ${cardClasses}`}>
-            <CardHeader>
-              <CardTitle className={textClasses}>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className={`w-full justify-start gap-2 ${textClasses}`}>
-                <Video className="h-4 w-4" />
-                Start Instant Session
-              </Button>
-              <Button variant="outline" className={`w-full justify-start gap-2 ${textClasses}`}>
-                <Calendar className="h-4 w-4" />
-                Schedule Session
-              </Button>
-              <Button variant="outline" className={`w-full justify-start gap-2 ${textClasses}`}>
-                <Users className="h-4 w-4" />
-                Join Study Group
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Second Row: NASA APOD and Visual of the Week side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LiveHubAPODCard onLearnMore={handleAPODLearnMore} />
+          <VisualOfTheWeekCarousel onItemClick={handleMuseumItemClick} />
         </div>
       </div>
+
+      {/* Existing Live Sessions Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="fpk-card border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5 text-red-600" />
+              <DualLanguageText translationKey="liveHub.liveSessions" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-12">
+            <Video className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <DualLanguageText translationKey="liveHub.noSessions" />
+            </h3>
+            <p className="text-gray-500 mb-4">
+              <DualLanguageText translationKey="liveHub.noSessionsDesc" />
+            </p>
+            <Button className="fpk-gradient text-white">
+              <DualLanguageText translationKey="liveHub.scheduleSession" />
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="fpk-card border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              <DualLanguageText translationKey="liveHub.upcomingEvents" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-12">
+            <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <DualLanguageText translationKey="liveHub.noEvents" />
+            </h3>
+            <p className="text-gray-500">
+              <DualLanguageText translationKey="liveHub.noEventsDesc" />
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Modals */}
+      <APODGalleryModal
+        isOpen={isAPODModalOpen}
+        onClose={handleCloseAPODModal}
+      />
+
+      <ModelViewerModal
+        isOpen={isModelViewerOpen}
+        onClose={handleCloseModelViewer}
+        item={selectedMuseumItem}
+      />
     </div>
   );
 };
