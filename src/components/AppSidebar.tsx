@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -164,7 +165,7 @@ export function AppSidebar() {
 
   const handleNavigation = (item: any) => {
     if (item.isExternal) {
-      window.open(item.url, '_blank');
+      window.location.href = item.url;
     } else {
       navigate(item.url);
     }
@@ -298,7 +299,7 @@ export function AppSidebar() {
           onClick={handleLogout}
           variant="outline" 
           size="sm" 
-          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
+          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent relative z-10"
         >
           Sign Out
         </Button>
