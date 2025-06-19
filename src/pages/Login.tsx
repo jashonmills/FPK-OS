@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
@@ -260,7 +260,15 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-4">
+          <Button
+            variant="outline"
+            onClick={() => window.open('https://demo.fpkuniversity.com/', '_blank')}
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Return to Home
+          </Button>
           <p className="text-white/60 text-sm">
             {tString('betaVersion')}
           </p>

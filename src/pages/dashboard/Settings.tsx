@@ -59,7 +59,7 @@ const Settings = () => {
   // Refs to track state and prevent infinite loops
   const isInitializing = useRef(true);
   const lastSavedData = useRef<any>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>();
   const isSaving = useRef(false);
 
   // Redirect if not authenticated
