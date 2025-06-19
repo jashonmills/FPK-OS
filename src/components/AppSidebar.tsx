@@ -299,7 +299,7 @@ export function AppSidebar() {
           onClick={handleLogout}
           variant="outline" 
           size="sm" 
-          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
+          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent bg-background"
         >
           Sign Out
         </Button>
