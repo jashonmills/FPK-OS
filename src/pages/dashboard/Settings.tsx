@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -378,48 +377,48 @@ const Settings = () => {
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <User className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Profile</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>Profile</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.profile')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.profile')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="language" 
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Globe className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Language</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>Lang</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.language')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.languageShort')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="accessibility" 
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Eye className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Accessibility</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>A11y</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.accessibility')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.accessibilityShort')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="notifications" 
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Bell className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Notifications</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>Notif</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.notifications')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.notificationsShort')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Shield className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Security</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>Sec</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.security')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.securityShort')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="integrations" 
               className={`flex items-center gap-2 ${isMobile ? 'justify-start py-3 px-4 w-full' : ''} ${textClasses}`}
             >
               <Link className="h-4 w-4" />
-              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>Integrations</span>
-              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>Apps</span>
+              <span className={isMobile ? 'text-sm' : 'hidden sm:inline'}>{tString('tabs.integrations')}</span>
+              <span className={isMobile ? 'hidden' : 'inline sm:hidden'}>{tString('tabs.integrationsShort')}</span>
             </TabsTrigger>
           </TabsList>
 
