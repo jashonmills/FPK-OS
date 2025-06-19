@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -296,9 +297,9 @@ export function AppSidebar() {
         </div>
         <Button 
           onClick={handleLogout}
-          variant="outline" 
+          variant="ghost"
           size="sm" 
-          className="w-full text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent"
+          className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           Sign Out
         </Button>
