@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +25,8 @@ import {
   Compass,
   GraduationCap,
   Shield,
-  BookOpen
+  BookOpen,
+  ExternalLink
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -120,6 +120,12 @@ export function AppSidebar() {
       title: 'Settings',
       url: "/dashboard/learner/settings",
       icon: Settings,
+    },
+    {
+      title: 'Exit',
+      url: "https://demo.fpkuniversity.com/",
+      icon: ExternalLink,
+      isExternal: true,
     },
   ];
 
@@ -261,7 +267,7 @@ export function AppSidebar() {
                     }`}
                   >
                     <button
-                      onClick={() => navigate(item.url)}
+                      onClick={() => handleNavigation(item)}
                       className="flex items-center gap-3 w-full text-left"
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
