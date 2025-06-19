@@ -10,11 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslation } from 'react-i18next';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Login = () => {
-  const { t } = useTranslation();
+  const { tString } = useGlobalTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -57,8 +57,8 @@ const Login = () => {
       }
 
       toast({
-        title: t('auth.welcomeBack'),
-        description: t('auth.signInSuccess'),
+        title: tString('welcomeBack'),
+        description: tString('signInSuccess'),
       });
       
       navigate('/dashboard/learner');
@@ -105,8 +105,8 @@ const Login = () => {
       }
 
       toast({
-        title: t('auth.accountCreated'),
-        description: t('auth.checkEmail'),
+        title: tString('accountCreated'),
+        description: tString('checkEmail'),
       });
       
     } catch (err) {
@@ -120,7 +120,7 @@ const Login = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber">
-        <div className="text-white">{t('common.loading')}</div>
+        <div className="text-white">Loading...</div>
       </div>
     );
   }
@@ -131,8 +131,8 @@ const Login = () => {
         <div className="text-center mb-8">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white mb-2">{t('auth.title')}</h1>
-              <p className="text-white/80">{t('auth.subtitle')}</p>
+              <h1 className="text-4xl font-bold text-white mb-2">{tString('title')}</h1>
+              <p className="text-white/80">{tString('subtitle')}</p>
             </div>
             <div className="ml-4">
               <LanguageSwitcher />
@@ -143,14 +143,14 @@ const Login = () => {
         <Card className="fpk-card shadow-2xl border-0">
           <CardHeader className="text-center pb-4">
             <CardTitle className="fpk-text-gradient text-2xl font-bold">
-              {t('auth.portalTitle')}
+              {tString('portalTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">{t('auth.signIn')}</TabsTrigger>
-                <TabsTrigger value="signup">{t('auth.signUp')}</TabsTrigger>
+                <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
               </TabsList>
 
               {error && (
@@ -164,11 +164,11 @@ const Login = () => {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
+                    <Label htmlFor="signin-email">{tString('email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
-                      placeholder={t('auth.emailPlaceholder')}
+                      placeholder={tString('emailPlaceholder')}
                       value={signInData.email}
                       onChange={(e) => setSignInData({...signInData, email: e.target.value})}
                       required
@@ -176,11 +176,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
+                    <Label htmlFor="signin-password">{tString('password')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
-                      placeholder={t('auth.passwordPlaceholder')}
+                      placeholder={tString('passwordPlaceholder')}
                       value={signInData.password}
                       onChange={(e) => setSignInData({...signInData, password: e.target.value})}
                       required
@@ -192,7 +192,7 @@ const Login = () => {
                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
                     disabled={isLoading}
                   >
-                    {isLoading ? t('auth.signingIn') : t('auth.signInButton')}
+                    {isLoading ? tString('signingIn') : tString('signInButton')}
                   </Button>
                 </form>
               </TabsContent>
@@ -200,11 +200,11 @@ const Login = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">{t('auth.displayName')}</Label>
+                    <Label htmlFor="signup-name">{tString('displayName')}</Label>
                     <Input
                       id="signup-name"
                       type="text"
-                      placeholder={t('auth.fullNamePlaceholder')}
+                      placeholder={tString('fullNamePlaceholder')}
                       value={signUpData.displayName}
                       onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
                       required
@@ -212,11 +212,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">{t('auth.email')}</Label>
+                    <Label htmlFor="signup-email">{tString('email')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder={t('auth.emailPlaceholder')}
+                      placeholder={tString('emailPlaceholder')}
                       value={signUpData.email}
                       onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
                       required
@@ -224,11 +224,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">{t('auth.password')}</Label>
+                    <Label htmlFor="signup-password">{tString('password')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder={t('auth.createPassword')}
+                      placeholder={tString('createPassword')}
                       value={signUpData.password}
                       onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
                       required
@@ -236,11 +236,11 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm">{t('auth.confirmPassword')}</Label>
+                    <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
                     <Input
                       id="signup-confirm"
                       type="password"
-                      placeholder={t('auth.confirmPasswordPlaceholder')}
+                      placeholder={tString('confirmPasswordPlaceholder')}
                       value={signUpData.confirmPassword}
                       onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
                       required
@@ -252,7 +252,7 @@ const Login = () => {
                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
                     disabled={isLoading}
                   >
-                    {isLoading ? t('auth.creatingAccount') : t('auth.signUpButton')}
+                    {isLoading ? tString('creatingAccount') : tString('signUpButton')}
                   </Button>
                 </form>
               </TabsContent>
@@ -262,7 +262,7 @@ const Login = () => {
 
         <div className="text-center mt-6">
           <p className="text-white/60 text-sm">
-            {t('auth.betaVersion')}
+            {tString('betaVersion')}
           </p>
         </div>
       </div>
