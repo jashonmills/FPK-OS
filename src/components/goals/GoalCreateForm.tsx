@@ -15,10 +15,16 @@ import {
 } from '@/components/ui/dialog';
 import { Target, Calendar, Flag, BookOpen, Heart, Trophy, Briefcase, Brain } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
+import { useToast } from '@/hooks/use-toast';
 import DualLanguageText from '@/components/DualLanguageText';
 
-const GoalCreateForm = () => {
+interface GoalCreateFormProps {
+  onGoalCreated?: () => void;
+}
+
+const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
   const { createGoal, saving } = useGoals();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -45,26 +51,50 @@ const GoalCreateForm = () => {
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a goal title.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const goal = await createGoal({
-      title: formData.title.trim(),
-      description: formData.description.trim() || null,
-      category: formData.category,
-      priority: formData.priority as 'low' | 'medium' | 'high',
-      target_date: formData.target_date || null,
-    });
+    try {
+      const goal = await createGoal({
+        title: formData.title.trim(),
+        description: formData.description.trim() || null,
+        category: formData.category,
+        priority: formData.priority as 'low' | 'medium' | 'high',
+        target_date: formData.target_date || null,
+      });
 
-    if (goal) {
-      setOpen(false);
-      setStep(1);
-      setFormData({
-        title: '',
-        description: '',
-        category: 'learning',
-        priority: 'medium',
-        target_date: '',
+      if (goal) {
+        toast({
+          title: "Success!",
+          description: "Your learning goal has been created successfully.",
+        });
+        
+        setOpen(false);
+        setStep(1);
+        setFormData({
+          title: '',
+          description: '',
+          category: 'learning',
+          priority: 'medium',
+          target_date: '',
+        });
+        
+        // Call the callback if provided
+        if (onGoalCreated) {
+          onGoalCreated();
+        }
+      }
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create goal. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -77,7 +107,7 @@ const GoalCreateForm = () => {
       <DialogTrigger asChild>
         <Button className="fpk-gradient text-white">
           <Target className="h-4 w-4 mr-2" />
-          <DualLanguageText translationKey="dashboard.insights.createGoal" />
+          <DualLanguageText translationKey="dashboard.insights.createGoal" fallback="Create Goal" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

@@ -7,15 +7,23 @@ import ActiveLearningGoals from '@/components/goals/ActiveLearningGoals';
 import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
 import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
+import GoalCreateForm from '@/components/goals/GoalCreateForm';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
+import { useGoals } from '@/hooks/useGoals';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
+  const { refetchGoals } = useGoals();
   
   // Initialize automatic progress tracking
   useGoalProgressTracking();
+
+  const handleGoalCreated = () => {
+    // Refetch goals to update the UI
+    refetchGoals();
+  };
 
   return (
     <div className={`mobile-container mobile-section-spacing ${getAccessibilityClasses('container')}`}>
@@ -43,6 +51,11 @@ const Gamification = () => {
         <TabsContent value="goals" className="space-y-6">
           {/* Goals Overview Stats */}
           <SimpleGoalsOverview />
+          
+          {/* Create Goal Button */}
+          <div className="flex justify-center">
+            <GoalCreateForm onGoalCreated={handleGoalCreated} />
+          </div>
           
           {/* Active Learning Goals */}
           <ActiveLearningGoals />
