@@ -1,10 +1,10 @@
 
 import React from 'react';
 import GamificationDashboard from '@/components/gamification/GamificationDashboard';
-import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 import GoalXPTracker from '@/components/goals/GoalXPTracker';
 import GoalReminders from '@/components/goals/GoalReminders';
 import ActiveLearningGoals from '@/components/goals/ActiveLearningGoals';
+import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
 import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
 import { useAccessibility } from '@/hooks/useAccessibility';
@@ -38,8 +38,8 @@ const Gamification = () => {
         </TabsList>
         
         <TabsContent value="goals" className="space-y-6">
-          {/* Goals Dashboard */}
-          <GoalsDashboard />
+          {/* Goals Overview Stats */}
+          <SimpleGoalsOverview />
           
           {/* Active Learning Goals */}
           <ActiveLearningGoals />
