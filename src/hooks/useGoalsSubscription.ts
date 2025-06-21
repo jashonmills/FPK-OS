@@ -7,36 +7,56 @@ interface UseGoalsSubscriptionProps {
   onGoalsChange: () => void;
 }
 
-export const useGoalsSubscription = ({ onGoalsChange }: UseGoalsSubscriptionProps) => {
-  const { user } = useAuth();
-  const channelRef = useRef<any>(null);
-  const mountedRef = useRef(true);
+// Global subscription manager to prevent multiple subscriptions
+class GoalsSubscriptionManager {
+  private static instance: GoalsSubscriptionManager;
+  private currentChannel: any = null;
+  private currentUserId: string | null = null;
+  private subscribers: Set<() => void> = new Set();
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  static getInstance(): GoalsSubscriptionManager {
+    if (!GoalsSubscriptionManager.instance) {
+      GoalsSubscriptionManager.instance = new GoalsSubscriptionManager();
+    }
+    return GoalsSubscriptionManager.instance;
+  }
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    console.log('🔗 Setting up goals real-time subscription for user:', user.id);
-
-    // Clean up any existing channel
-    if (channelRef.current) {
-      console.log('🧹 Cleaning up existing goals channel');
-      try {
-        supabase.removeChannel(channelRef.current);
-      } catch (error) {
-        console.log('Error removing existing channel:', error);
-      }
-      channelRef.current = null;
+  subscribe(userId: string, callback: () => void) {
+    this.subscribers.add(callback);
+    
+    // If we already have a subscription for this user, just add the callback
+    if (this.currentChannel && this.currentUserId === userId) {
+      console.log('🔗 Reusing existing goals subscription for user:', userId);
+      return;
     }
 
-    // Create a unique channel name with timestamp to avoid conflicts
-    const channelName = `goals-${user.id}-${Date.now()}`;
+    // Clean up existing subscription if user changed
+    if (this.currentChannel && this.currentUserId !== userId) {
+      console.log('🧹 Cleaning up subscription for different user');
+      this.cleanup();
+    }
+
+    this.setupSubscription(userId);
+  }
+
+  unsubscribe(callback: () => void) {
+    this.subscribers.delete(callback);
+    
+    // If no more subscribers, clean up the subscription
+    if (this.subscribers.size === 0) {
+      console.log('🧹 No more subscribers, cleaning up goals subscription');
+      this.cleanup();
+    }
+  }
+
+  private setupSubscription(userId: string) {
+    if (this.currentChannel) {
+      return; // Already have a subscription
+    }
+
+    console.log('🔗 Setting up new goals subscription for user:', userId);
+    
+    const channelName = `goals-global-${userId}`;
     const channel = supabase.channel(channelName, {
       config: {
         broadcast: { self: false }
@@ -49,12 +69,12 @@ export const useGoalsSubscription = ({ onGoalsChange }: UseGoalsSubscriptionProp
         event: '*',
         schema: 'public',
         table: 'goals',
-        filter: `user_id=eq.${user.id}`
+        filter: `user_id=eq.${userId}`
       },
       (payload) => {
-        if (!mountedRef.current) return;
         console.log('Real-time goal update:', payload);
-        onGoalsChange();
+        // Notify all subscribers
+        this.subscribers.forEach(callback => callback());
       }
     );
 
@@ -64,23 +84,47 @@ export const useGoalsSubscription = ({ onGoalsChange }: UseGoalsSubscriptionProp
         console.log('✅ Goals channel successfully subscribed');
       } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
         console.log('❌ Goals channel closed or error');
+        this.cleanup();
       }
     });
 
-    // Store the channel reference
-    channelRef.current = channel;
+    this.currentChannel = channel;
+    this.currentUserId = userId;
+  }
 
-    // Cleanup function
-    return () => {
-      if (channelRef.current) {
-        console.log('🧹 Cleaning up goals channel on unmount');
-        try {
-          supabase.removeChannel(channelRef.current);
-        } catch (error) {
-          console.log('Error removing channel on cleanup:', error);
-        }
-        channelRef.current = null;
+  private cleanup() {
+    if (this.currentChannel) {
+      console.log('🧹 Cleaning up goals subscription channel');
+      try {
+        supabase.removeChannel(this.currentChannel);
+      } catch (error) {
+        console.log('Error removing channel:', error);
       }
+      this.currentChannel = null;
+      this.currentUserId = null;
+    }
+  }
+}
+
+export const useGoalsSubscription = ({ onGoalsChange }: UseGoalsSubscriptionProps) => {
+  const { user } = useAuth();
+  const manager = useRef(GoalsSubscriptionManager.getInstance());
+  const callbackRef = useRef(onGoalsChange);
+
+  // Update callback ref when it changes
+  useEffect(() => {
+    callbackRef.current = onGoalsChange;
+  }, [onGoalsChange]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const stableCallback = () => callbackRef.current();
+    
+    manager.current.subscribe(user.id, stableCallback);
+
+    return () => {
+      manager.current.unsubscribe(stableCallback);
     };
-  }, [user?.id, onGoalsChange]);
+  }, [user?.id]);
 };

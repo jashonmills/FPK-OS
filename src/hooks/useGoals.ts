@@ -17,6 +17,7 @@ export const useGoals = (): UseGoalsReturn => {
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
   const mountedRef = useRef(true);
+  const loadingRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -26,14 +27,19 @@ export const useGoals = (): UseGoalsReturn => {
   }, []);
 
   const loadGoals = useCallback(async () => {
-    if (!mountedRef.current) return;
+    if (!mountedRef.current || loadingRef.current) return;
+    
+    loadingRef.current = true;
+    console.log('🔄 Loading goals...');
     
     try {
       const data = await GoalsService.loadGoals();
       if (mountedRef.current) {
+        console.log('✅ Goals loaded successfully:', data.length);
         setGoals(data);
       }
     } catch (error) {
+      console.error('❌ Error loading goals:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -45,6 +51,7 @@ export const useGoals = (): UseGoalsReturn => {
       if (mountedRef.current) {
         setLoading(false);
       }
+      loadingRef.current = false;
     }
   }, [toast]);
 
@@ -67,6 +74,7 @@ export const useGoals = (): UseGoalsReturn => {
       }
       return data;
     } catch (error) {
+      console.error('❌ Error creating goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -97,6 +105,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
+      console.error('❌ Error updating goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -148,6 +157,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
+      console.error('❌ Error completing goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -176,6 +186,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
+      console.error('❌ Error deleting goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -186,12 +197,20 @@ export const useGoals = (): UseGoalsReturn => {
     }
   }, [toast]);
 
-  // Set up real-time subscription
-  useGoalsSubscription({ onGoalsChange: loadGoals });
+  // Set up real-time subscription with stable callback
+  const stableLoadGoals = useCallback(() => {
+    if (mountedRef.current) {
+      console.log('🔄 Real-time update triggered, reloading goals...');
+      loadGoals();
+    }
+  }, [loadGoals]);
+
+  useGoalsSubscription({ onGoalsChange: stableLoadGoals });
 
   // Load goals initially
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && mountedRef.current) {
+      console.log('👤 User found, loading initial goals...');
       loadGoals();
     }
   }, [user?.id, loadGoals]);
