@@ -236,9 +236,7 @@ const MyCourses = () => {
           {filteredCourses(availableCourses).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses(availableCourses).map((course) => (
-                <Course
-
-Card key={course.id} course={course} isEnrolled={false} />
+                <CourseCard key={course.id} course={course} isEnrolled={false} />
               ))}
             </div>
           ) : (
