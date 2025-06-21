@@ -3,9 +3,10 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Upload, FileText, Image, Film } from 'lucide-react';
 import { useKnowledgeBaseFiles } from '@/hooks/useKnowledgeBaseFiles';
+import { useBatchProcessing } from '@/hooks/useBatchProcessing';
+import BatchProcessingPanel from './BatchProcessingPanel';
 
 const allowedTypes = [
   'application/pdf',
@@ -40,41 +41,48 @@ const getFileIcon = (mimeType: string) => {
 };
 
 const KBUploader: React.FC = () => {
-  const { uploadFile, isUploading } = useKnowledgeBaseFiles();
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const { uploadAndProcessFile } = useKnowledgeBaseFiles();
+  const {
+    batchState,
+    addFiles,
+    updateFileStatus,
+    processBatch,
+    pauseProcessing,
+    cancelProcessing,
+    clearBatch,
+    removeFile,
+    isProcessing
+  } = useBatchProcessing();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    acceptedFiles.forEach((file) => {
+    const validFiles = acceptedFiles.filter(file => {
       if (!allowedTypes.includes(file.type)) {
-        return;
+        return false;
       }
       
       if (file.size > maxFileSize) {
-        return;
+        return false;
       }
 
-      // Simulate upload progress
-      setUploadProgress(0);
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 200);
-
-      uploadFile(file);
-      
-      // Complete progress after upload
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setUploadProgress(100);
-        setTimeout(() => setUploadProgress(0), 1000);
-      }, 3000);
+      return true;
     });
-  }, [uploadFile]);
+
+    if (validFiles.length > 0) {
+      addFiles(validFiles);
+    }
+  }, [addFiles]);
+
+  const handleStartProcessing = useCallback(async () => {
+    await processBatch(async (file: File, fileId: string) => {
+      try {
+        updateFileStatus(fileId, 'processing', 50);
+        await uploadAndProcessFile(file);
+        updateFileStatus(fileId, 'completed', 100);
+      } catch (error) {
+        throw error;
+      }
+    });
+  }, [processBatch, updateFileStatus, uploadAndProcessFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -94,65 +102,68 @@ const KBUploader: React.FC = () => {
       'image/webp': ['.webp']
     },
     maxSize: maxFileSize,
-    multiple: true
+    multiple: true,
+    disabled: isProcessing
   });
 
   return (
-    <Card className="border-2 border-dashed transition-colors duration-200 hover:border-primary/50">
-      <CardContent className="p-6">
-        <div 
-          {...getRootProps()} 
-          className={`cursor-pointer text-center space-y-4 ${
-            isDragActive ? 'opacity-75' : ''
-          }`}
-        >
-          <input {...getInputProps()} />
-          
-          <div className="flex justify-center">
-            <Upload className={`h-12 w-12 transition-colors ${
-              isDragActive ? 'text-primary' : 'text-muted-foreground'
-            }`} />
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-2">
-              {isDragActive ? 'Drop files here' : 'Upload Knowledge Base Files'}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Drag & drop files or click to browse. These will enhance your AI conversations.
-            </p>
-            
-            <div className="space-y-2 text-xs text-muted-foreground">
-              <div>
-                <strong>Supported:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF, Images
-              </div>
-              <div>
-                <strong>Max size:</strong> {formatFileSize(maxFileSize)}
-              </div>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={isUploading}
+    <div className="space-y-4">
+      <Card className="border-2 border-dashed transition-colors duration-200 hover:border-primary/50">
+        <CardContent className="p-6">
+          <div 
+            {...getRootProps()} 
+            className={`cursor-pointer text-center space-y-4 ${
+              isDragActive ? 'opacity-75' : ''
+            } ${isProcessing ? 'pointer-events-none opacity-50' : ''}`}
           >
-            {isUploading ? 'Uploading...' : 'Choose Files'}
-          </Button>
-        </div>
-
-        {uploadProgress > 0 && (
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span>Uploading...</span>
-              <span>{uploadProgress}%</span>
+            <input {...getInputProps()} />
+            
+            <div className="flex justify-center">
+              <Upload className={`h-12 w-12 transition-colors ${
+                isDragActive ? 'text-primary' : 'text-muted-foreground'
+              }`} />
             </div>
-            <Progress value={uploadProgress} className="h-2" />
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {isDragActive ? 'Drop files here' : 'Upload Knowledge Base Files'}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Drag & drop files or click to browse. These will enhance your AI conversations.
+              </p>
+              
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <div>
+                  <strong>Supported:</strong> PDF, DOC, DOCX, PPT, PPTX, TXT, MD, CSV, RTF, Images
+                </div>
+                <div>
+                  <strong>Max size:</strong> {formatFileSize(maxFileSize)}
+                </div>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Processing...' : 'Choose Files'}
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <BatchProcessingPanel
+        batchState={batchState}
+        onStart={handleStartProcessing}
+        onPause={pauseProcessing}
+        onCancel={cancelProcessing}
+        onClear={clearBatch}
+        onRemoveFile={removeFile}
+        isProcessing={isProcessing}
+      />
+    </div>
   );
 };
 

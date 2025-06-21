@@ -44,63 +44,57 @@ export const useKnowledgeBaseFiles = () => {
     enabled: !!user?.id,
   });
 
+  const uploadAndProcessFile = async (file: File) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `${user.id}/${fileName}`;
+
+    // Upload to storage
+    const { error: uploadError } = await supabase.storage
+      .from('kb_files')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    // Create database record
+    const { data: fileRecord, error: dbError } = await supabase
+      .from('knowledge_base_files')
+      .insert({
+        user_id: user.id,
+        file_name: file.name,
+        file_size: file.size,
+        mime_type: file.type,
+        storage_path: filePath,
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      // Cleanup uploaded file if DB insert fails
+      await supabase.storage.from('kb_files').remove([filePath]);
+      throw new Error(`Database error: ${dbError.message}`);
+    }
+
+    // Process file for embeddings
+    try {
+      await supabase.functions.invoke('process-kb-file', {
+        body: { fileId: fileRecord.id }
+      });
+    } catch (processError) {
+      console.warn('File uploaded but processing failed:', processError);
+      throw new Error('File uploaded but processing failed');
+    }
+
+    return fileRecord;
+  };
+
   const uploadFile = useMutation({
-    mutationFn: async (file: File) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      const fileName = `${Date.now()}-${file.name}`;
-      const filePath = `${user.id}/${fileName}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('kb_files')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-
-      // Create database record
-      const { data: fileRecord, error: dbError } = await supabase
-        .from('knowledge_base_files')
-        .insert({
-          user_id: user.id,
-          file_name: file.name,
-          file_size: file.size,
-          mime_type: file.type,
-          storage_path: filePath,
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        // Cleanup uploaded file if DB insert fails
-        await supabase.storage.from('kb_files').remove([filePath]);
-        throw new Error(`Database error: ${dbError.message}`);
-      }
-
-      // Process file for embeddings
-      try {
-        await supabase.functions.invoke('process-kb-file', {
-          body: { fileId: fileRecord.id }
-        });
-      } catch (processError) {
-        console.warn('File uploaded but processing failed:', processError);
-        toast({
-          title: "File uploaded",
-          description: "File uploaded successfully, but processing failed. It will be retried later.",
-          variant: "default"
-        });
-      }
-
-      return fileRecord;
-    },
+    mutationFn: uploadAndProcessFile,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['knowledge-base-files'] });
-      toast({
-        title: "File uploaded",
-        description: "Your file has been uploaded and is being processed for AI integration.",
-      });
     },
     onError: (error) => {
       toast({
@@ -177,6 +171,7 @@ export const useKnowledgeBaseFiles = () => {
     isLoading,
     error,
     uploadFile: uploadFile.mutate,
+    uploadAndProcessFile,
     deleteFile: deleteFile.mutate,
     isUploading: uploadFile.isPending,
     isDeleting: deleteFile.isPending,

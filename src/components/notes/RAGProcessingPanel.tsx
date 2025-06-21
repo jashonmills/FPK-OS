@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Brain, FileText, BookOpen, Target, CheckCircle, Loader2 } from 'lucide-react';
+import { Brain, FileText, BookOpen, Target, Loader2 } from 'lucide-react';
 import { useRAGIntegration } from '@/hooks/useRAGIntegration';
 import { useNotes } from '@/hooks/useNotes';
 import { useFlashcards } from '@/hooks/useFlashcards';
@@ -22,7 +22,8 @@ const RAGProcessingPanel: React.FC = () => {
     type: string | null;
     current: number;
     total: number;
-  }>({ type: null, current: 0, total: 0 });
+    cancelled: boolean;
+  }>({ type: null, current: 0, total: 0, cancelled: false });
 
   const processAllNotes = async () => {
     if (!notes.length) {
@@ -34,18 +35,35 @@ const RAGProcessingPanel: React.FC = () => {
       return;
     }
 
-    setProcessingState({ type: 'notes', current: 0, total: notes.length });
+    setProcessingState({ type: 'notes', current: 0, total: notes.length, cancelled: false });
     
-    for (let i = 0; i < notes.length; i++) {
-      const note = notes[i];
-      setProcessingState({ type: 'notes', current: i + 1, total: notes.length });
+    try {
+      for (let i = 0; i < notes.length; i++) {
+        if (processingState.cancelled) break;
+        
+        const note = notes[i];
+        setProcessingState(prev => ({ ...prev, current: i + 1 }));
+        
+        const content = `Title: ${note.title}\nContent: ${note.content || ''}\nCategory: ${note.category}`;
+        await processUserContent(content, 'note');
+      }
       
-      const content = `Title: ${note.title}\nContent: ${note.content || ''}\nCategory: ${note.category}`;
-      await processUserContent(content, 'note');
+      if (!processingState.cancelled) {
+        toast({
+          title: "Notes Processing Complete",
+          description: `Successfully processed ${notes.length} notes for AI enhancement.`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Processing Failed",
+        description: "Some notes failed to process. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessingState({ type: null, current: 0, total: 0, cancelled: false });
+      await refreshStats();
     }
-    
-    setProcessingState({ type: null, current: 0, total: 0 });
-    await refreshStats();
   };
 
   const processAllFlashcards = async () => {
@@ -58,18 +76,35 @@ const RAGProcessingPanel: React.FC = () => {
       return;
     }
 
-    setProcessingState({ type: 'flashcards', current: 0, total: flashcards.length });
+    setProcessingState({ type: 'flashcards', current: 0, total: flashcards.length, cancelled: false });
     
-    for (let i = 0; i < flashcards.length; i++) {
-      const card = flashcards[i];
-      setProcessingState({ type: 'flashcards', current: i + 1, total: flashcards.length });
+    try {
+      for (let i = 0; i < flashcards.length; i++) {
+        if (processingState.cancelled) break;
+        
+        const card = flashcards[i];
+        setProcessingState(prev => ({ ...prev, current: i + 1 }));
+        
+        const content = `Question: ${card.front_content}\nAnswer: ${card.back_content}`;
+        await processUserContent(content, 'flashcard');
+      }
       
-      const content = `Question: ${card.front_content}\nAnswer: ${card.back_content}`;
-      await processUserContent(content, 'flashcard');
+      if (!processingState.cancelled) {
+        toast({
+          title: "Flashcards Processing Complete",
+          description: `Successfully processed ${flashcards.length} flashcards for AI enhancement.`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Processing Failed",
+        description: "Some flashcards failed to process. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessingState({ type: null, current: 0, total: 0, cancelled: false });
+      await refreshStats();
     }
-    
-    setProcessingState({ type: null, current: 0, total: 0 });
-    await refreshStats();
   };
 
   const processAllGoals = async () => {
@@ -82,18 +117,44 @@ const RAGProcessingPanel: React.FC = () => {
       return;
     }
 
-    setProcessingState({ type: 'goals', current: 0, total: goals.length });
+    setProcessingState({ type: 'goals', current: 0, total: goals.length, cancelled: false });
     
-    for (let i = 0; i < goals.length; i++) {
-      const goal = goals[i];
-      setProcessingState({ type: 'goals', current: i + 1, total: goals.length });
+    try {
+      for (let i = 0; i < goals.length; i++) {
+        if (processingState.cancelled) break;
+        
+        const goal = goals[i];
+        setProcessingState(prev => ({ ...prev, current: i + 1 }));
+        
+        const content = `Goal: ${goal.title}\nDescription: ${goal.description || ''}\nCategory: ${goal.category}`;
+        await processUserContent(content, 'goal');
+      }
       
-      const content = `Goal: ${goal.title}\nDescription: ${goal.description || ''}\nCategory: ${goal.category}`;
-      await processUserContent(content, 'goal');
+      if (!processingState.cancelled) {
+        toast({
+          title: "Goals Processing Complete",
+          description: `Successfully processed ${goals.length} goals for AI enhancement.`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Processing Failed",
+        description: "Some goals failed to process. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessingState({ type: null, current: 0, total: 0, cancelled: false });
+      await refreshStats();
     }
-    
-    setProcessingState({ type: null, current: 0, total: 0 });
-    await refreshStats();
+  };
+
+  const cancelProcessing = () => {
+    setProcessingState(prev => ({ ...prev, cancelled: true }));
+    toast({
+      title: "Processing Cancelled",
+      description: "Content processing has been cancelled.",
+      variant: "destructive"
+    });
   };
 
   const isCurrentlyProcessing = isProcessing || processingState.type !== null;
@@ -174,14 +235,26 @@ const RAGProcessingPanel: React.FC = () => {
           
           {isCurrentlyProcessing && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {processingState.type ? (
-                  `Processing ${processingState.type}... (${processingState.current}/${processingState.total})`
-                ) : (
-                  'Processing your content for AI enhancement...'
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-blue-700 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {processingState.type ? (
+                    `Processing ${processingState.type}... (${processingState.current}/${processingState.total})`
+                  ) : (
+                    'Processing your content for AI enhancement...'
+                  )}
+                </p>
+                {processingState.type && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={cancelProcessing}
+                    className="h-7 text-xs"
+                  >
+                    Cancel
+                  </Button>
                 )}
-              </p>
+              </div>
             </div>
           )}
         </CardContent>
