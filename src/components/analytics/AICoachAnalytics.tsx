@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { Brain, MessageCircle, Search, TrendingUp } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatTopics } from '@/hooks/useChatTopics';
@@ -93,25 +92,6 @@ const AICoachAnalytics = () => {
     );
   }
 
-  const chartConfig = {
-    sessions: {
-      label: 'Chat Sessions',
-      color: '#8B5CF6',
-    },
-    count: {
-      label: 'Topic Count',
-      color: '#F59E0B',
-    },
-    chats: {
-      label: 'Chat Messages',
-      color: '#3B82F6',
-    },
-    knowledgeHits: {
-      label: 'Knowledge Base Hits',
-      color: '#10B981',
-    },
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* AI Coach Engagement Card - Existing Component */}
@@ -132,17 +112,17 @@ const AICoachAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {chatActivityData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chatActivityData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="sessions" fill="var(--color-sessions)" radius={[4, 4, 0, 0]} />
+                  <Tooltip />
+                  <Bar dataKey="sessions" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={MessageCircle}
@@ -166,17 +146,17 @@ const AICoachAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {!topicsLoading && topicsData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topicsData} layout="horizontal">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" fontSize={10} />
                   <YAxis dataKey="topic" type="category" fontSize={10} width={80} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#F59E0B" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={Brain}
@@ -200,18 +180,18 @@ const AICoachAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {!knowledgeLoading && knowledgeVsChatData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={knowledgeVsChatData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="knowledgeHits" fill="var(--color-knowledgeHits)" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="chats" fill="var(--color-chats)" radius={[2, 2, 0, 0]} />
+                  <Tooltip />
+                  <Bar dataKey="knowledgeHits" fill="#10B981" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="chats" fill="#3B82F6" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={Search}

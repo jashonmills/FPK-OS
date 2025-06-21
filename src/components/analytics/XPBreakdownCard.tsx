@@ -3,7 +3,6 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { AnalyticsCard } from './AnalyticsCard';
 import { Award } from 'lucide-react';
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,25 +55,6 @@ const XPBreakdownCard: React.FC = () => {
     fetchXPBreakdown();
   }, [user?.id]);
 
-  const chartConfig = {
-    readingSessions: {
-      label: 'Reading Sessions',
-      color: '#8B5CF6',
-    },
-    courseCompletion: {
-      label: 'Course Completion',
-      color: '#F59E0B',
-    },
-    studySessions: {
-      label: 'Study Sessions', 
-      color: '#3B82F6',
-    },
-    dailyStreaks: {
-      label: 'Daily Streaks',
-      color: '#10B981',
-    },
-  };
-
   return (
     <AnalyticsCard
       id="xp-breakdown"
@@ -87,7 +67,7 @@ const XPBreakdownCard: React.FC = () => {
     >
       {xpBreakdown.length > 0 ? (
         <>
-          <ChartContainer config={chartConfig} className="h-[200px]">
+          <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -102,11 +82,11 @@ const XPBreakdownCard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip content={<ChartTooltipContent />} />
+                <Tooltip />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          </ChartContainer>
+          </div>
           <div className="mt-4 space-y-2 text-sm">
             <div className="text-center text-gray-600">
               Total XP: <span className="font-semibold text-purple-600">{profile?.total_xp || 0}</span>

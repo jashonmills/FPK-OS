@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip } from 'recharts';
 import { Target, Trophy, Star, TrendingUp } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -79,21 +78,6 @@ const GoalsGamificationAnalytics = () => {
     );
   }
 
-  const chartConfig = {
-    completed: {
-      label: 'Goals Completed',
-      color: '#10B981',
-    },
-    total: {
-      label: 'Total Goals',
-      color: '#8B5CF6',
-    },
-    xp: {
-      label: 'XP Earned',
-      color: '#F59E0B',
-    },
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Goal Completion Trends */}
@@ -109,23 +93,23 @@ const GoalsGamificationAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {goalCompletionData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={goalCompletionData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="completed" 
-                    stroke="var(--color-completed)" 
+                    stroke="#10B981" 
                     strokeWidth={2}
                     dot={{ r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={Target}
@@ -149,18 +133,18 @@ const GoalsGamificationAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {goalCategoriesData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={goalCategoriesData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="category" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="total" fill="var(--color-total)" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="completed" fill="var(--color-completed)" radius={[2, 2, 0, 0]} />
+                  <Tooltip />
+                  <Bar dataKey="total" fill="#8B5CF6" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="completed" fill="#10B981" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={Trophy}
@@ -184,23 +168,23 @@ const GoalsGamificationAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {!xpLoading && xpProgressionData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={xpProgressionData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="week" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="xp" 
-                    stroke="var(--color-xp)" 
+                    stroke="#F59E0B" 
                     strokeWidth={2}
                     dot={{ r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={Star}
