@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Mic, MicOff, Brain } from 'lucide-react';
+import { Send, Mic, MicOff, Brain, Database, Globe, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
@@ -26,6 +26,14 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  ragMetadata?: {
+    ragEnabled: boolean;
+    personalItems: number;
+    externalItems: number;
+    similarItems: number;
+    confidence: number;
+    sources: string[];
+  };
 }
 
 const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHeight = false }: ChatInterfaceProps) => {
@@ -135,7 +143,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           });
       }
 
-      // Call AI function
+      // Call enhanced AI function with RAG support
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message,
@@ -145,19 +153,21 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           voiceActive,
           metadata: {
             completedSessions: completedSessions.length,
-            flashcardCount: flashcards?.length || 0
+            flashcardCount: flashcards?.length || 0,
+            ragEnabled: true // Enable RAG for this request
           }
         }
       });
 
       if (error) throw error;
 
-      // Add AI response to state
+      // Add AI response with RAG metadata
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response || "I'm here to help with your learning journey!",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ragMetadata: data.ragMetadata
       };
 
       setMessages(prev => [...prev, aiResponse]);
@@ -177,6 +187,14 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
       // Award XP for meaningful interactions
       if (message.length > 15) {
         await awardFlashcardStudyXP(1, 1, 30); // Award some XP for interaction
+      }
+
+      // Show RAG enhancement toast if enabled
+      if (data.ragMetadata?.ragEnabled && data.ragMetadata.confidence > 0.3) {
+        toast({
+          title: "Enhanced Response",
+          description: `Used ${data.ragMetadata.personalItems + data.ragMetadata.externalItems} knowledge sources (${Math.round(data.ragMetadata.confidence * 100)}% confidence)`,
+        });
       }
 
     } catch (error) {
@@ -278,6 +296,36 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
     }]);
   };
 
+  const renderRAGIndicator = (ragMetadata?: ChatMessage['ragMetadata']) => {
+    if (!ragMetadata || !ragMetadata.ragEnabled) return null;
+
+    return (
+      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+        <Brain className="h-3 w-3" />
+        <span>Enhanced with</span>
+        {ragMetadata.personalItems > 0 && (
+          <div className="flex items-center gap-1">
+            <User className="h-3 w-3" />
+            <span>{ragMetadata.personalItems} personal</span>
+          </div>
+        )}
+        {ragMetadata.externalItems > 0 && (
+          <div className="flex items-center gap-1">
+            <Globe className="h-3 w-3" />
+            <span>{ragMetadata.externalItems} external</span>
+          </div>
+        )}
+        {ragMetadata.similarItems > 0 && (
+          <div className="flex items-center gap-1">
+            <Database className="h-3 w-3" />
+            <span>{ragMetadata.similarItems} similar</span>
+          </div>
+        )}
+        <span>({Math.round(ragMetadata.confidence * 100)}% confidence)</span>
+      </div>
+    );
+  };
+
   return (
     <Card className={cn(
       "bg-gradient-to-br from-white to-purple-50/30",
@@ -289,6 +337,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-purple-600" />
             <h2 className="font-semibold text-lg">AI Learning Coach</h2>
+            <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">RAG Enhanced</div>
           </div>
           <div className="flex gap-2">
             <Button
@@ -318,7 +367,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           </div>
         </div>
 
-        {/* Messages Area - Now constrained when fixedHeight is true */}
+        {/* Messages Area */}
         <div className={cn(
           "flex-1 overflow-hidden",
           fixedHeight && "min-h-0"
@@ -334,18 +383,42 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             </div>
           )}
 
-          {/* Chat Messages using ChatMessagesPane */}
+          {/* Chat Messages with RAG indicators */}
           {!sessionState.isActive && !showQuizWidget && (
             <div className={cn(
-              fixedHeight ? "h-full" : "flex-1"
+              fixedHeight ? "h-full" : "flex-1",
+              "p-3 sm:p-4 overflow-y-auto"
             )}>
-              <ChatMessagesPane
-                messages={messages}
-                isLoading={false}
-                isSending={isSending}
-                messagesEndRef={messagesEndRef}
-                fixedHeight={fixedHeight}
-              />
+              <div className="space-y-4">
+                {messages.map((msg) => (
+                  <div key={msg.id} className={cn(
+                    "flex",
+                    msg.role === 'user' ? 'justify-end' : 'justify-start'
+                  )}>
+                    <div className={cn(
+                      "max-w-[80%] rounded-lg p-3",
+                      msg.role === 'user' 
+                        ? "bg-purple-600 text-white ml-auto"
+                        : "bg-gray-100 text-gray-900"
+                    )}>
+                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                      {msg.role === 'assistant' && renderRAGIndicator(msg.ragMetadata)}
+                    </div>
+                  </div>
+                ))}
+                {isSending && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
@@ -409,14 +482,20 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
 
             <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
               <span>💡 Try: "Quiz me on these cards" or "Practice session"</span>
-              <span className={cn(
-                "px-2 py-0.5 rounded",
-                chatMode === 'personal' 
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-blue-100 text-blue-700"
-              )}>
-                {chatMode === 'personal' ? '🔒 My Data Mode' : '🌐 General Knowledge Mode'}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2 py-0.5 rounded",
+                  chatMode === 'personal' 
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-blue-100 text-blue-700"
+                )}>
+                  {chatMode === 'personal' ? '🔒 My Data Mode' : '🌐 General Knowledge Mode'}
+                </span>
+                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
+                  <Brain className="h-3 w-3" />
+                  RAG Enhanced
+                </span>
+              </div>
             </div>
           </div>
         )}

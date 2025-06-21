@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +9,14 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  ragMetadata?: {
+    ragEnabled: boolean;
+    personalItems: number;
+    externalItems: number;
+    similarItems: number;
+    confidence: number;
+    sources: string[];
+  };
 }
 
 export const useChatMessages = (sessionId: string | null) => {
@@ -98,11 +105,11 @@ export const useChatMessages = (sessionId: string | null) => {
     }
   };
 
-  // Enhanced sendMessage with external knowledge integration
-  const sendMessage = async (content: string, context?: string) => {
+  // Enhanced sendMessage with RAG support
+  const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'personal') => {
     if (!sessionId || !user || isSending) return;
 
-    console.log('Starting enhanced sendMessage with external knowledge support...', { sessionId, content, context });
+    console.log('Starting enhanced sendMessage with RAG support...', { sessionId, content, context, chatMode });
     setIsSending(true);
     
     try {
@@ -112,18 +119,21 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save user message');
       }
 
-      // Call enhanced AI function with external knowledge capabilities
+      // Call enhanced AI function with RAG capabilities
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
           userId: user.id,
           sessionId: sessionId,
+          chatMode: chatMode,
+          voiceActive: false,
           pageContext: context,
           metadata: {
             timestamp: new Date().toISOString(),
             userAgent: navigator.userAgent,
             sessionLength: messages.length,
-            hasExternalKnowledge: true
+            ragEnabled: true,
+            enhancedKnowledgeRetrieval: true
           }
         }
       });
@@ -133,12 +143,21 @@ export const useChatMessages = (sessionId: string | null) => {
         throw error;
       }
 
-      const aiResponse = data?.response || "I'm here to guide your learning journey with access to comprehensive knowledge sources! 🌟 What would you like to explore together?";
+      const aiResponse = data?.response || "I'm here to guide your learning journey with enhanced knowledge access! 🌟 What would you like to explore together?";
       
-      // Add AI response with enhanced formatting
+      // Add AI response with RAG metadata
       const assistantMessage = await addMessage(aiResponse, 'assistant');
       if (!assistantMessage) {
         throw new Error('Failed to save AI response');
+      }
+
+      // Store RAG metadata in the message state
+      if (data?.ragMetadata) {
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantMessage.id 
+            ? { ...msg, ragMetadata: data.ragMetadata }
+            : msg
+        ));
       }
 
       // Update session title and context tags for better organization
@@ -151,7 +170,7 @@ export const useChatMessages = (sessionId: string | null) => {
                          content.toLowerCase().includes('strategy') ? 'Study Strategy' :
                          content.toLowerCase().includes('research') ? 'Research' :
                          content.toLowerCase().includes('definition') ? 'Definitions' :
-                         'General Study Support';
+                         chatMode === 'personal' ? 'Personal Study Support' : 'General Knowledge';
                          
         await supabase
           .from('chat_sessions')
@@ -163,15 +182,26 @@ export const useChatMessages = (sessionId: string | null) => {
           .eq('id', sessionId);
       }
 
+      // Show RAG enhancement notification
+      if (data?.ragMetadata?.ragEnabled && data.ragMetadata.confidence > 0.3) {
+        const totalSources = data.ragMetadata.personalItems + data.ragMetadata.externalItems + data.ragMetadata.similarItems;
+        toast({
+          title: "Enhanced Response",
+          description: `Used ${totalSources} knowledge sources with ${Math.round(data.ragMetadata.confidence * 100)}% confidence`,
+        });
+      }
+
     } catch (error) {
       console.error('Error in enhanced sendMessage:', error);
       
-      // Enhanced fallback responses based on context with knowledge integration hints
+      // Enhanced fallback responses based on context with RAG hints
       const contextualFallback = context?.includes('Notes') 
-        ? "I'm here to help optimize your note-taking and study materials! 📚 I can also research topics for you. Try asking about effective note-taking strategies or specific concepts you're studying."
+        ? "I'm here to help optimize your note-taking and study materials with enhanced knowledge access! 📚 Ask me about effective strategies, concepts, or research on topics you're studying."
         : context?.includes('Flashcard')
-        ? "I can help you maximize your flashcard study sessions! 🎯 Ask me about spaced repetition, memory techniques, or research on specific topics you're studying."
-        : "I'm your AI learning coach with access to academic knowledge sources! 🌟 Ask me about study strategies, specific concepts, definitions, or research on topics you're exploring.";
+        ? "I can help you maximize your flashcard study sessions with comprehensive knowledge retrieval! 🎯 Ask me about spaced repetition, memory techniques, or specific concepts."
+        : chatMode === 'personal'
+        ? "I'm your AI learning coach with access to your personal study data and external knowledge sources! 🔒 Ask me about your progress, study strategies, or specific topics."
+        : "I'm here with enhanced knowledge access to support your learning! 🌐 Ask me about any topic, study strategies, definitions, or research.";
         
       await addMessage(contextualFallback, 'assistant');
       

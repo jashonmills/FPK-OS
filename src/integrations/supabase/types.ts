@@ -584,6 +584,66 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_cache: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string
+          id: string
+          metadata: Json | null
+          query_hash: string
+          source_type: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          metadata?: Json | null
+          query_hash: string
+          source_type: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          metadata?: Json | null
+          query_hash?: string
+          source_type?: string
+        }
+        Relationships: []
+      }
+      knowledge_embeddings: {
+        Row: {
+          content: string
+          created_at: string
+          embedding: string
+          id: string
+          metadata: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          embedding: string
+          id?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          embedding?: string
+          id?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
