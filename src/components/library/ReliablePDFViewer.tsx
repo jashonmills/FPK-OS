@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -212,12 +211,13 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
   const onDocumentLoadProgress = ({ loaded, total }: { loaded: number; total: number }) => {
     if (total > 0) {
       const downloadProgress = (loaded / total) * 100;
-      const progressValue = Math.min(70 + (downloadProgress * 0.25), 95); // 70% to 95%
+      // Map download progress from 70% to 98% to avoid getting stuck
+      const progressValue = 70 + (downloadProgress * 0.28); // 70% + (0-100% * 0.28) = 70-98%
       setLoadingState(prev => ({
         ...prev,
         stage: 'rendering',
         message: `Loading PDF... ${Math.round(downloadProgress)}%`,
-        progress: progressValue
+        progress: Math.min(progressValue, 98)
       }));
     }
   };
