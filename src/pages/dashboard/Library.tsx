@@ -23,7 +23,7 @@ const Library = () => {
   
   const { books: publicDomainBooks, isLoading: pdLoading } = usePublicDomainBooks();
   const { 
-    searchResults, 
+    books: searchResults, 
     isLoading: searchLoading, 
     searchBooks,
     clearResults 
@@ -54,8 +54,6 @@ const Library = () => {
 
   const renderPublicDomainSection = () => (
     <PublicDomainBooksSection 
-      books={publicDomainBooks}
-      isLoading={pdLoading}
       viewMode={viewMode}
     />
   );
@@ -175,7 +173,7 @@ const Library = () => {
   };
 
   return (
-    <LibraryWithMonitoring>
+    <Lib raryWithMonitoring>
       <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div className="space-y-4">

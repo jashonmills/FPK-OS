@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -9,7 +8,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import EmptyState from '@/components/analytics/EmptyState';
 
 const GoalsGamificationAnalytics = () => {
-  const { goals, isLoading: goalsLoading } = useGoals();
+  const { goals, loading: goalsLoading } = useGoals();
   const { profile, loading: profileLoading } = useUserProfile();
 
   const loading = goalsLoading || profileLoading;
