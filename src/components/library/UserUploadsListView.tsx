@@ -6,9 +6,10 @@ import UserUploadItem from './UserUploadItem';
 interface UserUploadsListViewProps {
   uploads: UserUploadedBook[];
   onView: (upload: UserUploadedBook) => void;
+  validatingPDF: string | null;
 }
 
-const UserUploadsListView: React.FC<UserUploadsListViewProps> = ({ uploads, onView }) => {
+const UserUploadsListView: React.FC<UserUploadsListViewProps> = ({ uploads, onView, validatingPDF }) => {
   return (
     <div className="space-y-4">
       {uploads.map((upload) => (

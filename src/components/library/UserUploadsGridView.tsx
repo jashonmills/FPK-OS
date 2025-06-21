@@ -6,9 +6,10 @@ import UserUploadItem from './UserUploadItem';
 interface UserUploadsGridViewProps {
   uploads: UserUploadedBook[];
   onView: (upload: UserUploadedBook) => void;
+  validatingPDF: string | null;
 }
 
-const UserUploadsGridView: React.FC<UserUploadsGridViewProps> = ({ uploads, onView }) => {
+const UserUploadsGridView: React.FC<UserUploadsGridViewProps> = ({ uploads, onView, validatingPDF }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {uploads.map((upload) => (
