@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import APODCard from '@/components/dashboard/APODCard';
-import NotificationDemo from '@/components/notifications/NotificationDemo';
 import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
 import LearningAnalyticsOverview from '@/components/dashboard/LearningAnalyticsOverview';
 import GamificationOverview from '@/components/dashboard/GamificationOverview';
@@ -62,6 +61,25 @@ const LearnerHome = () => {
         </p>
       </div>
 
+      {/* Today's Highlights - Priority Content at Top */}
+      <section>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Today's Highlights</h2>
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-2">
+          <div className="order-1">
+            <QuoteOfTheDayCard />
+          </div>
+          <div className="order-2">
+            <WeatherScienceLabCard />
+          </div>
+          <div className="order-3">
+            <APODCard onOpenGallery={handleAPODGalleryOpen} />
+          </div>
+          <div className="order-4">
+            <AIInsightsSection />
+          </div>
+        </div>
+      </section>
+
       {/* Mobile-Optimized Quick Navigation */}
       <section>
         <h2 className="mobile-heading-md mb-3 sm:mb-4">Quick Access</h2>
@@ -84,34 +102,6 @@ const LearnerHome = () => {
       <section>
         <h2 className="mobile-heading-md mb-3 sm:mb-4">Current Goals</h2>
         <GoalsOverview />
-      </section>
-
-      {/* Mobile-Optimized Daily Learning Cards */}
-      <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Daily Learning</h2>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          <div className="order-1">
-            <QuoteOfTheDayCard />
-          </div>
-          <div className="order-2">
-            <WeatherScienceLabCard />
-          </div>
-          <div className="order-3 lg:col-span-2 xl:col-span-1">
-            <NotificationDemo />
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile-Optimized Space Discovery */}
-      <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Space Discovery</h2>
-        <APODCard onOpenGallery={handleAPODGalleryOpen} />
-      </section>
-
-      {/* Mobile-Optimized AI Insights */}
-      <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">AI Learning Insights</h2>
-        <AIInsightsSection />
       </section>
 
       {/* Mobile-Optimized Recent Activity */}
