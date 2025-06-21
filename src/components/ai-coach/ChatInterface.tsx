@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -193,7 +194,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
       if (data.ragMetadata?.ragEnabled && data.ragMetadata.confidence > 0.3) {
         toast({
           title: "Enhanced Response",
-          description: `Used ${data.ragMetadata.personalItems + data.ragMetadata.externalItems} knowledge sources (${Math.round(data.ragMetadata.confidence * 100)}% confidence)`,
+          description: `Used ${data.ragMetadata.personalItems + data.ragMetadata.externalItems} knowledge sources`,
         });
       }
 
@@ -321,7 +322,6 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             <span>{ragMetadata.similarItems} similar</span>
           </div>
         )}
-        <span>({Math.round(ragMetadata.confidence * 100)}% confidence)</span>
       </div>
     );
   };
@@ -332,37 +332,36 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
       fixedHeight ? "h-full flex flex-col" : "h-full flex flex-col"
     )}>
       <CardContent className="p-0 flex-1 flex flex-col min-h-0">
-        {/* Header */}
+        {/* Header - Mobile Optimized */}
         <div className="p-3 sm:p-4 border-b flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
-            <h2 className="font-semibold text-lg">AI Learning Coach</h2>
-            <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">RAG Enhanced</div>
+          <div className="flex items-center gap-2 min-w-0">
+            <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
+            <h2 className="font-semibold text-sm sm:text-lg truncate">AI Learning Coach</h2>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={toggleChatMode}
               className={cn(
-                "text-xs",
+                "text-xs px-2 py-1 h-auto whitespace-nowrap",
                 chatMode === 'personal' 
                   ? "bg-purple-100 text-purple-700 hover:bg-purple-200 hover:text-purple-800"
                   : "bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-800"
               )}
             >
-              {chatMode === 'personal' ? '🔒 My Data' : '🌐 General Knowledge'}
+              {chatMode === 'personal' ? '🔒 My Data' : '🌐 General'}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={toggleVoiceMode}
               className={cn(
-                "text-xs",
+                "text-xs px-2 py-1 h-auto whitespace-nowrap",
                 voiceActive && "bg-green-100 text-green-700 hover:bg-green-200"
               )}
             >
-              {voiceActive ? '🔊 Voice On' : '🔇 Voice Off'}
+              {voiceActive ? '🔊 Voice' : '🔇 Text'}
             </Button>
           </div>
         </div>
@@ -383,32 +382,32 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             </div>
           )}
 
-          {/* Chat Messages with RAG indicators */}
+          {/* Chat Messages */}
           {!sessionState.isActive && !showQuizWidget && (
             <div className={cn(
               fixedHeight ? "h-full" : "flex-1",
               "p-3 sm:p-4 overflow-y-auto"
             )}>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {messages.map((msg) => (
                   <div key={msg.id} className={cn(
                     "flex",
                     msg.role === 'user' ? 'justify-end' : 'justify-start'
                   )}>
                     <div className={cn(
-                      "max-w-[80%] rounded-lg p-3",
+                      "max-w-[85%] sm:max-w-[80%] rounded-lg p-2 sm:p-3 text-sm sm:text-base",
                       msg.role === 'user' 
                         ? "bg-purple-600 text-white ml-auto"
                         : "bg-gray-100 text-gray-900"
                     )}>
-                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                      <p className="whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
                       {msg.role === 'assistant' && renderRAGIndicator(msg.ragMetadata)}
                     </div>
                   </div>
                 ))}
                 {isSending && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
+                    <div className="bg-gray-100 rounded-lg p-2 sm:p-3 max-w-[80%]">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
@@ -423,7 +422,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           )}
         </div>
 
-        {/* Input Area */}
+        {/* Input Area - Mobile Optimized */}
         {!sessionState.isActive && !showQuizWidget && (
           <div className="border-t p-3 sm:p-4 bg-background/80 backdrop-blur-sm flex-shrink-0">
             {/* Voice Recording Status */}
@@ -449,12 +448,12 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             <div className="flex gap-2">
               <Input
                 ref={inputRef}
-                placeholder="Ask about your study data, learning strategies, or get help..."
+                placeholder="Ask me anything..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isSending || isRecording || isProcessing}
-                className="flex-1"
+                className="flex-1 text-sm sm:text-base"
               />
               
               <Button
@@ -463,7 +462,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
                 size="icon"
                 variant={isRecording ? "destructive" : "outline"}
                 className={cn(
-                  "transition-all duration-200",
+                  "transition-all duration-200 flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11",
                   isRecording && "animate-pulse"
                 )}
               >
@@ -474,26 +473,23 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
                 onClick={handleSendMessage}
                 disabled={isSending || !message.trim() || isRecording || isProcessing}
                 size="icon"
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 h-10 w-10 sm:h-11 sm:w-11"
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
 
             <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-              <span>💡 Try: "Quiz me on these cards" or "Practice session"</span>
-              <div className="flex items-center gap-2">
+              <span className="hidden sm:block">💡 Try: "Quiz me on these cards" or "Practice session"</span>
+              <span className="sm:hidden">💡 Try: "Quiz me" or "Practice"</span>
+              <div className="flex items-center gap-1 sm:gap-2">
                 <span className={cn(
-                  "px-2 py-0.5 rounded",
+                  "px-2 py-0.5 rounded text-xs",
                   chatMode === 'personal' 
                     ? "bg-purple-100 text-purple-700"
                     : "bg-blue-100 text-blue-700"
                 )}>
-                  {chatMode === 'personal' ? '🔒 My Data Mode' : '🌐 General Knowledge Mode'}
-                </span>
-                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
-                  <Brain className="h-3 w-3" />
-                  RAG Enhanced
+                  {chatMode === 'personal' ? '🔒 My Data' : '🌐 General'}
                 </span>
               </div>
             </div>
