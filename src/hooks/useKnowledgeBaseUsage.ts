@@ -33,7 +33,16 @@ export const useKnowledgeBaseUsage = () => {
 
         if (error) throw error;
 
-        setData(usageData || []);
+        // Type-safe mapping to ensure source_type matches our union type
+        const typedData: KnowledgeBaseUsageData[] = (usageData || []).map(item => ({
+          id: item.id,
+          query: item.query,
+          result_count: item.result_count,
+          source_type: item.source_type as 'search' | 'chat' | 'browse',
+          created_at: item.created_at
+        }));
+
+        setData(typedData);
         setError(null);
       } catch (err) {
         console.error('Error fetching knowledge base usage:', err);
