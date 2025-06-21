@@ -1,15 +1,19 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { Brain, MessageCircle, Search, TrendingUp } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
-import { useChatMessages } from '@/hooks/useChatMessages';
+import { useChatTopics } from '@/hooks/useChatTopics';
+import { useKnowledgeBaseUsage } from '@/hooks/useKnowledgeBaseUsage';
 import EmptyState from '@/components/analytics/EmptyState';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 
 const AICoachAnalytics = () => {
   const { sessions, isLoading: sessionsLoading } = useChatSessions();
+  const { data: topicsData, loading: topicsLoading } = useChatTopics();
+  const { data: knowledgeUsage, loading: knowledgeLoading } = useKnowledgeBaseUsage();
 
   const loading = sessionsLoading;
 
@@ -42,32 +46,35 @@ const AICoachAnalytics = () => {
       }));
   }, [sessions]);
 
-  // Mock topic analysis data (would need NLP processing)
-  const topTopicsData = [
-    { topic: 'Learning Strategies', count: 25 },
-    { topic: 'Study Techniques', count: 18 },
-    { topic: 'Time Management', count: 15 },
-    { topic: 'Memory Improvement', count: 12 },
-    { topic: 'Focus & Concentration', count: 8 }
-  ];
-
   // Process knowledge base vs chat data
   const knowledgeVsChatData = React.useMemo(() => {
     if (!sessions?.length) return [];
     
-    // Mock data - would need actual tracking of knowledge base hits
+    // Create data for last 7 days using real knowledge base usage
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Count chat sessions for this date
+      const chatsThisDay = sessions.filter(session => 
+        session.created_at.startsWith(dateStr)
+      ).length;
+      
+      // Count knowledge base hits for this date
+      const knowledgeHitsThisDay = knowledgeUsage?.filter(usage => 
+        new Date(usage.created_at).toISOString().split('T')[0] === dateStr
+      ).length || 0;
+
       return {
         date: date.toLocaleDateString(),
-        chats: Math.floor(Math.random() * 10) + 1,
-        knowledgeHits: Math.floor(Math.random() * 15) + 5
+        chats: chatsThisDay,
+        knowledgeHits: knowledgeHitsThisDay
       };
     }).reverse();
 
     return last7Days;
-  }, [sessions]);
+  }, [sessions, knowledgeUsage]);
 
   if (loading) {
     return (
@@ -158,17 +165,25 @@ const AICoachAnalytics = () => {
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topTopicsData} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" fontSize={10} />
-                <YAxis dataKey="topic" type="category" fontSize={10} width={80} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          {!topicsLoading && topicsData.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topicsData} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" fontSize={10} />
+                  <YAxis dataKey="topic" type="category" fontSize={10} width={80} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <EmptyState 
+              icon={Brain}
+              title="No topics identified yet"
+              description="Continue chatting with AI Coach to see topic analysis"
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -184,22 +199,30 @@ const AICoachAnalytics = () => {
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={knowledgeVsChatData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" fontSize={10} />
-                <YAxis fontSize={10} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="knowledgeHits" fill="var(--color-knowledgeHits)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="chats" fill="var(--color-chats)" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          {!knowledgeLoading && knowledgeVsChatData.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={knowledgeVsChatData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" fontSize={10} />
+                  <YAxis fontSize={10} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="knowledgeHits" fill="var(--color-knowledgeHits)" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="chats" fill="var(--color-chats)" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <EmptyState 
+              icon={Search}
+              title="No knowledge base activity yet"
+              description="Use search and chat features to see comparison data"
+            />
+          )}
         </CardContent>
       </Card>
 
-      {/* AI Coach Insights Summary */}
+      {/* AI Coach Usage Summary */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">

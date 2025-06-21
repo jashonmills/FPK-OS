@@ -5,17 +5,56 @@ import { AnalyticsCard } from './AnalyticsCard';
 import { Award } from 'lucide-react';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const XPBreakdownCard: React.FC = () => {
   const { profile, loading } = useUserProfile();
+  const { user } = useAuth();
+  const [xpBreakdown, setXpBreakdown] = React.useState<any[]>([]);
+  const [breakdownLoading, setBreakdownLoading] = React.useState(true);
 
-  // Mock XP breakdown data - in real implementation, this would come from analytics
-  const xpBreakdownData = [
-    { name: 'Reading Sessions', value: Math.floor((profile?.total_xp || 0) * 0.4), color: '#8B5CF6' },
-    { name: 'Course Completion', value: Math.floor((profile?.total_xp || 0) * 0.3), color: '#F59E0B' },
-    { name: 'Study Sessions', value: Math.floor((profile?.total_xp || 0) * 0.2), color: '#3B82F6' },
-    { name: 'Daily Streaks', value: Math.floor((profile?.total_xp || 0) * 0.1), color: '#10B981' }
-  ].filter(item => item.value > 0);
+  React.useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchXPBreakdown = async () => {
+      try {
+        setBreakdownLoading(true);
+        
+        const { data: xpEvents, error } = await supabase
+          .from('xp_events')
+          .select('event_type, event_value')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        // Group by event type and sum XP
+        const breakdown = xpEvents?.reduce((acc, event) => {
+          const type = event.event_type;
+          acc[type] = (acc[type] || 0) + event.event_value;
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        // Convert to chart format with colors
+        const breakdownData = [
+          { name: 'Reading Sessions', value: breakdown['reading_session'] || 0, color: '#8B5CF6' },
+          { name: 'Course Completion', value: breakdown['course_completion'] || 0, color: '#F59E0B' },
+          { name: 'Study Sessions', value: breakdown['study_session'] || 0, color: '#3B82F6' },
+          { name: 'Daily Streaks', value: breakdown['streak_bonus'] || 0, color: '#10B981' },
+          { name: 'Goal Achievement', value: breakdown['goal_completion'] || 0, color: '#EF4444' },
+          { name: 'Note Creation', value: breakdown['note_creation'] || 0, color: '#8B5A2B' }
+        ].filter(item => item.value > 0);
+
+        setXpBreakdown(breakdownData);
+      } catch (error) {
+        console.error('Error fetching XP breakdown:', error);
+      } finally {
+        setBreakdownLoading(false);
+      }
+    };
+
+    fetchXPBreakdown();
+  }, [user?.id]);
 
   const chartConfig = {
     readingSessions: {
@@ -43,23 +82,23 @@ const XPBreakdownCard: React.FC = () => {
       description="Where your experience points come from"
       icon={Award}
       iconColor="text-amber-600"
-      loading={loading}
+      loading={loading || breakdownLoading}
       featureFlag="xp_breakdown_card"
     >
-      {xpBreakdownData.length > 0 ? (
+      {xpBreakdown.length > 0 ? (
         <>
           <ChartContainer config={chartConfig} className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={xpBreakdownData}
+                  data={xpBreakdown}
                   cx="50%"
                   cy="50%"
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
                 >
-                  {xpBreakdownData.map((entry, index) => (
+                  {xpBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>

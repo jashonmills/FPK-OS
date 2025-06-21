@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -5,11 +6,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarC
 import { Target, Trophy, Star, TrendingUp } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useXPProgression } from '@/hooks/useXPProgression';
 import EmptyState from '@/components/analytics/EmptyState';
 
 const GoalsGamificationAnalytics = () => {
   const { goals, loading: goalsLoading } = useGoals();
   const { profile, loading: profileLoading } = useUserProfile();
+  const { data: xpProgressionData, loading: xpLoading } = useXPProgression();
 
   const loading = goalsLoading || profileLoading;
 
@@ -58,16 +61,6 @@ const GoalsGamificationAnalytics = () => {
       completionRate: Math.round((stats.completed / stats.total) * 100)
     }));
   }, [goals]);
-
-  // Mock XP progression data
-  const xpProgressionData = [
-    { week: 'Week 1', xp: 150 },
-    { week: 'Week 2', xp: 275 },
-    { week: 'Week 3', xp: 350 },
-    { week: 'Week 4', xp: 425 },
-    { week: 'Week 5', xp: 500 },
-    { week: 'Week 6', xp: 625 }
-  ];
 
   if (loading) {
     return (
@@ -190,23 +183,31 @@ const GoalsGamificationAnalytics = () => {
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={xpProgressionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" fontSize={10} />
-                <YAxis fontSize={10} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="xp" 
-                  stroke="var(--color-xp)" 
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          {!xpLoading && xpProgressionData.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={xpProgressionData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" fontSize={10} />
+                  <YAxis fontSize={10} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="xp" 
+                    stroke="var(--color-xp)" 
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <EmptyState 
+              icon={Star}
+              title="No XP progression data"
+              description="Complete activities to earn XP and see your progression"
+            />
+          )}
         </CardContent>
       </Card>
 

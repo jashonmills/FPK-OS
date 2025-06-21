@@ -215,6 +215,7 @@ export type Database = {
           created_at: string
           id: string
           title: string
+          topics: Json | null
           updated_at: string
           user_id: string
         }
@@ -223,6 +224,7 @@ export type Database = {
           created_at?: string
           id?: string
           title?: string
+          topics?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -231,6 +233,7 @@ export type Database = {
           created_at?: string
           id?: string
           title?: string
+          topics?: Json | null
           updated_at?: string
           user_id?: string
         }
@@ -409,6 +412,36 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      daily_activities: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          sessions_count: number | null
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          sessions_count?: number | null
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          sessions_count?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -630,6 +663,33 @@ export type Database = {
           target_date?: string | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      knowledge_base_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          query: string
+          result_count: number | null
+          source_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          query: string
+          result_count?: number | null
+          source_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          query?: string
+          result_count?: number | null
+          source_type?: string
           user_id?: string
         }
         Relationships: []
@@ -1221,36 +1281,42 @@ export type Database = {
       }
       reading_sessions: {
         Row: {
+          book_category: string | null
           book_id: string
           created_at: string | null
           duration_seconds: number | null
           end_cfi: string | null
           id: string
           pages_read: number | null
+          search_query: string | null
           session_end: string | null
           session_start: string | null
           start_cfi: string | null
           user_id: string
         }
         Insert: {
+          book_category?: string | null
           book_id: string
           created_at?: string | null
           duration_seconds?: number | null
           end_cfi?: string | null
           id?: string
           pages_read?: number | null
+          search_query?: string | null
           session_end?: string | null
           session_start?: string | null
           start_cfi?: string | null
           user_id: string
         }
         Update: {
+          book_category?: string | null
           book_id?: string
           created_at?: string | null
           duration_seconds?: number | null
           end_cfi?: string | null
           id?: string
           pages_read?: number | null
+          search_query?: string | null
           session_end?: string | null
           session_start?: string | null
           start_cfi?: string | null
@@ -1764,6 +1830,19 @@ export type Database = {
         Returns: {
           level: number
           next_level_xp: number
+        }[]
+      }
+      extract_chat_topics: {
+        Args: { session_id: string }
+        Returns: Json
+      }
+      get_activity_heatmap: {
+        Args: { user_uuid: string; days_back?: number }
+        Returns: {
+          activity_date: string
+          hour_of_day: number
+          activity_count: number
+          total_duration_minutes: number
         }[]
       }
       has_role: {
