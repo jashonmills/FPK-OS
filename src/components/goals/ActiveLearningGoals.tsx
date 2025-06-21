@@ -6,9 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, Target, TrendingUp } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
+import GoalCreateForm from './GoalCreateForm';
 
 const ActiveLearningGoals = () => {
-  const { goals = [], loading } = useGoals();
+  const { goals = [], loading, refetchGoals } = useGoals();
+  
+  const handleGoalCreated = () => {
+    // Refetch goals to update the UI
+    refetchGoals();
+  };
   
   if (loading) {
     return (
@@ -50,9 +56,7 @@ const ActiveLearningGoals = () => {
           <div className="text-center py-6">
             <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 mb-4">No active learning goals</p>
-            <Button size="sm" className="fpk-gradient text-white">
-              Create Learning Goal
-            </Button>
+            <GoalCreateForm onGoalCreated={handleGoalCreated} />
           </div>
         </CardContent>
       </Card>
@@ -123,6 +127,11 @@ const ActiveLearningGoals = () => {
               View All Learning Goals ({learningGoals.length})
             </Button>
           )}
+          
+          {/* Add create goal button at the bottom when there are existing goals */}
+          <div className="pt-4 border-t">
+            <GoalCreateForm onGoalCreated={handleGoalCreated} />
+          </div>
         </div>
       </CardContent>
     </Card>
