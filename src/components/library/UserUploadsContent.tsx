@@ -102,11 +102,13 @@ const UserUploadsContent: React.FC = () => {
               <UserUploadsListView 
                 uploads={userUploads} 
                 onView={handlePDFOpen}
+                validatingPDF={validatingPDF}
               />
             ) : (
               <UserUploadsGridView 
                 uploads={userUploads} 
                 onView={handlePDFOpen}
+                validatingPDF={validatingPDF}
               />
             )}
           </div>
