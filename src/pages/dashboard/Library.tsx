@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -173,7 +172,7 @@ const Library = () => {
   };
 
   return (
-    <Lib raryWithMonitoring>
+    <LibraryWithMonitoring>
       <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div className="space-y-4">
