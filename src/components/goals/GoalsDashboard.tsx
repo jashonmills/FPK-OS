@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,15 +13,15 @@ import GoalCard from './GoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
 
 export const GoalsDashboard = () => {
-  const { goals, loading } = useGoals();
+  const { goals = [], loading } = useGoals(); // Add default empty array
   const { t } = useDualLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Filter goals by status
-  const activeGoals = goals.filter(goal => goal.status === 'active');
-  const completedGoals = goals.filter(goal => goal.status === 'completed');
-  const pausedGoals = goals.filter(goal => goal.status === 'paused');
+  // Filter goals by status with null checks
+  const activeGoals = goals?.filter(goal => goal?.status === 'active') || [];
+  const completedGoals = goals?.filter(goal => goal?.status === 'completed') || [];
+  const pausedGoals = goals?.filter(goal => goal?.status === 'paused') || [];
 
   // Get filtered goals based on active tab
   const getFilteredGoals = () => {
@@ -32,7 +33,7 @@ export const GoalsDashboard = () => {
       case 'paused':
         return pausedGoals;
       default:
-        return goals;
+        return goals || [];
     }
   };
 
@@ -45,6 +46,12 @@ export const GoalsDashboard = () => {
       </div>
     );
   }
+
+  // Safe array length checks
+  const totalGoals = goals?.length || 0;
+  const activeGoalsCount = activeGoals?.length || 0;
+  const completedGoalsCount = completedGoals?.length || 0;
+  const pausedGoalsCount = pausedGoals?.length || 0;
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
@@ -60,7 +67,7 @@ export const GoalsDashboard = () => {
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
                   <DualLanguageText translationKey="goals.stats.totalGoals" fallback="Total Goals" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{goals.length}</p>
+                <p className="text-base sm:text-lg md:text-xl font-bold">{totalGoals}</p>
               </div>
             </div>
           </CardContent>
@@ -76,7 +83,7 @@ export const GoalsDashboard = () => {
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
                   <DualLanguageText translationKey="goals.stats.activeGoals" fallback="Active" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{activeGoals.length}</p>
+                <p className="text-base sm:text-lg md:text-xl font-bold">{activeGoalsCount}</p>
               </div>
             </div>
           </CardContent>
@@ -92,7 +99,7 @@ export const GoalsDashboard = () => {
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
                   <DualLanguageText translationKey="goals.stats.completedGoals" fallback="Complete" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{completedGoals.length}</p>
+                <p className="text-base sm:text-lg md:text-xl font-bold">{completedGoalsCount}</p>
               </div>
             </div>
           </CardContent>
@@ -109,7 +116,7 @@ export const GoalsDashboard = () => {
                   <DualLanguageText translationKey="goals.stats.completionRate" fallback="Rate" />
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold">
-                  {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
+                  {totalGoals > 0 ? Math.round((completedGoalsCount / totalGoals) * 100) : 0}%
                 </p>
               </div>
             </div>
@@ -153,7 +160,7 @@ export const GoalsDashboard = () => {
                   </span>
                   <span className="sm:hidden">All</span>
                 </div>
-                <Badge variant="secondary" className="text-xs min-w-0">{goals.length}</Badge>
+                <Badge variant="secondary" className="text-xs min-w-0">{totalGoals}</Badge>
               </TabsTrigger>
               <TabsTrigger value="active" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
@@ -163,7 +170,7 @@ export const GoalsDashboard = () => {
                   </span>
                   <span className="sm:hidden">Active</span>
                 </div>
-                <Badge variant="secondary" className="text-xs min-w-0">{activeGoals.length}</Badge>
+                <Badge variant="secondary" className="text-xs min-w-0">{activeGoalsCount}</Badge>
               </TabsTrigger>
               <TabsTrigger value="completed" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
@@ -173,7 +180,7 @@ export const GoalsDashboard = () => {
                   </span>
                   <span className="sm:hidden">Done</span>
                 </div>
-                <Badge variant="secondary" className="text-xs min-w-0">{completedGoals.length}</Badge>
+                <Badge variant="secondary" className="text-xs min-w-0">{completedGoalsCount}</Badge>
               </TabsTrigger>
               <TabsTrigger value="paused" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
@@ -183,7 +190,7 @@ export const GoalsDashboard = () => {
                   </span>
                   <span className="sm:hidden">Paused</span>
                 </div>
-                <Badge variant="secondary" className="text-xs min-w-0">{pausedGoals.length}</Badge>
+                <Badge variant="secondary" className="text-xs min-w-0">{pausedGoalsCount}</Badge>
               </TabsTrigger>
             </TabsList>
 
@@ -216,19 +223,21 @@ export const GoalsDashboard = () => {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                   {getFilteredGoals().map((goal) => (
-                    <GoalCard 
-                      key={goal.id} 
-                      goal={{
-                        id: goal.id,
-                        title: goal.title,
-                        description: goal.description,
-                        priority: goal.priority as 'low' | 'medium' | 'high',
-                        status: goal.status as 'active' | 'completed' | 'paused',
-                        progress: goal.progress,
-                        target_date: goal.target_date,
-                        created_at: goal.created_at
-                      }} 
-                    />
+                    goal && goal.id ? (
+                      <GoalCard 
+                        key={goal.id} 
+                        goal={{
+                          id: goal.id,
+                          title: goal.title || '',
+                          description: goal.description || '',
+                          priority: (goal.priority as 'low' | 'medium' | 'high') || 'medium',
+                          status: (goal.status as 'active' | 'completed' | 'paused') || 'active',
+                          progress: goal.progress || 0,
+                          target_date: goal.target_date || null,
+                          created_at: goal.created_at || new Date().toISOString()
+                        }} 
+                      />
+                    ) : null
                   ))}
                 </div>
               )}

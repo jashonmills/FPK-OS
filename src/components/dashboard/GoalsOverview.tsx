@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 const GoalsOverview = () => {
-  const { goals, loading } = useGoals();
+  const { goals = [], loading } = useGoals(); // Add default empty array
   const navigate = useNavigate();
 
-  const activeGoals = goals.filter(goal => goal.status === 'active').slice(0, 3);
+  // Safe filtering with null checks
+  const activeGoals = (goals || []).filter(goal => goal?.status === 'active').slice(0, 3);
 
   if (loading) {
     return (
@@ -34,7 +35,7 @@ const GoalsOverview = () => {
     );
   }
 
-  if (activeGoals.length === 0) {
+  if (!activeGoals || activeGoals.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -50,7 +51,7 @@ const GoalsOverview = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Set learning goals to track your progress and stay motivated
             </p>
-            <Button onClick={() => navigate('/dashboard/goals')}>
+            <Button onClick={() => navigate('/dashboard/learner/goals')}>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Goal
             </Button>
@@ -68,7 +69,7 @@ const GoalsOverview = () => {
             <Target className="h-5 w-5 text-blue-600" />
             Your Goals
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/goals')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/learner/goals')}>
             View All
           </Button>
         </CardTitle>
@@ -76,19 +77,21 @@ const GoalsOverview = () => {
       <CardContent>
         <div className="space-y-4">
           {activeGoals.map((goal) => (
-            <div key={goal.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">{goal.title}</h4>
-                <Badge variant="secondary">{goal.category}</Badge>
+            goal && goal.id ? (
+              <div key={goal.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">{goal.title || 'Untitled Goal'}</h4>
+                  <Badge variant="secondary">{goal.category || 'General'}</Badge>
+                </div>
+                <Progress value={goal.progress || 0} className="h-2" />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{goal.progress || 0}% complete</span>
+                  {goal.target_date && (
+                    <span>Due: {new Date(goal.target_date).toLocaleDateString()}</span>
+                  )}
+                </div>
               </div>
-              <Progress value={goal.progress} className="h-2" />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{goal.progress}% complete</span>
-                {goal.target_date && (
-                  <span>Due: {new Date(goal.target_date).toLocaleDateString()}</span>
-                )}
-              </div>
-            </div>
+            ) : null
           ))}
         </div>
       </CardContent>
