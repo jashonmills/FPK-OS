@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -17,7 +16,7 @@ interface UserUploadsSectionProps {
 }
 
 const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: parentViewMode = 'grid' }) => {
-  const { userUploads, isLoadingUser } = useUserUploadedBooks();
+  const { userUploads, isLoadingUserUploads } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
@@ -63,7 +62,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
     }
   };
 
-  if (isLoadingUser) {
+  if (isLoadingUserUploads) {
     return (
       <Card>
         <CardHeader>
@@ -136,13 +135,13 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
                   {/* Content based on view mode */}
                   {viewMode === 'list' ? (
                     <UserUploadsListView 
-                      books={userUploads} 
+                      uploads={userUploads} 
                       onView={handlePDFOpen}
                       validatingPDF={validatingPDF}
                     />
                   ) : (
                     <UserUploadsGridView 
-                      books={userUploads} 
+                      uploads={userUploads} 
                       onView={handlePDFOpen}
                       validatingPDF={validatingPDF}
                     />
