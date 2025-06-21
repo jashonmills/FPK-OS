@@ -1,5 +1,5 @@
 
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,31 +11,36 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
+import RouteBoundary from '@/components/RouteBoundary';
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
-import LearnerHome from "./pages/dashboard/LearnerHome";
-import Library from "./pages/dashboard/Library";
-import MyCourses from "./pages/dashboard/MyCourses";
-import Goals from "./pages/dashboard/Goals";
-import Notes from "./pages/dashboard/Notes";
-import Gamification from "./pages/dashboard/Gamification";
-import Settings from "./pages/dashboard/Settings";
-import LearningAnalytics from "./pages/dashboard/LearningAnalytics";
-import AIStudyCoach from "./pages/dashboard/AIStudyCoach";
-import FlashcardManagerPage from "./pages/dashboard/FlashcardManagerPage";
-import LiveLearningHub from "./pages/dashboard/LiveLearningHub";
-import DynamicCourse from "./pages/dashboard/DynamicCourse";
-import LearningStateCourse from "./pages/dashboard/LearningStateCourse";
-import LearningStateEmbed from "./pages/dashboard/LearningStateEmbed";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import UserManagement from "./pages/admin/UserManagement";
-import CourseManager from "./pages/admin/CourseManager";
-import Analytics from "./pages/admin/Analytics";
-import ModuleManagerPage from "./pages/admin/ModuleManagerPage";
-import ThresholdManagement from "./pages/admin/ThresholdManagement";
 import "./App.css";
+
+// Lazy load dashboard pages for route isolation
+const LearnerHome = lazy(() => import("./pages/dashboard/LearnerHome"));
+const Library = lazy(() => import("./pages/dashboard/Library"));
+const MyCourses = lazy(() => import("./pages/dashboard/MyCourses"));
+const Goals = lazy(() => import("./pages/dashboard/Goals"));
+const Notes = lazy(() => import("./pages/dashboard/Notes"));
+const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
+const Settings = lazy(() => import("./pages/dashboard/Settings"));
+const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
+const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
+const FlashcardManagerPage = lazy(() => import("./pages/dashboard/FlashcardManagerPage"));
+const LiveLearningHub = lazy(() => import("./pages/dashboard/LiveLearningHub"));
+const DynamicCourse = lazy(() => import("./pages/dashboard/DynamicCourse"));
+const LearningStateCourse = lazy(() => import("./pages/dashboard/LearningStateCourse"));
+const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmbed"));
+
+// Lazy load admin pages
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
+const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
+const Analytics = lazy(() => import("./pages/admin/Analytics"));
+const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
+const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +50,25 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-[400px] flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600">Loading page...</p>
+    </div>
+  </div>
+);
+
+// Wrapper component for lazy-loaded routes
+const LazyRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<PageLoader />}>
+    <RouteBoundary>
+      {children}
+    </RouteBoundary>
+  </Suspense>
+);
 
 function App() {
   return (
@@ -63,30 +87,70 @@ function App() {
                         <Route path="/" element={<Index />} />
                         <Route path="/login" element={<Login />} />
                         
-                        {/* Dashboard Routes */}
+                        {/* Dashboard Routes with Route Isolation */}
                         <Route path="/dashboard/*" element={<DashboardLayout />}>
-                          <Route path="learner" element={<LearnerHome />} />
-                          <Route path="learner/library" element={<Library />} />
-                          <Route path="learner/courses" element={<MyCourses />} />
-                          <Route path="learner/goals" element={<Goals />} />
-                          <Route path="learner/notes" element={<Notes />} />
-                          <Route path="learner/gamification" element={<Gamification />} />
-                          <Route path="learner/settings" element={<Settings />} />
-                          <Route path="learner/analytics" element={<LearningAnalytics />} />
-                          <Route path="learner/ai-coach" element={<AIStudyCoach />} />
-                          <Route path="learner/flashcards" element={<FlashcardManagerPage />} />
-                          <Route path="learner/live-hub" element={<LiveLearningHub />} />
-                          <Route path="learner/course/:courseId" element={<DynamicCourse />} />
-                          <Route path="learner/learning-state/:courseId" element={<LearningStateCourse />} />
-                          <Route path="learner/learning-state-embed/:moduleId" element={<LearningStateEmbed />} />
+                          <Route path="learner" element={
+                            <LazyRoute><LearnerHome /></LazyRoute>
+                          } />
+                          <Route path="learner/library" element={
+                            <LazyRoute><Library /></LazyRoute>
+                          } />
+                          <Route path="learner/courses" element={
+                            <LazyRoute><MyCourses /></LazyRoute>
+                          } />
+                          <Route path="learner/goals" element={
+                            <LazyRoute><Goals /></LazyRoute>
+                          } />
+                          <Route path="learner/notes" element={
+                            <LazyRoute><Notes /></LazyRoute>
+                          } />
+                          <Route path="learner/gamification" element={
+                            <LazyRoute><Gamification /></LazyRoute>
+                          } />
+                          <Route path="learner/settings" element={
+                            <LazyRoute><Settings /></LazyRoute>
+                          } />
+                          <Route path="learner/analytics" element={
+                            <LazyRoute><LearningAnalytics /></LazyRoute>
+                          } />
+                          <Route path="learner/ai-coach" element={
+                            <LazyRoute><AIStudyCoach /></LazyRoute>
+                          } />
+                          <Route path="learner/flashcards" element={
+                            <LazyRoute><FlashcardManagerPage /></LazyRoute>
+                          } />
+                          <Route path="learner/live-hub" element={
+                            <LazyRoute><LiveLearningHub /></LazyRoute>
+                          } />
+                          <Route path="learner/course/:courseId" element={
+                            <LazyRoute><DynamicCourse /></LazyRoute>
+                          } />
+                          <Route path="learner/learning-state/:courseId" element={
+                            <LazyRoute><LearningStateCourse /></LazyRoute>
+                          } />
+                          <Route path="learner/learning-state-embed/:moduleId" element={
+                            <LazyRoute><LearningStateEmbed /></LazyRoute>
+                          } />
                           
-                          {/* Admin Routes */}
-                          <Route path="admin" element={<AdminDashboard />} />
-                          <Route path="admin/users" element={<UserManagement />} />
-                          <Route path="admin/courses" element={<CourseManager />} />
-                          <Route path="admin/analytics" element={<Analytics />} />
-                          <Route path="admin/modules" element={<ModuleManagerPage />} />
-                          <Route path="admin/thresholds" element={<ThresholdManagement />} />
+                          {/* Admin Routes with Route Isolation */}
+                          <Route path="admin" element={
+                            <LazyRoute><AdminDashboard /></LazyRoute>
+                          } />
+                          <Route path="admin/users" element={
+                            <LazyRoute><UserManagement /></LazyRoute>
+                          } />
+                          <Route path="admin/courses" element={
+                            <LazyRoute><CourseManager /></LazyRoute>
+                          } />
+                          <Route path="admin/analytics" element={
+                            <LazyRoute><Analytics /></LazyRoute>
+                          } />
+                          <Route path="admin/modules" element={
+                            <LazyRoute><ModuleManagerPage /></LazyRoute>
+                          } />
+                          <Route path="admin/thresholds" element={
+                            <LazyRoute><ThresholdManagement /></LazyRoute>
+                          } />
                           
                           {/* Default redirect */}
                           <Route index element={<Navigate to="learner" replace />} />
