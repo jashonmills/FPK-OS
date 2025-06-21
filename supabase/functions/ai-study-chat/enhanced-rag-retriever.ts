@@ -1,7 +1,7 @@
-
 import { RAGRetriever } from './rag-retriever.ts';
 import { VectorEmbeddingService } from './vector-embeddings.ts';
 import { KnowledgeCache } from './knowledge-cache.ts';
+import { ExternalKnowledgeService } from './external-knowledge-service.ts';
 
 export interface EnhancedRetrievalResult {
   personalKnowledge: any[];
@@ -10,17 +10,40 @@ export interface EnhancedRetrievalResult {
   cacheHit: boolean;
   sources: string[];
   confidence: number;
+  freshness: 'current' | 'recent' | 'outdated';
 }
 
 export class EnhancedRAGRetriever {
   private ragRetriever: RAGRetriever;
   private vectorService: VectorEmbeddingService;
   private cache: KnowledgeCache;
+  private externalService: ExternalKnowledgeService;
 
   constructor() {
     this.ragRetriever = new RAGRetriever();
     this.vectorService = new VectorEmbeddingService();
     this.cache = new KnowledgeCache();
+    this.externalService = new ExternalKnowledgeService();
+  }
+
+  private calculateFreshness(results: any[]): 'current' | 'recent' | 'outdated' {
+    const now = new Date();
+    const hasCurrentInfo = results.some(r => r.is_current === true);
+    const hasRecentInfo = results.some(r => {
+      if (!r.date_retrieved) return false;
+      const retrievedDate = new Date(r.date_retrieved);
+      const hoursDiff = (now.getTime() - retrievedDate.getTime()) / (1000 * 60 * 60);
+      return hoursDiff < 24;
+    });
+
+    if (hasCurrentInfo) return 'current';
+    if (hasRecentInfo) return 'recent';
+    return 'outdated';
+  }
+
+  private shouldSkipCache(query: string): boolean {
+    const timeKeywords = ['current', 'now', 'today', 'recent', 'latest', 'president', '2025'];
+    return timeKeywords.some(keyword => query.toLowerCase().includes(keyword));
   }
 
   async retrieveEnhancedKnowledge(
@@ -30,18 +53,22 @@ export class EnhancedRAGRetriever {
   ): Promise<EnhancedRetrievalResult> {
     console.log('🔍 Enhanced RAG retrieval starting:', { query: query.substring(0, 50), userId, chatMode });
 
-    // Generate cache key
-    const queryHash = this.cache.generateQueryHash(query, userId, { chatMode });
+    // For time-sensitive queries, skip cache
+    const skipCache = this.shouldSkipCache(query);
+    let cached = null;
     
-    // Check cache first
-    const cached = await this.cache.get(queryHash);
-    if (cached && this.isCacheFresh(cached)) {
-      console.log('💾 Cache hit for query');
-      try {
-        const cachedResult = JSON.parse(cached.content) as EnhancedRetrievalResult;
-        return { ...cachedResult, cacheHit: true };
-      } catch (parseError) {
-        console.error('Error parsing cached result:', parseError);
+    if (!skipCache) {
+      const queryHash = this.cache.generateQueryHash(query, userId, { chatMode });
+      cached = await this.cache.get(queryHash);
+      
+      if (cached && this.isCacheFresh(cached)) {
+        console.log('💾 Cache hit for query');
+        try {
+          const cachedResult = JSON.parse(cached.content) as EnhancedRetrievalResult;
+          return { ...cachedResult, cacheHit: true };
+        } catch (parseError) {
+          console.error('Error parsing cached result:', parseError);
+        }
       }
     }
 
@@ -53,10 +80,8 @@ export class EnhancedRAGRetriever {
       retrievalTasks.push(this.ragRetriever.retrievePersonalKnowledge(userId));
     }
 
-    // 2. External knowledge retrieval (for general mode or hybrid)
-    if (chatMode === 'general' || chatMode === 'personal') {
-      retrievalTasks.push(this.ragRetriever.retrieveExternalKnowledge(query));
-    }
+    // 2. Enhanced external knowledge retrieval
+    retrievalTasks.push(this.externalService.retrieveExternalKnowledge(query));
 
     // 3. Vector similarity search
     const queryEmbedding = await this.vectorService.generateEmbedding(query);
@@ -76,10 +101,9 @@ export class EnhancedRAGRetriever {
       const similarContent = queryEmbedding.length > 0 && results[results.length - 1]?.status === 'fulfilled'
         ? results[results.length - 1].value : [];
 
-      // Calculate confidence based on available knowledge
-      const confidence = this.calculateConfidence(personalKnowledge, externalKnowledge, similarContent);
-      
-      // Determine sources
+      // Calculate enhanced confidence and freshness
+      const confidence = this.calculateEnhancedConfidence(personalKnowledge, externalKnowledge, similarContent);
+      const freshness = this.calculateFreshness(externalKnowledge);
       const sources = this.identifySources(personalKnowledge, externalKnowledge, similarContent);
 
       const enhancedResult: EnhancedRetrievalResult = {
@@ -88,28 +112,37 @@ export class EnhancedRAGRetriever {
         similarContent: Array.isArray(similarContent) ? similarContent : [],
         cacheHit: false,
         sources,
-        confidence
+        confidence,
+        freshness
       };
 
-      // Cache the result
-      await this.cache.set(
-        queryHash,
-        JSON.stringify(enhancedResult),
-        chatMode === 'personal' ? 'hybrid' : 'external',
-        { 
-          query_preview: query.substring(0, 100),
-          user_id: userId,
-          chat_mode: chatMode,
-          confidence,
-          sources: sources.length
-        }
-      );
+      // Cache the result (with shorter TTL for time-sensitive queries)
+      if (!skipCache) {
+        const queryHash = this.cache.generateQueryHash(query, userId, { chatMode });
+        const ttl = this.shouldSkipCache(query) ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 hour vs 24 hours
+        
+        await this.cache.set(
+          queryHash,
+          JSON.stringify(enhancedResult),
+          chatMode === 'personal' ? 'hybrid' : 'external',
+          { 
+            query_preview: query.substring(0, 100),
+            user_id: userId,
+            chat_mode: chatMode,
+            confidence,
+            sources: sources.length,
+            freshness
+          },
+          ttl
+        );
+      }
 
       console.log('✅ Enhanced RAG retrieval completed:', {
         personalItems: enhancedResult.personalKnowledge.length,
         externalItems: enhancedResult.externalKnowledge.length,
         similarItems: enhancedResult.similarContent.length,
         confidence: enhancedResult.confidence,
+        freshness: enhancedResult.freshness,
         sources: enhancedResult.sources.length
       });
 
@@ -124,7 +157,8 @@ export class EnhancedRAGRetriever {
         similarContent: [],
         cacheHit: false,
         sources: [],
-        confidence: 0
+        confidence: 0,
+        freshness: 'outdated'
       };
     }
   }
@@ -135,7 +169,7 @@ export class EnhancedRAGRetriever {
     return expiresAt > now;
   }
 
-  private calculateConfidence(
+  private calculateEnhancedConfidence(
     personalKnowledge: any[],
     externalKnowledge: any[],
     similarContent: any[]
@@ -149,18 +183,20 @@ export class EnhancedRAGRetriever {
       maxScore += 0.4;
     }
 
-    // External knowledge adds moderate confidence
+    // External knowledge confidence varies by freshness and source
     if (externalKnowledge.length > 0) {
-      score += Math.min(externalKnowledge.length * 0.2, 0.3);
-      maxScore += 0.3;
+      const avgConfidence = externalKnowledge.reduce((sum, item) => 
+        sum + (item.confidence || 0.5), 0) / externalKnowledge.length;
+      score += avgConfidence * 0.4;
+      maxScore += 0.4;
     }
 
     // Similar content adds some confidence
     if (similarContent.length > 0) {
       const avgSimilarity = similarContent.reduce((sum, item) => 
         sum + (item.metadata?.similarity || 0), 0) / similarContent.length;
-      score += avgSimilarity * 0.3;
-      maxScore += 0.3;
+      score += avgSimilarity * 0.2;
+      maxScore += 0.2;
     }
 
     return maxScore > 0 ? Math.min(score / maxScore, 1) : 0;
@@ -177,9 +213,11 @@ export class EnhancedRAGRetriever {
       sources.add('Personal Study Data');
     }
 
-    if (externalKnowledge.length > 0) {
-      sources.add('External Knowledge');
-    }
+    externalKnowledge.forEach(item => {
+      if (item.source_name) {
+        sources.add(item.source_name);
+      }
+    });
 
     if (similarContent.length > 0) {
       sources.add('Similar Content');
