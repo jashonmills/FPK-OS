@@ -19,8 +19,8 @@ const DashboardLayout = () => {
               <AppSidebar />
               <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
                 <GlobalHeader />
-                <main className="flex-1 bg-gray-50 overflow-x-hidden">
-                  <div className="w-full h-full overflow-x-hidden">
+                <main className="flex-1 bg-gray-50 overflow-y-auto">
+                  <div className="w-full h-full p-4 md:p-6 lg:p-8">
                     <ErrorBoundary>
                       <Outlet />
                     </ErrorBoundary>
