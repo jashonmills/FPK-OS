@@ -4,7 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
 import { useQueryClient } from '@tanstack/react-query';
-import { useGoalsSubscription } from '@/hooks/useGoalsSubscription';
 import { GoalsService } from '@/services/goalsService';
 import type { Goal, GoalInsert, GoalUpdate, UseGoalsReturn } from '@/types/goals';
 
@@ -16,7 +15,6 @@ export const useGoals = (): UseGoalsReturn => {
   const { toast } = useToast();
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
-  const loadingRef = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -27,29 +25,25 @@ export const useGoals = (): UseGoalsReturn => {
   }, []);
 
   const loadGoals = useCallback(async () => {
-    if (!user?.id || !mountedRef.current || loadingRef.current) {
-      console.log('🔄 Skipping goals load - conditions not met', { 
-        hasUser: !!user?.id, 
-        mounted: mountedRef.current, 
-        loading: loadingRef.current 
-      });
+    if (!user?.id || !mountedRef.current) {
+      console.log('🔄 Skipping goals load - no user or component unmounted');
+      setLoading(false);
       return;
     }
     
-    loadingRef.current = true;
     console.log('🔄 Loading goals for user:', user.id);
     
     try {
+      setLoading(true);
       const data = await GoalsService.loadGoals();
+      
       if (mountedRef.current) {
         console.log('✅ Goals loaded successfully:', data.length);
         setGoals(data);
-        setLoading(false);
       }
     } catch (error) {
       console.error('❌ Error loading goals:', error);
       if (mountedRef.current) {
-        setLoading(false);
         toast({
           title: "Error",
           description: "Failed to load goals. Please try refreshing the page.",
@@ -57,7 +51,9 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } finally {
-      loadingRef.current = false;
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [user?.id, toast]);
 
@@ -197,21 +193,14 @@ export const useGoals = (): UseGoalsReturn => {
     }
   }, [toast]);
 
-  // Set up real-time subscription
-  useGoalsSubscription({ 
-    onGoalsChange: useCallback(() => {
-      if (mountedRef.current) {
-        console.log('🔄 Real-time update triggered, reloading goals...');
-        loadGoals();
-      }
-    }, [loadGoals])
-  });
-
-  // Load goals initially
+  // Load goals initially when user is available
   useEffect(() => {
     if (user?.id) {
       console.log('👤 User found, loading initial goals...');
       loadGoals();
+    } else {
+      console.log('👤 No user found, setting loading to false');
+      setLoading(false);
     }
   }, [user?.id, loadGoals]);
 

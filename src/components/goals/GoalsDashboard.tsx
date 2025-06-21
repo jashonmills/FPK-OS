@@ -13,10 +13,22 @@ import GoalCard from './GoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
 
 export const GoalsDashboard = () => {
-  const { goals = [], loading } = useGoals(); // Add default empty array
+  const { goals = [], loading } = useGoals();
   const { t } = useDualLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+
+  // Add error boundary fallback
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-4 sm:p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <div className="ml-3 text-gray-500 text-sm sm:text-base">
+          <DualLanguageText translationKey="common.loading" fallback="Loading goals..." />
+        </div>
+      </div>
+    );
+  }
 
   // Filter goals by status with null checks
   const activeGoals = goals?.filter(goal => goal?.status === 'active') || [];
@@ -36,16 +48,6 @@ export const GoalsDashboard = () => {
         return goals || [];
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-4 sm:p-8">
-        <div className="text-gray-500 text-sm sm:text-base">
-          <DualLanguageText translationKey="common.loading" fallback="Loading..." />
-        </div>
-      </div>
-    );
-  }
 
   // Safe array length checks
   const totalGoals = goals?.length || 0;
@@ -123,11 +125,11 @@ export const GoalsDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Reading Progress Widget - NEW */}
+        {/* Reading Progress Widget */}
         <ReadingProgressWidget />
       </div>
 
-      {/* Goals Management - Improved tablet layout */}
+      {/* Goals Management */}
       <Card className="fpk-card border-0 shadow-lg">
         <CardHeader className="p-3 sm:p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -150,7 +152,6 @@ export const GoalsDashboard = () => {
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {/* Improved tablet-friendly tabs */}
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 sm:mb-6 h-auto gap-1">
               <TabsTrigger value="all" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
