@@ -16,8 +16,8 @@ export const useGoals = (): UseGoalsReturn => {
   const { toast } = useToast();
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
-  const mountedRef = useRef(true);
   const loadingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -27,33 +27,39 @@ export const useGoals = (): UseGoalsReturn => {
   }, []);
 
   const loadGoals = useCallback(async () => {
-    if (!mountedRef.current || loadingRef.current) return;
+    if (!user?.id || !mountedRef.current || loadingRef.current) {
+      console.log('🔄 Skipping goals load - conditions not met', { 
+        hasUser: !!user?.id, 
+        mounted: mountedRef.current, 
+        loading: loadingRef.current 
+      });
+      return;
+    }
     
     loadingRef.current = true;
-    console.log('🔄 Loading goals...');
+    console.log('🔄 Loading goals for user:', user.id);
     
     try {
       const data = await GoalsService.loadGoals();
       if (mountedRef.current) {
         console.log('✅ Goals loaded successfully:', data.length);
         setGoals(data);
+        setLoading(false);
       }
     } catch (error) {
       console.error('❌ Error loading goals:', error);
       if (mountedRef.current) {
+        setLoading(false);
         toast({
           title: "Error",
-          description: "Failed to load goals.",
+          description: "Failed to load goals. Please try refreshing the page.",
           variant: "destructive",
         });
       }
     } finally {
-      if (mountedRef.current) {
-        setLoading(false);
-      }
       loadingRef.current = false;
     }
-  }, [toast]);
+  }, [user?.id, toast]);
 
   const createGoal = useCallback(async (goal: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
     if (!user || !mountedRef.current) return null;
@@ -126,27 +132,21 @@ export const useGoals = (): UseGoalsReturn => {
 
     setSaving(true);
     try {
-      // Update goal status first
       const updatedGoal = await GoalsService.updateGoal(id, { 
         status: 'completed', 
         progress: 100,
         completed_at: new Date().toISOString()
       });
 
-      // Award XP and trigger achievements
       try {
         await awardGoalCompletionXP(goal.category, goal.priority);
         console.log('✅ Goal completion XP awarded');
       } catch (xpError) {
         console.error('Error awarding goal completion XP:', xpError);
-        // Don't fail the goal completion if XP fails
       }
 
       if (mountedRef.current) {
-        // Update local state
         setGoals(prev => prev.map(g => g.id === id ? updatedGoal : g));
-
-        // Invalidate related queries to trigger refresh
         queryClient.invalidateQueries({ queryKey: ['profile'] });
         queryClient.invalidateQueries({ queryKey: ['achievements'] });
         queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
@@ -197,19 +197,19 @@ export const useGoals = (): UseGoalsReturn => {
     }
   }, [toast]);
 
-  // Set up real-time subscription with stable callback
-  const stableLoadGoals = useCallback(() => {
-    if (mountedRef.current) {
-      console.log('🔄 Real-time update triggered, reloading goals...');
-      loadGoals();
-    }
-  }, [loadGoals]);
-
-  useGoalsSubscription({ onGoalsChange: stableLoadGoals });
+  // Set up real-time subscription
+  useGoalsSubscription({ 
+    onGoalsChange: useCallback(() => {
+      if (mountedRef.current) {
+        console.log('🔄 Real-time update triggered, reloading goals...');
+        loadGoals();
+      }
+    }, [loadGoals])
+  });
 
   // Load goals initially
   useEffect(() => {
-    if (user?.id && mountedRef.current) {
+    if (user?.id) {
       console.log('👤 User found, loading initial goals...');
       loadGoals();
     }
