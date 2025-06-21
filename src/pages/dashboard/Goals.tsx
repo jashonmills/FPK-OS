@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const Goals = () => {
   return (
