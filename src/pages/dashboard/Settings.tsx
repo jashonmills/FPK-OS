@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -292,8 +291,8 @@ const Settings = () => {
     
     setFormData(defaultData);
     toast({
-      title: renderText(t('settingsRestored')),
-      description: renderText(t('defaultsMessage')),
+      title: String(renderText(t('settingsRestored'))),
+      description: String(renderText(t('defaultsMessage'))),
     });
   };
 
