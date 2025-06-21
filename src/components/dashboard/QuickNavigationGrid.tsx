@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,56 +21,56 @@ const QuickNavigationGrid = () => {
       title: 'Library',
       description: 'Browse books and resources',
       icon: Library,
-      path: '/dashboard/library',
+      path: '/dashboard/learner/library',
       color: 'bg-blue-500 hover:bg-blue-600'
     },
     {
       title: 'Courses',
       description: 'Continue your courses',
       icon: GraduationCap,
-      path: '/dashboard/courses',
+      path: '/dashboard/learner/courses',
       color: 'bg-green-500 hover:bg-green-600'
     },
     {
       title: 'Notes',
       description: 'Manage your notes',
       icon: FileText,
-      path: '/dashboard/notes',
+      path: '/dashboard/learner/notes',
       color: 'bg-purple-500 hover:bg-purple-600'
     },
     {
       title: 'Flashcards',
       description: 'Study with flashcards',
       icon: Zap,
-      path: '/dashboard/flashcards',
+      path: '/dashboard/learner/flashcards',
       color: 'bg-orange-500 hover:bg-orange-600'
     },
     {
       title: 'Goals',
       description: 'Track your progress',
       icon: Target,
-      path: '/dashboard/goals',
+      path: '/dashboard/learner/goals',
       color: 'bg-red-500 hover:bg-red-600'
     },
     {
       title: 'Analytics',
       description: 'View your stats',
       icon: BarChart3,
-      path: '/dashboard/analytics',
+      path: '/dashboard/learner/analytics',
       color: 'bg-indigo-500 hover:bg-indigo-600'
     },
     {
       title: 'AI Coach',
       description: 'Get personalized help',
       icon: Brain,
-      path: '/dashboard/ai-study-coach',
+      path: '/dashboard/learner/ai-coach',
       color: 'bg-pink-500 hover:bg-pink-600'
     },
     {
       title: 'Gamification',
       description: 'View achievements',
       icon: BookOpen,
-      path: '/dashboard/gamification',
+      path: '/dashboard/learner/gamification',
       color: 'bg-yellow-500 hover:bg-yellow-600'
     }
   ];
