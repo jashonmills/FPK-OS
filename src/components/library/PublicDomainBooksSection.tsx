@@ -9,7 +9,6 @@ import { Eye, Globe, RefreshCw } from 'lucide-react';
 
 const PublicDomainBooksSection = () => {
   const { books, isLoading, refetch } = usePublicDomainBooks();
-  const { startReading } = useReadingProgress();
   const [loadingBookId, setLoadingBookId] = useState<string | null>(null);
 
   const handleReadBook = async (book: any) => {
@@ -17,8 +16,7 @@ const PublicDomainBooksSection = () => {
     try {
       const bookUrl = book.storage_url || book.epub_url;
       if (bookUrl) {
-        await startReading(book.id, bookUrl);
-        // Navigate to reader
+        // For now, just navigate to reader - we'll implement reading progress later
         window.open(`/reader/${book.id}`, '_blank');
       }
     } catch (error) {
