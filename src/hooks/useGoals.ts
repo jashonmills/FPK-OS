@@ -2,27 +2,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-
-export interface Goal {
-  id: string;
-  user_id: string;
-  title: string;
-  description?: string;
-  category: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'active' | 'completed' | 'paused';
-  progress: number;
-  target_date?: string;
-  completed_at?: string;
-  created_at: string;
-  updated_at: string;
-  milestones?: any[];
-}
+import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
 
 export const useGoals = () => {
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchGoals = async () => {
@@ -48,7 +34,8 @@ export const useGoals = () => {
       }
 
       console.log('🎯 Fetched goals:', data?.length || 0);
-      setGoals(data || []);
+      // Type assertion to handle the database string types
+      setGoals((data || []) as Goal[]);
     } catch (err) {
       console.error('❌ Error in fetchGoals:', err);
       setError('Failed to fetch goals');
@@ -57,11 +44,85 @@ export const useGoals = () => {
     }
   };
 
+  const createGoal = async (goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
+    if (!user?.id) return null;
+
+    try {
+      setSaving(true);
+      const { data, error } = await supabase
+        .from('goals')
+        .insert({
+          ...goalData,
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error creating goal:', error);
+        return null;
+      }
+
+      const newGoal = data as Goal;
+      setGoals(prev => [newGoal, ...prev]);
+      return newGoal;
+    } catch (err) {
+      console.error('❌ Error in createGoal:', err);
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateGoal = async (id: string, updates: GoalUpdate): Promise<void> => {
+    try {
+      setSaving(true);
+      const { data, error } = await supabase
+        .from('goals')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error updating goal:', error);
+        return;
+      }
+
+      const updatedGoal = data as Goal;
+      setGoals(prev => prev.map(goal => goal.id === id ? updatedGoal : goal));
+    } catch (err) {
+      console.error('❌ Error in updateGoal:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteGoal = async (id: string): Promise<void> => {
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('goals')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('❌ Error deleting goal:', error);
+        return;
+      }
+
+      setGoals(prev => prev.filter(goal => goal.id !== id));
+    } catch (err) {
+      console.error('❌ Error in deleteGoal:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
     fetchGoals();
   }, [user?.id]);
 
-  // Simple refetch function without subscriptions
   const refetchGoals = () => {
     fetchGoals();
   };
@@ -69,7 +130,11 @@ export const useGoals = () => {
   return {
     goals,
     loading,
+    saving,
     error,
+    createGoal,
+    updateGoal,
+    deleteGoal,
     refetchGoals
   };
 };
