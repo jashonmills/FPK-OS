@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, Search, Settings, User } from 'lucide-react';
+import { Search, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,20 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
-import DualLanguageText from '@/components/DualLanguageText';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useTranslation } from 'react-i18next';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
 const GlobalHeader = () => {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
@@ -76,13 +73,8 @@ const GlobalHeader = () => {
           {/* Language Switcher */}
           <LanguageSwitcher />
 
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs fpk-gradient">
-              3
-            </Badge>
-          </Button>
+          {/* Notifications - Using the actual notification system */}
+          <NotificationDropdown />
 
           {/* User Menu */}
           <DropdownMenu>

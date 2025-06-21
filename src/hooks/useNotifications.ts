@@ -108,6 +108,7 @@ export const useNotifications = () => {
         .from('notifications')
         .insert({
           user_id: user.id,
+          read_status: false,
           ...notification
         })
         .select()
@@ -115,15 +116,21 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      // Show toast for immediate feedback
+      // Show toast for immediate feedback with better styling
       toast({
         title: notification.title,
         description: notification.message,
+        duration: 5000,
       });
 
       return data;
     } catch (error) {
       console.error('Error creating notification:', error);
+      toast({
+        title: "Notification Error",
+        description: "Failed to create notification.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -153,10 +160,11 @@ export const useNotifications = () => {
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Show toast for new notification
+          // Show toast for new notification with better UX
           toast({
             title: newNotification.title,
             description: newNotification.message,
+            duration: 6000,
           });
         }
       )
@@ -197,7 +205,7 @@ export const useNotifications = () => {
         channelRef.current = null;
       }
     };
-  }, [user?.id]); // Only depend on user.id to prevent unnecessary re-subscriptions
+  }, [user?.id, toast]); // Added toast to dependencies
 
   return {
     notifications,
