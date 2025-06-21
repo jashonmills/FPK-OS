@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ interface ReliablePDFViewerProps {
 }
 
 interface PDFLoadingState {
-  stage: 'initializing' | 'validating' | 'loading' | 'ready' | 'error';
+  stage: 'initializing' | 'validating' | 'loading' | 'rendering' | 'ready' | 'error';
   message: string;
   progress: number;
   error?: string;
@@ -171,7 +172,7 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
           ...prev,
           stage: 'loading',
           message: 'Loading PDF document...',
-          progress: 70
+          progress: 80
         }));
 
         console.log('✅ PDF initialization complete, using URL:', workingUrl.substring(0, 100) + '...');
@@ -206,6 +207,18 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
       title: "PDF Loaded",
       description: `Successfully loaded ${fileName} with ${numPages} pages.`,
     });
+  };
+
+  const onDocumentLoadProgress = ({ loaded, total }: { loaded: number; total: number }) => {
+    if (total > 0) {
+      const downloadProgress = (loaded / total) * 100;
+      setLoadingState(prev => ({
+        ...prev,
+        stage: 'rendering',
+        message: `Rendering PDF... ${Math.round(downloadProgress)}%`,
+        progress: 80 + (downloadProgress * 0.15) // 80% to 95%
+      }));
+    }
   };
 
   const onDocumentLoadError = async (error: Error) => {
@@ -410,6 +423,7 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
               <Document
                 file={processedUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
+                onLoadProgress={onDocumentLoadProgress}
                 onLoadError={onDocumentLoadError}
                 loading={
                   <div className="flex items-center justify-center p-8">
