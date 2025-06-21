@@ -177,6 +177,78 @@ export type Database = {
         }
         Relationships: []
       }
+      book_quiz_questions: {
+        Row: {
+          book_id: string
+          chapter_index: number
+          correct_answer: string
+          created_at: string | null
+          difficulty_level: number | null
+          id: string
+          question_text: string
+          wrong_answers: string[]
+        }
+        Insert: {
+          book_id: string
+          chapter_index: number
+          correct_answer: string
+          created_at?: string | null
+          difficulty_level?: number | null
+          id?: string
+          question_text: string
+          wrong_answers: string[]
+        }
+        Update: {
+          book_id?: string
+          chapter_index?: number
+          correct_answer?: string
+          created_at?: string | null
+          difficulty_level?: number | null
+          id?: string
+          question_text?: string
+          wrong_answers?: string[]
+        }
+        Relationships: []
+      }
+      book_quiz_sessions: {
+        Row: {
+          book_id: string
+          completed_at: string | null
+          correct_answers: number
+          created_at: string | null
+          id: string
+          max_chapter_index: number
+          questions_answered: number
+          session_score: number
+          user_id: string
+          xp_awarded: number | null
+        }
+        Insert: {
+          book_id: string
+          completed_at?: string | null
+          correct_answers: number
+          created_at?: string | null
+          id?: string
+          max_chapter_index: number
+          questions_answered: number
+          session_score: number
+          user_id: string
+          xp_awarded?: number | null
+        }
+        Update: {
+          book_id?: string
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string | null
+          id?: string
+          max_chapter_index?: number
+          questions_answered?: number
+          session_score?: number
+          user_id?: string
+          xp_awarded?: number | null
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string

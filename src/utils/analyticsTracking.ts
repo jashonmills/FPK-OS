@@ -47,8 +47,44 @@ export const trackSearchAnalytics = async (
   }
 };
 
+export const trackBookQuizSession = async (
+  bookId: string,
+  questionsAnswered: number,
+  correctAnswers: number,
+  sessionScore: number,
+  xpAwarded: number,
+  userId?: string
+) => {
+  if (!userId) return;
+
+  try {
+    await supabase
+      .from('book_quiz_sessions')
+      .insert({
+        user_id: userId,
+        book_id: bookId,
+        questions_answered: questionsAnswered,
+        correct_answers: correctAnswers,
+        max_chapter_index: 1, // Default for now
+        session_score: sessionScore,
+        xp_awarded: xpAwarded
+      });
+    
+    // Also track as search analytics for overall analytics
+    await trackSearchAnalytics(
+      `book-quiz-${bookId}`,
+      'quiz-session',
+      questionsAnswered,
+      'books',
+      userId
+    );
+  } catch (error) {
+    console.error('Error tracking book quiz session:', error);
+  }
+};
+
 export const trackDailyActivity = async (
-  activityType: 'study' | 'reading' | 'chat' | 'notes' | 'goals',
+  activityType: 'study' | 'reading' | 'chat' | 'notes' | 'goals' | 'quiz',
   durationMinutes: number = 0,
   userId?: string
 ) => {
