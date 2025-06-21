@@ -9,6 +9,7 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGoals } from '@/hooks/useGoals';
 import { useToast } from '@/hooks/use-toast';
 import RAGStatusIndicator from '@/components/ai-coach/RAGStatusIndicator';
+import KnowledgeBaseSection from './KnowledgeBaseSection';
 
 const RAGProcessingPanel: React.FC = () => {
   const { processUserContent, isProcessing } = useRAGIntegration();
@@ -66,7 +67,7 @@ const RAGProcessingPanel: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <RAGStatusIndicator />
       
       <Card>
@@ -122,6 +123,8 @@ const RAGProcessingPanel: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <KnowledgeBaseSection />
     </div>
   );
 };

@@ -739,6 +739,48 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_base_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number
+          id: string
+          mime_type: string
+          processed: boolean
+          processed_at: string | null
+          storage_path: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size: number
+          id?: string
+          mime_type: string
+          processed?: boolean
+          processed_at?: string | null
+          storage_path: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          processed?: boolean
+          processed_at?: string | null
+          storage_path?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       knowledge_base_usage: {
         Row: {
           created_at: string | null
