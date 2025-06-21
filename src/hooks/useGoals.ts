@@ -17,6 +17,8 @@ export const useGoals = (): UseGoalsReturn => {
   const queryClient = useQueryClient();
   const mountedRef = useRef(true);
 
+  console.log('🎯 useGoals hook initialized for user:', user?.id);
+
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -25,30 +27,31 @@ export const useGoals = (): UseGoalsReturn => {
   }, []);
 
   const loadGoals = useCallback(async () => {
-    if (!user?.id || !mountedRef.current) {
-      console.log('🔄 Skipping goals load - no user or component unmounted');
+    if (!user?.id) {
+      console.log('🎯 Skipping goals load - no user');
       setLoading(false);
       return;
     }
     
-    console.log('🔄 Loading goals for user:', user.id);
+    console.log('🎯 Loading goals for user:', user.id);
     
     try {
       setLoading(true);
       const data = await GoalsService.loadGoals();
       
       if (mountedRef.current) {
-        console.log('✅ Goals loaded successfully:', data.length);
+        console.log('🎯 Goals loaded successfully:', data.length);
         setGoals(data);
       }
     } catch (error) {
-      console.error('❌ Error loading goals:', error);
+      console.error('🎯 Error loading goals:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
           description: "Failed to load goals. Please try refreshing the page.",
           variant: "destructive",
         });
+        setGoals([]); // Set empty array on error
       }
     } finally {
       if (mountedRef.current) {
@@ -76,7 +79,7 @@ export const useGoals = (): UseGoalsReturn => {
       }
       return data;
     } catch (error) {
-      console.error('❌ Error creating goal:', error);
+      console.error('🎯 Error creating goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -107,7 +110,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
-      console.error('❌ Error updating goal:', error);
+      console.error('🎯 Error updating goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -136,7 +139,7 @@ export const useGoals = (): UseGoalsReturn => {
 
       try {
         await awardGoalCompletionXP(goal.category, goal.priority);
-        console.log('✅ Goal completion XP awarded');
+        console.log('🎯 Goal completion XP awarded');
       } catch (xpError) {
         console.error('Error awarding goal completion XP:', xpError);
       }
@@ -153,7 +156,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
-      console.error('❌ Error completing goal:', error);
+      console.error('🎯 Error completing goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -182,7 +185,7 @@ export const useGoals = (): UseGoalsReturn => {
         });
       }
     } catch (error) {
-      console.error('❌ Error deleting goal:', error);
+      console.error('🎯 Error deleting goal:', error);
       if (mountedRef.current) {
         toast({
           title: "Error",
@@ -196,11 +199,12 @@ export const useGoals = (): UseGoalsReturn => {
   // Load goals initially when user is available
   useEffect(() => {
     if (user?.id) {
-      console.log('👤 User found, loading initial goals...');
+      console.log('🎯 User found, loading initial goals...');
       loadGoals();
     } else {
-      console.log('👤 No user found, setting loading to false');
+      console.log('🎯 No user found, setting loading to false');
       setLoading(false);
+      setGoals([]);
     }
   }, [user?.id, loadGoals]);
 

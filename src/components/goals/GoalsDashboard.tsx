@@ -1,25 +1,45 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Target, Trophy, Calendar, Filter } from 'lucide-react';
+import { Plus, Target, Trophy, Calendar, Filter, AlertCircle } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import GoalCreateForm from './GoalCreateForm';
 import GoalCard from './GoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
+import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoundary';
 
 export const GoalsDashboard = () => {
-  const { goals = [], loading } = useGoals();
+  console.log('🎯 GoalsDashboard rendering');
+  
+  const { goals = [], loading, error } = useGoals();
   const { t } = useDualLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
+  // Add error state handling
+  if (error) {
+    console.error('🎯 GoalsDashboard error:', error);
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Unable to Load Goals</h3>
+          <p className="text-gray-500 mb-4">There was an error loading your goals. Please try refreshing the page.</p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Add error boundary fallback
   if (loading) {
+    console.log('🎯 GoalsDashboard loading');
     return (
       <div className="flex items-center justify-center p-4 sm:p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -29,6 +49,8 @@ export const GoalsDashboard = () => {
       </div>
     );
   }
+
+  console.log('🎯 GoalsDashboard loaded with goals:', goals?.length || 0);
 
   // Filter goals by status with null checks
   const activeGoals = goals?.filter(goal => goal?.status === 'active') || [];
@@ -125,8 +147,10 @@ export const GoalsDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Reading Progress Widget */}
-        <ReadingProgressWidget />
+        {/* Reading Progress Widget with Error Boundary */}
+        <ReadingProgressWidgetErrorBoundary>
+          <ReadingProgressWidget />
+        </ReadingProgressWidgetErrorBoundary>
       </div>
 
       {/* Goals Management */}

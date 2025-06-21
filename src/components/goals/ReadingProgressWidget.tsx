@@ -5,9 +5,32 @@ import { BookOpen, Clock, TrendingUp } from 'lucide-react';
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 
 const ReadingProgressWidget = () => {
-  const { analytics, isLoading } = useReadingAnalytics();
+  console.log('📚 ReadingProgressWidget rendering');
+  
+  const { analytics, isLoading, error } = useReadingAnalytics();
+
+  if (error) {
+    console.error('📚 ReadingProgressWidget error:', error);
+    return (
+      <Card className="fpk-card border-0 shadow-md">
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <BookOpen className="h-4 w-4 text-blue-600" />
+            Reading Progress
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="text-center py-4">
+            <BookOpen className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+            <p className="text-xs text-gray-500">Unable to load reading data</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
+    console.log('📚 ReadingProgressWidget loading');
     return (
       <Card className="fpk-card border-0 shadow-md">
         <CardContent className="p-4">
@@ -21,6 +44,7 @@ const ReadingProgressWidget = () => {
   }
 
   if (!analytics) {
+    console.log('📚 ReadingProgressWidget no analytics');
     return (
       <Card className="fpk-card border-0 shadow-md">
         <CardHeader className="pb-2 p-4">
@@ -38,6 +62,8 @@ const ReadingProgressWidget = () => {
       </Card>
     );
   }
+
+  console.log('📚 ReadingProgressWidget rendering with analytics:', analytics);
 
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`;
