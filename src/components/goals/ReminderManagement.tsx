@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Bell, Plus, Trash2, Edit3, Clock, Calendar } from 'lucide-react';
+import { Bell, Plus, Trash2, Edit3, Clock } from 'lucide-react';
 import { useGoalReminders, type GoalReminderInsert } from '@/hooks/useGoalReminders';
 import { useGoals } from '@/hooks/useGoals';
 import { useToast } from '@/hooks/use-toast';
@@ -144,14 +144,14 @@ const ReminderManagement = () => {
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <Label htmlFor="goal">Goal (Optional)</Label>
-                    <Select value={formData.goal_id || ''} onValueChange={(value) => 
-                      setFormData(prev => ({ ...prev, goal_id: value || undefined }))
+                    <Select value={formData.goal_id || 'all'} onValueChange={(value) => 
+                      setFormData(prev => ({ ...prev, goal_id: value === 'all' ? undefined : value }))
                     }>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a goal or leave blank for all goals" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Goals</SelectItem>
+                        <SelectItem value="all">All Goals</SelectItem>
                         {goals.map(goal => (
                           <SelectItem key={goal.id} value={goal.id}>
                             {goal.title}

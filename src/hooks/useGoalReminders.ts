@@ -52,7 +52,11 @@ export const useGoalReminders = () => {
         return;
       }
 
-      setReminders(data || []);
+      // Type assertion to handle the database string types
+      setReminders((data || []).map(item => ({
+        ...item,
+        reminder_type: item.reminder_type as GoalReminder['reminder_type']
+      })) as GoalReminder[]);
     } catch (err) {
       console.error('❌ Error in fetchReminders:', err);
     } finally {
@@ -79,7 +83,10 @@ export const useGoalReminders = () => {
         return null;
       }
 
-      const newReminder = data as GoalReminder;
+      const newReminder = {
+        ...data,
+        reminder_type: data.reminder_type as GoalReminder['reminder_type']
+      } as GoalReminder;
       setReminders(prev => [newReminder, ...prev]);
       return newReminder;
     } catch (err) {
@@ -105,7 +112,10 @@ export const useGoalReminders = () => {
         return;
       }
 
-      const updatedReminder = data as GoalReminder;
+      const updatedReminder = {
+        ...data,
+        reminder_type: data.reminder_type as GoalReminder['reminder_type']
+      } as GoalReminder;
       setReminders(prev => prev.map(reminder => 
         reminder.id === id ? updatedReminder : reminder
       ));
