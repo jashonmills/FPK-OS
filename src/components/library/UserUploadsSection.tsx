@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -6,7 +5,7 @@ import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { FileText, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import ReliablePDFViewer from './ReliablePDFViewer';
+import SimplifiedPDFViewer from './SimplifiedPDFViewer';
 import UserUploadsListView from './UserUploadsListView';
 import UserUploadsGridView from './UserUploadsGridView';
 import PDFUploadComponent from './PDFUploadComponent';
@@ -61,7 +60,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
   }, [viewMode]);
 
   const handlePDFOpen = async (book: any) => {
-    console.log('📖 Opening PDF with reliable viewer:', book.file_name);
+    console.log('📖 Opening PDF with simplified viewer:', book.file_name);
     console.log('📖 PDF URL:', book.file_url);
     
     setValidatingPDF(book.id);
@@ -73,7 +72,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
       
       toast({
         title: "Opening PDF",
-        description: `Loading ${book.file_name} with enhanced viewer...`,
+        description: `Loading ${book.file_name} with simplified viewer...`,
       });
     } catch (error) {
       console.error('Error opening PDF:', error);
@@ -152,7 +151,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
                   {/* Upload Component */}
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-muted-foreground">
-                      Your uploaded books and documents (Enhanced PDF viewer active)
+                      Your uploaded books and documents (Simplified PDF viewer active)
                     </p>
                     <PDFUploadComponent />
                   </div>
@@ -180,7 +179,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
 
       {/* Reliable PDF Viewer Modal */}
       {selectedPDF && (
-        <ReliablePDFViewer
+        <SimplifiedPDFViewer
           fileUrl={selectedPDF.file_url}
           fileName={selectedPDF.file_name}
           onClose={() => setSelectedPDF(null)}

@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import ReliablePDFViewer from './ReliablePDFViewer';
+import SimplifiedPDFViewer from './SimplifiedPDFViewer';
 import UserUploadsListView from './UserUploadsListView';
 import UserUploadsGridView from './UserUploadsGridView';
 import PDFUploadComponent from './PDFUploadComponent';
@@ -24,7 +23,7 @@ const UserUploadsContent: React.FC = () => {
   });
 
   const handlePDFOpen = async (book: any) => {
-    console.log('📖 Opening PDF with reliable viewer:', book.file_name);
+    console.log('📖 Opening PDF with simplified viewer:', book.file_name);
     console.log('📖 PDF URL:', book.file_url);
     
     setValidatingPDF(book.id);
@@ -35,7 +34,7 @@ const UserUploadsContent: React.FC = () => {
       
       toast({
         title: "Opening PDF",
-        description: `Loading ${book.file_name} with enhanced viewer...`,
+        description: `Loading ${book.file_name} with simplified viewer...`,
       });
     } catch (error) {
       toast({
@@ -83,7 +82,7 @@ const UserUploadsContent: React.FC = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <p className="text-sm text-muted-foreground">
-                Your personal collection with enhanced PDF viewer
+                Your personal collection with simplified PDF viewer
               </p>
               <ToggleGroup 
                 type="single" 
@@ -123,7 +122,7 @@ const UserUploadsContent: React.FC = () => {
       </div>
 
       {selectedPDF && (
-        <ReliablePDFViewer
+        <SimplifiedPDFViewer
           fileUrl={selectedPDF.file_url}
           fileName={selectedPDF.file_name}
           onClose={() => setSelectedPDF(null)}
