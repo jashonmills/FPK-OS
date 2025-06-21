@@ -52,7 +52,7 @@ const StudySessionRouter: React.FC = () => {
           return;
         }
 
-        // Priority 2: Find very recent session (created in last 5 minutes) as fallback
+        // Priority 2: Find most recent incomplete session for this mode
         if (sessions.length > 0 && flashcards.length > 0) {
           const modeMap: Record<string, string> = {
             'memory-test': 'memory_test',
@@ -65,22 +65,27 @@ const StudySessionRouter: React.FC = () => {
             throw new Error(`Invalid study mode: ${mode}`);
           }
           
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          console.log('StudySessionRouter: Looking for sessions of type:', sessionType);
           
+          // Find the most recent incomplete session for this type
           const recentSession = sessions
-            .filter(s => 
-              s.session_type === sessionType && 
-              new Date(s.created_at) > fiveMinutesAgo &&
-              !s.completed_at // Only use incomplete sessions
-            )
+            .filter(s => {
+              const isCorrectType = s.session_type === sessionType;
+              const isIncomplete = !s.completed_at;
+              console.log(`Session ${s.id}: type=${s.session_type}, completed=${!!s.completed_at}, match=${isCorrectType && isIncomplete}`);
+              return isCorrectType && isIncomplete;
+            })
             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
 
           if (recentSession) {
-            console.log('StudySessionRouter: Using recent session as fallback:', recentSession.id);
+            console.log('StudySessionRouter: Using recent session:', recentSession.id);
+            console.log('StudySessionRouter: Session flashcard IDs:', recentSession.flashcard_ids);
             
-            const sessionFlashcards = flashcards.filter(card => 
-              recentSession.flashcard_ids.includes(card.id)
-            );
+            const sessionFlashcards = flashcards.filter(card => {
+              const isIncluded = recentSession.flashcard_ids.includes(card.id);
+              console.log(`Flashcard ${card.id}: included=${isIncluded}`);
+              return isIncluded;
+            });
             
             console.log('StudySessionRouter: Found', sessionFlashcards.length, 'flashcards for session');
             
@@ -92,8 +97,10 @@ const StudySessionRouter: React.FC = () => {
               setIsLoading(false);
               return;
             } else {
-              throw new Error('No matching flashcards found for the session');
+              console.warn('StudySessionRouter: No matching flashcards found for session');
             }
+          } else {
+            console.log('StudySessionRouter: No recent incomplete sessions found');
           }
         }
 
@@ -107,10 +114,10 @@ const StudySessionRouter: React.FC = () => {
       }
     };
 
-    // Add a small delay to ensure all data is loaded
-    const timer = setTimeout(initializeSession, 100);
-    
-    return () => clearTimeout(timer);
+    // Only initialize if we have the necessary data
+    if (sessions.length >= 0 && flashcards.length >= 0) {
+      initializeSession();
+    }
   }, [mode, location.state, sessions, flashcards]);
 
   const handleComplete = () => {

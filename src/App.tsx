@@ -34,6 +34,9 @@ const DynamicCourse = lazy(() => import("./pages/dashboard/DynamicCourse"));
 const LearningStateCourse = lazy(() => import("./pages/dashboard/LearningStateCourse"));
 const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmbed"));
 
+// Lazy load study components
+const StudySessionRouter = lazy(() => import("./components/study/StudySessionRouter"));
+
 // Lazy load admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
@@ -130,6 +133,11 @@ function App() {
                           } />
                           <Route path="learner/learning-state-embed/:moduleId" element={
                             <LazyRoute><LearningStateEmbed /></LazyRoute>
+                          } />
+                          
+                          {/* Study Session Routes */}
+                          <Route path="learner/study/:mode" element={
+                            <LazyRoute><StudySessionRouter /></LazyRoute>
                           } />
                           
                           {/* Admin Routes with Route Isolation */}
