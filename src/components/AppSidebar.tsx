@@ -77,7 +77,7 @@ export function AppSidebar() {
     },
     {
       title: 'Goals',
-      url: "/dashboard/learner/goals",
+      url: "/dashboard/learner/gamification",
       icon: Award,
     },
     {

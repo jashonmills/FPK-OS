@@ -15,29 +15,12 @@ import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoun
 export const GoalsDashboard = () => {
   console.log('🎯 GoalsDashboard rendering');
   
-  const { goals = [], loading, error } = useGoals();
+  const { goals = [], loading } = useGoals();
   const { t } = useDualLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Add error state handling
-  if (error) {
-    console.error('🎯 GoalsDashboard error:', error);
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Unable to Load Goals</h3>
-          <p className="text-gray-500 mb-4">There was an error loading your goals. Please try refreshing the page.</p>
-          <Button onClick={() => window.location.reload()}>
-            Refresh Page
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Add error boundary fallback
+  // Add loading state handling
   if (loading) {
     console.log('🎯 GoalsDashboard loading');
     return (
