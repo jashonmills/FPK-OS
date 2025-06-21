@@ -8,10 +8,14 @@ import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
 import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
+  
+  // Initialize automatic progress tracking
+  useGoalProgressTracking();
 
   return (
     <div className={`mobile-container mobile-section-spacing ${getAccessibilityClasses('container')}`}>
@@ -72,7 +76,7 @@ const Gamification = () => {
             </div>
           </div>
           
-          {/* Goal Reminders */}
+          {/* Enhanced Goal Reminders */}
           <GoalReminders />
         </TabsContent>
       </Tabs>
