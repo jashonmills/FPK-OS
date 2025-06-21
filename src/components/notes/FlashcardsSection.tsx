@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useFlashcardSets } from '@/hooks/useFlashcardSets';
 import { useStudySessions } from '@/hooks/useStudySessions';
+import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Brain, Play, Settings, Plus, FileText, Clock, Target } from 'lucide-react';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
 import type { Flashcard } from '@/hooks/useFlashcards';
@@ -16,6 +16,7 @@ const FlashcardsSection = () => {
   const { flashcards } = useFlashcards();
   const { sets } = useFlashcardSets();
   const { createSession } = useStudySessions();
+  const { toast } = useToast();
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedStudyMode, setSelectedStudyMode] = useState<'memory_test' | 'multiple_choice' | 'timed_challenge'>('memory_test');
   const [isCreatingSession, setIsCreatingSession] = useState(false);
@@ -29,6 +30,11 @@ const FlashcardsSection = () => {
 
   const handleStartStudy = (mode: 'memory_test' | 'multiple_choice' | 'timed_challenge') => {
     if (totalCards === 0) {
+      toast({
+        title: "No flashcards available",
+        description: "Create some flashcards first to start studying.",
+        variant: "destructive"
+      });
       return;
     }
     setSelectedStudyMode(mode);
@@ -36,11 +42,21 @@ const FlashcardsSection = () => {
   };
 
   const handleStudyConfirm = async (selectedFlashcards: Flashcard[]) => {
+    if (selectedFlashcards.length === 0) {
+      toast({
+        title: "No flashcards selected",
+        description: "Please select at least one flashcard to study.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsCreatingSession(true);
+    console.log('FlashcardsSection: Starting study session creation');
+    console.log('FlashcardsSection: Mode:', selectedStudyMode);
+    console.log('FlashcardsSection: Selected cards:', selectedFlashcards.length);
     
     try {
-      console.log('Creating study session for', selectedStudyMode, 'with', selectedFlashcards.length, 'cards');
-      
       // Create the study session first
       const session = await createSession({
         session_type: selectedStudyMode,
@@ -48,9 +64,16 @@ const FlashcardsSection = () => {
         total_cards: selectedFlashcards.length
       });
 
-      console.log('Created session:', session);
+      console.log('FlashcardsSection: Session created successfully:', session.id);
       
+      // Close the modal
       setShowSelectionModal(false);
+      
+      // Show success toast
+      toast({
+        title: "Study session started!",
+        description: `Ready to study ${selectedFlashcards.length} flashcards.`
+      });
       
       // Navigate to study session with both session and flashcards
       const routeMap = {
@@ -59,17 +82,26 @@ const FlashcardsSection = () => {
         timed_challenge: '/dashboard/learner/study/timed-challenge'
       };
       
-      console.log('Navigating to', routeMap[selectedStudyMode], 'with session and flashcards');
+      const targetRoute = routeMap[selectedStudyMode];
+      console.log('FlashcardsSection: Navigating to:', targetRoute);
       
-      navigate(routeMap[selectedStudyMode], { 
+      // Use replace: false to allow back navigation, and pass session data
+      navigate(targetRoute, { 
         state: { 
           session: session,
           flashcards: selectedFlashcards 
-        } 
+        },
+        replace: false
       });
+      
     } catch (error) {
-      console.error('Error creating study session:', error);
-      alert('Failed to start study session. Please try again.');
+      console.error('FlashcardsSection: Error creating study session:', error);
+      
+      toast({
+        title: "Failed to start study session",
+        description: "There was an error starting your study session. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsCreatingSession(false);
     }
@@ -124,7 +156,7 @@ const FlashcardsSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button
                 onClick={() => handleStartStudy('memory_test')}
-                disabled={totalCards === 0}
+                disabled={totalCards === 0 || isCreatingSession}
                 className="flex flex-col items-center gap-2 h-auto py-3 bg-blue-600 hover:bg-blue-700"
               >
                 <Brain className="h-5 w-5" />
@@ -136,7 +168,7 @@ const FlashcardsSection = () => {
               
               <Button
                 onClick={() => handleStartStudy('multiple_choice')}
-                disabled={totalCards === 0}
+                disabled={totalCards === 0 || isCreatingSession}
                 className="flex flex-col items-center gap-2 h-auto py-3 bg-green-600 hover:bg-green-700"
               >
                 <Target className="h-5 w-5" />
@@ -148,7 +180,7 @@ const FlashcardsSection = () => {
               
               <Button
                 onClick={() => handleStartStudy('timed_challenge')}
-                disabled={totalCards === 0}
+                disabled={totalCards === 0 || isCreatingSession}
                 className="flex flex-col items-center gap-2 h-auto py-3 bg-orange-600 hover:bg-orange-700"
               >
                 <Clock className="h-5 w-5" />
@@ -158,6 +190,15 @@ const FlashcardsSection = () => {
                 </div>
               </Button>
             </div>
+            
+            {isCreatingSession && (
+              <div className="text-center py-2">
+                <div className="inline-flex items-center gap-2 text-sm text-gray-600">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  Starting study session...
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Management Button */}

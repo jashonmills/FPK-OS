@@ -19,78 +19,142 @@ const StudySessionRouter: React.FC = () => {
     session: StudySession | null;
     flashcards: Flashcard[];
   }>({ session: null, flashcards: [] });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('StudySessionRouter: Loaded with mode:', mode);
+    console.log('StudySessionRouter: Starting with mode:', mode);
     console.log('StudySessionRouter: Location state:', location.state);
+    console.log('StudySessionRouter: Available sessions:', sessions.length);
+    console.log('StudySessionRouter: Available flashcards:', flashcards.length);
     
-    // Priority 1: Use session data from navigation state (preferred method)
-    if (location.state?.session && location.state?.flashcards) {
-      console.log('StudySessionRouter: Using session data from navigation state');
-      console.log('StudySessionRouter: Session ID:', location.state.session.id);
-      console.log('StudySessionRouter: Flashcards count:', location.state.flashcards.length);
-      console.log('StudySessionRouter: First flashcard:', location.state.flashcards[0]?.front_content);
+    const initializeSession = async () => {
+      setIsLoading(true);
+      setError(null);
       
-      setSessionData({
-        session: location.state.session,
-        flashcards: location.state.flashcards
-      });
-      return;
-    }
-
-    // Priority 2: Find very recent session (created in last 2 minutes) as fallback
-    if (sessions.length > 0 && flashcards.length > 0) {
-      const modeMap: Record<string, string> = {
-        'memory-test': 'memory_test',
-        'multiple-choice': 'multiple_choice',
-        'timed-challenge': 'timed_challenge'
-      };
-      
-      const sessionType = modeMap[mode || ''];
-      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-      
-      const recentSession = sessions
-        .filter(s => 
-          s.session_type === sessionType && 
-          new Date(s.created_at) > twoMinutesAgo &&
-          !s.completed_at // Only use incomplete sessions
-        )
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-
-      if (recentSession) {
-        console.log('StudySessionRouter: Using recent session as fallback:', recentSession.id);
-        
-        const sessionFlashcards = flashcards.filter(card => 
-          recentSession.flashcard_ids.includes(card.id)
-        );
-        
-        console.log('StudySessionRouter: Found', sessionFlashcards.length, 'flashcards for session');
-        
-        if (sessionFlashcards.length > 0) {
+      try {
+        // Priority 1: Use session data from navigation state (preferred method)
+        if (location.state?.session && location.state?.flashcards) {
+          console.log('StudySessionRouter: Using session data from navigation state');
+          console.log('StudySessionRouter: Session ID:', location.state.session.id);
+          console.log('StudySessionRouter: Flashcards count:', location.state.flashcards.length);
+          
+          // Validate the flashcards data
+          if (location.state.flashcards.length === 0) {
+            throw new Error('No flashcards provided for study session');
+          }
+          
           setSessionData({
-            session: recentSession,
-            flashcards: sessionFlashcards
+            session: location.state.session,
+            flashcards: location.state.flashcards
           });
+          setIsLoading(false);
           return;
         }
-      }
-    }
 
-    // No valid session data found - redirect back
-    console.log('StudySessionRouter: No valid session data found, redirecting to notes');
-    navigate('/dashboard/learner/notes', { replace: true });
-  }, [mode, location.state, sessions, flashcards, navigate]);
+        // Priority 2: Find very recent session (created in last 5 minutes) as fallback
+        if (sessions.length > 0 && flashcards.length > 0) {
+          const modeMap: Record<string, string> = {
+            'memory-test': 'memory_test',
+            'multiple-choice': 'multiple_choice',
+            'timed-challenge': 'timed_challenge'
+          };
+          
+          const sessionType = modeMap[mode || ''];
+          if (!sessionType) {
+            throw new Error(`Invalid study mode: ${mode}`);
+          }
+          
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          
+          const recentSession = sessions
+            .filter(s => 
+              s.session_type === sessionType && 
+              new Date(s.created_at) > fiveMinutesAgo &&
+              !s.completed_at // Only use incomplete sessions
+            )
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+
+          if (recentSession) {
+            console.log('StudySessionRouter: Using recent session as fallback:', recentSession.id);
+            
+            const sessionFlashcards = flashcards.filter(card => 
+              recentSession.flashcard_ids.includes(card.id)
+            );
+            
+            console.log('StudySessionRouter: Found', sessionFlashcards.length, 'flashcards for session');
+            
+            if (sessionFlashcards.length > 0) {
+              setSessionData({
+                session: recentSession,
+                flashcards: sessionFlashcards
+              });
+              setIsLoading(false);
+              return;
+            } else {
+              throw new Error('No matching flashcards found for the session');
+            }
+          }
+        }
+
+        // No valid session data found
+        throw new Error('No valid study session found. Please start a new study session from the Notes page.');
+        
+      } catch (err) {
+        console.error('StudySessionRouter: Error initializing session:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error occurred');
+        setIsLoading(false);
+      }
+    };
+
+    // Add a small delay to ensure all data is loaded
+    const timer = setTimeout(initializeSession, 100);
+    
+    return () => clearTimeout(timer);
+  }, [mode, location.state, sessions, flashcards]);
 
   const handleComplete = () => {
     navigate('/dashboard/learner/notes', { replace: true });
   };
 
-  // Show loading while we determine the session data
-  if (!sessionData.session || sessionData.flashcards.length === 0) {
+  const handleBackToNotes = () => {
+    navigate('/dashboard/learner/notes', { replace: true });
+  };
+
+  // Show loading state
+  if (isLoading) {
     return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-bold mb-4">Loading study session...</h2>
-        <p className="text-gray-600">Preparing your flashcards...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-bold mb-2">Loading Study Session...</h2>
+          <p className="text-gray-600">Preparing your flashcards for study</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !sessionData.session || sessionData.flashcards.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold mb-2 text-red-800">Session Error</h2>
+          <p className="text-gray-600 mb-6">
+            {error || 'Unable to load study session. Please try starting a new session.'}
+          </p>
+          <button 
+            onClick={handleBackToNotes}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            Return to Notes
+          </button>
+        </div>
       </div>
     );
   }
@@ -120,14 +184,17 @@ const StudySessionRouter: React.FC = () => {
       return <TimedChallengeSession {...commonProps} />;
     default:
       return (
-        <div className="p-6 text-center">
-          <h2 className="text-xl font-bold mb-4">Invalid study mode</h2>
-          <button 
-            onClick={() => navigate('/dashboard/learner/notes')}
-            className="text-blue-600 hover:underline"
-          >
-            Return to Notes
-          </button>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+          <div className="text-center max-w-md">
+            <h2 className="text-xl font-bold mb-4">Invalid Study Mode</h2>
+            <p className="text-gray-600 mb-6">The study mode "{mode}" is not recognized.</p>
+            <button 
+              onClick={handleBackToNotes}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              Return to Notes
+            </button>
+          </div>
         </div>
       );
   }
