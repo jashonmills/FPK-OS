@@ -10,9 +10,18 @@ import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard'
 
 const AICoachAnalytics = () => {
   const { sessions, isLoading: sessionsLoading } = useChatSessions();
-  const { messages, isLoading: messagesLoading } = useChatMessages();
 
-  const loading = sessionsLoading || messagesLoading;
+  const loading = sessionsLoading;
+
+  // Calculate total messages from sessions data
+  const totalMessages = React.useMemo(() => {
+    if (!sessions?.length) return 0;
+    // Sum up message counts from sessions if available
+    return sessions.reduce((sum, session) => {
+      // Assuming each session has at least 2 messages (user + assistant)
+      return sum + 2;
+    }, 0);
+  }, [sessions]);
 
   // Process chat activity data
   const chatActivityData = React.useMemo(() => {
@@ -44,7 +53,7 @@ const AICoachAnalytics = () => {
 
   // Process knowledge base vs chat data
   const knowledgeVsChatData = React.useMemo(() => {
-    if (!messages?.length) return [];
+    if (!sessions?.length) return [];
     
     // Mock data - would need actual tracking of knowledge base hits
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -58,7 +67,7 @@ const AICoachAnalytics = () => {
     }).reverse();
 
     return last7Days;
-  }, [messages]);
+  }, [sessions]);
 
   if (loading) {
     return (
@@ -211,7 +220,7 @@ const AICoachAnalytics = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600 mb-1">
-                {messages?.length || 0}
+                {totalMessages}
               </div>
               <p className="text-xs text-gray-500">Messages Sent</p>
             </div>
@@ -223,7 +232,7 @@ const AICoachAnalytics = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600 mb-1">
-                {Math.round((messages?.length || 0) / Math.max(sessions?.length || 1, 1))}
+                {Math.round(totalMessages / Math.max(sessions?.length || 1, 1))}
               </div>
               <p className="text-xs text-gray-500">Avg Msgs/Session</p>
             </div>

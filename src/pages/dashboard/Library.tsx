@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,9 +53,7 @@ const Library = () => {
   }, [searchQuery]);
 
   const renderPublicDomainSection = () => (
-    <PublicDomainBooksSection 
-      viewMode={viewMode}
-    />
+    <PublicDomainBooksSection />
   );
 
   const renderSearchResults = () => {
@@ -153,11 +152,6 @@ const Library = () => {
                       {book.first_publish_year && (
                         <p className="text-xs text-muted-foreground">
                           Published: {book.first_publish_year}
-                        </p>
-                      )}
-                      {book.subject && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                          Subjects: {book.subject.slice(0, 3).join(', ')}
                         </p>
                       )}
                     </div>
