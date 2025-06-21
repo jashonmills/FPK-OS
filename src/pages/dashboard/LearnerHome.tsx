@@ -61,20 +61,30 @@ const LearnerHome = () => {
         </p>
       </div>
 
-      {/* Today's Highlights - Priority Content at Top */}
-      <section>
+      {/* Today's Highlights - Custom Layout */}
+      <section className="mb-6 sm:mb-8">
         <h2 className="mobile-heading-md mb-3 sm:mb-4">Today's Highlights</h2>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-2">
-          <div className="order-1">
-            <QuoteOfTheDayCard />
+        <div className="flex flex-col gap-6 lg:gap-8">
+          {/* 2-column header zone */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            {/* Left column: Quote + NASA APOD */}
+            <div className="flex flex-col flex-1 gap-6 lg:gap-8 min-h-[420px]">
+              <div className="flex-1">
+                <QuoteOfTheDayCard />
+              </div>
+              <div className="flex-1">
+                <APODCard onOpenGallery={handleAPODGalleryOpen} />
+              </div>
+            </div>
+
+            {/* Right column: Weather */}
+            <div className="flex-1 min-h-[420px]">
+              <WeatherScienceLabCard />
+            </div>
           </div>
-          <div className="order-2">
-            <WeatherScienceLabCard />
-          </div>
-          <div className="order-3">
-            <APODCard onOpenGallery={handleAPODGalleryOpen} />
-          </div>
-          <div className="order-4">
+
+          {/* Full-width AI Insights */}
+          <div className="w-full">
             <AIInsightsSection />
           </div>
         </div>
