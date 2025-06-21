@@ -8,12 +8,34 @@ import { useGoals } from '@/hooks/useGoals';
 import { useGamificationContext } from '@/contexts/GamificationContext';
 
 const GoalXPTracker = () => {
-  const { goals = [] } = useGoals();
+  const { goals = [], loading } = useGoals();
   const { userStats } = useGamificationContext();
 
+  if (loading) {
+    return (
+      <Card className="fpk-gradient text-white border-0 shadow-lg">
+        <CardContent className="p-6">
+          <div className="animate-pulse">
+            <div className="h-6 bg-white/20 rounded w-1/2 mb-4"></div>
+            <div className="h-4 bg-white/20 rounded w-3/4 mb-6"></div>
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="text-center">
+                  <div className="h-8 bg-white/20 rounded mb-2"></div>
+                  <div className="h-4 bg-white/20 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Safe data access with fallbacks
-  const activeGoals = Array.isArray(goals) ? goals.filter(goal => goal?.status === 'active') : [];
-  const completedGoals = Array.isArray(goals) ? goals.filter(goal => goal?.status === 'completed') : [];
+  const safeGoals = Array.isArray(goals) ? goals : [];
+  const activeGoals = safeGoals.filter(goal => goal?.status === 'active');
+  const completedGoals = safeGoals.filter(goal => goal?.status === 'completed');
   const totalXP = userStats?.xp?.total_xp || 0;
   const currentLevel = userStats?.xp?.level || 1;
   const xpToNext = userStats?.xp?.next_level_xp || 100;

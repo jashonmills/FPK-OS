@@ -8,13 +8,34 @@ import { BookOpen, Clock, Target, TrendingUp } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 
 const ActiveLearningGoals = () => {
-  const { goals = [] } = useGoals();
+  const { goals = [], loading } = useGoals();
   
-  // Filter for active learning-specific goals
-  const learningGoals = goals.filter(goal => 
-    goal?.status === 'active' && 
-    (goal?.category === 'learning' || goal?.category === 'reading' || goal?.category === 'study')
-  ) || [];
+  if (loading) {
+    return (
+      <Card className="fpk-card border-0 shadow-md">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-green-600" />
+            Active Learning Goals
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-2 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Filter for active learning-specific goals with safe checks
+  const learningGoals = (goals || []).filter(goal => 
+    goal && 
+    goal.status === 'active' && 
+    (goal.category === 'learning' || goal.category === 'reading' || goal.category === 'study')
+  );
 
   if (learningGoals.length === 0) {
     return (
