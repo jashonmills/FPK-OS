@@ -10,8 +10,8 @@ import EmptyState from '@/components/analytics/EmptyState';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 
 const AICoachAnalytics = () => {
-  const { sessions, loading: sessionsLoading } = useChatSessions();
-  const { messages, loading: messagesLoading } = useChatMessages();
+  const { sessions, isLoading: sessionsLoading } = useChatSessions();
+  const { messages, isLoading: messagesLoading } = useChatMessages();
 
   const loading = sessionsLoading || messagesLoading;
 

@@ -7,7 +7,37 @@ import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 const ReadingProgressWidget = () => {
   console.log('📚 ReadingProgressWidget rendering');
   
-  const { analytics, isLoading } = useReadingAnalytics();
+  const { readingSessions, loading } = useReadingAnalytics();
+  
+  // Calculate analytics from the raw data
+  const analytics = React.useMemo(() => {
+    if (!readingSessions?.length) {
+      return {
+        totalReadingTime: 0,
+        sessionsThisWeek: 0,
+        averageSessionLength: 0,
+        longestSession: 0
+      };
+    }
+
+    const totalTime = readingSessions.reduce((sum, session) => sum + (session.duration_seconds || 0), 0);
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    
+    const thisWeekSessions = readingSessions.filter(session => 
+      new Date(session.session_start) >= weekStart
+    );
+    
+    const avgLength = totalTime / readingSessions.length;
+    const longest = Math.max(...readingSessions.map(s => s.duration_seconds || 0));
+
+    return {
+      totalReadingTime: totalTime,
+      sessionsThisWeek: thisWeekSessions.length,
+      averageSessionLength: avgLength,
+      longestSession: longest
+    };
+  }, [readingSessions]);
   
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`;
@@ -15,7 +45,7 @@ const ReadingProgressWidget = () => {
     return `${Math.round(seconds / 3600)}h ${Math.round((seconds % 3600) / 60)}m`;
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <Card className="fpk-card border-0 shadow-md">
         <CardHeader className="pb-2 p-4">

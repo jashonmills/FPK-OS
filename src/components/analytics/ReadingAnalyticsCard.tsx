@@ -8,9 +8,86 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const ReadingAnalyticsCard = () => {
-  const { analytics, isLoading } = useReadingAnalytics();
+  const { 
+    readingSessions, 
+    readingProgress, 
+    readingTrends,
+    loading 
+  } = useReadingAnalytics();
 
-  if (isLoading) {
+  // Calculate analytics from the raw data
+  const analytics = React.useMemo(() => {
+    if (!readingSessions?.length) {
+      return {
+        totalReadingTime: 0,
+        sessionsThisWeek: 0,
+        averageSessionLength: 0,
+        longestSession: 0,
+        weeklyTrend: [],
+        favoriteBooks: []
+      };
+    }
+
+    const totalTime = readingSessions.reduce((sum, session) => sum + (session.duration_seconds || 0), 0);
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    
+    const thisWeekSessions = readingSessions.filter(session => 
+      new Date(session.session_start) >= weekStart
+    );
+    
+    const avgLength = totalTime / readingSessions.length;
+    const longest = Math.max(...readingSessions.map(s => s.duration_seconds || 0));
+
+    // Weekly trend data
+    const weeklyTrend = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      const dayStart = new Date(date.setHours(0, 0, 0, 0));
+      const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+      
+      const dayReading = readingSessions.filter(session => {
+        const sessionDate = new Date(session.session_start);
+        return sessionDate >= dayStart && sessionDate <= dayEnd;
+      }).reduce((sum, session) => sum + (session.duration_seconds || 0), 0);
+
+      return {
+        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        reading_time: Math.round(dayReading / 60) // Convert to minutes
+      };
+    });
+
+    // Favorite books (most read)
+    const bookStats = readingSessions.reduce((acc, session) => {
+      if (!acc[session.book_id]) {
+        acc[session.book_id] = {
+          book_id: session.book_id,
+          book_title: `Book ${session.book_id}`,
+          book_author: 'Unknown Author',
+          total_time: 0,
+          session_count: 0
+        };
+      }
+      acc[session.book_id].total_time += session.duration_seconds || 0;
+      acc[session.book_id].session_count += 1;
+      return acc;
+    }, {} as Record<string, any>);
+
+    const favoriteBooks = Object.values(bookStats)
+      .sort((a: any, b: any) => b.total_time - a.total_time)
+      .slice(0, 5);
+
+    return {
+      totalReadingTime: totalTime,
+      sessionsThisWeek: thisWeekSessions.length,
+      averageSessionLength: avgLength,
+      longestSession: longest,
+      weeklyTrend,
+      favoriteBooks
+    };
+  }, [readingSessions]);
+
+  if (loading) {
     return (
       <Card className="border-0 shadow-lg">
         <CardContent className="p-4 sm:p-6">
@@ -23,7 +100,7 @@ const ReadingAnalyticsCard = () => {
     );
   }
 
-  if (!analytics) {
+  if (!readingSessions?.length) {
     return (
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">

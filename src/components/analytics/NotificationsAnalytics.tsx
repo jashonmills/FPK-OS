@@ -8,7 +8,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import EmptyState from '@/components/analytics/EmptyState';
 
 const NotificationsAnalytics = () => {
-  const { notifications, loading } = useNotifications();
+  const { notifications, isLoading: loading } = useNotifications();
 
   // Process notification data
   const notificationStats = React.useMemo(() => {

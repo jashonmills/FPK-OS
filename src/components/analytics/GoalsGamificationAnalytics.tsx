@@ -2,28 +2,28 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Target, Trophy, TrendingUp, Award } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Target, Trophy, Star, TrendingUp } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import { useGoalReminders } from '@/hooks/useGoalReminders';
-import { useGamificationContext } from '@/contexts/GamificationContext';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import EmptyState from '@/components/analytics/EmptyState';
 
 const GoalsGamificationAnalytics = () => {
-  const { goals, loading: goalsLoading } = useGoals();
-  const { reminders, loading: remindersLoading } = useGoalReminders();
-  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
+  const { goals, isLoading: goalsLoading } = useGoals();
+  const { profile, loading: profileLoading } = useUserProfile();
 
-  const loading = goalsLoading || remindersLoading || gamificationLoading;
+  const loading = goalsLoading || profileLoading;
 
   // Process goal completion trends
   const goalCompletionData = React.useMemo(() => {
     if (!goals?.length) return [];
     
-    const completedGoals = goals.filter(goal => goal.status === 'completed' && goal.completed_at);
+    const completedGoals = goals.filter(goal => goal.status === 'completed');
     const monthlyData = completedGoals.reduce((acc, goal) => {
-      const month = new Date(goal.completed_at!).toISOString().substring(0, 7); // YYYY-MM
-      acc[month] = (acc[month] || 0) + 1;
+      if (goal.completed_at) {
+        const month = new Date(goal.completed_at).toISOString().slice(0, 7);
+        acc[month] = (acc[month] || 0) + 1;
+      }
       return acc;
     }, {} as Record<string, number>);
 
@@ -31,28 +31,44 @@ const GoalsGamificationAnalytics = () => {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-6) // Last 6 months
       .map(([month, count]) => ({
-        month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
         completed: count
       }));
   }, [goals]);
 
-  // Process reminder effectiveness data
-  const reminderEffectivenessData = React.useMemo(() => {
-    if (!reminders?.length) return [];
+  // Process goal categories
+  const goalCategoriesData = React.useMemo(() => {
+    if (!goals?.length) return [];
     
-    const reminderTypes = ['daily', 'weekly', 'custom', 'deadline'];
-    return reminderTypes.map(type => {
-      const typeReminders = reminders.filter(r => r.reminder_type === type);
-      // Mock effectiveness data - would need actual tracking
-      const effectiveness = Math.floor(Math.random() * 40) + 60; // 60-100% range
-      
-      return {
-        type: type.charAt(0).toUpperCase() + type.slice(1),
-        effectiveness,
-        count: typeReminders.length
-      };
-    }).filter(item => item.count > 0);
-  }, [reminders]);
+    const categories = goals.reduce((acc, goal) => {
+      const category = goal.category;
+      if (!acc[category]) {
+        acc[category] = { total: 0, completed: 0 };
+      }
+      acc[category].total += 1;
+      if (goal.status === 'completed') {
+        acc[category].completed += 1;
+      }
+      return acc;
+    }, {} as Record<string, { total: number; completed: number }>);
+
+    return Object.entries(categories).map(([category, stats]) => ({
+      category: category.charAt(0).toUpperCase() + category.slice(1),
+      total: stats.total,
+      completed: stats.completed,
+      completionRate: Math.round((stats.completed / stats.total) * 100)
+    }));
+  }, [goals]);
+
+  // Mock XP progression data
+  const xpProgressionData = [
+    { week: 'Week 1', xp: 150 },
+    { week: 'Week 2', xp: 275 },
+    { week: 'Week 3', xp: 350 },
+    { week: 'Week 4', xp: 425 },
+    { week: 'Week 5', xp: 500 },
+    { week: 'Week 6', xp: 625 }
+  ];
 
   if (loading) {
     return (
@@ -76,181 +92,162 @@ const GoalsGamificationAnalytics = () => {
       label: 'Goals Completed',
       color: '#10B981',
     },
-    effectiveness: {
-      label: 'Effectiveness %',
+    total: {
+      label: 'Total Goals',
       color: '#8B5CF6',
+    },
+    xp: {
+      label: 'XP Earned',
+      color: '#F59E0B',
     },
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      {/* Goal Completion Trend */}
+      {/* Goal Completion Trends */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
-            Goal Completion Trend
+            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+            Goal Completion Trends
           </CardTitle>
           <p className="text-xs sm:text-sm text-gray-500">
-            Goals completed over the last 6 months
+            Monthly goal completion progress
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {goalCompletionData.length > 0 ? (
             <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={goalCompletionData}>
+                <LineChart data={goalCompletionData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" fontSize={10} />
                   <YAxis fontSize={10} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area 
+                  <Line 
                     type="monotone" 
                     dataKey="completed" 
                     stroke="var(--color-completed)" 
-                    fill="var(--color-completed)"
-                    fillOpacity={0.6}
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
                   />
-                </AreaChart>
+                </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
             <EmptyState 
               icon={Target}
               title="No completed goals yet"
-              description="Complete your first goal to see completion trends"
+              description="Set and complete goals to see your progress trends"
             />
           )}
         </CardContent>
       </Card>
 
-      {/* Reminder Effectiveness */}
+      {/* Goal Categories Performance */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
-            Reminder Effectiveness
+            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 flex-shrink-0" />
+            Goal Categories Performance
           </CardTitle>
           <p className="text-xs sm:text-sm text-gray-500">
-            How well different reminder types work for you
+            Success rate by goal category
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          {reminderEffectivenessData.length > 0 ? (
+          {goalCategoriesData.length > 0 ? (
             <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={reminderEffectivenessData}>
+                <BarChart data={goalCategoriesData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="type" fontSize={10} />
+                  <XAxis dataKey="category" fontSize={10} />
                   <YAxis fontSize={10} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar 
-                    dataKey="effectiveness" 
-                    fill="var(--color-effectiveness)" 
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="total" fill="var(--color-total)" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="completed" fill="var(--color-completed)" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
             <EmptyState 
-              icon={TrendingUp}
-              title="Set up reminders to track effectiveness"
-              description="Create goal reminders to see which types work best for you"
+              icon={Trophy}
+              title="No goals set yet"
+              description="Create goals in different categories to see performance analytics"
             />
           )}
         </CardContent>
       </Card>
 
-      {/* XP and Achievement Summary */}
+      {/* XP & Level Progression */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Award className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 flex-shrink-0" />
-            XP & Achievement Summary
+            <Star className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
+            XP & Level Progression
           </CardTitle>
           <p className="text-xs sm:text-sm text-gray-500">
-            Your gamification progress overview
+            Experience points earned over time
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600 mb-1">
-                {userStats?.xp?.total_xp || 0}
-              </div>
-              <p className="text-xs text-gray-500">Total XP</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-1">
-                {userStats?.xp?.level || 1}
-              </div>
-              <p className="text-xs text-gray-500">Level</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 mb-1">
-                {userStats?.badges?.length || 0}
-              </div>
-              <p className="text-xs text-gray-500">Badges Earned</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600 mb-1">
-                {userStats?.streaks?.find(s => s.streak_type === 'study')?.current_count || 0}
-              </div>
-              <p className="text-xs text-gray-500">Study Streak</p>
-            </div>
-          </div>
+          <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={xpProgressionData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" fontSize={10} />
+                <YAxis fontSize={10} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="xp" 
+                  stroke="var(--color-xp)" 
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </CardContent>
       </Card>
 
-      {/* Goals Progress Distribution */}
+      {/* Gamification Summary */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
-            Goals Progress Distribution
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+            Gamification Summary
           </CardTitle>
           <p className="text-xs sm:text-sm text-gray-500">
-            Status of your current goals
+            Your achievement and progress metrics
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="space-y-4">
-            {goals && goals.length > 0 ? (
-              <>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {goals.filter(g => g.status === 'active').length}
-                    </div>
-                    <p className="text-xs text-gray-500">Active</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-green-600 mb-1">
-                      {goals.filter(g => g.status === 'completed').length}
-                    </div>
-                    <p className="text-xs text-gray-500">Completed</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-600 mb-1">
-                      {goals.filter(g => g.status === 'paused').length}
-                    </div>
-                    <p className="text-xs text-gray-500">Paused</p>
-                  </div>
-                </div>
-                <div className="text-center pt-2">
-                  <p className="text-sm text-gray-600">
-                    Average Progress: {Math.round(goals.reduce((acc, goal) => acc + goal.progress, 0) / goals.length)}%
-                  </p>
-                </div>
-              </>
-            ) : (
-              <EmptyState 
-                icon={Trophy}
-                title="No goals created yet"
-                description="Create your first learning goal to track progress"
-              />
-            )}
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {profile?.total_xp || 0}
+              </div>
+              <p className="text-xs text-gray-500">Total XP</p>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-blue-600 mb-1">
+                {goals?.filter(g => g.status === 'completed').length || 0}
+              </div>
+              <p className="text-xs text-gray-500">Goals Completed</p>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600 mb-1">
+                {profile?.current_streak || 0}
+              </div>
+              <p className="text-xs text-gray-500">Current Streak</p>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-yellow-600 mb-1">
+                {goals?.filter(g => g.status === 'active').length || 0}
+              </div>
+              <p className="text-xs text-gray-500">Active Goals</p>
+            </div>
           </div>
         </CardContent>
       </Card>

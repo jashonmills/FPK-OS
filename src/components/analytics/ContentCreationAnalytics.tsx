@@ -10,9 +10,9 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import EmptyState from '@/components/analytics/EmptyState';
 
 const ContentCreationAnalytics = () => {
-  const { notes, loading: notesLoading } = useNotes();
-  const { uploads, loading: uploadsLoading } = useFileUploads();
-  const { flashcards, loading: flashcardsLoading } = useFlashcards();
+  const { notes, isLoading: notesLoading } = useNotes();
+  const { uploads, isLoading: uploadsLoading } = useFileUploads();
+  const { flashcards, isLoading: flashcardsLoading } = useFlashcards();
 
   const loading = notesLoading || uploadsLoading || flashcardsLoading;
 
