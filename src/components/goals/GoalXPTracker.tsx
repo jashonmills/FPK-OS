@@ -11,15 +11,16 @@ const GoalXPTracker = () => {
   const { goals = [] } = useGoals();
   const { userStats } = useGamificationContext();
 
-  const activeGoals = goals.filter(goal => goal?.status === 'active') || [];
-  const completedGoals = goals.filter(goal => goal?.status === 'completed') || [];
+  // Safe data access with fallbacks
+  const activeGoals = Array.isArray(goals) ? goals.filter(goal => goal?.status === 'active') : [];
+  const completedGoals = Array.isArray(goals) ? goals.filter(goal => goal?.status === 'completed') : [];
   const totalXP = userStats?.xp?.total_xp || 0;
   const currentLevel = userStats?.xp?.level || 1;
   const xpToNext = userStats?.xp?.next_level_xp || 100;
 
-  // Calculate overall goal progress
+  // Calculate overall goal progress safely
   const totalProgress = activeGoals.length > 0 
-    ? Math.round(activeGoals.reduce((sum, goal) => sum + (goal.progress || 0), 0) / activeGoals.length)
+    ? Math.round(activeGoals.reduce((sum, goal) => sum + (goal?.progress || 0), 0) / activeGoals.length)
     : 0;
 
   return (
