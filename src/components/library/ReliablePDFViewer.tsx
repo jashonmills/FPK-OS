@@ -172,7 +172,7 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
           ...prev,
           stage: 'loading',
           message: 'Loading PDF document...',
-          progress: 80
+          progress: 70
         }));
 
         console.log('✅ PDF initialization complete, using URL:', workingUrl.substring(0, 100) + '...');
@@ -212,11 +212,12 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
   const onDocumentLoadProgress = ({ loaded, total }: { loaded: number; total: number }) => {
     if (total > 0) {
       const downloadProgress = (loaded / total) * 100;
+      const progressValue = Math.min(70 + (downloadProgress * 0.25), 95); // 70% to 95%
       setLoadingState(prev => ({
         ...prev,
         stage: 'rendering',
-        message: `Rendering PDF... ${Math.round(downloadProgress)}%`,
-        progress: 80 + (downloadProgress * 0.15) // 80% to 95%
+        message: `Loading PDF... ${Math.round(downloadProgress)}%`,
+        progress: progressValue
       }));
     }
   };
@@ -376,12 +377,12 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
   // Main PDF viewer
   return (
     <Dialog open={true} onOpenChange={onClose}>
+      <DialogTitle className="sr-only">PDF Viewer: {fileName}</DialogTitle>
+      <DialogDescription className="sr-only">
+        Reliable PDF viewer for {fileName}
+      </DialogDescription>
+      
       <DialogContent className="max-w-full max-h-full w-screen h-screen p-0">
-        <DialogTitle className="sr-only">PDF Viewer: {fileName}</DialogTitle>
-        <DialogDescription className="sr-only">
-          Reliable PDF viewer for {fileName}
-        </DialogDescription>
-        
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex-shrink-0 p-4 border-b bg-background">
