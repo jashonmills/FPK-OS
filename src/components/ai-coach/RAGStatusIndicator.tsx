@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Brain, CheckCircle, AlertCircle } from 'lucide-react';
+import { Brain, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -35,51 +35,61 @@ const RAGStatusIndicator: React.FC<RAGStatusIndicatorProps> = ({ compact = false
       knowledge_base: 0
     }
   });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchStats = async () => {
+    if (!user?.id) return;
+
+    try {
+      setIsRefreshing(true);
+      // Fetch embedding counts by source
+      const { data: embeddings } = await supabase
+        .from('knowledge_embeddings')
+        .select('metadata, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (embeddings) {
+        const sources = {
+          notes: 0,
+          flashcards: 0,
+          goals: 0,
+          knowledge_base: 0
+        };
+
+        embeddings.forEach(embedding => {
+          const metadata = embedding.metadata;
+          // Type guard to check if metadata is an object with a source property
+          if (metadata && typeof metadata === 'object' && !Array.isArray(metadata) && 'source' in metadata) {
+            const source = metadata.source;
+            if (source === 'note') sources.notes++;
+            else if (source === 'flashcard') sources.flashcards++;
+            else if (source === 'goal') sources.goals++;
+            else if (source === 'knowledge_base') sources.knowledge_base++;
+          }
+        });
+
+        setStats({
+          totalEmbeddings: embeddings.length,
+          lastUpdated: embeddings.length > 0 ? embeddings[0].created_at : null,
+          isEnabled: embeddings.length > 0,
+          sources
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching RAG stats:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!user?.id) return;
-
-      try {
-        // Fetch embedding counts by source
-        const { data: embeddings } = await supabase
-          .from('knowledge_embeddings')
-          .select('metadata')
-          .eq('user_id', user.id);
-
-        if (embeddings) {
-          const sources = {
-            notes: 0,
-            flashcards: 0,
-            goals: 0,
-            knowledge_base: 0
-          };
-
-          embeddings.forEach(embedding => {
-            const metadata = embedding.metadata;
-            // Type guard to check if metadata is an object with a source property
-            if (metadata && typeof metadata === 'object' && !Array.isArray(metadata) && 'source' in metadata) {
-              const source = metadata.source;
-              if (source === 'note') sources.notes++;
-              else if (source === 'flashcard') sources.flashcards++;
-              else if (source === 'goal') sources.goals++;
-              else if (source === 'knowledge_base') sources.knowledge_base++;
-            }
-          });
-
-          setStats({
-            totalEmbeddings: embeddings.length,
-            lastUpdated: embeddings.length > 0 ? new Date().toISOString() : null,
-            isEnabled: embeddings.length > 0,
-            sources
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching RAG stats:', error);
-      }
-    };
-
     fetchStats();
+    
+    // Set up auto-refresh every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
+    
+    return () => clearInterval(interval);
   }, [user?.id]);
 
   if (compact) {
@@ -95,6 +105,7 @@ const RAGStatusIndicator: React.FC<RAGStatusIndicatorProps> = ({ compact = false
             Active
           </Badge>
         )}
+        {isRefreshing && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
       </div>
     );
   }
@@ -110,6 +121,7 @@ const RAGStatusIndicator: React.FC<RAGStatusIndicatorProps> = ({ compact = false
               Active
             </Badge>
           )}
+          {isRefreshing && <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

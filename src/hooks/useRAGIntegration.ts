@@ -49,23 +49,22 @@ export const useRAGIntegration = () => {
 
     setIsProcessing(true);
     try {
-      const { error } = await supabase.functions.invoke('ai-study-chat', {
+      console.log('🔄 Processing content via edge function:', { contentType, userId: user.id });
+      
+      const { data, error } = await supabase.functions.invoke('process-user-content', {
         body: {
-          message: 'Process content for RAG',
-          userId: user.id,
-          sessionId: null,
-          chatMode: 'personal',
-          voiceActive: false,
-          metadata: {
-            action: 'process_content',
-            content,
-            contentType,
-            ragEnabled: true
-          }
+          content,
+          contentType,
+          userId: user.id
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Edge function error:', error);
+        throw error;
+      }
+
+      console.log('✅ Content processed successfully:', data);
 
       toast({
         title: "Content Processed",
@@ -77,7 +76,7 @@ export const useRAGIntegration = () => {
       console.error('Error processing content:', error);
       toast({
         title: "Processing Failed",
-        description: "There was an error processing your content for RAG.",
+        description: `There was an error processing your ${contentType} for RAG.`,
         variant: "destructive"
       });
     } finally {
