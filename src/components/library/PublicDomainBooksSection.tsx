@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
-import { useReadingProgress } from '@/hooks/useReadingProgress';
 import BookCard from './BookCard';
 import LoadingIndicator from './LoadingIndicator';
 import EnhancedEPUBReader from './EPUBReader';
 import { Button } from '@/components/ui/button';
-import { Eye, Globe, RefreshCw } from 'lucide-react';
+import { Globe, RefreshCw } from 'lucide-react';
 
-const PublicDomainBooksSection = () => {
+interface PublicDomainBooksSectionProps {
+  viewMode?: 'grid' | 'list';
+}
+
+const PublicDomainBooksSection = ({ viewMode = 'grid' }: PublicDomainBooksSectionProps) => {
   const { books, isLoading, refetch } = usePublicDomainBooks();
   const [loadingBookId, setLoadingBookId] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState<any>(null);
@@ -22,18 +25,6 @@ const PublicDomainBooksSection = () => {
       console.error('Error starting book:', error);
     } finally {
       setLoadingBookId(null);
-    }
-  };
-
-  const handleDownloadBook = (book: any) => {
-    const downloadUrl = book.storage_url || book.epub_url;
-    if (downloadUrl) {
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `${book.title}.epub`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
   };
 
@@ -70,7 +61,10 @@ const PublicDomainBooksSection = () => {
           <span className="text-sm text-muted-foreground">({books.length} available)</span>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className={viewMode === 'grid' 
+          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          : "space-y-4"
+        }>
           {books.map((book) => (
             <BookCard
               key={book.id}
@@ -84,7 +78,7 @@ const PublicDomainBooksSection = () => {
                 storage_url: book.storage_url
               }}
               onView={() => handleReadBook(book)}
-              onDownload={() => handleDownloadBook(book)}
+              viewMode={viewMode}
             />
           ))}
         </div>

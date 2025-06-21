@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { FileText, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,24 +10,29 @@ import OptimizedPDFViewer from './OptimizedPDFViewer';
 import CommunityBooksListView from './CommunityBooksListView';
 import CommunityBooksGridView from './CommunityBooksGridView';
 
-type ViewMode = 'list' | 'grid';
+interface ApprovedStorageBooksSectionProps {
+  viewMode?: 'grid' | 'list';
+}
 
-const ApprovedStorageBooksSection: React.FC = () => {
+const ApprovedStorageBooksSection: React.FC<ApprovedStorageBooksSectionProps> = ({ viewMode: parentViewMode = 'grid' }) => {
   const { approvedUploads, isLoadingApproved } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Collapsible and view mode state with localStorage persistence - defaulting to closed
+  // Collapsible state with localStorage persistence - defaulting to closed
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem('communityLibrary-expanded');
-    return saved !== null ? JSON.parse(saved) : false; // Changed from true to false
+    return saved !== null ? JSON.parse(saved) : false;
   });
   
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+  // Use parent viewMode or fallback to localStorage
+  const [localViewMode, setLocalViewMode] = useState<'list' | 'grid'>(() => {
     const saved = localStorage.getItem('communityLibrary-viewMode');
-    return (saved as ViewMode) || 'grid';
+    return (saved as 'list' | 'grid') || parentViewMode;
   });
+
+  const viewMode = parentViewMode || localViewMode;
 
   // Persist state changes to localStorage
   useEffect(() => {
@@ -44,7 +48,6 @@ const ApprovedStorageBooksSection: React.FC = () => {
     setValidatingPDF(book.id);
     
     try {
-      // Add a small delay to show validation state
       await new Promise(resolve => setTimeout(resolve, 500));
       setSelectedPDF(book);
     } catch (error) {
@@ -119,25 +122,9 @@ const ApprovedStorageBooksSection: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* View Toggle Controls */}
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
-                      Books uploaded by the community and approved by our moderation team
-                    </p>
-                    <ToggleGroup 
-                      type="single" 
-                      value={viewMode} 
-                      onValueChange={(value) => value && setViewMode(value as ViewMode)}
-                      className="border rounded-md"
-                    >
-                      <ToggleGroupItem value="list" aria-label="List view" size="sm">
-                        <span className="text-xs">List</span>
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="grid" aria-label="Grid view" size="sm">
-                        <span className="text-xs">Grid</span>
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Books uploaded by the community and approved by our moderation team
+                  </p>
 
                   {/* Content based on view mode */}
                   {viewMode === 'list' ? (

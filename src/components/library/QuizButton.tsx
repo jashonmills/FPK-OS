@@ -19,13 +19,10 @@ const QuizButton = ({ bookId, bookTitle, className }: QuizButtonProps) => {
   // Find this book in user's reading progress
   const readingProgress = readingBooks?.find(book => book.book_id === bookId);
   
-  // Don't show quiz button if user hasn't started reading or no chapters completed
-  if (!readingProgress || readingProgress.chapter_index < 1) {
-    return null;
-  }
-
-  const maxChapterIndex = readingProgress.chapter_index;
-  const completionPercentage = readingProgress.completion_percentage;
+  // Determine quiz coverage based on reading progress
+  const maxChapterIndex = readingProgress?.chapter_index || 999; // Cover whole book if no progress
+  const completionPercentage = readingProgress?.completion_percentage || 0;
+  const hasReadingProgress = readingProgress && readingProgress.chapter_index > 0;
 
   return (
     <>
@@ -39,15 +36,17 @@ const QuizButton = ({ bookId, bookTitle, className }: QuizButtonProps) => {
           <Brain className="h-4 w-4" />
           <span className="hidden sm:inline">Quiz Me</span>
           <Badge variant="secondary" className="ml-1 bg-purple-100 text-purple-700">
-            Ch. 1-{maxChapterIndex}
+            {hasReadingProgress ? `Ch. 1-${readingProgress.chapter_index}` : 'Full Book'}
           </Badge>
         </Button>
         
-        {/* Progress indicator */}
-        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-          <BookOpen className="h-3 w-3" />
-          <span>{completionPercentage.toFixed(0)}% read</span>
-        </div>
+        {/* Progress indicator - only show if there's actual progress */}
+        {hasReadingProgress && (
+          <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+            <BookOpen className="h-3 w-3" />
+            <span>{completionPercentage.toFixed(0)}% read</span>
+          </div>
+        )}
       </div>
 
       <BookQuizModal

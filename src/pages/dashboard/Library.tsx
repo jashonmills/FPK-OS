@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,7 +52,7 @@ const Library = () => {
   }, [searchQuery]);
 
   const renderPublicDomainSection = () => (
-    <PublicDomainBooksSection />
+    <PublicDomainBooksSection viewMode={viewMode} />
   );
 
   const renderSearchResults = () => {
@@ -242,15 +241,15 @@ const Library = () => {
           </TabsList>
 
           <TabsContent value="public-domain" className="mt-6">
-            {renderPublicDomainSection()}
+            <PublicDomainBooksSection viewMode={viewMode} />
           </TabsContent>
 
           <TabsContent value="uploads" className="mt-6">
-            <UserUploadsSection />
+            <UserUploadsSection viewMode={viewMode} />
           </TabsContent>
 
           <TabsContent value="community" className="mt-6">
-            <ApprovedStorageBooksSection />
+            <ApprovedStorageBooksSection viewMode={viewMode} />
           </TabsContent>
 
           <TabsContent value="search-results" className="mt-6">

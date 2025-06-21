@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
-import { Upload, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import OptimizedPDFViewer from './OptimizedPDFViewer';
@@ -12,24 +12,29 @@ import UserUploadsListView from './UserUploadsListView';
 import UserUploadsGridView from './UserUploadsGridView';
 import PDFUploadComponent from './PDFUploadComponent';
 
-type ViewMode = 'list' | 'grid';
+interface UserUploadsSectionProps {
+  viewMode?: 'grid' | 'list';
+}
 
-const UserUploadsSection: React.FC = () => {
-  const { userUploads, isLoadingUserUploads } = useUserUploadedBooks();
+const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: parentViewMode = 'grid' }) => {
+  const { userUploads, isLoadingUser } = useUserUploadedBooks();
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Collapsible and view mode state with localStorage persistence
+  // Collapsible state with localStorage persistence
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem('userUploads-expanded');
     return saved !== null ? JSON.parse(saved) : true;
   });
   
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+  // Use parent viewMode or fallback to localStorage
+  const [localViewMode, setLocalViewMode] = useState<'list' | 'grid'>(() => {
     const saved = localStorage.getItem('userUploads-viewMode');
-    return (saved as ViewMode) || 'grid';
+    return (saved as 'list' | 'grid') || parentViewMode;
   });
+
+  const viewMode = parentViewMode || localViewMode;
 
   // Persist state changes to localStorage
   useEffect(() => {
@@ -45,7 +50,6 @@ const UserUploadsSection: React.FC = () => {
     setValidatingPDF(book.id);
     
     try {
-      // Add a small delay to show validation state
       await new Promise(resolve => setTimeout(resolve, 500));
       setSelectedPDF(book);
     } catch (error) {
@@ -59,14 +63,7 @@ const UserUploadsSection: React.FC = () => {
     }
   };
 
-  const handleUploadSuccess = () => {
-    toast({
-      title: "Upload Successful",
-      description: "Your PDF has been uploaded and is ready to read.",
-    });
-  };
-
-  if (isLoadingUserUploads) {
+  if (isLoadingUser) {
     return (
       <Card>
         <CardHeader>
@@ -80,7 +77,7 @@ const UserUploadsSection: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="space-y-3">
                 <Skeleton className="aspect-[3/4] w-full" />
                 <div className="space-y-2">
@@ -117,48 +114,37 @@ const UserUploadsSection: React.FC = () => {
           
           <CollapsibleContent>
             <CardContent>
-              <PDFUploadComponent />
-              
               {userUploads.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No uploads yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Upload your first PDF to get started with your personal library.
+                  <p className="text-muted-foreground mb-6">
+                    Upload your first PDF book to get started with your personal library.
                   </p>
+                  <PDFUploadComponent />
                 </div>
               ) : (
-                <div className="space-y-4 mt-6">
-                  {/* View Toggle Controls */}
+                <div className="space-y-4">
+                  {/* Upload Component */}
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-muted-foreground">
-                      Your personal collection of uploaded documents
+                      Your uploaded books and documents
                     </p>
-                    <ToggleGroup 
-                      type="single" 
-                      value={viewMode} 
-                      onValueChange={(value) => value && setViewMode(value as ViewMode)}
-                      className="border rounded-md"
-                    >
-                      <ToggleGroupItem value="list" aria-label="List view" size="sm">
-                        <span className="text-xs">List</span>
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="grid" aria-label="Grid view" size="sm">
-                        <span className="text-xs">Grid</span>
-                      </ToggleGroupItem>
-                    </ToggleGroup>
+                    <PDFUploadComponent />
                   </div>
 
                   {/* Content based on view mode */}
                   {viewMode === 'list' ? (
                     <UserUploadsListView 
-                      uploads={userUploads} 
+                      books={userUploads} 
                       onView={handlePDFOpen}
+                      validatingPDF={validatingPDF}
                     />
                   ) : (
                     <UserUploadsGridView 
-                      uploads={userUploads} 
+                      books={userUploads} 
                       onView={handlePDFOpen}
+                      validatingPDF={validatingPDF}
                     />
                   )}
                 </div>
