@@ -7,8 +7,13 @@ import { Quote, RotateCcw, BookOpen } from 'lucide-react';
 import { useQuoteOfTheDay } from '@/hooks/useQuoteOfTheDay';
 import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
-const QuoteOfTheDayCard: React.FC = () => {
+interface QuoteOfTheDayCardProps {
+  className?: string;
+}
+
+const QuoteOfTheDayCard: React.FC<QuoteOfTheDayCardProps> = ({ className }) => {
   const { data: quote, isLoading, error, refetch } = useQuoteOfTheDay();
   const { createNote, isCreating } = useNotes();
   const { toast } = useToast();
@@ -35,12 +40,12 @@ const QuoteOfTheDayCard: React.FC = () => {
 
   if (error) {
     return (
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200">
+      <Card className={cn("bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 h-full flex flex-col", className)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-purple-800">Quote of the Day</CardTitle>
           <Quote className="h-4 w-4 text-purple-600" />
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 flex flex-col justify-center">
           <div className="text-center py-8">
             <RotateCcw className="h-8 w-8 text-purple-400 mx-auto mb-3" />
             <div className="text-sm font-medium text-purple-900 mb-2">
@@ -63,20 +68,20 @@ const QuoteOfTheDayCard: React.FC = () => {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 relative">
+    <Card className={cn("bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 relative h-full flex flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-purple-800">Quote of the Day</CardTitle>
         <Quote className="h-4 w-4 text-purple-600" />
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1 flex flex-col">
         {isLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-3 flex-1 flex flex-col justify-center">
             <Skeleton className="h-16 w-full rounded" />
             <Skeleton className="h-4 w-3/4 ml-auto" />
           </div>
         ) : quote ? (
-          <>
-            <div className="text-center space-y-3">
+          <div className="flex-1 flex flex-col">
+            <div className="text-center space-y-3 flex-1 flex flex-col justify-center">
               <blockquote className="text-lg font-medium text-purple-900 leading-relaxed">
                 "{quote.content}"
               </blockquote>
@@ -85,7 +90,7 @@ const QuoteOfTheDayCard: React.FC = () => {
               </cite>
             </div>
             
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-2 mt-auto">
               <Button
                 variant="outline"
                 size="sm"
@@ -97,9 +102,9 @@ const QuoteOfTheDayCard: React.FC = () => {
                 {isCreating ? 'Saving...' : 'Save to Notes'}
               </Button>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="text-center py-6">
+          <div className="text-center py-6 flex-1 flex flex-col justify-center">
             <Quote className="h-8 w-8 text-purple-400 mx-auto mb-3" />
             <div className="text-sm text-purple-700">No quote available</div>
           </div>

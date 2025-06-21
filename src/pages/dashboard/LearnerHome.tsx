@@ -70,10 +70,10 @@ const LearnerHome = () => {
             {/* Left column: Quote + NASA APOD */}
             <div className="flex flex-col flex-1 gap-6 lg:gap-8 min-h-[420px]">
               <div className="flex-1">
-                <QuoteOfTheDayCard />
+                <QuoteOfTheDayCard className="h-full" />
               </div>
               <div className="flex-1">
-                <APODCard onOpenGallery={handleAPODGalleryOpen} />
+                <APODCard onOpenGallery={handleAPODGalleryOpen} className="h-full" />
               </div>
             </div>
 
