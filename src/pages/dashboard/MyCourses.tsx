@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,7 @@ import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
 import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('dashboard');
   const { courses, isLoading, error } = useCourses();
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
   const [searchTerm, setSearchTerm] = useState('');
@@ -164,8 +165,8 @@ const MyCourses = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.myCourses.title')}</h1>
-        <p className="text-gray-600 mt-2">{t('dashboard.myCourses.description')}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('myCourses.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('myCourses.description')}</p>
       </div>
 
       {/* Search and Filters */}
@@ -235,7 +236,9 @@ const MyCourses = () => {
           {filteredCourses(availableCourses).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses(availableCourses).map((course) => (
-                <CourseCard key={course.id} course={course} isEnrolled={false} />
+                <Course
+
+Card key={course.id} course={course} isEnrolled={false} />
               ))}
             </div>
           ) : (
