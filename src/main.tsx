@@ -2,48 +2,74 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { pdfjs } from 'react-pdf'
+import { initializeReliablePDF, getPDFWorkerStatus } from './utils/reliablePdfConfig'
 
 console.log('🚀 Application starting...');
 
-// Configure PDF.js worker to use local file
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.js';
+// Initialize reliable PDF.js configuration
+const pdfWorkerReady = initializeReliablePDF();
+console.log('📄 PDF Worker Status:', getPDFWorkerStatus());
 
-console.log('✅ PDF.js worker configured:', pdfjs.GlobalWorkerOptions.workerSrc);
+if (!pdfWorkerReady) {
+  console.warn('⚠️ PDF worker initialization failed - PDF viewing may be impacted');
+}
 
-// Add global error handler for better error tracking
+// Enhanced error handler for PDF-related issues
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error);
   
-  // Track PDF-related errors separately
-  if (event.error?.message?.includes('pdf') || event.error?.message?.includes('worker')) {
-    console.warn('📄 PDF-related error detected:', event.error.message);
+  // Track PDF-related errors separately with better handling
+  if (event.error?.message?.includes('pdf') || 
+      event.error?.message?.includes('worker') ||
+      event.error?.message?.includes('PDF')) {
+    console.warn('📄 PDF-related error detected:', {
+      message: event.error.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      stack: event.error.stack?.substring(0, 200)
+    });
     
     // Don't let PDF errors crash the entire app
     event.preventDefault();
+    
+    // Attempt to reinitialize PDF worker if needed
+    if (event.error.message?.includes('worker')) {
+      console.log('🔄 Attempting PDF worker reinitialization...');
+      setTimeout(() => {
+        initializeReliablePDF();
+      }, 1000);
+    }
   }
 });
 
-// Add unhandled promise rejection handler
+// Enhanced promise rejection handler
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
   
   // Handle PDF-related promise rejections gracefully
-  if (event.reason?.message?.includes('pdf') || event.reason?.message?.includes('worker')) {
-    console.warn('📄 PDF-related promise rejection handled:', event.reason.message);
+  if (event.reason?.message?.includes('pdf') || 
+      event.reason?.message?.includes('worker') ||
+      event.reason?.message?.includes('PDF')) {
+    console.warn('📄 PDF-related promise rejection handled:', {
+      reason: event.reason.message,
+      stack: event.reason.stack?.substring(0, 200)
+    });
     event.preventDefault();
   }
 });
 
-// Performance monitoring for PDF loading
+// Performance monitoring for PDF operations
 if ('performance' in window && 'observe' in window.PerformanceObserver.prototype) {
   const perfObserver = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) {
-      if (entry.name.includes('pdf') || entry.name.includes('worker')) {
+    for (const entry of list.getEntries())   {
+      if (entry.name.includes('pdf') || 
+          entry.name.includes('worker') || 
+          entry.name.includes('PDF')) {
         console.log('📊 PDF Performance:', {
           name: entry.name,
-          duration: entry.duration,
-          startTime: entry.startTime
+          duration: `${entry.duration.toFixed(2)}ms`,
+          startTime: entry.startTime,
+          type: entry.entryType
         });
       }
     }
