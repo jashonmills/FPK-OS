@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -227,8 +228,16 @@
     @apply w-full px-3 sm:px-4 md:px-6 lg:px-8;
   }
 
+  .mobile-page-container {
+    @apply mobile-container py-4 sm:py-6 md:py-8;
+  }
+
   .mobile-grid {
     @apply grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4;
+  }
+
+  .mobile-grid-2 {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
   }
 
   .mobile-analytics-grid {
@@ -260,26 +269,38 @@
     @apply text-xs leading-relaxed sm:text-sm;
   }
 
+  .mobile-text-xs {
+    @apply text-xs leading-normal;
+  }
+
   /* Mobile Card Utilities */
   .mobile-card {
-    @apply p-3 sm:p-4 md:p-6 rounded-lg shadow-sm;
+    @apply border-0 shadow-sm rounded-lg;
+  }
+
+  .mobile-card-padding {
+    @apply p-3 sm:p-4 md:p-6;
   }
 
   .mobile-card-compact {
-    @apply p-2 sm:p-3 md:p-4 rounded-lg shadow-sm;
+    @apply p-2 sm:p-3 md:p-4;
+  }
+
+  .mobile-card-interactive {
+    @apply mobile-card mobile-hover-lift cursor-pointer mobile-transition;
   }
 
   /* Touch-Friendly Interactive Elements */
-  .touch-target {
+  .mobile-button {
+    @apply min-h-[44px] px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .mobile-input {
+    @apply w-full min-h-[44px] px-3 py-2 text-base rounded-lg border transition-colors;
+  }
+
+  .mobile-touch-target {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
-  }
-
-  .touch-button {
-    @apply touch-target px-4 py-2 rounded-lg font-medium transition-colors;
-  }
-
-  .touch-icon-button {
-    @apply touch-target rounded-full p-2 transition-colors;
   }
 
   /* Mobile Spacing Utilities */
@@ -291,44 +312,24 @@
     @apply space-y-3 sm:space-y-4 md:space-y-6;
   }
 
-  .mobile-horizontal-spacing {
-    @apply space-x-2 sm:space-x-3 md:space-x-4;
-  }
-
   /* Mobile Navigation Utilities */
   .mobile-tab-list {
-    @apply flex overflow-x-auto scrollbar-hide gap-1 p-1;
+    @apply flex overflow-x-auto scrollbar-hide gap-1 p-1 bg-muted rounded-lg;
   }
 
   .mobile-tab-trigger {
-    @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors touch-target;
+    @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors mobile-touch-target whitespace-nowrap;
   }
 
   /* Mobile Content Utilities */
   .mobile-scroll-container {
-    @apply overflow-y-auto -webkit-overflow-scrolling-touch;
+    @apply overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .mobile-safe-text {
-    @apply break-words hyphens-auto overflow-wrap-anywhere;
-  }
-
-  /* Mobile Form Utilities */
-  .mobile-form-section {
-    @apply space-y-3 sm:space-y-4;
-  }
-
-  .mobile-form-grid {
-    @apply grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4;
-  }
-
-  .mobile-input {
-    @apply w-full px-3 py-2 text-base rounded-lg border touch-target;
-  }
-
-  /* Mobile Modal Utilities */
-  .mobile-modal {
-    @apply fixed inset-x-2 top-8 bottom-8 sm:inset-x-4 sm:top-12 sm:bottom-12 md:inset-x-auto md:inset-y-auto md:w-full md:max-w-lg md:h-auto;
+    @apply break-words hyphens-auto;
+    overflow-wrap: anywhere;
   }
 
   /* Hide scrollbars while keeping functionality */
@@ -386,7 +387,7 @@
   }
 
   .responsive-card-padding {
-    @apply mobile-card;
+    @apply mobile-card-padding;
   }
 
   .responsive-spacing {
