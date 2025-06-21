@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import PublicDomainBooksSection from '@/components/library/PublicDomainBooksSect
 import UserUploadsSection from '@/components/library/UserUploadsSection';
 import ApprovedStorageBooksSection from '@/components/library/ApprovedStorageBooksSection';
 import CommunityLibraryContent from '@/components/library/CommunityLibraryContent';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 type ViewMode = 'grid' | 'list';
 
@@ -52,7 +54,9 @@ const Library = () => {
   }, [searchQuery]);
 
   const renderPublicDomainSection = () => (
-    <PublicDomainBooksSection viewMode={viewMode} />
+    <ErrorBoundary>
+      <PublicDomainBooksSection viewMode={viewMode} />
+    </ErrorBoundary>
   );
 
   const renderSearchResults = () => {
@@ -241,15 +245,19 @@ const Library = () => {
           </TabsList>
 
           <TabsContent value="public-domain" className="mt-6">
-            <PublicDomainBooksSection viewMode={viewMode} />
+            {renderPublicDomainSection()}
           </TabsContent>
 
           <TabsContent value="uploads" className="mt-6">
-            <UserUploadsSection viewMode={viewMode} />
+            <ErrorBoundary>
+              <UserUploadsSection viewMode={viewMode} />
+            </ErrorBoundary>
           </TabsContent>
 
           <TabsContent value="community" className="mt-6">
-            <ApprovedStorageBooksSection viewMode={viewMode} />
+            <ErrorBoundary>
+              <ApprovedStorageBooksSection viewMode={viewMode} />
+            </ErrorBoundary>
           </TabsContent>
 
           <TabsContent value="search-results" className="mt-6">

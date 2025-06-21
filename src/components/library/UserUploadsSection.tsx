@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -23,25 +24,41 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
 
   // Collapsible state with localStorage persistence
   const [isExpanded, setIsExpanded] = useState(() => {
-    const saved = localStorage.getItem('userUploads-expanded');
-    return saved !== null ? JSON.parse(saved) : true;
+    try {
+      const saved = localStorage.getItem('userUploads-expanded');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
   });
   
   // Use parent viewMode or fallback to localStorage
   const [localViewMode, setLocalViewMode] = useState<'list' | 'grid'>(() => {
-    const saved = localStorage.getItem('userUploads-viewMode');
-    return (saved as 'list' | 'grid') || parentViewMode;
+    try {
+      const saved = localStorage.getItem('userUploads-viewMode');
+      return (saved as 'list' | 'grid') || parentViewMode;
+    } catch {
+      return parentViewMode;
+    }
   });
 
   const viewMode = parentViewMode || localViewMode;
 
   // Persist state changes to localStorage
   useEffect(() => {
-    localStorage.setItem('userUploads-expanded', JSON.stringify(isExpanded));
+    try {
+      localStorage.setItem('userUploads-expanded', JSON.stringify(isExpanded));
+    } catch {
+      // Ignore localStorage errors
+    }
   }, [isExpanded]);
 
   useEffect(() => {
-    localStorage.setItem('userUploads-viewMode', viewMode);
+    try {
+      localStorage.setItem('userUploads-viewMode', viewMode);
+    } catch {
+      // Ignore localStorage errors
+    }
   }, [viewMode]);
 
   const handlePDFOpen = async (book: any) => {
@@ -52,6 +69,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
       await new Promise(resolve => setTimeout(resolve, 500));
       setSelectedPDF(book);
     } catch (error) {
+      console.error('Error opening PDF:', error);
       toast({
         title: "Error",
         description: "Failed to open PDF viewer",
@@ -100,7 +118,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Upload className="h-5 w-5" />
-                  Your Uploads ({userUploads.length})
+                  Your Uploads ({userUploads?.length || 0})
                 </div>
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4" />
@@ -113,7 +131,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
           
           <CollapsibleContent>
             <CardContent>
-              {userUploads.length === 0 ? (
+              {!userUploads || userUploads.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No uploads yet</h3>
