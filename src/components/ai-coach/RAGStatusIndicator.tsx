@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -55,11 +56,15 @@ const RAGStatusIndicator: React.FC<RAGStatusIndicatorProps> = ({ compact = false
           };
 
           embeddings.forEach(embedding => {
-            const metadata = embedding.metadata || {};
-            if (metadata.source === 'note') sources.notes++;
-            else if (metadata.source === 'flashcard') sources.flashcards++;
-            else if (metadata.source === 'goal') sources.goals++;
-            else if (metadata.source === 'knowledge_base') sources.knowledge_base++;
+            const metadata = embedding.metadata;
+            // Type guard to check if metadata is an object with a source property
+            if (metadata && typeof metadata === 'object' && !Array.isArray(metadata) && 'source' in metadata) {
+              const source = metadata.source;
+              if (source === 'note') sources.notes++;
+              else if (source === 'flashcard') sources.flashcards++;
+              else if (source === 'goal') sources.goals++;
+              else if (source === 'knowledge_base') sources.knowledge_base++;
+            }
           });
 
           setStats({
