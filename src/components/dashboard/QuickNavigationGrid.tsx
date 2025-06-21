@@ -77,17 +77,21 @@ const QuickNavigationGrid = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="mobile-nav-grid">
       {navigationItems.map((item) => {
         const IconComponent = item.icon;
         return (
-          <Card key={item.title} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(item.path)}>
-            <CardContent className="p-4 text-center">
-              <div className={`w-12 h-12 rounded-lg ${item.color} flex items-center justify-center mx-auto mb-3`}>
-                <IconComponent className="h-6 w-6 text-white" />
+          <Card 
+            key={item.title} 
+            className="mobile-hover-lift cursor-pointer border-0 shadow-sm hover:shadow-md mobile-transition" 
+            onClick={() => navigate(item.path)}
+          >
+            <CardContent className="mobile-card-compact text-center">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${item.color} flex items-center justify-center mx-auto mb-2 sm:mb-3`}>
+                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-              <p className="text-xs text-muted-foreground">{item.description}</p>
+              <h3 className="font-semibold text-xs sm:text-sm mb-1 mobile-safe-text">{item.title}</h3>
+              <p className="text-xs text-muted-foreground mobile-safe-text leading-tight">{item.description}</p>
             </CardContent>
           </Card>
         );

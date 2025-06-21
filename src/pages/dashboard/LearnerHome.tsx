@@ -45,16 +45,16 @@ const LearnerHome = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl space-y-8">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+    <div className="mobile-section-spacing">
+      {/* Mobile-Optimized Header Section */}
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <h1 className="mobile-heading-xl mb-2">
           <DualLanguageText 
             translationKey="dashboard.greeting"
             fallback={`${getGreeting()}, ${getDisplayName()}!`}
           />
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground mobile-text-base">
           <DualLanguageText 
             translationKey="dashboard.welcomeMessage"
             fallback="Ready to continue your learning journey today?"
@@ -62,66 +62,61 @@ const LearnerHome = () => {
         </p>
       </div>
 
-      {/* Quick Navigation Grid */}
+      {/* Mobile-Optimized Quick Navigation */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Quick Access</h2>
         <QuickNavigationGrid />
       </section>
 
-      {/* Learning Analytics Overview */}
+      {/* Mobile-Optimized Learning Analytics */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Learning Progress</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Learning Progress</h2>
         <LearningAnalyticsOverview />
       </section>
 
-      {/* Gamification Overview */}
+      {/* Mobile-Optimized Achievements Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Achievements & Progress</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Achievements & Progress</h2>
         <GamificationOverview />
       </section>
 
-      {/* Goals Overview */}
+      {/* Mobile-Optimized Goals Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Current Goals</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Current Goals</h2>
         <GoalsOverview />
       </section>
 
-      {/* Main Content Grid - Daily Cards */}
+      {/* Mobile-Optimized Daily Learning Cards */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Daily Learning</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* Quote of the Day */}
-          <div className="lg:col-span-1">
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Daily Learning</h2>
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="order-1">
             <QuoteOfTheDayCard />
           </div>
-
-          {/* Weather Science Lab */}
-          <div className="lg:col-span-1">
+          <div className="order-2">
             <WeatherScienceLabCard />
           </div>
-
-          {/* Notification Demo */}
-          <div className="lg:col-span-1">
+          <div className="order-3 lg:col-span-2 xl:col-span-1">
             <NotificationDemo />
           </div>
         </div>
       </section>
 
-      {/* APOD Section */}
+      {/* Mobile-Optimized Space Discovery */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Space Discovery</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Space Discovery</h2>
         <APODCard onOpenGallery={handleAPODGalleryOpen} />
       </section>
 
-      {/* AI Insights Section */}
+      {/* Mobile-Optimized AI Insights */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">AI Learning Insights</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">AI Learning Insights</h2>
         <AIInsightsSection />
       </section>
 
-      {/* Recent Activity Feed */}
+      {/* Mobile-Optimized Recent Activity */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">Recent Activity</h2>
         <RecentActivityFeed />
       </section>
 

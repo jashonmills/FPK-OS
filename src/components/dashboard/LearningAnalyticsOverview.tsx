@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useGamificationContext } from '@/contexts/GamificationContext';
 import { useWeeklyActivity } from '@/hooks/useWeeklyActivity';
@@ -22,14 +22,14 @@ const LearningAnalyticsOverview = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mobile-analytics-grid">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
+          <Card key={i} className="border-0 shadow-sm">
+            <CardContent className="mobile-card-compact">
               <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="h-2 bg-gray-200 rounded"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-1/2 mb-3"></div>
+                <div className="h-1.5 bg-gray-200 rounded"></div>
               </div>
             </CardContent>
           </Card>
@@ -39,62 +39,64 @@ const LearningAnalyticsOverview = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Total XP */}
-      <Card>
-        <CardContent className="p-6">
+    <div className="mobile-analytics-grid">
+      {/* Total XP Card */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="mobile-card-compact">
           <div className="flex items-center gap-2 mb-2">
-            <Award className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium text-muted-foreground">Total XP</span>
+            <Award className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Total XP</span>
           </div>
-          <div className="text-2xl font-bold mb-2">{totalXP.toLocaleString()}</div>
-          <Progress value={levelProgress} className="h-2" />
-          <p className="text-xs text-muted-foreground mt-1">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold mb-2">{totalXP.toLocaleString()}</div>
+          <Progress value={levelProgress} className="h-1.5 sm:h-2" />
+          <p className="text-xs text-muted-foreground mt-1 mobile-safe-text">
             Level {currentLevel} • {Math.round(xpToNext - currentLevelXP)} XP to next
           </p>
         </CardContent>
       </Card>
 
-      {/* Weekly Study Time */}
-      <Card>
-        <CardContent className="p-6">
+      {/* Weekly Study Time Card */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="mobile-card-compact">
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-muted-foreground">This Week</span>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">This Week</span>
           </div>
-          <div className="text-2xl font-bold mb-2">{Math.round(weeklyStudyTime / 60)}h {weeklyStudyTime % 60}m</div>
-          <Progress value={weeklyProgress} className="h-2" />
-          <p className="text-xs text-muted-foreground mt-1">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
+            {Math.round(weeklyStudyTime / 60)}h {weeklyStudyTime % 60}m
+          </div>
+          <Progress value={weeklyProgress} className="h-1.5 sm:h-2" />
+          <p className="text-xs text-muted-foreground mt-1 mobile-safe-text">
             {Math.round(weeklyProgress)}% of weekly goal
           </p>
         </CardContent>
       </Card>
 
-      {/* Study Streak */}
-      <Card>
-        <CardContent className="p-6">
+      {/* Study Streak Card */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="mobile-card-compact">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-muted-foreground">Study Streak</span>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Study Streak</span>
           </div>
-          <div className="text-2xl font-bold mb-2">
+          <div className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
             {userStats?.streaks?.find(s => s.streak_type === 'study')?.current_count || 0} days
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mobile-safe-text">
             Best: {userStats?.streaks?.find(s => s.streak_type === 'study')?.best_count || 0} days
           </p>
         </CardContent>
       </Card>
 
-      {/* Achievements */}
-      <Card>
-        <CardContent className="p-6">
+      {/* Achievements Card */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="mobile-card-compact">
           <div className="flex items-center gap-2 mb-2">
-            <Target className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-muted-foreground">Achievements</span>
+            <Target className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Achievements</span>
           </div>
-          <div className="text-2xl font-bold mb-2">{userStats?.badges?.length || 0}</div>
-          <p className="text-xs text-muted-foreground">Badges earned</p>
+          <div className="text-lg sm:text-xl md:text-2xl font-bold mb-2">{userStats?.badges?.length || 0}</div>
+          <p className="text-xs text-muted-foreground mobile-safe-text">Badges earned</p>
         </CardContent>
       </Card>
     </div>

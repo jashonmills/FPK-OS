@@ -15,19 +15,21 @@ const Notes = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header with RAG Status */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+    <div className="max-w-7xl mx-auto mobile-section-spacing">
+      {/* Mobile-Optimized Header with RAG Status */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notes & Study Materials</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="mobile-heading-xl text-gray-900">Notes & Study Materials</h1>
+          <p className="text-gray-600 mt-1 mobile-text-base">
             Organize your learning materials and enhance your AI coach with personal knowledge
           </p>
         </div>
-        <RAGStatusIndicator compact />
+        <div className="flex-shrink-0">
+          <RAGStatusIndicator compact />
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mobile-section-spacing">
         <MobileTabsList isMobile={isMobile} />
 
         <div className="min-h-0 flex-1">

@@ -7,12 +7,12 @@ const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
 
   return (
-    <div className={`container mx-auto p-4 sm:p-6 lg:p-8 ${getAccessibilityClasses('container')}`}>
-      <div className="mb-6">
-        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${getAccessibilityClasses('text')}`}>
+    <div className={`mobile-container mobile-section-spacing ${getAccessibilityClasses('container')}`}>
+      <div className="mb-4 sm:mb-6">
+        <h1 className={`mobile-heading-xl mb-2 ${getAccessibilityClasses('text')}`}>
           Achievements & Progress
         </h1>
-        <p className={`text-muted-foreground ${getAccessibilityClasses('text')}`}>
+        <p className={`text-muted-foreground mobile-text-base ${getAccessibilityClasses('text')}`}>
           Track your learning journey, earn XP, unlock badges, and compete with others!
         </p>
       </div>
