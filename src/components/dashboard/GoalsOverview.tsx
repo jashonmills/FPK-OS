@@ -9,11 +9,14 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 const GoalsOverview = () => {
-  const { goals = [], loading } = useGoals(); // Add default empty array
+  const { goals = [], loading } = useGoals();
   const navigate = useNavigate();
 
-  // Safe filtering with null checks
-  const activeGoals = (goals || []).filter(goal => goal?.status === 'active').slice(0, 3);
+  // Safe filtering with comprehensive null checks
+  const activeGoals = React.useMemo(() => {
+    if (!Array.isArray(goals)) return [];
+    return goals.filter(goal => goal && typeof goal === 'object' && goal.status === 'active').slice(0, 3);
+  }, [goals]);
 
   if (loading) {
     return (
@@ -76,23 +79,26 @@ const GoalsOverview = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activeGoals.map((goal) => (
-            goal && goal.id ? (
+          {activeGoals.map((goal) => {
+            // Additional safety check for each goal
+            if (!goal || !goal.id) return null;
+            
+            return (
               <div key={goal.id} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">{goal.title || 'Untitled Goal'}</h4>
                   <Badge variant="secondary">{goal.category || 'General'}</Badge>
                 </div>
-                <Progress value={goal.progress || 0} className="h-2" />
+                <Progress value={Math.min(Math.max(goal.progress || 0, 0), 100)} className="h-2" />
                 <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>{goal.progress || 0}% complete</span>
+                  <span>{Math.round(goal.progress || 0)}% complete</span>
                   {goal.target_date && (
                     <span>Due: {new Date(goal.target_date).toLocaleDateString()}</span>
                   )}
                 </div>
               </div>
-            ) : null
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

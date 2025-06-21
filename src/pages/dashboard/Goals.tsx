@@ -14,7 +14,9 @@ const Goals = () => {
           </p>
         </div>
         
-        <GoalsDashboard />
+        <ErrorBoundary>
+          <GoalsDashboard />
+        </ErrorBoundary>
       </div>
     </ErrorBoundary>
   );
