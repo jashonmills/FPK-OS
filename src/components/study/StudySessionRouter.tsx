@@ -13,7 +13,7 @@ const StudySessionRouter: React.FC = () => {
   const { mode } = useParams<{ mode: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { sessions } = useStudySessions();
+  const { sessions, completeSession } = useStudySessions();
   const { flashcards } = useFlashcards();
   const [sessionData, setSessionData] = useState<{
     session: StudySession | null;
@@ -52,7 +52,7 @@ const StudySessionRouter: React.FC = () => {
           return;
         }
 
-        // Priority 2: Find most recent incomplete session for this mode
+        // Priority 2: Clean up incomplete sessions and find valid one
         if (sessions.length > 0 && flashcards.length > 0) {
           const modeMap: Record<string, string> = {
             'memory-test': 'memory_test',
@@ -67,13 +67,37 @@ const StudySessionRouter: React.FC = () => {
           
           console.log('StudySessionRouter: Looking for sessions of type:', sessionType);
           
-          // Find the most recent incomplete session for this type
+          // Clean up old incomplete sessions (older than 10 minutes)
+          const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+          const oldIncompleteSessions = sessions.filter(s => 
+            s.session_type === sessionType && 
+            !s.completed_at && 
+            new Date(s.created_at) < tenMinutesAgo
+          );
+
+          // Complete old sessions to prevent conflicts
+          for (const oldSession of oldIncompleteSessions) {
+            console.log('StudySessionRouter: Cleaning up old incomplete session:', oldSession.id);
+            try {
+              await completeSession({
+                id: oldSession.id,
+                correct_answers: 0,
+                incorrect_answers: 0,
+                session_duration_seconds: 0
+              });
+            } catch (error) {
+              console.warn('Failed to clean up old session:', error);
+            }
+          }
+          
+          // Find the most recent valid incomplete session
           const recentSession = sessions
             .filter(s => {
               const isCorrectType = s.session_type === sessionType;
               const isIncomplete = !s.completed_at;
-              console.log(`Session ${s.id}: type=${s.session_type}, completed=${!!s.completed_at}, match=${isCorrectType && isIncomplete}`);
-              return isCorrectType && isIncomplete;
+              const isRecent = new Date(s.created_at) > tenMinutesAgo;
+              console.log(`Session ${s.id}: type=${s.session_type}, completed=${!!s.completed_at}, recent=${isRecent}, match=${isCorrectType && isIncomplete && isRecent}`);
+              return isCorrectType && isIncomplete && isRecent;
             })
             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
 
@@ -97,7 +121,17 @@ const StudySessionRouter: React.FC = () => {
               setIsLoading(false);
               return;
             } else {
-              console.warn('StudySessionRouter: No matching flashcards found for session');
+              console.warn('StudySessionRouter: No matching flashcards found for session, completing it');
+              try {
+                await completeSession({
+                  id: recentSession.id,
+                  correct_answers: 0,
+                  incorrect_answers: 0,
+                  session_duration_seconds: 0
+                });
+              } catch (error) {
+                console.warn('Failed to complete invalid session:', error);
+              }
             }
           } else {
             console.log('StudySessionRouter: No recent incomplete sessions found');
@@ -114,11 +148,11 @@ const StudySessionRouter: React.FC = () => {
       }
     };
 
-    // Only initialize if we have the necessary data
+    // Only initialize if we have the necessary data loaded
     if (sessions.length >= 0 && flashcards.length >= 0) {
       initializeSession();
     }
-  }, [mode, location.state, sessions, flashcards]);
+  }, [mode, location.state, sessions, flashcards, completeSession]);
 
   const handleComplete = () => {
     navigate('/dashboard/learner/notes', { replace: true });

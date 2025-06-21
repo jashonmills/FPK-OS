@@ -13,7 +13,7 @@ import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 
 const FileUploadCard: React.FC = () => {
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
-  const { subscribe, unsubscribe } = useFileUploadSubscription();
+  const { subscribe, unsubscribe, isConnected, startPolling, stopPolling } = useFileUploadSubscription();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -36,7 +36,7 @@ const FileUploadCard: React.FC = () => {
 
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  // Set up centralized subscription
+  // Set up centralized subscription with improved error handling
   useEffect(() => {
     if (!user?.id) return;
 
@@ -63,6 +63,9 @@ const FileUploadCard: React.FC = () => {
           delete newState[payload.new.id];
           return newState;
         });
+
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
         
         toast({
           title: "🧠 AI Coach Ready!",
@@ -85,6 +88,9 @@ const FileUploadCard: React.FC = () => {
           delete newState[payload.new.id];
           return newState;
         });
+
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
         
         toast({
           title: "❌ Processing failed",
@@ -105,7 +111,7 @@ const FileUploadCard: React.FC = () => {
         clearTimeout(timeout);
       });
     };
-  }, [user?.id, subscribe, unsubscribe]);
+  }, [user?.id, subscribe, unsubscribe, stopPolling]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -300,6 +306,16 @@ const FileUploadCard: React.FC = () => {
             // Process file with AI
             await processFileForFlashcards(file, uploadRecord.id, filePath);
 
+            // Start polling as fallback if real-time isn't connected
+            if (!isConnected) {
+              console.log('🔄 Starting polling fallback for AI coach upload:', uploadRecord.id);
+              startPolling(uploadRecord.id, (updatedUpload) => {
+                if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
+                  handleFileUploadUpdate({ new: updatedUpload, old: uploadRecord });
+                }
+              });
+            }
+
           } catch (error) {
             console.error('AI processing error:', error);
             
@@ -440,6 +456,11 @@ const FileUploadCard: React.FC = () => {
         <CardTitle className="flex items-center gap-2 text-lg">
           <Brain className="h-5 w-5 text-purple-600" />
           Upload Study Materials for AI Coaching
+          {!isConnected && (
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">
+              Backup Mode
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

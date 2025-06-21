@@ -16,7 +16,7 @@ const FileUploadSection: React.FC = () => {
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
   const { addPreviewCards } = useFlashcardPreview();
   const { startProcessing, completeStage, errorStage } = useRealTimeProcessing();
-  const { subscribe, unsubscribe } = useFileUploadSubscription();
+  const { subscribe, unsubscribe, isConnected, startPolling, stopPolling } = useFileUploadSubscription();
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -24,7 +24,7 @@ const FileUploadSection: React.FC = () => {
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const subscriptionIdRef = useRef<string>(`notes-upload-${Date.now()}`);
 
-  // Set up centralized subscription
+  // Set up centralized subscription with polling fallback
   useEffect(() => {
     if (!user?.id) return;
 
@@ -54,6 +54,9 @@ const FileUploadSection: React.FC = () => {
           delete newState[payload.new.id];
           return newState;
         });
+
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
 
         // Fetch flashcards and add to preview
         try {
@@ -115,6 +118,9 @@ const FileUploadSection: React.FC = () => {
           delete newState[payload.new.id];
           return newState;
         });
+
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
         
         toast({
           title: "❌ Processing failed",
@@ -126,16 +132,28 @@ const FileUploadSection: React.FC = () => {
 
     subscribe(subscriptionId, handleFileUploadUpdate);
 
+    // If real-time connection fails, show warning and ensure polling fallback
+    const connectionCheckTimer = setTimeout(() => {
+      if (!isConnected) {
+        console.log('⚠️ Real-time connection not established, relying on polling fallback');
+        toast({
+          title: "Connection Notice",
+          description: "Using backup sync method for file processing updates.",
+        });
+      }
+    }, 5000);
+
     return () => {
       console.log(`🔌 Cleaning up notes file upload handler: ${subscriptionId}`);
       unsubscribe(subscriptionId);
+      clearTimeout(connectionCheckTimer);
       
       // Clean up timeouts
       Object.values(processingTimeouts).forEach(timeout => {
         clearTimeout(timeout);
       });
     };
-  }, [user?.id, subscribe, unsubscribe]);
+  }, [user?.id, subscribe, unsubscribe, isConnected, stopPolling]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -303,7 +321,27 @@ const FileUploadSection: React.FC = () => {
               [uploadRecord.id]: timeoutId
             }));
 
+            // Start processing
             await processFileForFlashcards(file, uploadRecord.id, filePath);
+
+            // Start polling as fallback if real-time isn't connected
+            if (!isConnected) {
+              console.log('🔄 Starting polling fallback for:', uploadRecord.id);
+              startPolling(uploadRecord.id, (updatedUpload) => {
+                if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
+                  // Trigger the same handler as real-time would
+                  const payload = { new: updatedUpload, old: uploadRecord };
+                  setTimeout(() => {
+                    // Find and call the handler
+                    const handler = document.querySelector('[data-upload-handler]');
+                    if (handler) {
+                      const event = new CustomEvent('uploadUpdate', { detail: payload });
+                      handler.dispatchEvent(event);
+                    }
+                  }, 100);
+                }
+              });
+            }
 
           } catch (error) {
             console.error('AI processing error:', error);
@@ -440,10 +478,15 @@ const FileUploadSection: React.FC = () => {
   };
 
   return (
-    <Card className="fpk-card border-0 shadow-md">
+    <Card className="fpk-card border-0 shadow-md" data-upload-handler>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
           📤 Enhanced File Upload & AI Processing
+          {!isConnected && (
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+              Backup Mode
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
