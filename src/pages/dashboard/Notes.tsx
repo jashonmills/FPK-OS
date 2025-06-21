@@ -1,123 +1,71 @@
 
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useAccessibility } from '@/hooks/useAccessibility';
-import DualLanguageText from '@/components/DualLanguageText';
-import NotesSection from '@/components/notes/NotesSection';
-import FlashcardsSection from '@/components/notes/FlashcardsSection';
-import FileUploadSection from '@/components/notes/FileUploadSection';
-import ProgressSection from '@/components/notes/ProgressSection';
-import FlashcardPreviewModule from '@/components/notes/FlashcardPreviewModule';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Upload, Zap, Brain } from 'lucide-react';
+import NotesSection from '@/components/notes/NotesSection';
+import FileUploadSection from '@/components/notes/FileUploadSection';
+import FlashcardsSection from '@/components/notes/FlashcardsSection';
+import ProgressSection from '@/components/notes/ProgressSection';
+import RAGProcessingPanel from '@/components/notes/RAGProcessingPanel';
+import RAGStatusIndicator from '@/components/ai-coach/RAGStatusIndicator';
 
 const Notes = () => {
-  const { getAccessibilityClasses } = useAccessibility();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('all');
-
-  // Handle URL parameters on component mount
-  useEffect(() => {
-    const filter = searchParams.get('filter');
-    const noteId = searchParams.get('noteId');
-    
-    if (filter === 'ai-insights') {
-      setActiveTab('ai-insights');
-    } else if (noteId) {
-      setActiveTab('all');
-      // Note ID will be handled by NotesSection component
-    }
-  }, [searchParams]);
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Update URL without noteId when switching tabs
-    const newParams = new URLSearchParams();
-    if (value === 'ai-insights') {
-      newParams.set('filter', 'ai-insights');
-    }
-    setSearchParams(newParams);
-  };
+  const [activeTab, setActiveTab] = useState('notes');
 
   return (
-    <div className={`p-3 sm:p-6 space-y-4 sm:space-y-6 ${getAccessibilityClasses('container')}`}>
-      {/* Header Section */}
-      <div className="text-center space-y-3 sm:space-y-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          <DualLanguageText translationKey="nav.notes" fallback="Notes & Flashcards" />
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-2 sm:px-0">
-          Create study notes, generate flashcards, and track your learning progress with our comprehensive study tools.
-        </p>
-        <div className="text-xs sm:text-sm text-gray-500 space-y-1">
-          <p>Take notes and organize your learning materials</p>
-          <p>Generate flashcards from uploaded documents</p>
-          <p>Practice with multiple study modes and track progress</p>
+    <div className="space-y-6">
+      {/* Header with RAG Status */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Notes & Study Materials</h1>
+          <p className="text-gray-600 mt-1">
+            Organize your learning materials and enhance your AI coach with personal knowledge
+          </p>
         </div>
+        <RAGStatusIndicator compact />
       </div>
 
-      {/* Flashcard Preview Module - Always visible when there are preview cards */}
-      <FlashcardPreviewModule />
-
-      {/* Notes Tabs */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all">All Notes</TabsTrigger>
-          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
-          <TabsTrigger value="study">Study Notes</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="notes" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Notes
+          </TabsTrigger>
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Upload
+          </TabsTrigger>
+          <TabsTrigger value="flashcards" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Flashcards
+          </TabsTrigger>
+          <TabsTrigger value="rag" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            AI Enhancement
+          </TabsTrigger>
+          <TabsTrigger value="progress" className="flex items-center gap-2">
+            Progress
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Left Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <NotesSection filterCategory={null} highlightNoteId={searchParams.get('noteId')} />
-              <FileUploadSection />
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <FlashcardsSection />
-              <ProgressSection />
-            </div>
-          </div>
+        <TabsContent value="notes">
+          <NotesSection />
         </TabsContent>
 
-        <TabsContent value="ai-insights" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Left Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <NotesSection filterCategory="ai-insights" highlightNoteId={searchParams.get('noteId')} />
-              <div className="text-center p-6 bg-purple-50 rounded-lg border border-purple-200">
-                <h3 className="text-lg font-semibold text-purple-900 mb-2">AI Learning Coach Insights</h3>
-                <p className="text-sm text-purple-700">
-                  Notes saved from your AI Learning Coach conversations appear here. 
-                  These insights are automatically tagged for easy organization.
-                </p>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <FlashcardsSection />
-              <ProgressSection />
-            </div>
-          </div>
+        <TabsContent value="upload">
+          <FileUploadSection />
         </TabsContent>
 
-        <TabsContent value="study" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Left Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <NotesSection filterCategory="study" highlightNoteId={null} />
-              <FileUploadSection />
-            </div>
+        <TabsContent value="flashcards">
+          <FlashcardsSection />
+        </TabsContent>
 
-            {/* Right Column */}
-            <div className="space-y-4 sm:space-y-6">
-              <FlashcardsSection />
-              <ProgressSection />
-            </div>
-          </div>
+        <TabsContent value="rag">
+          <RAGProcessingPanel />
+        </TabsContent>
+
+        <TabsContent value="progress">
+          <ProgressSection />
         </TabsContent>
       </Tabs>
     </div>
