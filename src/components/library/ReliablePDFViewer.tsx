@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
@@ -66,8 +65,8 @@ const ReliablePDFViewer: React.FC<ReliablePDFViewerProps> = ({ fileUrl, fileName
       
       // Try with signed URL if authenticated
       try {
-        const { user } = await supabase.auth.getUser();
-        if (user) {
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
           // Extract bucket and path from URL
           const urlParts = url.split('/storage/v1/object/');
           if (urlParts.length > 1) {
