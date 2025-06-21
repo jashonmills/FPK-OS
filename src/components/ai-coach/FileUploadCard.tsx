@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ const FileUploadCard: React.FC = () => {
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const subscriptionIdRef = useRef<string>(`ai-coach-upload-${Date.now()}`);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
   // Enhanced file type support
   const allowedTypes = [
@@ -37,61 +37,66 @@ const FileUploadCard: React.FC = () => {
 
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
-  // Define the handler function in the component scope
+  // Define the handler function in the component scope with error handling
   const handleFileUploadUpdate = useCallback((payload: any) => {
-    console.log('🤖 AI Coach file upload updated:', payload);
-    
-    if (payload.new.processing_status === 'completed') {
-      // Clear timeout and progress
-      if (processingTimeouts[payload.new.id]) {
-        clearTimeout(processingTimeouts[payload.new.id]);
-      }
+    try {
+      console.log('🤖 AI Coach file upload updated:', payload);
       
-      setProcessingProgress(prev => {
-        const newState = { ...prev };
-        delete newState[payload.new.id];
-        return newState;
-      });
-      
-      setProcessingTimeouts(prev => {
-        const newState = { ...prev };
-        delete newState[payload.new.id];
-        return newState;
-      });
+      if (payload.new.processing_status === 'completed') {
+        // Clear timeout and progress
+        if (processingTimeouts[payload.new.id]) {
+          clearTimeout(processingTimeouts[payload.new.id]);
+        }
+        
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
 
-      // Stop polling if it was running
-      stopPolling(payload.new.id);
-      
-      toast({
-        title: "🧠 AI Coach Ready!",
-        description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Your AI coach can now provide guidance based on this content!`,
-      });
-    } else if (payload.new.processing_status === 'failed') {
-      // Clear timeout and progress
-      if (processingTimeouts[payload.new.id]) {
-        clearTimeout(processingTimeouts[payload.new.id]);
-      }
-      
-      setProcessingProgress(prev => {
-        const newState = { ...prev };
-        delete newState[payload.new.id];
-        return newState;
-      });
-      
-      setProcessingTimeouts(prev => {
-        const newState = { ...prev };
-        delete newState[payload.new.id];
-        return newState;
-      });
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
+        
+        toast({
+          title: "🧠 AI Coach Ready!",
+          description: `Generated ${payload.new.generated_flashcards_count} flashcards from ${payload.new.file_name}. Your AI coach can now provide guidance based on this content!`,
+        });
+      } else if (payload.new.processing_status === 'failed') {
+        // Clear timeout and progress
+        if (processingTimeouts[payload.new.id]) {
+          clearTimeout(processingTimeouts[payload.new.id]);
+        }
+        
+        setProcessingProgress(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
+        
+        setProcessingTimeouts(prev => {
+          const newState = { ...prev };
+          delete newState[payload.new.id];
+          return newState;
+        });
 
-      // Stop polling if it was running
-      stopPolling(payload.new.id);
-      
-      toast({
-        title: "❌ Processing failed",
-        description: payload.new.error_message || "Failed to process your study material",
-        variant: "destructive"
-      });
+        // Stop polling if it was running
+        stopPolling(payload.new.id);
+        
+        toast({
+          title: "❌ Processing failed",
+          description: payload.new.error_message || "Failed to process your study material",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error handling file upload update:', error);
+      setSubscriptionError('Error processing upload update');
     }
   }, [processingTimeouts, stopPolling, toast]);
 
@@ -102,11 +107,21 @@ const FileUploadCard: React.FC = () => {
     const subscriptionId = subscriptionIdRef.current;
     console.log(`📡 Setting up AI coach file upload handler: ${subscriptionId}`);
 
-    subscribe(subscriptionId, handleFileUploadUpdate);
+    try {
+      subscribe(subscriptionId, handleFileUploadUpdate);
+      setSubscriptionError(null);
+    } catch (error) {
+      console.error('Error setting up subscription:', error);
+      setSubscriptionError('Failed to set up real-time updates');
+    }
 
     return () => {
       console.log(`🔌 Cleaning up AI coach file upload handler: ${subscriptionId}`);
-      unsubscribe(subscriptionId);
+      try {
+        unsubscribe(subscriptionId);
+      } catch (error) {
+        console.error('Error cleaning up subscription:', error);
+      }
       
       // Clean up timeouts
       Object.values(processingTimeouts).forEach(timeout => {
@@ -309,7 +324,7 @@ const FileUploadCard: React.FC = () => {
             await processFileForFlashcards(file, uploadRecord.id, filePath);
 
             // Start polling as fallback if real-time isn't connected
-            if (!isConnected) {
+            if (!isConnected || subscriptionError) {
               console.log('🔄 Starting polling fallback for AI coach upload:', uploadRecord.id);
               startPolling(uploadRecord.id, (updatedUpload) => {
                 if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
@@ -460,12 +475,23 @@ const FileUploadCard: React.FC = () => {
           Upload Study Materials for AI Coaching
           {!isConnected && (
             <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">
-              Backup Mode
+              {subscriptionError ? 'Error Mode' : 'Backup Mode'}
             </span>
           )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {subscriptionError && (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center gap-2 text-yellow-700">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm">
+                Real-time updates temporarily unavailable. Using polling fallback.
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Upload Area */}
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${

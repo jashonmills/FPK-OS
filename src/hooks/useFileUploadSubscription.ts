@@ -21,6 +21,7 @@ let globalChannel: RealtimeChannel | null = null;
 let globalHandlers: FileUploadUpdateHandler[] = [];
 let globalUserId: string | null = null;
 let isSubscribing = false;
+let isChannelSubscribed = false; // Track subscription state
 let pollingIntervals: Record<string, NodeJS.Timeout> = {};
 
 export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
@@ -31,11 +32,20 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   const subscribe = useCallback((id: string, handler: (payload: any) => void) => {
     console.log(`📡 Subscribing handler: ${id}`);
     
+    // Check if handler already exists
+    const existingHandler = globalHandlers.find(h => h.id === id);
+    if (existingHandler) {
+      console.log(`📡 Handler ${id} already exists, updating`);
+      existingHandler.handler = handler;
+      return;
+    }
+    
     // Add to local handlers
-    handlersRef.current.push({ id, handler });
+    const newHandler = { id, handler };
+    handlersRef.current.push(newHandler);
     
     // Add to global handlers
-    globalHandlers.push({ id, handler });
+    globalHandlers.push(newHandler);
     
     // Initialize connection if needed
     initializeConnection();
@@ -108,8 +118,8 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   }, []);
 
   const initializeConnection = useCallback(() => {
-    if (!user?.id || isSubscribing) return;
-    if (globalUserId === user.id && globalChannel) return;
+    if (!user?.id || isSubscribing || isChannelSubscribed) return;
+    if (globalUserId === user.id && globalChannel && isChannelSubscribed) return;
 
     console.log('📡 Initializing file upload subscription connection');
     isSubscribing = true;
@@ -119,6 +129,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       console.log('📡 Cleaning up previous connection for user change');
       try {
         supabase.removeChannel(globalChannel);
+        isChannelSubscribed = false;
       } catch (error) {
         console.error('Error removing channel:', error);
       }
@@ -127,7 +138,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
 
     globalUserId = user.id;
 
-    const channelName = `file-uploads-${user.id}-${Date.now()}`;
+    const channelName = `file-uploads-${user.id}`;
     const channel = supabase
       .channel(channelName)
       .on(
@@ -156,11 +167,14 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
 
     channel.subscribe((status) => {
       isSubscribing = false;
+      
       if (status === 'SUBSCRIBED') {
         console.log('✅ File upload subscription connected');
+        isChannelSubscribed = true;
         setIsConnected(true);
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         console.error('❌ Real-time connection failed:', status);
+        isChannelSubscribed = false;
         setIsConnected(false);
         globalChannel = null;
         globalUserId = null;
@@ -206,6 +220,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       }
       globalChannel = null;
       globalUserId = null;
+      isChannelSubscribed = false;
       setIsConnected(false);
     }
     
