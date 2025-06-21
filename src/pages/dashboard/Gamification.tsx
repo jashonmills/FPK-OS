@@ -35,10 +35,9 @@ const Gamification = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="goals" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 mb-6">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="goals">My Goals</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
         </TabsList>
         
         <TabsContent value="goals" className="space-y-6">
@@ -63,21 +62,6 @@ const Gamification = () => {
         
         <TabsContent value="achievements">
           <GamificationDashboard />
-        </TabsContent>
-        
-        <TabsContent value="progress" className="space-y-6">
-          {/* Progress Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ActiveLearningGoals />
-            <div>
-              <ReadingProgressWidgetErrorBoundary>
-                <ReadingProgressWidget />
-              </ReadingProgressWidgetErrorBoundary>
-            </div>
-          </div>
-          
-          {/* Enhanced Goal Reminders */}
-          <GoalReminders />
         </TabsContent>
       </Tabs>
     </div>
