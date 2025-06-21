@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,9 +11,6 @@ type Goal = Database['public']['Tables']['goals']['Row'];
 type GoalInsert = Database['public']['Tables']['goals']['Insert'];
 type GoalUpdate = Database['public']['Tables']['goals']['Update'];
 
-// Global channel tracking for goals to prevent multiple subscriptions
-const activeGoalsChannels = new Map<string, any>();
-
 export const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,45 +19,38 @@ export const useGoals = () => {
   const { toast } = useToast();
   const { awardGoalCompletionXP } = useXPIntegration();
   const queryClient = useQueryClient();
-  const initializationRef = useRef<boolean>(false);
-
-  // Cleanup function
-  const cleanup = (userId: string) => {
-    const channelKey = `goals-${userId}`;
-    const existingChannel = activeGoalsChannels.get(channelKey);
-    
-    if (existingChannel) {
-      try {
-        console.log('🧹 Cleaning up existing goals channel for user:', userId);
-        supabase.removeChannel(existingChannel);
-        activeGoalsChannels.delete(channelKey);
-      } catch (error) {
-        console.log('Error removing goals channel:', error);
-      }
-    }
-  };
+  const channelRef = useRef<any>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    // Prevent multiple initializations
-    if (!user?.id || initializationRef.current) {
-      return;
-    }
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
 
     console.log('🔗 Setting up goals real-time subscription for user:', user.id);
-    
-    const channelKey = `goals-${user.id}`;
     
     // Load goals initially
     loadGoals();
     
-    // Clean up any existing channel for this user
-    cleanup(user.id);
-    
-    // Mark as initialized
-    initializationRef.current = true;
+    // Clean up any existing channel
+    if (channelRef.current) {
+      console.log('🧹 Cleaning up existing goals channel');
+      try {
+        supabase.removeChannel(channelRef.current);
+      } catch (error) {
+        console.log('Error removing existing channel:', error);
+      }
+      channelRef.current = null;
+    }
 
-    // Create a unique channel for goals with stable name
-    const channel = supabase.channel(channelKey, {
+    // Create a unique channel name with timestamp to avoid conflicts
+    const channelName = `goals-${user.id}-${Date.now()}`;
+    const channel = supabase.channel(channelName, {
       config: {
         broadcast: { self: false }
       }
@@ -74,6 +65,7 @@ export const useGoals = () => {
         filter: `user_id=eq.${user.id}`
       },
       (payload) => {
+        if (!mountedRef.current) return;
         console.log('Real-time goal update:', payload);
         loadGoals(); // Refresh goals when changes occur
       }
@@ -85,36 +77,29 @@ export const useGoals = () => {
         console.log('✅ Goals channel successfully subscribed');
       } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
         console.log('❌ Goals channel closed or error');
-        initializationRef.current = false;
       }
     });
 
     // Store the channel reference
-    activeGoalsChannels.set(channelKey, channel);
+    channelRef.current = channel;
 
-    // Cleanup function for effect
+    // Cleanup function
     return () => {
-      initializationRef.current = false;
-    };
-  }, [user?.id]); // Only depend on user.id
-
-  // Cleanup when user logs out
-  useEffect(() => {
-    if (!user?.id && initializationRef.current) {
-      // Clean up all goal channels when user logs out
-      activeGoalsChannels.forEach((channel, key) => {
+      if (channelRef.current) {
+        console.log('🧹 Cleaning up goals channel on unmount');
         try {
-          supabase.removeChannel(channel);
+          supabase.removeChannel(channelRef.current);
         } catch (error) {
-          console.log('Error removing goals channel during logout:', error);
+          console.log('Error removing channel on cleanup:', error);
         }
-      });
-      activeGoalsChannels.clear();
-      initializationRef.current = false;
-    }
+        channelRef.current = null;
+      }
+    };
   }, [user?.id]);
 
   const loadGoals = async () => {
+    if (!mountedRef.current) return;
+    
     try {
       const { data, error } = await supabase
         .from('goals')
@@ -123,29 +108,37 @@ export const useGoals = () => {
 
       if (error) {
         console.error('Error loading goals:', error);
+        if (mountedRef.current) {
+          toast({
+            title: "Error",
+            description: "Failed to load goals.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (mountedRef.current) {
+        setGoals(data || []);
+      }
+    } catch (error) {
+      console.error('Error in loadGoals:', error);
+      if (mountedRef.current) {
         toast({
           title: "Error",
           description: "Failed to load goals.",
           variant: "destructive",
         });
-        return;
       }
-
-      setGoals(data || []);
-    } catch (error) {
-      console.error('Error in loadGoals:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load goals.",
-        variant: "destructive",
-      });
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   const createGoal = async (goal: Omit<GoalInsert, 'user_id'>) => {
-    if (!user) return null;
+    if (!user || !mountedRef.current) return null;
 
     setSaving(true);
     try {
@@ -160,34 +153,44 @@ export const useGoals = () => {
 
       if (error) {
         console.error('Error creating goal:', error);
+        if (mountedRef.current) {
+          toast({
+            title: "Error",
+            description: "Failed to create goal.",
+            variant: "destructive",
+          });
+        }
+        return null;
+      }
+
+      if (mountedRef.current) {
+        setGoals(prev => [data, ...prev]);
+        toast({
+          title: "Goal Created! 🎯",
+          description: "Your new goal has been added successfully.",
+        });
+      }
+      return data;
+    } catch (error) {
+      console.error('Error in createGoal:', error);
+      if (mountedRef.current) {
         toast({
           title: "Error",
           description: "Failed to create goal.",
           variant: "destructive",
         });
-        return null;
       }
-
-      setGoals(prev => [data, ...prev]);
-      toast({
-        title: "Goal Created! 🎯",
-        description: "Your new goal has been added successfully.",
-      });
-      return data;
-    } catch (error) {
-      console.error('Error in createGoal:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create goal.",
-        variant: "destructive",
-      });
       return null;
     } finally {
-      setSaving(false);
+      if (mountedRef.current) {
+        setSaving(false);
+      }
     }
   };
 
   const updateGoal = async (id: string, updates: GoalUpdate) => {
+    if (!mountedRef.current) return;
+
     setSaving(true);
     try {
       const { data, error } = await supabase
@@ -199,34 +202,42 @@ export const useGoals = () => {
 
       if (error) {
         console.error('Error updating goal:', error);
+        if (mountedRef.current) {
+          toast({
+            title: "Error",
+            description: "Failed to update goal.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (mountedRef.current) {
+        setGoals(prev => prev.map(goal => goal.id === id ? data : goal));
+        toast({
+          title: "Goal Updated! ✨",
+          description: "Your goal has been updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error in updateGoal:', error);
+      if (mountedRef.current) {
         toast({
           title: "Error",
           description: "Failed to update goal.",
           variant: "destructive",
         });
-        return;
       }
-
-      setGoals(prev => prev.map(goal => goal.id === id ? data : goal));
-      toast({
-        title: "Goal Updated! ✨",
-        description: "Your goal has been updated successfully.",
-      });
-    } catch (error) {
-      console.error('Error in updateGoal:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update goal.",
-        variant: "destructive",
-      });
     } finally {
-      setSaving(false);
+      if (mountedRef.current) {
+        setSaving(false);
+      }
     }
   };
 
   const completeGoal = async (id: string) => {
     const goal = goals.find(g => g.id === id);
-    if (!goal) return;
+    if (!goal || !mountedRef.current) return;
 
     setSaving(true);
     try {
@@ -244,11 +255,13 @@ export const useGoals = () => {
 
       if (error) {
         console.error('Error completing goal:', error);
-        toast({
-          title: "Error",
-          description: "Failed to complete goal.",
-          variant: "destructive",
-        });
+        if (mountedRef.current) {
+          toast({
+            title: "Error",
+            description: "Failed to complete goal.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -261,32 +274,39 @@ export const useGoals = () => {
         // Don't fail the goal completion if XP fails
       }
 
-      // Update local state
-      setGoals(prev => prev.map(g => g.id === id ? updatedGoal : g));
+      if (mountedRef.current) {
+        // Update local state
+        setGoals(prev => prev.map(g => g.id === id ? updatedGoal : g));
 
-      // Invalidate related queries to trigger refresh
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      queryClient.invalidateQueries({ queryKey: ['achievements'] });
-      queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
+        // Invalidate related queries to trigger refresh
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        queryClient.invalidateQueries({ queryKey: ['achievements'] });
+        queryClient.invalidateQueries({ queryKey: ['gamification-stats'] });
 
-      toast({
-        title: "🎉 Goal Completed!",
-        description: `Congratulations! You've completed "${goal.title}". Check your achievements for rewards!`,
-      });
-
+        toast({
+          title: "🎉 Goal Completed!",
+          description: `Congratulations! You've completed "${goal.title}". Check your achievements for rewards!`,
+        });
+      }
     } catch (error) {
       console.error('Error in completeGoal:', error);
-      toast({
-        title: "Error",
-        description: "Failed to complete goal.",
-        variant: "destructive",
-      });
+      if (mountedRef.current) {
+        toast({
+          title: "Error",
+          description: "Failed to complete goal.",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) {
+        setSaving(false);
+      }
     }
   };
 
   const deleteGoal = async (id: string) => {
+    if (!mountedRef.current) return;
+
     try {
       const { error } = await supabase
         .from('goals')
@@ -295,26 +315,32 @@ export const useGoals = () => {
 
       if (error) {
         console.error('Error deleting goal:', error);
+        if (mountedRef.current) {
+          toast({
+            title: "Error",
+            description: "Failed to delete goal.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (mountedRef.current) {
+        setGoals(prev => prev.filter(goal => goal.id !== id));
+        toast({
+          title: "Goal Deleted",
+          description: "Your goal has been removed.",
+        });
+      }
+    } catch (error) {
+      console.error('Error in deleteGoal:', error);
+      if (mountedRef.current) {
         toast({
           title: "Error",
           description: "Failed to delete goal.",
           variant: "destructive",
         });
-        return;
       }
-
-      setGoals(prev => prev.filter(goal => goal.id !== id));
-      toast({
-        title: "Goal Deleted",
-        description: "Your goal has been removed.",
-      });
-    } catch (error) {
-      console.error('Error in deleteGoal:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete goal.",
-        variant: "destructive",
-      });
     }
   };
 
