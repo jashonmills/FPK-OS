@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, BookOpen } from 'lucide-react';
 import { useCurrentReadingBooks } from '@/hooks/useCurrentReadingBooks';
 import BookQuizModal from './BookQuizModal';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface QuizButtonProps {
   bookId: string;
@@ -12,7 +13,7 @@ interface QuizButtonProps {
   className?: string;
 }
 
-const QuizButton = ({ bookId, bookTitle, className }: QuizButtonProps) => {
+const QuizButtonContent = ({ bookId, bookTitle, className }: QuizButtonProps) => {
   const [showQuizModal, setShowQuizModal] = useState(false);
   const { data: readingBooks } = useCurrentReadingBooks();
 
@@ -49,14 +50,29 @@ const QuizButton = ({ bookId, bookTitle, className }: QuizButtonProps) => {
         )}
       </div>
 
-      <BookQuizModal
-        open={showQuizModal}
-        onOpenChange={setShowQuizModal}
-        bookId={bookId}
-        bookTitle={bookTitle}
-        maxChapterIndex={maxChapterIndex}
-      />
+      {showQuizModal && (
+        <BookQuizModal
+          open={showQuizModal}
+          onOpenChange={setShowQuizModal}
+          bookId={bookId}
+          bookTitle={bookTitle}
+          maxChapterIndex={maxChapterIndex}
+        />
+      )}
     </>
+  );
+};
+
+const QuizButton = (props: QuizButtonProps) => {
+  return (
+    <ErrorBoundary fallback={
+      <Button variant="outline" size="sm" disabled className="opacity-50">
+        <Brain className="h-4 w-4 mr-2" />
+        Quiz unavailable
+      </Button>
+    }>
+      <QuizButtonContent {...props} />
+    </ErrorBoundary>
   );
 };
 

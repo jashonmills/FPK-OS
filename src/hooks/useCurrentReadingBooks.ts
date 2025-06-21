@@ -1,37 +1,116 @@
 
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-export interface ReadingBook {
+interface ReadingBook {
+  id: string;
+  user_id: string;
   book_id: string;
-  completion_percentage: number;
+  current_cfi?: string;
   chapter_index: number;
-  last_read_at: string;
   reading_time_seconds: number;
+  completion_percentage: number;
+  last_read_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useCurrentReadingBooks = () => {
   const { user } = useAuth();
+  const subscriptionRef = useRef<any>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
-  return useQuery({
-    queryKey: ['current-reading-books', user?.id],
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['currentReadingBooks', user?.id],
     queryFn: async (): Promise<ReadingBook[]> => {
-      if (!user?.id) return [];
+      if (!user?.id) {
+        console.log('📚 No user ID, returning empty array');
+        return [];
+      }
 
+      console.log('📚 Loading current reading books for user:', user.id);
+      
       const { data, error } = await supabase
         .from('reading_progress')
-        .select('book_id, completion_percentage, chapter_index, last_read_at, reading_time_seconds')
+        .select('*')
         .eq('user_id', user.id)
-        .gt('completion_percentage', 0)
-        .lt('completion_percentage', 100)
-        .gt('chapter_index', 0) // Only books where user has read at least one chapter
         .order('last_read_at', { ascending: false });
-
-      if (error) throw error;
-
+      
+      if (error) {
+        console.error('❌ Error fetching reading books:', error);
+        throw new Error(`Failed to fetch reading books: ${error.message}`);
+      }
+      
+      console.log('✅ Loaded reading books:', data?.length || 0);
       return data || [];
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Set up real-time subscription with proper cleanup
+  useEffect(() => {
+    if (!user?.id || isSubscribed) {
+      return;
+    }
+
+    const setupSubscription = () => {
+      try {
+        console.log('🔄 Setting up reading progress subscription for user:', user.id);
+        
+        // Clean up any existing subscription
+        if (subscriptionRef.current) {
+          subscriptionRef.current.unsubscribe();
+          subscriptionRef.current = null;
+        }
+        
+        const channel = supabase
+          .channel(`reading-progress-${user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'reading_progress',
+              filter: `user_id=eq.${user.id}`,
+            },
+            (payload) => {
+              console.log('📚 Reading progress change detected:', payload);
+              refetch();
+            }
+          )
+          .subscribe((status) => {
+            console.log('📚 Reading progress subscription status:', status);
+            if (status === 'SUBSCRIBED') {
+              setIsSubscribed(true);
+            }
+          });
+
+        subscriptionRef.current = channel;
+      } catch (error) {
+        console.error('❌ Error setting up reading progress subscription:', error);
+      }
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (subscriptionRef.current) {
+        console.log('🧹 Cleaning up reading progress subscription');
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+        setIsSubscribed(false);
+      }
+    };
+  }, [user?.id, refetch, isSubscribed]);
+
+  return {
+    data: data || [],
+    isLoading,
+    error,
+    refetch,
+  };
 };
