@@ -1383,6 +1383,36 @@ export type Database = {
           },
         ]
       }
+      search_analytics: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          query: string
+          result_count: number | null
+          source_type: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          query: string
+          result_count?: number | null
+          source_type?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          query?: string
+          result_count?: number | null
+          source_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       shop_items: {
         Row: {
           created_at: string

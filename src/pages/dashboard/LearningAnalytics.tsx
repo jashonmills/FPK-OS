@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
 import RouteBoundary from '@/components/RouteBoundary';
+import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
 
 // Import analytics components with error boundaries
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
@@ -52,6 +53,7 @@ const AICoachAnalytics = React.lazy(() =>
 
 const LearningAnalytics = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const { data: quickStats, isLoading: quickStatsLoading } = useQuickStatsLive();
 
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
@@ -96,24 +98,43 @@ const LearningAnalytics = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">-</div>
-                      <p className="text-xs text-gray-500">Total Sessions</p>
+                  {quickStatsLoading ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="text-center">
+                          <div className="h-8 bg-gray-200 rounded mb-1 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-1">-</div>
-                      <p className="text-xs text-gray-500">Hours Learned</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600 mb-1">
+                          {quickStats?.totalSessions || 0}
+                        </div>
+                        <p className="text-xs text-gray-500">Total Sessions</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600 mb-1">
+                          {quickStats?.hoursLearned || 0}h
+                        </div>
+                        <p className="text-xs text-gray-500">Hours Learned</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600 mb-1">
+                          {quickStats?.booksRead || 0}
+                        </div>
+                        <p className="text-xs text-gray-500">Books Read</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600 mb-1">
+                          {quickStats?.goalsMet || 0}
+                        </div>
+                        <p className="text-xs text-gray-500">Goals Met</p>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">-</div>
-                      <p className="text-xs text-gray-500">Books Read</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600 mb-1">-</div>
-                      <p className="text-xs text-gray-500">Goals Met</p>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

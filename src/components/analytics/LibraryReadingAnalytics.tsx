@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { BookOpen, Clock, Search, TrendingUp } from 'lucide-react';
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
+import { useSearchAnalytics } from '@/hooks/useSearchAnalytics';
 import EmptyState from '@/components/analytics/EmptyState';
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
 
@@ -14,6 +15,8 @@ const LibraryReadingAnalytics = () => {
     readingTrends,
     loading 
   } = useReadingAnalytics();
+  
+  const { categoryData, loading: searchLoading } = useSearchAnalytics();
 
   // Process reading speed data
   const readingSpeedData = React.useMemo(() => {
@@ -28,15 +31,6 @@ const LibraryReadingAnalytics = () => {
         date: new Date(session.session_start).toLocaleDateString()
       }));
   }, [readingSessions]);
-
-  // Mock search categories data (would come from search analytics)
-  const searchCategoriesData = [
-    { name: 'Science Fiction', value: 35, color: '#8B5CF6' },
-    { name: 'History', value: 25, color: '#F59E0B' },
-    { name: 'Philosophy', value: 20, color: '#EF4444' },
-    { name: 'Literature', value: 15, color: '#3B82F6' },
-    { name: 'Other', value: 5, color: '#10B981' }
-  ];
 
   if (loading) {
     return (
@@ -102,7 +96,7 @@ const LibraryReadingAnalytics = () => {
         </CardContent>
       </Card>
 
-      {/* Most Searched Book Categories */}
+      {/* Most Searched Book Categories - Now using live data */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -114,36 +108,46 @@ const LibraryReadingAnalytics = () => {
           </p>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="h-[200px] sm:h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={searchCategoriesData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                  nameKey="name"
-                >
-                  {searchCategoriesData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2 mt-4">
-            {searchCategoriesData.map((item, index) => (
-              <div key={index} className="flex items-center gap-1 text-xs">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: item.color }}
-                />
-                <span>{item.name}</span>
+          {!searchLoading && categoryData.length > 0 ? (
+            <>
+              <div className="h-[200px] sm:h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="value"
+                      nameKey="name"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            ))}
-          </div>
+              <div className="flex flex-wrap justify-center gap-2 mt-4">
+                {categoryData.map((item, index) => (
+                  <div key={index} className="flex items-center gap-1 text-xs">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span>{item.name} ({item.value})</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <EmptyState 
+              icon={Search}
+              title="No search data yet"
+              description="Start searching for books to see your interest patterns"
+            />
+          )}
         </CardContent>
       </Card>
 

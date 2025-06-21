@@ -23,6 +23,30 @@ export const trackKnowledgeBaseUsage = async (
   }
 };
 
+export const trackSearchAnalytics = async (
+  query: string,
+  category: string | null,
+  resultCount: number,
+  sourceType: 'library' | 'books' | 'courses' = 'library',
+  userId?: string
+) => {
+  if (!userId) return;
+
+  try {
+    await supabase
+      .from('search_analytics')
+      .insert({
+        user_id: userId,
+        query,
+        category,
+        result_count: resultCount,
+        source_type: sourceType
+      });
+  } catch (error) {
+    console.error('Error tracking search analytics:', error);
+  }
+};
+
 export const trackDailyActivity = async (
   activityType: 'study' | 'reading' | 'chat' | 'notes' | 'goals',
   durationMinutes: number = 0,
