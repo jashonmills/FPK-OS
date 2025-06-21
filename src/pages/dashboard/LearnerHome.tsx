@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import DualLanguageText from '@/components/DualLanguageText';
@@ -8,11 +8,13 @@ import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import APODCard from '@/components/dashboard/APODCard';
 import NotificationDemo from '@/components/notifications/NotificationDemo';
+import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
 
 const LearnerHome = () => {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { t } = useTranslation();
+  const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -28,19 +30,27 @@ const LearnerHome = () => {
     return t('dashboard.learner');
   };
 
+  const handleAPODGalleryOpen = () => {
+    setIsAPODModalOpen(true);
+  };
+
+  const handleAPODGalleryClose = () => {
+    setIsAPODModalOpen(false);
+  };
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">
           <DualLanguageText 
-            primary={`${getGreeting()}, ${getDisplayName()}!`}
+            translationKey="dashboard.greeting"
             fallback={`${getGreeting()}, ${getDisplayName()}!`}
           />
         </h1>
         <p className="text-muted-foreground text-lg">
           <DualLanguageText 
-            primary={t('dashboard.welcomeMessage')}
+            translationKey="dashboard.welcomeMessage"
             fallback="Ready to continue your learning journey today?"
           />
         </p>
@@ -66,8 +76,14 @@ const LearnerHome = () => {
 
       {/* APOD Section */}
       <div className="mb-8">
-        <APODCard />
+        <APODCard onOpenGallery={handleAPODGalleryOpen} />
       </div>
+
+      {/* APOD Gallery Modal */}
+      <APODGalleryModal
+        isOpen={isAPODModalOpen}
+        onClose={handleAPODGalleryClose}
+      />
     </div>
   );
 };

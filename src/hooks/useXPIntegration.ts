@@ -14,8 +14,8 @@ export function useXPIntegration() {
     });
     
     // Check for achievements and trigger notifications
-    if (result?.newLevel) {
-      await triggerAchievement(`Level ${result.newLevel} Reached!`);
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
     }
   }, [awardXP, triggerAchievement]);
 
@@ -38,8 +38,8 @@ export function useXPIntegration() {
     }
 
     // Check for level up
-    if (result?.newLevel) {
-      await triggerAchievement(`Level ${result.newLevel} Reached!`);
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
     }
   }, [awardXP, updateStreak, triggerAchievement, triggerStudyStreak]);
 
@@ -49,8 +49,8 @@ export function useXPIntegration() {
       description: 'Created a new note'
     });
     
-    if (result?.newLevel) {
-      await triggerAchievement(`Level ${result.newLevel} Reached!`);
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
     }
   }, [awardXP, triggerAchievement]);
 
@@ -60,8 +60,8 @@ export function useXPIntegration() {
       description: 'Uploaded a study file'
     });
     
-    if (result?.newLevel) {
-      await triggerAchievement(`Level ${result.newLevel} Reached!`);
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
     }
   }, [awardXP, triggerAchievement]);
 
@@ -88,8 +88,48 @@ export function useXPIntegration() {
       description: `Completed a ${priority} priority goal`
     });
 
-    if (result?.newLevel) {
-      await triggerAchievement(`Level ${result.newLevel} Reached!`);
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
+    }
+  }, [awardXP, triggerAchievement]);
+
+  // Reading Session Events
+  const awardReadingSessionXP = useCallback(async (durationSeconds: number, pagesRead: number) => {
+    const baseXP = Math.floor(durationSeconds / 60) * 2; // 2 XP per minute
+    const pageBonus = pagesRead * 5; // 5 XP per page
+    
+    const result = await awardXP('reading_session', baseXP + pageBonus, {
+      duration_seconds: durationSeconds,
+      pages_read: pagesRead,
+      description: 'Completed reading session'
+    });
+
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
+    }
+  }, [awardXP, triggerAchievement]);
+
+  // Module Completion Events
+  const awardModuleCompletionXP = useCallback(async (moduleId: string) => {
+    const result = await awardXP('module_completed', 50, {
+      module_id: moduleId,
+      description: 'Completed a learning module'
+    });
+
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
+    }
+  }, [awardXP, triggerAchievement]);
+
+  // Challenge Completion Events
+  const awardChallengeCompletionXP = useCallback(async (challengeType: string, xpAmount: number) => {
+    const result = await awardXP('challenge_completed', xpAmount, {
+      challenge_type: challengeType,
+      description: `Completed ${challengeType} challenge`
+    });
+
+    if (result?.level && result.level > 1) {
+      await triggerAchievement(`Level ${result.level} Reached!`);
     }
   }, [awardXP, triggerAchievement]);
 
@@ -98,6 +138,9 @@ export function useXPIntegration() {
     awardFlashcardStudyXP,
     awardNoteCreationXP,
     awardFileUploadXP,
-    awardGoalCompletionXP
+    awardGoalCompletionXP,
+    awardReadingSessionXP,
+    awardModuleCompletionXP,
+    awardChallengeCompletionXP
   };
 }
