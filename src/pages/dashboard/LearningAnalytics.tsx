@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, BookOpen, MessageCircle, Target, Users, BarChart3 } from 'lucide-react';
+import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
 import RouteBoundary from '@/components/RouteBoundary';
 
 // Import analytics components with error boundaries
@@ -12,21 +12,42 @@ import XPBreakdownCard from '@/components/analytics/XPBreakdownCard';
 
 // Dynamic imports with error handling
 const LibraryReadingAnalytics = React.lazy(() => 
-  import('@/components/analytics/LibraryReadingAnalytics').catch(() => ({
-    default: () => <div className="p-4 text-center text-gray-500">Library analytics unavailable</div>
-  }))
+  import('@/components/analytics/LibraryReadingAnalytics').catch((error) => {
+    console.error('Failed to load LibraryReadingAnalytics:', error);
+    return {
+      default: () => (
+        <div className="p-4 text-center text-gray-500">
+          <p>Reading analytics unavailable</p>
+        </div>
+      )
+    };
+  })
 );
 
 const GoalsGamificationAnalytics = React.lazy(() => 
-  import('@/components/analytics/GoalsGamificationAnalytics').catch(() => ({
-    default: () => <div className="p-4 text-center text-gray-500">Goals analytics unavailable</div>
-  }))
+  import('@/components/analytics/GoalsGamificationAnalytics').catch((error) => {
+    console.error('Failed to load GoalsGamificationAnalytics:', error);
+    return {
+      default: () => (
+        <div className="p-4 text-center text-gray-500">
+          <p>Goals analytics unavailable</p>
+        </div>
+      )
+    };
+  })
 );
 
 const AICoachAnalytics = React.lazy(() => 
-  import('@/components/analytics/AICoachAnalytics').catch(() => ({
-    default: () => <div className="p-4 text-center text-gray-500">AI Coach analytics unavailable</div>
-  }))
+  import('@/components/analytics/AICoachAnalytics').catch((error) => {
+    console.error('Failed to load AICoachAnalytics:', error);
+    return {
+      default: () => (
+        <div className="p-4 text-center text-gray-500">
+          <p>AI Coach analytics unavailable</p>
+        </div>
+      )
+    };
+  })
 );
 
 const LearningAnalytics = () => {

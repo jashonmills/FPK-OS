@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { BookOpen, Clock, Search, TrendingUp } from 'lucide-react';
 import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 import EmptyState from '@/components/analytics/EmptyState';
@@ -56,17 +55,6 @@ const LibraryReadingAnalytics = () => {
     );
   }
 
-  const chartConfig = {
-    speed: {
-      label: 'Reading Speed (pages/min)',
-      color: '#8B5CF6',
-    },
-    time: {
-      label: 'Reading Time (min)',
-      color: '#F59E0B',
-    },
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Reading Analytics Card - Existing Component */}
@@ -87,23 +75,23 @@ const LibraryReadingAnalytics = () => {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           {readingSpeedData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px]">
+            <div className="h-[200px] sm:h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={readingSpeedData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="session" fontSize={10} />
                   <YAxis fontSize={10} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="speed" 
-                    stroke="var(--color-speed)" 
+                    stroke="#8B5CF6" 
                     strokeWidth={2}
                     dot={{ r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           ) : (
             <EmptyState 
               icon={TrendingUp}
@@ -141,7 +129,7 @@ const LibraryReadingAnalytics = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </div>
