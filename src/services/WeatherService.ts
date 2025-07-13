@@ -28,33 +28,58 @@ export interface CachedWeatherData {
 }
 
 class WeatherService {
-  private readonly API_KEY = 'demo_key'; // User will need to add their own key
+  private readonly API_KEY = process.env.OPENWEATHERMAP_API_KEY || 'demo_key';
   private readonly BASE_URL = 'https://api.openweathermap.org/data/2.5/onecall';
-  private readonly CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for more frequent updates
   private cache = new Map<string, CachedWeatherData>();
 
-  // Fallback data for when API is unavailable or demo key is used
-  private readonly FALLBACK_WEATHER: WeatherData = {
-    current: {
-      temp: 22,
-      humidity: 65,
-      weather: [{
-        main: "Clear",
-        description: "clear sky",
-        icon: "01d"
-      }]
-    },
-    hourly: Array.from({ length: 12 }, (_, i) => ({
-      dt: Date.now() / 1000 + (i * 3600),
-      temp: 22 + Math.sin(i * 0.5) * 3,
-      pop: Math.max(0, Math.sin(i * 0.3) * 0.4),
-      weather: [{
-        main: i < 6 ? "Clear" : "Clouds",
-        description: i < 6 ? "clear sky" : "scattered clouds"
-      }]
-    })),
-    lastUpdated: new Date().toISOString()
-  };
+  // Dynamic fallback data that changes over time
+  private generateFallbackWeather(): WeatherData {
+    const now = new Date();
+    const hour = now.getHours();
+    const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Simulate seasonal and daily temperature variations
+    const baseTemp = 20 + Math.sin((dayOfYear / 365) * 2 * Math.PI) * 10; // Seasonal variation
+    const dailyVariation = Math.sin((hour / 24) * 2 * Math.PI) * 5; // Daily variation
+    const currentTemp = baseTemp + dailyVariation + (Math.random() - 0.5) * 4;
+
+    // Weather conditions based on time and random factors
+    const conditions = [
+      { main: "Clear", description: "clear sky", icon: "01d" },
+      { main: "Clouds", description: "scattered clouds", icon: "02d" },
+      { main: "Clouds", description: "broken clouds", icon: "03d" },
+      { main: "Rain", description: "light rain", icon: "10d" },
+      { main: "Drizzle", description: "light drizzle", icon: "09d" }
+    ];
+    
+    const conditionIndex = Math.floor(Math.random() * conditions.length);
+    const currentCondition = conditions[conditionIndex];
+
+    return {
+      current: {
+        temp: Math.round(currentTemp * 10) / 10,
+        humidity: Math.round(45 + Math.random() * 40), // 45-85% humidity
+        weather: [currentCondition]
+      },
+      hourly: Array.from({ length: 12 }, (_, i) => {
+        const futureHour = (hour + i) % 24;
+        const hourlyVariation = Math.sin((futureHour / 24) * 2 * Math.PI) * 5;
+        const tempVariation = Math.random() * 3 - 1.5; // ±1.5°C random variation
+        
+        return {
+          dt: Math.floor(now.getTime() / 1000) + (i * 3600),
+          temp: Math.round((baseTemp + hourlyVariation + tempVariation) * 10) / 10,
+          pop: Math.max(0, Math.min(1, Math.random() * 0.8)), // 0-80% precipitation probability
+          weather: [{
+            main: conditions[Math.floor(Math.random() * conditions.length)].main,
+            description: conditions[Math.floor(Math.random() * conditions.length)].description
+          }]
+        };
+      }),
+      lastUpdated: now.toISOString()
+    };
+  }
 
   private getCacheKey(lat: number, lon: number): string {
     return `weather_${lat.toFixed(2)}_${lon.toFixed(2)}`;
@@ -154,7 +179,7 @@ class WeatherService {
       return weatherData;
     } catch (error) {
       console.warn('🌤️ Weather: API unavailable, using fallback data:', error);
-      return this.FALLBACK_WEATHER;
+      return this.generateFallbackWeather();
     }
   }
 

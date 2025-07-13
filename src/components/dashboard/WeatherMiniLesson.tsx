@@ -28,61 +28,142 @@ const WeatherMiniLesson: React.FC<WeatherMiniLessonProps> = ({
     setError(null);
 
     try {
-      // Simulate AI lesson generation with weather context
       const temp = Math.round(weatherData.current.temp);
       const weather = weatherData.current.weather[0]?.description || 'clear';
+      const weatherMain = weatherData.current.weather[0]?.main || 'Clear';
+      const humidity = weatherData.current.humidity;
       const avgPrecip = Math.round(
         weatherData.hourly.reduce((sum, hour) => sum + hour.pop, 0) / weatherData.hourly.length * 100
       );
 
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+
+      // Weather-specific content variations
+      const weatherFacts = {
+        Clear: [
+          "Did you know that clear skies allow up to 90% of the sun's UV radiation to reach Earth's surface?",
+          "On clear days, temperature differences between day and night can be as much as 15-20°C due to radiational cooling!",
+          "Clear skies happen when high-pressure systems push clouds away, creating stable atmospheric conditions."
+        ],
+        Clouds: [
+          "Clouds are made of tiny water droplets or ice crystals so small that 1 million could fit in a teaspoon!",
+          "A single cumulus cloud can weigh as much as 100 elephants - about 500,000 kg of water vapor!",
+          "Clouds reflect about 20% of incoming solar radiation back to space, helping regulate Earth's temperature."
+        ],
+        Rain: [
+          "A raindrop falling from a typical cloud height of 1000m takes about 4-5 minutes to reach the ground!",
+          "The smell of rain (petrichor) comes from oils secreted by plants and a chemical called geosmin produced by bacteria.",
+          "Rain drops are not tear-shaped - they're actually more like tiny hamburger buns due to air resistance!"
+        ],
+        Drizzle: [
+          "Drizzle droplets are so small (less than 0.5mm) that they appear to float in the air!",
+          "Drizzle forms in stratus clouds close to the ground, creating that misty, ethereal atmosphere.",
+          "Unlike rain, drizzle droplets rarely reach terminal velocity, making them seem to drift rather than fall."
+        ]
+      };
+
+      const experiments = {
+        Clear: [
+          "**Shadow Clock**: Use a stick in the ground to track the sun's movement and create your own sundial!",
+          "**Solar Heating**: Place dark and light objects in the sun - measure which heats up faster and why.",
+          "**UV Detection**: Place different materials (glass, plastic, fabric) over UV-sensitive beads to test protection."
+        ],
+        Clouds: [
+          "**Cloud Formation**: Fill a jar with hot water, place ice on top, and watch clouds form inside!",
+          "**Cloud Types**: Look outside and try to identify cumulus (puffy), stratus (layered), and cirrus (wispy) clouds.",
+          "**Weather Prediction**: Track cloud types and movements to predict weather changes over the next few hours."
+        ],
+        Rain: [
+          "**Rain Collection**: Set up containers of different shapes - does shape affect collection rate?",
+          "**Drop Size Study**: Let raindrops fall on flour to see their actual shapes when they hit surfaces.",
+          "**Sound Science**: Listen to rain on different surfaces - metal, wood, fabric. Why do the sounds differ?"
+        ],
+        Drizzle: [
+          "**Droplet Observation**: Use a magnifying glass to observe drizzle droplets on spider webs or leaves.",
+          "**Mist Creation**: Use a spray bottle to recreate drizzle conditions and study how it affects visibility.",
+          "**Plant Response**: Observe how plants react differently to drizzle versus heavier rain."
+        ]
+      };
+
+      const selectedFact = weatherFacts[weatherMain] ? 
+        weatherFacts[weatherMain][Math.floor(Math.random() * weatherFacts[weatherMain].length)] :
+        weatherFacts.Clear[0];
+
+      const selectedExperiment = experiments[weatherMain] ? 
+        experiments[weatherMain][Math.floor(Math.random() * experiments[weatherMain].length)] :
+        experiments.Clear[0];
+
+      // Season-based content (simplified approximation)
+      const month = new Date().getMonth();
+      const season = month >= 2 && month <= 4 ? 'Spring' : 
+                   month >= 5 && month <= 7 ? 'Summer' :
+                   month >= 8 && month <= 10 ? 'Autumn' : 'Winter';
+
+      const seasonalInsights = {
+        Spring: "Spring's changing weather patterns help plants know when to bloom and animals when to emerge from winter dormancy.",
+        Summer: "Summer's intense solar radiation drives the water cycle, creating thunderstorms and heat islands in urban areas.",
+        Autumn: "Autumn's cooling temperatures trigger leaf color changes as chlorophyll breaks down, revealing other pigments.",
+        Winter: "Winter's cold air holds less moisture, creating crisp, clear days and unique ice crystal formations."
+      };
 
       const generatedLesson = `
 # Today's Weather Science Mini-Lesson
 
 ## Current Conditions & Science
-Today's temperature is **${temp}°C** with **${weather}** conditions and an average **${avgPrecip}% chance** of precipitation over the next 12 hours.
+Right now, it's **${temp}°C** with **${weather}** conditions. The humidity is at **${humidity}%**, and there's an average **${avgPrecip}% chance** of precipitation over the next 12 hours.
 
-## How This Affects Ecosystems
+## Weather Pattern Analysis
 
 ### Temperature Impact (${temp}°C)
-${temp > 25 
-  ? '• **Hot Weather Effects**: Plants increase transpiration (water loss through leaves), animals seek shade and water sources, and some insects become more active.'
+${temp > 30 
+  ? '• **Very Hot**: Extreme heat stress on plants and animals. Increased risk of heat-related health issues. Urban heat island effects intensify.'
+  : temp > 25 
+  ? '• **Hot Weather**: Plants increase transpiration to cool down. Animals seek shade and water. Some insects become more active.'
   : temp > 15
-  ? '• **Moderate Weather Effects**: Plants photosynthesize efficiently, animals are active, and ecosystems maintain balanced water cycles.'
-  : '• **Cool Weather Effects**: Plants slow their growth, some animals enter conservation mode, and water evaporation decreases.'
+  ? '• **Comfortable Range**: Optimal conditions for most plant photosynthesis and animal activity. Balanced ecosystem functions.'
+  : temp > 5
+  ? '• **Cool Conditions**: Plants slow metabolic processes. Some animals begin energy conservation behaviors.'
+  : '• **Cold Weather**: Plants enter dormancy modes. Animals use more energy for thermoregulation. Water may freeze, affecting ecosystems.'
 }
 
-### Precipitation Probability (${avgPrecip}%)
+### Humidity Level (${humidity}%)
+${humidity > 80
+  ? '• **Very Humid**: High moisture content can stress plants through reduced transpiration. Fog and mist formation likely.'
+  : humidity > 60
+  ? '• **Moderately Humid**: Good conditions for plant growth. Comfortable for most organisms.'
+  : humidity > 40
+  ? '• **Moderate Humidity**: Balanced atmospheric moisture. Plants may increase water uptake from roots.'
+  : '• **Low Humidity**: Dry air increases plant transpiration rates. Animals may seek water sources more frequently.'
+}
+
+### Precipitation Forecast (${avgPrecip}%)
 ${avgPrecip > 70
-  ? '• **High Rain Chance**: Soil moisture increases, plants can absorb more nutrients, and aquatic ecosystems receive fresh water input.'
-  : avgPrecip > 30
-  ? '• **Moderate Rain Chance**: Perfect for plant growth and maintaining soil moisture levels without overwhelming drainage systems.'
-  : '• **Low Rain Chance**: Plants may rely on stored water, animals seek water sources, and dry conditions favor certain adapted species.'
+  ? '• **High Rain Likelihood**: Soil saturation expected. Great for plant growth but potential for waterlogging in poor drainage areas.'
+  : avgPrecip > 40
+  ? '• **Moderate Rain Chance**: Perfect balance for ecosystem hydration without overwhelming natural drainage systems.'
+  : '• **Low Precipitation**: Plants will rely on stored soil moisture. Desert-adapted species thrive in these conditions.'
 }
 
-## Fun Weather Fact! 🌟
-Did you know that a single raindrop can travel up to 20 mph before hitting the ground? The speed depends on the drop's size - larger drops fall faster but also break apart more easily!
+## Seasonal Context: ${season}
+${seasonalInsights[season]}
 
-## Quick Home Experiment 🧪
+## Fun Weather Science Fact! 🌟
+${selectedFact}
 
-**Make a Simple Weather Station:**
+## Today's Weather Experiment 🧪
+${selectedExperiment}
 
-1. **Temperature Tracker**: Place a thermometer outside in the shade
-2. **Rain Gauge**: Put a clear container outside to measure rainfall
-3. **Wind Direction**: Tie a ribbon to a stick to see wind direction
-4. **Observations**: Record your measurements for 3 days and compare with weather forecasts
+## Real-World Connections
+- **Agriculture**: Current conditions affect crop irrigation needs and pest management strategies
+- **Energy Systems**: Temperature and humidity influence heating/cooling demands and solar panel efficiency  
+- **Human Health**: Weather conditions impact air quality, UV exposure, and respiratory comfort
+- **Transportation**: Visibility, road conditions, and vehicle performance all respond to these weather patterns
 
-**What to Notice**: How do your measurements compare to official weather reports? What patterns do you see?
+## ${season} Weather Pattern
+During ${season.toLowerCase()}, weather systems like today's create specific environmental responses that you can observe in your local area.
 
-## Human Activity Connections
-- **Agriculture**: Farmers adjust irrigation based on precipitation forecasts
-- **Energy**: Air conditioning use increases with temperature, affecting power grids
-- **Transportation**: Weather conditions influence travel safety and efficiency
-- **Health**: Temperature and humidity affect how our bodies regulate heat
-
-*This lesson was generated based on your local weather conditions. Try the experiment and observe how weather patterns change throughout the week!*
+*This lesson was generated based on current weather conditions in your area. Weather patterns change constantly - try generating a new lesson tomorrow to see how the science evolves!*
       `;
 
       setLesson(generatedLesson);

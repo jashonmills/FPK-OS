@@ -35,6 +35,20 @@ const WeatherScienceLabCard: React.FC = () => {
     }
   };
 
+  const handleRefresh = () => {
+    // Clear weather cache and refetch
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('weather_cache_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+    refetch();
+    trackClick('refresh');
+  };
+
   if (hasError) {
     return (
       <Card ref={elementRef} className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200">
@@ -122,10 +136,19 @@ const WeatherScienceLabCard: React.FC = () => {
             />
 
             {/* Footer Info */}
-            <div className="text-center pt-2 border-t border-blue-200">
+            <div className="flex items-center justify-between pt-2 border-t border-blue-200">
               <p className="text-xs text-blue-600">
-                Real-time weather science • Updated every 15 minutes
+                Weather science • Updates every 5 min
               </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                className="text-blue-600 hover:bg-blue-100 h-6 px-2 text-xs"
+              >
+                <RotateCcw className="h-3 w-3 mr-1" />
+                Refresh
+              </Button>
             </div>
           </div>
         ) : (
