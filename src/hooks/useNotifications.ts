@@ -1,9 +1,8 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { useRealtimeChannel } from '@/hooks/useRealtimeChannel';
 
 interface Notification {
   id: string;
@@ -24,7 +23,6 @@ export const useNotifications = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
-  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Load notifications
   const loadNotifications = async () => {
@@ -32,6 +30,7 @@ export const useNotifications = () => {
 
     setIsLoading(true);
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -60,6 +59,7 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase
         .from('notifications')
         .update({ read_status: true, updated_at: new Date().toISOString() })
@@ -82,6 +82,7 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase
         .from('notifications')
         .update({ read_status: true, updated_at: new Date().toISOString() })
@@ -104,6 +105,7 @@ export const useNotifications = () => {
     if (!user) return;
 
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase
         .from('notifications')
         .insert({
@@ -134,89 +136,47 @@ export const useNotifications = () => {
     }
   };
 
-  // Set up real-time subscription with proper pattern
+  // Set up real-time subscription using centralized hook
   useEffect(() => {
     if (!user) return;
-
-    // If we've already created & subscribed, do nothing
-    if (channelRef.current) return;
-
     loadNotifications();
+  }, [user?.id]);
 
-    let isSubscribed = false;
+  // Use centralized real-time hook for notifications
+  useRealtimeChannel(
+    `notifications-insert-${user?.id}`,
+    {
+      event: 'INSERT',
+      table: 'notifications',
+      filter: `user_id=eq.${user?.id}`,
+    },
+    (payload) => {
+      const newNotification = payload.new as Notification;
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+      
+      toast({
+        title: newNotification.title,
+        description: newNotification.message,
+        duration: 6000,
+      });
+    }
+  );
 
-    // Create the channel with unique name
-    const channelName = `notifications-${user.id}-${Date.now()}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          if (!isSubscribed) return; // Only handle if we're properly subscribed
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
-          
-          // Show toast for new notification with better UX
-          toast({
-            title: newNotification.title,
-            description: newNotification.message,
-            duration: 6000,
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          if (!isSubscribed) return; // Only handle if we're properly subscribed
-          const updatedNotification = payload.new as Notification;
-          setNotifications(prev => 
-            prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-          );
-        }
+  useRealtimeChannel(
+    `notifications-update-${user?.id}`,
+    {
+      event: 'UPDATE',
+      table: 'notifications',
+      filter: `user_id=eq.${user?.id}`,
+    },
+    (payload) => {
+      const updatedNotification = payload.new as Notification;
+      setNotifications(prev => 
+        prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
       );
-
-    // Set the channel reference immediately to prevent multiple subscriptions
-    channelRef.current = channel;
-
-    // Subscribe and handle the result
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        isSubscribed = true;
-        console.log('✅ Successfully subscribed to notifications channel');
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-        isSubscribed = false;
-        console.error('❌ Failed to subscribe to notifications channel:', status);
-        // Reset the ref on failure so we can try again on next mount
-        channelRef.current = null;
-      }
-    });
-
-    // Cleanup on unmount
-    return () => {
-      if (channelRef.current) {
-        isSubscribed = false;
-        try {
-          supabase.removeChannel(channelRef.current);
-        } catch (error) {
-          console.warn('Error removing channel:', error);
-        }
-        channelRef.current = null;
-      }
-    };
-  }, [user?.id]); // Removed toast from dependencies to prevent unnecessary re-runs
+    }
+  );
 
   return {
     notifications,

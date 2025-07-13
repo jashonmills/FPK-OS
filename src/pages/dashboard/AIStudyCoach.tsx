@@ -7,6 +7,7 @@ import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useStudyInsights } from '@/hooks/useStudyInsights';
 import { useProactiveCoaching } from '@/hooks/useProactiveCoaching';
+import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import ChatInterface from '@/components/ai-coach/ChatInterface';
 import FileUploadCard from '@/components/ai-coach/FileUploadCard';
@@ -23,6 +24,9 @@ const AIStudyCoach = () => {
   const { sessions } = useStudySessions();
   const { flashcards } = useFlashcards();
   const { insights } = useStudyInsights();
+
+  // Add scroll restoration for better navigation UX
+  useScrollRestoration('ai-coach-scroll');
 
   // Enable proactive coaching with error handling
   try {
