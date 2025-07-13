@@ -7,7 +7,7 @@ export const initSentry = async () => {
   }
 
   try {
-    const Sentry = await import('@sentry/nextjs');
+    const Sentry = await import('@sentry/react');
     
     Sentry.init({
       dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -36,7 +36,7 @@ export const captureError = async (error: Error, extra?: Record<string, any>) =>
 
   try {
     await initSentry();
-    const Sentry = await import('@sentry/nextjs');
+    const Sentry = await import('@sentry/react');
     Sentry.captureException(error, { extra });
   } catch (sentryError) {
     console.warn('Failed to capture error with Sentry:', sentryError);
