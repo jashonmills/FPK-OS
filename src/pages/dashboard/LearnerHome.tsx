@@ -18,21 +18,21 @@ import AIInsightsSection from '@/components/dashboard/AIInsightsSection';
 const LearnerHome = () => {
   const { user } = useAuth();
   const { profile } = useUserProfile();
-  const { t } = useTranslation();
+  const { t } = useTranslation('dashboard');
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return t('dashboard.goodMorning');
-    if (hour < 18) return t('dashboard.goodAfternoon');
-    return t('dashboard.goodEvening');
+    if (hour < 12) return t('goodMorning');
+    if (hour < 18) return t('goodAfternoon');
+    return t('goodEvening');
   };
 
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
     if (profile?.full_name) return profile.full_name;
     if (user?.email) return user.email.split('@')[0];
-    return t('dashboard.learner');
+    return t('learner');
   };
 
   const handleAPODGalleryOpen = () => {
@@ -49,13 +49,13 @@ const LearnerHome = () => {
       <div className="mb-4 sm:mb-6 md:mb-8">
         <h1 className="mobile-heading-xl mb-2">
           <DualLanguageText 
-            translationKey="dashboard.greeting"
+            translationKey="greeting"
             fallback={`${getGreeting()}, ${getDisplayName()}!`}
           />
         </h1>
         <p className="text-muted-foreground mobile-text-base">
           <DualLanguageText 
-            translationKey="dashboard.welcomeMessage"
+            translationKey="welcomeMessage"
             fallback="Ready to continue your learning journey today?"
           />
         </p>
