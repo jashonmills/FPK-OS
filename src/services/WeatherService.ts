@@ -28,7 +28,7 @@ export interface CachedWeatherData {
 }
 
 class WeatherService {
-  private readonly API_KEY = process.env.OPENWEATHERMAP_API_KEY || 'demo_key';
+  private readonly API_KEY = import.meta.env.VITE_OPENWEATHERMAP_API_KEY || 'demo_key';
   private readonly BASE_URL = 'https://api.openweathermap.org/data/2.5/onecall';
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for more frequent updates
   private cache = new Map<string, CachedWeatherData>();
