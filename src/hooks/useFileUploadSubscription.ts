@@ -17,21 +17,13 @@ interface FileUploadSubscriptionService {
   stopPolling: (uploadId: string) => void;
 }
 
-// Global state management with better cleanup
-let globalChannel: RealtimeChannel | null = null;
-let globalHandlers: FileUploadUpdateHandler[] = [];
-let globalUserId: string | null = null;
-let isSubscribing = false;
-let isChannelSubscribed = false;
-let pollingIntervals: Record<string, NodeJS.Timeout> = {};
-let subscriptionAttempts = 0;
-const MAX_SUBSCRIPTION_ATTEMPTS = 3;
-
 export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const handlersRef = useRef<FileUploadUpdateHandler[]>([]);
   const mountedRef = useRef(true);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const pollingIntervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   const subscribe = useCallback((id: string, handler: (payload: any) => void) => {
     if (!mountedRef.current) return;
@@ -39,7 +31,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     console.log(`📡 Subscribing handler: ${id}`);
     
     // Check if handler already exists
-    const existingHandler = globalHandlers.find(h => h.id === id);
+    const existingHandler = handlersRef.current.find(h => h.id === id);
     if (existingHandler) {
       console.log(`📡 Handler ${id} already exists, updating`);
       existingHandler.handler = handler;
@@ -49,9 +41,6 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     // Add to local handlers
     const newHandler = { id, handler };
     handlersRef.current.push(newHandler);
-    
-    // Add to global handlers
-    globalHandlers.push(newHandler);
     
     // Initialize connection if needed
     initializeConnection();
@@ -63,11 +52,8 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     // Remove from local handlers
     handlersRef.current = handlersRef.current.filter(h => h.id !== id);
     
-    // Remove from global handlers
-    globalHandlers = globalHandlers.filter(h => h.id !== id);
-    
     // Clean up connection if no handlers left
-    if (globalHandlers.length === 0) {
+    if (handlersRef.current.length === 0) {
       cleanupConnection();
     }
   }, []);
@@ -77,14 +63,14 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     
     console.log(`🔄 Starting polling for upload: ${uploadId}`);
     
-    if (pollingIntervals[uploadId]) {
-      clearInterval(pollingIntervals[uploadId]);
+    if (pollingIntervalsRef.current[uploadId]) {
+      clearInterval(pollingIntervalsRef.current[uploadId]);
     }
 
     const pollInterval = setInterval(async () => {
       if (!mountedRef.current) {
-        clearInterval(pollingIntervals[uploadId]);
-        delete pollingIntervals[uploadId];
+        clearInterval(pollingIntervalsRef.current[uploadId]);
+        delete pollingIntervalsRef.current[uploadId];
         return;
       }
 
@@ -103,61 +89,41 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
         if (data && (data.processing_status === 'completed' || data.processing_status === 'failed')) {
           console.log(`✅ Polling complete for ${uploadId}: ${data.processing_status}`);
           callback(data);
-          clearInterval(pollingIntervals[uploadId]);
-          delete pollingIntervals[uploadId];
+          clearInterval(pollingIntervalsRef.current[uploadId]);
+          delete pollingIntervalsRef.current[uploadId];
         }
       } catch (error) {
         console.error('❌ Polling fetch error:', error);
       }
     }, 3000);
 
-    pollingIntervals[uploadId] = pollInterval;
+    pollingIntervalsRef.current[uploadId] = pollInterval;
 
     // Auto cleanup after 5 minutes
     setTimeout(() => {
-      if (pollingIntervals[uploadId]) {
+      if (pollingIntervalsRef.current[uploadId]) {
         console.log(`⏰ Polling timeout for ${uploadId}`);
-        clearInterval(pollingIntervals[uploadId]);
-        delete pollingIntervals[uploadId];
+        clearInterval(pollingIntervalsRef.current[uploadId]);
+        delete pollingIntervalsRef.current[uploadId];
       }
     }, 300000);
   }, []);
 
   const stopPolling = useCallback((uploadId: string) => {
-    if (pollingIntervals[uploadId]) {
+    if (pollingIntervalsRef.current[uploadId]) {
       console.log(`🛑 Stopping polling for ${uploadId}`);
-      clearInterval(pollingIntervals[uploadId]);
-      delete pollingIntervals[uploadId];
+      clearInterval(pollingIntervalsRef.current[uploadId]);
+      delete pollingIntervalsRef.current[uploadId];
     }
   }, []);
 
   const initializeConnection = useCallback(() => {
-    if (!user?.id || isSubscribing || isChannelSubscribed || !mountedRef.current) return;
-    if (globalUserId === user.id && globalChannel && isChannelSubscribed) return;
-    if (subscriptionAttempts >= MAX_SUBSCRIPTION_ATTEMPTS) {
-      console.log('📡 Max subscription attempts reached, using polling fallback');
-      return;
-    }
+    if (!user?.id || !mountedRef.current) return;
+    if (channelRef.current) return; // Already have a connection
 
     console.log('📡 Initializing file upload subscription connection');
-    isSubscribing = true;
-    subscriptionAttempts++;
 
     try {
-      // Clean up previous connection if user changed
-      if (globalChannel && globalUserId !== user.id) {
-        console.log('📡 Cleaning up previous connection for user change');
-        try {
-          supabase.removeChannel(globalChannel);
-          isChannelSubscribed = false;
-        } catch (error) {
-          console.error('Error removing channel:', error);
-        }
-        globalChannel = null;
-      }
-
-      globalUserId = user.id;
-
       const channelName = `file-uploads-${user.id}-${Date.now()}`;
       const channel = supabase
         .channel(channelName)
@@ -172,10 +138,10 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
           (payload) => {
             if (!mountedRef.current) return;
             
-            console.log('📡 Broadcasting file upload update to all handlers:', payload);
+            console.log('📡 Broadcasting file upload update to handlers:', payload);
             
-            // Notify all registered handlers
-            globalHandlers.forEach(({ id, handler }) => {
+            // Notify all registered handlers for this instance
+            handlersRef.current.forEach(({ id, handler }) => {
               try {
                 handler(payload);
               } catch (error) {
@@ -185,36 +151,29 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
           }
         );
 
-      globalChannel = channel;
+      channelRef.current = channel;
 
       channel.subscribe((status) => {
-        isSubscribing = false;
-        
         if (status === 'SUBSCRIBED') {
           console.log('✅ File upload subscription connected');
-          isChannelSubscribed = true;
-          subscriptionAttempts = 0; // Reset on success
           if (mountedRef.current) {
             setIsConnected(true);
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           console.error('❌ File upload real-time connection failed:', status);
-          isChannelSubscribed = false;
           if (mountedRef.current) {
             setIsConnected(false);
           }
           
           // Clean up the failed channel
-          try {
-            if (globalChannel) {
-              supabase.removeChannel(globalChannel);
+          if (channelRef.current) {
+            try {
+              supabase.removeChannel(channelRef.current);
+            } catch (error) {
+              console.warn('Error removing failed channel:', error);
             }
-          } catch (error) {
-            console.warn('Error removing failed channel:', error);
+            channelRef.current = null;
           }
-          
-          globalChannel = null;
-          globalUserId = null;
           
           // Fallback: Start polling for all pending uploads
           console.log('🔄 Falling back to polling mode for file uploads');
@@ -232,7 +191,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
                 pendingUploads.forEach(upload => {
                   startPolling(upload.id, (updatedUpload) => {
                     if (mountedRef.current) {
-                      globalHandlers.forEach(({ handler }) => {
+                      handlersRef.current.forEach(({ handler }) => {
                         try {
                           handler({ new: updatedUpload, old: upload });
                         } catch (error) {
@@ -251,7 +210,6 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       });
     } catch (error) {
       console.error('Error initializing connection:', error);
-      isSubscribing = false;
       if (mountedRef.current) {
         setIsConnected(false);
       }
@@ -260,26 +218,24 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
 
   const cleanupConnection = useCallback(() => {
     console.log('📡 Cleaning up file upload connection');
-    if (globalChannel) {
+    if (channelRef.current) {
       try {
-        supabase.removeChannel(globalChannel);
+        supabase.removeChannel(channelRef.current);
       } catch (error) {
         console.error('Error removing channel:', error);
       }
-      globalChannel = null;
-      globalUserId = null;
-      isChannelSubscribed = false;
-      subscriptionAttempts = 0;
+      channelRef.current = null;
       if (mountedRef.current) {
         setIsConnected(false);
       }
     }
     
     // Clean up all polling intervals
-    Object.keys(pollingIntervals).forEach(uploadId => {
-      clearInterval(pollingIntervals[uploadId]);
-      delete pollingIntervals[uploadId];
+    Object.keys(pollingIntervalsRef.current).forEach(uploadId => {
+      clearInterval(pollingIntervalsRef.current[uploadId]);
+      delete pollingIntervalsRef.current[uploadId];
     });
+    pollingIntervalsRef.current = {};
   }, []);
 
   // Initialize connection when user changes
@@ -292,16 +248,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     
     return () => {
       mountedRef.current = false;
-      
-      // Clean up local handlers on unmount
-      handlersRef.current.forEach(({ id }) => {
-        globalHandlers = globalHandlers.filter(h => h.id !== id);
-      });
-      
-      // Clean up connection if no handlers left
-      if (globalHandlers.length === 0) {
-        cleanupConnection();
-      }
+      cleanupConnection();
     };
   }, [user?.id, initializeConnection, cleanupConnection]);
 
