@@ -198,16 +198,26 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
             setIsConnected(true);
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.error('❌ Real-time connection failed:', status);
+          console.error('❌ File upload real-time connection failed:', status);
           isChannelSubscribed = false;
           if (mountedRef.current) {
             setIsConnected(false);
           }
+          
+          // Clean up the failed channel
+          try {
+            if (globalChannel) {
+              supabase.removeChannel(globalChannel);
+            }
+          } catch (error) {
+            console.warn('Error removing failed channel:', error);
+          }
+          
           globalChannel = null;
           globalUserId = null;
           
           // Fallback: Start polling for all pending uploads
-          console.log('🔄 Falling back to polling mode');
+          console.log('🔄 Falling back to polling mode for file uploads');
           setTimeout(async () => {
             if (!mountedRef.current || !user?.id) return;
             
