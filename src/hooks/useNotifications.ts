@@ -143,6 +143,8 @@ export const useNotifications = () => {
 
     loadNotifications();
 
+    let isSubscribed = false;
+
     // Create the channel with unique name
     const channelName = `notifications-${user.id}-${Date.now()}`;
     const channel = supabase
@@ -156,6 +158,7 @@ export const useNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
+          if (!isSubscribed) return; // Only handle if we're properly subscribed
           const newNotification = payload.new as Notification;
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
@@ -177,6 +180,7 @@ export const useNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
+          if (!isSubscribed) return; // Only handle if we're properly subscribed
           const updatedNotification = payload.new as Notification;
           setNotifications(prev => 
             prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
@@ -190,10 +194,12 @@ export const useNotifications = () => {
     // Subscribe and handle the result
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
+        isSubscribed = true;
         console.log('✅ Successfully subscribed to notifications channel');
-      } else {
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        isSubscribed = false;
         console.error('❌ Failed to subscribe to notifications channel:', status);
-        // Reset the ref on failure so we can try again
+        // Reset the ref on failure so we can try again on next mount
         channelRef.current = null;
       }
     });
@@ -201,11 +207,16 @@ export const useNotifications = () => {
     // Cleanup on unmount
     return () => {
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
+        isSubscribed = false;
+        try {
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.warn('Error removing channel:', error);
+        }
         channelRef.current = null;
       }
     };
-  }, [user?.id, toast]); // Added toast to dependencies
+  }, [user?.id]); // Removed toast from dependencies to prevent unnecessary re-runs
 
   return {
     notifications,
