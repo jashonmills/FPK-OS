@@ -1,5 +1,11 @@
 
 {
+  "goodMorning": "Good Morning",
+  "goodAfternoon": "Good Afternoon", 
+  "goodEvening": "Good Evening",
+  "greeting": "{greeting}, {name}!",
+  "welcomeMessage": "Ready to continue your learning journey today?",
+  "learner": "Learner",
   "myCourses": {
     "title": "My Courses",
     "description": "Manage and continue your learning journey with personalized courses"
