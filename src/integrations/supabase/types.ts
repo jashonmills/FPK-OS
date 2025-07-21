@@ -316,6 +316,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          category: string
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       course_assets: {
         Row: {
           asset_type: string
@@ -522,6 +561,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_tracking: {
+        Row: {
+          bounced_at: string | null
+          clicked_at: string | null
+          created_at: string
+          email_address: string
+          email_type: string
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          sent_at: string
+          subject: string | null
+        }
+        Insert: {
+          bounced_at?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          email_address: string
+          email_type: string
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          sent_at?: string
+          subject?: string | null
+        }
+        Update: {
+          bounced_at?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          email_address?: string
+          email_type?: string
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          sent_at?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_id: string
@@ -646,6 +724,42 @@ export type Database = {
           },
         ]
       }
+      form_analytics: {
+        Row: {
+          conversion_funnel: Json | null
+          created_at: string
+          form_type: string
+          id: string
+          ip_address: string | null
+          page_url: string | null
+          session_data: Json | null
+          submitted_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          conversion_funnel?: Json | null
+          created_at?: string
+          form_type: string
+          id?: string
+          ip_address?: string | null
+          page_url?: string | null
+          session_data?: Json | null
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          conversion_funnel?: Json | null
+          created_at?: string
+          form_type?: string
+          id?: string
+          ip_address?: string | null
+          page_url?: string | null
+          session_data?: Json | null
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       goal_reminders: {
         Row: {
           created_at: string
@@ -741,6 +855,54 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      guest_pitches: {
+        Row: {
+          bio: string
+          company: string | null
+          created_at: string
+          email: string
+          headshot_url: string | null
+          id: string
+          name: string
+          previous_appearances: string | null
+          status: string
+          title: string
+          topic: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bio: string
+          company?: string | null
+          created_at?: string
+          email: string
+          headshot_url?: string | null
+          id?: string
+          name: string
+          previous_appearances?: string | null
+          status?: string
+          title: string
+          topic: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string
+          company?: string | null
+          created_at?: string
+          email?: string
+          headshot_url?: string | null
+          id?: string
+          name?: string
+          previous_appearances?: string | null
+          status?: string
+          title?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1042,6 +1204,45 @@ export type Database = {
           },
         ]
       }
+      mailbag_questions: {
+        Row: {
+          created_at: string
+          email: string
+          featured: boolean
+          id: string
+          name: string
+          question: string
+          status: string
+          topic_category: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          featured?: boolean
+          id?: string
+          name: string
+          question: string
+          status?: string
+          topic_category?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          featured?: boolean
+          id?: string
+          name?: string
+          question?: string
+          status?: string
+          topic_category?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       modules: {
         Row: {
           content_type: string | null
@@ -1094,6 +1295,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          email_verified: boolean
+          engagement_score: number
+          id: string
+          interests: string[] | null
+          metadata: Json | null
+          name: string | null
+          source: string | null
+          subscribed_at: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          email_verified?: boolean
+          engagement_score?: number
+          id?: string
+          interests?: string[] | null
+          metadata?: Json | null
+          name?: string | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          email_verified?: boolean
+          engagement_score?: number
+          id?: string
+          interests?: string[] | null
+          metadata?: Json | null
+          name?: string | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       notes: {
         Row: {
@@ -1164,6 +1410,66 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      podcast_episodes: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          description: string | null
+          download_count: number
+          duration_seconds: number | null
+          episode_number: number
+          featured: boolean
+          guest_names: string[] | null
+          id: string
+          play_count: number
+          published_at: string | null
+          show_notes: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          transcript_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          duration_seconds?: number | null
+          episode_number: number
+          featured?: boolean
+          guest_names?: string[] | null
+          id?: string
+          play_count?: number
+          published_at?: string | null
+          show_notes?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          transcript_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          duration_seconds?: number | null
+          episode_number?: number
+          featured?: boolean
+          guest_names?: string[] | null
+          id?: string
+          play_count?: number
+          published_at?: string | null
+          show_notes?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          transcript_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
