@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BookOpen, Clock, User, Search, Filter } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
-import { useAutoEnrollLearningState } from '@/hooks/useAutoEnrollLearningState';
+import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
 import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
@@ -21,8 +21,8 @@ const MyCourses = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
 
-  // Auto-enroll in Learning State beta course
-  useAutoEnrollLearningState();
+  // Auto-enroll in preloaded courses
+  useAutoEnrollPreloadedCourses();
 
   const enrolledCourseIds = enrollments.map(e => e.course_id);
   const enrolledCourses = courses.filter(course => enrolledCourseIds.includes(course.id));
