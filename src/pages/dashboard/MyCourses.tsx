@@ -81,7 +81,7 @@ const MyCourses = () => {
       });
       
       if (isLearningStateCourse) {
-        return `/dashboard/learner/learning-state/${course.id}`;
+        return 'https://course-start-kit-react.lovable.app/';
       }
       
       // Special case for EL Spelling & Reading course
