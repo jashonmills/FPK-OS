@@ -84,6 +84,11 @@ const MyCourses = () => {
         return `/dashboard/learner/learning-state/${course.id}`;
       }
       
+      // Special case for EL Spelling & Reading course
+      if (course.id === 'el-spelling-reading') {
+        return 'https://course-start-kit-react.lovable.app/el-spelling';
+      }
+      
       // For other courses, use slug if available, otherwise use id
       const identifier = course.slug || course.id;
       return `/dashboard/learner/course/${identifier}`;
