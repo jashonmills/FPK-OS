@@ -1,25 +1,35 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import MediaPlayerDisplay from './MediaPlayerDisplay';
 import MediaPlayerProgress from './MediaPlayerProgress';
 import MediaPlayerControls from './MediaPlayerControls';
 import MediaPlayerVolume from './MediaPlayerVolume';
+import { useMediaProgress } from '@/hooks/useMediaProgress';
+import { useMediaAnalytics } from '@/hooks/useMediaAnalytics';
 
 interface MediaPlayerProps {
   src: string;
   type: 'video' | 'audio';
   title?: string;
   captions?: string;
+  mediaId: string; // Unique identifier for progress tracking
+  courseId?: string;
+  moduleId?: string;
   onProgress?: (progress: number) => void;
+  onComplete?: () => void;
 }
 
 const MediaPlayer: React.FC<MediaPlayerProps> = ({ 
   src, 
   type, 
   title, 
-  captions, 
-  onProgress 
+  captions,
+  mediaId,
+  courseId,
+  moduleId,
+  onProgress,
+  onComplete
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -27,16 +37,47 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
   const [progress, setProgress] = useState([0]);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [hasResumed, setHasResumed] = useState(false);
   
   const mediaRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
+  
+  // Progress tracking and analytics
+  const { savedProgress, saveProgress, getResumeTime, markCompleted } = useMediaProgress({
+    mediaId,
+    onProgressUpdate: (progressData) => {
+      if (progressData.completed) {
+        onComplete?.();
+      }
+    }
+  });
+  
+  const { trackPlay, trackPause, trackSeek, trackSpeedChange, trackCompletion } = useMediaAnalytics({
+    mediaId,
+    courseId,
+    moduleId
+  });
+
+  // Resume from saved position on first load
+  useEffect(() => {
+    if (!mediaRef.current || !duration || hasResumed) return;
+    
+    const resumeTime = getResumeTime();
+    if (resumeTime > 0) {
+      console.log(`⏭️ Resuming from ${Math.floor(resumeTime)}s`);
+      mediaRef.current.currentTime = resumeTime;
+      setHasResumed(true);
+    }
+  }, [duration, getResumeTime, hasResumed]);
 
   const togglePlay = () => {
     if (!mediaRef.current) return;
     
     if (isPlaying) {
       mediaRef.current.pause();
+      trackPause(mediaRef.current.currentTime, duration);
     } else {
       mediaRef.current.play();
+      trackPlay(mediaRef.current.currentTime, duration);
     }
     setIsPlaying(!isPlaying);
   };
@@ -59,17 +100,35 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
   const handleProgressChange = (value: number[]) => {
     if (!mediaRef.current) return;
     
+    const oldTime = mediaRef.current.currentTime;
     const newProgress = value[0];
+    const newTime = (newProgress / 100) * duration;
+    
     setProgress([newProgress]);
-    mediaRef.current.currentTime = (newProgress / 100) * duration;
+    mediaRef.current.currentTime = newTime;
+    
+    // Track seek event
+    trackSeek(oldTime, newTime, duration);
   };
 
   const handleTimeUpdate = () => {
     if (!mediaRef.current) return;
     
-    const currentProgress = (mediaRef.current.currentTime / duration) * 100;
+    const currentTime = mediaRef.current.currentTime;
+    const currentProgress = (currentTime / duration) * 100;
     setProgress([currentProgress]);
     onProgress?.(currentProgress);
+    
+    // Save progress every 5 seconds
+    if (Math.floor(currentTime) % 5 === 0) {
+      saveProgress(currentTime, duration);
+    }
+    
+    // Check for completion (95% threshold)
+    if (currentProgress >= 95 && !savedProgress?.completed) {
+      markCompleted();
+      trackCompletion(duration);
+    }
   };
 
   const handleLoadedMetadata = () => {
@@ -91,6 +150,9 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     
     setPlaybackRate(nextRate);
     mediaRef.current.playbackRate = nextRate;
+    
+    // Track speed change
+    trackSpeedChange(mediaRef.current.currentTime, duration, nextRate);
   };
 
   const enterFullscreen = () => {

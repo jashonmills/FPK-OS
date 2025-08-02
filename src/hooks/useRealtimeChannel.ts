@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { channelRegistry } from '@/utils/realtimeChannelRegistry';
 
 interface RealtimeOptions {
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
@@ -31,25 +32,32 @@ export function useRealtimeChannel(
       channelRef.current = null;
     }
 
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes' as any,
-        {
-          event: options.event || '*',
-          schema: options.schema || 'public',
-          table: options.table,
-          filter: options.filter,
-        },
-        (payload) => cbRef.current(payload)
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.debug(`✅ [RT] subscribed → ${options.table}.${options.event || '*'}`);
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn(`❌ [RT] ${status} → ${options.table}.${options.event || '*'}`);
-        }
-      });
+    // Use registry to prevent duplicates
+    const channel = channelRegistry.getOrCreateChannel(channelName, () => {
+      return supabase
+        .channel(channelName)
+        .on(
+          'postgres_changes' as any,
+          {
+            event: options.event || '*',
+            schema: options.schema || 'public',
+            table: options.table,
+            filter: options.filter,
+          },
+          (payload) => cbRef.current(payload)
+        );
+    });
+
+    // Subscribe with health monitoring
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.debug(`✅ [RT] subscribed → ${options.table}.${options.event || '*'}`);
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        console.warn(`❌ [RT] ${status} → ${options.table}.${options.event || '*'}`);
+        // Auto-cleanup on error
+        channelRegistry.removeChannel(channelName);
+      }
+    });
 
     channelRef.current = channel;
 
@@ -71,12 +79,7 @@ export function useRealtimeChannel(
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (channelRef.current) {
         console.debug(`🔌 Cleaning up channel: ${channelName}`);
-        try {
-          channelRef.current.unsubscribe();
-          supabase.removeChannel(channelRef.current);
-        } catch (error) {
-          console.warn('Error cleaning up channel:', error);
-        }
+        channelRegistry.removeChannel(channelName);
         channelRef.current = null;
       }
     };
