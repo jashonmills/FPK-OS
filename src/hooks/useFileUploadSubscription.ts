@@ -242,15 +242,18 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   useEffect(() => {
     mountedRef.current = true;
     
-    if (user?.id) {
-      initializeConnection();
-    }
-    
     return () => {
       mountedRef.current = false;
       cleanupConnection();
     };
-  }, [user?.id, initializeConnection, cleanupConnection]);
+  }, []);
+
+  // Separate effect for user-dependent initialization
+  useEffect(() => {
+    if (user?.id && mountedRef.current) {
+      initializeConnection();
+    }
+  }, [user?.id]);
 
   return {
     subscribe,

@@ -2,7 +2,7 @@
 let sentryInitialized = false;
 
 export const initSentry = async () => {
-  if (sentryInitialized || !process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  if (sentryInitialized || typeof window === 'undefined' || !import.meta.env?.VITE_SENTRY_DSN) {
     return;
   }
 
@@ -10,12 +10,12 @@ export const initSentry = async () => {
     const Sentry = await import('@sentry/react');
     
     Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-      environment: process.env.NEXT_PUBLIC_VERCEL_ENV || 'local',
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
+      environment: import.meta.env.VITE_VERCEL_ENV || 'local',
       beforeSend(event) {
         // Don't send events in development unless explicitly enabled
-        if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SENTRY_DEBUG) {
+        if (import.meta.env.DEV && !import.meta.env.VITE_SENTRY_DEBUG) {
           return null;
         }
         return event;
@@ -30,7 +30,9 @@ export const initSentry = async () => {
 };
 
 export const captureError = async (error: Error, extra?: Record<string, any>) => {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  // Check if running in browser environment
+  if (typeof window === 'undefined' || !import.meta.env?.VITE_SENTRY_DSN) {
+    console.error('Error captured (Sentry not available):', error, extra);
     return;
   }
 
@@ -40,5 +42,6 @@ export const captureError = async (error: Error, extra?: Record<string, any>) =>
     Sentry.captureException(error, { extra });
   } catch (sentryError) {
     console.warn('Failed to capture error with Sentry:', sentryError);
+    console.error('Original error:', error, extra);
   }
 };
