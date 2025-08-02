@@ -119,12 +119,15 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
 
   const initializeConnection = useCallback(() => {
     if (!user?.id || !mountedRef.current) return;
-    if (channelRef.current) return; // Already have a connection
+    if (channelRef.current) {
+      console.log('📡 File upload subscription already exists, skipping initialization');
+      return; // Already have a connection
+    }
 
     console.log('📡 Initializing file upload subscription connection');
 
     try {
-      const channelName = `file-uploads-${user.id}-${Date.now()}`;
+      const channelName = `file-uploads-${user.id}`;
       const channel = supabase
         .channel(channelName)
         .on(

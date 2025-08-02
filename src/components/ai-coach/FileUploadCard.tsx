@@ -113,7 +113,8 @@ const FileUploadCard: React.FC = () => {
     } catch (error) {
       console.error('Error setting up subscription:', error);
       setSubscriptionError('Failed to set up real-time updates');
-      // Don't let subscription errors break the component
+      // Continue without real-time updates instead of crashing
+      return;
     }
 
     return () => {
@@ -122,7 +123,6 @@ const FileUploadCard: React.FC = () => {
         unsubscribe(subscriptionId);
       } catch (error) {
         console.error('Error cleaning up subscription:', error);
-        // Don't let cleanup errors break the component
       }
       
       // Clean up timeouts
@@ -136,7 +136,7 @@ const FileUploadCard: React.FC = () => {
         }
       });
     };
-  }, [user?.id]); // Removed subscribe/unsubscribe from dependencies to prevent loops
+  }, [user?.id, subscribe, unsubscribe]); // Added missing dependencies
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

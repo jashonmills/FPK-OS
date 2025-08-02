@@ -64,7 +64,13 @@ export function useRealtimeChannel(
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (channelRef.current) {
-        channelRef.current.unsubscribe();
+        console.debug(`🔌 Cleaning up channel: ${channelName}`);
+        try {
+          channelRef.current.unsubscribe();
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.warn('Error cleaning up channel:', error);
+        }
         channelRef.current = null;
       }
     };
