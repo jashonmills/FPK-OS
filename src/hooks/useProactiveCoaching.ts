@@ -23,6 +23,8 @@ export const useProactiveCoaching = () => {
   useEffect(() => {
     if (!user || !sessions) return;
 
+    try {
+
     const checkForCoachingOpportunities = () => {
       const now = new Date();
       const today = now.toDateString();
@@ -103,6 +105,9 @@ export const useProactiveCoaching = () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
+    } catch (error) {
+      console.error('Error in proactive coaching:', error);
+    }
   }, [user, sessions, flashcards, toast, lastActivityCheck]);
 
   return {

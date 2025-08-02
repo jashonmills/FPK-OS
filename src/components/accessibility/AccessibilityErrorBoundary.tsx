@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
@@ -11,6 +10,7 @@ interface AccessibilityErrorBoundaryState {
 interface AccessibilityErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  componentName?: string;
 }
 
 class AccessibilityErrorBoundary extends React.Component<
@@ -27,7 +27,7 @@ class AccessibilityErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Accessibility system error:', error, errorInfo);
+    console.error(`Component error in ${this.props.componentName || 'Unknown'}:`, error, errorInfo);
   }
 
   render() {
@@ -41,13 +41,18 @@ class AccessibilityErrorBoundary extends React.Component<
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-amber-700">
               <AlertTriangle className="h-5 w-5" />
-              Accessibility Settings Temporarily Unavailable
+              {this.props.componentName || 'Component'} Temporarily Unavailable
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-amber-600">
-              We're experiencing an issue with the accessibility system. 
-              Your previous settings are preserved, but new changes may not be applied immediately.
+              We're experiencing an issue with this component. 
+              {process.env.NODE_ENV === 'development' && (
+                <details className="mt-2">
+                  <summary>Error Details</summary>
+                  <pre className="text-xs">{this.state.error?.message}</pre>
+                </details>
+              )}
             </p>
           </CardContent>
         </Card>

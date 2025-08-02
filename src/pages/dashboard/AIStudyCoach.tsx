@@ -16,6 +16,7 @@ import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
 import LearningStatsCard from '@/components/ai-coach/LearningStatsCard';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
 import { cn } from '@/lib/utils';
 
@@ -28,12 +29,8 @@ const AIStudyCoach = () => {
   // Add scroll restoration for better navigation UX
   useScrollRestoration('ai-coach-scroll');
 
-  // Enable proactive coaching with error handling
-  try {
-    useProactiveCoaching();
-  } catch (error) {
-    console.error('Error in proactive coaching:', error);
-  }
+  // Enable proactive coaching with proper error handling
+  useProactiveCoaching();
 
   const fixedHeightEnabled = featureFlagService.isEnabled('aiCoachFixedHeight');
 
@@ -130,9 +127,9 @@ const AIStudyCoach = () => {
 
         {/* Quick Study Challenges - Mobile Optimized */}
         <div className="flex-shrink-0">
-          <ErrorBoundary>
+          <AccessibilityErrorBoundary componentName="QuickChallengesCard">
             <QuickChallengesCard challenges={quickChallenges} />
-          </ErrorBoundary>
+          </AccessibilityErrorBoundary>
         </div>
 
         {/* Main Content Layout - Responsive Grid with Height Constraint Only for Chat */}
@@ -148,7 +145,7 @@ const AIStudyCoach = () => {
             <div className={cn(
               fixedHeightEnabled ? "h-[70vh] min-h-0" : "min-h-[600px]"
             )}>
-              <ErrorBoundary>
+              <AccessibilityErrorBoundary componentName="ChatInterface">
                 <ChatInterface
                   user={user}
                   completedSessions={completedSessions}
@@ -156,31 +153,31 @@ const AIStudyCoach = () => {
                   insights={insights}
                   fixedHeight={fixedHeightEnabled}
                 />
-              </ErrorBoundary>
+              </AccessibilityErrorBoundary>
             </div>
           </div>
 
           {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
           <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full flex-shrink-0">
-            <ErrorBoundary>
+            <AccessibilityErrorBoundary componentName="VoiceSettingsCard">
               <VoiceSettingsCard />
-            </ErrorBoundary>
+            </AccessibilityErrorBoundary>
             
-            <ErrorBoundary>
+            <AccessibilityErrorBoundary componentName="FileUploadCard">
               <FileUploadCard />
-            </ErrorBoundary>
+            </AccessibilityErrorBoundary>
             
-            <ErrorBoundary>
+            <AccessibilityErrorBoundary componentName="StudyPlanCard">
               <StudyPlanCard todaysFocus={todaysFocus} />
-            </ErrorBoundary>
+            </AccessibilityErrorBoundary>
             
-            <ErrorBoundary>
+            <AccessibilityErrorBoundary componentName="LearningStatsCard">
               <LearningStatsCard
                 totalXP={totalXP}
                 currentStreak={currentStreak}
                 progressToNextLevel={progressToNextLevel}
               />
-            </ErrorBoundary>
+            </AccessibilityErrorBoundary>
           </div>
         </div>
       </div>
