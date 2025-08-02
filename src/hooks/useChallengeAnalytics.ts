@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChallengeStartEvent {
   challengeType: 'quick_review' | 'accuracy_challenge' | 'speed_test' | 'custom_practice';
@@ -26,6 +26,7 @@ interface XPAwardedEvent {
 export function useChallengeAnalytics() {
   const { user } = useAuth();
   const { awardChallengeCompletionXP } = useXPIntegration();
+  const { toast } = useToast();
 
   const trackChallengeStart = useCallback(async (
     challengeType: ChallengeStartEvent['challengeType'],

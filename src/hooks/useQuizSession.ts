@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useFlashcards } from './useFlashcards';
 import { useXPIntegration } from './useXPIntegration';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export interface QuizCard {
   id: string;

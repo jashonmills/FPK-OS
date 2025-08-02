@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface XPResponse {
   success: boolean;
@@ -30,6 +30,7 @@ export function useGamification() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const awardXP = useCallback(async (eventType: string, eventValue: number, metadata?: any) => {
     if (!user?.id || isProcessing) return;
