@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useProgressTracking } from '@/hooks/useProgressTracking';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { iframeAnalytics } from '@/utils/iframeAnalytics';
+
 import { Loader2 } from 'lucide-react';
 
 const CoursePlayer: React.FC = () => {
@@ -12,8 +15,17 @@ const CoursePlayer: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { user } = useAuth();
   const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
+  const { trackPageView } = useAnalytics({ courseId: 'learning-state-beta' });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView('course_player', {
+      course_id: 'learning-state-beta',
+      is_mobile: isMobile
+    });
+  }, [trackPageView, isMobile]);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {

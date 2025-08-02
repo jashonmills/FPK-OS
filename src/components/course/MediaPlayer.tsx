@@ -7,6 +7,7 @@ import MediaPlayerControls from './MediaPlayerControls';
 import MediaPlayerVolume from './MediaPlayerVolume';
 import { useMediaProgress } from '@/hooks/useMediaProgress';
 import { useMediaAnalytics } from '@/hooks/useMediaAnalytics';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface MediaPlayerProps {
   src: string;
@@ -57,6 +58,11 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     moduleId
   });
 
+  const { trackMediaInteraction, trackModuleCompleted } = useAnalytics({
+    courseId,
+    moduleId
+  });
+
   // Resume from saved position on first load
   useEffect(() => {
     if (!mediaRef.current || !duration || hasResumed) return;
@@ -75,9 +81,11 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     if (isPlaying) {
       mediaRef.current.pause();
       trackPause(mediaRef.current.currentTime, duration);
+      trackMediaInteraction('pause', type, mediaRef.current.currentTime);
     } else {
       mediaRef.current.play();
       trackPlay(mediaRef.current.currentTime, duration);
+      trackMediaInteraction('play', type, mediaRef.current.currentTime);
     }
     setIsPlaying(!isPlaying);
   };
@@ -109,6 +117,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     
     // Track seek event
     trackSeek(oldTime, newTime, duration);
+    trackMediaInteraction('seek', type, newTime);
   };
 
   const handleTimeUpdate = () => {
@@ -128,6 +137,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     if (currentProgress >= 95 && !savedProgress?.completed) {
       markCompleted();
       trackCompletion(duration);
+      trackModuleCompleted(currentTime);
     }
   };
 
@@ -153,6 +163,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({
     
     // Track speed change
     trackSpeedChange(mediaRef.current.currentTime, duration, nextRate);
+    trackMediaInteraction('speed_change', type, mediaRef.current.currentTime);
   };
 
   const enterFullscreen = () => {

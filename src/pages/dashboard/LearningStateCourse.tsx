@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import CourseHeader from '@/components/course/CourseHeader';
 import CourseOverview from '@/components/course/CourseOverview';
 import CoursePlayer from '@/components/course/CoursePlayer';
+import CourseProgressSidebar from '@/components/course/CourseProgressSidebar';
 import ResponsiveLayout from '@/components/layout/ResponsiveLayout';
 import StickyMediaToolbar from '@/components/layout/StickyMediaToolbar';
 
@@ -54,12 +55,10 @@ const LearningStateCourse = () => {
   };
 
   const handleTogglePlay = () => {
-    // This would integrate with the actual media player
     setMediaState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
   };
 
   const handleSkip = (seconds: number) => {
-    // This would integrate with the actual media player
     console.log(`Skipping ${seconds} seconds`);
   };
 
@@ -92,12 +91,62 @@ const LearningStateCourse = () => {
         </div>
       }
       sidebar={
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Course Navigation</h3>
-          <div className="text-sm text-muted-foreground">
-            Module navigation and progress will appear here
-          </div>
-        </div>
+        <CourseProgressSidebar
+          modules={[
+            {
+              id: 'intro',
+              title: 'Introduction to Learning State',
+              duration: '15',
+              type: 'video',
+              isCompleted: true,
+              isActive: false,
+              isLocked: false,
+              progress: 100
+            },
+            {
+              id: 'cognitive-load',
+              title: 'Cognitive Load Theory',
+              duration: '22',
+              type: 'audio',
+              isCompleted: false,
+              isActive: true,
+              isLocked: false,
+              progress: 65
+            },
+            {
+              id: 'attention',
+              title: 'Attention & Focus',
+              duration: '18',
+              type: 'video',
+              isCompleted: false,
+              isActive: false,
+              isLocked: false,
+              progress: 0
+            },
+            {
+              id: 'memory',
+              title: 'Memory Consolidation',
+              duration: '25',
+              type: 'text',
+              isCompleted: false,
+              isActive: false,
+              isLocked: true,
+              progress: 0
+            },
+            {
+              id: 'metacognition',
+              title: 'Metacognitive Strategies',
+              duration: '20',
+              type: 'pdf',
+              isCompleted: false,
+              isActive: false,
+              isLocked: true,
+              progress: 0
+            }
+          ]}
+          courseProgress={42}
+          onModuleSelect={(moduleId) => console.log('Selected module:', moduleId)}
+        />
       }
     >
       <div ref={overviewRef}>
