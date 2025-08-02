@@ -14,6 +14,12 @@ export function useRealtimeChannel(
   options: RealtimeOptions,
   callback: (payload: any) => void
 ) {
+  // Critical validation: ensure all required parameters are valid
+  if (!channelName || typeof channelName !== 'string' || !options?.table || typeof options.table !== 'string') {
+    console.warn('Invalid parameters for useRealtimeChannel:', { channelName, options });
+    return;
+  }
+  
   const cbRef = useRef(callback);
   const channelRef = useRef<RealtimeChannel | null>(null);
   cbRef.current = callback;

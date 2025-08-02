@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import QuizSessionWidget from './QuizSessionWidget';
 import { useQuizSession } from '@/hooks/useQuizSession';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface ChatInterfaceProps {
   user: any;
@@ -56,16 +57,20 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
 
   // Load previous messages
   useEffect(() => {
-    if (!user?.id) return;
+    // Critical validation: ensure user ID is valid before any database operations
+    if (!user?.id || typeof user.id !== 'string') {
+      console.warn('Invalid user ID for ChatInterface:', { userId: user?.id });
+      return;
+    }
 
     const loadMessages = async () => {
       try {
-        if (!sessionId) {
-          // Create a new session
+        if (!sessionId || typeof sessionId !== 'string') {
+          // Create a new session with validated user ID
           const { data, error } = await supabase
             .from('chat_sessions')
             .insert({
-              user_id: user?.id,
+              user_id: user.id, // Use validated user.id
               title: 'AI Coach Session',
               context_tag: 'AI Coach'
             })
@@ -81,7 +86,7 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           return;
         }
 
-        // Load existing messages
+        // Load existing messages with validated session ID
         const { data, error } = await supabase
           .from('chat_messages')
           .select('*')
@@ -137,8 +142,8 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
     setIsSending(true);
 
     try {
-      // Save message to database
-      if (sessionId) {
+      // Save message to database with validation
+      if (sessionId && typeof sessionId === 'string' && user?.id && typeof user.id === 'string') {
         await supabase
           .from('chat_messages')
           .insert({
@@ -147,18 +152,24 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             content: message,
             timestamp: new Date().toISOString()
           });
+      } else {
+        console.warn('Invalid session or user ID for message save:', { sessionId, userId: user?.id });
       }
 
-      // Call enhanced AI function with RAG support
+      // Call enhanced AI function with RAG support (with validation)
+      if (!user?.id || typeof user.id !== 'string') {
+        throw new Error('Invalid user ID for AI function call');
+      }
+      
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message,
           userId: user.id,
-          sessionId,
+          sessionId: sessionId || null,
           chatMode,
           voiceActive,
           metadata: {
-            completedSessions: completedSessions.length,
+            completedSessions: completedSessions?.length || 0,
             flashcardCount: flashcards?.length || 0,
             ragEnabled: true // Enable RAG for this request
           }
@@ -178,8 +189,8 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
 
       setMessages(prev => [...prev, aiResponse]);
 
-      // Save AI response to database
-      if (sessionId) {
+      // Save AI response to database with validation
+      if (sessionId && typeof sessionId === 'string' && user?.id && typeof user.id === 'string') {
         await supabase
           .from('chat_messages')
           .insert({
@@ -188,6 +199,8 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             content: aiResponse.content,
             timestamp: new Date().toISOString()
           });
+      } else {
+        console.warn('Invalid session or user ID for AI response save:', { sessionId, userId: user?.id });
       }
 
       // Award XP for meaningful interactions
@@ -332,11 +345,21 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
   };
 
   return (
-    <Card className={cn(
-      "bg-gradient-to-br from-white to-purple-50/30",
-      fixedHeight ? "h-full flex flex-col" : "h-full flex flex-col"
-    )}>
-      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('ChatInterface Error:', error, errorInfo);
+        toast({
+          title: "Chat Error",
+          description: "The chat interface encountered an error. Refreshing...",
+          variant: "destructive"
+        });
+      }}
+    >
+      <Card className={cn(
+        "bg-gradient-to-br from-white to-purple-50/30",
+        fixedHeight ? "h-full flex flex-col" : "h-full flex flex-col"
+      )}>
+        <CardContent className="p-0 flex-1 flex flex-col min-h-0">
         {/* Header - Mobile Optimized */}
         <div className="p-3 sm:p-4 border-b flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2 min-w-0">
@@ -500,8 +523,9 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </ErrorBoundary>
   );
 };
 

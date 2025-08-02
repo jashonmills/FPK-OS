@@ -12,7 +12,7 @@ export const useVoiceRecording = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const maxRecordingTime = 60; // 60 seconds
 
-  // Timer effect for recording duration
+  // Timer effect for recording duration - Fixed to prevent circular dependencies
   useEffect(() => {
     if (isRecording) {
       timerRef.current = setInterval(() => {
@@ -20,10 +20,12 @@ export const useVoiceRecording = () => {
           const newDuration = prev + 1;
           // Auto-stop at 60 seconds
           if (newDuration >= maxRecordingTime) {
-            // Stop recording safely without circular dependency
-            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-              mediaRecorderRef.current.stop();
-            }
+            // Use setTimeout to avoid circular dependency in useEffect
+            setTimeout(() => {
+              if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                mediaRecorderRef.current.stop();
+              }
+            }, 0);
             return maxRecordingTime;
           }
           return newDuration;
@@ -43,10 +45,16 @@ export const useVoiceRecording = () => {
         timerRef.current = null;
       }
     };
-  }, [isRecording]);
+  }, [isRecording, maxRecordingTime]);
 
   const startRecording = async () => {
     try {
+      // Ensure we're not already recording
+      if (isRecording || mediaRecorderRef.current) {
+        console.warn('Recording already in progress');
+        return;
+      }
+
       // Request high-quality audio for better transcription
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
@@ -92,7 +100,8 @@ export const useVoiceRecording = () => {
 
   const stopRecording = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (!mediaRecorderRef.current || !streamRef.current) {
+      if (!mediaRecorderRef.current || !streamRef.current || !isRecording) {
+        console.warn('No active recording to stop');
         reject(new Error('No recording in progress'));
         return;
       }
@@ -176,14 +185,28 @@ export const useVoiceRecording = () => {
   };
 
   const cancelRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      streamRef.current?.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
+    try {
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+        streamRef.current?.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+        setIsRecording(false);
+        setIsProcessing(false);
+        setRecordingDuration(0);
+        audioChunksRef.current = [];
+        
+        // Clear timer
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }
+    } catch (error) {
+      console.error('Error canceling recording:', error);
+      // Force reset state even if there's an error
       setIsRecording(false);
       setIsProcessing(false);
       setRecordingDuration(0);
-      audioChunksRef.current = [];
     }
   };
 

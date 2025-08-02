@@ -28,7 +28,9 @@ export const useChatMessages = (sessionId: string | null) => {
 
   // Load messages for a session
   const loadMessages = async () => {
-    if (!sessionId || !user) {
+    // Critical validation: ensure we have valid UUIDs before database queries
+    if (!sessionId || !user?.id || typeof sessionId !== 'string' || typeof user.id !== 'string') {
+      console.warn('Invalid parameters for loadMessages:', { sessionId, userId: user?.id });
       setMessages([]);
       return;
     }
@@ -67,7 +69,11 @@ export const useChatMessages = (sessionId: string | null) => {
 
   // Add a message to the current session
   const addMessage = async (content: string, role: 'user' | 'assistant') => {
-    if (!sessionId || !user) return null;
+    // Critical validation: ensure we have valid UUIDs before database operations
+    if (!sessionId || !user?.id || typeof sessionId !== 'string' || typeof user.id !== 'string') {
+      console.warn('Invalid parameters for addMessage:', { sessionId, userId: user?.id });
+      return null;
+    }
 
     try {
       const { data, error } = await supabase
@@ -107,7 +113,11 @@ export const useChatMessages = (sessionId: string | null) => {
 
   // Enhanced sendMessage with RAG support
   const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'personal') => {
-    if (!sessionId || !user || isSending) return;
+    // Critical validation: ensure we have valid IDs before proceeding
+    if (!sessionId || !user?.id || isSending || typeof sessionId !== 'string' || typeof user.id !== 'string') {
+      console.warn('Invalid state for sendMessage:', { sessionId, userId: user?.id, isSending });
+      return;
+    }
 
     console.log('Starting enhanced sendMessage with RAG support...', { sessionId, content, context, chatMode });
     setIsSending(true);

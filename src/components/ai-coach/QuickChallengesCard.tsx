@@ -8,6 +8,7 @@ import AccuracyChallenge from './challenges/AccuracyChallenge';
 import SpeedTest from './challenges/SpeedTest';
 import CustomPractice from './challenges/CustomPractice';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface Challenge {
   id: string;
@@ -29,6 +30,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [customSelectedCards, setCustomSelectedCards] = useState<any[]>([]);
   const [isCustomModeActive, setIsCustomModeActive] = useState(false);
+  const [componentError, setComponentError] = useState<string | null>(null);
 
   // Enhanced challenges with component mapping, colors, and custom text
   const enhancedChallenges: Challenge[] = [
@@ -77,43 +79,97 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
   const activeChallengData = enhancedChallenges.find(c => c.id === activeChallenge);
 
   const handleCustomPracticeStart = (selectedFlashcards: any[]) => {
-    setCustomSelectedCards(selectedFlashcards);
-    setIsCustomModeActive(true);
-    setShowSelectionModal(false);
-    setActiveChallenge('custom-practice');
+    try {
+      // Validate flashcards data
+      if (!Array.isArray(selectedFlashcards)) {
+        console.warn('Invalid flashcards data received:', selectedFlashcards);
+        setComponentError('Invalid flashcard selection');
+        return;
+      }
+      
+      setCustomSelectedCards(selectedFlashcards || []);
+      setIsCustomModeActive(true);
+      setShowSelectionModal(false);
+      setActiveChallenge('custom-practice');
+      setComponentError(null); // Clear any previous errors
+    } catch (error) {
+      console.error('Error in custom practice start:', error);
+      setComponentError('Failed to start custom practice');
+    }
   };
 
   const handleClearCustomSelection = () => {
-    setCustomSelectedCards([]);
-    setIsCustomModeActive(false);
-    // Keep the current active challenge but it will now use default behavior
+    try {
+      setCustomSelectedCards([]);
+      setIsCustomModeActive(false);
+      setComponentError(null); // Clear any errors
+      // Keep the current active challenge but it will now use default behavior
+    } catch (error) {
+      console.error('Error clearing custom selection:', error);
+      setComponentError('Failed to clear selection');
+    }
   };
 
   const renderChallengeComponent = () => {
+    // Error state handling
+    if (componentError) {
+      return (
+        <Card className="h-full min-h-[200px] lg:min-h-[300px]">
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
+            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <X className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-red-700">
+              Component Error
+            </h3>
+            <p className="text-sm text-red-600 mb-4">{componentError}</p>
+            <Button 
+              onClick={() => {
+                setComponentError(null);
+                setActiveChallenge(null);
+                setIsCustomModeActive(false);
+                setCustomSelectedCards([]);
+              }}
+              variant="outline"
+              size="sm"
+            >
+              Reset Component
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
     if (!activeChallengData) return null;
 
-    const ComponentToRender = activeChallengData.component;
-    
-    // Pass custom cards to all challenge components when in custom mode
-    if (isCustomModeActive && customSelectedCards.length > 0) {
-      if (activeChallenge === 'custom-practice') {
-        return <CustomPractice selectedCards={customSelectedCards} />;
-      } else {
-        // Pass custom cards to other challenges
-        return <ComponentToRender customCards={customSelectedCards} />;
+    try {
+      const ComponentToRender = activeChallengData.component;
+      
+      // Pass custom cards to all challenge components when in custom mode
+      if (isCustomModeActive && Array.isArray(customSelectedCards) && customSelectedCards.length > 0) {
+        if (activeChallenge === 'custom-practice') {
+          return <CustomPractice selectedCards={customSelectedCards} />;
+        } else {
+          // Pass custom cards to other challenges with error boundary
+          return <ComponentToRender customCards={customSelectedCards} />;
+        }
       }
+      
+      // Default behavior when not in custom mode
+      if (activeChallenge === 'custom-practice') {
+        return <CustomPractice selectedCards={[]} />;
+      }
+      
+      return <ComponentToRender />;
+    } catch (error) {
+      console.error('Error rendering challenge component:', error);
+      setComponentError('Failed to load challenge component');
+      return null;
     }
-    
-    // Default behavior when not in custom mode
-    if (activeChallenge === 'custom-practice') {
-      return <CustomPractice selectedCards={[]} />;
-    }
-    
-    return <ComponentToRender />;
   };
 
   return (
-    <>
+    <ErrorBoundary>
       <Card className="w-full overflow-hidden">
         <CardHeader className="p-3 sm:p-4 lg:p-6">
           <div className="flex items-center justify-between">
@@ -124,8 +180,8 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
             {isCustomModeActive && (
               <div className="flex items-center gap-2">
                 <Badge className="bg-purple-100 text-purple-800 border-purple-200">
-                  Custom Set ({customSelectedCards.length})
-                </Badge>
+                   Custom Set ({Array.isArray(customSelectedCards) ? customSelectedCards.length : 0})
+                 </Badge>
                 <Button
                   size="sm"
                   variant="outline"
@@ -196,11 +252,11 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
                     <p className="text-sm text-muted-foreground italic max-w-sm leading-relaxed">
                       Choose a study challenge from the list to start practicing and improving your skills.
                     </p>
-                    {isCustomModeActive && (
-                      <Badge className="mt-3 bg-purple-100 text-purple-800 border-purple-200">
-                        Custom mode active ({customSelectedCards.length} cards selected)
-                      </Badge>
-                    )}
+                     {isCustomModeActive && Array.isArray(customSelectedCards) && (
+                       <Badge className="mt-3 bg-purple-100 text-purple-800 border-purple-200">
+                         Custom mode active ({customSelectedCards.length || 0} cards selected)
+                       </Badge>
+                     )}
                   </CardContent>
                 </Card>
               )}
@@ -238,7 +294,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
         onConfirm={handleCustomPracticeStart}
         studyMode="memory_test"
       />
-    </>
+    </ErrorBoundary>
   );
 };
 

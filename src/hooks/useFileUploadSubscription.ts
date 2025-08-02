@@ -118,7 +118,12 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   }, []);
 
   const initializeConnection = useCallback(() => {
-    if (!user?.id || !mountedRef.current) return;
+    // Critical validation: ensure we have valid user ID before creating channels
+    if (!user?.id || typeof user.id !== 'string' || !mountedRef.current) {
+      console.warn('Invalid state for file upload subscription:', { userId: user?.id, mounted: mountedRef.current });
+      return;
+    }
+    
     if (channelRef.current) {
       console.log('📡 File upload subscription already exists, skipping initialization');
       return; // Already have a connection
