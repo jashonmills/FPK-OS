@@ -32,6 +32,15 @@ class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
+    // Check if this is an auth error and redirect to login
+    if (error.message?.includes('refresh_token_not_found') || 
+        error.message?.includes('Invalid Refresh Token') ||
+        (error as any).__isAuthError) {
+      console.log('Auth error detected, redirecting to login');
+      window.location.href = '/login';
+      return;
+    }
+    
     // Report error to monitoring service
     import('@/utils/sentry').then(({ captureError }) => {
       captureError(error, { errorInfo });
