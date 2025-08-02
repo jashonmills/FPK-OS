@@ -25,10 +25,14 @@ interface QuickChallengesCardProps {
 }
 
 const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges }) => {
+  console.log('🎯 QuickChallengesCard: Rendering component', { challenges });
+  
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [customSelectedCards, setCustomSelectedCards] = useState<any[]>([]);
   const [isCustomModeActive, setIsCustomModeActive] = useState(false);
+
+  console.log('🎯 QuickChallengesCard: State initialized');
 
   // Enhanced challenges with component mapping, colors, and custom text
   const enhancedChallenges: Challenge[] = [

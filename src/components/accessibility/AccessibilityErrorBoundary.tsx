@@ -27,7 +27,9 @@ class AccessibilityErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(`Component error in ${this.props.componentName || 'Unknown'}:`, error, errorInfo);
+    console.error(`❌ Component error in ${this.props.componentName || 'Unknown'}:`, error);
+    console.error('❌ Error info:', errorInfo);
+    console.error('❌ Error stack:', error.stack);
   }
 
   render() {
