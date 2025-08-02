@@ -3,12 +3,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCleanupDebugUI } from '@/hooks/useCleanupDebugUI';
 import CourseHeader from '@/components/course/CourseHeader';
 import CourseOverview from '@/components/course/CourseOverview';
 import CoursePlayer from '@/components/course/CoursePlayer';
 import CourseProgressSidebar from '@/components/course/CourseProgressSidebar';
 import ResponsiveLayout from '@/components/layout/ResponsiveLayout';
 import StickyMediaToolbar from '@/components/layout/StickyMediaToolbar';
+import { PolishedContainer } from '@/components/common/UIPolishProvider';
 
 const LearningStateCourse = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -24,6 +26,13 @@ const LearningStateCourse = () => {
   const navigate = useNavigate();
   const { getAccessibilityClasses } = useAccessibility();
   const isMobile = useIsMobile();
+  
+  // Clean up debug UI in production
+  useCleanupDebugUI({
+    removeDebugAttributes: true,
+    removeTestIds: true,
+    hideDevOnlyElements: true
+  });
 
   useEffect(() => {
     const overview = overviewRef.current;
@@ -149,16 +158,18 @@ const LearningStateCourse = () => {
         />
       }
     >
-      <div ref={overviewRef}>
-        <CourseOverview 
-          onDashboard={handleDashboard}
-          onBackToCourses={handleBackToCourses}
-        />
-      </div>
+      <PolishedContainer variant="content">
+        <div ref={overviewRef}>
+          <CourseOverview 
+            onDashboard={handleDashboard}
+            onBackToCourses={handleBackToCourses}
+          />
+        </div>
 
-      <div ref={playerRef}>
-        <CoursePlayer />
-      </div>
+        <div ref={playerRef} className="mt-6">
+          <CoursePlayer />
+        </div>
+      </PolishedContainer>
     </ResponsiveLayout>
   );
 };

@@ -56,6 +56,14 @@
     --fpk-card: 33 50% 96%;
     --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
 
+    /* Enhanced UI Polish Variables */
+    --learning-success: 120 60% 50%;
+    --learning-warning: 45 100% 60%;
+    --learning-error: 0 72% 51%;
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-subtle: 0 2px 8px -2px hsl(var(--foreground) / 0.1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     /* Mobile-first accessibility variables */
     --mobile-base-font-size: 14px;
     --desktop-base-font-size: 16px;
@@ -397,5 +405,33 @@
   /* Quick Study Challenges Layout (optimized for mobile) */
   .challenge-container {
     @apply grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr];
+  }
+
+  /* Phase 3 QA Polish Utilities */
+  .ui-polish-container {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .ui-polish-spacing {
+    @apply space-y-4 sm:space-y-6 md:space-y-8;
+  }
+
+  .ui-polish-card {
+    @apply bg-card rounded-lg border shadow-[var(--shadow-subtle)] transition-[var(--transition-smooth)];
+  }
+
+  .ui-polish-button {
+    @apply min-h-[44px] transition-[var(--transition-smooth)] hover:shadow-[var(--shadow-elegant)];
+  }
+
+  .ui-polish-text {
+    @apply text-foreground/90 leading-relaxed;
+  }
+
+  /* Remove debug styles in production */
+  .no-debug .dev-only,
+  .no-debug [data-debug],
+  .no-debug [data-dev-only] {
+    @apply hidden;
   }
 }

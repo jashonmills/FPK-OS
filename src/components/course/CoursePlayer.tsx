@@ -5,6 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useProgressTracking } from '@/hooks/useProgressTracking';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useLanguageConsistency } from '@/hooks/useLanguageConsistency';
 import { iframeAnalytics } from '@/utils/iframeAnalytics';
 
 import { Loader2 } from 'lucide-react';
@@ -16,6 +17,10 @@ const CoursePlayer: React.FC = () => {
   const { user } = useAuth();
   const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
   const { trackPageView } = useAnalytics({ courseId: 'learning-state-beta' });
+  const { safeT, getCurrentLanguageInfo } = useLanguageConsistency({
+    maintainRouteOnLanguageChange: true,
+    logMissingKeys: true
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -185,8 +190,8 @@ const CoursePlayer: React.FC = () => {
       <iframe
         ref={iframeRef}
         src="https://preview--course-start-kit-react.lovable.app/"
-        title={t('courses.learningState.playerTitle')}
-        className="w-full h-full border-0"
+        title={String(safeT('courses.learningState.playerTitle', 'Course Player'))}
+        className="w-full h-full border-0 ui-polish-container"
         style={{ 
           minHeight,
           height: '100%'
