@@ -37,8 +37,6 @@ interface ChatMessage {
 }
 
 const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHeight = false }: ChatInterfaceProps) => {
-  console.log('💬 ChatInterface: Rendering component', { user: !!user, flashcards: flashcards?.length, insights: !!insights });
-  
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -46,38 +44,23 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
   const [voiceActive, setVoiceActive] = useState(false);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
   
-  console.log('💬 ChatInterface: Initializing hooks');
   const { toast } = useToast();
-  console.log('💬 ChatInterface: Toast hook initialized');
-  
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
-  console.log('💬 ChatInterface: Voice recording hook initialized');
-  
   const { awardFlashcardStudyXP } = useXPIntegration();
-  console.log('💬 ChatInterface: XP integration hook initialized');
-  
   const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
-  console.log('💬 ChatInterface: Local storage hook initialized');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { sessionState, startQuizSession, endSession } = useQuizSession();
-  console.log('💬 ChatInterface: Quiz session hook initialized');
 
   // Load previous messages
   useEffect(() => {
-    if (!user?.id) {
-      console.log('💬 ChatInterface: No user, skipping message load');
-      return;
-    }
+    if (!user?.id) return;
 
     const loadMessages = async () => {
       try {
-        console.log('💬 ChatInterface: Loading messages for session:', sessionId);
-        
         if (!sessionId) {
-          console.log('💬 ChatInterface: No session ID, creating new session');
           // Create a new session
           const { data, error } = await supabase
             .from('chat_sessions')
@@ -90,17 +73,15 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
             .single();
 
           if (error) {
-            console.error('💬 ChatInterface: Error creating chat session:', error);
+            console.error('Error creating chat session:', error);
             return;
           }
 
-          console.log('💬 ChatInterface: Created new session:', data.id);
           setSessionId(data.id);
           return;
         }
 
         // Load existing messages
-        console.log('💬 ChatInterface: Loading existing messages');
         const { data, error } = await supabase
           .from('chat_messages')
           .select('*')
@@ -108,18 +89,15 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
           .order('timestamp', { ascending: true });
 
         if (error) {
-          console.error('💬 ChatInterface: Error loading messages:', error);
+          console.error('Error loading messages:', error);
           return;
         }
 
         if (data && data.length > 0) {
-          console.log('💬 ChatInterface: Loaded messages:', data.length);
           setMessages(data as ChatMessage[]);
-        } else {
-          console.log('💬 ChatInterface: No existing messages');
         }
       } catch (error) {
-        console.error('💬 ChatInterface: Unexpected error in loadMessages:', error);
+        console.error('Unexpected error in loadMessages:', error);
       }
     };
 
