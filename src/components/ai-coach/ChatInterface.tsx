@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import QuizSessionWidget from './QuizSessionWidget';
 import { useQuizSession } from '@/hooks/useQuizSession';
-import ChatMessagesPane from '@/components/chat/ChatMessagesPane';
 
 interface ChatInterfaceProps {
   user: any;

@@ -20,7 +20,10 @@ export const useVoiceRecording = () => {
           const newDuration = prev + 1;
           // Auto-stop at 60 seconds
           if (newDuration >= maxRecordingTime) {
-            stopRecording();
+            // Stop recording safely without circular dependency
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+            }
             return maxRecordingTime;
           }
           return newDuration;
