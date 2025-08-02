@@ -90,12 +90,28 @@ export const useEnhancedAnalytics = ({ courseId, moduleId }: UseEnhancedAnalytic
     duration?: number
   ) => {
     if (moduleId && courseId) {
-      // Standard analytics
-      analytics.trackMediaInteraction(action, mediaType, moduleId, courseId, currentTime, user?.id);
-      
-      // GA4 enhanced media tracking
-      const action = eventType === 'complete' ? 'complete' : eventType as 'play' | 'pause';
-        if (action === 'complete' || action === 'play' || action === 'pause') {
+      // Handle completion separately since it's not in the standard analytics interface
+      if (action === 'complete') {
+        // Track completion via a separate event
+        analytics.sendEvent('media_completed', {
+          media_type: mediaType,
+          module_id: moduleId,
+          course_id: courseId,
+          current_time: currentTime,
+          duration,
+          user_id: user?.id,
+          category: 'media_engagement'
+        });
+        
+        // GA4 completion tracking
+        const progress = duration ? (currentTime / duration) * 100 : 0;
+        ga4.trackMediaEngagement('complete', mediaType, moduleId, courseId, progress, user?.id);
+      } else {
+        // Standard analytics for other actions
+        analytics.trackMediaInteraction(action, mediaType, moduleId, courseId, currentTime, user?.id);
+        
+        // GA4 enhanced media tracking for play/pause
+        if (action === 'play' || action === 'pause') {
           const progress = duration ? (currentTime / duration) * 100 : 0;
           ga4.trackMediaEngagement(action, mediaType, moduleId, courseId, progress, user?.id);
         }
