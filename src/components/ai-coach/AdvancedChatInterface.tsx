@@ -70,6 +70,32 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const getWelcomeMessage = () => {
+    if (chatMode === 'personal') {
+      return `Hello! I'm your AI Learning Coach with full access to your study data. I can help you with:
+
+🎯 **Personalized Study Guidance** - Based on your ${completedSessions.length} study sessions
+📚 **Flashcard Analysis** - Using your ${flashcards.length} flashcards  
+🧠 **Learning Pattern Insights** - From your study history
+🎮 **Quiz Sessions** - Just say "quiz me" to start practicing
+💡 **Study Tips** - Tailored to your learning style
+
+What would you like to work on today?`;
+    } else {
+      return `Hello! I'm your AI Learning Coach in General Knowledge mode. I can help you with:
+
+🌐 **General Academic Help** - Any subject or topic
+📖 **Research Assistance** - Finding and explaining concepts
+🧠 **Study Techniques** - General learning strategies
+💡 **Educational Guidance** - Academic advice and tips
+🔍 **Concept Explanations** - Breaking down complex ideas
+
+Note: In this mode, I don't access your personal study data. Switch to "My Data" mode for personalized assistance.
+
+What would you like to learn about today?`;
+    }
+  };
+
   const initializeSession = async () => {
     try {
       if (!sessionId) {
@@ -87,19 +113,11 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
         if (error) throw error;
         setSessionId(data.id);
         
-        // Add welcome message
+        // Add welcome message based on current mode
         setMessages([{
           id: 'welcome',
           role: 'assistant',
-          content: `Hello! I'm your AI Learning Coach with full access to your study data. I can help you with:
-
-🎯 **Personalized Study Guidance** - Based on your ${completedSessions.length} study sessions
-📚 **Flashcard Analysis** - Using your ${flashcards.length} flashcards  
-🧠 **Learning Pattern Insights** - From your study history
-🎮 **Quiz Sessions** - Just say "quiz me" to start practicing
-💡 **Study Tips** - Tailored to your learning style
-
-What would you like to work on today?`,
+          content: getWelcomeMessage(),
           timestamp: new Date().toISOString()
         }]);
       } else {
@@ -353,7 +371,18 @@ What specific topic from your studies would you like to dive deeper into?`;
               {/* Chat Mode Toggle */}
               <div className="flex rounded-lg border p-1">
                 <button
-                  onClick={() => setChatMode('personal')}
+                  onClick={() => {
+                    setChatMode('personal');
+                    // Update welcome message if this is the only message
+                    if (messages.length === 1 && messages[0].id === 'welcome') {
+                      setMessages([{
+                        id: 'welcome',
+                        role: 'assistant',
+                        content: getWelcomeMessage(),
+                        timestamp: new Date().toISOString()
+                      }]);
+                    }
+                  }}
                   className={cn(
                     "px-3 py-1 text-xs rounded transition-colors",
                     chatMode === 'personal' 
@@ -364,7 +393,18 @@ What specific topic from your studies would you like to dive deeper into?`;
                   🔒 My Data
                 </button>
                 <button
-                  onClick={() => setChatMode('general')}
+                  onClick={() => {
+                    setChatMode('general');
+                    // Update welcome message if this is the only message
+                    if (messages.length === 1 && messages[0].id === 'welcome') {
+                      setMessages([{
+                        id: 'welcome',
+                        role: 'assistant',
+                        content: getWelcomeMessage(),
+                        timestamp: new Date().toISOString()
+                      }]);
+                    }
+                  }}
                   className={cn(
                     "px-3 py-1 text-xs rounded transition-colors",
                     chatMode === 'general' 
