@@ -223,6 +223,8 @@ export const ANALYTICS_EVENTS = {
   MILESTONE_CREATED: 'milestone_created',
   MILESTONE_DELETED: 'milestone_deleted',
   PROGRESS_UPDATED: 'progress_updated',
+  GOAL_TEMPLATE_SELECTED: 'goal_template_selected',
+  GOAL_DEPENDENCY_CREATED: 'goal_dependency_created',
   GOAL_ABANDONED: 'goal_abandoned',
   // Page engagement events
   PAGE_VIEW: 'page_view',
