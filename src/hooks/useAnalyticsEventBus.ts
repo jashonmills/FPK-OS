@@ -107,6 +107,10 @@ export const useAnalyticsPublisher = () => {
     publishEvent(EVENTS.PAGE_EXIT, { pageName, timeSpent, ...metadata });
   };
 
+  const publishProgressUpdated = (goalId: string, oldProgress: number, newProgress: number, metadata = {}) => {
+    publishEvent(EVENTS.PROGRESS_UPDATED, { goalId, oldProgress, newProgress, progressDelta: newProgress - oldProgress, ...metadata });
+  };
+
   return {
     publishReadingSessionStart,
     publishReadingSessionEnd,
@@ -123,6 +127,8 @@ export const useAnalyticsPublisher = () => {
     // Page tracking events
     publishPageView,
     publishPageExit,
+    // Progress tracking events
+    publishProgressUpdated,
     publishEvent
   };
 };

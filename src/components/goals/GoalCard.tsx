@@ -26,6 +26,8 @@ import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useGoals } from '@/hooks/useGoals';
 import GoalEditForm from './GoalEditForm';
+import MilestoneManager from './MilestoneManager';
+import ManualProgressInput from './ManualProgressInput';
 
 interface GoalCardProps {
   goal: {
@@ -102,6 +104,14 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
 
   const milestones = parseMilestones(goal.milestones);
   const completedMilestones = milestones.filter((m: any) => m.completed).length;
+
+  const handleMilestonesUpdate = async (updatedMilestones: any[]) => {
+    try {
+      await updateGoal(goal.id, { milestones: updatedMilestones });
+    } catch (error) {
+      console.error('Error updating milestones:', error);
+    }
+  };
 
   return (
     <>
@@ -212,6 +222,24 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
                   {format(new Date(goal.target_date), 'MMM dd')}
                 </span>
               </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+            <MilestoneManager
+              goalId={goal.id}
+              milestones={milestones}
+              onMilestonesUpdate={handleMilestonesUpdate}
+            />
+            {goal.status !== 'completed' && (
+              <ManualProgressInput
+                goalId={goal.id}
+                currentProgress={goal.progress}
+                goalTitle={goal.title}
+                goalCategory={goal.category}
+                goalPriority={goal.priority}
+              />
             )}
           </div>
         </CardContent>
