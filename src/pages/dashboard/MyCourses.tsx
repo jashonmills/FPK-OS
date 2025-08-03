@@ -141,7 +141,7 @@ const MyCourses = () => {
         <CardContent className="flex-1 flex flex-col">
           <div className="flex-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
-              {course.instructor_name && (
+              {course.instructor_name && !isElSpellingCourse && (
                 <div className="flex items-center space-x-1">
                   <User className="h-4 w-4" />
                   <span>{course.instructor_name}</span>
