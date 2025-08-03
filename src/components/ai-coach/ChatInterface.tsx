@@ -60,6 +60,13 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
     // Critical validation: ensure user ID is valid before any database operations
     if (!user?.id || typeof user.id !== 'string') {
       console.warn('Invalid user ID for ChatInterface:', { userId: user?.id });
+      // Set a simple welcome message instead of failing
+      setMessages([{
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Hello! I\'m your AI Learning Coach. I\'m ready to help you with your studies once you\'re logged in properly.',
+        timestamp: new Date().toISOString()
+      }]);
       return;
     }
 
@@ -218,9 +225,20 @@ const ChatInterface = ({ user, completedSessions, flashcards, insights, fixedHei
 
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Add a fallback response when the AI service is unavailable
+      const fallbackResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "I'm temporarily unable to connect to my AI services. However, I'm still here to help! You can try uploading study materials, starting a quiz session, or check back in a moment.",
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, fallbackResponse]);
+      
       toast({
-        title: "Error",
-        description: "Failed to get a response. Please try again.",
+        title: "Connection Issue",
+        description: "AI services temporarily unavailable. Try again in a moment.",
         variant: "destructive"
       });
     } finally {

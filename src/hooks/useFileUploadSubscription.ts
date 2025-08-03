@@ -168,17 +168,17 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
             setIsConnected(true);
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.error('❌ File upload real-time connection failed:', status);
+          console.warn('⚠️ File upload connection status:', status);
           if (mountedRef.current) {
             setIsConnected(false);
           }
           
-          // Clean up the failed channel
+          // Clean up the failed channel and use polling fallback
           if (channelRef.current) {
             try {
               supabase.removeChannel(channelRef.current);
             } catch (error) {
-              console.warn('Error removing failed channel:', error);
+              // Silently handle cleanup errors
             }
             channelRef.current = null;
           }
