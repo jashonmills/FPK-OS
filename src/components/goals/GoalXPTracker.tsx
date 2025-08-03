@@ -8,7 +8,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { useGamificationContext } from '@/contexts/GamificationContext';
 
 const GoalXPTracker = () => {
-  const { goals = [], loading, error, refetchGoals } = useGoals();
+  const { goals = [], loading, error, refetch } = useGoals();
   const { userStats } = useGamificationContext();
   const [lastRefresh, setLastRefresh] = React.useState(Date.now());
 
@@ -16,7 +16,7 @@ const GoalXPTracker = () => {
   React.useEffect(() => {
     const refresh = () => {
       console.log('🔄 GoalXPTracker: Refreshing goals data');
-      refetchGoals();
+      refetch();
       setLastRefresh(Date.now());
     };
 
@@ -26,7 +26,7 @@ const GoalXPTracker = () => {
     const interval = setInterval(refresh, 30000);
     
     return () => clearInterval(interval);
-  }, [refetchGoals]);
+  }, [refetch]);
 
   // Debug logging
   React.useEffect(() => {
@@ -67,7 +67,7 @@ const GoalXPTracker = () => {
           <div className="text-center">
             <p className="text-white/80 mb-4">Unable to load goals data</p>
             <button 
-              onClick={() => refetchGoals()}
+              onClick={() => refetch()}
               className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition-colors"
             >
               Retry

@@ -1,48 +1,112 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
 
-export const useGoals = () => {
-  const { user } = useAuth();
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Singleton class to manage goals data globally
+class GoalsManager {
+  private static instance: GoalsManager;
+  private goals: Goal[] = [];
+  private loading: boolean = true;
+  private loadingPromise: Promise<Goal[]> | null = null;
+  private error: string | null = null;
+  private subscribers: Set<(goals: Goal[], loading: boolean, error: string | null) => void> = new Set();
+  private userId: string | null = null;
 
-  const fetchGoals = useCallback(async (retryCount = 0) => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
+  private constructor() {}
+
+  static getInstance(): GoalsManager {
+    if (!GoalsManager.instance) {
+      GoalsManager.instance = new GoalsManager();
+    }
+    return GoalsManager.instance;
+  }
+
+  subscribe(
+    userId: string | undefined,
+    callback: (goals: Goal[], loading: boolean, error: string | null) => void
+  ) {
+    this.subscribers.add(callback);
+    
+    // If user changed, reset state
+    if (this.userId !== userId) {
+      this.userId = userId || null;
+      this.goals = [];
+      this.loading = true;
+      this.error = null;
+      this.loadingPromise = null;
     }
 
+    // Immediately notify with current state
+    callback(this.goals, this.loading, this.error);
+    
+    // Load goals if user is available
+    if (userId) {
+      this.loadGoals(userId);
+    }
+    
+    return () => {
+      this.subscribers.delete(callback);
+    };
+  }
+
+  private notify() {
+    this.subscribers.forEach(callback => {
+      callback(this.goals, this.loading, this.error);
+    });
+  }
+
+  async loadGoals(userId: string, retryCount = 0): Promise<Goal[]> {
+    // If already loading for this user, return existing promise
+    if (this.loadingPromise && this.userId === userId) {
+      return this.loadingPromise;
+    }
+
+    // If already loaded for this user, return cached data
+    if (this.goals.length > 0 && !this.loading && this.userId === userId) {
+      return this.goals;
+    }
+
+    this.loading = true;
+    this.error = null;
+    this.notify();
+
+    this.loadingPromise = this.fetchGoals(userId, retryCount);
+    const result = await this.loadingPromise;
+    
+    this.loading = false;
+    this.loadingPromise = null;
+    this.notify();
+    
+    return result;
+  }
+
+  private async fetchGoals(userId: string, retryCount = 0): Promise<Goal[]> {
     try {
-      setLoading(true);
-      setError(null);
-      console.log('🎯 Fetching goals for user:', user.id, retryCount > 0 ? `(retry ${retryCount})` : '');
+      console.log('🎯 GoalsManager: Fetching goals for user:', userId, retryCount > 0 ? `(retry ${retryCount})` : '');
       
       const { data, error } = await supabase
         .from('goals')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error fetching goals:', error);
+        console.error('❌ GoalsManager: Error fetching goals:', error);
         
         // Retry logic for network failures
         if (retryCount < 2 && (error.message.includes('Failed to fetch') || error.message.includes('network'))) {
-          console.log(`🔄 Retrying goals fetch in ${(retryCount + 1) * 1000}ms...`);
-          setTimeout(() => fetchGoals(retryCount + 1), (retryCount + 1) * 1000);
-          return;
+          console.log(`🔄 GoalsManager: Retrying goals fetch in ${(retryCount + 1) * 1000}ms...`);
+          await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000));
+          return this.fetchGoals(userId, retryCount + 1);
         }
         
-        setError(error.message);
-        return;
+        this.error = error.message;
+        return [];
       }
 
-      console.log('🎯 Fetched goals:', data?.length || 0, data);
+      console.log('🎯 GoalsManager: Fetched goals:', data?.length || 0, data);
+      
       // Type assertion to handle the database string types
       const validatedGoals = (data || []).map(goal => ({
         ...goal,
@@ -51,56 +115,52 @@ export const useGoals = () => {
         category: goal.category || 'general'
       })) as Goal[];
       
-      setGoals(validatedGoals);
+      this.goals = validatedGoals;
+      this.error = null;
+      return validatedGoals;
     } catch (err) {
-      console.error('❌ Error in fetchGoals:', err);
+      console.error('❌ GoalsManager: Error in fetchGoals:', err);
       
       // Retry for network errors
       if (retryCount < 2) {
-        console.log(`🔄 Retrying goals fetch due to network error in ${(retryCount + 1) * 1000}ms...`);
-        setTimeout(() => fetchGoals(retryCount + 1), (retryCount + 1) * 1000);
-        return;
+        console.log(`🔄 GoalsManager: Retrying goals fetch due to network error in ${(retryCount + 1) * 1000}ms...`);
+        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000));
+        return this.fetchGoals(userId, retryCount + 1);
       }
       
-      setError('Failed to fetch goals');
-    } finally {
-      setLoading(false);
+      this.error = 'Failed to fetch goals';
+      return [];
     }
-  }, [user?.id]);
+  }
 
-  const createGoal = async (goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
-    if (!user?.id) return null;
-
+  async createGoal(userId: string, goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> {
     try {
-      setSaving(true);
       const { data, error } = await supabase
         .from('goals')
         .insert({
           ...goalData,
-          user_id: user.id,
+          user_id: userId,
         })
         .select()
         .single();
 
       if (error) {
-        console.error('❌ Error creating goal:', error);
+        console.error('❌ GoalsManager: Error creating goal:', error);
         return null;
       }
 
       const newGoal = data as Goal;
-      setGoals(prev => [newGoal, ...prev]);
+      this.goals = [newGoal, ...this.goals];
+      this.notify();
       return newGoal;
     } catch (err) {
-      console.error('❌ Error in createGoal:', err);
+      console.error('❌ GoalsManager: Error in createGoal:', err);
       return null;
-    } finally {
-      setSaving(false);
     }
-  };
+  }
 
-  const updateGoal = async (id: string, updates: GoalUpdate): Promise<void> => {
+  async updateGoal(id: string, updates: GoalUpdate): Promise<void> {
     try {
-      setSaving(true);
       const { data, error } = await supabase
         .from('goals')
         .update(updates)
@@ -109,73 +169,88 @@ export const useGoals = () => {
         .single();
 
       if (error) {
-        console.error('❌ Error updating goal:', error);
+        console.error('❌ GoalsManager: Error updating goal:', error);
         return;
       }
 
       const updatedGoal = data as Goal;
-      setGoals(prev => prev.map(goal => goal.id === id ? updatedGoal : goal));
+      this.goals = this.goals.map(goal => goal.id === id ? updatedGoal : goal);
+      this.notify();
     } catch (err) {
-      console.error('❌ Error in updateGoal:', err);
-    } finally {
-      setSaving(false);
+      console.error('❌ GoalsManager: Error in updateGoal:', err);
     }
-  };
+  }
 
-  const deleteGoal = async (id: string): Promise<void> => {
+  async deleteGoal(id: string): Promise<void> {
     try {
-      setSaving(true);
       const { error } = await supabase
         .from('goals')
         .delete()
         .eq('id', id);
 
       if (error) {
-        console.error('❌ Error deleting goal:', error);
+        console.error('❌ GoalsManager: Error deleting goal:', error);
         return;
       }
 
-      setGoals(prev => prev.filter(goal => goal.id !== id));
+      this.goals = this.goals.filter(goal => goal.id !== id);
+      this.notify();
     } catch (err) {
-      console.error('❌ Error in deleteGoal:', err);
-    } finally {
-      setSaving(false);
+      console.error('❌ GoalsManager: Error in deleteGoal:', err);
     }
-  };
+  }
+}
+
+export const useGoals = () => {
+  const { user } = useAuth();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const goalsManager = GoalsManager.getInstance();
 
   useEffect(() => {
-    fetchGoals();
+    // Subscribe to goals changes
+    const unsubscribe = goalsManager.subscribe(user?.id, (newGoals, isLoading, errorMessage) => {
+      setGoals(newGoals);
+      setLoading(isLoading);
+      setError(errorMessage);
+    });
 
-    // Set up real-time subscription for goals
-    if (user?.id) {
-      const channelId = `goals-changes-${user.id}-${Date.now()}`;
-      const channel = supabase
-        .channel(channelId)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'goals',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('🔄 Real-time goal update:', payload);
-            // Refetch goals on any change
-            fetchGoals();
-          }
-        )
-        .subscribe();
+    return unsubscribe;
+  }, [user?.id]);
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user?.id, fetchGoals]);
+  const createGoal = async (goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
+    if (!user?.id) return null;
+
+    setSaving(true);
+    const result = await goalsManager.createGoal(user.id, goalData);
+    setSaving(false);
+    return result;
+  };
+
+  const updateGoal = async (id: string, updates: GoalUpdate): Promise<void> => {
+    setSaving(true);
+    await goalsManager.updateGoal(id, updates);
+    setSaving(false);
+  };
+
+  const deleteGoal = async (id: string): Promise<void> => {
+    setSaving(true);
+    await goalsManager.deleteGoal(id);
+    setSaving(false);
+  };
+
+  const completeGoal = async (id: string): Promise<void> => {
+    await updateGoal(id, { status: 'completed', completed_at: new Date().toISOString() });
+  };
 
   const refetchGoals = useCallback(() => {
-    fetchGoals();
-  }, [fetchGoals]);
+    if (user?.id) {
+      return goalsManager.loadGoals(user.id);
+    }
+    return Promise.resolve([]);
+  }, [user?.id]);
 
   return {
     goals,
@@ -184,7 +259,8 @@ export const useGoals = () => {
     error,
     createGoal,
     updateGoal,
+    completeGoal,
     deleteGoal,
-    refetchGoals
+    refetch: refetchGoals
   };
 };

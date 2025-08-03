@@ -7,93 +7,72 @@ import type { Database } from '@/integrations/supabase/types';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
-// Global cache to prevent multiple simultaneous loads
-let globalProfileCache: Profile | null = null;
-let globalLoadingPromise: Promise<Profile | null> | null = null;
+// Singleton class to manage profile data globally
+class ProfileManager {
+  private static instance: ProfileManager;
+  private profile: Profile | null = null;
+  private loading: boolean = true;
+  private loadingPromise: Promise<Profile | null> | null = null;
+  private subscribers: Set<(profile: Profile | null, loading: boolean) => void> = new Set();
 
-export const useUserProfile = () => {
-  const [profile, setProfile] = useState<Profile | null>(globalProfileCache);
-  const [loading, setLoading] = useState(!globalProfileCache);
-  const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
-  const { i18n } = useTranslation();
-  const loadingRef = useRef(false);
+  private constructor() {}
 
-  useEffect(() => {
-    // Don't load if already loading or if we have cached data
-    if (loadingRef.current || globalProfileCache) {
-      if (globalProfileCache && !profile) {
-        setProfile(globalProfileCache);
-        setLoading(false);
-      }
-      return;
+  static getInstance(): ProfileManager {
+    if (!ProfileManager.instance) {
+      ProfileManager.instance = new ProfileManager();
     }
-    
-    loadProfile();
-  }, [profile]);
+    return ProfileManager.instance;
+  }
 
-  // Sync language when profile loads
-  useEffect(() => {
-    if (profile && profile.primary_language) {
-      const languageMap: { [key: string]: string } = {
-        'English': 'en',
-        'Spanish': 'es',
-        'Chinese': 'zh',
-        'Hindi': 'hi',
-        'French': 'fr',
-        'German': 'de',
-      };
+  subscribe(callback: (profile: Profile | null, loading: boolean) => void) {
+    this.subscribers.add(callback);
+    // Immediately notify with current state
+    callback(this.profile, this.loading);
+    
+    return () => {
+      this.subscribers.delete(callback);
+    };
+  }
+
+  private notify() {
+    this.subscribers.forEach(callback => {
+      callback(this.profile, this.loading);
+    });
+  }
+
+  async loadProfile(toast?: any): Promise<Profile | null> {
+    // If already loading, return existing promise
+    if (this.loadingPromise) {
+      return this.loadingPromise;
+    }
+
+    // If already loaded, return cached data
+    if (this.profile && !this.loading) {
+      return this.profile;
+    }
+
+    this.loading = true;
+    this.notify();
+
+    this.loadingPromise = this.fetchProfile(toast);
+    const result = await this.loadingPromise;
+    
+    this.loading = false;
+    this.loadingPromise = null;
+    this.notify();
+    
+    return result;
+  }
+
+  private async fetchProfile(toast?: any): Promise<Profile | null> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
       
-      const languageCode = languageMap[profile.primary_language] || 'en';
-      if (languageCode !== i18n.language) {
-        i18n.changeLanguage(languageCode);
-        localStorage.setItem('fpk-language', languageCode);
+      if (!user) {
+        return null;
       }
-    }
-  }, [profile, i18n]);
 
-  const loadProfile = async () => {
-    // Prevent multiple simultaneous loads
-    if (loadingRef.current) {
-      console.log('📊 Profile load already in progress, skipping');
-      return;
-    }
-    
-    // Use cached data if available
-    if (globalProfileCache) {
-      console.log('📊 Using cached profile data');
-      setProfile(globalProfileCache);
-      setLoading(false);
-      return;
-    }
-    
-    // If there's already a loading promise, wait for it
-    if (globalLoadingPromise) {
-      console.log('📊 Waiting for existing profile load promise');
-      const result = await globalLoadingPromise;
-      if (result) {
-        setProfile(result);
-        setLoading(false);
-      }
-      return;
-    }
-    
-    loadingRef.current = true;
-    setLoading(true);
-    
-    // Create the loading promise
-    globalLoadingPromise = (async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          setLoading(false);
-          loadingRef.current = false;
-          globalLoadingPromise = null;
-          return null;
-        }
-
-        console.log('📊 Loading profile for user:', user.id);
+      console.log('📊 ProfileManager: Loading profile for user:', user.id);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -103,17 +82,18 @@ export const useUserProfile = () => {
 
       if (error) {
         console.error('Error loading profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load profile data.",
-          variant: "destructive",
-        });
-        return;
+        if (toast) {
+          toast({
+            title: "Error",
+            description: "Failed to load profile data.",
+            variant: "destructive",
+          });
+        }
+        return null;
       }
 
       if (!data) {
-        console.log('📊 No profile found, creating default profile');
-        // Create default profile if it doesn't exist with correct accessibility defaults
+        console.log('📊 ProfileManager: No profile found, creating default profile');
         const defaultProfile: ProfileUpdate = {
           full_name: user.user_metadata?.full_name || '',
           display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '',
@@ -124,8 +104,8 @@ export const useUserProfile = () => {
           font_family: 'System',
           color_contrast: 'Standard',
           dual_language_enabled: false,
-          text_size: 3, // Medium (3)
-          line_spacing: 3, // Normal (3)
+          text_size: 3,
+          line_spacing: 3,
           push_notifications_enabled: false,
           two_factor_enabled: false,
           speech_to_text_enabled: false,
@@ -156,90 +136,133 @@ export const useUserProfile = () => {
 
         if (createError) {
           console.error('Error creating profile:', createError);
-          toast({
-            title: "Error",
-            description: "Failed to create profile.",
-            variant: "destructive",
-          });
-          return;
+          if (toast) {
+            toast({
+              title: "Error",
+              description: "Failed to create profile.",
+              variant: "destructive",
+            });
+          }
+          return null;
         }
 
-        console.log('📊 Created new profile:', newProfile);
-        globalProfileCache = newProfile;
-        setProfile(newProfile);
+        console.log('📊 ProfileManager: Created new profile:', newProfile);
+        this.profile = newProfile;
         return newProfile;
       } else {
-        console.log('📊 Loaded existing profile:', data);
-        globalProfileCache = data;
-        setProfile(data);
+        console.log('📊 ProfileManager: Loaded existing profile:', data);
+        this.profile = data;
         return data;
       }
     } catch (error) {
-      console.error('Error in loadProfile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load profile data.",
-        variant: "destructive",
-      });
+      console.error('Error in ProfileManager.fetchProfile:', error);
+      if (toast) {
+        toast({
+          title: "Error",
+          description: "Failed to load profile data.",
+          variant: "destructive",
+        });
+      }
       return null;
-    } finally {
-      setLoading(false);
-      loadingRef.current = false;
-      globalLoadingPromise = null;
     }
-  })();
-  
-  return globalLoadingPromise;
-};
+  }
 
-  const updateProfile = async (updates: ProfileUpdate, silent: boolean = false) => {
-    if (!profile) {
+  async updateProfile(updates: ProfileUpdate, toast?: any): Promise<void> {
+    if (!this.profile) {
       console.error('❌ No profile to update');
       return;
     }
 
-    console.log('💾 Updating profile with:', updates);
-    setSaving(true);
+    console.log('💾 ProfileManager: Updating profile with:', updates);
     
     try {
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('id', profile.id)
+        .eq('id', this.profile.id)
         .select()
         .single();
 
       if (error) {
         console.error('Error updating profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save settings.",
-          variant: "destructive",
-        });
+        if (toast) {
+          toast({
+            title: "Error",
+            description: "Failed to save settings.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
-      console.log('✅ Profile updated successfully:', data);
-      globalProfileCache = data; // Update cache
-      setProfile(data);
+      console.log('✅ ProfileManager: Profile updated successfully:', data);
+      this.profile = data;
+      this.notify();
       
-      // Only show success toast for manual saves, not auto-saves
-      if (!silent) {
+      if (toast) {
         toast({
           title: "Settings saved",
           description: "Your preferences have been updated successfully.",
         });
       }
     } catch (error) {
-      console.error('Error in updateProfile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save settings.",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
+      console.error('Error in ProfileManager.updateProfile:', error);
+      if (toast) {
+        toast({
+          title: "Error",
+          description: "Failed to save settings.",
+          variant: "destructive",
+        });
+      }
     }
+  }
+}
+
+export const useUserProfile = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+  const { i18n } = useTranslation();
+  const profileManager = ProfileManager.getInstance();
+
+  useEffect(() => {
+    // Subscribe to profile changes
+    const unsubscribe = profileManager.subscribe((newProfile, isLoading) => {
+      setProfile(newProfile);
+      setLoading(isLoading);
+    });
+
+    // Load profile if not already loaded
+    profileManager.loadProfile(toast);
+
+    return unsubscribe;
+  }, [toast]);
+
+  // Sync language when profile loads
+  useEffect(() => {
+    if (profile && profile.primary_language) {
+      const languageMap: { [key: string]: string } = {
+        'English': 'en',
+        'Spanish': 'es',
+        'Chinese': 'zh',
+        'Hindi': 'hi',
+        'French': 'fr',
+        'German': 'de',
+      };
+      
+      const languageCode = languageMap[profile.primary_language] || 'en';
+      if (languageCode !== i18n.language) {
+        i18n.changeLanguage(languageCode);
+        localStorage.setItem('fpk-language', languageCode);
+      }
+    }
+  }, [profile, i18n]);
+
+  const updateProfile = async (updates: ProfileUpdate, silent: boolean = false) => {
+    setSaving(true);
+    await profileManager.updateProfile(updates, silent ? undefined : toast);
+    setSaving(false);
   };
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
@@ -273,12 +296,16 @@ export const useUserProfile = () => {
     }
   };
 
+  const refetch = () => {
+    return profileManager.loadProfile(toast);
+  };
+
   return {
     profile,
     loading,
     saving,
     updateProfile,
     changePassword,
-    refetch: loadProfile,
+    refetch,
   };
 };

@@ -11,7 +11,7 @@ interface GoalDebugOverlayProps {
 }
 
 const GoalDebugOverlay: React.FC<GoalDebugOverlayProps> = ({ show, onToggle }) => {
-  const { goals, loading, error, refetchGoals } = useGoals();
+  const { goals, loading, error, refetch } = useGoals();
 
   if (!show) {
     return (
@@ -39,7 +39,7 @@ const GoalDebugOverlay: React.FC<GoalDebugOverlayProps> = ({ show, onToggle }) =
             </span>
             <div className="flex gap-2">
               <Button
-                onClick={refetchGoals}
+                onClick={refetch}
                 size="sm"
                 variant="outline"
                 className="h-6 px-2"

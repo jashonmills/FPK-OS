@@ -9,11 +9,11 @@ import { useGoals } from '@/hooks/useGoals';
 import GoalCreateForm from './GoalCreateForm';
 
 const ActiveLearningGoals = () => {
-  const { goals = [], loading, refetchGoals } = useGoals();
+  const { goals = [], loading, refetch } = useGoals();
   
   const handleGoalCreated = () => {
     // Refetch goals to update the UI
-    refetchGoals();
+    refetch();
   };
   
   if (loading) {
