@@ -181,14 +181,15 @@ function App() {
                             <LazyRoute><FeedbackDashboard /></LazyRoute>
                           } />
                           
+                          {/* Subscription Route */}
+                          <Route path="subscription" element={
+                            <LazyRoute><Subscription /></LazyRoute>
+                          } />
+                          
                           {/* Default redirect */}
                           <Route index element={<Navigate to="learner" replace />} />
                         </Route>
                         
-                        {/* Subscription Routes - Public Access for Account Creation */}
-                        <Route path="/subscription" element={
-                          <LazyRoute><Subscription /></LazyRoute>
-                        } />
                         <Route path="/subscription-success" element={
                           <LazyRoute><SubscriptionSuccess /></LazyRoute>
                         } />
