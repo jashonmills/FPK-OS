@@ -12,6 +12,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
 import RouteBoundary from '@/components/RouteBoundary';
+import BetaAccessGate from '@/components/beta/BetaAccessGate';
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
+const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,15 +79,16 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
         <AuthProvider>
-          <GamificationProvider>
-            <VoiceSettingsProvider>
-              <AccessibilityProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Routes>
+          <BetaAccessGate>
+            <GamificationProvider>
+              <VoiceSettingsProvider>
+                <AccessibilityProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/login" element={<Login />} />
                         
@@ -159,6 +162,9 @@ function App() {
                           <Route path="admin/thresholds" element={
                             <LazyRoute><ThresholdManagement /></LazyRoute>
                           } />
+                          <Route path="admin/beta" element={
+                            <LazyRoute><BetaManagement /></LazyRoute>
+                          } />
                           
                           {/* Default redirect */}
                           <Route index element={<Navigate to="learner" replace />} />
@@ -166,17 +172,18 @@ function App() {
                         
                         {/* 404 Route */}
                         <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                  </BrowserRouter>
-                </TooltipProvider>
-              </AccessibilityProvider>
-            </VoiceSettingsProvider>
-          </GamificationProvider>
-        </AuthProvider>
-      </I18nextProvider>
-    </QueryClientProvider>
-  );
-}
+                          </Routes>
+                        </Suspense>
+                      </BrowserRouter>
+                    </TooltipProvider>
+                  </AccessibilityProvider>
+                </VoiceSettingsProvider>
+              </GamificationProvider>
+            </BetaAccessGate>
+          </AuthProvider>
+        </I18nextProvider>
+      </QueryClientProvider>
+    );
+  }
 
 export default App;

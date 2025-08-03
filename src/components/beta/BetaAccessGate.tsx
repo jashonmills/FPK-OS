@@ -65,11 +65,11 @@ const BetaAccessGate: React.FC<BetaAccessGateProps> = ({
       // Method 2: Check database for beta access flag
       const { data, error } = await supabase
         .from('profiles')
-        .select('beta_access')
+        .select('*')
         .eq('id', user.id)
         .single();
 
-      if (!error && data?.beta_access) {
+      if (!error && (data as any)?.beta_access) {
         setHasAccess(true);
       }
     } catch (error) {
@@ -91,7 +91,7 @@ const BetaAccessGate: React.FC<BetaAccessGateProps> = ({
             id: user.id, 
             beta_access: true,
             beta_invite_code: inviteCode.trim().toUpperCase()
-          });
+          } as any);
         
         setHasAccess(true);
       } catch (error) {

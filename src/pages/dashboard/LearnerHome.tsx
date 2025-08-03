@@ -14,6 +14,8 @@ import GoalsOverview from '@/components/dashboard/GoalsOverview';
 import QuickNavigationGrid from '@/components/dashboard/QuickNavigationGrid';
 import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
 import AIInsightsSection from '@/components/dashboard/AIInsightsSection';
+import BetaOnboarding from '@/components/beta/BetaOnboarding';
+import FeedbackSystem from '@/components/beta/FeedbackSystem';
 
 const LearnerHome = () => {
   const { user } = useAuth();
@@ -45,6 +47,9 @@ const LearnerHome = () => {
 
   return (
     <div className="mobile-section-spacing">
+      {/* Beta Onboarding */}
+      <BetaOnboarding autoShow={true} />
+      
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
         <h1 className="mobile-heading-xl mb-2">
@@ -118,6 +123,11 @@ const LearnerHome = () => {
       <section>
         <h2 className="mobile-heading-md mb-3 sm:mb-4">Recent Activity</h2>
         <RecentActivityFeed />
+      </section>
+
+      {/* Beta Feedback Section */}
+      <section>
+        <FeedbackSystem currentPage="/dashboard/learner" />
       </section>
 
       {/* APOD Gallery Modal */}

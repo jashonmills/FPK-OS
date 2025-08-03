@@ -182,6 +182,48 @@ export type Database = {
         }
         Relationships: []
       }
+      beta_feedback: {
+        Row: {
+          category: string | null
+          contact_email: string | null
+          context_data: Json | null
+          created_at: string | null
+          feedback_type: string
+          id: string
+          message: string
+          rating: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          contact_email?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          feedback_type: string
+          id?: string
+          message: string
+          rating?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          contact_email?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          feedback_type?: string
+          id?: string
+          message?: string
+          rating?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       book_quiz_questions: {
         Row: {
           book_id: string
@@ -1477,6 +1519,8 @@ export type Database = {
         Row: {
           app_reminders: Json | null
           avatar_url: string | null
+          beta_access: boolean | null
+          beta_invite_code: string | null
           bio: string | null
           calendar_sync: Json | null
           color_contrast: string | null
@@ -1493,6 +1537,7 @@ export type Database = {
           last_activity_date: string | null
           learning_styles: string[] | null
           line_spacing: number | null
+          onboarding_completed: boolean | null
           primary_language: string | null
           push_notifications_enabled: boolean | null
           speech_to_text_enabled: boolean | null
@@ -1506,6 +1551,8 @@ export type Database = {
         Insert: {
           app_reminders?: Json | null
           avatar_url?: string | null
+          beta_access?: boolean | null
+          beta_invite_code?: string | null
           bio?: string | null
           calendar_sync?: Json | null
           color_contrast?: string | null
@@ -1522,6 +1569,7 @@ export type Database = {
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
+          onboarding_completed?: boolean | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
           speech_to_text_enabled?: boolean | null
@@ -1535,6 +1583,8 @@ export type Database = {
         Update: {
           app_reminders?: Json | null
           avatar_url?: string | null
+          beta_access?: boolean | null
+          beta_invite_code?: string | null
           bio?: string | null
           calendar_sync?: Json | null
           color_contrast?: string | null
@@ -1551,6 +1601,7 @@ export type Database = {
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
+          onboarding_completed?: boolean | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
           speech_to_text_enabled?: boolean | null

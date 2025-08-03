@@ -89,11 +89,11 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('onboarding_completed')
+        .select('*')
         .eq('id', user.id)
         .single();
 
-      const completed = data?.onboarding_completed || false;
+      const completed = (data as any)?.onboarding_completed || false;
       setHasSeenOnboarding(completed);
       
       if (autoShow && !completed) {
@@ -116,7 +116,7 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
         .upsert({ 
           id: user.id, 
           onboarding_completed: true 
-        });
+        } as any);
       
       setHasSeenOnboarding(true);
     } catch (error) {

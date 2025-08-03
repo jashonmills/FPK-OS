@@ -210,11 +210,11 @@ const QATestRunner: React.FC = () => {
   const getCategoryIcon = (category: TestCase['category']) => {
     switch (category) {
       case 'media':
-        return <Play className="w-4 h-4" />;
+        return Play;
       case 'responsive':
-        return <Monitor className="w-4 h-4" />;
+        return Monitor;
       default:
-        return <CheckCircle className="w-4 h-4" />;
+        return CheckCircle;
     }
   };
 
@@ -316,7 +316,7 @@ const QATestRunner: React.FC = () => {
                           {getStatusIcon(result?.status || 'pending')}
                           <div>
                             <div className="font-medium flex items-center">
-                              <IconComponent />
+                              <IconComponent className="w-4 h-4" />
                               <span className="ml-2">{test.name}</span>
                               <Badge 
                                 variant={test.priority === 'high' ? 'destructive' : 

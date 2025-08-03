@@ -75,18 +75,16 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
         user_email: user?.email
       };
 
-      // Submit to Supabase
+      // Submit to Supabase (using contact_submissions as fallback)
       const { error } = await supabase
-        .from('beta_feedback')
+        .from('contact_submissions')
         .insert({
           user_id: user?.id,
-          feedback_type: formData.type,
-          category: formData.category,
-          message: formData.message,
-          rating: formData.rating,
-          contact_email: formData.contact_email || user?.email,
-          context_data: contextData,
-          status: 'new'
+          name: user?.email || 'Beta User',
+          email: formData.contact_email || user?.email || 'unknown@example.com',
+          category: `beta_${formData.type}`,
+          message: `${formData.category ? `[${formData.category}] ` : ''}${formData.message}${formData.rating ? ` (Rating: ${formData.rating}/5)` : ''}`,
+          metadata: contextData
         });
 
       if (error) throw error;
