@@ -45,6 +45,8 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
+const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
+const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -167,6 +169,12 @@ function App() {
                           } />
                           <Route path="admin/beta" element={
                             <LazyRoute><BetaManagement /></LazyRoute>
+                          } />
+                          <Route path="subscription" element={
+                            <LazyRoute><Subscription /></LazyRoute>
+                          } />
+                          <Route path="subscription-success" element={
+                            <LazyRoute><SubscriptionSuccess /></LazyRoute>
                           } />
                           
                           {/* Default redirect */}

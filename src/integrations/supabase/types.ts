@@ -397,6 +397,95 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number | null
+          description: string | null
+          discount_percent: number | null
+          duration_months: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          discount_percent?: number | null
+          duration_months?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          discount_percent?: number | null
+          duration_months?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          redeemed_at: string
+          user_id: string | null
+        }
+        Insert: {
+          coupon_id?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          redeemed_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          coupon_id?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          redeemed_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupon_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_assets: {
         Row: {
           asset_type: string
@@ -2000,6 +2089,69 @@ export type Database = {
         }
         Relationships: []
       }
+      subscribers: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_id: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_id?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_id?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       threshold_audit_log: {
         Row: {
           action: string
@@ -2361,6 +2513,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "instructor" | "learner"
+      subscription_status:
+        | "active"
+        | "canceled"
+        | "past_due"
+        | "incomplete"
+        | "trialing"
+      subscription_tier: "basic" | "pro" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2489,6 +2648,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "instructor", "learner"],
+      subscription_status: [
+        "active",
+        "canceled",
+        "past_due",
+        "incomplete",
+        "trialing",
+      ],
+      subscription_tier: ["basic", "pro", "premium"],
     },
   },
 } as const
