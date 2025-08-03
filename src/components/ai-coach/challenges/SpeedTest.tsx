@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface SpeedTestProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface SpeedTestProps {
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes

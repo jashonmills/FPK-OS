@@ -15,6 +15,8 @@ import StudyPlanCard from '@/components/ai-coach/StudyPlanCard';
 import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
 import LearningStatsCard from '@/components/ai-coach/LearningStatsCard';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
+import AICoachEngagementCard from '@/components/ai-coach/AICoachEngagementCard';
+import AICoachPerformanceCard from '@/components/ai-coach/AICoachPerformanceCard';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
@@ -176,6 +178,14 @@ const AIStudyCoach = () => {
                 currentStreak={currentStreak}
                 progressToNextLevel={progressToNextLevel}
               />
+            </AccessibilityErrorBoundary>
+            
+            <AccessibilityErrorBoundary componentName="AICoachEngagementCard">
+              <AICoachEngagementCard />
+            </AccessibilityErrorBoundary>
+            
+            <AccessibilityErrorBoundary componentName="AICoachPerformanceCard">
+              <AICoachPerformanceCard />
             </AccessibilityErrorBoundary>
           </div>
         </div>

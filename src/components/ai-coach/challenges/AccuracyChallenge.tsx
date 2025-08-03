@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface AccuracyChallengeProps {
 
 const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);

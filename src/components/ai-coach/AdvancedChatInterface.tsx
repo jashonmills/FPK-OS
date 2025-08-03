@@ -11,6 +11,7 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useChatMode } from '@/hooks/useChatMode';
+import { useAICoachPerformanceAnalytics } from '@/hooks/useAICoachPerformanceAnalytics';
 import { cn } from '@/lib/utils';
 import ChatModeToggle from './ChatModeToggle';
 // import SaveToNotesDialog from './SaveToNotesDialog';
@@ -51,6 +52,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { chatMode, changeChatMode } = useChatMode();
+  const { trackResponseTime, trackModeSwitch, trackRAGEffectiveness } = useAICoachPerformanceAnalytics();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
@@ -309,6 +311,8 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
     setMessage('');
     setIsLoading(true);
 
+    const requestStartTime = performance.now();
+
     try {
       // Save user message to database
       if (sessionId) {
@@ -357,6 +361,8 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
           timestamp: new Date().toISOString()
         };
       } else {
+        const responseTime = performance.now() - requestStartTime;
+        
         aiResponse = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
@@ -364,6 +370,25 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
           timestamp: new Date().toISOString(),
           ragMetadata: data.ragMetadata
         };
+        
+        // Track performance analytics
+        trackResponseTime(
+          responseTime / 1000, // Convert to seconds
+          chatMode,
+          data.ragMetadata?.ragEnabled || false,
+          true
+        );
+        
+        // Track RAG effectiveness if available
+        if (data.ragMetadata) {
+          trackRAGEffectiveness(
+            'chat_query',
+            data.ragMetadata.ragEnabled,
+            data.ragMetadata.confidence || 0,
+            (data.ragMetadata.personalItems || 0) + (data.ragMetadata.externalItems || 0) + (data.ragMetadata.similarItems || 0),
+            true // Assume helpful for now - could be enhanced with user feedback
+          );
+        }
         
         // Handle API key missing warnings
         if (data.error === 'openai_key_missing' && chatMode === 'general') {
@@ -373,6 +398,7 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
             variant: "destructive"
           });
           changeChatMode('personal');
+          trackModeSwitch('general', 'personal', 'openai_key_missing');
         } else if (data.error === 'anthropic_key_missing' && chatMode === 'personal') {
           toast({
             title: "Anthropic API Key Required", 
@@ -380,6 +406,7 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
             variant: "destructive"
           });
           changeChatMode('general');
+          trackModeSwitch('personal', 'general', 'anthropic_key_missing');
         }
       }
 
@@ -399,6 +426,17 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
 
     } catch (error) {
       console.error('Chat error:', error);
+      
+      const responseTime = performance.now() - requestStartTime;
+      
+      // Track failed response
+      trackResponseTime(
+        responseTime / 1000,
+        chatMode,
+        false,
+        false,
+        'connection_error'
+      );
       
       const fallbackResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),

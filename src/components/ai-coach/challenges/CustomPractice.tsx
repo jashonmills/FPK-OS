@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface CustomPracticeProps {
   selectedCards: any[];
@@ -12,7 +12,7 @@ interface CustomPracticeProps {
 
 const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
   const { updateFlashcard } = useFlashcards();
-  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
