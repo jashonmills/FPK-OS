@@ -70,8 +70,8 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const getWelcomeMessage = () => {
-    if (chatMode === 'personal') {
+  const getWelcomeMessage = (mode = chatMode) => {
+    if (mode === 'personal') {
       return `Hello! I'm your AI Learning Coach with full access to your study data. I can help you with:
 
 🎯 **Personalized Study Guidance** - Based on your ${completedSessions.length} study sessions
@@ -143,9 +143,27 @@ What would you like to learn about today?`;
         .order('timestamp', { ascending: true });
 
       if (error) throw error;
-      setMessages(data as ChatMessage[]);
+      
+      if (data && data.length > 0) {
+        setMessages(data as ChatMessage[]);
+      } else {
+        // If no chat history, show welcome message
+        setMessages([{
+          id: 'welcome',
+          role: 'assistant',
+          content: getWelcomeMessage(),
+          timestamp: new Date().toISOString()
+        }]);
+      }
     } catch (error) {
       console.error('Error loading chat history:', error);
+      // On error, show welcome message
+      setMessages([{
+        id: 'welcome',
+        role: 'assistant',
+        content: getWelcomeMessage(),
+        timestamp: new Date().toISOString()
+      }]);
     }
   };
 
