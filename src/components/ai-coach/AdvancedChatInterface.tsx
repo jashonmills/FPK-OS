@@ -396,7 +396,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                       setMessages([{
                         id: 'welcome',
                         role: 'assistant',
-                        content: getWelcomeMessage(),
+                        content: getWelcomeMessage('personal'),
                         timestamp: new Date().toISOString()
                       }]);
                     }
@@ -418,7 +418,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                       setMessages([{
                         id: 'welcome',
                         role: 'assistant',
-                        content: getWelcomeMessage(),
+                        content: getWelcomeMessage('general'),
                         timestamp: new Date().toISOString()
                       }]);
                     }
