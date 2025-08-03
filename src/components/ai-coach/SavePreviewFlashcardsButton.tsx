@@ -24,26 +24,41 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
     setIsSaving(true);
     
     try {
-      console.log('🔄 Saving preview flashcards for upload:', uploadId);
+      console.log('🔄 Attempting to save preview flashcards for upload:', uploadId);
       
-      // Get the upload record first
+      // Get current user first
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('❌ User authentication failed:', userError);
+        throw new Error('User not authenticated');
+      }
+      
+      console.log('✅ User authenticated:', user.id);
+
+      // Get the upload record
+      console.log('🔍 Looking for upload record:', uploadId);
       const { data: upload, error: uploadError } = await supabase
         .from('file_uploads')
         .select('*')
         .eq('id', uploadId)
-        .single();
+        .maybeSingle();
 
-      if (uploadError || !upload) {
-        throw new Error('Upload record not found');
+      console.log('📄 Upload query result:', { upload, uploadError });
+
+      if (uploadError) {
+        console.error('❌ Database error fetching upload:', uploadError);
+        throw new Error(`Database error: ${uploadError.message}`);
       }
 
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error('User not authenticated');
+      if (!upload) {
+        console.error('❌ Upload record not found for ID:', uploadId);
+        throw new Error('Upload record not found. The file may have been deleted.');
       }
+
+      console.log('✅ Found upload record:', upload);
 
       // Call the edge function to re-process with previewMode: false
+      console.log('🚀 Calling process-file-flashcards edge function...');
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
           uploadId: upload.id,
@@ -55,25 +70,27 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
         }
       });
 
+      console.log('📡 Edge function response:', { data, error });
+
       if (error) {
-        console.error('Error saving flashcards:', error);
-        throw new Error(error.message || 'Failed to save flashcards');
+        console.error('❌ Edge function error:', error);
+        throw new Error(`Edge function failed: ${error.message || 'Unknown error'}`);
       }
 
       console.log('✅ Flashcards saved successfully:', data);
       
       toast({
         title: "Flashcards Saved!",
-        description: `Successfully saved ${data.flashcardsGenerated || flashcardsCount} flashcards from ${fileName}. You can now use them in memory tests.`,
+        description: `Successfully saved ${data?.flashcardsGenerated || flashcardsCount} flashcards from ${fileName}. You can now use them in memory tests.`,
       });
 
       onSuccess?.();
 
     } catch (error) {
-      console.error('❌ Error saving flashcards:', error);
+      console.error('❌ Complete error saving flashcards:', error);
       toast({
         title: "Save Failed",
-        description: error.message || 'Failed to save flashcards. Please try again.',
+        description: `${error.message || 'Failed to save flashcards. Please try again.'}`,
         variant: "destructive",
       });
     } finally {
