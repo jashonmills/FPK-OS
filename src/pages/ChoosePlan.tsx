@@ -11,46 +11,53 @@ import { Check, Star, Loader2, Gift } from 'lucide-react';
 
 interface PlanType {
   name: string;
-  price: number;
-  originalPrice: number;
-  billing: string;
-  popular?: boolean;
+  monthly: number;
+  annual: number;
   features: string[];
 }
 
 const PLANS: Record<string, PlanType> = {
-  monthly: {
-    name: 'Monthly',
-    price: 29,
-    originalPrice: 29,
-    billing: 'month',
+  basic: {
+    name: 'Basic',
+    monthly: 14.99,
+    annual: 14.99 * 12 * 0.9,
     features: [
-      'Access to all premium courses',
-      'Unlimited study sessions',
-      'AI-powered study coach',
-      'Progress tracking & analytics',
-      'Mobile app access',
-      'Community support'
+      'Access to basic AI coaching',
+      'Study progress tracking',
+      'Basic analytics',
+      'Email support'
     ]
   },
-  annual: {
-    name: 'Annual',
-    price: 199,
-    originalPrice: 348,
-    billing: 'year',
-    popular: true,
+  pro: {
+    name: 'Pro',
+    monthly: 39.99,
+    annual: 39.99 * 12 * 0.85,
     features: [
-      'Everything in Monthly plan',
-      '43% savings vs monthly',
-      'Priority customer support',
-      'Advanced analytics',
-      'Early access to new features',
-      'Exclusive webinars & content'
+      'Everything in Basic',
+      'Advanced AI coaching',
+      'Detailed analytics',
+      'Priority support',
+      'Custom study plans',
+      'Advanced flashcards'
+    ]
+  },
+  premium: {
+    name: 'Premium',
+    monthly: 59.99,
+    annual: 59.99 * 12 * 0.8,
+    features: [
+      'Everything in Pro',
+      'Unlimited AI interactions',
+      'Advanced course creation',
+      'White-label options',
+      'API access',
+      'Dedicated support'
     ]
   }
 };
 
 export default function ChoosePlan() {
+  const [isAnnual, setIsAnnual] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState(false);
@@ -58,9 +65,10 @@ export default function ChoosePlan() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubscribe = async (tier: 'basic' | 'pro' | 'premium', interval: 'monthly' | 'annual') => {
+  const handleSubscribe = async (tier: 'basic' | 'pro' | 'premium') => {
     try {
-      setLoading(`${tier}-${interval}`);
+      setLoading(tier);
+      const interval = isAnnual ? 'annual' : 'monthly';
       await createCheckout(tier, interval);
     } catch (error) {
       toast({
@@ -102,8 +110,10 @@ export default function ChoosePlan() {
     }
   };
 
-  const getDiscountPercentage = (plan: PlanType) => {
-    return Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100);
+  const getDiscountPercentage = (tier: 'basic' | 'pro' | 'premium') => {
+    if (tier === 'basic') return 10;
+    if (tier === 'pro') return 15;
+    return 20;
   };
 
   return (
@@ -116,64 +126,96 @@ export default function ChoosePlan() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {Object.entries(PLANS).map(([key, plan]) => (
-            <Card key={key} className={`relative ${plan.popular ? 'ring-2 ring-accent shadow-glow' : ''} bg-white/10 backdrop-blur border-white/20`}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-accent text-white font-semibold px-4 py-1 flex items-center gap-1">
-                    <Star className="h-3 w-3" />
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center text-white">
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-white/60">/{plan.billing}</span>
+        {/* Annual/Monthly Toggle */}
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <Label className="text-white">Monthly</Label>
+          <button
+            onClick={() => setIsAnnual(!isAnnual)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isAnnual ? 'bg-accent' : 'bg-white/20'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              isAnnual ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
+          <Label className="text-white">
+            Annual
+            <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save up to 20%</Badge>
+          </Label>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {Object.entries(PLANS).map(([key, plan]) => {
+            const tier = key as 'basic' | 'pro' | 'premium';
+            const price = isAnnual ? plan.annual : plan.monthly;
+            const monthlyPrice = isAnnual ? price / 12 : price;
+            const discount = isAnnual ? getDiscountPercentage(tier) : 0;
+            const isPopular = tier === 'pro';
+            
+            return (
+              <Card key={tier} className={`relative ${isPopular ? 'ring-2 ring-accent shadow-glow' : ''} bg-white/10 backdrop-blur border-white/20`}>
+                {isPopular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-accent text-white font-semibold px-4 py-1 flex items-center gap-1">
+                      <Star className="h-3 w-3" />
+                      Most Popular
+                    </Badge>
                   </div>
-                  {plan.originalPrice > plan.price && (
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-white/60 line-through text-sm">${plan.originalPrice}</span>
-                      <Badge variant="secondary" className="bg-accent/20 text-accent">
-                        Save {getDiscountPercentage(plan)}%
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3 text-white/90">
-                      <Check className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                )}
                 
-                <Button 
-                  onClick={() => handleSubscribe(key === 'monthly' ? 'pro' : 'premium', key === 'monthly' ? 'monthly' : 'annual')}
-                  disabled={loading === `${key === 'monthly' ? 'pro' : 'premium'}-${key === 'monthly' ? 'monthly' : 'annual'}`}
-                  className={`w-full ${plan.popular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`}
-                  size="lg"
-                >
-                  {loading === `${key === 'monthly' ? 'pro' : 'premium'}-${key === 'monthly' ? 'monthly' : 'annual'}` ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    `Subscribe ${plan.name}`
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                <CardHeader className="text-center text-white">
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-4xl font-bold">${monthlyPrice.toFixed(2)}</span>
+                      <span className="text-white/60">/month</span>
+                    </div>
+                    {isAnnual && discount > 0 && (
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-white/60 line-through text-sm">${plan.monthly.toFixed(2)}/month</span>
+                        <Badge variant="secondary" className="bg-accent/20 text-accent">
+                          {discount}% off
+                        </Badge>
+                      </div>
+                    )}
+                    {isAnnual && (
+                      <div className="text-sm text-white/60">
+                        Billed annually: ${price.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3 text-white/90">
+                        <Check className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    onClick={() => handleSubscribe(tier)}
+                    disabled={loading === tier}
+                    className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`}
+                    size="lg"
+                  >
+                    {loading === tier ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Subscribe to ${plan.name}`
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Free Access with Coupon */}
