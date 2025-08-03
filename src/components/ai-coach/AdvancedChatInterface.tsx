@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 // import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { cn } from '@/lib/utils';
 // import SaveToNotesDialog from './SaveToNotesDialog';
 // import QuizSessionWidget from './QuizSessionWidget';
@@ -51,12 +53,11 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
   const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
-  const [ttsEnabled, setTtsEnabled] = useLocalStorage<boolean>('ai_coach_tts_enabled', false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   
   const { toast } = useToast();
+  const { speak, stop, isSpeaking, isSupported } = useTextToSpeech();
+  const { settings, toggle } = useVoiceSettings();
   // const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   // const { sessionState, startQuizSession } = useQuizSession();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -171,19 +172,9 @@ What would you like to learn about today?`;
     }
   };
 
-  // Text-to-Speech functionality
-  const speakText = useCallback((text: string) => {
-    if (!ttsEnabled || !('speechSynthesis' in window)) return;
-
-    // Stop any current speech
-    if (currentUtterance) {
-      speechSynthesis.cancel();
-      setCurrentUtterance(null);
-      setIsSpeaking(false);
-    }
-
-    // Clean text for better speech (remove markdown, emojis, etc.)
-    const cleanText = text
+  // Clean text for speech synthesis
+  const cleanTextForSpeech = useCallback((text: string) => {
+    return text
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
       .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
       .replace(/#{1,6}\s*(.*)/g, '$1') // Remove headers
@@ -191,79 +182,21 @@ What would you like to learn about today?`;
       .replace(/\n\s*\n/g, '. ') // Replace double line breaks with periods
       .replace(/\n/g, ' ') // Replace single line breaks with spaces
       .trim();
-
-    if (!cleanText) return;
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    // Configure voice settings
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 0.8;
-
-    // Try to use a pleasant voice
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.name.includes('Google') || 
-      voice.name.includes('Microsoft') ||
-      voice.lang.startsWith('en')
-    );
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      setCurrentUtterance(utterance);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setCurrentUtterance(null);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setCurrentUtterance(null);
-      toast({
-        title: "Speech Error",
-        description: "Unable to speak the message",
-        variant: "destructive"
-      });
-    };
-
-    speechSynthesis.speak(utterance);
-  }, [ttsEnabled, currentUtterance, toast]);
-
-  const stopSpeaking = useCallback(() => {
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
-    setCurrentUtterance(null);
   }, []);
 
-  const toggleTTS = useCallback(() => {
-    setTtsEnabled(!ttsEnabled);
-    if (!ttsEnabled) {
-      toast({
-        title: "Text-to-Speech Enabled",
-        description: "AI responses will now be spoken aloud",
-      });
-    } else {
-      stopSpeaking();
-      toast({
-        title: "Text-to-Speech Disabled",
-        description: "AI responses will no longer be spoken",
-      });
+  // Wrapper for speaking with text cleaning
+  const speakText = useCallback((text: string) => {
+    const cleanText = cleanTextForSpeech(text);
+    if (cleanText) {
+      speak(cleanText, { interrupt: true });
     }
-  }, [ttsEnabled, stopSpeaking, toast]);
+  }, [speak, cleanTextForSpeech]);
 
   // Auto-speak new AI messages when TTS is enabled
   useEffect(() => {
-    console.log('TTS Effect triggered:', { ttsEnabled, messagesLength: messages.length, isLoading });
+    console.log('TTS Effect triggered:', { ttsEnabled: settings.enabled, messagesLength: messages.length, isLoading });
     
-    if (ttsEnabled && messages.length > 0 && !isLoading) {
+    if (settings.enabled && settings.autoRead && messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
       console.log('Last message:', { id: lastMessage.id, role: lastMessage.role, lastSpokenId: lastSpokenMessageId });
       
@@ -273,13 +206,13 @@ What would you like to learn about today?`;
         
         // Small delay to ensure message is fully rendered
         setTimeout(() => {
-          if (ttsEnabled) { // Double-check TTS is still enabled
+          if (settings.enabled) { // Double-check TTS is still enabled
             speakText(lastMessage.content);
           }
         }, 500);
       }
     }
-  }, [messages, ttsEnabled, isLoading, lastSpokenMessageId]); // Removed speakText from dependencies
+  }, [messages, settings.enabled, settings.autoRead, isLoading, lastSpokenMessageId, speakText]);
 
   // Clean up speech synthesis on unmount
   useEffect(() => {
@@ -477,7 +410,7 @@ What specific topic from your studies would you like to dive deeper into?`;
   const clearChat = async () => {
     try {
       // Stop any current speech and reset tracking
-      stopSpeaking();
+      stop();
       setLastSpokenMessageId(null);
       
       if (sessionId) {
@@ -568,21 +501,21 @@ What specific topic from your studies would you like to dive deeper into?`;
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={toggleTTS}
+                  onClick={toggle}
                   className={cn(
                     "h-8 w-8 p-0",
-                    ttsEnabled ? "text-green-600 bg-green-50" : "text-gray-500"
+                    settings.enabled ? "text-green-600 bg-green-50" : "text-gray-500"
                   )}
-                  title={ttsEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
+                  title={settings.enabled ? "Disable text-to-speech" : "Enable text-to-speech"}
                 >
-                  {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                  {settings.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                 </Button>
                 
                 {isSpeaking && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={stopSpeaking}
+                    onClick={stop}
                     className="h-8 w-8 p-0 text-red-600 bg-red-50"
                     title="Stop speaking"
                   >
@@ -738,7 +671,7 @@ What specific topic from your studies would you like to dive deeper into?`;
             <div className="flex justify-between items-center text-xs text-gray-500">
               <div className="flex items-center gap-4">
                 <span>💡 Try: "Quiz me", "Analyze my progress", or "Study tips"</span>
-                {ttsEnabled && (
+                {settings.enabled && (
                   <div className="flex items-center gap-1 text-green-600">
                     <Volume2 className="h-3 w-3" />
                     <span>TTS Enabled</span>
