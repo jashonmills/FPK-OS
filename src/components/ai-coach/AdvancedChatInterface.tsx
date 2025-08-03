@@ -149,6 +149,24 @@ What would you like to work on today?`,
       setShowQuizWidget(true);
       setMessage('');
       return;
+    } else if (detectQuizRequest(message) && (!flashcards || flashcards.length === 0)) {
+      // Handle no flashcards available
+      const noCardsMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `I'd love to start a quiz session with you! However, you don't have any flashcards yet. 
+
+📚 **To get started:**
+1. Upload study materials using the file upload card
+2. The AI will automatically generate flashcards from your content
+3. Then you can say "quiz me" to practice!
+
+You can upload PDFs, documents, or text files and I'll create personalized flashcards for you.`,
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, noCardsMessage]);
+      setMessage('');
+      return;
     }
 
     const userMessage: ChatMessage = {
