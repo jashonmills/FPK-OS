@@ -8,8 +8,13 @@ import { useGoals } from '@/hooks/useGoals';
 import { useGamificationContext } from '@/contexts/GamificationContext';
 
 const GoalXPTracker = () => {
-  const { goals = [], loading } = useGoals();
+  const { goals = [], loading, refetchGoals } = useGoals();
   const { userStats } = useGamificationContext();
+
+  // Force refresh on mount to ensure data sync
+  React.useEffect(() => {
+    refetchGoals();
+  }, [refetchGoals]);
 
   if (loading) {
     return (
