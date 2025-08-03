@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface SpeedTestProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface SpeedTestProps {
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
@@ -68,29 +68,29 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   }, [isActive, timeLeft, completed, answeredCards]);
 
   const handleTimeUpCompletion = async () => {
-    const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
-    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
+    // const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+    // const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
     
-    await trackChallengeComplete(
-      'speed_test',
-      mode,
-      testCards.length,
-      answeredCards,
-      timeTaken,
-      startTime
-    );
+    // await trackChallengeComplete(
+    //   'speed_test',
+    //   mode,
+    //   testCards.length,
+    //   answeredCards,
+    //   timeTaken,
+    //   startTime
+    // );
   };
 
   const startTest = () => {
     setIsActive(true);
     setStartTime(Date.now());
     
-    // Track challenge start
-    if (!hasTrackedStart) {
-      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
-      trackChallengeStart('speed_test', mode, testCards.length);
-      setHasTrackedStart(true);
-    }
+    // Track challenge start - temporarily disabled
+    // if (!hasTrackedStart) {
+    //   const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+    //   trackChallengeStart('speed_test', mode, testCards.length);
+    //   setHasTrackedStart(true);
+    // }
   };
 
   const handleShowAnswer = () => {
@@ -117,18 +117,18 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
       setCompleted(true);
       setIsActive(false);
       
-      // Track completion when all cards are answered
-      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
-      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : (120 - timeLeft);
+      // Track completion when all cards are answered - temporarily disabled
+      // const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      // const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : (120 - timeLeft);
       
-      await trackChallengeComplete(
-        'speed_test',
-        mode,
-        testCards.length,
-        answeredCards + 1, // Include current card
-        timeTaken,
-        startTime
-      );
+      // await trackChallengeComplete(
+      //   'speed_test',
+      //   mode,
+      //   testCards.length,
+      //   answeredCards + 1, // Include current card
+      //   timeTaken,
+      //   startTime
+      // );
     }
   };
 

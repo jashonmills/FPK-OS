@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface CustomPracticeProps {
   selectedCards: any[];
@@ -12,7 +12,7 @@ interface CustomPracticeProps {
 
 const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
   const { updateFlashcard } = useFlashcards();
-  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -32,11 +32,11 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
   // Track challenge start when cards are ready and first shown
   useEffect(() => {
     if (selectedCards.length > 0 && !completed && !hasTrackedStart) {
-      trackChallengeStart('custom_practice', 'custom', selectedCards.length);
+      // trackChallengeStart('custom_practice', 'custom', selectedCards.length);
       setStartTime(Date.now());
       setHasTrackedStart(true);
     }
-  }, [selectedCards, completed, hasTrackedStart, trackChallengeStart]);
+  }, [selectedCards, completed, hasTrackedStart]);
 
   const handleNext = async () => {
     // Update review stats for current card
@@ -55,16 +55,16 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
     } else {
       setCompleted(true);
       
-      // Track completion
-      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 60;
-      await trackChallengeComplete(
-        'custom_practice',
-        'custom',
-        selectedCards.length,
-        selectedCards.length, // All cards are considered "correct" for custom practice
-        timeTaken,
-        startTime
-      );
+      // Track completion - temporarily disabled
+      // const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 60;
+      // await trackChallengeComplete(
+      //   'custom_practice',
+      //   'custom',
+      //   selectedCards.length,
+      //   selectedCards.length, // All cards are considered "correct" for custom practice
+      //   timeTaken,
+      //   startTime
+      // );
     }
   };
 

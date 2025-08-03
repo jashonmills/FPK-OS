@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+// import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
 interface AccuracyChallengeProps {
   flashcards?: any[];
@@ -13,7 +13,7 @@ interface AccuracyChallengeProps {
 
 const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
-  const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
+  // const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -64,12 +64,12 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
   // Track challenge start when cards are ready and first shown
   useEffect(() => {
     if (challengeCards.length > 0 && !completed && !hasTrackedStart) {
-      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
-      trackChallengeStart('accuracy_challenge', mode, challengeCards.length);
+      // const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      // trackChallengeStart('accuracy_challenge', mode, challengeCards.length);
       setStartTime(Date.now());
       setHasTrackedStart(true);
     }
-  }, [challengeCards, completed, hasTrackedStart, customCards, trackChallengeStart]);
+  }, [challengeCards, completed, hasTrackedStart, customCards]);
 
   const generateMultipleChoiceOptions = () => {
     if (!challengeCards[currentCard] || !flashcards) return;
@@ -115,19 +115,19 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     } else {
       setCompleted(true);
       
-      // Track completion with final score
-      const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
-      const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
-      const finalCorrect = score.correct + (selectedAnswer === challengeCards[currentCard].back_content ? 1 : 0);
+      // Track completion with final score - temporarily disabled
+      // const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
+      // const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120;
+      // const finalCorrect = score.correct + (selectedAnswer === challengeCards[currentCard].back_content ? 1 : 0);
       
-      await trackChallengeComplete(
-        'accuracy_challenge',
-        mode,
-        challengeCards.length,
-        finalCorrect,
-        timeTaken,
-        startTime
-      );
+      // await trackChallengeComplete(
+      //   'accuracy_challenge',
+      //   mode,
+      //   challengeCards.length,
+      //   finalCorrect,
+      //   timeTaken,
+      //   startTime
+      // );
     }
   };
 
