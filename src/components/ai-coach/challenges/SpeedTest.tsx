@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Zap, Timer, Check } from 'lucide-react';
+import { Zap, Timer, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
@@ -15,14 +15,48 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [showResult, setShowResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
   const [isActive, setIsActive] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   const [answeredCards, setAnsweredCards] = useState(0);
   const [testCards, setTestCards] = useState<any[]>([]);
+  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);
+
+  // Generate multiple choice options when cards change
+  useEffect(() => {
+    if (testCards.length > 0 && currentCard < testCards.length) {
+      const currentCardData = testCards[currentCard];
+      const correctAnswer = currentCardData.back_content;
+      
+      // Get other answers from different cards as distractors
+      const otherAnswers = testCards
+        .filter((_, index) => index !== currentCard)
+        .map(card => card.back_content)
+        .slice(0, 3);
+      
+      // If we don't have enough other answers, create some generic ones
+      const fallbackOptions = [
+        "This is not the correct answer",
+        "Another incorrect option",
+        "Yet another wrong choice"
+      ];
+      
+      while (otherAnswers.length < 3) {
+        otherAnswers.push(fallbackOptions[otherAnswers.length]);
+      }
+      
+      // Combine correct answer with distractors and shuffle
+      const allOptions = [correctAnswer, ...otherAnswers.slice(0, 3)];
+      const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
+      
+      setMultipleChoiceOptions(shuffledOptions);
+    }
+  }, [testCards, currentCard]);
 
   useEffect(() => {
     if (customCards && customCards.length > 0) {
@@ -93,17 +127,33 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     // }
   };
 
-  const handleShowAnswer = () => {
-    setShowAnswer(true);
+  const handleAnswerSelect = (answer: string) => {
+    if (selectedAnswer || showResult) return; // Prevent multiple selections
+    
+    setSelectedAnswer(answer);
+    setShowResult(true);
+    
+    const currentCardData = testCards[currentCard];
+    const isCorrect = answer === currentCardData.back_content;
+    
+    if (isCorrect) {
+      setCorrectAnswers(prev => prev + 1);
+    }
+    
+    // Auto-advance after 1 second
+    setTimeout(() => {
+      handleNext(isCorrect);
+    }, 1000);
   };
 
-  const handleNext = async () => {
+  const handleNext = async (wasCorrect?: boolean) => {
     // Update card stats
     const currentCardData = testCards[currentCard];
     if (currentCardData) {
       await updateFlashcard({
         id: currentCardData.id,
         times_reviewed: currentCardData.times_reviewed + 1,
+        times_correct: wasCorrect ? currentCardData.times_correct + 1 : currentCardData.times_correct,
         last_reviewed_at: new Date().toISOString()
       });
     }
@@ -112,7 +162,8 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     
     if (currentCard < testCards.length - 1) {
       setCurrentCard(currentCard + 1);
-      setShowAnswer(false);
+      setSelectedAnswer(null);
+      setShowResult(false);
     } else {
       setCompleted(true);
       setIsActive(false);
@@ -134,10 +185,12 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
 
   const handleRestart = () => {
     setCurrentCard(0);
-    setShowAnswer(false);
+    setSelectedAnswer(null);
+    setShowResult(false);
     setTimeLeft(120);
     setIsActive(false);
     setCompleted(false);
+    setCorrectAnswers(0);
     setAnsweredCards(0);
     setStartTime(null);
     setHasTrackedStart(false);
@@ -213,7 +266,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
           <Zap className="h-12 w-12 mx-auto text-blue-600 mb-4" />
           <h3 className="text-lg font-semibold mb-2">Speed Test Challenge</h3>
           <p className="text-muted-foreground mb-4">
-            Answer {testCards.length} cards in 2 minutes!
+            Answer {testCards.length} multiple choice questions in 2 minutes!
           </p>
           <p className="text-sm text-muted-foreground mb-4">
             {customCards && customCards.length > 0 
@@ -233,6 +286,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   if (completed) {
     const timeUsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 120 - timeLeft;
     const avgTimePerCard = answeredCards > 0 ? timeUsed / answeredCards : 0;
+    const accuracy = answeredCards > 0 ? (correctAnswers / answeredCards) * 100 : 0;
 
     return (
       <Card className="h-full bg-blue-50 border-blue-200">
@@ -241,6 +295,8 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
           <h3 className="text-lg font-semibold text-blue-800 mb-2">Speed Test Complete!</h3>
           <div className="space-y-2 text-blue-700 mb-4">
             <p>Cards Answered: {answeredCards}/{testCards.length}</p>
+            <p>Correct Answers: {correctAnswers}/{answeredCards}</p>
+            <p>Accuracy: {accuracy.toFixed(1)}%</p>
             <p>Time Used: {formatTime(timeUsed)}</p>
             {answeredCards > 0 && (
               <p>Avg Time/Card: {avgTimePerCard.toFixed(1)}s</p>
@@ -282,7 +338,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-          <p className="text-sm text-yellow-800">⚡ Quick! Answer as fast as you can</p>
+          <p className="text-sm text-yellow-800">⚡ Quick! Choose the correct answer</p>
         </div>
 
         <div className="bg-muted p-4 rounded-lg">
@@ -290,21 +346,53 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
           <p>{card.front_content}</p>
         </div>
 
-        {showAnswer && (
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <h4 className="font-medium mb-2 text-green-800">Answer</h4>
-            <p className="text-green-700 mb-4">{card.back_content}</p>
-            <Button onClick={handleNext} className="w-full">
-              {currentCard < testCards.length - 1 ? 'Next Card' : 'Finish Test'}
-            </Button>
-          </div>
-        )}
+        <div className="space-y-2">
+          {multipleChoiceOptions.map((option, index) => {
+            const isSelected = selectedAnswer === option;
+            const isCorrect = option === card.back_content;
+            const shouldShowResult = showResult;
+            
+            let buttonClass = "w-full text-left p-3 border rounded-lg transition-colors ";
+            
+            if (shouldShowResult) {
+              if (isSelected && isCorrect) {
+                buttonClass += "bg-green-100 border-green-300 text-green-800";
+              } else if (isSelected && !isCorrect) {
+                buttonClass += "bg-red-100 border-red-300 text-red-800";
+              } else if (isCorrect) {
+                buttonClass += "bg-green-100 border-green-300 text-green-800";
+              } else {
+                buttonClass += "bg-gray-100 border-gray-300 text-gray-600";
+              }
+            } else {
+              buttonClass += "hover:bg-blue-50 border-gray-200";
+            }
 
-        {!showAnswer && (
-          <Button onClick={handleShowAnswer} className="w-full">
-            Show Answer
-          </Button>
-        )}
+            return (
+              <Button
+                key={index}
+                variant="outline"
+                className={buttonClass}
+                onClick={() => handleAnswerSelect(option)}
+                disabled={showResult}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span>{option}</span>
+                  {shouldShowResult && isSelected && (
+                    isCorrect ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-600" />
+                    )
+                  )}
+                  {shouldShowResult && !isSelected && isCorrect && (
+                    <Check className="h-4 w-4 text-green-600" />
+                  )}
+                </div>
+              </Button>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
