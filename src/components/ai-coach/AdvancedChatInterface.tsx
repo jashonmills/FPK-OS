@@ -355,6 +355,23 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
           timestamp: new Date().toISOString(),
           ragMetadata: data.ragMetadata
         };
+        
+        // Handle API key missing warnings
+        if (data.error === 'openai_key_missing' && chatMode === 'general') {
+          toast({
+            title: "OpenAI API Key Required",
+            description: "General mode requires OpenAI configuration. Switching back to My Data mode.",
+            variant: "destructive"
+          });
+          setChatMode('personal');
+        } else if (data.error === 'anthropic_key_missing' && chatMode === 'personal') {
+          toast({
+            title: "Anthropic API Key Required", 
+            description: "My Data mode requires Anthropic configuration. Switching to General mode.",
+            variant: "destructive"
+          });
+          setChatMode('general');
+        }
       }
 
       setMessages(prev => [...prev, aiResponse]);
