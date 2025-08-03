@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAnalyticsPublisher } from '@/hooks/useAnalyticsEventBus';
 import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
 
 // Singleton class to manage goals data globally
@@ -208,6 +209,7 @@ export const useGoals = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const goalsManager = GoalsManager.getInstance();
+  const analytics = useAnalyticsPublisher();
 
   useEffect(() => {
     // Subscribe to goals changes
@@ -225,23 +227,74 @@ export const useGoals = () => {
 
     setSaving(true);
     const result = await goalsManager.createGoal(user.id, goalData);
+    
+    // Track goal creation analytics
+    if (result) {
+      analytics.publishGoalCreated(
+        result.id,
+        result.category || 'general',
+        result.priority || 'medium',
+        {
+          has_deadline: !!result.target_date,
+          milestone_count: Array.isArray(result.milestones) ? result.milestones.length : 0,
+          title: result.title
+        }
+      );
+    }
+    
     setSaving(false);
     return result;
   };
 
   const updateGoal = async (id: string, updates: GoalUpdate): Promise<void> => {
     setSaving(true);
+    
+    // Track goal update analytics
+    const originalGoal = goals.find(g => g.id === id);
+    if (originalGoal) {
+      analytics.publishGoalUpdated(id, updates, {
+        original_status: originalGoal.status,
+        new_status: updates.status || originalGoal.status,
+        progress_change: updates.progress !== undefined ? (updates.progress - originalGoal.progress) : 0
+      });
+    }
+    
     await goalsManager.updateGoal(id, updates);
     setSaving(false);
   };
 
   const deleteGoal = async (id: string): Promise<void> => {
     setSaving(true);
+    
+    // Track goal deletion analytics
+    const goalToDelete = goals.find(g => g.id === id);
+    if (goalToDelete) {
+      analytics.publishGoalDeleted(id, {
+        category: goalToDelete.category,
+        status: goalToDelete.status,
+        progress: goalToDelete.progress,
+        days_active: goalToDelete.created_at ? 
+          Math.ceil((Date.now() - new Date(goalToDelete.created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0
+      });
+    }
+    
     await goalsManager.deleteGoal(id);
     setSaving(false);
   };
 
   const completeGoal = async (id: string): Promise<void> => {
+    const goal = goals.find(g => g.id === id);
+    if (goal) {
+      // Track goal completion analytics
+      analytics.publishGoalCompleted(id, {
+        category: goal.category,
+        time_to_complete: goal.created_at ? 
+          Math.ceil((Date.now() - new Date(goal.created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+        final_progress: goal.progress,
+        milestone_count: Array.isArray(goal.milestones) ? goal.milestones.length : 0
+      });
+    }
+    
     await updateGoal(id, { status: 'completed', completed_at: new Date().toISOString() });
   };
 
@@ -270,6 +323,13 @@ export const useGoals = () => {
             milestoneId,
             milestone.title as string
           );
+          
+          // Track milestone completion analytics
+          analytics.publishMilestoneCompleted(goalId, milestoneId, {
+            milestone_title: milestone.title,
+            goal_category: goal.category,
+            goal_progress: goal.progress
+          });
         }
       } catch (error) {
         console.error('Error tracking milestone completion:', error);

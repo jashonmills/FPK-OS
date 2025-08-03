@@ -82,6 +82,31 @@ export const useAnalyticsPublisher = () => {
     publishEvent(EVENTS.STREAK_UPDATED, { streakType, count, ...metadata });
   };
 
+  // Goal-specific analytics events
+  const publishGoalCreated = (goalId: string, category: string, priority: string, metadata = {}) => {
+    publishEvent(EVENTS.GOAL_CREATED, { goalId, category, priority, ...metadata });
+  };
+
+  const publishGoalUpdated = (goalId: string, changes: Record<string, any>, metadata = {}) => {
+    publishEvent(EVENTS.GOAL_UPDATED, { goalId, changes, ...metadata });
+  };
+
+  const publishGoalDeleted = (goalId: string, metadata = {}) => {
+    publishEvent(EVENTS.GOAL_DELETED, { goalId, ...metadata });
+  };
+
+  const publishMilestoneCompleted = (goalId: string, milestoneId: string, metadata = {}) => {
+    publishEvent(EVENTS.MILESTONE_COMPLETED, { goalId, milestoneId, ...metadata });
+  };
+
+  const publishPageView = (pageName: string, metadata = {}) => {
+    publishEvent(EVENTS.PAGE_VIEW, { pageName, timestamp: Date.now(), ...metadata });
+  };
+
+  const publishPageExit = (pageName: string, timeSpent: number, metadata = {}) => {
+    publishEvent(EVENTS.PAGE_EXIT, { pageName, timeSpent, ...metadata });
+  };
+
   return {
     publishReadingSessionStart,
     publishReadingSessionEnd,
@@ -90,6 +115,14 @@ export const useAnalyticsPublisher = () => {
     publishGoalCompleted,
     publishFlashcardReviewed,
     publishStreakUpdated,
+    // New goal-specific events
+    publishGoalCreated,
+    publishGoalUpdated,
+    publishGoalDeleted,
+    publishMilestoneCompleted,
+    // Page tracking events
+    publishPageView,
+    publishPageExit,
     publishEvent
   };
 };

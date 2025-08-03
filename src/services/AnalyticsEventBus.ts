@@ -214,8 +214,17 @@ export const ANALYTICS_EVENTS = {
   STUDY_SESSION_COMPLETE: 'study_session_complete',
   FLASHCARD_REVIEWED: 'flashcard_reviewed',
   MODULE_COMPLETED: 'module_completed',
+  // Goal lifecycle events
   GOAL_CREATED: 'goal_created',
   GOAL_COMPLETED: 'goal_completed',
+  GOAL_UPDATED: 'goal_updated',
+  GOAL_DELETED: 'goal_deleted',
+  MILESTONE_COMPLETED: 'milestone_completed',
+  GOAL_ABANDONED: 'goal_abandoned',
+  // Page engagement events
+  PAGE_VIEW: 'page_view',
+  PAGE_EXIT: 'page_exit',
+  // Other events
   NOTE_CREATED: 'note_created',
   FILE_UPLOADED: 'file_uploaded',
   XP_EARNED: 'xp_earned',
