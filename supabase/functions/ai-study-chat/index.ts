@@ -68,7 +68,7 @@ serve(async (req) => {
 
     // Determine model and API based on chat mode
     const useOpenAI = chatMode === 'general';
-    const model = useOpenAI ? 'gpt-4.1-2025-04-14' : 'claude-3-5-sonnet-20241022';
+    const model = useOpenAI ? 'gpt-4.1-2025-04-14' : 'claude-sonnet-4-20250514';
     
     console.log(`🤖 Using ${useOpenAI ? 'OpenAI' : 'Claude'} model: ${model} for ${chatMode} mode with RAG enhancement`);
 
