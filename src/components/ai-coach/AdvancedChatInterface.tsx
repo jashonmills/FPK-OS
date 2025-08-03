@@ -6,12 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+// import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { cn } from '@/lib/utils';
-import SaveToNotesDialog from './SaveToNotesDialog';
-import QuizSessionWidget from './QuizSessionWidget';
-import { useQuizSession } from '@/hooks/useQuizSession';
+// import SaveToNotesDialog from './SaveToNotesDialog';
+// import QuizSessionWidget from './QuizSessionWidget';
+// import { useQuizSession } from '@/hooks/useQuizSession';
 
 interface ChatMessage {
   id: string;
@@ -53,8 +53,8 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
   
   const { toast } = useToast();
-  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
-  const { sessionState, startQuizSession } = useQuizSession();
+  // const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  // const { sessionState, startQuizSession } = useQuizSession();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -296,15 +296,11 @@ What specific topic from your studies would you like to dive deeper into?`;
   };
 
   const handleVoiceToggle = async () => {
-    if (isRecording) {
-      const transcript = await stopRecording();
-      if (transcript) {
-        setMessage(transcript);
-        inputRef.current?.focus();
-      }
-    } else {
-      await startRecording();
-    }
+    // Temporarily disabled
+    toast({
+      title: "Voice feature temporarily disabled",
+      description: "We're working on improving this feature"
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -444,17 +440,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                       {new Date(msg.timestamp).toLocaleTimeString()}
                     </span>
                     
-                    {msg.role === 'assistant' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-6 text-xs"
-                        onClick={() => handleSaveToNotes(msg)}
-                      >
-                        <Save className="h-3 w-3 mr-1" />
-                        Save
-                      </Button>
-                    )}
+                    {/* Temporarily disable save button */}
                   </div>
                 </div>
               </div>
@@ -504,13 +490,12 @@ What specific topic from your studies would you like to dive deeper into?`;
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0",
-                    isRecording && "text-red-500 animate-pulse"
+                    "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
                   )}
                   onClick={handleVoiceToggle}
-                  disabled={!user?.id || isProcessing}
+                  disabled={!user?.id}
                 >
-                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  <Mic className="h-4 w-4" />
                 </Button>
               </div>
               
@@ -527,12 +512,6 @@ What specific topic from your studies would you like to dive deeper into?`;
             <div className="flex justify-between items-center text-xs text-gray-500">
               <div className="flex items-center gap-4">
                 <span>💡 Try: "Quiz me", "Analyze my progress", or "Study tips"</span>
-                {isProcessing && (
-                  <span className="text-blue-600 flex items-center gap-1">
-                    <Zap className="h-3 w-3" />
-                    Processing voice...
-                  </span>
-                )}
               </div>
               
               <div className="flex items-center gap-2">
@@ -550,41 +529,7 @@ What specific topic from your studies would you like to dive deeper into?`;
         </CardContent>
       </Card>
 
-      {/* Save to Notes Dialog */}
-      {selectedMessage && (
-        <SaveToNotesDialog
-          isOpen={showSaveDialog}
-          onClose={() => {
-            setShowSaveDialog(false);
-            setSelectedMessage(null);
-          }}
-          content={selectedMessage.content}
-          originalQuestion={`AI Coach Response from ${new Date(selectedMessage.timestamp).toLocaleString()}`}
-          aiMode={chatMode}
-        />
-      )}
-
-      {/* Quiz Session Widget */}
-      {showQuizWidget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-2xl">
-            <QuizSessionWidget
-              onComplete={(results) => {
-                setShowQuizWidget(false);
-                const resultMessage: ChatMessage = {
-                  id: Date.now().toString(),
-                  role: 'assistant',
-                  content: `🎯 **Quiz Complete!**\n\n✅ Correct: ${results.correct}\n❌ Incorrect: ${results.incorrect}\n📊 Accuracy: ${Math.round((results.correct / (results.correct + results.incorrect)) * 100)}%\n\nGreat work! Keep practicing to improve your retention.`,
-                  timestamp: new Date().toISOString()
-                };
-                setMessages(prev => [...prev, resultMessage]);
-              }}
-              onCancel={() => setShowQuizWidget(false)}
-              autoStart={true}
-            />
-          </div>
-        </div>
-      )}
+      {/* Temporarily remove save dialog and quiz widget until dependencies are fixed */}
     </>
   );
 };
