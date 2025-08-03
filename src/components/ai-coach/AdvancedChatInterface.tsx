@@ -6,9 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap, Volume2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-// import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { cn } from '@/lib/utils';
 // import SaveToNotesDialog from './SaveToNotesDialog';
@@ -61,8 +61,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const { toast } = useToast();
   const { speak, stop, isSpeaking, isSupported } = useTextToSpeech();
   const { settings, toggle } = useVoiceSettings();
-  // const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
-  // const { sessionState, startQuizSession } = useQuizSession();
+  const voiceInput = useEnhancedVoiceInput();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -423,12 +422,41 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
 What specific topic from your studies would you like to dive deeper into?`;
   };
 
-  const handleVoiceToggle = async () => {
-    // Temporarily disabled
-    toast({
-      title: "Voice feature temporarily disabled",
-      description: "We're working on improving this feature"
-    });
+  const handleVoiceInput = async () => {
+    if (voiceInput.isRecording) {
+      try {
+        const transcribedText = await voiceInput.stopRecording();
+        if (transcribedText && transcribedText.trim()) {
+          setMessage(transcribedText.trim());
+          // Auto-send the message
+          setTimeout(() => {
+            if (transcribedText.trim()) {
+              handleSendMessage();
+            }
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error stopping voice recording:', error);
+        toast({
+          title: "Voice Input Error",
+          description: "Failed to process voice input. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      try {
+        await voiceInput.startRecording((text) => {
+          setMessage(text);
+        });
+      } catch (error) {
+        console.error('Error starting voice recording:', error);
+        toast({
+          title: "Voice Input Error", 
+          description: "Could not access microphone. Please check permissions.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -680,17 +708,23 @@ What specific topic from your studies would you like to dive deeper into?`;
                   className="pr-12"
                 />
                 
-                {/* Voice Recording Button */}
+                {/* Voice Input Button */}
                 <Button
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                    "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0",
+                    voiceInput.isRecording && "text-red-500"
                   )}
-                  onClick={handleVoiceToggle}
-                  disabled={!user?.id}
+                  onClick={handleVoiceInput}
+                  disabled={!user?.id || voiceInput.isProcessing}
+                  title={voiceInput.isRecording ? "Stop voice input" : "Start voice input"}
                 >
-                  <Mic className="h-4 w-4" />
+                  {voiceInput.isRecording ? (
+                    <MicOff className="h-4 w-4 animate-pulse" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
               
@@ -706,14 +740,23 @@ What specific topic from your studies would you like to dive deeper into?`;
             
             <div className="flex justify-between items-center text-xs text-gray-500">
               <div className="flex items-center gap-4">
-                <span>💡 Try: "Quiz me", "Analyze my progress", or "Study tips"</span>
-                {settings.enabled && (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <Volume2 className="h-3 w-3" />
-                    <span>TTS Enabled</span>
-                    {isSpeaking && <span className="animate-pulse">• Speaking</span>}
-                  </div>
-                )}
+                <span>💡 Try: "Quiz me", "Analyze my progress", or click mic to speak</span>
+                <div className="flex items-center gap-3">
+                  {settings.enabled && (
+                    <div className="flex items-center gap-1 text-green-600">
+                      <Volume2 className="h-3 w-3" />
+                      <span>TTS</span>
+                      {isSpeaking && <span className="animate-pulse">• Speaking</span>}
+                    </div>
+                  )}
+                  {voiceInput.isNativeSupported && (
+                    <div className="flex items-center gap-1 text-blue-600">
+                      <Mic className="h-3 w-3" />
+                      <span>Voice Input</span>
+                      {voiceInput.isRecording && <span className="animate-pulse">• Listening</span>}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="flex items-center gap-2">
