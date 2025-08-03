@@ -185,9 +185,7 @@ function App() {
                           <LazyRoute><SubscriptionSuccess /></LazyRoute>
                         } />
                         <Route path="/choose-plan" element={
-                          <BetaAccessGate>
-                            <LazyRoute><ChoosePlan /></LazyRoute>
-                          </BetaAccessGate>
+                          <LazyRoute><ChoosePlan /></LazyRoute>
                         } />
                         
                         {/* 404 Route */}
