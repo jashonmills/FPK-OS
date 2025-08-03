@@ -7,12 +7,14 @@ import ActiveLearningGoals from '@/components/goals/ActiveLearningGoals';
 import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
 import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
+import GoalDebugOverlay from '@/components/goals/GoalDebugOverlay';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
+  const [showDebug, setShowDebug] = React.useState(false);
   
   // Initialize automatic progress tracking
   useGoalProgressTracking();
@@ -64,6 +66,12 @@ const Gamification = () => {
           <GamificationDashboard />
         </TabsContent>
       </Tabs>
+
+      {/* Debug overlay for development */}
+      <GoalDebugOverlay
+        show={showDebug}
+        onToggle={() => setShowDebug(!showDebug)}
+      />
     </div>
   );
 };

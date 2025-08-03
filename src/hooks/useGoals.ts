@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
@@ -11,7 +11,7 @@ export const useGoals = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async (retryCount = 0) => {
     if (!user?.id) {
       setLoading(false);
       return;
@@ -19,7 +19,8 @@ export const useGoals = () => {
 
     try {
       setLoading(true);
-      console.log('🎯 Fetching goals for user:', user.id);
+      setError(null);
+      console.log('🎯 Fetching goals for user:', user.id, retryCount > 0 ? `(retry ${retryCount})` : '');
       
       const { data, error } = await supabase
         .from('goals')
@@ -29,20 +30,43 @@ export const useGoals = () => {
 
       if (error) {
         console.error('❌ Error fetching goals:', error);
+        
+        // Retry logic for network failures
+        if (retryCount < 2 && (error.message.includes('Failed to fetch') || error.message.includes('network'))) {
+          console.log(`🔄 Retrying goals fetch in ${(retryCount + 1) * 1000}ms...`);
+          setTimeout(() => fetchGoals(retryCount + 1), (retryCount + 1) * 1000);
+          return;
+        }
+        
         setError(error.message);
         return;
       }
 
-      console.log('🎯 Fetched goals:', data?.length || 0);
+      console.log('🎯 Fetched goals:', data?.length || 0, data);
       // Type assertion to handle the database string types
-      setGoals((data || []) as Goal[]);
+      const validatedGoals = (data || []).map(goal => ({
+        ...goal,
+        status: goal.status || 'active',
+        progress: goal.progress || 0,
+        category: goal.category || 'general'
+      })) as Goal[];
+      
+      setGoals(validatedGoals);
     } catch (err) {
       console.error('❌ Error in fetchGoals:', err);
+      
+      // Retry for network errors
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying goals fetch due to network error in ${(retryCount + 1) * 1000}ms...`);
+        setTimeout(() => fetchGoals(retryCount + 1), (retryCount + 1) * 1000);
+        return;
+      }
+      
       setError('Failed to fetch goals');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   const createGoal = async (goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
     if (!user?.id) return null;
@@ -121,11 +145,36 @@ export const useGoals = () => {
 
   useEffect(() => {
     fetchGoals();
-  }, [user?.id]);
 
-  const refetchGoals = () => {
+    // Set up real-time subscription for goals
+    if (user?.id) {
+      const channel = supabase
+        .channel('goals-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'goals',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('🔄 Real-time goal update:', payload);
+            // Refetch goals on any change
+            fetchGoals();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user?.id, fetchGoals]);
+
+  const refetchGoals = useCallback(() => {
     fetchGoals();
-  };
+  }, [fetchGoals]);
 
   return {
     goals,
