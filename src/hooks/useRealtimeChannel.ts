@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { channelRegistry } from '@/utils/realtimeChannelRegistry';
 
 interface RealtimeOptions {
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
@@ -23,63 +22,69 @@ export function useRealtimeChannel(
   
   const cbRef = useRef(callback);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const isSubscribedRef = useRef(false);
+  
+  // Update callback reference
   cbRef.current = callback;
 
   useEffect(() => {
+    // Prevent multiple subscriptions
+    if (isSubscribedRef.current) {
+      return;
+    }
+
     // Clean up existing channel if any
     if (channelRef.current) {
-      channelRef.current.unsubscribe();
+      try {
+        channelRef.current.unsubscribe();
+        supabase.removeChannel(channelRef.current);
+      } catch (error) {
+        console.warn('Error cleaning up channel:', error);
+      }
       channelRef.current = null;
     }
 
-    // Use registry to prevent duplicates
-    const channel = channelRegistry.getOrCreateChannel(channelName, () => {
-      return supabase
-        .channel(channelName)
-        .on(
-          'postgres_changes' as any,
-          {
-            event: options.event || '*',
-            schema: options.schema || 'public',
-            table: options.table,
-            filter: options.filter,
-          },
-          (payload) => cbRef.current(payload)
-        );
-    });
+    // Create new channel
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes' as any,
+        {
+          event: options.event || '*',
+          schema: options.schema || 'public',
+          table: options.table,
+          filter: options.filter,
+        },
+        (payload) => {
+          if (cbRef.current) {
+            cbRef.current(payload);
+          }
+        }
+      );
 
-    // Subscribe with health monitoring
+    // Subscribe once
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         console.debug(`✅ [RT] subscribed → ${options.table}.${options.event || '*'}`);
+        isSubscribedRef.current = true;
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         console.warn(`❌ [RT] ${status} → ${options.table}.${options.event || '*'}`);
-        // Auto-cleanup on error
-        channelRegistry.removeChannel(channelName);
+        isSubscribedRef.current = false;
       }
     });
 
     channelRef.current = channel;
 
-    // Reconnect logic on visibility change
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && channelRef.current) {
-        // Only resubscribe if the channel exists but isn't connected
-        const currentState = channelRef.current.state;
-        if (currentState === 'closed' || currentState === 'errored') {
-          console.debug(`🔄 [RT] reconnecting → ${options.table}`);
-          channelRef.current.subscribe();
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      console.debug(`🔌 Cleaning up channel: ${channelName}`);
+      isSubscribedRef.current = false;
       if (channelRef.current) {
-        console.debug(`🔌 Cleaning up channel: ${channelName}`);
-        channelRegistry.removeChannel(channelName);
+        try {
+          channelRef.current.unsubscribe();
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.warn('Error during cleanup:', error);
+        }
         channelRef.current = null;
       }
     };
