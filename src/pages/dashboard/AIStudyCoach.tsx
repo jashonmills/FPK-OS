@@ -9,7 +9,7 @@ import { useStudyInsights } from '@/hooks/useStudyInsights';
 import { useProactiveCoaching } from '@/hooks/useProactiveCoaching';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 import { featureFlagService } from '@/services/FeatureFlagService';
-import ChatInterface from '@/components/ai-coach/ChatInterface';
+import SimpleChatInterface from '@/components/ai-coach/SimpleChatInterface';
 import FileUploadCard from '@/components/ai-coach/FileUploadCard';
 import StudyPlanCard from '@/components/ai-coach/StudyPlanCard';
 import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
@@ -145,12 +145,9 @@ const AIStudyCoach = () => {
             <div className={cn(
               fixedHeightEnabled ? "h-[70vh] min-h-0" : "min-h-[600px]"
             )}>
-              <AccessibilityErrorBoundary componentName="ChatInterface">
-                <ChatInterface
+              <AccessibilityErrorBoundary componentName="SimpleChatInterface">
+                <SimpleChatInterface
                   user={user}
-                  completedSessions={completedSessions}
-                  flashcards={flashcards || []}
-                  insights={insights}
                   fixedHeight={fixedHeightEnabled}
                 />
               </AccessibilityErrorBoundary>

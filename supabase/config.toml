@@ -1,1 +1,38 @@
 project_id = "zgcegkmqfgznbpdplscz"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://zgcegkmqfgznbpdplscz.supabase.co"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_email = false
+enable_confirmations = false
+
+[functions.simple-ai-chat]
+verify_jwt = false
+
+[functions.ai-study-chat]
+verify_jwt = false
+
+[functions.generate-study-insights]
+verify_jwt = false
+
+[functions.process-user-content]
+verify_jwt = false
+
+[functions.retrieve-knowledge]
+verify_jwt = false
