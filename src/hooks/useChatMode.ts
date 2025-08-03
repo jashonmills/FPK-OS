@@ -23,6 +23,7 @@ export const useChatMode = () => {
   // Track mode changes for analytics
   const changeChatMode = (newMode: ChatMode) => {
     const previousMode = chatMode;
+    console.log('🔄 useChatMode: Changing mode from', previousMode, 'to', newMode);
     
     // Update state
     setChatMode(newMode);

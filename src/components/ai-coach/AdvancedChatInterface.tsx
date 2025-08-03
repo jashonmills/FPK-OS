@@ -533,6 +533,7 @@ What specific topic from your studies would you like to dive deeper into?`;
               <ChatModeToggle 
                 mode={chatMode} 
                 onModeChange={(mode) => {
+                  console.log('🔄 Mode change triggered:', { from: chatMode, to: mode });
                   changeChatMode(mode);
                   setLastSpokenMessageId(null); // Reset spoken tracking
                   // Update welcome message if this is the only message
