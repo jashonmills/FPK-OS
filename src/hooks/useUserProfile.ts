@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -7,16 +7,30 @@ import type { Database } from '@/integrations/supabase/types';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
+// Global cache to prevent multiple simultaneous loads
+let globalProfileCache: Profile | null = null;
+let globalLoadingPromise: Promise<Profile | null> | null = null;
+
 export const useUserProfile = () => {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(globalProfileCache);
+  const [loading, setLoading] = useState(!globalProfileCache);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { i18n } = useTranslation();
+  const loadingRef = useRef(false);
 
   useEffect(() => {
+    // Don't load if already loading or if we have cached data
+    if (loadingRef.current || globalProfileCache) {
+      if (globalProfileCache && !profile) {
+        setProfile(globalProfileCache);
+        setLoading(false);
+      }
+      return;
+    }
+    
     loadProfile();
-  }, []);
+  }, [profile]);
 
   // Sync language when profile loads
   useEffect(() => {
@@ -39,15 +53,47 @@ export const useUserProfile = () => {
   }, [profile, i18n]);
 
   const loadProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+    // Prevent multiple simultaneous loads
+    if (loadingRef.current) {
+      console.log('📊 Profile load already in progress, skipping');
+      return;
+    }
+    
+    // Use cached data if available
+    if (globalProfileCache) {
+      console.log('📊 Using cached profile data');
+      setProfile(globalProfileCache);
+      setLoading(false);
+      return;
+    }
+    
+    // If there's already a loading promise, wait for it
+    if (globalLoadingPromise) {
+      console.log('📊 Waiting for existing profile load promise');
+      const result = await globalLoadingPromise;
+      if (result) {
+        setProfile(result);
         setLoading(false);
-        return;
       }
+      return;
+    }
+    
+    loadingRef.current = true;
+    setLoading(true);
+    
+    // Create the loading promise
+    globalLoadingPromise = (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setLoading(false);
+          loadingRef.current = false;
+          globalLoadingPromise = null;
+          return null;
+        }
 
-      console.log('📊 Loading profile for user:', user.id);
+        console.log('📊 Loading profile for user:', user.id);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -119,10 +165,14 @@ export const useUserProfile = () => {
         }
 
         console.log('📊 Created new profile:', newProfile);
+        globalProfileCache = newProfile;
         setProfile(newProfile);
+        return newProfile;
       } else {
         console.log('📊 Loaded existing profile:', data);
+        globalProfileCache = data;
         setProfile(data);
+        return data;
       }
     } catch (error) {
       console.error('Error in loadProfile:', error);
@@ -131,10 +181,16 @@ export const useUserProfile = () => {
         description: "Failed to load profile data.",
         variant: "destructive",
       });
+      return null;
     } finally {
       setLoading(false);
+      loadingRef.current = false;
+      globalLoadingPromise = null;
     }
-  };
+  })();
+  
+  return globalLoadingPromise;
+};
 
   const updateProfile = async (updates: ProfileUpdate, silent: boolean = false) => {
     if (!profile) {
@@ -164,6 +220,7 @@ export const useUserProfile = () => {
       }
 
       console.log('✅ Profile updated successfully:', data);
+      globalProfileCache = data; // Update cache
       setProfile(data);
       
       // Only show success toast for manual saves, not auto-saves
