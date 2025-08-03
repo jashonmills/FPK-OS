@@ -79,22 +79,25 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
         <AuthProvider>
-          <BetaAccessGate>
-            <GamificationProvider>
-              <VoiceSettingsProvider>
-                <AccessibilityProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <BrowserRouter>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/login" element={<Login />} />
-                        
-                        {/* Dashboard Routes with Route Isolation */}
-                        <Route path="/dashboard/*" element={<DashboardLayout />}>
-                          <Route path="learner" element={
+          <GamificationProvider>
+            <VoiceSettingsProvider>
+              <AccessibilityProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/login" element={<Login />} />
+                          
+                          {/* Dashboard Routes with Beta Access Gate */}
+                          <Route path="/dashboard/*" element={
+                            <BetaAccessGate>
+                              <DashboardLayout />
+                            </BetaAccessGate>
+                          }>
+                            <Route path="learner" element={
                             <LazyRoute><LearnerHome /></LazyRoute>
                           } />
                           <Route path="learner/library" element={
@@ -179,11 +182,10 @@ function App() {
                   </AccessibilityProvider>
                 </VoiceSettingsProvider>
               </GamificationProvider>
-            </BetaAccessGate>
-          </AuthProvider>
-        </I18nextProvider>
-      </QueryClientProvider>
-    );
-  }
+            </AuthProvider>
+          </I18nextProvider>
+        </QueryClientProvider>
+      );
+    }
 
 export default App;
