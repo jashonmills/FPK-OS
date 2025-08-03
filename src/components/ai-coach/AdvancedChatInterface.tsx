@@ -54,6 +54,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [ttsEnabled, setTtsEnabled] = useLocalStorage<boolean>('ai_coach_tts_enabled', false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   
   const { toast } = useToast();
   // const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
@@ -260,14 +261,25 @@ What would you like to learn about today?`;
 
   // Auto-speak new AI messages when TTS is enabled
   useEffect(() => {
-    if (ttsEnabled && messages.length > 0) {
+    console.log('TTS Effect triggered:', { ttsEnabled, messagesLength: messages.length, isLoading });
+    
+    if (ttsEnabled && messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant' && !isLoading) {
+      console.log('Last message:', { id: lastMessage.id, role: lastMessage.role, lastSpokenId: lastSpokenMessageId });
+      
+      if (lastMessage.role === 'assistant' && lastMessage.id !== lastSpokenMessageId) {
+        console.log('Speaking new message:', lastMessage.id);
+        setLastSpokenMessageId(lastMessage.id);
+        
         // Small delay to ensure message is fully rendered
-        setTimeout(() => speakText(lastMessage.content), 500);
+        setTimeout(() => {
+          if (ttsEnabled) { // Double-check TTS is still enabled
+            speakText(lastMessage.content);
+          }
+        }, 500);
       }
     }
-  }, [messages, ttsEnabled, isLoading, speakText]);
+  }, [messages, ttsEnabled, isLoading, lastSpokenMessageId]); // Removed speakText from dependencies
 
   // Clean up speech synthesis on unmount
   useEffect(() => {
@@ -464,6 +476,10 @@ What specific topic from your studies would you like to dive deeper into?`;
 
   const clearChat = async () => {
     try {
+      // Stop any current speech and reset tracking
+      stopSpeaking();
+      setLastSpokenMessageId(null);
+      
       if (sessionId) {
         await supabase
           .from('chat_messages')
@@ -502,6 +518,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                 <button
                   onClick={() => {
                     setChatMode('personal');
+                    setLastSpokenMessageId(null); // Reset spoken tracking
                     // Update welcome message if this is the only message
                     if (messages.length === 1 && messages[0].id === 'welcome') {
                       setMessages([{
@@ -524,6 +541,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                 <button
                   onClick={() => {
                     setChatMode('general');
+                    setLastSpokenMessageId(null); // Reset spoken tracking
                     // Update welcome message if this is the only message
                     if (messages.length === 1 && messages[0].id === 'welcome') {
                       setMessages([{
