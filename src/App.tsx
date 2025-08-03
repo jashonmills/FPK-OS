@@ -98,7 +98,7 @@ function App() {
                           {/* Dashboard Routes with Beta Access Gate and Subscription Enforcement */}
                           <Route path="/dashboard/*" element={
                             <BetaAccessGate>
-                              <SubscriptionGate allowedPaths={['/choose-plan', '/subscription', '/subscription-success']}>
+                              <SubscriptionGate>
                                 <DashboardLayout />
                               </SubscriptionGate>
                             </BetaAccessGate>
