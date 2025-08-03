@@ -98,7 +98,7 @@ const MyCourses = () => {
     console.log('Final course route:', courseRoute);
 
     return (
-      <Card className="h-full hover:shadow-lg transition-shadow">
+      <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -124,8 +124,8 @@ const MyCourses = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
               {course.instructor_name && (
                 <div className="flex items-center space-x-1">
@@ -140,7 +140,9 @@ const MyCourses = () => {
                 </div>
               )}
             </div>
+          </div>
 
+          <div className="space-y-4 mt-4">
             {isEnrolled && progress && (
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
