@@ -48,6 +48,7 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
+const FeedbackDashboard = lazy(() => import("./pages/admin/FeedbackDashboard"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
@@ -175,6 +176,9 @@ function App() {
                           } />
                           <Route path="admin/beta" element={
                             <LazyRoute><BetaManagement /></LazyRoute>
+                          } />
+                          <Route path="admin/feedback" element={
+                            <LazyRoute><FeedbackDashboard /></LazyRoute>
                           } />
                           
                           {/* Default redirect */}

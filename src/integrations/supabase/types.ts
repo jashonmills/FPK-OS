@@ -2268,6 +2268,63 @@ export type Database = {
         }
         Relationships: []
       }
+      uat_sessions: {
+        Row: {
+          completed_goals: Json
+          feedback_submitted: boolean
+          id: string
+          last_activity: string
+          session_goals: Json
+          session_start: string
+          user_id: string
+        }
+        Insert: {
+          completed_goals?: Json
+          feedback_submitted?: boolean
+          id?: string
+          last_activity?: string
+          session_goals?: Json
+          session_start?: string
+          user_id: string
+        }
+        Update: {
+          completed_goals?: Json
+          feedback_submitted?: boolean
+          id?: string
+          last_activity?: string
+          session_goals?: Json
+          session_start?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      uat_testers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          is_active: boolean
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          role?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           awarded_at: string
@@ -2296,6 +2353,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_feedback: {
+        Row: {
+          created_at: string
+          description: string
+          feedback_type: string
+          id: string
+          page_url: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          screenshot_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          feedback_type: string
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          feedback_type?: string
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_purchases: {
         Row: {
