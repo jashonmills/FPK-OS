@@ -18,7 +18,8 @@ import DualLanguageText from '@/components/DualLanguageText';
 import { useGoals } from '@/hooks/useGoals';
 import { useAnalyticsPublisher } from '@/hooks/useAnalyticsEventBus';
 import { useXPIntegration } from '@/hooks/useXPIntegration';
-import { toast } from 'sonner';
+import { useNotifications } from '@/services/notificationService';
+import { toast } from '@/hooks/use-toast';
 
 interface ManualProgressInputProps {
   goalId: string;
@@ -39,6 +40,7 @@ const ManualProgressInput: React.FC<ManualProgressInputProps> = ({
   const { updateGoal } = useGoals();
   const analytics = useAnalyticsPublisher();
   const { awardGoalCompletionXP } = useXPIntegration();
+  const { sendGoalCompletedNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [newProgress, setNewProgress] = useState([currentProgress]);
   const [progressNote, setProgressNote] = useState('');
@@ -70,24 +72,26 @@ const ManualProgressInput: React.FC<ManualProgressInputProps> = ({
         completed: progressValue === 100
       });
 
-      // Award XP if goal is completed
+      // Award XP and send notification if goal is completed
       if (progressValue === 100) {
+        const xpEarned = goalPriority === 'high' ? 50 : goalPriority === 'medium' ? 30 : 20;
         await awardGoalCompletionXP(goalCategory, goalPriority);
+        await sendGoalCompletedNotification(goalTitle, xpEarned);
       }
 
       // Show success toast
       const isCompleted = progressValue === 100;
       if (isCompleted) {
-        toast.success('Goal completed! 🎉');
+        toast({ title: 'Goal completed! 🎉', description: 'Congratulations on reaching your goal!' });
       } else {
-        toast.success(`Progress updated to ${progressValue}%`);
+        toast({ title: 'Progress updated', description: `Updated to ${progressValue}%` });
       }
 
       setIsOpen(false);
       setProgressNote('');
     } catch (error) {
       console.error('Error updating progress:', error);
-      toast.error('Failed to update progress');
+      toast({ title: 'Error', description: 'Failed to update progress', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }

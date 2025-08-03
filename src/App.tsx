@@ -27,6 +27,7 @@ const MyCourses = lazy(() => import("./pages/dashboard/MyCourses"));
 const Notes = lazy(() => import("./pages/dashboard/Notes"));
 const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
 const Goals = lazy(() => import("./pages/dashboard/Goals"));
+const GoalInsights = lazy(() => import("./pages/dashboard/GoalInsights"));
 const Settings = lazy(() => import("./pages/dashboard/Settings"));
 const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
 const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
@@ -113,6 +114,9 @@ function App() {
                           } />
                           <Route path="learner/goals" element={
                             <LazyRoute><Goals /></LazyRoute>
+                          } />
+                          <Route path="learner/goals/insights" element={
+                            <LazyRoute><GoalInsights /></LazyRoute>
                           } />
                           <Route path="learner/notes" element={
                             <LazyRoute><Notes /></LazyRoute>

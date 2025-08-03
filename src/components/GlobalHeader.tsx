@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 const GlobalHeader = () => {
   const { user, signOut } = useAuth();
@@ -74,7 +74,7 @@ const GlobalHeader = () => {
           <LanguageSwitcher />
 
           {/* Notifications - Using the actual notification system */}
-          <NotificationDropdown />
+          <NotificationCenter />
 
           {/* User Menu */}
           <DropdownMenu>

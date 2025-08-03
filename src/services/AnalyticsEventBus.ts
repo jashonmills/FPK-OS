@@ -226,6 +226,13 @@ export const ANALYTICS_EVENTS = {
   GOAL_TEMPLATE_SELECTED: 'goal_template_selected',
   GOAL_DEPENDENCY_CREATED: 'goal_dependency_created',
   GOAL_ABANDONED: 'goal_abandoned',
+  // Insights events
+  INSIGHTS_VIEWED: 'insights_viewed',
+  CHART_INTERACTION: 'chart_interaction',
+  DATA_EXPORT_REQUESTED: 'data_export_requested',
+  // Notification events
+  NOTIFICATION_SENT: 'notification_sent',
+  NOTIFICATION_READ: 'notification_read',
   // Page engagement events
   PAGE_VIEW: 'page_view',
   PAGE_EXIT: 'page_exit',
