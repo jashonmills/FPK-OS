@@ -10,7 +10,9 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { useChatMode } from '@/hooks/useChatMode';
 import { cn } from '@/lib/utils';
+import ChatModeToggle from './ChatModeToggle';
 // import SaveToNotesDialog from './SaveToNotesDialog';
 // import QuizSessionWidget from './QuizSessionWidget';
 // import { useQuizSession } from '@/hooks/useQuizSession';
@@ -48,7 +50,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [chatMode, setChatMode] = useState<'personal' | 'general'>('personal');
+  const { chatMode, changeChatMode } = useChatMode();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
@@ -363,14 +365,14 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
             description: "General mode requires OpenAI configuration. Switching back to My Data mode.",
             variant: "destructive"
           });
-          setChatMode('personal');
+          changeChatMode('personal');
         } else if (data.error === 'anthropic_key_missing' && chatMode === 'personal') {
           toast({
             title: "Anthropic API Key Required", 
             description: "My Data mode requires Anthropic configuration. Switching to General mode.",
             variant: "destructive"
           });
-          setChatMode('general');
+          changeChatMode('general');
         }
       }
 
@@ -528,54 +530,23 @@ What specific topic from your studies would you like to dive deeper into?`;
             
             <div className="flex items-center gap-2">
               {/* Chat Mode Toggle */}
-              <div className="flex rounded-lg border p-1">
-                <button
-                  onClick={() => {
-                    setChatMode('personal');
-                    setLastSpokenMessageId(null); // Reset spoken tracking
-                    // Update welcome message if this is the only message
-                    if (messages.length === 1 && messages[0].id === 'welcome') {
-                      setMessages([{
-                        id: 'welcome',
-                        role: 'assistant',
-                        content: getWelcomeMessage('personal'),
-                        timestamp: new Date().toISOString()
-                      }]);
-                    }
-                  }}
-                  className={cn(
-                    "px-3 py-1 text-xs rounded transition-colors",
-                    chatMode === 'personal' 
-                      ? "bg-purple-100 text-purple-700 font-medium" 
-                      : "text-gray-600 hover:bg-gray-100"
-                  )}
-                >
-                  🔒 My Data
-                </button>
-                <button
-                  onClick={() => {
-                    setChatMode('general');
-                    setLastSpokenMessageId(null); // Reset spoken tracking
-                    // Update welcome message if this is the only message
-                    if (messages.length === 1 && messages[0].id === 'welcome') {
-                      setMessages([{
-                        id: 'welcome',
-                        role: 'assistant',
-                        content: getWelcomeMessage('general'),
-                        timestamp: new Date().toISOString()
-                      }]);
-                    }
-                  }}
-                  className={cn(
-                    "px-3 py-1 text-xs rounded transition-colors",
-                    chatMode === 'general' 
-                      ? "bg-blue-100 text-blue-700 font-medium" 
-                      : "text-gray-600 hover:bg-gray-100"
-                  )}
-                >
-                  🌐 General
-                </button>
-              </div>
+              <ChatModeToggle 
+                mode={chatMode} 
+                onModeChange={(mode) => {
+                  changeChatMode(mode);
+                  setLastSpokenMessageId(null); // Reset spoken tracking
+                  // Update welcome message if this is the only message
+                  if (messages.length === 1 && messages[0].id === 'welcome') {
+                    setMessages([{
+                      id: 'welcome',
+                      role: 'assistant',
+                      content: getWelcomeMessage(mode),
+                      timestamp: new Date().toISOString()
+                    }]);
+                  }
+                }}
+                className="scale-90"
+              />
               
               {/* Text-to-Speech Controls */}
               <div className="flex items-center gap-1">
