@@ -54,7 +54,7 @@ const GoalsOverview = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Set learning goals to track your progress and stay motivated
             </p>
-            <Button onClick={() => navigate('/dashboard/learner/gamification')}>
+            <Button onClick={() => navigate('/dashboard/learner/goals')}>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Goal
             </Button>
@@ -72,7 +72,7 @@ const GoalsOverview = () => {
             <Target className="h-5 w-5 text-blue-600" />
             Your Goals
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/learner/gamification')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/learner/goals')}>
             View All
           </Button>
         </CardTitle>

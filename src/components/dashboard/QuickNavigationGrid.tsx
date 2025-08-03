@@ -49,7 +49,7 @@ const QuickNavigationGrid = () => {
       title: 'Goals',
       description: 'Track your progress',
       icon: Target,
-      path: '/dashboard/learner/gamification',
+      path: '/dashboard/learner/goals',
       color: 'bg-red-500 hover:bg-red-600'
     },
     {
