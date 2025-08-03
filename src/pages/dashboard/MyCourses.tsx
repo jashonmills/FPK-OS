@@ -36,6 +36,11 @@ const MyCourses = () => {
                            course.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
       return matchesSearch && matchesDifficulty;
+    }).sort((a, b) => {
+      // Learning State course should be first
+      if (a.id === 'learning-state-beta') return -1;
+      if (b.id === 'learning-state-beta') return 1;
+      return 0;
     });
   };
 
@@ -71,6 +76,15 @@ const MyCourses = () => {
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
+    const isElSpellingCourse = course.id === 'el-spelling-reading';
+
+    // Get display title for the course
+    const getDisplayTitle = () => {
+      if (isElSpellingCourse) {
+        return course.title.replace('& Reading', '').trim();
+      }
+      return course.title;
+    };
 
     // Fixed course route logic
     const getCourseRoute = () => {
@@ -85,7 +99,7 @@ const MyCourses = () => {
       }
       
       // Special case for EL Spelling & Reading course
-      if (course.id === 'el-spelling-reading') {
+      if (isElSpellingCourse) {
         return 'https://course-start-kit-react.lovable.app/el-spelling';
       }
       
@@ -102,7 +116,7 @@ const MyCourses = () => {
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <CardTitle className="text-lg">{course.title}</CardTitle>
+              <CardTitle className="text-lg">{getDisplayTitle()}</CardTitle>
               <CardDescription className="mt-2 line-clamp-2">
                 {course.description}
               </CardDescription>
@@ -113,7 +127,7 @@ const MyCourses = () => {
                   Featured
                 </Badge>
               )}
-              {isLearningStateCourse && (
+              {(isLearningStateCourse || isElSpellingCourse) && (
                 <Badge variant="default" className="fpk-gradient text-white">
                   Beta
                 </Badge>
