@@ -148,8 +148,9 @@ export const useGoals = () => {
 
     // Set up real-time subscription for goals
     if (user?.id) {
+      const channelId = `goals-changes-${user.id}-${Date.now()}`;
       const channel = supabase
-        .channel('goals-changes')
+        .channel(channelId)
         .on(
           'postgres_changes',
           {

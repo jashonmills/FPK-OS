@@ -2,14 +2,14 @@
 import React from 'react';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 
 const Goals = () => {
   // Initialize automatic progress tracking
   useGoalProgressTracking();
   
   return (
-    <ErrorBoundary>
+    <AccessibilityErrorBoundary componentName="Goals Page">
       <div className="mobile-section-spacing">
         <div className="mb-4 sm:mb-6">
           <h1 className="mobile-heading-xl mb-2">Goals & Progress</h1>
@@ -18,11 +18,11 @@ const Goals = () => {
           </p>
         </div>
         
-        <ErrorBoundary>
+        <AccessibilityErrorBoundary componentName="Goals Dashboard">
           <GoalsDashboard />
-        </ErrorBoundary>
+        </AccessibilityErrorBoundary>
       </div>
-    </ErrorBoundary>
+    </AccessibilityErrorBoundary>
   );
 };
 
