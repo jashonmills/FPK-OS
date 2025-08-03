@@ -261,14 +261,23 @@ const Login = () => {
         </Card>
 
         <div className="text-center mt-6 space-y-4">
-          <Button
-            variant="outline"
-            onClick={() => window.open('https://demo.fpkuniversity.com/', '_blank')}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Return to Home
-          </Button>
+          <div className="flex gap-2 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/subscription')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            >
+              View Pricing Plans
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.open('https://demo.fpkuniversity.com/', '_blank')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Return to Home
+            </Button>
+          </div>
           <p className="text-white/60 text-sm">
             {tString('betaVersion')}
           </p>

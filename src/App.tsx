@@ -175,16 +175,12 @@ function App() {
                           <Route index element={<Navigate to="learner" replace />} />
                         </Route>
                         
-                        {/* Subscription Routes - Outside Dashboard for Public Access */}
+                        {/* Subscription Routes - Public Access for Account Creation */}
                         <Route path="/subscription" element={
-                          <BetaAccessGate>
-                            <LazyRoute><Subscription /></LazyRoute>
-                          </BetaAccessGate>
+                          <LazyRoute><Subscription /></LazyRoute>
                         } />
                         <Route path="/subscription-success" element={
-                          <BetaAccessGate>
-                            <LazyRoute><SubscriptionSuccess /></LazyRoute>
-                          </BetaAccessGate>
+                          <LazyRoute><SubscriptionSuccess /></LazyRoute>
                         } />
                         
                         {/* 404 Route */}
