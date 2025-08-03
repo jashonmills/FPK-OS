@@ -52,7 +52,10 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
-  const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
+  const [sessionId, setSessionId] = useLocalStorage<string | null>(
+    user?.id ? `ai_coach_session_id_${user.id}` : 'ai_coach_session_id', 
+    null
+  );
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   
   const { toast } = useToast();
@@ -66,6 +69,15 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   // Initialize session and load chat history
   useEffect(() => {
     if (user?.id) {
+      // Clear any non-user-specific session storage
+      const oldKey = 'ai_coach_session_id';
+      if (localStorage.getItem(oldKey)) {
+        localStorage.removeItem(oldKey);
+      }
+      
+      // Reset user context when switching users
+      setLastSpokenMessageId(null);
+      
       initializeSession();
     }
   }, [user?.id]);
@@ -126,15 +138,38 @@ What would you like to learn about today?`;
           timestamp: new Date().toISOString()
         }]);
       } else {
+        // Verify session exists and belongs to current user before loading
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('chat_sessions')
+          .select('user_id')
+          .eq('id', sessionId)
+          .single();
+
+        if (sessionError || !sessionData || sessionData.user_id !== user.id) {
+          console.log('Invalid session found, creating new one');
+          // Clear invalid session and create new one
+          setSessionId(null);
+          await initializeSession();
+          return;
+        }
+
         // Load existing messages
         loadChatHistory();
       }
     } catch (error) {
       console.error('Error initializing session:', error);
+      // Clear problematic session and start fresh
+      setSessionId(null);
+      setMessages([{
+        id: 'welcome',
+        role: 'assistant',
+        content: getWelcomeMessage(),
+        timestamp: new Date().toISOString()
+      }]);
       toast({
-        title: "Session Error", 
-        description: "Failed to initialize chat session",
-        variant: "destructive"
+        title: "New Session Started", 
+        description: "Created a fresh chat session",
+        variant: "default"
       });
     }
   };
@@ -162,7 +197,8 @@ What would you like to learn about today?`;
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
-      // On error, show welcome message
+      // Clear invalid session and reset
+      setSessionId(null);
       setMessages([{
         id: 'welcome',
         role: 'assistant',
