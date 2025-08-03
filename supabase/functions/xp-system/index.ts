@@ -371,18 +371,48 @@ async function updateStreak(supabaseClient: any, userId: string, streakType: str
 }
 
 async function getLeaderboard(supabaseClient: any, limit: number) {
-  const { data: leaderboard, error } = await supabaseClient
+  // Query user_xp with manual join to profiles since the relationship isn't direct
+  const { data: userXpData, error: xpError } = await supabaseClient
     .from('user_xp')
-    .select(`
-      user_id,
-      total_xp,
-      level,
-      profiles(display_name, full_name, avatar_url)
-    `)
+    .select('user_id, total_xp, level')
     .order('total_xp', { ascending: false })
     .limit(limit)
 
-  if (error) throw error
+  if (xpError) {
+    console.error('Error fetching user XP:', xpError)
+    throw xpError
+  }
+
+  if (!userXpData || userXpData.length === 0) {
+    return new Response(JSON.stringify([]), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  // Get user profiles separately
+  const userIds = userXpData.map(item => item.user_id)
+  const { data: profilesData, error: profilesError } = await supabaseClient
+    .from('profiles')
+    .select('id, display_name, full_name, avatar_url')
+    .in('id', userIds)
+
+  if (profilesError) {
+    console.error('Error fetching profiles:', profilesError)
+    // Continue without profiles if profiles fetch fails
+  }
+
+  // Combine the data
+  const leaderboard = userXpData.map(xpItem => {
+    const profile = profilesData?.find(p => p.id === xpItem.user_id) || {}
+    return {
+      user_id: xpItem.user_id,
+      total_xp: xpItem.total_xp,
+      level: xpItem.level,
+      display_name: profile.display_name || profile.full_name || 'Anonymous',
+      full_name: profile.full_name || '',
+      avatar_url: profile.avatar_url || null
+    }
+  })
 
   return new Response(JSON.stringify(leaderboard), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
