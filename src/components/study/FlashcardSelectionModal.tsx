@@ -26,7 +26,16 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   onConfirm,
   studyMode
 }) => {
-  const { flashcards } = useFlashcards();
+  const { flashcards, isLoading } = useFlashcards();
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log('🔍 FlashcardSelectionModal - flashcards data:', { 
+      count: flashcards.length, 
+      isLoading,
+      flashcards: flashcards.slice(0, 3) // Show first 3 for debugging
+    });
+  }, [flashcards, isLoading]);
   const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
   const [selectedIndividualCards, setSelectedIndividualCards] = useState<string[]>([]);
   const [selectedRecentCards, setSelectedRecentCards] = useState<string[]>([]);
