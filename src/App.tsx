@@ -13,6 +13,7 @@ import i18n from '@/i18n';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
 import RouteBoundary from '@/components/RouteBoundary';
 import BetaAccessGate from '@/components/beta/BetaAccessGate';
+import { SubscriptionGate } from '@/components/SubscriptionGate';
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -94,10 +95,12 @@ function App() {
                           <Route path="/" element={<Index />} />
                           <Route path="/login" element={<Login />} />
                           
-                          {/* Dashboard Routes with Beta Access Gate */}
+                          {/* Dashboard Routes with Beta Access Gate and Subscription Enforcement */}
                           <Route path="/dashboard/*" element={
                             <BetaAccessGate>
-                              <DashboardLayout />
+                              <SubscriptionGate allowedPaths={['/choose-plan', '/subscription', '/subscription-success']}>
+                                <DashboardLayout />
+                              </SubscriptionGate>
                             </BetaAccessGate>
                           }>
                             <Route path="learner" element={

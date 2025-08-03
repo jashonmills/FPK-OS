@@ -29,6 +29,18 @@ export const useSubscriptionGate = (): SubscriptionGateState => {
   // Should redirect to plan selection if user is authenticated but has no subscription
   const shouldRedirectToPlanSelection = user && !isLoading && !hasAccess;
 
+  // Debug logging
+  console.log('🔐 SubscriptionGate Debug:', {
+    user: !!user,
+    authLoading,
+    subscriptionLoading,
+    hasCheckedSubscription,
+    isLoading,
+    subscription,
+    hasAccess,
+    shouldRedirectToPlanSelection
+  });
+
   return {
     isLoading,
     hasAccess,
