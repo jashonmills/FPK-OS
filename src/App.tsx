@@ -95,13 +95,11 @@ function App() {
                           <Route path="/" element={<Index />} />
                           <Route path="/login" element={<Login />} />
                           
-                          {/* Dashboard Routes with Beta Access Gate and Subscription Enforcement */}
+                          {/* Dashboard Routes with Subscription Enforcement */}
                           <Route path="/dashboard/*" element={
-                            <BetaAccessGate>
-                              <SubscriptionGate>
-                                <DashboardLayout />
-                              </SubscriptionGate>
-                            </BetaAccessGate>
+                            <SubscriptionGate>
+                              <DashboardLayout />
+                            </SubscriptionGate>
                           }>
                             <Route path="learner" element={
                             <LazyRoute><LearnerHome /></LazyRoute>
