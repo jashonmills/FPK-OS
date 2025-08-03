@@ -39,3 +39,9 @@ verify_jwt = false
 
 [functions.retrieve-knowledge]
 verify_jwt = false
+
+[functions.goal-notifications]
+verify_jwt = false
+
+[db]
+port = 54322
