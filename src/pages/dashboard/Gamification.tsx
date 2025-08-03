@@ -23,7 +23,7 @@ const Gamification = () => {
     <div className={`mobile-container mobile-section-spacing ${getAccessibilityClasses('container')}`}>
       <div className="mb-4 sm:mb-6">
         <h1 className={`mobile-heading-xl mb-2 ${getAccessibilityClasses('text')}`}>
-          Goals, Achievements & Progress
+          Achievements & XP
         </h1>
         <p className={`text-muted-foreground mobile-text-base ${getAccessibilityClasses('text')}`}>
           Track your learning journey, earn XP, unlock badges, and compete with others!

@@ -4,17 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Target, TrendingUp } from 'lucide-react';
+import { BookOpen, Clock, Target, TrendingUp, Settings } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
-import GoalCreateForm from './GoalCreateForm';
+import { useNavigate } from 'react-router-dom';
 
 const ActiveLearningGoals = () => {
-  const { goals = [], loading, refetch } = useGoals();
-  
-  const handleGoalCreated = () => {
-    // Refetch goals to update the UI
-    refetch();
-  };
+  const { goals = [], loading } = useGoals();
+  const navigate = useNavigate();
   
   if (loading) {
     return (
@@ -56,7 +52,13 @@ const ActiveLearningGoals = () => {
           <div className="text-center py-6">
             <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 mb-4">No active learning goals</p>
-            <GoalCreateForm onGoalCreated={handleGoalCreated} />
+            <Button 
+              onClick={() => navigate('/dashboard/learner/goals')}
+              className="w-full"
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Create Your First Goal
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -71,7 +73,18 @@ const ActiveLearningGoals = () => {
             <BookOpen className="h-5 w-5 text-green-600" />
             Active Learning Goals
           </div>
-          <Badge variant="secondary">{learningGoals.length} active</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{learningGoals.length} active</Badge>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/dashboard/learner/goals')}
+              className="flex items-center gap-1"
+            >
+              <Settings className="h-3 w-3" />
+              Manage Goals
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -123,14 +136,26 @@ const ActiveLearningGoals = () => {
           ))}
           
           {learningGoals.length > 3 && (
-            <Button variant="outline" size="sm" className="w-full">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => navigate('/dashboard/learner/goals')}
+            >
               View All Learning Goals ({learningGoals.length})
             </Button>
           )}
           
-          {/* Add create goal button at the bottom when there are existing goals */}
+          {/* Redirect to Goals page for management */}
           <div className="pt-4 border-t">
-            <GoalCreateForm onGoalCreated={handleGoalCreated} />
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate('/dashboard/learner/goals')}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Go to Goals Page to Create & Edit Goals
+            </Button>
           </div>
         </div>
       </CardContent>

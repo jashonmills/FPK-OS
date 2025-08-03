@@ -28,7 +28,8 @@ import {
   Shield,
   BookOpen,
   ExternalLink,
-  CreditCard
+  CreditCard,
+  Target
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,6 +80,11 @@ export function AppSidebar() {
     {
       title: 'Goals',
       url: "/dashboard/learner/goals",
+      icon: Target,
+    },
+    {
+      title: 'Achievements & XP',
+      url: "/dashboard/learner/gamification",
       icon: Award,
     },
     {
