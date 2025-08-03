@@ -26,6 +26,7 @@ const Library = lazy(() => import("./pages/dashboard/Library"));
 const MyCourses = lazy(() => import("./pages/dashboard/MyCourses"));
 const Notes = lazy(() => import("./pages/dashboard/Notes"));
 const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
+const Goals = lazy(() => import("./pages/dashboard/Goals"));
 const Settings = lazy(() => import("./pages/dashboard/Settings"));
 const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
 const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
@@ -110,9 +111,8 @@ function App() {
                           <Route path="learner/courses" element={
                             <LazyRoute><MyCourses /></LazyRoute>
                           } />
-                          {/* Redirect Goals to Gamification */}
                           <Route path="learner/goals" element={
-                            <Navigate to="/dashboard/learner/gamification" replace />
+                            <LazyRoute><Goals /></LazyRoute>
                           } />
                           <Route path="learner/notes" element={
                             <LazyRoute><Notes /></LazyRoute>
