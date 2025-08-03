@@ -94,7 +94,7 @@ function App() {
                           <Route path="/" element={<Index />} />
                           <Route path="/login" element={<Login />} />
                           
-                          {/* Dashboard Routes with Beta Access Gate */}
+                          {/* Dashboard Routes with Beta Access Gate and Subscription Enforcement */}
                           <Route path="/dashboard/*" element={
                             <BetaAccessGate>
                               <DashboardLayout />
