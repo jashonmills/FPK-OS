@@ -40,7 +40,7 @@ const ActiveLearningGoals = () => {
   const learningGoals = (goals || []).filter(goal => 
     goal && 
     goal.status === 'active' && 
-    (goal.category === 'learning' || goal.category === 'reading' || goal.category === 'study')
+    (goal.category === 'learning' || goal.category === 'reading' || goal.category === 'study' || goal.category === 'achievement')
   );
 
   if (learningGoals.length === 0) {
