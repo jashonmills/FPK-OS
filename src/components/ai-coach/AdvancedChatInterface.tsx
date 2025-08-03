@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap } from 'lucide-react';
+import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap, Volume2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 // import { useVoiceRecording } from '@/hooks/useVoiceRecording';
@@ -51,6 +51,9 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
   const [sessionId, setSessionId] = useLocalStorage<string | null>('ai_coach_session_id', null);
+  const [ttsEnabled, setTtsEnabled] = useLocalStorage<boolean>('ai_coach_tts_enabled', false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   
   const { toast } = useToast();
   // const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
@@ -166,6 +169,114 @@ What would you like to learn about today?`;
       }]);
     }
   };
+
+  // Text-to-Speech functionality
+  const speakText = useCallback((text: string) => {
+    if (!ttsEnabled || !('speechSynthesis' in window)) return;
+
+    // Stop any current speech
+    if (currentUtterance) {
+      speechSynthesis.cancel();
+      setCurrentUtterance(null);
+      setIsSpeaking(false);
+    }
+
+    // Clean text for better speech (remove markdown, emojis, etc.)
+    const cleanText = text
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+      .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
+      .replace(/#{1,6}\s*(.*)/g, '$1') // Remove headers
+      .replace(/[🎯📚🧠🎮💡🌐📖🔍]/g, '') // Remove emojis
+      .replace(/\n\s*\n/g, '. ') // Replace double line breaks with periods
+      .replace(/\n/g, ' ') // Replace single line breaks with spaces
+      .trim();
+
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    // Configure voice settings
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 0.8;
+
+    // Try to use a pleasant voice
+    const voices = speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.name.includes('Google') || 
+      voice.name.includes('Microsoft') ||
+      voice.lang.startsWith('en')
+    );
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setCurrentUtterance(utterance);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setCurrentUtterance(null);
+    };
+
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setCurrentUtterance(null);
+      toast({
+        title: "Speech Error",
+        description: "Unable to speak the message",
+        variant: "destructive"
+      });
+    };
+
+    speechSynthesis.speak(utterance);
+  }, [ttsEnabled, currentUtterance, toast]);
+
+  const stopSpeaking = useCallback(() => {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setCurrentUtterance(null);
+  }, []);
+
+  const toggleTTS = useCallback(() => {
+    setTtsEnabled(!ttsEnabled);
+    if (!ttsEnabled) {
+      toast({
+        title: "Text-to-Speech Enabled",
+        description: "AI responses will now be spoken aloud",
+      });
+    } else {
+      stopSpeaking();
+      toast({
+        title: "Text-to-Speech Disabled",
+        description: "AI responses will no longer be spoken",
+      });
+    }
+  }, [ttsEnabled, stopSpeaking, toast]);
+
+  // Auto-speak new AI messages when TTS is enabled
+  useEffect(() => {
+    if (ttsEnabled && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && !isLoading) {
+        // Small delay to ensure message is fully rendered
+        setTimeout(() => speakText(lastMessage.content), 500);
+      }
+    }
+  }, [messages, ttsEnabled, isLoading, speakText]);
+
+  // Clean up speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Quiz detection
   const detectQuizRequest = (text: string): boolean => {
@@ -434,6 +545,34 @@ What specific topic from your studies would you like to dive deeper into?`;
                 </button>
               </div>
               
+              {/* Text-to-Speech Controls */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTTS}
+                  className={cn(
+                    "h-8 w-8 p-0",
+                    ttsEnabled ? "text-green-600 bg-green-50" : "text-gray-500"
+                  )}
+                  title={ttsEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
+                >
+                  {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                </Button>
+                
+                {isSpeaking && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={stopSpeaking}
+                    className="h-8 w-8 p-0 text-red-600 bg-red-50"
+                    title="Stop speaking"
+                  >
+                    <VolumeX className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              
               <Button
                 variant="ghost"
                 size="sm"
@@ -493,13 +632,24 @@ What specific topic from your studies would you like to dive deeper into?`;
                     </div>
                   )}
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      {new Date(msg.timestamp).toLocaleTimeString()}
-                    </span>
-                    
-                    {/* Temporarily disable save button */}
-                  </div>
+                   <div className="flex items-center justify-between">
+                     <span className="text-xs text-gray-500">
+                       {new Date(msg.timestamp).toLocaleTimeString()}
+                     </span>
+                     
+                     {/* Speech controls for AI messages */}
+                     {msg.role === 'assistant' && 'speechSynthesis' in window && (
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={() => speakText(msg.content)}
+                         className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                         title="Speak this message"
+                       >
+                         <Volume2 className="h-3 w-3" />
+                       </Button>
+                     )}
+                   </div>
                 </div>
               </div>
             ))}
@@ -570,6 +720,13 @@ What specific topic from your studies would you like to dive deeper into?`;
             <div className="flex justify-between items-center text-xs text-gray-500">
               <div className="flex items-center gap-4">
                 <span>💡 Try: "Quiz me", "Analyze my progress", or "Study tips"</span>
+                {ttsEnabled && (
+                  <div className="flex items-center gap-1 text-green-600">
+                    <Volume2 className="h-3 w-3" />
+                    <span>TTS Enabled</span>
+                    {isSpeaking && <span className="animate-pulse">• Speaking</span>}
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center gap-2">
