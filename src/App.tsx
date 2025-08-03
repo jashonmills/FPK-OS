@@ -170,16 +170,22 @@ function App() {
                           <Route path="admin/beta" element={
                             <LazyRoute><BetaManagement /></LazyRoute>
                           } />
-                          <Route path="subscription" element={
-                            <LazyRoute><Subscription /></LazyRoute>
-                          } />
-                          <Route path="subscription-success" element={
-                            <LazyRoute><SubscriptionSuccess /></LazyRoute>
-                          } />
                           
                           {/* Default redirect */}
                           <Route index element={<Navigate to="learner" replace />} />
                         </Route>
+                        
+                        {/* Subscription Routes - Outside Dashboard for Public Access */}
+                        <Route path="/subscription" element={
+                          <BetaAccessGate>
+                            <LazyRoute><Subscription /></LazyRoute>
+                          </BetaAccessGate>
+                        } />
+                        <Route path="/subscription-success" element={
+                          <BetaAccessGate>
+                            <LazyRoute><SubscriptionSuccess /></LazyRoute>
+                          </BetaAccessGate>
+                        } />
                         
                         {/* 404 Route */}
                         <Route path="*" element={<NotFound />} />
