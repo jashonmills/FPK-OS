@@ -34,10 +34,10 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({
     },
     {
       value: 'general' as const,
-      label: 'General Knowledge',
+      label: 'General & Platform Guide',
       icon: Globe,
-      tooltip: 'Answer broad questions via external APIs',
-      badge: 'Web Tools Active',
+      tooltip: 'Platform help and general knowledge',
+      badge: 'Smart Mode Active',
       badgeColor: 'bg-blue-500/90'
     }
   ];

@@ -100,15 +100,15 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
 
 What would you like to work on today?`;
     } else {
-      return `Hello! I'm your AI Learning Coach in General Knowledge mode. I can help you with:
+      return `Hello! I'm your AI Learning Coach in General & Platform Guide mode. I can help you with:
 
-🌐 **General Academic Help** - Any subject or topic
-📖 **Research Assistance** - Finding and explaining concepts
-🧠 **Study Techniques** - General learning strategies
-💡 **Educational Guidance** - Academic advice and tips
-🔍 **Concept Explanations** - Breaking down complex ideas
+🏫 **Platform Guidance** - How to use features, create flashcards, navigate
+🌐 **General Knowledge** - Any subject, research, or educational topics
+📖 **Study Techniques** - Learning strategies and academic methods
+💡 **Getting Started** - Platform tutorials and feature explanations
+🔍 **How-To Guides** - Step-by-step instructions for platform features
 
-Note: In this mode, I don't access your personal study data. Switch to "My Data" mode for personalized assistance.
+Note: I intelligently detect whether you need platform help or general knowledge. For your personal study data, switch to "My Data" mode.
 
 What would you like to learn about today?`;
     }
@@ -675,7 +675,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                     <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                   </div>
                   <span className="text-sm text-gray-600">
-                    {chatMode === 'personal' ? 'Analyzing your study data...' : 'Accessing general knowledge...'}
+                    {chatMode === 'personal' ? 'Analyzing your study data...' : 'Processing your request...'}
                   </span>
                 </div>
               </div>
@@ -696,8 +696,8 @@ What specific topic from your studies would you like to dive deeper into?`;
                   placeholder={
                     user?.id 
                       ? chatMode === 'personal' 
-                        ? "Ask about your study data, flashcards, or say 'quiz me'..."
-                        : "Ask any general knowledge question..."
+                         ? "Ask about your study data, flashcards, or say 'quiz me'..."
+                         : "Ask platform questions or general knowledge..."
                       : "Please log in to chat"
                   }
                   disabled={isLoading || !user?.id}
@@ -757,7 +757,7 @@ What specific topic from your studies would you like to dive deeper into?`;
               
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-xs">
-                  {chatMode === 'personal' ? '🔒 My Data' : '🌐 General'}
+                  {chatMode === 'personal' ? '🔒 My Data' : '🏫 General & Guide'}
                 </Badge>
                 {chatMode === 'personal' && (
                   <span className="text-xs text-purple-600">

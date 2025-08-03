@@ -92,10 +92,10 @@ serve(async (req) => {
         sessionId ? getChatHistory(sessionId, 6) : Promise.resolve([])
       ]);
     } else {
-      // General mode: no personal data, only external knowledge
-      queryMode = 'general';
+      // General mode: detect platform vs general knowledge queries
+      queryMode = detectQueryMode(message);
       chatHistory = sessionId ? await getChatHistory(sessionId, 6) : [];
-      console.log('🌐 General Knowledge mode - using external knowledge sources only');
+      console.log(`🌐 General mode - detected query type: ${queryMode}`);
     }
 
     // **RAG ENHANCEMENT** - Build enhanced prompt using RAG

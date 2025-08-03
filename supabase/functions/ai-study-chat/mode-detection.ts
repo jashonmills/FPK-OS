@@ -1,5 +1,5 @@
 
-export type QueryMode = 'personal' | 'general' | 'mixed';
+export type QueryMode = 'personal' | 'general' | 'platform' | 'mixed';
 
 export function detectQueryMode(message: string): QueryMode {
   const lowerMessage = message.toLowerCase();
@@ -24,38 +24,72 @@ export function detectQueryMode(message: string): QueryMode {
     'struggling with', 'need practice', 'review my'
   ];
   
-  // Check for personal data keywords
+  // Platform-specific keywords for how-to guides
+  const platformKeywords = [
+    // Flashcard creation and management
+    'how do i make flashcards', 'how to create flashcards', 'create new flashcard',
+    'add flashcards', 'make flashcards', 'create cards', 'how to make cards',
+    'flashcard creation', 'creating flashcards', 'add new cards',
+    
+    // Platform navigation and features
+    'how do i use', 'how to use', 'navigate to', 'find the', 'where is',
+    'how to study', 'start studying', 'begin study session',
+    'dashboard', 'library', 'goals', 'progress tracking',
+    'how to track progress', 'view my stats', 'check my progress',
+    
+    // Study session guidance
+    'start a quiz', 'how to quiz', 'study session', 'practice mode',
+    'how to review', 'study my cards', 'practice flashcards',
+    
+    // Account and settings
+    'profile settings', 'account settings', 'change my', 'update my',
+    'upload files', 'import cards', 'export data',
+    
+    // General platform help
+    'how does this work', 'getting started', 'tutorial', 'guide me',
+    'show me how', 'help me', 'instructions for'
+  ];
+  
+  // Enhanced general knowledge patterns (external facts)
+  const generalKeywords = [
+    'what is photosynthesis', 'who was napoleon', 'what caused',
+    'history of', 'capital of', 'meaning of', 'examples of',
+    'define quantum', 'explain relativity', 'tell me about world war',
+    'what happened in', 'who invented', 'when was discovered',
+    'scientific method', 'periodic table', 'shakespeare wrote',
+    'mathematical concept', 'biology definition', 'chemistry equation'
+  ];
+  
+  // Check for personal data keywords (highest priority)
   const hasPersonalKeywords = personalDataKeywords.some(keyword => 
     lowerMessage.includes(keyword)
   );
   
-  // Enhanced general knowledge patterns
-  const generalKeywords = [
-    'what is', 'what are', 'what was', 'what were',
-    'who is', 'who was', 'who are', 'who were',
-    'when did', 'when was', 'when were',
-    'where is', 'where was', 'where are',
-    'how does', 'how did', 'how do', 'how to',
-    'why does', 'why did', 'why is', 'why are',
-    'explain', 'define', 'tell me about',
-    'history of', 'meaning of', 'examples of'
-  ];
+  // Check for platform keywords (second priority)
+  const hasPlatformKeywords = platformKeywords.some(keyword => 
+    lowerMessage.includes(keyword)
+  );
   
+  // Check for general knowledge keywords (third priority)
   const hasGeneralKeywords = generalKeywords.some(keyword => 
     lowerMessage.includes(keyword)
   );
   
-  // Prioritize personal data detection
+  // Prioritize: Personal > Platform > General
   if (hasPersonalKeywords) {
     return 'personal';
+  }
+  
+  if (hasPlatformKeywords) {
+    return 'platform';
   }
   
   if (hasGeneralKeywords) {
     return 'general';
   }
   
-  // Default to personal for ambiguous queries in personal mode
-  return 'personal';
+  // Default to platform for ambiguous queries (help users navigate)
+  return 'platform';
 }
 
 // Enhanced detection for recent flashcards specifically
