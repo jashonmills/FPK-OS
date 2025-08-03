@@ -9,7 +9,7 @@ import { useStudyInsights } from '@/hooks/useStudyInsights';
 import { useProactiveCoaching } from '@/hooks/useProactiveCoaching';
 import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 import { featureFlagService } from '@/services/FeatureFlagService';
-import AdvancedChatInterface from '@/components/ai-coach/AdvancedChatInterface';
+import MinimalChatInterface from '@/components/ai-coach/MinimalChatInterface';
 import FileUploadCard from '@/components/ai-coach/FileUploadCard';
 import StudyPlanCard from '@/components/ai-coach/StudyPlanCard';
 import QuickChallengesCard from '@/components/ai-coach/QuickChallengesCard';
@@ -29,8 +29,8 @@ const AIStudyCoach = () => {
   // Add scroll restoration for better navigation UX
   useScrollRestoration('ai-coach-scroll');
 
-  // Enable proactive coaching with proper error handling
-  useProactiveCoaching();
+  // Enable proactive coaching with proper error handling - TEMPORARILY DISABLED
+  // useProactiveCoaching();
 
   const fixedHeightEnabled = featureFlagService.isEnabled('aiCoachFixedHeight');
 
@@ -146,7 +146,7 @@ const AIStudyCoach = () => {
               fixedHeightEnabled ? "h-[70vh] min-h-0" : "min-h-[600px]"
             )}>
               <AccessibilityErrorBoundary componentName="AdvancedChatInterface">
-                <AdvancedChatInterface
+                <MinimalChatInterface
                   user={user}
                   completedSessions={completedSessions}
                   flashcards={flashcards || []}
