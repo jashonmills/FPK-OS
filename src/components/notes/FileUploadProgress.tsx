@@ -6,6 +6,7 @@ import { FileText, CheckCircle, AlertCircle, X, RefreshCw } from 'lucide-react';
 import { FileUpload } from '@/hooks/useFileUploads';
 import { useRealTimeProcessing } from '@/hooks/useRealTimeProcessing';
 import RealTimeProcessingMeter from './RealTimeProcessingMeter';
+import { SavePreviewFlashcardsButton } from '@/components/ai-coach/SavePreviewFlashcardsButton';
 
 interface FileUploadProgressProps {
   uploads: FileUpload[];
@@ -129,11 +130,29 @@ const FileUploadProgress: React.FC<FileUploadProgressProps> = ({
             </div>
             
             {upload.processing_status === 'completed' && (
-              <div className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                <span className="text-xs sm:text-sm break-words">
-                  ✅ Generated {upload.generated_flashcards_count} flashcards for preview
-                </span>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm break-words">
+                    ✅ Generated {upload.generated_flashcards_count} flashcards for preview
+                  </span>
+                </div>
+                
+                {upload.generated_flashcards_count > 0 && (
+                  <div className="flex items-center justify-between bg-blue-50 p-2 rounded border border-blue-200">
+                    <span className="text-xs text-blue-700">
+                      Save these flashcards to use them in memory tests
+                    </span>
+                    <SavePreviewFlashcardsButton
+                      uploadId={upload.id}
+                      fileName={upload.file_name}
+                      flashcardsCount={upload.generated_flashcards_count}
+                      onSuccess={() => {
+                        onRemoveUpload(upload.id);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
             
