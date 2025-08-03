@@ -322,6 +322,13 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
           });
       }
 
+      console.log('🚀 Sending message to AI with mode:', { 
+        chatMode, 
+        message: userMessage.content.substring(0, 50) + '...',
+        userId: user.id,
+        sessionId 
+      });
+
       // Call enhanced AI function with full context
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: {
