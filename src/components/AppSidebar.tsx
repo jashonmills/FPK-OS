@@ -27,7 +27,8 @@ import {
   GraduationCap,
   Shield,
   BookOpen,
-  ExternalLink
+  ExternalLink,
+  CreditCard
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -117,6 +118,11 @@ export function AppSidebar() {
   ];
 
   const footerItems = [
+    {
+      title: 'Subscription',
+      url: "/subscription",
+      icon: CreditCard,
+    },
     {
       title: 'Settings',
       url: "/dashboard/learner/settings",
