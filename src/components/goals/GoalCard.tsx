@@ -20,11 +20,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, CheckCircle, Pause, Play, Trash2, Calendar, Clock } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, Pause, Play, Trash2, Calendar, Clock, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useGoals } from '@/hooks/useGoals';
+import GoalEditForm from './GoalEditForm';
 
 interface GoalCardProps {
   goal: {
@@ -35,6 +36,7 @@ interface GoalCardProps {
     status: 'active' | 'completed' | 'paused';
     progress: number;
     target_date?: string;
+    category: string;
     created_at: string;
   };
 }
@@ -113,6 +115,15 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white">
+                <GoalEditForm 
+                  goal={goal}
+                  trigger={
+                    <DropdownMenuItem className="text-xs sm:text-sm cursor-pointer">
+                      <Edit2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                      <DualLanguageText translationKey="goals.actions.edit" fallback="Edit" />
+                    </DropdownMenuItem>
+                  }
+                />
                 {goal.status !== 'completed' && (
                   <DropdownMenuItem onClick={() => handleStatusChange('completed')} className="text-xs sm:text-sm">
                     <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />

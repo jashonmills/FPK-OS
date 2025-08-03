@@ -242,8 +242,9 @@ export const GoalsDashboard = () => {
                           status: (goal.status as 'active' | 'completed' | 'paused') || 'active',
                           progress: goal.progress || 0,
                           target_date: goal.target_date || null,
+                          category: goal.category || 'learning',
                           created_at: goal.created_at || new Date().toISOString()
-                        }} 
+                        }}
                       />
                     ) : null
                   ))}
