@@ -47,6 +47,7 @@ const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
+const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -181,6 +182,11 @@ function App() {
                         } />
                         <Route path="/subscription-success" element={
                           <LazyRoute><SubscriptionSuccess /></LazyRoute>
+                        } />
+                        <Route path="/choose-plan" element={
+                          <BetaAccessGate>
+                            <LazyRoute><ChoosePlan /></LazyRoute>
+                          </BetaAccessGate>
                         } />
                         
                         {/* 404 Route */}

@@ -14,18 +14,25 @@ export default function SubscriptionSuccess() {
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (sessionId) {
-      // Refresh subscription status after successful payment
-      setTimeout(() => {
-        refreshSubscription();
-      }, 2000);
+    // Refresh subscription status after successful payment
+    const timer = setTimeout(() => {
+      refreshSubscription();
+      
+      if (sessionId) {
+        toast({
+          title: "Payment Successful! 🎉",
+          description: "Your subscription has been activated. Welcome to premium!",
+        });
+        
+        // Redirect to dashboard after showing success message
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 3000);
+      }
+    }, 2000);
 
-      toast({
-        title: "Payment Successful!",
-        description: "Your subscription has been activated. Welcome aboard!",
-      });
-    }
-  }, [sessionId, refreshSubscription, toast]);
+    return () => clearTimeout(timer);
+  }, [sessionId, refreshSubscription, toast, navigate]);
 
   return (
     <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
