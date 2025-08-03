@@ -245,6 +245,47 @@ export const useGoals = () => {
     await updateGoal(id, { status: 'completed', completed_at: new Date().toISOString() });
   };
 
+  const updateMilestone = async (goalId: string, milestoneId: string, completed: boolean): Promise<void> => {
+    if (!user?.id) return;
+    
+    const goal = goals.find(g => g.id === goalId);
+    if (!goal || !goal.milestones) return;
+
+    const milestones = Array.isArray(goal.milestones) ? goal.milestones : [];
+    const updatedMilestones = milestones.map((m: any) => 
+      m.id === milestoneId 
+        ? { ...m, completed, completedAt: completed ? new Date().toISOString() : undefined }
+        : m
+    );
+
+    // Track milestone completion for analytics
+    if (completed) {
+      try {
+        const { GoalMilestonesService } = await import('@/services/goalMilestonesService');
+        const milestone = milestones.find((m: any) => m.id === milestoneId);
+        if (milestone && typeof milestone === 'object' && 'title' in milestone) {
+          await GoalMilestonesService.trackMilestoneCompletion(
+            user.id,
+            goalId,
+            milestoneId,
+            milestone.title as string
+          );
+        }
+      } catch (error) {
+        console.error('Error tracking milestone completion:', error);
+      }
+    }
+
+    // Calculate new progress based on completed milestones
+    const completedCount = updatedMilestones.filter((m: any) => m.completed).length;
+    const progress = updatedMilestones.length > 0 ? Math.round((completedCount / updatedMilestones.length) * 100) : 0;
+
+    await updateGoal(goalId, { 
+      milestones: updatedMilestones,
+      progress
+    });
+  };
+
   const refetchGoals = useCallback(() => {
     if (user?.id) {
       return goalsManager.loadGoals(user.id);
@@ -261,6 +302,7 @@ export const useGoals = () => {
     updateGoal,
     completeGoal,
     deleteGoal,
-    refetch: refetchGoals
+    refetch: refetchGoals,
+    updateMilestone
   };
 };

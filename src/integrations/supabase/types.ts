@@ -891,6 +891,42 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_milestone_completions: {
+        Row: {
+          completed_at: string
+          completion_time_seconds: number | null
+          context_data: Json | null
+          created_at: string
+          goal_id: string
+          id: string
+          milestone_id: string
+          milestone_title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          completion_time_seconds?: number | null
+          context_data?: Json | null
+          created_at?: string
+          goal_id: string
+          id?: string
+          milestone_id: string
+          milestone_title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          completion_time_seconds?: number | null
+          context_data?: Json | null
+          created_at?: string
+          goal_id?: string
+          id?: string
+          milestone_id?: string
+          milestone_title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_reminders: {
         Row: {
           created_at: string
