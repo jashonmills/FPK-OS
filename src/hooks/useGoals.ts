@@ -134,7 +134,7 @@ class GoalsManager {
     }
   }
 
-  async createGoal(userId: string, goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> {
+  async createGoal(userId: string, goalData: Omit<GoalInsert, 'user_id'>, publishEvent?: Function): Promise<Goal | null> {
     try {
       const { data, error } = await supabase
         .from('goals')
@@ -153,6 +153,18 @@ class GoalsManager {
       const newGoal = data as Goal;
       this.goals = [newGoal, ...this.goals];
       this.notify();
+      
+      // Track analytics event if publishEvent is provided
+      if (publishEvent) {
+        await publishEvent('goal_created', {
+          goalId: newGoal.id,
+          category: newGoal.category,
+          priority: newGoal.priority,
+          hasTargetDate: !!newGoal.target_date,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       return newGoal;
     } catch (err) {
       console.error('❌ GoalsManager: Error in createGoal:', err);

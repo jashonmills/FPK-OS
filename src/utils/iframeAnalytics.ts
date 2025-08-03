@@ -88,60 +88,112 @@ export class IframeAnalyticsBridge {
   private handleIframeAnalyticsEvent(event: IframeAnalyticsEvent) {
     console.log('📊 Analytics Bridge: Received event from iframe:', event);
     
-    // Import and use the analytics system
-    import('@/utils/analytics').then(({ analytics }) => {
-      // Forward the event to the main analytics system
+    // Import analytics event bus and forward events
+    import('@/services/AnalyticsEventBus').then(({ analyticsEventBus }) => {
+      // Forward the event to the main analytics system via the event bus
       switch (event.event_name) {
         case 'module_viewed':
-          analytics.trackModuleViewed(
-            event.parameters.module_id,
-            event.parameters.course_id,
-            event.parameters.user_id
-          );
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'module_viewed',
+            metadata: {
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
           break;
         
         case 'audio_played':
-          analytics.trackAudioPlayed(
-            event.parameters.module_id,
-            event.parameters.course_id,
-            event.parameters.duration_seconds,
-            event.parameters.user_id
-          );
-          break;
-        
         case 'video_played':
-          analytics.trackVideoPlayed(
-            event.parameters.module_id,
-            event.parameters.course_id,
-            event.parameters.duration_seconds,
-            event.parameters.user_id
-          );
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'media_played',
+            metadata: {
+              mediaType: event.event_name.replace('_played', ''),
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              durationSeconds: event.parameters.duration_seconds,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
           break;
         
         case 'media_interaction':
-          analytics.trackMediaInteraction(
-            event.parameters.action,
-            event.parameters.media_type,
-            event.parameters.module_id,
-            event.parameters.course_id,
-            event.parameters.current_time,
-            event.parameters.user_id
-          );
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'media_interaction',
+            metadata: {
+              action: event.parameters.action,
+              mediaType: event.parameters.media_type,
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              currentTime: event.parameters.current_time,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
           break;
         
         case 'module_completed':
-          analytics.trackModuleCompleted(
-            event.parameters.module_id,
-            event.parameters.course_id,
-            event.parameters.time_spent_seconds,
-            event.parameters.user_id
-          );
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'module_completed',
+            metadata: {
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              timeSpentSeconds: event.parameters.time_spent_seconds,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
+          break;
+        
+        case 'scroll_depth':
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'scroll_depth',
+            metadata: {
+              depthPercentage: event.parameters.depth_percentage,
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
+          break;
+        
+        case 'time_spent':
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id,
+            eventType: 'time_spent_tracking',
+            metadata: {
+              timeSpentSeconds: event.parameters.time_spent_seconds,
+              moduleId: event.parameters.module_id,
+              courseId: event.parameters.course_id,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
           break;
         
         default:
-          // Generic event forwarding
-          console.log(`📊 Forwarding custom event: ${event.event_name}`, event.parameters);
+          // Generic event forwarding for custom events
+          console.log(`📊 Forwarding custom iframe event: ${event.event_name}`, event.parameters);
+          analyticsEventBus.publish({
+            userId: event.parameters.user_id || 'unknown',
+            eventType: event.event_name,
+            metadata: {
+              ...event.parameters,
+              timestamp: event.timestamp
+            },
+            source: 'iframe'
+          });
       }
+    }).catch(error => {
+      console.error('Failed to import analytics event bus:', error);
     });
   }
 

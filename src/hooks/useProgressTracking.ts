@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useXPSystem } from '@/hooks/useXPSystem';
+import { useAnalyticsEventBus } from '@/hooks/useAnalyticsEventBus';
 
 interface ProgressUpdate {
   type: 'module_complete' | 'course_complete' | 'progress_update';
@@ -31,6 +32,7 @@ export function useProgressTracking(courseId: string) {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { awardXP, calculateModuleXP, calculateProgressXP } = useXPSystem();
+  const { publishEvent } = useAnalyticsEventBus();
 
   // Fetch current progress on mount
   useEffect(() => {
@@ -85,6 +87,14 @@ export function useProgressTracking(courseId: string) {
             const moduleXP = calculateModuleXP(update.moduleId);
             await awardXP(moduleXP, `Completed ${update.moduleId.replace('-', ' ')}`);
             xpAwarded = true;
+            
+            // Track analytics event
+            await publishEvent('module_completed', {
+              moduleId: update.moduleId,
+              courseId,
+              timestamp: update.timestamp || new Date().toISOString(),
+              xpAwarded: moduleXP
+            });
           }
           break;
 
@@ -99,6 +109,13 @@ export function useProgressTracking(courseId: string) {
           if (!currentProgress.completed) {
             await awardXP(200, 'Completed Learning State Course!');
             xpAwarded = true;
+            
+            // Track analytics event
+            await publishEvent('course_completed', {
+              courseId,
+              completedAt: update.completedAt || new Date().toISOString(),
+              xpAwarded: 200
+            });
           }
           break;
 
@@ -115,6 +132,15 @@ export function useProgressTracking(courseId: string) {
               await awardXP(progressXP - oldProgressXP, `Reached ${update.completionPercentage}% progress`);
               xpAwarded = true;
             }
+            
+            // Track analytics event
+            await publishEvent('progress_updated', {
+              courseId,
+              oldProgress: oldPercentage,
+              newProgress: update.completionPercentage,
+              progressDelta: update.completionPercentage - oldPercentage,
+              timestamp: update.timestamp || new Date().toISOString()
+            });
           }
           break;
       }
