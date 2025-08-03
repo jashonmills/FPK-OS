@@ -250,8 +250,10 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
 
           <GoalMilestonesManager
             milestones={formData.milestones}
+            goalId={goal.id}
             onChange={(milestones) => setFormData({ ...formData, milestones })}
             onMilestoneComplete={handleMilestoneComplete}
+            onMilestoneUpdate={updateMilestone}
           />
           
           <DialogFooter className="flex gap-2 pt-4">

@@ -25,12 +25,16 @@ interface GoalMilestonesManagerProps {
   milestones: GoalMilestone[];
   onChange: (milestones: GoalMilestone[]) => void;
   onMilestoneComplete?: (milestoneId: string) => void;
+  goalId?: string;
+  onMilestoneUpdate?: (goalId: string, milestoneId: string, completed: boolean) => Promise<void>;
 }
 
 const GoalMilestonesManager: React.FC<GoalMilestonesManagerProps> = ({
   milestones,
   onChange,
-  onMilestoneComplete
+  onMilestoneComplete,
+  goalId,
+  onMilestoneUpdate
 }) => {
   const { toast } = useToast();
   const [newMilestone, setNewMilestone] = useState({
@@ -76,17 +80,45 @@ const GoalMilestonesManager: React.FC<GoalMilestonesManagerProps> = ({
     onChange(updatedMilestones);
   };
 
-  const toggleMilestoneComplete = (milestone: GoalMilestone) => {
+  const toggleMilestoneComplete = async (milestone: GoalMilestone) => {
     const newCompleted = !milestone.completed;
     const updates: Partial<GoalMilestone> = {
       completed: newCompleted,
       completedAt: newCompleted ? new Date().toISOString() : undefined
     };
 
+    // Update local state immediately for responsive UI
     updateMilestone(milestone.id, updates);
     
-    if (newCompleted && onMilestoneComplete) {
-      onMilestoneComplete(milestone.id);
+    // If we have a goal ID and update function, persist to database immediately
+    if (goalId && onMilestoneUpdate) {
+      try {
+        await onMilestoneUpdate(goalId, milestone.id, newCompleted);
+        
+        if (newCompleted) {
+          toast({
+            title: "Milestone Completed!",
+            description: `Great job completing "${milestone.title}"!`,
+          });
+        }
+        
+        if (onMilestoneComplete && newCompleted) {
+          onMilestoneComplete(milestone.id);
+        }
+      } catch (error) {
+        // Revert local state on error
+        updateMilestone(milestone.id, { completed: milestone.completed, completedAt: milestone.completedAt });
+        toast({
+          title: "Error",
+          description: "Failed to update milestone. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Fallback for form-only mode
+      if (newCompleted && onMilestoneComplete) {
+        onMilestoneComplete(milestone.id);
+      }
     }
   };
 
