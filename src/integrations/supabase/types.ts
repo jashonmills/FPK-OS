@@ -146,6 +146,54 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          action: string
+          id: string
+          ip_address: unknown | null
+          legal_basis: string | null
+          new_values: Json | null
+          old_values: Json | null
+          purpose: string | null
+          record_id: string | null
+          session_id: string | null
+          table_name: string
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          id?: string
+          ip_address?: unknown | null
+          legal_basis?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          purpose?: string | null
+          record_id?: string | null
+          session_id?: string | null
+          table_name: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          id?: string
+          ip_address?: unknown | null
+          legal_basis?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          purpose?: string | null
+          record_id?: string | null
+          session_id?: string | null
+          table_name?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_id: string
@@ -692,6 +740,156 @@ export type Database = {
         }
         Relationships: []
       }
+      data_breach_incidents: {
+        Row: {
+          affected_data_types: string[] | null
+          affected_records_count: number | null
+          created_at: string
+          created_by: string | null
+          description: string
+          detection_method: string | null
+          id: string
+          incident_type: string
+          notification_sent: boolean
+          notification_sent_at: string | null
+          regulatory_notification_required: boolean
+          regulatory_notification_sent: boolean
+          regulatory_notification_sent_at: string | null
+          remediation_actions: string | null
+          severity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affected_data_types?: string[] | null
+          affected_records_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          detection_method?: string | null
+          id?: string
+          incident_type: string
+          notification_sent?: boolean
+          notification_sent_at?: string | null
+          regulatory_notification_required?: boolean
+          regulatory_notification_sent?: boolean
+          regulatory_notification_sent_at?: string | null
+          remediation_actions?: string | null
+          severity: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affected_data_types?: string[] | null
+          affected_records_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          detection_method?: string | null
+          id?: string
+          incident_type?: string
+          notification_sent?: boolean
+          notification_sent_at?: string | null
+          regulatory_notification_required?: boolean
+          regulatory_notification_sent?: boolean
+          regulatory_notification_sent_at?: string | null
+          remediation_actions?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      data_processing_activities: {
+        Row: {
+          activity_name: string
+          controller_contact: string
+          controller_name: string
+          created_at: string
+          data_categories: string[]
+          data_subjects: string[]
+          dpo_contact: string | null
+          id: string
+          international_transfers: string[] | null
+          is_active: boolean
+          legal_basis: string
+          purpose: string
+          recipients: string[] | null
+          retention_period: string
+          security_measures: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          activity_name: string
+          controller_contact: string
+          controller_name: string
+          created_at?: string
+          data_categories: string[]
+          data_subjects: string[]
+          dpo_contact?: string | null
+          id?: string
+          international_transfers?: string[] | null
+          is_active?: boolean
+          legal_basis: string
+          purpose: string
+          recipients?: string[] | null
+          retention_period: string
+          security_measures?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          activity_name?: string
+          controller_contact?: string
+          controller_name?: string
+          created_at?: string
+          data_categories?: string[]
+          data_subjects?: string[]
+          dpo_contact?: string | null
+          id?: string
+          international_transfers?: string[] | null
+          is_active?: boolean
+          legal_basis?: string
+          purpose?: string
+          recipients?: string[] | null
+          retention_period?: string
+          security_measures?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      data_retention_policies: {
+        Row: {
+          created_at: string
+          deletion_criteria: Json | null
+          id: string
+          is_active: boolean
+          legal_basis: string
+          retention_period_days: number
+          table_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deletion_criteria?: Json | null
+          id?: string
+          is_active?: boolean
+          legal_basis: string
+          retention_period_days: number
+          table_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deletion_criteria?: Json | null
+          id?: string
+          is_active?: boolean
+          legal_basis?: string
+          retention_period_days?: number
+          table_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_tracking: {
         Row: {
           bounced_at: string | null
@@ -888,6 +1086,42 @@ export type Database = {
           session_data?: Json | null
           submitted_at?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      goal_milestone_completions: {
+        Row: {
+          completed_at: string
+          completion_time_seconds: number | null
+          context_data: Json | null
+          created_at: string
+          goal_id: string
+          id: string
+          milestone_id: string
+          milestone_title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          completion_time_seconds?: number | null
+          context_data?: Json | null
+          created_at?: string
+          goal_id: string
+          id?: string
+          milestone_id: string
+          milestone_title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          completion_time_seconds?: number | null
+          context_data?: Json | null
+          created_at?: string
+          goal_id?: string
+          id?: string
+          milestone_id?: string
+          milestone_title?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2232,6 +2466,63 @@ export type Database = {
         }
         Relationships: []
       }
+      uat_sessions: {
+        Row: {
+          completed_goals: Json
+          feedback_submitted: boolean
+          id: string
+          last_activity: string
+          session_goals: Json
+          session_start: string
+          user_id: string
+        }
+        Insert: {
+          completed_goals?: Json
+          feedback_submitted?: boolean
+          id?: string
+          last_activity?: string
+          session_goals?: Json
+          session_start?: string
+          user_id: string
+        }
+        Update: {
+          completed_goals?: Json
+          feedback_submitted?: boolean
+          id?: string
+          last_activity?: string
+          session_goals?: Json
+          session_start?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      uat_testers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          is_active: boolean
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          role?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           awarded_at: string
@@ -2260,6 +2551,96 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_consent: {
+        Row: {
+          consent_type: string
+          created_at: string
+          granted_at: string | null
+          id: string
+          ip_address: unknown | null
+          is_granted: boolean
+          legal_basis: string | null
+          purpose: string | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          withdrawn_at: string | null
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          granted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_granted?: boolean
+          legal_basis?: string | null
+          purpose?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          withdrawn_at?: string | null
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          granted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_granted?: boolean
+          legal_basis?: string | null
+          purpose?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          withdrawn_at?: string | null
+        }
+        Relationships: []
+      }
+      user_feedback: {
+        Row: {
+          created_at: string
+          description: string
+          feedback_type: string
+          id: string
+          page_url: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          screenshot_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          feedback_type: string
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          feedback_type?: string
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_purchases: {
         Row: {
@@ -2509,6 +2890,19 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      record_audit_event: {
+        Args: {
+          p_user_id: string
+          p_action: string
+          p_table_name: string
+          p_record_id?: string
+          p_old_values?: Json
+          p_new_values?: Json
+          p_legal_basis?: string
+          p_purpose?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

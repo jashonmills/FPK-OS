@@ -4,73 +4,97 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuditLog } from "@/hooks/useAuditLog";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, Trash2, FileText, Shield } from "lucide-react";
+import { Download, Trash2, FileText, Shield, Clock, AlertTriangle } from "lucide-react";
+import { DataRetentionNotice } from "@/components/compliance/DataRetentionNotice";
 
 export function DataManagement() {
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { logDataExport, logDataAccess, logDataDeletion } = useAuditLog();
 
   const handleExportData = async () => {
     if (!user) return;
     
     setIsExporting(true);
     try {
-      // Fetch all user data
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+      // Log data access for audit purposes
+      await logDataAccess('user_data_export', user.id, 'GDPR Article 20 - Data Portability Request');
 
-      const { data: goals } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('user_id', user.id);
+      // Fetch all user data comprehensively
+      const [
+        { data: profile },
+        { data: goals },
+        { data: flashcards },
+        { data: enrollments },
+        { data: progress },
+        { data: activities },
+        { data: chatSessions },
+        { data: consentRecords },
+        { data: auditLogs }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('goals').select('*').eq('user_id', user.id),
+        supabase.from('flashcards').select('*').eq('user_id', user.id),
+        supabase.from('enrollments').select('*').eq('user_id', user.id),
+        supabase.from('lesson_progress').select('*').eq('user_id', user.id),
+        supabase.from('daily_activities').select('*').eq('user_id', user.id),
+        supabase.from('chat_sessions').select('*').eq('user_id', user.id),
+        supabase.from('user_consent').select('*').eq('user_id', user.id),
+        supabase.from('audit_log').select('*').eq('user_id', user.id).limit(100)
+      ]);
 
-      const { data: notes } = await supabase
-        .from('flashcards')
-        .select('*')
-        .eq('user_id', user.id);
-
-      const { data: enrollments } = await supabase
-        .from('enrollments')
-        .select('*')
-        .eq('user_id', user.id);
-
-      const { data: progress } = await supabase
-        .from('lesson_progress')
-        .select('*')
-        .eq('user_id', user.id);
-
-      const { data: activities } = await supabase
-        .from('daily_activities')
-        .select('*')
-        .eq('user_id', user.id);
-
-      // Compile all data
-      const userData = {
-        export_date: new Date().toISOString(),
-        user_id: user.id,
-        email: user.email,
-        profile,
-        goals,
-        flashcards: notes,
-        enrollments,
-        lesson_progress: progress,
-        daily_activities: activities
+      // Compile comprehensive export data
+      const exportData = {
+        metadata: {
+          export_date: new Date().toISOString(),
+          export_type: 'GDPR_Data_Export',
+          user_id: user.id,
+          email: user.email,
+          legal_basis: 'GDPR Article 20 - Right to Data Portability',
+          data_controller: 'Learning Platform',
+          retention_notice: 'This export contains all personal data we have collected about you.'
+        },
+        personal_data: {
+          profile,
+          goals: goals || [],
+          flashcards: flashcards || [],
+          enrollments: enrollments || [],
+          lesson_progress: progress || [],
+          daily_activities: activities || [],
+          chat_sessions: chatSessions || [],
+          consent_records: consentRecords || [],
+          recent_audit_log: auditLogs || []
+        },
+        data_summary: {
+          total_records: [
+            goals?.length || 0,
+            flashcards?.length || 0,
+            enrollments?.length || 0,
+            progress?.length || 0,
+            activities?.length || 0,
+            chatSessions?.length || 0
+          ].reduce((a, b) => a + b, 0),
+          export_format: 'JSON',
+          data_categories: ['identification_data', 'contact_data', 'usage_data', 'performance_data']
+        }
       };
 
+      // Log the export for audit trail
+      const totalRecords = exportData.data_summary.total_records;
+      await logDataExport(exportData.data_summary.data_categories, totalRecords);
+
       // Create and download JSON file
-      const blob = new Blob([JSON.stringify(userData, null, 2)], { 
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
         type: 'application/json' 
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `my-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `gdpr-data-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -78,7 +102,7 @@ export function DataManagement() {
 
       toast({
         title: "Data exported successfully",
-        description: "Your data has been downloaded as a JSON file.",
+        description: `${totalRecords} records exported. Download includes all your personal data.`,
       });
     } catch (error) {
       console.error('Export error:', error);
@@ -97,14 +121,27 @@ export function DataManagement() {
     
     setIsDeleting(true);
     try {
+      // Log the account deletion request for audit purposes
+      await logDataDeletion('user_account', user.id, 'GDPR Article 17 - Right to Erasure - User requested account deletion');
+
       // Delete all user data in correct order (respecting foreign keys)
-      await supabase.from('daily_activities').delete().eq('user_id', user.id);
-      await supabase.from('lesson_progress').delete().eq('user_id', user.id);
-      await supabase.from('enrollments').delete().eq('user_id', user.id);
-      await supabase.from('flashcards').delete().eq('user_id', user.id);
-      await supabase.from('goals').delete().eq('user_id', user.id);
-      await supabase.from('achievements').delete().eq('user_id', user.id);
-      await supabase.from('analytics_metrics').delete().eq('user_id', user.id);
+      const deletionTasks = [
+        supabase.from('daily_activities').delete().eq('user_id', user.id),
+        supabase.from('lesson_progress').delete().eq('user_id', user.id),
+        supabase.from('enrollments').delete().eq('user_id', user.id),
+        supabase.from('flashcards').delete().eq('user_id', user.id),
+        supabase.from('goals').delete().eq('user_id', user.id),
+        supabase.from('achievements').delete().eq('user_id', user.id),
+        supabase.from('analytics_metrics').delete().eq('user_id', user.id),
+        supabase.from('chat_sessions').delete().eq('user_id', user.id),
+        supabase.from('user_consent').delete().eq('user_id', user.id),
+        // Note: audit_log entries are retained for legal compliance
+        // and profiles table is deleted last
+      ];
+
+      await Promise.all(deletionTasks);
+      
+      // Delete profile last
       await supabase.from('profiles').delete().eq('id', user.id);
 
       // Sign out user
@@ -112,7 +149,7 @@ export function DataManagement() {
 
       toast({
         title: "Account deleted",
-        description: "Your account and all associated data have been permanently deleted.",
+        description: "Your account and all personal data have been permanently deleted. Audit logs are retained for legal compliance.",
       });
     } catch (error) {
       console.error('Delete error:', error);
@@ -129,11 +166,14 @@ export function DataManagement() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Data Management</h2>
+        <h2 className="text-2xl font-bold mb-2">Data Management & Privacy Rights</h2>
         <p className="text-muted-foreground">
-          Manage your personal data and exercise your rights under GDPR.
+          Exercise your rights under GDPR and manage your personal data with full transparency and control.
         </p>
       </div>
+
+      {/* Data Retention Information */}
+      <DataRetentionNotice />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
