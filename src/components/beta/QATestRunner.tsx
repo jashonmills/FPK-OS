@@ -224,7 +224,8 @@ const QATestRunner: React.FC = () => {
     });
     setTestResults(resetResults);
     
-    await new Promise(resolve => setTimeout(resolve, 100)); // Let UI update
+    // Wait for state to settle
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     const automatedTests = QA_TEST_CASES.filter(test => test.automated);
     console.log('Filtered automated tests:', automatedTests.map(t => t.name));
@@ -233,14 +234,14 @@ const QATestRunner: React.FC = () => {
       const test = automatedTests[i];
       console.log(`📋 Running test ${i + 1}/${automatedTests.length}: ${test.name}`);
       
-      // Update to running status and force UI refresh
-      await new Promise(resolve => {
-        setTestResults(prev => ({
-          ...prev,
-          [test.id]: { ...prev[test.id], status: 'running' }
-        }));
-        setTimeout(resolve, 50);
-      });
+      // Set running status
+      setTestResults(prev => ({
+        ...prev,
+        [test.id]: { ...prev[test.id], status: 'running' }
+      }));
+
+      // Small delay to let UI update
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       try {
         const startTime = performance.now();
@@ -256,46 +257,44 @@ const QATestRunner: React.FC = () => {
 
         console.log(`✅ Test ${test.name} completed: ${passed ? 'PASSED' : 'FAILED'} (${Math.round(duration)}ms)`);
 
-        // Update results and force UI refresh
-        await new Promise(resolve => {
-          setTestResults(prev => {
-            const newResults = {
-              ...prev,
-              [test.id]: {
-                ...prev[test.id],
-                status: (passed ? 'passed' : 'failed') as TestResult['status'],
-                duration: Math.round(duration),
-                message: passed ? 'Test passed successfully' : 'Test failed - check implementation'
-              }
-            };
-            console.log('Updated test results:', Object.keys(newResults).map(key => ({ 
-              id: key, 
-              status: newResults[key].status 
-            })));
-            return newResults;
-          });
-          setTimeout(resolve, 100);
-        });
-      } catch (error) {
-        console.error(`❌ Test ${test.name} error:`, error);
-        await new Promise(resolve => {
-          setTestResults(prev => ({
+        // Update final result
+        setTestResults(prev => {
+          const newResults = {
             ...prev,
             [test.id]: {
               ...prev[test.id],
-              status: 'failed',
-              message: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`
+              status: (passed ? 'passed' : 'failed') as TestResult['status'],
+              duration: Math.round(duration),
+              message: passed ? 'Test passed successfully' : 'Test failed - check implementation'
             }
-          }));
-          setTimeout(resolve, 100);
+          };
+          console.log('Updated test results:', Object.keys(newResults).map(key => ({ 
+            id: key, 
+            status: newResults[key].status 
+          })));
+          return newResults;
         });
+
+      } catch (error) {
+        console.error(`❌ Test ${test.name} error:`, error);
+        setTestResults(prev => ({
+          ...prev,
+          [test.id]: {
+            ...prev[test.id],
+            status: 'failed',
+            message: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }
+        }));
       }
 
-      // Longer delay between tests to ensure UI updates
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wait between tests
+      await new Promise(resolve => setTimeout(resolve, 250));
     }
 
     console.log('🏁 QA Test Runner completed');
+    
+    // Force final state update
+    setTestResults(prev => ({ ...prev }));
     setIsRunning(false);
   };
 
