@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { initializeReliablePDF } from '@/utils/reliablePdfConfig';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -33,6 +34,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const [pageCache, setPageCache] = useState<PageCache>({});
   const [preloadedPages, setPreloadedPages] = useState<Set<number>>(new Set());
   const [isTextSelectionEnabled, setIsTextSelectionEnabled] = useState<boolean>(true);
+  const [retryCount, setRetryCount] = useState<number>(0);
   
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,16 +47,31 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   // Buffer size for lazy loading (pages to render around current page)
   const BUFFER_SIZE = 2;
   const PRELOAD_SIZE = 3;
+  const MAX_RETRIES = 3;
+
+  // Initialize PDF worker on mount
+  useEffect(() => {
+    const workerInitialized = initializeReliablePDF();
+    if (!workerInitialized) {
+      console.warn('⚠️ PDF worker initialization failed, may cause loading issues');
+    }
+  }, []);
 
   // PDF.js options optimized for performance
   const pdfOptions = React.useMemo(() => ({
-    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/cmaps/`,
+    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
     cMapPacked: true,
-    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/standard_fonts/`,
+    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
     disableWorker: false,
     enableXfa: false,
     disableRange: false, // Enable range requests for better performance
     disableStream: false, // Enable streaming for better performance
+    httpHeaders: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Range, Content-Range, Content-Length'
+    },
+    withCredentials: false // Prevent CORS issues
   }), []);
 
   // Calculate which pages should be rendered based on current page and buffer
@@ -99,14 +116,47 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const onDocumentLoadError = (error: Error) => {
     console.error('❌ PDF loading error:', error);
     setIsLoading(false);
-    setError(`Failed to load PDF: ${error.message}`);
+    
+    let errorMessage = `Failed to load PDF: ${error.message}`;
+    let suggestion = '';
+    
+    // Provide specific error handling
+    if (error.message.includes('CORS')) {
+      suggestion = 'This PDF may have CORS restrictions. Try downloading it directly.';
+    } else if (error.message.includes('network') || error.message.includes('fetch')) {
+      suggestion = 'Network issue detected. Please check your connection and try again.';
+    } else if (error.message.includes('Invalid PDF')) {
+      suggestion = 'This file appears to be corrupted or is not a valid PDF.';
+    } else if (error.message.includes('Worker')) {
+      suggestion = 'PDF.js worker issue. The page will attempt to reload the viewer.';
+    }
+    
+    setError(`${errorMessage}${suggestion ? ` ${suggestion}` : ''}`);
     
     toast({
       title: "PDF Error",
-      description: `Failed to load ${fileName}`,
+      description: `Failed to load ${fileName}${suggestion ? `: ${suggestion}` : ''}`,
       variant: "destructive"
     });
   };
+
+  const retryLoading = useCallback(() => {
+    if (retryCount < MAX_RETRIES) {
+      setRetryCount(prev => prev + 1);
+      setError(null);
+      setIsLoading(true);
+      setNumPages(0);
+      setPageNumber(1);
+      
+      // Reinitialize PDF worker
+      initializeReliablePDF();
+      
+      toast({
+        title: "Retrying...",
+        description: `Attempting to reload PDF (${retryCount + 1}/${MAX_RETRIES})`,
+      });
+    }
+  }, [retryCount, fileName, toast]);
 
   const goToPage = useCallback((page: number) => {
     const newPage = Math.max(1, Math.min(page, numPages));
@@ -270,10 +320,18 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
                 <div className="text-xs text-muted-foreground">
                   File: {fileName}
                 </div>
-                <Button variant="outline" size="sm" onClick={onClose}>
-                  <X className="h-4 w-4 mr-2" />
-                  Close
-                </Button>
+                <div className="flex gap-2">
+                  {retryCount < MAX_RETRIES && (
+                    <Button variant="default" size="sm" onClick={retryLoading}>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry ({retryCount + 1}/{MAX_RETRIES})
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={onClose}>
+                    <X className="h-4 w-4 mr-2" />
+                    Close
+                  </Button>
+                </div>
               </div>
             </div>
           </DialogDescription>
