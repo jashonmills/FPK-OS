@@ -24,7 +24,7 @@ export const useProgressiveLoading = (phases: Omit<LoadingPhase, 'loaded'>[]) =>
 
     // Load phases progressively with delays
     sortedPhases.forEach((phase, index) => {
-      const delay = index * 100; // 100ms between each phase
+      const delay = index * 50; // 50ms between each phase
       
       const timeout = setTimeout(() => {
         setLoadedPhases(prev => new Set([...prev, phase.id]));
