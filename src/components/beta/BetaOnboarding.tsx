@@ -161,15 +161,13 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
     }
     
     if (step.link) {
-      // Check if it's an external URL
+      // Open all action links in new tabs/windows
       if (step.link.startsWith('http')) {
         window.open(step.link, '_blank');
       } else {
-        try {
-          navigate(step.link);
-        } catch (error) {
-          console.error('Navigation failed:', error);
-        }
+        // For internal routes, open in new tab with full URL
+        const fullUrl = `${window.location.origin}${step.link}`;
+        window.open(fullUrl, '_blank');
       }
     }
   };
