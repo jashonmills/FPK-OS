@@ -15,9 +15,13 @@ const PLANS = {
     monthly: 14.99,
     annual: 14.99 * 12 * 0.9,
     features: [
-      'Access to basic AI coaching',
-      'Study progress tracking',
-      'Basic analytics',
+      '100 AI chat messages/month',
+      '60 minutes voice processing/month',
+      '50 knowledge queries/month',
+      '10 document processing/month',
+      '200 flashcard generations/month',
+      '50 AI insights/month',
+      '100MB knowledge storage',
       'Email support'
     ]
   },
@@ -26,12 +30,16 @@ const PLANS = {
     monthly: 39.99,
     annual: 39.99 * 12 * 0.85,
     features: [
-      'Everything in Basic',
-      'Advanced AI coaching',
-      'Detailed analytics',
+      '500 AI chat messages/month',
+      '300 minutes voice processing/month',
+      '250 knowledge queries/month',
+      '50 document processing/month',
+      '1,000 flashcard generations/month',
+      '200 AI insights/month',
+      '500MB knowledge storage',
+      'Advanced analytics dashboard',
       'Priority support',
-      'Custom study plans',
-      'Advanced flashcards'
+      'Custom study plans'
     ]
   },
   premium: {
@@ -39,12 +47,18 @@ const PLANS = {
     monthly: 59.99,
     annual: 59.99 * 12 * 0.8,
     features: [
-      'Everything in Pro',
-      'Unlimited AI interactions',
-      'Advanced course creation',
+      '🚀 Unlimited AI interactions',
+      '🚀 Unlimited voice processing',
+      '🚀 Unlimited knowledge queries',
+      '🚀 Unlimited document processing',
+      '🚀 Unlimited flashcard generation',
+      '🚀 Unlimited AI insights',
+      '2GB knowledge storage',
+      'Advanced course creation tools',
       'White-label options',
-      'API access',
-      'Dedicated support'
+      'API access (coming soon)',
+      'Dedicated support',
+      'Early access to new features'
     ]
   }
 };

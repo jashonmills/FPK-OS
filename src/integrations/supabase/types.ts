@@ -3032,6 +3032,105 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_logs: {
+        Row: {
+          feature_type: string
+          id: string
+          metadata: Json | null
+          timestamp: string
+          usage_amount: number
+          user_id: string
+        }
+        Insert: {
+          feature_type: string
+          id?: string
+          metadata?: Json | null
+          timestamp?: string
+          usage_amount?: number
+          user_id: string
+        }
+        Update: {
+          feature_type?: string
+          id?: string
+          metadata?: Json | null
+          timestamp?: string
+          usage_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_quotas: {
+        Row: {
+          ai_chat_messages_limit: number
+          ai_chat_messages_used: number
+          ai_insights_limit: number
+          ai_insights_used: number
+          created_at: string
+          document_processing_limit: number
+          document_processing_used: number
+          flashcard_generation_limit: number
+          flashcard_generation_used: number
+          id: string
+          knowledge_base_storage_mb_limit: number
+          knowledge_base_storage_mb_used: number
+          period_end: string
+          period_start: string
+          rag_queries_limit: number
+          rag_queries_used: number
+          subscription_tier: string
+          updated_at: string
+          user_id: string
+          voice_minutes_limit: number
+          voice_minutes_used: number
+        }
+        Insert: {
+          ai_chat_messages_limit?: number
+          ai_chat_messages_used?: number
+          ai_insights_limit?: number
+          ai_insights_used?: number
+          created_at?: string
+          document_processing_limit?: number
+          document_processing_used?: number
+          flashcard_generation_limit?: number
+          flashcard_generation_used?: number
+          id?: string
+          knowledge_base_storage_mb_limit?: number
+          knowledge_base_storage_mb_used?: number
+          period_end?: string
+          period_start?: string
+          rag_queries_limit?: number
+          rag_queries_used?: number
+          subscription_tier?: string
+          updated_at?: string
+          user_id: string
+          voice_minutes_limit?: number
+          voice_minutes_used?: number
+        }
+        Update: {
+          ai_chat_messages_limit?: number
+          ai_chat_messages_used?: number
+          ai_insights_limit?: number
+          ai_insights_used?: number
+          created_at?: string
+          document_processing_limit?: number
+          document_processing_used?: number
+          flashcard_generation_limit?: number
+          flashcard_generation_used?: number
+          id?: string
+          knowledge_base_storage_mb_limit?: number
+          knowledge_base_storage_mb_used?: number
+          period_end?: string
+          period_start?: string
+          rag_queries_limit?: number
+          rag_queries_used?: number
+          subscription_tier?: string
+          updated_at?: string
+          user_id?: string
+          voice_minutes_limit?: number
+          voice_minutes_used?: number
+        }
+        Relationships: []
+      }
       user_access_certifications: {
         Row: {
           certification_type: string
@@ -3513,6 +3612,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      initialize_user_quotas: {
+        Args: { p_user_id: string; p_subscription_tier?: string }
+        Returns: undefined
+      }
       log_hipaa_access: {
         Args: {
           p_user_id: string
@@ -3537,6 +3640,19 @@ export type Database = {
           p_purpose?: string
         }
         Returns: undefined
+      }
+      reset_monthly_quotas: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      track_usage: {
+        Args: {
+          p_user_id: string
+          p_feature_type: string
+          p_usage_amount?: number
+          p_metadata?: Json
+        }
+        Returns: boolean
       }
       validate_legal_basis: {
         Args: {

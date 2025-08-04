@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
+import { UsageDashboard } from '@/components/usage/UsageDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Gift, Loader2 } from 'lucide-react';
@@ -50,13 +51,18 @@ export default function UserSubscription() {
         </p>
       </div>
 
-      <Tabs defaultValue="status" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="usage" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="usage">Usage & Billing</TabsTrigger>
           <TabsTrigger value="status">Current Status</TabsTrigger>
           <TabsTrigger value="plans">Upgrade/Change Plan</TabsTrigger>
           <TabsTrigger value="coupons">Redeem Coupon</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="usage">
+          <UsageDashboard />
+        </TabsContent>
+          
         <TabsContent value="status">
           <SubscriptionStatus />
         </TabsContent>
