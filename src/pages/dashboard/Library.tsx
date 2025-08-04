@@ -221,7 +221,7 @@ const Library = () => {
 
         {/* Library Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3">
             <TabsTrigger value="public-domain" className="flex items-center gap-2">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">Public Domain</span>
@@ -231,11 +231,6 @@ const Library = () => {
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Your Uploads</span>
               <span className="sm:hidden">Uploads</span>
-            </TabsTrigger>
-            <TabsTrigger value="community" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Community</span>
-              <span className="sm:hidden">Community</span>
             </TabsTrigger>
             <TabsTrigger value="search-results" className="flex items-center gap-2">
               <Search className="h-4 w-4" />
@@ -254,11 +249,6 @@ const Library = () => {
             </ErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="community" className="mt-6">
-            <ErrorBoundary>
-              <ApprovedStorageBooksSection viewMode={viewMode} />
-            </ErrorBoundary>
-          </TabsContent>
 
           <TabsContent value="search-results" className="mt-6">
             {renderSearchResults()}
