@@ -10,6 +10,7 @@ import { MessageSquare, Send, Bug, Lightbulb, Star, AlertTriangle } from 'lucide
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import StructuredQuestions, { StructuredResponse } from './StructuredQuestions';
 
 interface FeedbackData {
   type: 'bug' | 'feature' | 'general' | 'urgent';
@@ -17,6 +18,7 @@ interface FeedbackData {
   message: string;
   rating?: number;
   contact_email?: string;
+  structuredResponses?: StructuredResponse;
 }
 
 interface FeedbackSystemProps {
@@ -37,7 +39,8 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
     category: '',
     message: '',
     rating: undefined,
-    contact_email: ''
+    contact_email: '',
+    structuredResponses: {}
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +54,18 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
   const categories = {
     bug: ['UI/Design', 'Functionality', 'Performance', 'Audio/Video', 'Navigation', 'Other'],
     feature: ['New Feature', 'Improvement', 'Integration', 'Accessibility', 'Other'],
-    general: ['User Experience', 'Content Quality', 'Praise', 'Suggestion', 'Other'],
+    general: [
+      'User Experience', 
+      'Content Quality', 
+      'Praise', 
+      'Suggestion', 
+      'Learning State & EL Spelling Course',
+      'Onboarding & Dashboard Flow',
+      'Analytics & Progress Tracking',
+      'Voice, Flashcards, and Gamification',
+      'Final Thoughts',
+      'Other'
+    ],
     urgent: ['Cannot Access', 'Data Loss', 'Security Issue', 'Critical Bug', 'Other']
   };
 
@@ -74,10 +88,16 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
         `Viewport: ${window.innerWidth}x${window.innerHeight}`
       ].filter(Boolean).join('\n');
 
+      // Include structured responses if available
+      const structuredData = formData.structuredResponses && Object.keys(formData.structuredResponses).length > 0 
+        ? `\n\n--- Structured Responses ---\n${JSON.stringify(formData.structuredResponses, null, 2)}`
+        : '';
+
       const fullMessage = [
         formData.category ? `[${formData.category}]` : '',
         formData.message,
         formData.rating ? `\nRating: ${formData.rating}/5 stars` : '',
+        structuredData,
         `\n\n--- Context ---\n${contextInfo}`
       ].filter(Boolean).join('\n');
 
@@ -102,7 +122,8 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
         category: '',
         message: '',
         rating: undefined,
-        contact_email: ''
+        contact_email: '',
+        structuredResponses: {}
       });
       setIsOpen(false);
     } catch (error) {
@@ -115,6 +136,16 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
 
   const selectedType = feedbackTypes.find(t => t.value === formData.type);
   const availableCategories = categories[formData.type] || [];
+
+  const handleStructuredResponseChange = (questionId: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      structuredResponses: {
+        ...prev.structuredResponses,
+        [questionId]: value
+      }
+    }));
+  };
 
   const defaultTrigger = (
     <Button variant="outline" size="sm" className="fixed bottom-4 right-4 z-50 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -229,6 +260,13 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
               rows={4}
             />
           </div>
+
+          {/* Structured Questions */}
+          <StructuredQuestions
+            category={formData.type}
+            responses={formData.structuredResponses || {}}
+            onResponseChange={handleStructuredResponseChange}
+          />
 
           {/* Contact Email (if not logged in or want different email) */}
           <div className="space-y-2">
