@@ -14,6 +14,7 @@ import i18n from '@/i18n';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
 import RouteBoundary from '@/components/RouteBoundary';
 import BetaAccessGate from '@/components/beta/BetaAccessGate';
+import BetaUpdateListener from '@/components/notifications/BetaUpdateListener';
 import { SubscriptionGate } from '@/components/SubscriptionGate';
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -99,6 +100,7 @@ function App() {
                   <TooltipProvider>
                     <Toaster />
                     <Sonner />
+                    <BetaUpdateListener />
                     <ConsentManager />
                     <BrowserRouter>
                       <OnboardingFlowManager>

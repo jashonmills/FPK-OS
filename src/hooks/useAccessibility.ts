@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface AccessibilityClasses {
@@ -26,26 +26,35 @@ export const useAccessibility = () => {
     containerClasses: 'bg-background text-foreground'
   });
 
-  useEffect(() => {
-    if (!profile) return;
+  // Memoize profile values to prevent unnecessary re-renders
+  const profileSettings = useMemo(() => {
+    if (!profile) return null;
+    
+    return {
+      fontFamily: profile.font_family || 'System',
+      textSize: profile.text_size || 3,
+      lineSpacing: profile.line_spacing || 3,
+      colorContrast: profile.color_contrast || 'Standard',
+      comfortMode: profile.comfort_mode || 'Normal'
+    };
+  }, [
+    profile?.font_family,
+    profile?.text_size,
+    profile?.line_spacing,
+    profile?.color_contrast,
+    profile?.comfort_mode
+  ]);
 
-    console.log('🎨 useAccessibility: Updating classes for profile', {
-      fontFamily: profile.font_family,
-      textSize: profile.text_size,
-      lineSpacing: profile.line_spacing,
-      colorContrast: profile.color_contrast,
-      comfortMode: profile.comfort_mode
-    });
+  useEffect(() => {
+    if (!profileSettings) return;
+
+    // Only log when settings actually change
+    console.log('🎨 useAccessibility: Updating classes for profile', profileSettings);
 
     // Apply accessibility settings globally via CSS variables
-    const textSize = profile.text_size || 3;
-    const lineSpacing = profile.line_spacing || 3;
-    const fontFamily = profile.font_family || 'System';
-
-    // Update CSS variables for immediate application
     const root = document.documentElement;
-    root.style.setProperty('--accessibility-text-size', `${textSize * 0.25 + 0.75}rem`);
-    root.style.setProperty('--accessibility-line-height', `${lineSpacing * 0.25 + 1}`);
+    root.style.setProperty('--accessibility-text-size', `${profileSettings.textSize * 0.25 + 0.75}rem`);
+    root.style.setProperty('--accessibility-line-height', `${profileSettings.lineSpacing * 0.25 + 1}`);
     
     const fontMapping = {
       'System': 'system-ui, -apple-system, sans-serif',
@@ -54,14 +63,14 @@ export const useAccessibility = () => {
       'Times': 'Times, serif',
       'Verdana': 'Verdana, sans-serif'
     };
-    root.style.setProperty('--accessibility-font-family', fontMapping[fontFamily as keyof typeof fontMapping] || fontMapping.System);
+    root.style.setProperty('--accessibility-font-family', fontMapping[profileSettings.fontFamily as keyof typeof fontMapping] || fontMapping.System);
 
     // Component classes for fallback and component-specific styling
     const newClasses: AccessibilityClasses = {
-      fontFamily: `font-${fontFamily.toLowerCase().replace(/\s+/g, '-')}`,
+      fontFamily: `font-${profileSettings.fontFamily.toLowerCase().replace(/\s+/g, '-')}`,
       textSize: 'text-accessibility', // Use CSS variable
       lineHeight: 'leading-accessibility', // Use CSS variable
-      textColor: profile.color_contrast === 'High' ? 'text-black' : 'text-foreground',
+      textColor: profileSettings.colorContrast === 'High' ? 'text-black' : 'text-foreground',
       backgroundColor: 'bg-background',
       borderColor: 'border-border',
       cardClasses: 'bg-card text-card-foreground border-border',
@@ -70,9 +79,9 @@ export const useAccessibility = () => {
 
     setClasses(newClasses);
     
-  }, [profile]);
+  }, [profileSettings]);
 
-  const getAccessibilityClasses = (element: 'card' | 'container' | 'text' = 'container') => {
+  const getAccessibilityClasses = useCallback((element: 'card' | 'container' | 'text' = 'container') => {
     const baseClasses = `transition-all duration-200`;
     
     switch (element) {
@@ -84,16 +93,16 @@ export const useAccessibility = () => {
       default:
         return `${baseClasses} ${classes.containerClasses}`;
     }
-  };
+  }, [classes]);
 
-  return {
+  return useMemo(() => ({
     classes,
     getAccessibilityClasses,
     profile,
-    isHighContrast: profile?.color_contrast === 'High',
-    comfortMode: profile?.comfort_mode || 'Normal',
-    fontFamily: profile?.font_family || 'System',
-    textSize: profile?.text_size || 3,
-    lineSpacing: profile?.line_spacing || 3
-  };
+    isHighContrast: profileSettings?.colorContrast === 'High',
+    comfortMode: profileSettings?.comfortMode || 'Normal',
+    fontFamily: profileSettings?.fontFamily || 'System',
+    textSize: profileSettings?.textSize || 3,
+    lineSpacing: profileSettings?.lineSpacing || 3
+  }), [classes, getAccessibilityClasses, profile, profileSettings]);
 };

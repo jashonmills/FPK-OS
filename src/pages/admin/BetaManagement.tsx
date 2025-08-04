@@ -12,6 +12,8 @@ import { supabase } from '@/integrations/supabase/client';
 import QATestRunner from '@/components/beta/QATestRunner';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
 import FeedbackSystem from '@/components/beta/FeedbackSystem';
+import SendBetaUpdate from '@/components/admin/SendBetaUpdate';
+import TestFeedbackSystem from '@/components/admin/TestFeedbackSystem';
 import { Users, MessageSquare, Settings, TestTube, Send, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -19,7 +21,7 @@ const BetaManagement = () => {
   const { user } = useAuth();
   const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
 
-  // Fetch beta users
+  // Fetch beta users with real-time updates
   const { data: betaUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['beta-users'],
     queryFn: async () => {
@@ -32,6 +34,35 @@ const BetaManagement = () => {
       return data || [];
     }
   });
+
+  // Real-time subscription for beta user changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('beta-users-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: 'beta_access=eq.true'
+        },
+        (payload) => {
+          console.log('Real-time beta user update:', payload);
+          refetchUsers();
+          if (payload.eventType === 'INSERT') {
+            toast.success('New beta user added!');
+          } else if (payload.eventType === 'UPDATE') {
+            toast.info('Beta user updated');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetchUsers]);
 
   // Fetch feedback submissions with real-time updates
   const { data: feedbackList, refetch: refetchFeedback } = useQuery({
@@ -205,10 +236,7 @@ const BetaManagement = () => {
                 <CardDescription>Common beta management tasks</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button className="w-full" onClick={() => {}}>
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Update to Beta Users
-                </Button>
+                <SendBetaUpdate />
                 <Button 
                   variant="outline" 
                   className="w-full"
@@ -222,15 +250,7 @@ const BetaManagement = () => {
                   Preview Onboarding Flow
                 </Button>
                 <BetaOnboarding autoShow={false} />
-                <FeedbackSystem 
-                  currentPage="/admin/beta"
-                  trigger={
-                    <Button variant="outline" className="w-full">
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Test Feedback System
-                    </Button>
-                  }
-                />
+                <TestFeedbackSystem />
               </CardContent>
             </Card>
 
