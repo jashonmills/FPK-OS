@@ -117,7 +117,7 @@ export default function ChoosePlan() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-fpk-purple to-fpk-amber flex items-center justify-center p-4">
       <div className="container mx-auto max-w-6xl">
         {/* Back Button */}
         <div className="mb-6">
