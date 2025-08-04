@@ -191,18 +191,29 @@ export const useOnboardingFlow = () => {
 
   // Navigation helpers
   const navigateToStep = (step: OnboardingStep) => {
+    console.log('🔄 OnboardingFlow: Navigating to step:', step);
+    
+    // Prevent navigation during loading states
+    if (state.isLoading) return;
+    
     switch (step) {
       case 'unauthenticated':
-        navigate('/login');
+        navigate('/login', { replace: true });
         break;
       case 'choose-plan':
-        navigate('/choose-plan');
+        navigate('/choose-plan', { replace: true });
         break;
       case 'beta-onboarding':
-        // Stay on current page but trigger beta onboarding
+        // Stay on current page but show onboarding
         break;
       case 'dashboard':
-        navigate('/dashboard/learner');
+        // Try to restore previous route or go to default
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/dashboard')) {
+          // Already on dashboard, don't navigate
+          return;
+        }
+        navigate('/dashboard/learner', { replace: true });
         break;
     }
   };

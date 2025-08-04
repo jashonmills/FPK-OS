@@ -17,60 +17,79 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
   } = useOnboardingFlow();
   const location = useLocation();
 
-  // Handle automatic navigation based on flow state - but only when needed
+  // Store intended route for restoration after auth loading
+  const [navigationLock, setNavigationLock] = React.useState(false);
+  const lastValidRoute = React.useRef<string | null>(null);
+
+  // Handle automatic navigation based on flow state - with debouncing and conflict prevention
   useEffect(() => {
-    if (isLoading || !currentStep) return;
+    if (isLoading || !currentStep || navigationLock) return;
 
     const currentPath = location.pathname;
+    
+    // Store the last valid route for restoration
+    if (!isLoading && currentStep === 'dashboard') {
+      lastValidRoute.current = currentPath;
+    }
     
     // Log but don't spam
     if (currentStep !== 'loading') {
       console.log('🚀 OnboardingFlowManager:', {
         currentStep,
         currentPath,
-        shouldShowBetaOnboarding
+        shouldShowBetaOnboarding,
+        navigationLock
       });
     }
 
-    // Enhanced protection: Check for any attempts to access dashboard routes when unauthenticated
+    // Check route types
     const isDashboardRoute = currentPath.startsWith('/dashboard');
     const isProtectedRoute = isDashboardRoute || currentPath.startsWith('/profile') || currentPath.startsWith('/settings');
+    const isPublicRoute = currentPath === '/' || currentPath === '/login' || 
+                         currentPath.startsWith('/privacy') || currentPath.startsWith('/terms');
+    const isPlanRoute = currentPath.startsWith('/choose-plan') || currentPath.startsWith('/subscription');
     
-    // Only navigate if we're not where we should be
+    // Debounced navigation with lock to prevent conflicts
+    const performNavigation = (step: string) => {
+      if (navigationLock) return;
+      
+      setNavigationLock(true);
+      setTimeout(() => {
+        navigateToStep(step as any);
+        setTimeout(() => setNavigationLock(false), 100);
+      }, 50);
+    };
+
+    // Only navigate when there's a clear mismatch (not during transitions)
     switch (currentStep) {
       case 'unauthenticated':
-        // Block access to any protected routes when unauthenticated
+        // Only redirect if trying to access protected routes
         if (isProtectedRoute) {
-          console.log('🔒 Blocking access to protected route for unauthenticated user:', currentPath);
-          navigateToStep('unauthenticated');
-        } else if (currentPath !== '/login' && currentPath !== '/' && 
-            !currentPath.startsWith('/privacy') && !currentPath.startsWith('/terms') &&
-            !currentPath.startsWith('/choose-plan') &&
-            !currentPath.startsWith('/subscription')) {
-          console.log('🔄 Navigating to login from', currentPath);
-          navigateToStep('unauthenticated');
+          console.log('🔒 Redirecting unauthenticated user from protected route:', currentPath);
+          performNavigation('unauthenticated');
         }
         break;
       
       case 'choose-plan':
-        // Block dashboard access when user needs to choose a plan
+        // Only redirect if trying to access dashboard
         if (isDashboardRoute) {
-          console.log('🔒 Blocking dashboard access - user needs to choose plan');
-          navigateToStep('choose-plan');
-        } else if (currentPath !== '/choose-plan' && currentPath !== '/subscription') {
-          console.log('🔄 Navigating to choose-plan from', currentPath);
-          navigateToStep('choose-plan');
+          console.log('🔒 Redirecting to plan selection from dashboard:', currentPath);
+          performNavigation('choose-plan');
         }
         break;
         
       case 'dashboard':
+        // Only redirect from auth/plan pages, restore intended route if possible
         if (currentPath === '/login' || currentPath === '/choose-plan') {
-          console.log('🔄 Navigating to dashboard from', currentPath);
-          navigateToStep('dashboard');
+          console.log('🔄 Navigating to dashboard from auth page:', currentPath);
+          const targetRoute = lastValidRoute.current && lastValidRoute.current.startsWith('/dashboard') 
+            ? lastValidRoute.current 
+            : '/dashboard/learner';
+          performNavigation('dashboard');
         }
         break;
     }
-  }, [currentStep, isLoading, location.pathname]); // Added location.pathname to detect all route changes
+  }, [currentStep, isLoading, location.pathname, navigationLock]);
 
   // Loading state
   if (isLoading) {

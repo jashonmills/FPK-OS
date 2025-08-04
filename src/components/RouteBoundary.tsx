@@ -38,7 +38,17 @@ class RouteBoundary extends Component<Props, State> {
   };
 
   private handleGoHome = () => {
-    window.location.href = '/dashboard/learner';
+    // Use navigate instead of window.location to prevent full page reload
+    try {
+      const navigate = (window as any).__reactRouterNavigate;
+      if (navigate) {
+        navigate('/dashboard/learner');
+      } else {
+        window.location.href = '/dashboard/learner';
+      }
+    } catch {
+      window.location.href = '/dashboard/learner';
+    }
   };
 
   public render() {

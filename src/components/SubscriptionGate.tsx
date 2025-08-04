@@ -16,14 +16,19 @@ export function SubscriptionGate({ children, allowedPaths = [] }: SubscriptionGa
   const location = useLocation();
 
   useEffect(() => {
-    // Only redirect if not already on an allowed path and not on the plan selection page
-    if (shouldRedirectToPlanSelection && 
+    // Only redirect if subscription check is complete and we have definitive status
+    if (!isLoading && shouldRedirectToPlanSelection && 
         !allowedPaths.includes(location.pathname) && 
-        location.pathname !== '/choose-plan') {
-      console.log('🔄 SubscriptionGate: Redirecting to choose-plan from', location.pathname);
-      navigate('/choose-plan');
+        location.pathname !== '/choose-plan' &&
+        !location.pathname.startsWith('/subscription')) {
+      // Debounce navigation to prevent conflicts
+      const timer = setTimeout(() => {
+        console.log('🔄 SubscriptionGate: Redirecting to choose-plan from', location.pathname);
+        navigate('/choose-plan');
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [shouldRedirectToPlanSelection, navigate, location.pathname, allowedPaths]);
+  }, [isLoading, shouldRedirectToPlanSelection, navigate, location.pathname, allowedPaths]);
 
   // Show loading while checking subscription status
   if (isLoading) {
