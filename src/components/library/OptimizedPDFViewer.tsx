@@ -35,10 +35,13 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const [preloadedPages, setPreloadedPages] = useState<Set<number>>(new Set());
   const [isTextSelectionEnabled, setIsTextSelectionEnabled] = useState<boolean>(true);
   const [retryCount, setRetryCount] = useState<number>(0);
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
+  const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Touch gesture handling
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
@@ -48,6 +51,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const BUFFER_SIZE = 2;
   const PRELOAD_SIZE = 3;
   const MAX_RETRIES = 3;
+  const LOADING_TIMEOUT = 45000; // 45 seconds timeout
 
   // Initialize PDF worker on mount
   useEffect(() => {
@@ -71,9 +75,38 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Allow-Headers': 'Range, Content-Range, Content-Length'
     },
-    withCredentials: false, // Prevent CORS issues
-    timeout: 30000 // Add 30 second timeout to prevent infinite loading
+    withCredentials: false // Prevent CORS issues
   }), []);
+
+  // Set up loading timeout
+  useEffect(() => {
+    if (isLoading) {
+      loadingTimeoutRef.current = setTimeout(() => {
+        console.warn('⏰ PDF loading timeout reached');
+        setIsTimedOut(true);
+        setError('PDF loading timed out. The file might be too large or there may be a network issue.');
+        setIsLoading(false);
+        
+        toast({
+          title: "Loading Timeout",
+          description: "PDF took too long to load. Try refreshing or check your connection.",
+          variant: "destructive"
+        });
+      }, LOADING_TIMEOUT);
+    } else {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    }
+
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, [isLoading, toast]);
 
   // Calculate which pages should be rendered based on current page and buffer
   const getVisiblePages = useCallback(() => {
@@ -105,6 +138,14 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
     setIsLoading(false);
     setError(null);
     setRetryCount(0); // Reset retry count on successful load
+    setLoadingProgress(100);
+    setIsTimedOut(false);
+    
+    // Clear timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
     
     // Start preloading first few pages
     preloadPages(1);
@@ -118,6 +159,14 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const onDocumentLoadError = (error: Error) => {
     console.error('❌ PDF loading error:', error);
     setIsLoading(false);
+    setLoadingProgress(0);
+    setIsTimedOut(false);
+    
+    // Clear timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
     
     let errorMessage = `Failed to load PDF: ${error.message}`;
     let suggestion = '';
@@ -147,8 +196,16 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       setRetryCount(prev => prev + 1);
       setError(null);
       setIsLoading(true);
+      setLoadingProgress(0);
+      setIsTimedOut(false);
       setNumPages(0);
       setPageNumber(1);
+      
+      // Clear any existing timeout
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       
       // Reinitialize PDF worker
       initializeReliablePDF();
@@ -440,17 +497,43 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={onDocumentLoadError}
                 onLoadProgress={({ loaded, total }) => {
-                  console.log(`📊 PDF loading progress: ${loaded}/${total} bytes (${Math.round((loaded / total) * 100)}%)`);
+                  const progress = Math.round((loaded / total) * 100);
+                  setLoadingProgress(progress);
+                  console.log(`📊 PDF loading progress: ${loaded}/${total} bytes (${progress}%)`);
                 }}
                 loading={
                   <div className="flex items-center justify-center p-8">
-                    <div className="text-center space-y-4">
+                    <div className="text-center space-y-4 max-w-sm">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                      <div className="space-y-2">
-                        <div className="text-sm text-muted-foreground">Loading optimized PDF...</div>
+                      <div className="space-y-3">
+                        <div className="text-sm text-muted-foreground">Loading PDF document...</div>
                         <div className="text-xs text-muted-foreground">{fileName}</div>
+                        
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
+                            style={{ width: `${loadingProgress}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{loadingProgress}% complete</div>
+                        
                         {retryCount > 0 && (
                           <div className="text-xs text-amber-600">Retry attempt {retryCount}/{MAX_RETRIES}</div>
+                        )}
+                        
+                        {isTimedOut && (
+                          <div className="space-y-2">
+                            <div className="text-xs text-red-600">Loading is taking longer than expected</div>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={retryLoading}
+                              disabled={retryCount >= MAX_RETRIES}
+                            >
+                              Retry Loading
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
