@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSafeNavigation } from '@/hooks/useSafeNavigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,7 +63,7 @@ export default function ChoosePlan() {
   const [redeeming, setRedeeming] = useState(false);
   const { createCheckout, redeemCoupon } = useSubscription();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { navigateBack, safeNavigate } = useSafeNavigation();
 
   const handleSubscribe = async (tier: 'basic' | 'pro' | 'premium') => {
     try {
@@ -98,7 +98,7 @@ export default function ChoosePlan() {
         title: "Success!",
         description: "Coupon redeemed successfully! Redirecting to dashboard...",
       });
-      setTimeout(() => navigate('/dashboard'), 2000);
+      setTimeout(() => safeNavigate('/dashboard'), 2000);
     } catch (error) {
       toast({
         title: "Error",
@@ -123,7 +123,7 @@ export default function ChoosePlan() {
         <div className="mb-6">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={navigateBack}
             className="text-white hover:bg-white/10 border-0"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
