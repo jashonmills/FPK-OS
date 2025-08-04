@@ -53,7 +53,12 @@ export const useCurrentReadingBooks = () => {
 
   // Set up real-time subscription with proper cleanup
   useEffect(() => {
-    if (!user?.id || isSubscribed) {
+    if (!user?.id) {
+      return;
+    }
+
+    // Prevent multiple subscriptions
+    if (subscriptionRef.current || isSubscribed) {
       return;
     }
 
@@ -61,14 +66,8 @@ export const useCurrentReadingBooks = () => {
       try {
         console.log('🔄 Setting up reading progress subscription for user:', user.id);
         
-        // Clean up any existing subscription
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-          subscriptionRef.current = null;
-        }
-        
         const channel = supabase
-          .channel(`reading-progress-${user.id}`)
+          .channel(`reading-progress-${user.id}-${Date.now()}`)
           .on(
             'postgres_changes',
             {
@@ -86,6 +85,9 @@ export const useCurrentReadingBooks = () => {
             console.log('📚 Reading progress subscription status:', status);
             if (status === 'SUBSCRIBED') {
               setIsSubscribed(true);
+            }
+            if (status === 'CLOSED') {
+              setIsSubscribed(false);
             }
           });
 
@@ -105,7 +107,7 @@ export const useCurrentReadingBooks = () => {
         setIsSubscribed(false);
       }
     };
-  }, [user?.id, refetch, isSubscribed]);
+  }, [user?.id, refetch]); // Removed isSubscribed from dependencies to prevent loops
 
   return {
     data: data || [],
