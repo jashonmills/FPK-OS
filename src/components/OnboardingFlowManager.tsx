@@ -32,10 +32,18 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       });
     }
 
+    // Enhanced protection: Check for any attempts to access dashboard routes when unauthenticated
+    const isDashboardRoute = currentPath.startsWith('/dashboard');
+    const isProtectedRoute = isDashboardRoute || currentPath.startsWith('/profile') || currentPath.startsWith('/settings');
+    
     // Only navigate if we're not where we should be
     switch (currentStep) {
       case 'unauthenticated':
-        if (currentPath !== '/login' && currentPath !== '/' && 
+        // Block access to any protected routes when unauthenticated
+        if (isProtectedRoute) {
+          console.log('🔒 Blocking access to protected route for unauthenticated user:', currentPath);
+          navigateToStep('unauthenticated');
+        } else if (currentPath !== '/login' && currentPath !== '/' && 
             !currentPath.startsWith('/privacy') && !currentPath.startsWith('/terms') &&
             !currentPath.startsWith('/subscription')) {
           console.log('🔄 Navigating to login from', currentPath);
@@ -44,7 +52,11 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
         break;
       
       case 'choose-plan':
-        if (currentPath !== '/choose-plan' && currentPath !== '/subscription') {
+        // Block dashboard access when user needs to choose a plan
+        if (isDashboardRoute) {
+          console.log('🔒 Blocking dashboard access - user needs to choose plan');
+          navigateToStep('choose-plan');
+        } else if (currentPath !== '/choose-plan' && currentPath !== '/subscription') {
           console.log('🔄 Navigating to choose-plan from', currentPath);
           navigateToStep('choose-plan');
         }
@@ -57,7 +69,7 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
         }
         break;
     }
-  }, [currentStep, isLoading]); // Minimal dependencies to prevent loops
+  }, [currentStep, isLoading, location.pathname]); // Added location.pathname to detect all route changes
 
   // Loading state
   if (isLoading) {

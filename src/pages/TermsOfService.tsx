@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useSafeNavigation } from "@/hooks/useSafeNavigation";
 
 export default function TermsOfService() {
-  const navigate = useNavigate();
+  const { navigateBack } = useSafeNavigation();
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
@@ -12,7 +12,7 @@ export default function TermsOfService() {
         <div className="container mx-auto px-4 py-3">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={navigateBack}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
