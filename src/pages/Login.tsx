@@ -278,6 +278,14 @@ const Login = () => {
               Return to Home
             </Button>
           </div>
+          <div className="flex gap-4 justify-center text-xs text-white/60">
+            <a href="/privacy-policy" className="hover:text-white/80 underline">
+              Privacy Policy
+            </a>
+            <a href="/terms-of-service" className="hover:text-white/80 underline">
+              Terms of Service
+            </a>
+          </div>
           <p className="text-white/60 text-sm">
             {tString('betaVersion')}
           </p>

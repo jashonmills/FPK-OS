@@ -315,6 +315,14 @@ export function AppSidebar() {
         >
           Sign Out
         </Button>
+        <div className="flex gap-4 justify-center text-xs text-sidebar-foreground/60 mt-2">
+          <a href="/privacy-policy" className="hover:text-sidebar-foreground/80 underline">
+            Privacy
+          </a>
+          <a href="/terms-of-service" className="hover:text-sidebar-foreground/80 underline">
+            Terms
+          </a>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
