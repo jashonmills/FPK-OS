@@ -17,41 +17,47 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
   } = useOnboardingFlow();
   const location = useLocation();
 
-  // Handle automatic navigation based on flow state
+  // Handle automatic navigation based on flow state - but only when needed
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !currentStep) return;
 
-    // Don't navigate if we're already on the correct path
     const currentPath = location.pathname;
     
-    console.log('🚀 OnboardingFlowManager:', {
-      currentStep,
-      currentPath,
-      shouldShowBetaOnboarding
-    });
+    // Log but don't spam
+    if (currentStep !== 'loading') {
+      console.log('🚀 OnboardingFlowManager:', {
+        currentStep,
+        currentPath,
+        shouldShowBetaOnboarding
+      });
+    }
 
-    // Handle navigation based on current step
+    // Only navigate if we're not where we should be
     switch (currentStep) {
       case 'unauthenticated':
         if (currentPath !== '/login' && currentPath !== '/' && 
-            !currentPath.startsWith('/privacy') && !currentPath.startsWith('/terms')) {
+            !currentPath.startsWith('/privacy') && !currentPath.startsWith('/terms') &&
+            !currentPath.startsWith('/subscription')) {
+          console.log('🔄 Navigating to login from', currentPath);
           navigateToStep('unauthenticated');
         }
         break;
       
       case 'choose-plan':
         if (currentPath !== '/choose-plan' && currentPath !== '/subscription') {
+          console.log('🔄 Navigating to choose-plan from', currentPath);
           navigateToStep('choose-plan');
         }
         break;
         
       case 'dashboard':
         if (currentPath === '/login' || currentPath === '/choose-plan') {
+          console.log('🔄 Navigating to dashboard from', currentPath);
           navigateToStep('dashboard');
         }
         break;
     }
-  }, [currentStep, isLoading, location.pathname, navigateToStep]);
+  }, [currentStep, isLoading]); // Minimal dependencies to prevent loops
 
   // Loading state
   if (isLoading) {

@@ -80,14 +80,20 @@ export const useOnboardingFlow = () => {
     return 'dashboard';
   };
 
-  // Update flow state
+  // Update flow state with proper dependency management
   useEffect(() => {
+    let isMounted = true;
+    
     const updateFlow = async () => {
+      if (!isMounted) return;
+      
       try {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
         
         const step = await determineStep();
         const hasCompletedOnboarding = user ? await checkBetaOnboardingStatus(user.id) : false;
+        
+        if (!isMounted) return;
         
         setState(prev => ({
           ...prev,
@@ -105,6 +111,7 @@ export const useOnboardingFlow = () => {
         });
         
       } catch (error) {
+        if (!isMounted) return;
         console.error('Error determining onboarding step:', error);
         setState(prev => ({
           ...prev,
@@ -114,8 +121,15 @@ export const useOnboardingFlow = () => {
       }
     };
 
-    updateFlow();
-  }, [user, session, authLoading, subscription, subscriptionLoading, location.pathname]);
+    // Only update if auth and subscription state are stable
+    if (!authLoading && !subscriptionLoading) {
+      updateFlow();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, authLoading, subscription?.subscribed, subscriptionLoading]); // Minimal stable dependencies
 
   // Navigation helpers
   const navigateToStep = (step: OnboardingStep) => {
