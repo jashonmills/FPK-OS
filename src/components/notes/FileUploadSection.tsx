@@ -171,10 +171,12 @@ const FileUploadSection: React.FC = () => {
     try {
       console.log('🤖 Starting AI processing for file:', file.name);
       
+      // Start the real-time processing UI
       startProcessing(uploadId, file.name, file.size);
       
-      setTimeout(() => completeStage(uploadId, 'download'), 2000);
-      setTimeout(() => completeStage(uploadId, 'extraction'), 4000);
+      // Simulate progress stages more quickly
+      setTimeout(() => completeStage(uploadId, 'download'), 1000);
+      setTimeout(() => completeStage(uploadId, 'extraction'), 2000);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
@@ -264,19 +266,106 @@ const FileUploadSection: React.FC = () => {
           continue;
         }
 
-        createUpload({
+        // Create upload record and immediately start processing
+        const uploadData = {
           file_name: file.name,
           file_size: file.size,
           file_type: file.type,
           storage_path: filePath
-        });
+        };
+
+        createUpload(uploadData);
 
         toast({
           title: "✅ File uploaded",
           description: `${file.name} uploaded successfully. Starting AI processing...`,
         });
 
-        setTimeout(async () => {
+        // Get the upload record and immediately start processing
+        try {
+          // Wait briefly for the database record to be created
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const { data: uploadRecord, error: fetchError } = await supabase
+            .from('file_uploads')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('storage_path', filePath)
+            .single();
+
+          if (fetchError || !uploadRecord) {
+            console.error('Failed to fetch upload record:', fetchError);
+            throw new Error('Upload record not found');
+          }
+
+          console.log('📝 Found upload record:', uploadRecord.id);
+
+          // Immediately update status to processing
+          updateUpload({
+            id: uploadRecord.id,
+            processing_status: 'processing'
+          });
+
+          const baseTimeout = 180000;
+          const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5);
+          const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000);
+
+          const timeoutId = setTimeout(() => {
+            console.log('⏱️ Processing timeout for upload:', uploadRecord.id);
+            updateUpload({
+              id: uploadRecord.id,
+              processing_status: 'failed',
+              error_message: 'Processing timeout - file may be too complex. Try breaking into smaller sections.'
+            });
+
+            errorStage(uploadRecord.id, 'generation', 'Processing timeout');
+
+            setProcessingProgress(prev => {
+              const newState = { ...prev };
+              delete newState[uploadRecord.id];
+              return newState;
+            });
+
+            toast({
+              title: "⏱️ Processing timeout",
+              description: "File processing took too long. Try uploading smaller sections.",
+              variant: "destructive"
+            });
+          }, timeoutDuration);
+
+          setProcessingTimeouts(prev => ({
+            ...prev,
+            [uploadRecord.id]: timeoutId
+          }));
+
+          console.log('🚀 Starting AI processing for:', uploadRecord.id);
+          
+          // Start processing immediately
+          await processFileForFlashcards(file, uploadRecord.id, filePath);
+
+          // Start polling as fallback if real-time isn't connected
+          if (!isConnected) {
+            console.log('🔄 Starting polling fallback for:', uploadRecord.id);
+            startPolling(uploadRecord.id, (updatedUpload) => {
+              if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
+                // Trigger the same handler as real-time would
+                const payload = { new: updatedUpload, old: uploadRecord };
+                setTimeout(() => {
+                  // Find and call the handler
+                  const handler = document.querySelector('[data-upload-handler]');
+                  if (handler) {
+                    const event = new CustomEvent('uploadUpdate', { detail: payload });
+                    handler.dispatchEvent(event);
+                  }
+                }, 100);
+              }
+            });
+          }
+
+        } catch (error) {
+          console.error('❌ Processing setup error:', error);
+          
+          // Try to find the upload record for cleanup
           try {
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
@@ -285,82 +374,15 @@ const FileUploadSection: React.FC = () => {
               .eq('storage_path', filePath)
               .single();
 
-            if (!uploadRecord) {
-              throw new Error('Upload record not found');
-            }
-
-            const baseTimeout = 180000;
-            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5);
-            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000);
-
-            const timeoutId = setTimeout(() => {
-              console.log('Processing timeout for upload:', uploadRecord.id);
-              updateUpload({
-                id: uploadRecord.id,
-                processing_status: 'failed',
-                error_message: 'Processing timeout - file may be too complex. Try breaking into smaller sections.'
-              });
-
-              errorStage(uploadRecord.id, 'generation', 'Processing timeout');
-
-              setProcessingProgress(prev => {
-                const newState = { ...prev };
-                delete newState[uploadRecord.id];
-                return newState;
-              });
-
-              toast({
-                title: "⏱️ Processing timeout",
-                description: "File processing took too long. Try uploading smaller sections.",
-                variant: "destructive"
-              });
-            }, timeoutDuration);
-
-            setProcessingTimeouts(prev => ({
-              ...prev,
-              [uploadRecord.id]: timeoutId
-            }));
-
-            // Start processing
-            await processFileForFlashcards(file, uploadRecord.id, filePath);
-
-            // Start polling as fallback if real-time isn't connected
-            if (!isConnected) {
-              console.log('🔄 Starting polling fallback for:', uploadRecord.id);
-              startPolling(uploadRecord.id, (updatedUpload) => {
-                if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
-                  // Trigger the same handler as real-time would
-                  const payload = { new: updatedUpload, old: uploadRecord };
-                  setTimeout(() => {
-                    // Find and call the handler
-                    const handler = document.querySelector('[data-upload-handler]');
-                    if (handler) {
-                      const event = new CustomEvent('uploadUpdate', { detail: payload });
-                      handler.dispatchEvent(event);
-                    }
-                  }, 100);
-                }
-              });
-            }
-
-          } catch (error) {
-            console.error('AI processing error:', error);
-            
-            const { data: uploadRecord } = await supabase
-              .from('file_uploads')
-              .select('*')
-              .eq('user_id', user.id)
-              .eq('storage_path', filePath)
-              .single();
-
             if (uploadRecord) {
+              console.log('🔧 Updating failed upload record:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
-                error_message: 'Failed to process file - please try again'
+                error_message: error instanceof Error ? error.message : 'Failed to start processing'
               });
 
-              errorStage(uploadRecord.id, 'generation', 'Processing failed');
+              errorStage(uploadRecord.id, 'generation', 'Processing failed to start');
 
               setProcessingProgress(prev => {
                 const newState = { ...prev };
@@ -377,14 +399,16 @@ const FileUploadSection: React.FC = () => {
                 return newState;
               });
             }
-
-            toast({
-              title: "❌ Processing failed",
-              description: "Failed to generate flashcards. Please try again.",
-              variant: "destructive"
-            });
+          } catch (cleanupError) {
+            console.error('❌ Failed to cleanup upload record:', cleanupError);
           }
-        }, 1000);
+
+          toast({
+            title: "❌ Processing failed",
+            description: error instanceof Error ? error.message : "Failed to start processing. Please try again.",
+            variant: "destructive"
+          });
+        }
 
       } catch (error) {
         console.error('File upload error:', error);
@@ -436,6 +460,9 @@ const FileUploadSection: React.FC = () => {
 
   const retryProcessing = async (upload: any) => {
     try {
+      console.log('🔄 Retrying processing for:', upload.id);
+      
+      // Immediately update status to processing
       updateUpload({
         id: upload.id,
         processing_status: 'processing',
