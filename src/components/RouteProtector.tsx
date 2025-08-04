@@ -65,6 +65,15 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       return;
     }
 
+    // If authenticated but still loading subscription and on login page, redirect anyway
+    // This handles cases where subscription check is taking too long
+    if (user && currentPath === '/login' && subscriptionLoading) {
+      console.log('🔄 Authenticated user on login page - redirecting to dashboard (subscription loading)');
+      setHasNavigated(true);
+      navigate('/dashboard/learner', { replace: true });
+      return;
+    }
+
   }, [authLoading, subscriptionLoading, user, hasAccess, currentPath, hasNavigated, navigate, isDashboardRoute]);
 
   // Reset navigation flag when route changes
