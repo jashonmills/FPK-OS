@@ -85,6 +85,26 @@ class GoalsManager {
     try {
       console.log('🎯 GoalsManager: Fetching goals for user:', userId, retryCount > 0 ? `(retry ${retryCount})` : '');
       
+      // Check if we have a valid session before making the request
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('🔐 GoalsManager: Current session state:', { 
+        hasSession: !!session, 
+        userId: session?.user?.id, 
+        targetUserId: userId 
+      });
+      
+      if (!session || !session.user) {
+        console.error('❌ GoalsManager: No valid session found');
+        this.error = 'Authentication required. Please log in again.';
+        return [];
+      }
+      
+      if (session.user.id !== userId) {
+        console.error('❌ GoalsManager: Session user ID does not match target user ID');
+        this.error = 'Authentication mismatch. Please log in again.';
+        return [];
+      }
+      
       const { data, error } = await supabase
         .from('goals')
         .select('*')
@@ -93,6 +113,12 @@ class GoalsManager {
 
       if (error) {
         console.error('❌ GoalsManager: Error fetching goals:', error);
+        
+        // Check if it's an authentication error
+        if (error.code === 'PGRST301' || error.message.includes('JWT') || error.message.includes('auth')) {
+          this.error = 'Authentication expired. Please log in again.';
+          return [];
+        }
         
         // Retry logic for network failures
         if (retryCount < 2 && (error.message.includes('Failed to fetch') || error.message.includes('network'))) {
@@ -135,6 +161,24 @@ class GoalsManager {
 
   async createGoal(userId: string, goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> {
     try {
+      // Check session before creating goal
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('🔐 GoalsManager: Creating goal with session:', { 
+        hasSession: !!session, 
+        userId: session?.user?.id, 
+        targetUserId: userId 
+      });
+      
+      if (!session || !session.user) {
+        console.error('❌ GoalsManager: No valid session for goal creation');
+        throw new Error('Authentication required. Please log in again.');
+      }
+      
+      if (session.user.id !== userId) {
+        console.error('❌ GoalsManager: Session user ID does not match target user ID');
+        throw new Error('Authentication mismatch. Please log in again.');
+      }
+      
       const { data, error } = await supabase
         .from('goals')
         .insert({
@@ -146,7 +190,13 @@ class GoalsManager {
 
       if (error) {
         console.error('❌ GoalsManager: Error creating goal:', error);
-        return null;
+        
+        // Check if it's an authentication error
+        if (error.code === 'PGRST301' || error.message.includes('JWT') || error.message.includes('auth')) {
+          throw new Error('Authentication expired. Please log in again.');
+        }
+        
+        throw new Error(error.message);
       }
 
       const newGoal = data as Goal;
@@ -155,7 +205,7 @@ class GoalsManager {
       return newGoal;
     } catch (err) {
       console.error('❌ GoalsManager: Error in createGoal:', err);
-      return null;
+      throw err; // Re-throw to allow proper error handling in components
     }
   }
 
@@ -221,12 +271,24 @@ export const useGoals = () => {
   }, [user?.id]);
 
   const createGoal = async (goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> => {
-    if (!user?.id) return null;
+    if (!user?.id) {
+      setError('Authentication required. Please log in again.');
+      return null;
+    }
 
     setSaving(true);
-    const result = await goalsManager.createGoal(user.id, goalData);
-    setSaving(false);
-    return result;
+    setError(null);
+    
+    try {
+      const result = await goalsManager.createGoal(user.id, goalData);
+      setSaving(false);
+      return result;
+    } catch (err) {
+      setSaving(false);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create goal';
+      setError(errorMessage);
+      throw err; // Re-throw to allow component error handling
+    }
   };
 
   const updateGoal = async (id: string, updates: GoalUpdate): Promise<void> => {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Target, Trophy, Calendar, Filter, AlertCircle } from 'lucide-react';
+import { Plus, Target, Trophy, Calendar, Filter, AlertCircle, LogIn } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
@@ -15,7 +15,7 @@ import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoun
 export const GoalsDashboard = () => {
   console.log('🎯 GoalsDashboard rendering');
   
-  const { goals = [], loading } = useGoals();
+  const { goals = [], loading, error } = useGoals();
   const { t } = useDualLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
@@ -29,6 +29,38 @@ export const GoalsDashboard = () => {
         <div className="ml-3 text-gray-500 text-sm sm:text-base">
           <DualLanguageText translationKey="common.loading" fallback="Loading goals..." />
         </div>
+      </div>
+    );
+  }
+
+  // Show error state if there's an authentication or other error
+  if (error) {
+    console.error('🎯 GoalsDashboard error:', error);
+    return (
+      <div className="flex flex-col items-center justify-center p-4 sm:p-8">
+        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Goals</h3>
+        <p className="text-sm text-gray-600 text-center mb-4 max-w-md">
+          {error}
+        </p>
+        {error.includes('Authentication') && (
+          <Button 
+            onClick={() => window.location.href = '/login'}
+            className="fpk-gradient text-white"
+          >
+            <LogIn className="h-4 w-4 mr-2" />
+            Log In Again
+          </Button>
+        )}
+        {!error.includes('Authentication') && (
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="border-gray-300"
+          >
+            Try Again
+          </Button>
+        )}
       </div>
     );
   }

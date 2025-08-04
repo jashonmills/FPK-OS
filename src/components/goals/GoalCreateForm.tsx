@@ -91,11 +91,22 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
       }
     } catch (error) {
       console.error('Error creating goal:', error);
+      
+      // Show specific error message if available
+      const errorMessage = error instanceof Error ? error.message : "Failed to create goal. Please try again.";
+      
       toast({
         title: "Error",
-        description: "Failed to create goal. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // If it's an authentication error, redirect to login
+      if (errorMessage.includes('Authentication')) {
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
     }
   };
 
