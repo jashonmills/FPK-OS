@@ -2,7 +2,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/AppSidebar';
+import AppSidebar from '@/components/AppSidebar';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalChatWidget from '@/components/GlobalChatWidget';
 import ErrorBoundary from '@/components/ErrorBoundary';
