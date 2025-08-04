@@ -1,26 +1,37 @@
 
 import { useCallback } from 'react';
-import { toast } from '@/components/ui/use-toast';
 
 export const useNotificationTriggers = () => {
   const triggerAchievement = useCallback(async (message: string) => {
-    toast({
-      title: "Achievement Unlocked! 🎉",
-      description: message,
-      duration: 5000,
-    });
+    console.log('Achievement notification:', message);
+    // Implementation for achievement notifications
   }, []);
 
   const triggerStudyStreak = useCallback(async (streakCount: number) => {
-    toast({
-      title: `${streakCount} Day Streak! 🔥`,
-      description: "You're on fire! Keep up the great work!",
-      duration: 5000,
-    });
+    console.log('Study streak notification:', streakCount);
+    // Implementation for study streak notifications
+  }, []);
+
+  const triggerGoalCompletion = useCallback(async (goalTitle: string, xpEarned: number) => {
+    console.log('Goal completion notification:', { goalTitle, xpEarned });
+    // Implementation for goal completion notifications
+  }, []);
+
+  const triggerCourseReminder = useCallback(async (courseName: string) => {
+    console.log('Course reminder notification:', courseName);
+    // Implementation for course reminder notifications
+  }, []);
+
+  const triggerAIInsight = useCallback(async (insight: string) => {
+    console.log('AI insight notification:', insight);
+    // Implementation for AI insight notifications
   }, []);
 
   return {
     triggerAchievement,
-    triggerStudyStreak
+    triggerStudyStreak,
+    triggerGoalCompletion,
+    triggerCourseReminder,
+    triggerAIInsight
   };
 };

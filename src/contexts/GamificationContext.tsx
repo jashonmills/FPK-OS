@@ -35,7 +35,7 @@ interface GamificationContextType {
   updateStreak: (type: string) => Promise<any>;
 }
 
-const GamificationContext = createContext<GamificationContextType>({
+export const GamificationContext = createContext<GamificationContextType>({
   userStats: null,
   isLoading: true,
   error: null,
@@ -115,5 +115,4 @@ export const GamificationProvider = ({ children }: { children: React.ReactNode }
   );
 };
 
-export const useGamification = () => useContext(GamificationContext);
 export const useGamificationContext = () => useContext(GamificationContext);

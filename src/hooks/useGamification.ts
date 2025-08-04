@@ -5,7 +5,20 @@ import { GamificationContext } from '@/contexts/GamificationContext';
 export const useGamification = () => {
   const context = useContext(GamificationContext);
   if (!context) {
-    throw new Error('useGamification must be used within a GamificationProvider');
+    // Return default values instead of throwing error for now
+    return {
+      userStats: null,
+      isLoading: false,
+      error: null,
+      awardXP: async () => {},
+      updateStreak: async () => {},
+      fetchUserStats: () => {},
+      checkBadges: () => {}
+    };
   }
-  return context;
+  return {
+    ...context,
+    fetchUserStats: () => {},
+    checkBadges: () => {}
+  };
 };

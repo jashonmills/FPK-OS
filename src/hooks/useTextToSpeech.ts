@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface SpeechOptions {
@@ -9,9 +9,11 @@ interface SpeechOptions {
 
 export const useTextToSpeech = () => {
   const { settings, getSelectedVoiceObject } = useVoiceSettings();
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSupported] = useState(() => 'speechSynthesis' in window);
 
   const speak = useCallback((text: string, options: SpeechOptions = {}) => {
-    if (!settings.enabled) return;
+    if (!settings.enabled || !isSupported) return;
 
     // Stop current speech if interrupting
     if (options.interrupt) {
@@ -30,12 +32,17 @@ export const useTextToSpeech = () => {
     utterance.pitch = settings.pitch;
     utterance.volume = settings.volume;
 
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
     speechSynthesis.speak(utterance);
-  }, [settings, getSelectedVoiceObject]);
+  }, [settings, getSelectedVoiceObject, isSupported]);
 
   const stop = useCallback(() => {
     speechSynthesis.cancel();
+    setIsSpeaking(false);
   }, []);
 
-  return { speak, stop };
+  return { speak, stop, isSpeaking, isSupported };
 };
