@@ -18,6 +18,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
+import { CookieConsent } from '@/components/CookieConsent';
 import "./App.css";
 
 // Lazy load dashboard pages for route isolation
@@ -50,6 +51,10 @@ const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
+
+// Legal pages
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +95,7 @@ function App() {
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
+                  <CookieConsent />
                   <BrowserRouter>
                     <Suspense fallback={<div>Loading...</div>}>
                       <Routes>
@@ -186,6 +192,14 @@ function App() {
                         } />
                         <Route path="/choose-plan" element={
                           <LazyRoute><ChoosePlan /></LazyRoute>
+                        } />
+                        
+                        {/* Legal Pages */}
+                        <Route path="/privacy-policy" element={
+                          <LazyRoute><PrivacyPolicy /></LazyRoute>
+                        } />
+                        <Route path="/terms-of-service" element={
+                          <LazyRoute><TermsOfService /></LazyRoute>
                         } />
                         
                         {/* 404 Route */}

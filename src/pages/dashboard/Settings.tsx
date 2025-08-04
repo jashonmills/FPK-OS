@@ -9,7 +9,8 @@ import NotificationSection from '@/components/settings/NotificationSection';
 import AccessibilitySettings from '@/components/settings/AccessibilitySettings';
 import LanguageSettings from '@/components/settings/LanguageSettings';
 import IntegrationSection from '@/components/settings/IntegrationSection';
-import { User, Shield, Bell, Eye, Globe, Zap } from 'lucide-react';
+import { DataManagement } from '@/components/DataManagement';
+import { User, Shield, Bell, Eye, Globe, Zap, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const Settings = () => {
@@ -202,6 +203,10 @@ const Settings = () => {
                     <Zap className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="whitespace-nowrap">Integrations</span>
                   </TabsTrigger>
+                  <TabsTrigger value="data" className="mobile-tab-trigger">
+                    <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Data</span>
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -258,6 +263,10 @@ const Settings = () => {
                   formData={formData}
                   onCalendarSyncChange={handleCalendarSyncChange}
                 />
+              </TabsContent>
+
+              <TabsContent value="data" className="mt-0">
+                <DataManagement />
               </TabsContent>
             </Tabs>
           </CardContent>
