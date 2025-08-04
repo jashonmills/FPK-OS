@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from '@/hooks/useAuth';
+import { ConsentProvider } from '@/hooks/useConsent';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { I18nextProvider } from 'react-i18next';
@@ -18,7 +19,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
-import { CookieConsent } from '@/components/CookieConsent';
+import { ConsentManager } from '@/components/compliance/ConsentManager';
 import "./App.css";
 
 // Lazy load dashboard pages for route isolation
@@ -89,14 +90,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
         <AuthProvider>
-          <GamificationProvider>
-            <VoiceSettingsProvider>
-              <AccessibilityProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <CookieConsent />
-                  <BrowserRouter>
+          <ConsentProvider>
+            <GamificationProvider>
+              <VoiceSettingsProvider>
+                <AccessibilityProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <ConsentManager />
+                    <BrowserRouter>
                     <Suspense fallback={<div>Loading...</div>}>
                       <Routes>
                           <Route path="/" element={<Index />} />
@@ -211,10 +213,11 @@ function App() {
                   </AccessibilityProvider>
                 </VoiceSettingsProvider>
               </GamificationProvider>
-            </AuthProvider>
-          </I18nextProvider>
-        </QueryClientProvider>
-      );
-    }
+            </ConsentProvider>
+          </AuthProvider>
+        </I18nextProvider>
+      </QueryClientProvider>
+    );
+  }
 
 export default App;
