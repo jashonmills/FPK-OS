@@ -1,19 +1,23 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarSeparator,
+} from "@/components/ui/sidebar"
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import {
   Home,
@@ -23,7 +27,6 @@ import {
   Settings,
   CreditCard,
   Shield,
-  Menu,
   LogOut,
   LayoutDashboard,
   HelpCircle,
@@ -32,23 +35,18 @@ import {
   Brain,
   Lightbulb,
   FileText,
+  ChevronDown,
 } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-interface SidebarProps {
-  className?: string;
-}
-
-const AppSidebar = ({ className }: SidebarProps) => {
+const AppSidebar = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -66,7 +64,7 @@ const AppSidebar = ({ className }: SidebarProps) => {
   const mainItems = [
     {
       title: 'Dashboard',
-      url: "/dashboard/learner",
+      url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
@@ -143,146 +141,160 @@ const AppSidebar = ({ className }: SidebarProps) => {
       url: "/dashboard/help",
       icon: HelpCircle,
     },
-    {
-      title: 'Sign Out',
-      onClick: handleSignOut,
-      icon: LogOut,
-    },
   ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className={`md:hidden ${className}`}>
-          <Menu className="h-4 w-4" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="p-0">
-        <SheetHeader className="px-6 pt-6 pb-2">
-          <SheetTitle>
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{user?.email?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-semibold">{user?.email}</div>
-              </div>
+    <Sidebar className="bg-sidebar border-sidebar-border">
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
+              {user?.email?.charAt(0)?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-semibold text-sidebar-foreground text-sm">
+              {user?.email}
             </div>
-          </SheetTitle>
-          <SheetDescription>
-            Manage your account settings and set preferences.
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="py-4">
-          <Separator />
+            <div className="text-xs text-sidebar-foreground/70">
+              Learning Dashboard
+            </div>
+          </div>
         </div>
+      </SidebarHeader>
 
-        <div className="flex flex-col gap-1">
-          {mainItems.map((item) => (
-            <Button
-              key={item.title}
-              variant="ghost"
-              className={`w-full justify-start ${isActive(item.url) ? 'bg-secondary' : ''}`}
-              asChild
-            >
-              <Link to={item.url} onClick={() => setOpen(false)}>
-                <item.icon className="mr-2 h-4 w-4" />
-                <span>{item.title}</span>
-              </Link>
-            </Button>
-          ))}
-        </div>
+      <SidebarSeparator />
 
-        <div className="py-4">
-          <Separator />
-        </div>
-
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="ai-tools">
-            <AccordionTrigger className="hover:no-underline">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              AI Tools
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-col gap-1">
-                {aiTools.map((item) => (
-                  <Button
-                    key={item.title}
-                    variant="ghost"
-                    className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
-                    asChild
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                   >
-                    <Link to={item.url} onClick={() => setOpen(false)}>
-                      <item.icon className="mr-2 h-4 w-4" />
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
-                  </Button>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-        <div className="py-4">
-          <Separator />
-        </div>
+        <SidebarSeparator />
 
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="admin-tools">
-            <AccordionTrigger className="hover:no-underline">
-              <Users className="mr-2 h-4 w-4" />
-              Admin Tools
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-col gap-1">
-                {adminTools.map((item) => (
-                  <Button
-                    key={item.title}
-                    variant="ghost"
-                    className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
-                    asChild
-                  >
-                    <Link to={item.url} onClick={() => setOpen(false)}>
-                      <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </Button>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <SidebarGroup>
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  AI Tools
+                </div>
+                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {aiTools.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+                      >
+                        <Link to={item.url}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
 
-        <div className="mt-auto py-4">
-          <Separator />
-        </div>
+        <SidebarSeparator />
 
-        <div className="flex flex-col gap-1 pb-4">
+        <SidebarGroup>
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Admin Tools
+                </div>
+                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {adminTools.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+                      >
+                        <Link to={item.url}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="p-4">
+        <SidebarMenu>
           {footerItems.map((item) => (
-            <Button
-              key={item.title}
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={item.onClick}
-              asChild={item.url ? true : false}
-            >
-              {item.url ? (
-                <Link to={item.url} onClick={() => setOpen(false)}>
-                  <item.icon className="mr-2 h-4 w-4" />
-                  <span>{item.title}</span>
-                </Link>
-              ) : (
-                <>
-                  <item.icon className="mr-2 h-4 w-4" />
-                  <span>{item.title}</span>
-                </>
-              )}
-            </Button>
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton 
+                asChild={!!item.url}
+                isActive={item.url ? isActive(item.url) : false}
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+              >
+                {item.url ? (
+                  <Link to={item.url}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2 w-full">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </div>
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           ))}
-        </div>
-      </SheetContent>
-    </Sheet>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={handleSignOut}
+              className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
 

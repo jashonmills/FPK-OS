@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalChatWidget from '@/components/GlobalChatWidget';
@@ -15,9 +15,9 @@ const DashboardLayout = () => {
       <VoiceSettingsProvider>
         <GamificationProvider>
           <SidebarProvider>
-            <div className="min-h-screen flex w-full overflow-x-hidden">
+            <div className="min-h-screen flex w-full">
               <AppSidebar />
-              <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+              <SidebarInset className="flex flex-col">
                 <GlobalHeader />
                 <main className="flex-1 bg-gray-50 mobile-scroll-container">
                   <div className="w-full h-full mobile-container py-3 sm:py-4 md:py-6 lg:py-8">
@@ -26,7 +26,7 @@ const DashboardLayout = () => {
                     </ErrorBoundary>
                   </div>
                 </main>
-              </div>
+              </SidebarInset>
               <GlobalChatWidget />
             </div>
           </SidebarProvider>
