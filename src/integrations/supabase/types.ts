@@ -406,6 +406,117 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_assessments: {
+        Row: {
+          action_items: Json | null
+          assessment_date: string
+          assessment_name: string
+          assessment_type: string
+          assessor_name: string | null
+          created_at: string
+          created_by: string
+          findings: Json | null
+          framework: string
+          id: string
+          next_assessment_due: string | null
+          overall_score: number | null
+          recommendations: Json | null
+          risk_level: string | null
+          scope: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action_items?: Json | null
+          assessment_date?: string
+          assessment_name: string
+          assessment_type: string
+          assessor_name?: string | null
+          created_at?: string
+          created_by: string
+          findings?: Json | null
+          framework: string
+          id?: string
+          next_assessment_due?: string | null
+          overall_score?: number | null
+          recommendations?: Json | null
+          risk_level?: string | null
+          scope: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action_items?: Json | null
+          assessment_date?: string
+          assessment_name?: string
+          assessment_type?: string
+          assessor_name?: string | null
+          created_at?: string
+          created_by?: string
+          findings?: Json | null
+          framework?: string
+          id?: string
+          next_assessment_due?: string | null
+          overall_score?: number | null
+          recommendations?: Json | null
+          risk_level?: string | null
+          scope?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      compliance_policies: {
+        Row: {
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          content: string
+          created_at: string
+          created_by: string
+          effective_date: string
+          id: string
+          mandatory_training: boolean
+          policy_category: string
+          policy_name: string
+          review_date: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          effective_date: string
+          id?: string
+          mandatory_training?: boolean
+          policy_category: string
+          policy_name: string
+          review_date?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          effective_date?: string
+          id?: string
+          mandatory_training?: boolean
+          policy_category?: string
+          policy_name?: string
+          review_date?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           category: string
@@ -977,6 +1088,51 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_access_requests: {
+        Row: {
+          access_granted: boolean
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          emergency_type: string
+          expires_at: string
+          id: string
+          justification: string
+          requested_resource: string
+          requestor_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_granted?: boolean
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          emergency_type: string
+          expires_at: string
+          id?: string
+          justification: string
+          requested_resource: string
+          requestor_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_granted?: boolean
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          emergency_type?: string
+          expires_at?: string
+          id?: string
+          justification?: string
+          requested_resource?: string
+          requestor_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_id: string
@@ -1318,6 +1474,134 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      hipaa_access_roles: {
+        Row: {
+          access_level: string
+          created_at: string
+          description: string | null
+          id: string
+          permissions: Json
+          role_name: string
+          updated_at: string
+        }
+        Insert: {
+          access_level: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          permissions?: Json
+          role_name: string
+          updated_at?: string
+        }
+        Update: {
+          access_level?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          permissions?: Json
+          role_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hipaa_audit_log: {
+        Row: {
+          access_purpose: string | null
+          action_type: string
+          audit_trail_hash: string | null
+          id: string
+          ip_address: unknown | null
+          minimum_necessary_justified: boolean | null
+          patient_id: string | null
+          phi_accessed: boolean
+          resource_id: string | null
+          resource_type: string
+          session_id: string | null
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          access_purpose?: string | null
+          action_type: string
+          audit_trail_hash?: string | null
+          id?: string
+          ip_address?: unknown | null
+          minimum_necessary_justified?: boolean | null
+          patient_id?: string | null
+          phi_accessed?: boolean
+          resource_id?: string | null
+          resource_type: string
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          access_purpose?: string | null
+          action_type?: string
+          audit_trail_hash?: string | null
+          id?: string
+          ip_address?: unknown | null
+          minimum_necessary_justified?: boolean | null
+          patient_id?: string | null
+          phi_accessed?: boolean
+          resource_id?: string | null
+          resource_type?: string
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
+      incident_response_actions: {
+        Row: {
+          action_description: string
+          action_type: string
+          created_at: string
+          evidence: Json | null
+          id: string
+          incident_id: string
+          performed_at: string
+          performed_by: string | null
+          status: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          incident_id: string
+          performed_at?: string
+          performed_by?: string | null
+          status?: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          created_at?: string
+          evidence?: Json | null
+          id?: string
+          incident_id?: string
+          performed_at?: string
+          performed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_response_actions_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "security_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_base_files: {
         Row: {
@@ -2260,6 +2544,75 @@ export type Database = {
         }
         Relationships: []
       }
+      security_incidents: {
+        Row: {
+          affected_systems: Json | null
+          affected_users_count: number | null
+          assigned_to: string | null
+          containment_timestamp: string | null
+          created_at: string
+          data_types_affected: Json | null
+          description: string
+          detection_method: string
+          detection_timestamp: string
+          escalation_level: number | null
+          id: string
+          incident_status: string
+          incident_type: string
+          lessons_learned: string | null
+          notifications_sent: Json | null
+          regulatory_reporting_required: boolean
+          remediation_actions: string | null
+          resolution_timestamp: string | null
+          severity_level: string
+          updated_at: string
+        }
+        Insert: {
+          affected_systems?: Json | null
+          affected_users_count?: number | null
+          assigned_to?: string | null
+          containment_timestamp?: string | null
+          created_at?: string
+          data_types_affected?: Json | null
+          description: string
+          detection_method: string
+          detection_timestamp?: string
+          escalation_level?: number | null
+          id?: string
+          incident_status?: string
+          incident_type: string
+          lessons_learned?: string | null
+          notifications_sent?: Json | null
+          regulatory_reporting_required?: boolean
+          remediation_actions?: string | null
+          resolution_timestamp?: string | null
+          severity_level: string
+          updated_at?: string
+        }
+        Update: {
+          affected_systems?: Json | null
+          affected_users_count?: number | null
+          assigned_to?: string | null
+          containment_timestamp?: string | null
+          created_at?: string
+          data_types_affected?: Json | null
+          description?: string
+          detection_method?: string
+          detection_timestamp?: string
+          escalation_level?: number | null
+          id?: string
+          incident_status?: string
+          incident_type?: string
+          lessons_learned?: string | null
+          notifications_sent?: Json | null
+          regulatory_reporting_required?: boolean
+          remediation_actions?: string | null
+          resolution_timestamp?: string | null
+          severity_level?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       shop_items: {
         Row: {
           created_at: string
@@ -2514,6 +2867,48 @@ export type Database = {
         }
         Relationships: []
       }
+      training_modules: {
+        Row: {
+          compliance_framework: string | null
+          content_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          mandatory: boolean
+          module_name: string
+          passing_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          compliance_framework?: string | null
+          content_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          mandatory?: boolean
+          module_name: string
+          passing_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          compliance_framework?: string | null
+          content_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          mandatory?: boolean
+          module_name?: string
+          passing_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       uat_sessions: {
         Row: {
           completed_goals: Json
@@ -2568,6 +2963,48 @@ export type Database = {
           invited_by?: string | null
           is_active?: boolean
           role?: string
+        }
+        Relationships: []
+      }
+      user_access_certifications: {
+        Row: {
+          certification_type: string
+          created_at: string
+          expiry_date: string
+          id: string
+          issued_date: string
+          issuer: string | null
+          last_access_review: string | null
+          status: string
+          training_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          certification_type: string
+          created_at?: string
+          expiry_date: string
+          id?: string
+          issued_date?: string
+          issuer?: string | null
+          last_access_review?: string | null
+          status?: string
+          training_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          certification_type?: string
+          created_at?: string
+          expiry_date?: string
+          id?: string
+          issued_date?: string
+          issuer?: string | null
+          last_access_review?: string | null
+          status?: string
+          training_completed?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2808,6 +3245,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_training_completions: {
+        Row: {
+          certificate_url: string | null
+          completion_date: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          passed: boolean
+          score: number | null
+          training_module_id: string
+          user_id: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          completion_date?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          passed?: boolean
+          score?: number | null
+          training_module_id: string
+          user_id: string
+        }
+        Update: {
+          certificate_url?: string | null
+          completion_date?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          passed?: boolean
+          score?: number | null
+          training_module_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_training_completions_training_module_id_fkey"
+            columns: ["training_module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_uploaded_books: {
         Row: {
           created_at: string | null
@@ -2936,6 +3417,16 @@ export type Database = {
         }
         Returns: string
       }
+      detect_security_incident: {
+        Args: {
+          p_incident_type: string
+          p_description: string
+          p_severity_level?: string
+          p_affected_systems?: Json
+          p_data_types_affected?: Json
+        }
+        Returns: string
+      }
       extract_chat_topics: {
         Args: { session_id: string }
         Returns: Json
@@ -2955,6 +3446,18 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      log_hipaa_access: {
+        Args: {
+          p_user_id: string
+          p_action_type: string
+          p_resource_type: string
+          p_resource_id?: string
+          p_phi_accessed?: boolean
+          p_access_purpose?: string
+          p_patient_id?: string
+        }
+        Returns: undefined
       }
       record_audit_event: {
         Args: {
