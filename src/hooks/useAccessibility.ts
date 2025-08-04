@@ -48,8 +48,11 @@ export const useAccessibility = () => {
   useEffect(() => {
     if (!profileSettings) return;
 
-    // Only log when settings actually change
-    console.log('🎨 useAccessibility: Updating classes for profile', profileSettings);
+    // Only log occasionally to avoid console spam - log every 10th update
+    const shouldLog = Math.random() < 0.1;
+    if (shouldLog) {
+      console.log('🎨 useAccessibility: Updating classes for profile', profileSettings);
+    }
 
     // Apply accessibility settings globally via CSS variables
     const root = document.documentElement;

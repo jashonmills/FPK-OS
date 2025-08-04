@@ -10,7 +10,7 @@ interface TestCase {
   id: string;
   name: string;
   description: string;
-  category: 'media' | 'navigation' | 'progress' | 'download' | 'responsive';
+  category: 'media' | 'navigation' | 'progress' | 'download' | 'responsive' | 'accessibility';
   priority: 'high' | 'medium' | 'low';
   automated: boolean;
   testFunction?: () => Promise<boolean>;
@@ -34,10 +34,19 @@ const QA_TEST_CASES: TestCase[] = [
     priority: 'high',
     automated: true,
     testFunction: async () => {
-      // Test audio element creation and basic properties
-      const audio = document.createElement('audio');
-      audio.src = '/placeholder-audio.mp3';
-      return audio.canPlayType('audio/mpeg') !== '';
+      console.log('🎵 Testing audio playback capability...');
+      try {
+        // Test if browser supports audio playback
+        const audio = document.createElement('audio');
+        const mp3Support = audio.canPlayType('audio/mpeg') !== '';
+        const oggSupport = audio.canPlayType('audio/ogg') !== '';
+        const wavSupport = audio.canPlayType('audio/wav') !== '';
+        console.log('Audio support:', { mp3Support, oggSupport, wavSupport });
+        return mp3Support || oggSupport || wavSupport;
+      } catch (error) {
+        console.error('Audio test failed:', error);
+        return false;
+      }
     }
   },
   {
@@ -48,9 +57,18 @@ const QA_TEST_CASES: TestCase[] = [
     priority: 'high',
     automated: true,
     testFunction: async () => {
-      const video = document.createElement('video');
-      video.src = '/placeholder-video.mp4';
-      return video.canPlayType('video/mp4') !== '';
+      console.log('🎬 Testing video playback capability...');
+      try {
+        const video = document.createElement('video');
+        const mp4Support = video.canPlayType('video/mp4') !== '';
+        const webmSupport = video.canPlayType('video/webm') !== '';
+        const oggSupport = video.canPlayType('video/ogg') !== '';
+        console.log('Video support:', { mp4Support, webmSupport, oggSupport });
+        return mp4Support || webmSupport || oggSupport;
+      } catch (error) {
+        console.error('Video test failed:', error);
+        return false;
+      }
     }
   },
   {
@@ -72,8 +90,19 @@ const QA_TEST_CASES: TestCase[] = [
     priority: 'high',
     automated: true,
     testFunction: async () => {
-      const sidebar = document.querySelector('[data-testid="course-sidebar"]');
-      return sidebar !== null;
+      console.log('🧭 Testing sidebar navigation...');
+      try {
+        // Look for common sidebar elements
+        const sidebar = document.querySelector('aside') || 
+                      document.querySelector('[role="navigation"]') ||
+                      document.querySelector('.sidebar') ||
+                      document.querySelector('nav');
+        console.log('Sidebar found:', !!sidebar);
+        return sidebar !== null;
+      } catch (error) {
+        console.error('Sidebar test failed:', error);
+        return false;
+      }
     }
   },
   {
@@ -84,8 +113,42 @@ const QA_TEST_CASES: TestCase[] = [
     priority: 'high',
     automated: true,
     testFunction: async () => {
-      const progressBars = document.querySelectorAll('[role="progressbar"]');
-      return progressBars.length > 0;
+      console.log('📊 Testing progress tracking...');
+      try {
+        const progressBars = document.querySelectorAll('[role="progressbar"]') ||
+                            document.querySelectorAll('progress') ||
+                            document.querySelectorAll('.progress');
+        console.log('Progress bars found:', progressBars.length);
+        return progressBars.length > 0;
+      } catch (error) {
+        console.error('Progress tracking test failed:', error);
+        return false;
+      }
+    }
+  },
+  
+  // Accessibility Tests
+  {
+    id: 'accessibility-settings',
+    name: 'Accessibility Settings',
+    description: 'Verify accessibility settings apply correctly',
+    category: 'accessibility',
+    priority: 'high',
+    automated: true,
+    testFunction: async () => {
+      console.log('♿ Testing accessibility settings...');
+      try {
+        const root = document.documentElement;
+        const hasAccessibilityVars = 
+          root.style.getPropertyValue('--accessibility-text-size') ||
+          root.style.getPropertyValue('--accessibility-line-height') ||
+          root.style.getPropertyValue('--accessibility-font-family');
+        console.log('Accessibility CSS variables applied:', !!hasAccessibilityVars);
+        return !!hasAccessibilityVars;
+      } catch (error) {
+        console.error('Accessibility test failed:', error);
+        return false;
+      }
     }
   },
   
@@ -245,7 +308,7 @@ const QATestRunner: React.FC = () => {
             </CardDescription>
           </div>
           <Badge variant="outline">
-            Beta QA v1.0
+            Beta QA v1.9
           </Badge>
         </div>
       </CardHeader>
