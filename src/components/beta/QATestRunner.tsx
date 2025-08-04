@@ -179,7 +179,15 @@ const QA_TEST_CASES: TestCase[] = [
     priority: 'low',
     automated: true,
     testFunction: async () => {
-      return window.innerWidth >= 1024;
+      console.log('🖥️ Testing desktop responsiveness...');
+      try {
+        const width = window.innerWidth;
+        console.log('Current window width:', width);
+        return width >= 1024;
+      } catch (error) {
+        console.error('Desktop responsive test failed:', error);
+        return false;
+      }
     }
   }
 ];
@@ -202,11 +210,24 @@ const QATestRunner: React.FC = () => {
   }, []);
 
   const runAutomatedTests = async () => {
+    console.clear(); // Clear console for better debugging
     setIsRunning(true);
-    console.log('🚀 Starting QA Test Runner...');
+    console.log('🚀 QA Test Runner Starting - Total automated tests:', QA_TEST_CASES.filter(test => test.automated).length);
+    
+    // Reset all test results first
+    const resetResults: Record<string, TestResult> = {};
+    QA_TEST_CASES.forEach(test => {
+      resetResults[test.id] = {
+        testId: test.id,
+        status: test.automated ? 'pending' : 'manual'
+      };
+    });
+    setTestResults(resetResults);
+    
+    await new Promise(resolve => setTimeout(resolve, 100)); // Let UI update
     
     const automatedTests = QA_TEST_CASES.filter(test => test.automated);
-    console.log(`Running ${automatedTests.length} automated tests...`);
+    console.log('Filtered automated tests:', automatedTests.map(t => t.name));
     
     for (let i = 0; i < automatedTests.length; i++) {
       const test = automatedTests[i];
@@ -260,7 +281,21 @@ const QATestRunner: React.FC = () => {
     setIsRunning(false);
   };
 
+  const resetAllTests = () => {
+    console.log('🔄 Resetting all tests...');
+    const resetResults: Record<string, TestResult> = {};
+    QA_TEST_CASES.forEach(test => {
+      resetResults[test.id] = {
+        testId: test.id,
+        status: test.automated ? 'pending' : 'manual'
+      };
+    });
+    setTestResults(resetResults);
+    setIsRunning(false);
+  };
+
   const markManualTest = (testId: string, passed: boolean) => {
+    console.log(`📝 Manual test ${testId}: ${passed ? 'PASS' : 'FAIL'}`);
     setTestResults(prev => ({
       ...prev,
       [testId]: {
@@ -364,6 +399,14 @@ const QATestRunner: React.FC = () => {
           >
             <Play className="w-4 h-4 mr-2" />
             {isRunning ? 'Running Tests...' : 'Run Automated Tests'}
+          </Button>
+          
+          <Button 
+            onClick={resetAllTests} 
+            variant="outline"
+            disabled={isRunning}
+          >
+            Reset Tests
           </Button>
           
           <select 
