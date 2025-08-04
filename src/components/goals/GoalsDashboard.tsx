@@ -7,7 +7,7 @@ import { Plus, Target, Trophy, Calendar, Filter, AlertCircle, LogIn } from 'luci
 import { useGoals } from '@/hooks/useGoals';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
-import GoalCreateForm from './GoalCreateForm';
+import GoalCreationDialog from './GoalCreationDialog';
 import GoalCard from './GoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
 import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoundary';
@@ -15,9 +15,8 @@ import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoun
 export const GoalsDashboard = () => {
   console.log('🎯 GoalsDashboard rendering');
   
-  const { goals = [], loading, error } = useGoals();
+  const { goals = [], loading, error, refetch } = useGoals();
   const { t } = useDualLanguage();
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
   // Add loading state handling
@@ -178,15 +177,14 @@ export const GoalsDashboard = () => {
                 <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
               </span>
             </CardTitle>
-            <Button 
-              onClick={() => setShowCreateForm(true)}
-              className="fpk-gradient text-white text-sm sm:text-base px-3 sm:px-4 py-2 w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="truncate">
-                <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
-              </span>
-            </Button>
+            <GoalCreationDialog onGoalCreated={refetch}>
+              <Button className="fpk-gradient text-white text-sm sm:text-base px-3 sm:px-4 py-2 w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">
+                  <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+                </span>
+              </Button>
+            </GoalCreationDialog>
           </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
@@ -250,14 +248,13 @@ export const GoalsDashboard = () => {
                       fallback="Start by creating your first goal to track your learning progress" 
                     />
                   </p>
-                  {activeTab === 'all' || activeTab === 'active' ? (
-                    <Button 
-                      onClick={() => setShowCreateForm(true)}
-                      className="fpk-gradient text-white text-sm px-4 py-2"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      <DualLanguageText translationKey="goals.createFirst" fallback="Create Your First Goal" />
-                    </Button>
+                   {activeTab === 'all' || activeTab === 'active' ? (
+                    <GoalCreationDialog onGoalCreated={refetch}>
+                      <Button className="fpk-gradient text-white text-sm px-4 py-2">
+                        <Plus className="h-4 w-4 mr-2" />
+                        <DualLanguageText translationKey="goals.createFirst" fallback="Create Your First Goal" />
+                      </Button>
+                    </GoalCreationDialog>
                   ) : null}
                 </div>
               ) : (
@@ -287,27 +284,6 @@ export const GoalsDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Create Goal Form Modal */}
-      {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base sm:text-lg font-semibold truncate mr-2">
-                <DualLanguageText translationKey="goals.createNew" fallback="Create New Goal" />
-              </h2>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowCreateForm(false)}
-                className="flex-shrink-0"
-              >
-                ×
-              </Button>
-            </div>
-            <GoalCreateForm />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

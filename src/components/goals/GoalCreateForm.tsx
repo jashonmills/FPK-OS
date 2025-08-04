@@ -84,10 +84,12 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
           target_date: '',
         });
         
-        // Call the callback if provided
-        if (onGoalCreated) {
-          onGoalCreated();
-        }
+        // Small delay to ensure UI updates smoothly
+        setTimeout(() => {
+          if (onGoalCreated) {
+            onGoalCreated();
+          }
+        }, 100);
       }
     } catch (error) {
       console.error('Error creating goal:', error);

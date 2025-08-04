@@ -159,6 +159,7 @@ class GoalsManager {
     }
   }
 
+
   async createGoal(userId: string, goalData: Omit<GoalInsert, 'user_id'>): Promise<Goal | null> {
     try {
       // Check session before creating goal
