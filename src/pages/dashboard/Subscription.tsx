@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,13 +9,14 @@ import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
-import { Gift, Loader2 } from 'lucide-react';
+import { Gift, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function Subscription() {
   const [couponCode, setCouponCode] = useState('');
   const [redeeming, setRedeeming] = useState(false);
   const { redeemCoupon } = useSubscription();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleRedeemCoupon = async () => {
     if (!couponCode.trim()) {
@@ -43,6 +45,17 @@ export default function Subscription() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/login')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Login
+        </Button>
+      </div>
+      
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold">Subscription Plans</h1>
         <p className="text-xl text-muted-foreground">
