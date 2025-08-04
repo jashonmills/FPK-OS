@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,9 +44,9 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
   ];
 
   const priorities = [
-    { id: 'low', label: 'Low Priority', color: 'text-gray-600', description: 'Something to work on when I have time' },
-    { id: 'medium', label: 'Medium Priority', color: 'text-amber-600', description: 'Important but not urgent' },
-    { id: 'high', label: 'High Priority', color: 'text-red-600', description: 'Very important to me right now' },
+    { id: 'low' as const, label: 'Low Priority', color: 'text-gray-600', description: 'Something to work on when I have time' },
+    { id: 'medium' as const, label: 'Medium Priority', color: 'text-amber-600', description: 'Important but not urgent' },
+    { id: 'high' as const, label: 'High Priority', color: 'text-red-600', description: 'Very important to me right now' },
   ];
 
   const handleSubmit = async () => {
@@ -81,7 +82,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
           title: '',
           description: '',
           category: 'learning',
-          priority: 'medium',
+          priority: 'medium' as 'low' | 'medium' | 'high',
           target_date: '',
         });
         
@@ -225,7 +226,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
 
               <RadioGroup 
                 value={formData.priority} 
-                onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                onValueChange={(value: string) => setFormData({ ...formData, priority: value as 'low' | 'medium' | 'high' })}
               >
                 {priorities.map((priority) => (
                   <div 
