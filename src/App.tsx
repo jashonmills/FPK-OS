@@ -104,17 +104,16 @@ function App() {
                     <BetaUpdateListener />
                     <ConsentManager />
                     <BrowserRouter>
-                      <RouteProtector>
                         <Suspense fallback={<div>Loading...</div>}>
                           <Routes>
                             <Route path="/" element={<Index />} />
                             <Route path="/login" element={<Login />} />
                             
-                            {/* Dashboard Routes with Subscription Enforcement */}
+                            {/* Dashboard Routes */}
                             <Route path="/dashboard/*" element={
-                              <SubscriptionGate>
+                              <RouteProtector>
                                 <DashboardLayout />
-                              </SubscriptionGate>
+                              </RouteProtector>
                             }>
                               <Route path="learner" element={
                                 <LazyRoute><LearnerHome /></LazyRoute>
@@ -216,10 +215,6 @@ function App() {
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </Suspense>
-                        <OnboardingFlowManager>
-                          <div />
-                        </OnboardingFlowManager>
-                      </RouteProtector>
                     </BrowserRouter>
                     </TooltipProvider>
                   </AccessibilityProvider>
