@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Sheet,
@@ -37,9 +38,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { getRoleBadgeVariant } from '@/types/user';
-import { Badge } from '@/components/ui/badge';
 
 interface SidebarProps {
   className?: string;
@@ -50,7 +48,6 @@ const AppSidebar = ({ className }: SidebarProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile } = useUserProfile();
   const [open, setOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -165,20 +162,10 @@ const AppSidebar = ({ className }: SidebarProps) => {
           <SheetTitle>
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={profile?.avatar_url} />
-                <AvatarFallback>{profile?.display_name?.charAt(0) || 'U'}</AvatarFallback>
+                <AvatarFallback>{user?.email?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-semibold">{profile?.display_name || user?.email}</div>
-                {user?.roles?.map((role) => (
-                  <Badge
-                    key={role}
-                    variant={getRoleBadgeVariant(role)}
-                    className="mr-1"
-                  >
-                    {role}
-                  </Badge>
-                ))}
+                <div className="font-semibold">{user?.email}</div>
               </div>
             </div>
           </SheetTitle>
@@ -237,39 +224,35 @@ const AppSidebar = ({ className }: SidebarProps) => {
           </AccordionItem>
         </Accordion>
 
-        {user?.roles?.includes('admin') && (
-          <>
-            <div className="py-4">
-              <Separator />
-            </div>
+        <div className="py-4">
+          <Separator />
+        </div>
 
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="admin-tools">
-                <AccordionTrigger className="hover:no-underline">
-                  <Users className="mr-2 h-4 w-4" />
-                  Admin Tools
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col gap-1">
-                    {adminTools.map((item) => (
-                      <Button
-                        key={item.title}
-                        variant="ghost"
-                        className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
-                        asChild
-                      >
-                        <Link to={item.url} onClick={() => setOpen(false)}>
-                          <item.icon className="mr-2 h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </Button>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </>
-        )}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="admin-tools">
+            <AccordionTrigger className="hover:no-underline">
+              <Users className="mr-2 h-4 w-4" />
+              Admin Tools
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-1">
+                {adminTools.map((item) => (
+                  <Button
+                    key={item.title}
+                    variant="ghost"
+                    className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
+                    asChild
+                  >
+                    <Link to={item.url} onClick={() => setOpen(false)}>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <div className="mt-auto py-4">
           <Separator />

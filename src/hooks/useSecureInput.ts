@@ -16,7 +16,7 @@ interface ValidationRules {
 export const useSecureInput = (initialValues: Record<string, string>, rules: ValidationRules = {}) => {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [touched, setTouchedState] = useState<Record<string, boolean>>({});
 
   const sanitizeInput = useCallback((value: string): string => {
     // Remove potentially dangerous characters
@@ -68,7 +68,7 @@ export const useSecureInput = (initialValues: Record<string, string>, rules: Val
   }, [sanitizeInput, validateField, touched]);
 
   const setTouched = useCallback((name: string) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouchedState(prev => ({ ...prev, [name]: true }));
     const error = validateField(name, values[name] || '');
     setErrors(prev => ({ ...prev, [name]: error || '' }));
   }, [validateField, values]);
@@ -86,7 +86,7 @@ export const useSecureInput = (initialValues: Record<string, string>, rules: Val
     });
 
     setErrors(newErrors);
-    setTouched(Object.keys(rules).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+    setTouchedState(Object.keys(rules).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
     
     return isValid;
   }, [rules, values, validateField]);
@@ -94,7 +94,7 @@ export const useSecureInput = (initialValues: Record<string, string>, rules: Val
   const reset = useCallback(() => {
     setValues(initialValues);
     setErrors({});
-    setTouched({});
+    setTouchedState({});
   }, [initialValues]);
 
   return {

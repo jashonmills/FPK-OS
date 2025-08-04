@@ -19,9 +19,6 @@ const SafeHtml: React.FC<SafeHtmlProps> = ({
     ALLOWED_TAGS: allowedTags,
     ALLOWED_ATTR: allowedAttributes,
     ALLOW_DATA_ATTR: false,
-    FORBID_SCRIPT: true,
-    FORBID_TAGS: ['script', 'object', 'embed', 'iframe', 'form', 'input'],
-    STRIP_COMMENTS: true,
   });
 
   return (
