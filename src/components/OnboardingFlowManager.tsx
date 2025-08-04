@@ -45,6 +45,7 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
           navigateToStep('unauthenticated');
         } else if (currentPath !== '/login' && currentPath !== '/' && 
             !currentPath.startsWith('/privacy') && !currentPath.startsWith('/terms') &&
+            !currentPath.startsWith('/choose-plan') &&
             !currentPath.startsWith('/subscription')) {
           console.log('🔄 Navigating to login from', currentPath);
           navigateToStep('unauthenticated');
