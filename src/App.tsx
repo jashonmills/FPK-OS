@@ -8,6 +8,9 @@ import SecurityHeaders from '@/components/security/SecurityHeaders';
 import Login from '@/pages/Login';
 import Register from '@/pages/auth/Register';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Dashboard from '@/pages/dashboard/Dashboard';
+import DashboardLayout from '@/components/DashboardLayout';
+import Library from '@/pages/dashboard/Library';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,16 +20,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Simple placeholder component for missing pages
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-muted-foreground">This page is under construction.</p>
-    </div>
-  </div>
-);
 
 function App() {
   return (
@@ -42,19 +35,13 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <PlaceholderPage title="Dashboard" />
+                  <DashboardLayout />
                 </ProtectedRoute>
               }
-            />
-            
-            <Route
-              path="/dashboard/*"
-              element={
-                <ProtectedRoute>
-                  <PlaceholderPage title="Dashboard Page" />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="library" element={<Library />} />
+            </Route>
 
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
