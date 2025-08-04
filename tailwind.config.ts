@@ -65,8 +65,8 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				// FPK University Custom Colors
-				'fpk-purple': '#7F1D9C',
-				'fpk-amber': '#F59E0B',
+				'fpk-purple': '#4C1D6B',  /* Darker purple */
+				'fpk-amber': '#B45309',   /* Darker amber for better contrast */
 				'fpk-card': '#FBF6F0',
 			},
 			fontFamily: {
