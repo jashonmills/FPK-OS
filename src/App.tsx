@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -25,15 +25,15 @@ const queryClient = new QueryClient({
 });
 
 // Placeholder components for missing routes
-const LearnerLibrary = () => <div className="p-6"><h1 className="text-2xl font-bold">Library</h1><p>Library content coming soon...</p></div>;
-const LearnerAnalytics = () => <div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p>Analytics content coming soon...</p></div>;
-const LearnerGoals = () => <div className="p-6"><h1 className="text-2xl font-bold">Goals</h1><p>Goals content coming soon...</p></div>;
-const LearnerNotes = () => <div className="p-6"><h1 className="text-2xl font-bold">Notes</h1><p>Notes content coming soon...</p></div>;
-const AICoach = () => <div className="p-6"><h1 className="text-2xl font-bold">AI Study Coach</h1><p>AI Coach content coming soon...</p></div>;
-const LearnerGamification = () => <div className="p-6"><h1 className="text-2xl font-bold">Gamification</h1><p>Gamification content coming soon...</p></div>;
-const LearnerSettings = () => <div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p>Settings content coming soon...</p></div>;
+const LearnerLibrary: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Library</h1><p>Library content coming soon...</p></div>;
+const LearnerAnalytics: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p>Analytics content coming soon...</p></div>;
+const LearnerGoals: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Goals</h1><p>Goals content coming soon...</p></div>;
+const LearnerNotes: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Notes</h1><p>Notes content coming soon...</p></div>;
+const AICoach: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">AI Study Coach</h1><p>AI Coach content coming soon...</p></div>;
+const LearnerGamification: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Gamification</h1><p>Gamification content coming soon...</p></div>;
+const LearnerSettings: React.FC = () => <div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p>Settings content coming soon...</p></div>;
 
-function App() {
+const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -76,6 +76,6 @@ function App() {
       </AuthProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;
