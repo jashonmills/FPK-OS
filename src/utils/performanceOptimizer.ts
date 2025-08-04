@@ -108,29 +108,8 @@ export class RequestBatcher {
   }
 }
 
-// Global request batcher instance - increased batch size for better performance
-export const globalRequestBatcher = new RequestBatcher(5, 100);
-
-// Enhanced request deduplication cache
-const requestCache = new Map<string, Promise<any>>();
-
-export const deduplicateRequest = <T>(
-  key: string,
-  requestFn: () => Promise<T>,
-  ttl: number = 5000
-): Promise<T> => {
-  const cached = requestCache.get(key);
-  if (cached) {
-    return cached;
-  }
-
-  const promise = requestFn().finally(() => {
-    setTimeout(() => requestCache.delete(key), ttl);
-  });
-
-  requestCache.set(key, promise);
-  return promise;
-};
+// Global request batcher instance
+export const globalRequestBatcher = new RequestBatcher(3, 200);
 
 // Performance monitoring helper
 export const measurePerformance = (name: string, fn: () => void) => {
