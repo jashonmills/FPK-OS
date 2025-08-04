@@ -21,10 +21,11 @@ const Login = () => {
   const { toast } = useToast();
   const { user, loading } = useAuth();
 
-  // Redirect if already logged in
+  // Redirect if already logged in - but let the onboarding flow handle it
   useEffect(() => {
     if (!loading && user) {
-      navigate('/dashboard/learner');
+      console.log('🔄 Login: User authenticated, allowing onboarding flow to handle redirect');
+      // Let SubscriptionGate and onboarding flow handle the redirect
     }
   }, [user, loading, navigate]);
 
@@ -61,7 +62,8 @@ const Login = () => {
         description: tString('signInSuccess'),
       });
       
-      navigate('/dashboard/learner');
+      // Let the onboarding flow handle the redirect
+      console.log('🔄 Login: Sign in successful, allowing flow to handle redirect');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
     } finally {

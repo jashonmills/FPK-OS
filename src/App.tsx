@@ -20,6 +20,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
 import { ConsentManager } from '@/components/compliance/ConsentManager';
+import { OnboardingFlowManager } from '@/components/OnboardingFlowManager';
 import "./App.css";
 
 // Lazy load dashboard pages for route isolation
@@ -99,6 +100,7 @@ function App() {
                     <Sonner />
                     <ConsentManager />
                     <BrowserRouter>
+                      <OnboardingFlowManager>
                     <Suspense fallback={<div>Loading...</div>}>
                       <Routes>
                           <Route path="/" element={<Index />} />
@@ -206,8 +208,9 @@ function App() {
                         
                         {/* 404 Route */}
                         <Route path="*" element={<NotFound />} />
-                          </Routes>
+                           </Routes>
                         </Suspense>
+                      </OnboardingFlowManager>
                       </BrowserRouter>
                     </TooltipProvider>
                   </AccessibilityProvider>

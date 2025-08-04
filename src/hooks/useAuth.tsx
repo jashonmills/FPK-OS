@@ -21,25 +21,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('🔐 Auth State Change:', { event, hasSession: !!session, hasUser: !!session?.user });
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Handle new user signup - redirect to plan selection instead of dashboard
-        if (event === 'SIGNED_IN' && session?.user && session.user.email_confirmed_at) {
-          // Check if this is a new signup by looking at user creation time
-          const userCreatedAt = new Date(session.user.created_at);
-          const now = new Date();
-          const timeDiff = now.getTime() - userCreatedAt.getTime();
-          const isNewUser = timeDiff < 60000; // Less than 1 minute old
-          
-          if (isNewUser) {
-            // Small delay to ensure state is updated
-            setTimeout(() => {
-              window.location.href = '/choose-plan';
-            }, 100);
-          }
-        }
       }
     );
 
