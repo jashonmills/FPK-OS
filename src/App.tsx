@@ -51,6 +51,7 @@ const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
+const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
@@ -183,14 +184,16 @@ function App() {
                             <LazyRoute><BetaManagement /></LazyRoute>
                           } />
                           
+                          {/* Dashboard Subscription Management */}
+                          <Route path="subscription" element={
+                            <LazyRoute><UserSubscription /></LazyRoute>
+                          } />
+                          
                           {/* Default redirect */}
                           <Route index element={<Navigate to="learner" replace />} />
                         </Route>
                         
-                        {/* Subscription Routes - Public Access for Account Creation */}
-                        <Route path="/subscription" element={
-                          <LazyRoute><Subscription /></LazyRoute>
-                        } />
+                        {/* Public Subscription Routes - Onboarding Flow */}
                         <Route path="/subscription-success" element={
                           <LazyRoute><SubscriptionSuccess /></LazyRoute>
                         } />

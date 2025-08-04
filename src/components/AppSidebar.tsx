@@ -126,7 +126,7 @@ export function AppSidebar() {
   const footerItems = [
     {
       title: 'Subscription',
-      url: "/subscription",
+      url: "/dashboard/subscription",
       icon: CreditCard,
     },
     {
