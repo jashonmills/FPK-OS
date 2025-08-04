@@ -200,6 +200,133 @@ const questionSections: QuestionSection[] = [
         required: true
       }
     ]
+  },
+  {
+    id: 'empowering-learning',
+    title: '📌 Empowering Learning Spelling Course',
+    questions: [
+      {
+        id: 'content-level-match',
+        text: 'Did the content match the reading/spelling level you expected for the age range?',
+        type: 'radio',
+        options: ['Yes, perfect match', 'Slightly too easy', 'Slightly too hard', 'Way off target'],
+        required: true
+      },
+      {
+        id: 'learner-confidence',
+        text: 'How confident did your learner feel after completing the activities?',
+        type: 'dropdown',
+        options: ['Very confident', 'Somewhat confident', 'Not very confident', 'Frustrated/discouraged'],
+        required: true
+      },
+      {
+        id: 'content-personalization',
+        text: 'Did the content feel personalized or adaptive based on the learner\'s performance?',
+        type: 'text',
+        required: false
+      }
+    ]
+  },
+  {
+    id: 'accessibility-inclusion',
+    title: '♿ Accessibility & Inclusion',
+    questions: [
+      {
+        id: 'interface-accessibility',
+        text: 'Was the interface accessible to your learner\'s needs (e.g., visual, motor, reading difficulty)?',
+        type: 'radio',
+        options: ['Very accessible', 'Mostly accessible', 'Some barriers', 'Many barriers'],
+        required: true
+      },
+      {
+        id: 'learner-frustration',
+        text: 'Did your learner experience any frustration due to lack of audio, color contrast, or pace control?',
+        type: 'radio',
+        options: ['No frustration', 'Minor frustration', 'Moderate frustration', 'Major frustration'],
+        required: true
+      },
+      {
+        id: 'neurodiverse-improvements',
+        text: 'What improvements would help neurodiverse learners better engage with the platform?',
+        type: 'text',
+        required: false
+      }
+    ]
+  },
+  {
+    id: 'platform-flow',
+    title: '🧭 Platform Flow / Ease of Use',
+    questions: [
+      {
+        id: 'stuck-locations',
+        text: 'Where did you get stuck or unsure about what to do next?',
+        type: 'text',
+        required: false
+      },
+      {
+        id: 'ease-of-use-rating',
+        text: 'How would you rate the platform\'s overall ease of use?',
+        type: 'dropdown',
+        options: ['5 stars - Excellent', '4 stars - Good', '3 stars - Average', '2 stars - Poor', '1 star - Very poor'],
+        required: true
+      },
+      {
+        id: 'shortcut-suggestion',
+        text: 'If you could add a shortcut button anywhere in the platform, where would it go and what would it do?',
+        type: 'text',
+        required: false
+      }
+    ]
+  },
+  {
+    id: 'value-pricing',
+    title: '💵 Value Perception & Pricing',
+    questions: [
+      {
+        id: 'payment-clarity',
+        text: 'How clear was it what was free vs. what required payment?',
+        type: 'dropdown',
+        options: ['Very clear', 'Mostly clear', 'Somewhat confusing', 'Very confusing'],
+        required: true
+      },
+      {
+        id: 'willingness-to-pay',
+        text: 'Would you be willing to pay for this platform in the future?',
+        type: 'radio',
+        options: ['Definitely yes', 'Probably yes', 'Maybe', 'Probably no', 'Definitely no'],
+        required: true
+      },
+      {
+        id: 'coupon-experience',
+        text: 'Did you use a coupon code or start a paid plan? If so, how was that process?',
+        type: 'text',
+        required: false
+      }
+    ]
+  },
+  {
+    id: 'suggestions-features',
+    title: '🧪 Suggestions & Future Features',
+    questions: [
+      {
+        id: 'dashboard-improvements',
+        text: 'What features would make the dashboard more useful for you?',
+        type: 'text',
+        required: false
+      },
+      {
+        id: 'missing-features',
+        text: 'What is one thing you wish this platform had that it currently doesn\'t?',
+        type: 'text',
+        required: false
+      },
+      {
+        id: 'new-activities',
+        text: 'Any specific activities or subjects you\'d like to see added next?',
+        type: 'text',
+        required: false
+      }
+    ]
   }
 ];
 
