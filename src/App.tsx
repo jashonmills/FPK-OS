@@ -21,6 +21,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
 import { ConsentManager } from '@/components/compliance/ConsentManager';
+import { RouteProtector } from '@/components/RouteProtector';
 import { OnboardingFlowManager } from '@/components/OnboardingFlowManager';
 import "./App.css";
 
@@ -103,120 +104,123 @@ function App() {
                     <BetaUpdateListener />
                     <ConsentManager />
                     <BrowserRouter>
-                      <OnboardingFlowManager>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/login" element={<Login />} />
-                          
-                          {/* Dashboard Routes with Subscription Enforcement */}
-                          <Route path="/dashboard/*" element={
-                            <SubscriptionGate>
-                              <DashboardLayout />
-                            </SubscriptionGate>
-                          }>
-                            <Route path="learner" element={
-                            <LazyRoute><LearnerHome /></LazyRoute>
-                          } />
-                          <Route path="learner/library" element={
-                            <LazyRoute><Library /></LazyRoute>
-                          } />
-                          <Route path="learner/courses" element={
-                            <LazyRoute><MyCourses /></LazyRoute>
-                          } />
-                          <Route path="learner/goals" element={
-                            <LazyRoute><Goals /></LazyRoute>
-                          } />
-                          <Route path="learner/notes" element={
-                            <LazyRoute><Notes /></LazyRoute>
-                          } />
-                          <Route path="learner/gamification" element={
-                            <LazyRoute><Gamification /></LazyRoute>
-                          } />
-                          <Route path="learner/settings" element={
-                            <LazyRoute><Settings /></LazyRoute>
-                          } />
-                          <Route path="learner/analytics" element={
-                            <LazyRoute><LearningAnalytics /></LazyRoute>
-                          } />
-                          <Route path="learner/ai-coach" element={
-                            <LazyRoute><AIStudyCoach /></LazyRoute>
-                          } />
-                          <Route path="learner/flashcards" element={
-                            <LazyRoute><FlashcardManagerPage /></LazyRoute>
-                          } />
-                          <Route path="learner/live-hub" element={
-                            <LazyRoute><LiveLearningHub /></LazyRoute>
-                          } />
-                          <Route path="learner/course/:courseId" element={
-                            <LazyRoute><DynamicCourse /></LazyRoute>
-                          } />
-                          <Route path="learner/learning-state/:courseId" element={
-                            <LazyRoute><LearningStateCourse /></LazyRoute>
-                          } />
-                          <Route path="learner/learning-state-embed/:moduleId" element={
-                            <LazyRoute><LearningStateEmbed /></LazyRoute>
-                          } />
-                          
-                          {/* Study Session Routes */}
-                          <Route path="learner/study/:mode" element={
-                            <LazyRoute><StudySessionRouter /></LazyRoute>
-                          } />
-                          
-                          {/* Admin Routes with Route Isolation */}
-                          <Route path="admin" element={
-                            <LazyRoute><AdminDashboard /></LazyRoute>
-                          } />
-                          <Route path="admin/users" element={
-                            <LazyRoute><UserManagement /></LazyRoute>
-                          } />
-                          <Route path="admin/courses" element={
-                            <LazyRoute><CourseManager /></LazyRoute>
-                          } />
-                          <Route path="admin/analytics" element={
-                            <LazyRoute><Analytics /></LazyRoute>
-                          } />
-                          <Route path="admin/modules" element={
-                            <LazyRoute><ModuleManagerPage /></LazyRoute>
-                          } />
-                          <Route path="admin/thresholds" element={
-                            <LazyRoute><ThresholdManagement /></LazyRoute>
-                          } />
-                          <Route path="admin/beta" element={
-                            <LazyRoute><BetaManagement /></LazyRoute>
-                          } />
-                          
-                          {/* Dashboard Subscription Management */}
-                          <Route path="subscription" element={
-                            <LazyRoute><UserSubscription /></LazyRoute>
-                          } />
-                          
-                          {/* Default redirect */}
-                          <Route index element={<Navigate to="learner" replace />} />
-                        </Route>
-                        
-                        {/* Public Subscription Routes - Onboarding Flow */}
-                        <Route path="/subscription-success" element={
-                          <LazyRoute><SubscriptionSuccess /></LazyRoute>
-                        } />
-                        <Route path="/choose-plan" element={
-                          <LazyRoute><ChoosePlan /></LazyRoute>
-                        } />
-                        
-                        {/* Legal Pages */}
-                        <Route path="/privacy-policy" element={
-                          <LazyRoute><PrivacyPolicy /></LazyRoute>
-                        } />
-                        <Route path="/terms-of-service" element={
-                          <LazyRoute><TermsOfService /></LazyRoute>
-                        } />
-                        
-                        {/* 404 Route */}
-                        <Route path="*" element={<NotFound />} />
-                           </Routes>
+                      <RouteProtector>
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/login" element={<Login />} />
+                            
+                            {/* Dashboard Routes with Subscription Enforcement */}
+                            <Route path="/dashboard/*" element={
+                              <SubscriptionGate>
+                                <DashboardLayout />
+                              </SubscriptionGate>
+                            }>
+                              <Route path="learner" element={
+                                <LazyRoute><LearnerHome /></LazyRoute>
+                              } />
+                              <Route path="learner/library" element={
+                                <LazyRoute><Library /></LazyRoute>
+                              } />
+                              <Route path="learner/courses" element={
+                                <LazyRoute><MyCourses /></LazyRoute>
+                              } />
+                              <Route path="learner/goals" element={
+                                <LazyRoute><Goals /></LazyRoute>
+                              } />
+                              <Route path="learner/notes" element={
+                                <LazyRoute><Notes /></LazyRoute>
+                              } />
+                              <Route path="learner/gamification" element={
+                                <LazyRoute><Gamification /></LazyRoute>
+                              } />
+                              <Route path="learner/settings" element={
+                                <LazyRoute><Settings /></LazyRoute>
+                              } />
+                              <Route path="learner/analytics" element={
+                                <LazyRoute><LearningAnalytics /></LazyRoute>
+                              } />
+                              <Route path="learner/ai-coach" element={
+                                <LazyRoute><AIStudyCoach /></LazyRoute>
+                              } />
+                              <Route path="learner/flashcards" element={
+                                <LazyRoute><FlashcardManagerPage /></LazyRoute>
+                              } />
+                              <Route path="learner/live-hub" element={
+                                <LazyRoute><LiveLearningHub /></LazyRoute>
+                              } />
+                              <Route path="learner/course/:courseId" element={
+                                <LazyRoute><DynamicCourse /></LazyRoute>
+                              } />
+                              <Route path="learner/learning-state/:courseId" element={
+                                <LazyRoute><LearningStateCourse /></LazyRoute>
+                              } />
+                              <Route path="learner/learning-state-embed/:moduleId" element={
+                                <LazyRoute><LearningStateEmbed /></LazyRoute>
+                              } />
+                              
+                              {/* Study Session Routes */}
+                              <Route path="learner/study/:mode" element={
+                                <LazyRoute><StudySessionRouter /></LazyRoute>
+                              } />
+                              
+                              {/* Admin Routes with Route Isolation */}
+                              <Route path="admin" element={
+                                <LazyRoute><AdminDashboard /></LazyRoute>
+                              } />
+                              <Route path="admin/users" element={
+                                <LazyRoute><UserManagement /></LazyRoute>
+                              } />
+                              <Route path="admin/courses" element={
+                                <LazyRoute><CourseManager /></LazyRoute>
+                              } />
+                              <Route path="admin/analytics" element={
+                                <LazyRoute><Analytics /></LazyRoute>
+                              } />
+                              <Route path="admin/modules" element={
+                                <LazyRoute><ModuleManagerPage /></LazyRoute>
+                              } />
+                              <Route path="admin/thresholds" element={
+                                <LazyRoute><ThresholdManagement /></LazyRoute>
+                              } />
+                              <Route path="admin/beta" element={
+                                <LazyRoute><BetaManagement /></LazyRoute>
+                              } />
+                              
+                              {/* Dashboard Subscription Management */}
+                              <Route path="subscription" element={
+                                <LazyRoute><UserSubscription /></LazyRoute>
+                              } />
+                              
+                              {/* Default redirect */}
+                              <Route index element={<Navigate to="learner" replace />} />
+                            </Route>
+                            
+                            {/* Public Subscription Routes - Onboarding Flow */}
+                            <Route path="/subscription-success" element={
+                              <LazyRoute><SubscriptionSuccess /></LazyRoute>
+                            } />
+                            <Route path="/choose-plan" element={
+                              <LazyRoute><ChoosePlan /></LazyRoute>
+                            } />
+                            
+                            {/* Legal Pages */}
+                            <Route path="/privacy-policy" element={
+                              <LazyRoute><PrivacyPolicy /></LazyRoute>
+                            } />
+                            <Route path="/terms-of-service" element={
+                              <LazyRoute><TermsOfService /></LazyRoute>
+                            } />
+                            
+                            {/* 404 Route */}
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
                         </Suspense>
-                      </OnboardingFlowManager>
-                      </BrowserRouter>
+                        <OnboardingFlowManager>
+                          <div />
+                        </OnboardingFlowManager>
+                      </RouteProtector>
+                    </BrowserRouter>
                     </TooltipProvider>
                   </AccessibilityProvider>
                 </VoiceSettingsProvider>
