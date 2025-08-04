@@ -71,7 +71,8 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
       'Access-Control-Allow-Headers': 'Range, Content-Range, Content-Length'
     },
-    withCredentials: false // Prevent CORS issues
+    withCredentials: false, // Prevent CORS issues
+    timeout: 30000 // Add 30 second timeout to prevent infinite loading
   }), []);
 
   // Calculate which pages should be rendered based on current page and buffer
@@ -103,6 +104,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
     setNumPages(numPages);
     setIsLoading(false);
     setError(null);
+    setRetryCount(0); // Reset retry count on successful load
     
     // Start preloading first few pages
     preloadPages(1);
@@ -437,6 +439,9 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
                 file={fileUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={onDocumentLoadError}
+                onLoadProgress={({ loaded, total }) => {
+                  console.log(`📊 PDF loading progress: ${loaded}/${total} bytes (${Math.round((loaded / total) * 100)}%)`);
+                }}
                 loading={
                   <div className="flex items-center justify-center p-8">
                     <div className="text-center space-y-4">
@@ -444,11 +449,15 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
                       <div className="space-y-2">
                         <div className="text-sm text-muted-foreground">Loading optimized PDF...</div>
                         <div className="text-xs text-muted-foreground">{fileName}</div>
+                        {retryCount > 0 && (
+                          <div className="text-xs text-amber-600">Retry attempt {retryCount}/{MAX_RETRIES}</div>
+                        )}
                       </div>
                     </div>
                   </div>
                 }
                 options={pdfOptions}
+                key={`${fileUrl}-${retryCount}`}
               >
                 {numPages > 0 && getVisiblePages().map(pageNum => (
                   <div
