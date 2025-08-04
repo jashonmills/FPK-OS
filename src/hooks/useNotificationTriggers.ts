@@ -12,7 +12,7 @@ export const useNotificationTriggers = () => {
     // Implementation for study streak notifications
   }, []);
 
-  const triggerGoalCompletion = useCallback(async (goalTitle: string, xpEarned: number) => {
+  const triggerGoalCompletion = useCallback(async (goalTitle: string, xpEarned?: number) => {
     console.log('Goal completion notification:', { goalTitle, xpEarned });
     // Implementation for goal completion notifications
   }, []);

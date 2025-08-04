@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
     title: '',
     description: '',
     category: 'learning',
-    priority: 'medium',
+    priority: 'medium' as 'low' | 'medium' | 'high',
     target_date: '',
   });
 
@@ -62,10 +61,12 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
     try {
       const goal = await createGoal({
         title: formData.title.trim(),
-        description: formData.description.trim() || null,
+        description: formData.description.trim() || undefined,
         category: formData.category,
-        priority: formData.priority as 'low' | 'medium' | 'high',
-        target_date: formData.target_date || null,
+        priority: formData.priority,
+        target_date: formData.target_date || undefined,
+        status: 'active',
+        progress: 0
       });
 
       if (goal) {

@@ -94,6 +94,14 @@ export const useGoals = () => {
     }
   };
 
+  const completeGoal = async (id: string) => {
+    await updateGoal(id, { 
+      status: 'completed', 
+      progress: 100, 
+      completed_at: new Date().toISOString() 
+    });
+  };
+
   const updateMilestone = async (goalId: string, milestoneId: string, completed: boolean) => {
     // Implementation for milestone updates
     console.log('Updating milestone:', { goalId, milestoneId, completed });
@@ -112,6 +120,7 @@ export const useGoals = () => {
     createGoal, 
     updateGoal, 
     deleteGoal, 
+    completeGoal,
     updateMilestone 
   };
 };
