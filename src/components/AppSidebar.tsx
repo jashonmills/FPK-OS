@@ -29,7 +29,8 @@ import {
   BookOpen,
   ExternalLink,
   CreditCard,
-  Target
+  Target,
+  MessageSquare
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -114,6 +115,11 @@ export function AppSidebar() {
       title: 'User Management',
       url: "/dashboard/admin/users",
       icon: Users,
+    },
+    {
+      title: 'Beta Management',
+      url: "/dashboard/admin/beta",
+      icon: MessageSquare,
     },
     {
       title: 'Course Builder',
