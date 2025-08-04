@@ -171,7 +171,7 @@ export function SubscriptionPlans() {
           />
           <Label htmlFor="billing-toggle">
             Annual 
-            <Badge variant="secondary" className="ml-2">Save up to 20%</Badge>
+            <Badge variant="secondary" className="ml-2">Save up to 10%</Badge>
           </Label>
         </div>
       </div>
@@ -196,16 +196,16 @@ export function SubscriptionPlans() {
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
           
           return (
-            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg' : ''}`}>
+            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg mt-4' : ''}`}>
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1 text-sm shadow-md">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-primary text-primary-foreground font-semibold px-4 py-2 text-sm shadow-md rounded-full border-2 border-background">
                     ⭐ Most Popular
                   </Badge>
                 </div>
               )}
               
-              <CardHeader className={plan.popular ? 'pt-6' : ''}>
+              <CardHeader className={plan.popular ? 'pt-8' : ''}>
                 <CardTitle className="flex items-center justify-between">
                   <div>
                     <div className="text-lg font-bold">{plan.name}</div>
