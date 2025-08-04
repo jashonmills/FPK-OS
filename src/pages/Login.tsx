@@ -266,7 +266,7 @@ const Login = () => {
           <div className="flex gap-2 justify-center">
             <Button
               variant="outline"
-              onClick={() => navigate('/subscription')}
+              onClick={() => navigate('/choose-plan')}
               className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
             >
               View Pricing Plans
