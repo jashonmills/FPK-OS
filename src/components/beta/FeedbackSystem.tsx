@@ -160,15 +160,15 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
         {trigger || defaultTrigger}
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:max-h-none">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl w-[95vw] h-[90vh] flex flex-col max-h-[800px]">
+        <DialogHeader className="flex-shrink-0 pb-4">
           <DialogTitle>Beta Feedback</DialogTitle>
           <DialogDescription>
             Help us improve FPK University by sharing your experience, reporting bugs, or suggesting features.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[70vh] sm:max-h-none overflow-y-auto pr-2">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {/* Context Info */}
           <Card className="bg-muted/50">
             <CardContent className="p-4">
@@ -278,20 +278,19 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
             />
           </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting || !formData.message.trim()}
-            >
-              <Send className="w-4 h-4 mr-2" />
-              {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-            </Button>
-          </div>
+        </div>
+        
+        <div className="flex-shrink-0 flex justify-end space-x-2 pt-4 border-t bg-background mt-4">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting || !formData.message.trim()}
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
