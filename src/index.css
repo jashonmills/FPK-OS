@@ -20,7 +20,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 280 65% 35%;
+    --primary: 280 65% 25%;  /* Darker purple for better contrast */
+    --primary-variant: 280 65% 20%;  /* Even darker for gradient steps */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -51,7 +52,7 @@
     --sidebar-ring: 38 95% 48%;
 
     /* FPK University Custom Variables */
-    --fpk-primary: 280 65% 35%;
+    --fpk-primary: 280 65% 25%;  /* Darker for better contrast */
     --fpk-secondary: 38 95% 48%;
     --fpk-card: 33 50% 96%;
     --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
