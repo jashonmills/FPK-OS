@@ -890,6 +890,54 @@ export type Database = {
         }
         Relationships: []
       }
+      data_subject_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string
+          id: string
+          legal_basis: string
+          processed_by: string | null
+          request_type: string
+          requested_data_categories: string[] | null
+          response_data: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date: string
+          id?: string
+          legal_basis: string
+          processed_by?: string | null
+          request_type: string
+          requested_data_categories?: string[] | null
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          legal_basis?: string
+          processed_by?: string | null
+          request_type?: string
+          requested_data_categories?: string[] | null
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_tracking: {
         Row: {
           bounced_at: string | null
@@ -2871,6 +2919,23 @@ export type Database = {
           next_level_xp: number
         }[]
       }
+      cleanup_expired_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          records_deleted: number
+          cleanup_date: string
+        }[]
+      }
+      create_data_subject_request: {
+        Args: {
+          p_user_id: string
+          p_request_type: string
+          p_description?: string
+          p_data_categories?: string[]
+        }
+        Returns: string
+      }
       extract_chat_topics: {
         Args: { session_id: string }
         Returns: Json
@@ -2903,6 +2968,18 @@ export type Database = {
           p_purpose?: string
         }
         Returns: undefined
+      }
+      validate_legal_basis: {
+        Args: {
+          p_user_id: string
+          p_processing_purpose: string
+          p_data_categories: string[]
+        }
+        Returns: Json
+      }
+      withdraw_user_consent: {
+        Args: { p_user_id: string; p_consent_type: string; p_reason?: string }
+        Returns: Json
       }
     }
     Enums: {

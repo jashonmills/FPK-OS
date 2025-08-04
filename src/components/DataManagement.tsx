@@ -214,28 +214,37 @@ export function DataManagement() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              <CardTitle>Data Access Request</CardTitle>
+              <CardTitle>Data Subject Rights</CardTitle>
             </div>
             <CardDescription>
-              Request detailed information about how we process your data.
+              Exercise your rights under GDPR Articles 15-22
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                <p>
-                  You can request a detailed report of how we collect, use, and share your personal data. 
-                  We'll respond within 30 days.
-                </p>
+                <p className="mb-2">Submit formal requests for:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Access to your personal data (Article 15)</li>
+                  <li>Rectification of inaccurate data (Article 16)</li>
+                  <li>Erasure of your data (Article 17)</li>
+                  <li>Data portability (Article 20)</li>
+                  <li>Restriction of processing (Article 18)</li>
+                  <li>Objection to processing (Article 21)</li>
+                </ul>
               </div>
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => window.open('mailto:privacy@company.com?subject=Data Access Request')}
+                onClick={() => window.location.href = '/dashboard/learner/privacy/requests'}
               >
                 <FileText className="mr-2 h-4 w-4" />
-                Request Data Report
+                Submit Data Subject Request
               </Button>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>We respond within 30 days as required by GDPR</span>
+              </div>
             </div>
           </CardContent>
         </Card>
