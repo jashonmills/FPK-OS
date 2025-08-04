@@ -37,10 +37,28 @@ export const useAccessibility = () => {
       comfortMode: profile.comfort_mode
     });
 
-    // Since we now apply accessibility settings globally via CSS variables,
-    // these classes are mainly for fallback and component-specific styling
+    // Apply accessibility settings globally via CSS variables
+    const textSize = profile.text_size || 3;
+    const lineSpacing = profile.line_spacing || 3;
+    const fontFamily = profile.font_family || 'System';
+
+    // Update CSS variables for immediate application
+    const root = document.documentElement;
+    root.style.setProperty('--accessibility-text-size', `${textSize * 0.25 + 0.75}rem`);
+    root.style.setProperty('--accessibility-line-height', `${lineSpacing * 0.25 + 1}`);
+    
+    const fontMapping = {
+      'System': 'system-ui, -apple-system, sans-serif',
+      'OpenDyslexic': 'OpenDyslexic, system-ui, sans-serif',
+      'Arial': 'Arial, sans-serif',
+      'Times': 'Times, serif',
+      'Verdana': 'Verdana, sans-serif'
+    };
+    root.style.setProperty('--accessibility-font-family', fontMapping[fontFamily as keyof typeof fontMapping] || fontMapping.System);
+
+    // Component classes for fallback and component-specific styling
     const newClasses: AccessibilityClasses = {
-      fontFamily: `font-${(profile.font_family || 'System').toLowerCase().replace(/\s+/g, '-')}`,
+      fontFamily: `font-${fontFamily.toLowerCase().replace(/\s+/g, '-')}`,
       textSize: 'text-accessibility', // Use CSS variable
       lineHeight: 'leading-accessibility', // Use CSS variable
       textColor: profile.color_contrast === 'High' ? 'text-black' : 'text-foreground',
