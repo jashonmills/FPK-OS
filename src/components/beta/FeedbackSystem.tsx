@@ -64,18 +64,24 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Gather context information
-      const contextData = {
-        page: currentPage || window.location.pathname,
-        module: currentModule,
-        user_agent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-        user_id: user?.id,
-        user_email: user?.email
-      };
+      // Create detailed message with context
+      const contextInfo = [
+        `Page: ${currentPage || window.location.pathname}`,
+        currentModule ? `Module: ${currentModule}` : '',
+        `User: ${user?.email || 'Unknown'}`,
+        `Timestamp: ${new Date().toISOString()}`,
+        `Browser: ${navigator.userAgent}`,
+        `Viewport: ${window.innerWidth}x${window.innerHeight}`
+      ].filter(Boolean).join('\n');
 
-      // Submit to Supabase (using contact_submissions as fallback)
+      const fullMessage = [
+        formData.category ? `[${formData.category}]` : '',
+        formData.message,
+        formData.rating ? `\nRating: ${formData.rating}/5 stars` : '',
+        `\n\n--- Context ---\n${contextInfo}`
+      ].filter(Boolean).join('\n');
+
+      // Submit to Supabase
       const { error } = await supabase
         .from('contact_submissions')
         .insert({
@@ -83,8 +89,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
           name: user?.email || 'Beta User',
           email: formData.contact_email || user?.email || 'unknown@example.com',
           category: `beta_${formData.type}`,
-          message: `${formData.category ? `[${formData.category}] ` : ''}${formData.message}${formData.rating ? ` (Rating: ${formData.rating}/5)` : ''}`,
-          metadata: contextData
+          message: fullMessage
         });
 
       if (error) throw error;
