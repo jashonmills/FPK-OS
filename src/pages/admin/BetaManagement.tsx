@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +33,7 @@ const BetaManagement = () => {
     }
   });
 
-  // Fetch feedback submissions
+  // Fetch feedback submissions with real-time updates
   const { data: feedbackList, refetch: refetchFeedback } = useQuery({
     queryKey: ['beta-feedback'],
     queryFn: async () => {
@@ -47,6 +47,31 @@ const BetaManagement = () => {
       return data || [];
     }
   });
+
+  // Real-time subscription for feedback submissions
+  useEffect(() => {
+    const channel = supabase
+      .channel('beta-feedback-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contact_submissions',
+          filter: 'category=like.beta_%'
+        },
+        (payload) => {
+          console.log('Real-time feedback update:', payload);
+          refetchFeedback();
+          toast.success('New beta feedback received!');
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetchFeedback]);
 
   const grantBetaAccess = async (email: string) => {
     try {
