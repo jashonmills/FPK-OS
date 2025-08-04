@@ -17,7 +17,32 @@ import { Badge } from "@/components/ui/badge";
 
 export function ConsentManager() {
   const { user } = useAuth();
-  const { preferences, updateConsent, withdrawConsent, isLoading } = useConsent();
+  
+  // Safely handle the case where ConsentProvider might not be ready
+  let preferences: ConsentPreferences;
+  let updateConsent: (preferences: ConsentPreferences) => Promise<void>;
+  let withdrawConsent: (type: keyof ConsentPreferences) => Promise<void>;
+  let isLoading: boolean;
+  
+  try {
+    const consentData = useConsent();
+    preferences = consentData.preferences;
+    updateConsent = consentData.updateConsent;
+    withdrawConsent = consentData.withdrawConsent;
+    isLoading = consentData.isLoading;
+  } catch (error) {
+    // If ConsentProvider is not ready, provide default values
+    preferences = {
+      essential: true,
+      analytics: false,
+      marketing: false,
+      functional: false,
+    };
+    updateConsent = async () => {};
+    withdrawConsent = async () => {};
+    isLoading = true;
+  }
+  
   const [showBanner, setShowBanner] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [localPreferences, setLocalPreferences] = useState<ConsentPreferences>(preferences);
