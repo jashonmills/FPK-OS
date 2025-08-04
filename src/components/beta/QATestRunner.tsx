@@ -233,10 +233,14 @@ const QATestRunner: React.FC = () => {
       const test = automatedTests[i];
       console.log(`📋 Running test ${i + 1}/${automatedTests.length}: ${test.name}`);
       
-      setTestResults(prev => ({
-        ...prev,
-        [test.id]: { ...prev[test.id], status: 'running' }
-      }));
+      // Update to running status and force UI refresh
+      await new Promise(resolve => {
+        setTestResults(prev => ({
+          ...prev,
+          [test.id]: { ...prev[test.id], status: 'running' }
+        }));
+        setTimeout(resolve, 50);
+      });
 
       try {
         const startTime = performance.now();
@@ -252,29 +256,43 @@ const QATestRunner: React.FC = () => {
 
         console.log(`✅ Test ${test.name} completed: ${passed ? 'PASSED' : 'FAILED'} (${Math.round(duration)}ms)`);
 
-        setTestResults(prev => ({
-          ...prev,
-          [test.id]: {
-            ...prev[test.id],
-            status: passed ? 'passed' : 'failed',
-            duration: Math.round(duration),
-            message: passed ? 'Test passed successfully' : 'Test failed - check implementation'
-          }
-        }));
+        // Update results and force UI refresh
+        await new Promise(resolve => {
+          setTestResults(prev => {
+            const newResults = {
+              ...prev,
+              [test.id]: {
+                ...prev[test.id],
+                status: (passed ? 'passed' : 'failed') as TestResult['status'],
+                duration: Math.round(duration),
+                message: passed ? 'Test passed successfully' : 'Test failed - check implementation'
+              }
+            };
+            console.log('Updated test results:', Object.keys(newResults).map(key => ({ 
+              id: key, 
+              status: newResults[key].status 
+            })));
+            return newResults;
+          });
+          setTimeout(resolve, 100);
+        });
       } catch (error) {
         console.error(`❌ Test ${test.name} error:`, error);
-        setTestResults(prev => ({
-          ...prev,
-          [test.id]: {
-            ...prev[test.id],
-            status: 'failed',
-            message: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`
-          }
-        }));
+        await new Promise(resolve => {
+          setTestResults(prev => ({
+            ...prev,
+            [test.id]: {
+              ...prev[test.id],
+              status: 'failed',
+              message: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
+          }));
+          setTimeout(resolve, 100);
+        });
       }
 
-      // Small delay between tests to allow UI updates
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Longer delay between tests to ensure UI updates
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     console.log('🏁 QA Test Runner completed');
