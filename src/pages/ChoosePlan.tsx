@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Star, Loader2, Gift } from 'lucide-react';
+import { Check, Star, Loader2, Gift, ArrowLeft } from 'lucide-react';
 
 interface PlanType {
   name: string;
@@ -119,6 +119,18 @@ export default function ChoosePlan() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center p-4">
       <div className="container mx-auto max-w-6xl">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="text-white hover:bg-white/10 border-0"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
+
         <div className="text-center mb-8 text-white">
           <h1 className="text-4xl font-bold mb-4">Choose Your Learning Plan</h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto">
