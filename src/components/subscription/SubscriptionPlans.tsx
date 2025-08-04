@@ -10,6 +10,21 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 
 const PLANS = {
+  free: {
+    name: 'Free',
+    monthly: 0,
+    annual: 0,
+    features: [
+      '5 AI chat messages/month',
+      '2 minutes voice processing/month',
+      '3 knowledge queries/month',
+      '1 document processing/month',
+      '25 flashcard generations/month',
+      '5 AI insights/month',
+      '10MB storage',
+      'Community support'
+    ]
+  },
   basic: {
     name: 'Basic',
     monthly: 14.99,
@@ -86,13 +101,14 @@ export function SubscriptionPlans() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'basic' | 'pro' | 'premium') => {
+  const getDiscountPercentage = (tier: 'free' | 'basic' | 'pro' | 'premium') => {
+    if (tier === 'free') return 0;
     if (tier === 'basic') return 10;
     if (tier === 'pro') return 15;
     return 20;
   };
 
-  const getCurrentPlanBadge = (tier: 'basic' | 'pro' | 'premium') => {
+  const getCurrentPlanBadge = (tier: 'free' | 'basic' | 'pro' | 'premium') => {
     if (subscription.subscribed && subscription.subscription_tier === tier) {
       return <Badge variant="default" className="ml-2">Current Plan</Badge>;
     }
@@ -127,9 +143,9 @@ export function SubscriptionPlans() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Object.entries(PLANS).map(([key, plan]) => {
-          const tier = key as 'basic' | 'pro' | 'premium';
+          const tier = key as 'free' | 'basic' | 'pro' | 'premium';
           const price = isAnnual ? plan.annual : plan.monthly;
           const monthlyPrice = isAnnual ? price / 12 : price;
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
@@ -180,11 +196,13 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleSubscribe(tier)}
-                  disabled={loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
-                  variant={tier === 'pro' ? 'default' : 'outline'}
+                  onClick={() => tier === 'free' ? null : handleSubscribe(tier as 'basic' | 'pro' | 'premium')}
+                  disabled={tier === 'free' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
+                  variant={tier === 'pro' ? 'default' : tier === 'free' ? 'outline' : 'outline'}
                 >
-                  {loading === tier ? (
+                  {tier === 'free' ? (
+                    'Current Plan'
+                  ) : loading === tier ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Processing...
