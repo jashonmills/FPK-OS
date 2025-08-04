@@ -82,12 +82,18 @@ export function useUsageTracking() {
         { count: flashcardCount },
         { count: fileCount },
         { count: chatCount },
-        { data: storageData }
+        { data: storageData },
+        { count: ragQueryCount },
+        { count: aiInsightsCount },
+        { count: voiceSessionCount }
       ] = await Promise.all([
         supabase.from('flashcards').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('file_uploads').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('file_uploads').select('file_size').eq('user_id', user.id)
+        supabase.from('file_uploads').select('file_size').eq('user_id', user.id),
+        supabase.from('knowledge_base_usage').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('notes').select('*', { count: 'exact', head: true }).eq('user_id', user.id).or('category.eq.ai-insights,tags.cs.["AI Insights"]'),
+        supabase.from('usage_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('feature_type', 'voice_processing')
       ]);
 
       // Calculate storage usage in MB
@@ -99,11 +105,10 @@ export function useUsageTracking() {
         flashcard_generation_used: flashcardCount || 0,
         document_processing_used: fileCount || 0,
         ai_chat_messages_used: chatCount || 0,
+        rag_queries_used: ragQueryCount || 0,
+        ai_insights_used: aiInsightsCount || 0,
+        voice_minutes_used: voiceSessionCount || 0, // Voice sessions count as minutes for now
         knowledge_base_storage_mb_used: Math.round(storageUsedMB * 100) / 100, // Round to 2 decimal places
-        // Keep existing tracked usage for other features
-        rag_queries_used: quotaData.rag_queries_used,
-        voice_minutes_used: quotaData.voice_minutes_used,
-        ai_insights_used: quotaData.ai_insights_used,
       };
 
       return updatedQuota;
