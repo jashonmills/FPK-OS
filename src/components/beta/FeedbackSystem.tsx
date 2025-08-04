@@ -112,7 +112,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
   const availableCategories = categories[formData.type] || [];
 
   const defaultTrigger = (
-    <Button variant="outline" size="sm" className="fixed bottom-4 right-4 z-50 shadow-lg">
+    <Button variant="outline" size="sm" className="fixed bottom-4 right-4 z-50 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <MessageSquare className="w-4 h-4 mr-2" />
       Beta Feedback
     </Button>
