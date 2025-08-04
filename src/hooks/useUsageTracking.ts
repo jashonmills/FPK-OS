@@ -56,28 +56,60 @@ export function useUsageTracking() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch current usage quotas
+  // Fetch current usage quotas with real usage data
   const { data: quotas, isLoading: isLoadingQuotas } = useQuery({
     queryKey: ['usage-quotas', user?.id],
     queryFn: async (): Promise<UsageQuota | null> => {
       if (!user) return null;
 
-      const { data, error } = await supabase
+      // Get quota data
+      const { data: quotaData, error: quotaError } = await supabase
         .from('usage_quotas')
         .select('*')
         .eq('user_id', user.id)
         .gte('period_end', new Date().toISOString())
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching usage quotas:', error);
-        throw error;
+      if (quotaError) {
+        console.error('Error fetching usage quotas:', quotaError);
+        throw quotaError;
       }
 
-      return data as UsageQuota;
+      if (!quotaData) return null;
+
+      // Get real usage counts from actual data tables
+      const [
+        { count: flashcardCount },
+        { count: fileCount },
+        { count: chatCount },
+        { data: storageData }
+      ] = await Promise.all([
+        supabase.from('flashcards').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('file_uploads').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('file_uploads').select('file_size').eq('user_id', user.id)
+      ]);
+
+      // Calculate storage usage in MB
+      const storageUsedMB = storageData?.reduce((total, file) => total + (file.file_size || 0), 0) / (1024 * 1024) || 0;
+
+      // Update quota data with real usage counts
+      const updatedQuota: UsageQuota = {
+        ...quotaData,
+        flashcard_generation_used: flashcardCount || 0,
+        document_processing_used: fileCount || 0,
+        ai_chat_messages_used: chatCount || 0,
+        knowledge_base_storage_mb_used: Math.round(storageUsedMB * 100) / 100, // Round to 2 decimal places
+        // Keep existing tracked usage for other features
+        rag_queries_used: quotaData.rag_queries_used,
+        voice_minutes_used: quotaData.voice_minutes_used,
+        ai_insights_used: quotaData.ai_insights_used,
+      };
+
+      return updatedQuota;
     },
     enabled: !!user,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 30, // 30 seconds for development
   });
 
   // Fetch usage logs
