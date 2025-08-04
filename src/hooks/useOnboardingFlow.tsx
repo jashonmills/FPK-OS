@@ -54,35 +54,60 @@ export const useOnboardingFlow = () => {
 
   // Determine current step based on user state
   const determineStep = async (): Promise<OnboardingStep> => {
+    console.log('🔍 Determining onboarding step:', { 
+      authLoading,
+      subscriptionLoading,
+      user: !!user, 
+      subscription: subscription?.subscribed 
+    });
+
     // Still loading auth state
-    if (authLoading || subscriptionLoading) {
+    if (authLoading) {
+      console.log('⏳ Auth still loading...');
       return 'loading';
     }
 
     // Not authenticated
     if (!user || !session) {
+      console.log('➡️ No user/session - going to unauthenticated');
       return 'unauthenticated';
+    }
+
+    // Skip subscription check if it's taking too long and user exists
+    if (subscriptionLoading) {
+      console.log('⏳ Subscription loading, but user exists - proceeding to dashboard');
+      return 'dashboard'; // Fallback to dashboard if subscription is taking too long
     }
 
     // No subscription - need to choose plan
     if (!subscription?.subscribed) {
+      console.log('➡️ No subscription - going to choose-plan');
       return 'choose-plan';
     }
 
     // Has subscription, check beta onboarding
-    const hasCompletedOnboarding = await checkBetaOnboardingStatus(user.id);
-    
-    if (!hasCompletedOnboarding) {
-      return 'beta-onboarding';
-    }
+    console.log('🔍 Checking beta onboarding status...');
+    try {
+      const hasCompletedOnboarding = await checkBetaOnboardingStatus(user.id);
+      
+      if (!hasCompletedOnboarding) {
+        console.log('➡️ Beta onboarding incomplete - going to beta-onboarding');
+        return 'beta-onboarding';
+      }
 
-    // All complete - ready for dashboard
-    return 'dashboard';
+      console.log('✅ All checks passed - going to dashboard');
+      return 'dashboard';
+    } catch (error) {
+      console.error('Error checking beta onboarding:', error);
+      // Fallback to dashboard if beta check fails
+      return 'dashboard';
+    }
   };
 
   // Update flow state with proper dependency management
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     const updateFlow = async () => {
       if (!isMounted) return;
@@ -90,11 +115,26 @@ export const useOnboardingFlow = () => {
       try {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
         
+        // Add timeout to prevent infinite loading
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            console.warn('⚠️ Onboarding flow timeout - forcing fallback navigation');
+            const fallbackStep = user ? 'dashboard' : 'unauthenticated';
+            setState(prev => ({
+              ...prev,
+              currentStep: fallbackStep,
+              isLoading: false,
+              error: 'Loading timeout - using fallback navigation'
+            }));
+          }
+        }, 8000); // 8 second timeout
+        
         const step = await determineStep();
         const hasCompletedOnboarding = user ? await checkBetaOnboardingStatus(user.id) : false;
         
         if (!isMounted) return;
         
+        clearTimeout(timeoutId);
         setState(prev => ({
           ...prev,
           currentStep: step,
@@ -112,22 +152,40 @@ export const useOnboardingFlow = () => {
         
       } catch (error) {
         if (!isMounted) return;
+        clearTimeout(timeoutId);
         console.error('Error determining onboarding step:', error);
+        const fallbackStep = user ? 'dashboard' : 'unauthenticated';
         setState(prev => ({
           ...prev,
+          currentStep: fallbackStep,
           isLoading: false,
           error: error instanceof Error ? error.message : 'Unknown error'
         }));
       }
     };
 
-    // Only update if auth and subscription state are stable
+    // Only update if auth and subscription state are stable OR if we've been loading too long
     if (!authLoading && !subscriptionLoading) {
       updateFlow();
+    } else {
+      // Force update after 10 seconds even if still loading
+      const forceUpdateTimeout = setTimeout(() => {
+        if (isMounted) {
+          console.warn('⚠️ Forcing onboarding update due to prolonged loading');
+          updateFlow();
+        }
+      }, 10000);
+      
+      return () => {
+        isMounted = false;
+        clearTimeout(forceUpdateTimeout);
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
 
     return () => {
       isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [user?.id, authLoading, subscription?.subscribed, subscriptionLoading]); // Minimal stable dependencies
 

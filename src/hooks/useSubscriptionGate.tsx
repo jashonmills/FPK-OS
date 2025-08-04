@@ -13,6 +13,7 @@ export const useSubscriptionGate = (): SubscriptionGateState => {
   const { user, loading: authLoading } = useAuth();
   const { subscription, isLoading: subscriptionLoading, refreshSubscription } = useSubscription();
   const [hasCheckedSubscription, setHasCheckedSubscription] = useState(false);
+  const [timeoutReached, setTimeoutReached] = useState(false);
 
   useEffect(() => {
     if (user && !subscriptionLoading && !hasCheckedSubscription) {
@@ -21,7 +22,19 @@ export const useSubscriptionGate = (): SubscriptionGateState => {
     }
   }, [user, subscriptionLoading, refreshSubscription, hasCheckedSubscription]);
 
-  const isLoading = authLoading || subscriptionLoading || !hasCheckedSubscription;
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if ((authLoading || subscriptionLoading || !hasCheckedSubscription) && !timeoutReached) {
+        console.warn('⚠️ Subscription gate timeout reached - stopping loading state');
+        setTimeoutReached(true);
+      }
+    }, 8000); // 8 second timeout
+
+    return () => clearTimeout(timeoutId);
+  }, [authLoading, subscriptionLoading, hasCheckedSubscription, timeoutReached]);
+
+  const isLoading = (authLoading || subscriptionLoading || !hasCheckedSubscription) && !timeoutReached;
   
   // User has access if they have an active subscription
   const hasAccess = subscription?.subscribed === true;
