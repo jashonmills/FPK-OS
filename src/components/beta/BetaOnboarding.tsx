@@ -31,7 +31,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     description: 'Navigate through video, audio, and interactive content designed for optimal learning.',
     icon: BookOpen,
     action: 'Try a Module',
-    link: '/dashboard/learner/learning-state'
+    link: 'https://course-start-kit-react.lovable.app/course/module/1a'
   },
   {
     id: 'progress',
@@ -54,7 +54,8 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Share Your Experience',
     description: 'Your feedback helps us build the best learning platform possible.',
     icon: MessageSquare,
-    action: 'Give Feedback'
+    action: 'Give Feedback',
+    link: 'feedback'
   },
   {
     id: 'settings',
@@ -148,17 +149,27 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
 
   const handleStepAction = (step: OnboardingStep) => {
     if (step.id === 'feedback') {
-      // This would trigger the feedback system
+      // Trigger the existing feedback system by clicking the feedback button
+      const feedbackButton = document.querySelector('[data-feedback-trigger]') as HTMLElement;
+      if (feedbackButton) {
+        feedbackButton.click();
+      } else {
+        // Fallback: dispatch a custom event to trigger feedback modal
+        window.dispatchEvent(new CustomEvent('triggerFeedback'));
+      }
       return;
     }
     
     if (step.link) {
-      try {
-        navigate(step.link);
-      } catch (error) {
-        console.error('Navigation failed:', error);
-        // Fallback to window.location for external links
-        window.location.href = step.link;
+      // Check if it's an external URL
+      if (step.link.startsWith('http')) {
+        window.open(step.link, '_blank');
+      } else {
+        try {
+          navigate(step.link);
+        } catch (error) {
+          console.error('Navigation failed:', error);
+        }
       }
     }
   };

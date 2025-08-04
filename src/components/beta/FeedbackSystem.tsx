@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -43,6 +43,16 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
     structuredResponses: {}
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Listen for trigger events from onboarding
+  useEffect(() => {
+    const handleTriggerFeedback = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('triggerFeedback', handleTriggerFeedback);
+    return () => window.removeEventListener('triggerFeedback', handleTriggerFeedback);
+  }, []);
 
   const feedbackTypes = [
     { value: 'bug', label: 'Bug Report', icon: Bug, color: 'destructive' },
@@ -148,7 +158,12 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
   };
 
   const defaultTrigger = (
-    <Button variant="outline" size="sm" className="fixed bottom-4 right-4 z-50 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <Button 
+      variant="outline" 
+      size="sm" 
+      className="fixed bottom-4 right-4 z-50 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      data-feedback-trigger
+    >
       <MessageSquare className="w-4 h-4 mr-2" />
       Beta Feedback
     </Button>
