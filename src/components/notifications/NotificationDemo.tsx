@@ -31,12 +31,12 @@ const NotificationDemo = () => {
     },
     {
       label: 'Course Reminder',
-      action: () => triggerCourseReminder('JavaScript Fundamentals'),
+      action: () => triggerCourseReminder('JavaScript Fundamentals', 'js-101'),
       color: 'bg-green-500 hover:bg-green-600'
     },
     {
       label: 'AI Insight',
-      action: () => triggerAIInsight('Based on your study patterns, you learn best in the morning!'),
+      action: () => triggerAIInsight('Based on your study patterns, you learn best in the morning. Try scheduling important sessions before 10 AM!'),
       color: 'bg-purple-500 hover:bg-purple-600'
     }
   ];

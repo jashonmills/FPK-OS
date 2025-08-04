@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProgressTracking } from '@/hooks/useProgressTracking';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useLanguageConsistency } from '@/hooks/useLanguageConsistency';
-import { useErrorRecovery } from '@/hooks/useErrorRecovery';
 import { iframeAnalytics } from '@/utils/iframeAnalytics';
 
 import { Loader2 } from 'lucide-react';
@@ -24,19 +23,6 @@ const CoursePlayer: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'failed'>('connecting');
-  
-  const errorRecovery = useErrorRecovery({
-    maxRetries: 3,
-    retryDelay: 2000,
-    onError: (error, retryCount) => {
-      console.warn(`🔄 CoursePlayer connection attempt ${retryCount} failed:`, error.message);
-    },
-    onMaxRetriesReached: (error) => {
-      setError(`Failed to establish connection after multiple attempts: ${error.message}`);
-      setConnectionStatus('failed');
-    }
-  });
 
   // Track page view on mount
   useEffect(() => {

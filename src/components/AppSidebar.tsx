@@ -1,221 +1,261 @@
 
-import React from 'react';
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
-  SidebarSeparator,
-} from "@/components/ui/sidebar"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { Button } from "@/components/ui/button"
-import {
-  Home,
-  Book,
-  BookOpen,
-  GraduationCap,
-  Settings,
-  CreditCard,
-  Shield,
-  LogOut,
-  LayoutDashboard,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { 
+  Home, 
+  Book, 
+  BarChart, 
+  Users, 
+  Award, 
+  StickyNote, 
+  Settings, 
   HelpCircle,
-  MessageSquare,
-  Users,
-  Brain,
-  Lightbulb,
-  FileText,
-  ChevronDown,
-  Target,
-  BarChart3,
-  Zap,
-  StickyNote,
-} from "lucide-react"
-import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useTranslation } from 'react-i18next';
+  BookUser,
+  Compass,
+  GraduationCap,
+  Shield,
+  BookOpen,
+  ExternalLink,
+  CreditCard,
+  Target
+} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
+import DualLanguageText from "@/components/DualLanguageText";
 
-const AppSidebar = () => {
-  const { user, signOut } = useAuth();
-  const { isAdmin } = useUserRole();
-  const { toast } = useToast();
+export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation('navigation');
+  const { user, signOut } = useAuth();
+  const { profile } = useUserProfile();
+  const { isAdmin, isInstructor } = useUserRole();
+  const { t, tString } = useGlobalTranslation();
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out.",
-    });
-    navigate('/login');
-  };
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const mainItems = [
+  const learnerMenuItems = [
     {
-      title: t('dashboard'),
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: t('home'),
+      title: 'Home',
       url: "/dashboard/learner",
       icon: Home,
     },
     {
-      title: t('library'),
-      url: "/dashboard/learner/library",
+      title: 'Courses',
+      url: "/dashboard/learner/courses",
       icon: Book,
     },
     {
-      title: 'Browse',
-      url: "/dashboard/browse",
+      title: 'Library',
+      url: "/dashboard/learner/library",
       icon: BookOpen,
     },
     {
-      title: t('courses'),
-      url: "/dashboard/learner/courses",
-      icon: GraduationCap,
-    },
-    {
-      title: t('analytics'),
+      title: 'Analytics',
       url: "/dashboard/learner/analytics",
-      icon: BarChart3,
+      icon: BarChart,
     },
     {
-      title: t('goals'),
+      title: 'Live Hub',
+      url: "/dashboard/learner/live-hub",
+      icon: Compass,
+    },
+    {
+      title: 'AI Study Coach',
+      url: "/dashboard/learner/ai-coach",
+      icon: BookUser,
+    },
+    {
+      title: 'Goals',
       url: "/dashboard/learner/goals",
       icon: Target,
     },
     {
-      title: t('notes'),
+      title: 'Achievements & XP',
+      url: "/dashboard/learner/gamification",
+      icon: Award,
+    },
+    {
+      title: 'Notes',
       url: "/dashboard/learner/notes",
       icon: StickyNote,
     },
   ];
 
-  const aiTools = [
+  const adminMenuItems = [
     {
-      title: 'AI Study Chat',
-      url: "/dashboard/learner/ai-coach",
-      icon: MessageSquare,
+      title: 'Admin Dashboard',
+      url: "/dashboard/admin",
+      icon: Shield,
     },
     {
-      title: 'AI Knowledge Base',
-      url: "/dashboard/ai-knowledge",
-      icon: Brain,
+      title: 'Course Manager',
+      url: "/dashboard/admin/courses",
+      icon: GraduationCap,
     },
     {
-      title: 'AI Prompts',
-      url: "/dashboard/ai-prompts",
-      icon: Lightbulb,
+      title: 'Module Manager',
+      url: "/dashboard/admin/modules",
+      icon: Book,
     },
-  ];
-
-  const learnerTools = [
-    {
-      title: 'Gamification',
-      url: "/dashboard/learner/gamification",
-      icon: Zap,
-    },
-    {
-      title: 'Flashcards',
-      url: "/dashboard/learner/flashcards",
-      icon: FileText,
-    },
-  ];
-
-  const adminTools = [
     {
       title: 'User Management',
-      url: "/admin/users",
+      url: "/dashboard/admin/users",
       icon: Users,
     },
     {
-      title: 'Content Management',
-      url: "/admin/content",
-      icon: FileText,
+      title: 'Course Builder',
+      url: "https://themed-course-compass.lovable.app/dashboard/admin/course-builder",
+      icon: Book,
+      isExternal: true,
     },
   ];
 
   const footerItems = [
     {
       title: 'Subscription',
-      url: "/dashboard/subscription",
+      url: "/subscription",
       icon: CreditCard,
     },
     {
-      title: 'Privacy',
-      url: "/privacy-preferences",
-      icon: Shield,
-    },
-    {
-      title: t('settings'),
+      title: 'Settings',
       url: "/dashboard/learner/settings",
       icon: Settings,
     },
     {
-      title: 'Help',
-      url: "/dashboard/help",
-      icon: HelpCircle,
+      title: 'Exit',
+      url: "https://demo.fpkuniversity.com/",
+      icon: ExternalLink,
+      isExternal: true,
     },
   ];
 
+  const getDisplayName = () => {
+    if (profile?.display_name) return profile.display_name;
+    if (profile?.full_name) return profile.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
+  };
+
+  const getUserEmail = () => {
+    return user?.email || 'user@fpk.edu';
+  };
+
+  const getInitials = () => {
+    const displayName = getDisplayName();
+    return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const isActive = (url: string) => {
+    if (url.startsWith('http')) {
+      // For external URLs, check if current location matches the path
+      return location.pathname === '/dashboard/admin/course-builder';
+    }
+    return location.pathname === url;
+  };
+
+  const handleNavigation = (item: any) => {
+    if (item.isExternal) {
+      window.location.href = item.url;
+    } else {
+      navigate(item.url);
+    }
+  };
+
   return (
-    <Sidebar className="bg-sidebar border-sidebar-border">
+    <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
-              {user?.email?.charAt(0)?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">FPK</span>
+          </div>
           <div>
-            <div className="font-semibold text-sidebar-foreground text-sm">
-              {user?.email}
-            </div>
-            <div className="text-xs text-sidebar-foreground/70">
-              Learning Dashboard
-            </div>
+            <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
+            <p className="text-xs text-sidebar-foreground/70">
+              Learner Portal
+              {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
+            </p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarSeparator />
+      <SidebarContent className="px-2">
+        {(isAdmin || isInstructor) && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+              Administration
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`w-full transition-colors ${
+                        isActive(item.url) 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }`}
+                    >
+                      <button
+                        onClick={() => handleNavigation(item)}
+                        className="flex items-center gap-3 w-full text-left"
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-      <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+            Learning Dashboard
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+              {learnerMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={isActive(item.url)}
-                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+                    className={`w-full transition-colors ${
+                      isActive(item.url) 
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                    }`}
                   >
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
+                    <button
+                      onClick={() => navigate(item.url)}
+                      className="flex items-center gap-3 w-full text-left"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{item.title}</span>
-                    </Link>
+                    </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -223,154 +263,59 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  AI Tools
-                </div>
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
-              </SidebarGroupLabel>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {aiTools.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive(item.url)}
-                        className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-                      >
-                        <Link to={item.url}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
+        <SidebarGroup className="mt-8">
+          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+            Support
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {footerItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    className={`w-full transition-colors ${
+                      isActive(item.url) 
+                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                    }`}
+                  >
+                    <button
+                      onClick={() => handleNavigation(item)}
+                      className="flex items-center gap-3 w-full text-left"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger asChild>
-              <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  Learning Tools
-                </div>
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
-              </SidebarGroupLabel>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {learnerTools.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive(item.url)}
-                        className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-                      >
-                        <Link to={item.url}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </SidebarGroup>
-
-        {isAdmin && (
-          <>
-            <SidebarSeparator />
-            <SidebarGroup>
-              <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Admin Tools
-                    </div>
-                    <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
-                  </SidebarGroupLabel>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {adminTools.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton 
-                            asChild 
-                            isActive={isActive(item.url)}
-                            className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-                          >
-                            <Link to={item.url}>
-                              <item.icon className="h-4 w-4" />
-                              <span>{item.title}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </Collapsible>
-            </SidebarGroup>
-          </>
-        )}
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        <SidebarMenu>
-          {footerItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton 
-                asChild={!!item.url}
-                isActive={item.url ? isActive(item.url) : false}
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-              >
-                {item.url ? (
-                  <Link to={item.url}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                ) : (
-                  <div className="flex items-center gap-2 w-full">
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </div>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              onClick={handleSignOut}
-              className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="p-4 border-t border-sidebar-border">
+        <div className="flex items-center gap-3 mb-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
+            <AvatarFallback className="fpk-gradient text-white text-sm font-semibold">
+              {getInitials()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">{getUserEmail()}</p>
+          </div>
+        </div>
+        <Button 
+          onClick={handleLogout}
+          variant="ghost"
+          size="sm" 
+          className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          Sign Out
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
-};
-
-export default AppSidebar;
+}

@@ -31,7 +31,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
     title: '',
     description: '',
     category: 'learning',
-    priority: 'medium' as 'low' | 'medium' | 'high',
+    priority: 'medium',
     target_date: '',
   });
 
@@ -44,9 +44,9 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
   ];
 
   const priorities = [
-    { id: 'low' as const, label: 'Low Priority', color: 'text-gray-600', description: 'Something to work on when I have time' },
-    { id: 'medium' as const, label: 'Medium Priority', color: 'text-amber-600', description: 'Important but not urgent' },
-    { id: 'high' as const, label: 'High Priority', color: 'text-red-600', description: 'Very important to me right now' },
+    { id: 'low', label: 'Low Priority', color: 'text-gray-600', description: 'Something to work on when I have time' },
+    { id: 'medium', label: 'Medium Priority', color: 'text-amber-600', description: 'Important but not urgent' },
+    { id: 'high', label: 'High Priority', color: 'text-red-600', description: 'Very important to me right now' },
   ];
 
   const handleSubmit = async () => {
@@ -62,12 +62,10 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
     try {
       const goal = await createGoal({
         title: formData.title.trim(),
-        description: formData.description.trim() || undefined,
+        description: formData.description.trim() || null,
         category: formData.category,
-        priority: formData.priority,
-        target_date: formData.target_date || undefined,
-        status: 'active',
-        progress: 0
+        priority: formData.priority as 'low' | 'medium' | 'high',
+        target_date: formData.target_date || null,
       });
 
       if (goal) {
@@ -82,7 +80,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
           title: '',
           description: '',
           category: 'learning',
-          priority: 'medium' as 'low' | 'medium' | 'high',
+          priority: 'medium',
           target_date: '',
         });
         
@@ -226,7 +224,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
 
               <RadioGroup 
                 value={formData.priority} 
-                onValueChange={(value: string) => setFormData({ ...formData, priority: value as 'low' | 'medium' | 'high' })}
+                onValueChange={(value) => setFormData({ ...formData, priority: value })}
               >
                 {priorities.map((priority) => (
                   <div 

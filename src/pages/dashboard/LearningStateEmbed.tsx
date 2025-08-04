@@ -11,53 +11,16 @@ import { useTranslation } from 'react-i18next';
 const LearningStateEmbed = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'failed' | 'timeout'>('connecting');
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const retryCountRef = useRef(0);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
   const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
 
-  const sendInitMessage = () => {
-    if (iframeRef.current?.contentWindow && user?.id) {
-      console.log('Sending init handshake to embed (attempt', retryCountRef.current + 1, ')');
-      iframeRef.current.contentWindow.postMessage(
-        { 
-          type: 'INIT', 
-          userId: user.id,
-          currentProgress: currentProgress 
-        }, 
-        'https://preview--course-start-kit-react.lovable.app'
-      );
-      retryCountRef.current += 1;
-    }
-  };
-
-  const handleReadyReceived = () => {
-    console.log('✅ Embed is ready and connected');
-    setIsLoading(false);
-    setConnectionStatus('connected');
-    setError(null);
-    if (initTimeoutRef.current) {
-      clearTimeout(initTimeoutRef.current);
-      initTimeoutRef.current = null;
-    }
-  };
-
-  const handleConnectionTimeout = () => {
-    console.warn('⚠️ Iframe connection timeout after 30 seconds');
-    setConnectionStatus('timeout');
-    setIsLoading(false);
-    setError('Connection timeout. The learning module may be experiencing issues. Please refresh the page to try again.');
-  };
-
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       // Validate origin for security
       if (event.origin !== 'https://preview--course-start-kit-react.lovable.app') {
-        console.warn('🚨 Blocked message from unauthorized origin:', event.origin);
         return;
       }
 
@@ -66,11 +29,12 @@ const LearningStateEmbed = () => {
       try {
         switch (type) {
           case 'READY':
-            handleReadyReceived();
+            console.log('Embed is ready');
+            setIsLoading(false);
             break;
 
           case 'MODULE_COMPLETE':
-            console.log('📚 Module completed:', data.moduleId);
+            console.log('Module completed:', data.moduleId);
             await updateProgress({
               type: 'module_complete',
               moduleId: data.moduleId,
@@ -79,7 +43,7 @@ const LearningStateEmbed = () => {
             break;
 
           case 'COURSE_COMPLETE':
-            console.log('🎉 Course completed');
+            console.log('Course completed');
             await updateProgress({
               type: 'course_complete',
               completedAt: new Date().toISOString(),
@@ -88,7 +52,7 @@ const LearningStateEmbed = () => {
             break;
 
           case 'PROGRESS_UPDATE':
-            console.log('📈 Progress updated:', data.percent);
+            console.log('Progress updated:', data.percent);
             await updateProgress({
               type: 'progress_update',
               completionPercentage: data.percent
@@ -96,11 +60,11 @@ const LearningStateEmbed = () => {
             break;
 
           default:
-            console.log('❓ Unknown message type:', type, data);
+            console.log('Unknown message type:', type);
         }
       } catch (error) {
-        console.error('💥 Error handling iframe message:', error);
-        setError(`Failed to update progress: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error('Error handling message:', error);
+        setError('Failed to update progress');
       }
     };
 
@@ -108,56 +72,31 @@ const LearningStateEmbed = () => {
 
     return () => {
       window.removeEventListener('message', handleMessage);
-      if (initTimeoutRef.current) {
-        clearTimeout(initTimeoutRef.current);
-      }
     };
   }, [updateProgress]);
 
   useEffect(() => {
-    // Enhanced iframe load handling with retries and timeout
+    // Send initialization handshake when iframe loads
     const handleIframeLoad = () => {
-      console.log('🔄 Iframe loaded, attempting connection...');
-      setConnectionStatus('connecting');
-      retryCountRef.current = 0;
-      
-      // Initial connection attempt
-      setTimeout(sendInitMessage, 500);
-      
-      // Set up timeout for connection failure
-      initTimeoutRef.current = setTimeout(handleConnectionTimeout, 30000);
-      
-      // Retry mechanism - attempt connection every 3 seconds for up to 5 tries
-      const retryInterval = setInterval(() => {
-        if (connectionStatus === 'connected' || retryCountRef.current >= 5) {
-          clearInterval(retryInterval);
-          return;
-        }
-        sendInitMessage();
-      }, 3000);
-    };
-
-    const handleIframeError = () => {
-      console.error('💥 Iframe failed to load');
-      setConnectionStatus('failed');
-      setIsLoading(false);
-      setError('Failed to load the learning module. Please check your internet connection and try again.');
+      if (iframeRef.current?.contentWindow && user?.id) {
+        console.log('Sending init handshake to embed');
+        iframeRef.current.contentWindow.postMessage(
+          { 
+            type: 'INIT', 
+            userId: user.id,
+            currentProgress: currentProgress 
+          }, 
+          'https://preview--course-start-kit-react.lovable.app'
+        );
+      }
     };
 
     const iframe = iframeRef.current;
-    if (iframe && user?.id) {
+    if (iframe) {
       iframe.addEventListener('load', handleIframeLoad);
-      iframe.addEventListener('error', handleIframeError);
-      
-      return () => {
-        iframe.removeEventListener('load', handleIframeLoad);
-        iframe.removeEventListener('error', handleIframeError);
-        if (initTimeoutRef.current) {
-          clearTimeout(initTimeoutRef.current);
-        }
-      };
+      return () => iframe.removeEventListener('load', handleIframeLoad);
     }
-  }, [user?.id, currentProgress, connectionStatus]);
+  }, [user?.id, currentProgress]);
 
   const handleBackToCourses = () => {
     navigate('/dashboard/learner/my-courses');
@@ -191,23 +130,6 @@ const LearningStateEmbed = () => {
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600">{error}</p>
-            {connectionStatus === 'timeout' && (
-              <button 
-                onClick={() => window.location.reload()}
-                className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs rounded border border-red-300 transition-colors"
-              >
-                Refresh Page
-              </button>
-            )}
-          </div>
-        )}
-
-        {connectionStatus === 'connecting' && isLoading && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-600">
-              🔄 Establishing connection with learning module...
-              {retryCountRef.current > 0 && ` (Attempt ${retryCountRef.current}/5)`}
-            </p>
           </div>
         )}
       </div>

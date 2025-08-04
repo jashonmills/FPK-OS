@@ -26,8 +26,6 @@ import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useGoals } from '@/hooks/useGoals';
 import GoalEditForm from './GoalEditForm';
-import MilestoneManager from './MilestoneManager';
-import ManualProgressInput from './ManualProgressInput';
 
 interface GoalCardProps {
   goal: {
@@ -40,7 +38,6 @@ interface GoalCardProps {
     target_date?: string;
     category: string;
     created_at: string;
-    milestones?: any;
   };
 }
 
@@ -48,7 +45,6 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
   const { t } = useDualLanguage();
   const { updateGoal, deleteGoal } = useGoals();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const handleStatusChange = async (newStatus: 'active' | 'completed' | 'paused') => {
     try {
@@ -88,31 +84,6 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
     }
   };
 
-  // Parse milestones for display
-  const parseMilestones = (milestones: any) => {
-    if (!milestones) return [];
-    if (Array.isArray(milestones)) return milestones;
-    if (typeof milestones === 'string') {
-      try {
-        return JSON.parse(milestones);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  };
-
-  const milestones = parseMilestones(goal.milestones);
-  const completedMilestones = milestones.filter((m: any) => m.completed).length;
-
-  const handleMilestonesUpdate = async (updatedMilestones: any[]) => {
-    try {
-      await updateGoal(goal.id, { milestones: updatedMilestones });
-    } catch (error) {
-      console.error('Error updating milestones:', error);
-    }
-  };
-
   return (
     <>
       <Card className="fpk-card border-0 shadow-md hover:shadow-lg transition-shadow h-full flex flex-col">
@@ -144,16 +115,15 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white">
-                <DropdownMenuItem 
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setShowEditDialog(true);
-                  }}
-                  className="text-xs sm:text-sm cursor-pointer"
-                >
-                  <Edit2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                  <DualLanguageText translationKey="goals.actions.edit" fallback="Edit" />
-                </DropdownMenuItem>
+                <GoalEditForm 
+                  goal={goal}
+                  trigger={
+                    <DropdownMenuItem className="text-xs sm:text-sm cursor-pointer">
+                      <Edit2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                      <DualLanguageText translationKey="goals.actions.edit" fallback="Edit" />
+                    </DropdownMenuItem>
+                  }
+                />
                 {goal.status !== 'completed' && (
                   <DropdownMenuItem onClick={() => handleStatusChange('completed')} className="text-xs sm:text-sm">
                     <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
@@ -195,11 +165,6 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-gray-500 truncate mr-2">
                 <DualLanguageText translationKey="goals.progress" fallback="Progress" />
-                {milestones.length > 0 && (
-                  <span className="ml-1 text-xs">
-                    ({completedMilestones}/{milestones.length} milestones)
-                  </span>
-                )}
               </span>
               <span className="font-medium flex-shrink-0">{goal.progress}%</span>
             </div>
@@ -224,32 +189,8 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal }) => {
               </div>
             )}
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-            <MilestoneManager
-              goalId={goal.id}
-              milestones={milestones}
-              onMilestonesUpdate={handleMilestonesUpdate}
-            />
-            {goal.status !== 'completed' && (
-              <ManualProgressInput
-                goalId={goal.id}
-                currentProgress={goal.progress}
-                goalTitle={goal.title}
-                goalCategory={goal.category}
-                goalPriority={goal.priority}
-              />
-            )}
-          </div>
         </CardContent>
       </Card>
-
-      <GoalEditForm 
-        goal={goal}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="max-w-sm mx-4">

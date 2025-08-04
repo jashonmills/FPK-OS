@@ -214,29 +214,8 @@ export const ANALYTICS_EVENTS = {
   STUDY_SESSION_COMPLETE: 'study_session_complete',
   FLASHCARD_REVIEWED: 'flashcard_reviewed',
   MODULE_COMPLETED: 'module_completed',
-  // Goal lifecycle events
   GOAL_CREATED: 'goal_created',
   GOAL_COMPLETED: 'goal_completed',
-  GOAL_UPDATED: 'goal_updated',
-  GOAL_DELETED: 'goal_deleted',
-  MILESTONE_COMPLETED: 'milestone_completed',
-  MILESTONE_CREATED: 'milestone_created',
-  MILESTONE_DELETED: 'milestone_deleted',
-  PROGRESS_UPDATED: 'progress_updated',
-  GOAL_TEMPLATE_SELECTED: 'goal_template_selected',
-  GOAL_DEPENDENCY_CREATED: 'goal_dependency_created',
-  GOAL_ABANDONED: 'goal_abandoned',
-  // Insights events
-  INSIGHTS_VIEWED: 'insights_viewed',
-  CHART_INTERACTION: 'chart_interaction',
-  DATA_EXPORT_REQUESTED: 'data_export_requested',
-  // Notification events
-  NOTIFICATION_SENT: 'notification_sent',
-  NOTIFICATION_READ: 'notification_read',
-  // Page engagement events
-  PAGE_VIEW: 'page_view',
-  PAGE_EXIT: 'page_exit',
-  // Other events
   NOTE_CREATED: 'note_created',
   FILE_UPLOADED: 'file_uploaded',
   XP_EARNED: 'xp_earned',

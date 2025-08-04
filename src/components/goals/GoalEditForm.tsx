@@ -6,12 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Separator } from '@/components/ui/separator';
 import { useGoals } from '@/hooks/useGoals';
 import { useToast } from '@/hooks/use-toast';
 import { Edit2 } from 'lucide-react';
-import GoalMilestonesManager from './GoalMilestonesManager';
-import type { GoalMilestone } from '@/types/goals';
 
 interface GoalEditFormProps {
   goal: {
@@ -23,35 +20,14 @@ interface GoalEditFormProps {
     progress: number;
     target_date?: string;
     category: string;
-    milestones?: any;
   };
   trigger?: React.ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }) => {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const { updateGoal, updateMilestone } = useGoals();
+const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger }) => {
+  const [open, setOpen] = useState(false);
+  const { updateGoal } = useGoals();
   const { toast } = useToast();
-  
-  // Use controlled or internal state
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const setOpen = controlledOnOpenChange || setInternalOpen;
-
-  // Parse milestones from goal data
-  const parseMilestones = (milestones: any): GoalMilestone[] => {
-    if (!milestones) return [];
-    if (Array.isArray(milestones)) return milestones;
-    if (typeof milestones === 'string') {
-      try {
-        return JSON.parse(milestones);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  };
   
   const [formData, setFormData] = useState({
     title: goal.title,
@@ -59,8 +35,7 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
     priority: goal.priority,
     category: goal.category,
     progress: goal.progress,
-    target_date: goal.target_date || '',
-    milestones: parseMilestones(goal.milestones)
+    target_date: goal.target_date || ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,21 +55,13 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
     setIsSubmitting(true);
     
     try {
-      // Calculate progress based on milestones if they exist
-      let finalProgress = formData.progress;
-      if (formData.milestones.length > 0) {
-        const completedCount = formData.milestones.filter(m => m.completed).length;
-        finalProgress = Math.round((completedCount / formData.milestones.length) * 100);
-      }
-
       await updateGoal(goal.id, {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
         priority: formData.priority,
         category: formData.category,
-        progress: finalProgress,
-        target_date: formData.target_date || null,
-        milestones: JSON.parse(JSON.stringify(formData.milestones)) // Convert to JSON-compatible format
+        progress: formData.progress,
+        target_date: formData.target_date || null
       });
       
       toast({
@@ -124,40 +91,21 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
         priority: goal.priority,
         category: goal.category,
         progress: goal.progress,
-        target_date: goal.target_date || '',
-        milestones: parseMilestones(goal.milestones)
+        target_date: goal.target_date || ''
       });
     }
     setOpen(newOpen);
   };
 
-  const handleMilestoneComplete = async (milestoneId: string) => {
-    try {
-      await updateMilestone(goal.id, milestoneId, true);
-      toast({
-        title: "Milestone Completed!",
-        description: "Great job on completing this milestone!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update milestone. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {!controlledOpen && (
-        <div onClick={() => setOpen(true)} className="cursor-pointer">
-          {trigger || (
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Edit2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      )}
+      <div onClick={() => setOpen(true)} className="cursor-pointer">
+        {trigger || (
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
       
       <DialogContent className="max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -220,21 +168,18 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
             </div>
           </div>
           
-          {/* Only show manual progress slider if no milestones */}
-          {formData.milestones.length === 0 && (
-            <div className="space-y-2">
-              <Label htmlFor="progress">Progress: {formData.progress}%</Label>
-              <Slider
-                id="progress"
-                min={0}
-                max={100}
-                step={5}
-                value={[formData.progress]}
-                onValueChange={(value) => setFormData({ ...formData, progress: value[0] })}
-                className="w-full"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="progress">Progress: {formData.progress}%</Label>
+            <Slider
+              id="progress"
+              min={0}
+              max={100}
+              step={5}
+              value={[formData.progress]}
+              onValueChange={(value) => setFormData({ ...formData, progress: value[0] })}
+              className="w-full"
+            />
+          </div>
           
           <div className="space-y-2">
             <Label htmlFor="target_date">Target Date (Optional)</Label>
@@ -245,16 +190,6 @@ const GoalEditForm: React.FC<GoalEditFormProps> = ({ goal, trigger, open: contro
               onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
             />
           </div>
-
-          <Separator className="my-6" />
-
-          <GoalMilestonesManager
-            milestones={formData.milestones}
-            goalId={goal.id}
-            onChange={(milestones) => setFormData({ ...formData, milestones })}
-            onMilestoneComplete={handleMilestoneComplete}
-            onMilestoneUpdate={updateMilestone}
-          />
           
           <DialogFooter className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

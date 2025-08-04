@@ -1,48 +1,136 @@
 
-import { useCallback, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface SpeechOptions {
+  rate?: number;
+  pitch?: number;
+  volume?: number;
   voice?: SpeechSynthesisVoice;
   interrupt?: boolean;
 }
 
 export const useTextToSpeech = () => {
-  const { settings, getSelectedVoiceObject } = useVoiceSettings();
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isSupported] = useState(() => 'speechSynthesis' in window);
+  const [isPaused, setIsPaused] = useState(false);
+  const { settings, getSelectedVoiceObject } = useVoiceSettings();
+  const isSupported = 'speechSynthesis' in window;
 
   const speak = useCallback((text: string, options: SpeechOptions = {}) => {
-    if (!settings.enabled || !isSupported) return;
-
-    // Stop current speech if interrupting
-    if (options.interrupt) {
-      speechSynthesis.cancel();
+    if (!text.trim() || !isSupported || !settings.hasInteracted) {
+      console.warn('🔊 Cannot speak: missing requirements');
+      return false;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Use provided voice or selected voice
-    const voice = options.voice || getSelectedVoiceObject();
-    if (voice) {
-      utterance.voice = voice;
+    try {
+      // Stop any current speech if interrupt is requested
+      if (options.interrupt && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+
+      setIsSpeaking(true);
+      setIsPaused(false);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Use selected voice from context or provided voice
+      const selectedVoice = getSelectedVoiceObject();
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        console.log('🔊 Using selected voice:', selectedVoice.name);
+      } else if (options.voice) {
+        utterance.voice = options.voice;
+        console.log('🔊 Using provided voice:', options.voice.name);
+      }
+
+      // Apply settings from context with option overrides
+      utterance.rate = options.rate ?? settings.rate;
+      utterance.pitch = options.pitch ?? settings.pitch;
+      utterance.volume = options.volume ?? settings.volume;
+
+      // Add event handlers
+      utterance.onstart = () => {
+        console.log('🔊 Speech started');
+        setIsSpeaking(true);
+        setIsPaused(false);
+      };
+
+      utterance.onend = () => {
+        console.log('🔊 Speech ended');
+        setIsSpeaking(false);
+        setIsPaused(false);
+      };
+
+      utterance.onerror = (event) => {
+        console.warn('🔊 Speech synthesis error:', event.error);
+        setIsSpeaking(false);
+        setIsPaused(false);
+      };
+
+      utterance.onpause = () => {
+        console.log('🔊 Speech paused');
+        setIsPaused(true);
+      };
+
+      utterance.onresume = () => {
+        console.log('🔊 Speech resumed');
+        setIsPaused(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+      return true;
+    } catch (error) {
+      console.error('🔊 Speech synthesis failed:', error);
+      setIsSpeaking(false);
+      setIsPaused(false);
+      return false;
     }
-
-    utterance.rate = settings.rate;
-    utterance.pitch = settings.pitch;
-    utterance.volume = settings.volume;
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    speechSynthesis.speak(utterance);
   }, [settings, getSelectedVoiceObject, isSupported]);
 
   const stop = useCallback(() => {
-    speechSynthesis.cancel();
-    setIsSpeaking(false);
-  }, []);
+    if (isSupported && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+      console.log('🔊 Speech stopped');
+    }
+  }, [isSupported]);
 
-  return { speak, stop, isSpeaking, isSupported };
+  const stopSpeech = useCallback(() => {
+    stop();
+  }, [stop]);
+
+  const togglePauseSpeech = useCallback(() => {
+    if (!isSupported || !isSpeaking) return;
+
+    if (isPaused) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+      console.log('🔊 Speech resumed');
+    } else {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+      console.log('🔊 Speech paused');
+    }
+  }, [isSpeaking, isPaused, isSupported]);
+
+  const readAIMessage = useCallback((text: string) => {
+    return speak(text, { interrupt: true });
+  }, [speak]);
+
+  const getVoices = useCallback(() => {
+    return isSupported ? window.speechSynthesis.getVoices() : [];
+  }, [isSupported]);
+
+  return {
+    speak,
+    stop,
+    stopSpeech,
+    togglePauseSpeech,
+    readAIMessage,
+    isSpeaking,
+    isPaused,
+    isSupported,
+    getVoices
+  };
 };

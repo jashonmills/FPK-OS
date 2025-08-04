@@ -1,20 +1,18 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
   session: Session | null;
+  loading: boolean;
   signOut: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,16 +21,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state change:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Handle new user signup - redirect to plan selection instead of dashboard
+        if (event === 'SIGNED_IN' && session?.user && session.user.email_confirmed_at) {
+          // Check if this is a new signup by looking at user creation time
+          const userCreatedAt = new Date(session.user.created_at);
+          const now = new Date();
+          const timeDiff = now.getTime() - userCreatedAt.getTime();
+          const isNewUser = timeDiff < 60000; // Less than 1 minute old
+          
+          if (isNewUser) {
+            // Small delay to ensure state is updated
+            setTimeout(() => {
+              window.location.href = '/choose-plan';
+            }, 100);
+          }
+        }
       }
     );
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -41,52 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { error };
-    } catch (error) {
-      console.error('Sign in error:', error);
-      return { error };
-    }
-  };
-
-  const signUp = async (email: string, password: string, displayName?: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard/learner`,
-          data: {
-            full_name: displayName || '',
-            display_name: displayName || '',
-          }
-        }
-      });
-      return { error };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      return { error };
-    }
-  };
-
   const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null);
-      setSession(null);
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
+    await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, session, signOut, signIn, signUp }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
