@@ -17,38 +17,36 @@ interface PlanType {
 }
 
 const PLANS: Record<string, PlanType> = {
-  basic: {
-    name: 'Basic',
-    monthly: 14.99,
-    annual: 14.99 * 12 * 0.9,
+  me: {
+    name: 'FPK Me',
+    monthly: 19.99,
+    annual: 19.99 * 12 * 0.9,
     features: [
-      'Access to basic AI coaching',
-      'Study progress tracking',
-      'Basic analytics',
-      'Email support'
+      '150 AI chat messages/month',
+      'Personal progress tracking',
+      'Email support',
+      'Individual analytics'
     ]
   },
-  pro: {
-    name: 'Pro',
-    monthly: 39.99,
-    annual: 39.99 * 12 * 0.85,
+  us: {
+    name: 'FPK Us',
+    monthly: 49.99,
+    annual: 49.99 * 12 * 0.85,
     features: [
-      'Everything in Basic',
-      'Advanced AI coaching',
-      'Detailed analytics',
+      '🏠 3 family member seats',
+      '500 AI chat messages/month (shared)',
+      'Family progress dashboard',
       'Priority support',
-      'Custom study plans',
-      'Advanced flashcards'
+      'Shared knowledge base'
     ]
   },
-  premium: {
-    name: 'Premium',
-    monthly: 59.99,
-    annual: 59.99 * 12 * 0.8,
+  universal: {
+    name: 'FPK Universal',
+    monthly: 79.99,
+    annual: 79.99 * 12 * 0.8,
     features: [
-      'Everything in Pro',
-      'Unlimited AI interactions',
-      'Advanced course creation',
+      '🚀 Unlimited AI interactions',
+      'Advanced analytics dashboard',
       'White-label options',
       'API access',
       'Dedicated support'
@@ -65,7 +63,7 @@ export default function ChoosePlan() {
   const { toast } = useToast();
   const { navigateBack, safeNavigate } = useSafeNavigation();
 
-  const handleSubscribe = async (tier: 'basic' | 'pro' | 'premium') => {
+  const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -110,9 +108,9 @@ export default function ChoosePlan() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'basic' | 'pro' | 'premium') => {
-    if (tier === 'basic') return 10;
-    if (tier === 'pro') return 15;
+  const getDiscountPercentage = (tier: 'me' | 'us' | 'universal') => {
+    if (tier === 'me') return 10;
+    if (tier === 'us') return 15;
     return 20;
   };
 
@@ -159,11 +157,11 @@ export default function ChoosePlan() {
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {Object.entries(PLANS).map(([key, plan]) => {
-            const tier = key as 'basic' | 'pro' | 'premium';
+            const tier = key as 'me' | 'us' | 'universal';
             const price = isAnnual ? plan.annual : plan.monthly;
             const monthlyPrice = isAnnual ? price / 12 : price;
             const discount = isAnnual ? getDiscountPercentage(tier) : 0;
-            const isPopular = tier === 'pro';
+            const isPopular = tier === 'us';
             
             return (
               <Card key={tier} className={`relative ${isPopular ? 'ring-2 ring-accent shadow-glow' : ''} bg-white/10 backdrop-blur border-white/20`}>

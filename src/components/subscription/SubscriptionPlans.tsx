@@ -9,9 +9,19 @@ import { Check, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 
-const PLANS = {
-  free: {
-    name: 'Free',
+interface PlanType {
+  name: string;
+  badge: string;
+  monthly: number;
+  annual: number;
+  popular?: boolean;
+  features: string[];
+}
+
+const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
+  calm: {
+    name: 'FPK Calm',
+    badge: 'Free',
     monthly: 0,
     annual: 0,
     features: [
@@ -25,42 +35,48 @@ const PLANS = {
       'Community support'
     ]
   },
-  basic: {
-    name: 'Basic',
-    monthly: 14.99,
-    annual: 14.99 * 12 * 0.9,
+  me: {
+    name: 'FPK Me',
+    badge: 'Individual',
+    monthly: 19.99,
+    annual: 19.99 * 12 * 0.9,
     features: [
-      '100 AI chat messages/month',
-      '60 minutes voice processing/month',
-      '50 knowledge queries/month',
-      '10 document processing/month',
-      '200 flashcard generations/month',
-      '50 AI insights/month',
-      '100MB knowledge storage',
+      '150 AI chat messages/month',
+      '90 minutes voice processing/month',
+      '75 knowledge queries/month',
+      '15 document processing/month',
+      '300 flashcard generations/month',
+      '75 AI insights/month',
+      '200MB knowledge storage',
+      'Personal progress tracking',
       'Email support'
     ]
   },
-  pro: {
-    name: 'Pro',
-    monthly: 39.99,
-    annual: 39.99 * 12 * 0.85,
+  us: {
+    name: 'FPK Us',
+    badge: 'Family',
+    monthly: 49.99,
+    annual: 49.99 * 12 * 0.85,
+    popular: true,
     features: [
-      '500 AI chat messages/month',
-      '300 minutes voice processing/month',
-      '250 knowledge queries/month',
-      '50 document processing/month',
-      '1,000 flashcard generations/month',
-      '200 AI insights/month',
-      '500MB knowledge storage',
-      'Advanced analytics dashboard',
-      'Priority support',
-      'Custom study plans'
+      '🏠 3 family member seats',
+      '500 AI chat messages/month (shared)',
+      '300 minutes voice processing/month (shared)',
+      '250 knowledge queries/month (shared)',
+      '50 document processing/month (shared)',
+      '1,000 flashcard generations/month (shared)',
+      '200 AI insights/month (shared)',
+      '1GB knowledge storage (shared)',
+      'Family progress dashboard',
+      'Individual member tracking',
+      'Priority support'
     ]
   },
-  premium: {
-    name: 'Premium',
-    monthly: 59.99,
-    annual: 59.99 * 12 * 0.8,
+  universal: {
+    name: 'FPK Universal',
+    badge: 'Premium',
+    monthly: 79.99,
+    annual: 79.99 * 12 * 0.8,
     features: [
       '🚀 Unlimited AI interactions',
       '🚀 Unlimited voice processing',
@@ -68,7 +84,8 @@ const PLANS = {
       '🚀 Unlimited document processing',
       '🚀 Unlimited flashcard generation',
       '🚀 Unlimited AI insights',
-      '2GB knowledge storage',
+      '5GB knowledge storage',
+      'Advanced analytics dashboard',
       'Advanced course creation tools',
       'White-label options',
       'API access (coming soon)',
@@ -85,7 +102,7 @@ export function SubscriptionPlans() {
   const { subscription, createCheckout } = useSubscription();
   const { toast } = useToast();
 
-  const handleSubscribe = async (tier: 'basic' | 'pro' | 'premium') => {
+  const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -101,14 +118,14 @@ export function SubscriptionPlans() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'free' | 'basic' | 'pro' | 'premium') => {
-    if (tier === 'free') return 0;
-    if (tier === 'basic') return 10;
-    if (tier === 'pro') return 15;
+  const getDiscountPercentage = (tier: 'calm' | 'me' | 'us' | 'universal') => {
+    if (tier === 'calm') return 0;
+    if (tier === 'me') return 10;
+    if (tier === 'us') return 15;
     return 20;
   };
 
-  const getCurrentPlanBadge = (tier: 'free' | 'basic' | 'pro' | 'premium') => {
+  const getCurrentPlanBadge = (tier: 'calm' | 'me' | 'us' | 'universal') => {
     if (subscription.subscribed && subscription.subscription_tier === tier) {
       return <Badge variant="default" className="ml-2">Current Plan</Badge>;
     }
@@ -145,22 +162,25 @@ export function SubscriptionPlans() {
       {/* Pricing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Object.entries(PLANS).map(([key, plan]) => {
-          const tier = key as 'free' | 'basic' | 'pro' | 'premium';
+          const tier = key as 'calm' | 'me' | 'us' | 'universal';
           const price = isAnnual ? plan.annual : plan.monthly;
           const monthlyPrice = isAnnual ? price / 12 : price;
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
           
           return (
-            <Card key={tier} className={`relative ${tier === 'pro' ? 'ring-2 ring-primary' : ''}`}>
-              {tier === 'pro' && (
+            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+              {plan.popular && (
                 <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">
                   Most Popular
                 </Badge>
               )}
               
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  {plan.name}
+                <CardTitle className="flex items-center justify-between">
+                  <div>
+                    <div className="text-lg font-bold">{plan.name}</div>
+                    <Badge variant="outline" className="text-xs">{plan.badge}</Badge>
+                  </div>
                   {getCurrentPlanBadge(tier)}
                 </CardTitle>
                 <CardDescription>
@@ -196,11 +216,11 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => tier === 'free' ? null : handleSubscribe(tier as 'basic' | 'pro' | 'premium')}
-                  disabled={tier === 'free' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
-                  variant={tier === 'pro' ? 'default' : tier === 'free' ? 'outline' : 'outline'}
+                  onClick={() => tier === 'calm' ? null : handleSubscribe(tier as 'me' | 'us' | 'universal')}
+                  disabled={tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
+                  variant={plan.popular ? 'default' : tier === 'calm' ? 'outline' : 'outline'}
                 >
-                  {tier === 'free' ? (
+                  {tier === 'calm' ? (
                     'Current Plan'
                   ) : loading === tier ? (
                     <>
@@ -210,7 +230,7 @@ export function SubscriptionPlans() {
                   ) : subscription.subscribed && subscription.subscription_tier === tier ? (
                     'Current Plan'
                   ) : (
-                    `Subscribe to ${plan.name}`
+                    `Subscribe to ${plan.badge}`
                   )}
                 </Button>
               </CardFooter>

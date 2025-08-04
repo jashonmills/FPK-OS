@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface SubscriptionData {
   subscribed: boolean;
-  subscription_tier?: 'basic' | 'pro' | 'premium' | null;
+  subscription_tier?: 'calm' | 'me' | 'us' | 'universal' | null;
   subscription_status?: string;
   subscription_end?: string;
   cancel_at_period_end?: boolean;
@@ -45,7 +45,7 @@ export function useSubscription() {
     refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 
-  const createCheckout = async (tier: 'basic' | 'pro' | 'premium', interval: 'monthly' | 'annual', couponCode?: string) => {
+  const createCheckout = async (tier: 'me' | 'us' | 'universal', interval: 'monthly' | 'annual', couponCode?: string) => {
     if (!user || !session) {
       throw new Error('User not authenticated');
     }
@@ -132,11 +132,11 @@ export function useSubscription() {
   };
 
   // Check if user has access to features based on tier
-  const hasFeatureAccess = (requiredTier: 'basic' | 'pro' | 'premium') => {
+  const hasFeatureAccess = (requiredTier: 'me' | 'us' | 'universal') => {
     if (!subscription?.subscribed) return false;
     
-    const tierLevels = { basic: 1, pro: 2, premium: 3 };
-    const userTierLevel = tierLevels[subscription.subscription_tier || 'basic'];
+    const tierLevels = { me: 1, us: 2, universal: 3 };
+    const userTierLevel = tierLevels[subscription.subscription_tier || 'me'];
     const requiredTierLevel = tierLevels[requiredTier];
     
     return userTierLevel >= requiredTierLevel;

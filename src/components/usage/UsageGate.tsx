@@ -110,13 +110,13 @@ export function UsageGate({
           </div>
           
           <div className="grid gap-2">
-            {/* Pro Plan Benefits */}
-            {subscription.subscription_tier !== 'pro' && subscription.subscription_tier !== 'premium' && (
+            {/* Family Plan Benefits */}
+            {subscription.subscription_tier !== 'us' && subscription.subscription_tier !== 'universal' && (
               <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                 <div className="space-y-1">
-                  <div className="font-medium text-sm">Pro Plan</div>
+                  <div className="font-medium text-sm">FPK Us (Family)</div>
                   <div className="text-xs text-muted-foreground">
-                    5x more usage + advanced features
+                    5x more usage + 3 family seats
                   </div>
                 </div>
                 <Button 
@@ -130,13 +130,13 @@ export function UsageGate({
               </div>
             )}
 
-            {/* Premium Plan Benefits */}
-            {subscription.subscription_tier !== 'premium' && (
+            {/* Universal Plan Benefits */}
+            {subscription.subscription_tier !== 'universal' && (
               <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                 <div className="space-y-1">
-                  <div className="font-medium text-sm">Premium Plan</div>
+                  <div className="font-medium text-sm">FPK Universal</div>
                   <div className="text-xs text-muted-foreground">
-                    Unlimited usage + priority support
+                    Unlimited usage + premium features
                   </div>
                 </div>
                 <Button 
