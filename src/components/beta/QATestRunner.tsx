@@ -203,10 +203,15 @@ const QATestRunner: React.FC = () => {
 
   const runAutomatedTests = async () => {
     setIsRunning(true);
+    console.log('🚀 Starting QA Test Runner...');
     
     const automatedTests = QA_TEST_CASES.filter(test => test.automated);
+    console.log(`Running ${automatedTests.length} automated tests...`);
     
-    for (const test of automatedTests) {
+    for (let i = 0; i < automatedTests.length; i++) {
+      const test = automatedTests[i];
+      console.log(`📋 Running test ${i + 1}/${automatedTests.length}: ${test.name}`);
+      
       setTestResults(prev => ({
         ...prev,
         [test.id]: { ...prev[test.id], status: 'running' }
@@ -214,8 +219,17 @@ const QATestRunner: React.FC = () => {
 
       try {
         const startTime = performance.now();
-        const passed = await test.testFunction?.() || false;
+        
+        // Add timeout to prevent hanging tests
+        const testPromise = test.testFunction?.() || Promise.resolve(false);
+        const timeoutPromise = new Promise<boolean>((_, reject) => {
+          setTimeout(() => reject(new Error('Test timeout after 5 seconds')), 5000);
+        });
+        
+        const passed = await Promise.race([testPromise, timeoutPromise]);
         const duration = performance.now() - startTime;
+
+        console.log(`✅ Test ${test.name} completed: ${passed ? 'PASSED' : 'FAILED'} (${Math.round(duration)}ms)`);
 
         setTestResults(prev => ({
           ...prev,
@@ -227,20 +241,22 @@ const QATestRunner: React.FC = () => {
           }
         }));
       } catch (error) {
+        console.error(`❌ Test ${test.name} error:`, error);
         setTestResults(prev => ({
           ...prev,
           [test.id]: {
             ...prev[test.id],
             status: 'failed',
-            message: `Test error: ${error}`
+            message: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`
           }
         }));
       }
 
-      // Small delay between tests
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Small delay between tests to allow UI updates
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
+    console.log('🏁 QA Test Runner completed');
     setIsRunning(false);
   };
 
