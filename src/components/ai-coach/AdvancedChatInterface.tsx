@@ -12,6 +12,7 @@ import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useChatMode } from '@/hooks/useChatMode';
 import { useAICoachPerformanceAnalytics } from '@/hooks/useAICoachPerformanceAnalytics';
+import { useAIFeatureGate } from '@/hooks/useAIFeatureGate';
 import { cn } from '@/lib/utils';
 import ChatModeToggle from './ChatModeToggle';
 // import SaveToNotesDialog from './SaveToNotesDialog';
@@ -53,6 +54,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { chatMode, changeChatMode } = useChatMode();
   const { trackResponseTime, trackModeSwitch, trackRAGEffectiveness } = useAICoachPerformanceAnalytics();
+  const { executeWithGate, checkFeatureAccess } = useAIFeatureGate();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
@@ -275,6 +277,16 @@ What would you like to learn about today?`;
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading || !user?.id) return;
 
+    // Check usage limits before proceeding
+    if (!checkFeatureAccess('ai_chat', 1)) {
+      toast({
+        title: "Usage Limit Reached",
+        description: "You've reached your AI chat limit. Please upgrade your plan to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check for quiz session request
     if (detectQuizRequest(message) && flashcards && flashcards.length > 0) {
       setShowQuizWidget(true);
@@ -333,26 +345,45 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
         sessionId 
       });
 
-      // Call enhanced AI function with full context
-      const { data, error } = await supabase.functions.invoke('ai-study-chat', {
-        body: {
-          message: userMessage.content,
-          userId: user.id,
-          sessionId: sessionId,
-          chatMode,
-          voiceActive: false,
+      // Call enhanced AI function with usage tracking
+      const result = await executeWithGate(
+        'ai_chat',
+        async () => {
+          const { data, error } = await supabase.functions.invoke('ai-study-chat', {
+            body: {
+              message: userMessage.content,
+              userId: user.id,
+              sessionId: sessionId,
+              chatMode,
+              voiceActive: false,
+              metadata: {
+                completedSessions: completedSessions?.length || 0,
+                flashcardCount: flashcards?.length || 0,
+                ragEnabled: true,
+                insights: insights
+              }
+            }
+          });
+          
+          if (error) throw error;
+          return data;
+        },
+        {
+          amount: 1,
           metadata: {
-            completedSessions: completedSessions?.length || 0,
-            flashcardCount: flashcards?.length || 0,
-            ragEnabled: true,
-            insights: insights
+            messageLength: userMessage.content.length,
+            chatMode,
+            sessionId,
+            feature: 'ai_study_chat'
           }
         }
-      });
+      );
+
+      const data = result;
 
       let aiResponse: ChatMessage;
 
-      if (error || !data?.response) {
+      if (!data?.response) {
         // Enhanced fallback with study-specific guidance
         aiResponse = {
           id: (Date.now() + 1).toString(),
@@ -489,7 +520,22 @@ What specific topic from your studies would you like to dive deeper into?`;
   const handleVoiceInput = async () => {
     if (voiceInput.isRecording) {
       try {
-        const transcribedText = await voiceInput.stopRecording();
+        // Track voice processing usage
+        const transcribedText = await executeWithGate(
+          'voice_processing',
+          async () => {
+            const result = await voiceInput.stopRecording();
+            return result;
+          },
+          {
+            amount: Math.ceil(voiceInput.recordingDuration / 60), // Track per minute
+            metadata: {
+              duration: voiceInput.recordingDuration,
+              feature: 'voice_input_chat'
+            }
+          }
+        );
+        
         if (transcribedText && transcribedText.trim()) {
           setMessage(transcribedText.trim());
           // Auto-send the message
