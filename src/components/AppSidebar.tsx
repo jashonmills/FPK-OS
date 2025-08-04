@@ -36,17 +36,25 @@ import {
   Lightbulb,
   FileText,
   ChevronDown,
+  Target,
+  BarChart3,
+  Zap,
+  StickyNote,
 } from "lucide-react"
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTranslation } from 'react-i18next';
 
 const AppSidebar = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation('navigation');
 
   const handleSignOut = async () => {
     await signOut();
@@ -63,18 +71,18 @@ const AppSidebar = () => {
 
   const mainItems = [
     {
-      title: 'Dashboard',
+      title: t('dashboard'),
       url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
-      title: 'Home',
-      url: "/dashboard/home",
+      title: t('home'),
+      url: "/dashboard/learner",
       icon: Home,
     },
     {
-      title: 'Library',
-      url: "/dashboard/library",
+      title: t('library'),
+      url: "/dashboard/learner/library",
       icon: Book,
     },
     {
@@ -83,16 +91,31 @@ const AppSidebar = () => {
       icon: BookOpen,
     },
     {
-      title: 'Courses',
-      url: "/dashboard/courses",
+      title: t('courses'),
+      url: "/dashboard/learner/courses",
       icon: GraduationCap,
+    },
+    {
+      title: t('analytics'),
+      url: "/dashboard/learner/analytics",
+      icon: BarChart3,
+    },
+    {
+      title: t('goals'),
+      url: "/dashboard/learner/goals",
+      icon: Target,
+    },
+    {
+      title: t('notes'),
+      url: "/dashboard/learner/notes",
+      icon: StickyNote,
     },
   ];
 
   const aiTools = [
     {
       title: 'AI Study Chat',
-      url: "/dashboard/ai-chat",
+      url: "/dashboard/learner/ai-coach",
       icon: MessageSquare,
     },
     {
@@ -104,6 +127,19 @@ const AppSidebar = () => {
       title: 'AI Prompts',
       url: "/dashboard/ai-prompts",
       icon: Lightbulb,
+    },
+  ];
+
+  const learnerTools = [
+    {
+      title: 'Gamification',
+      url: "/dashboard/learner/gamification",
+      icon: Zap,
+    },
+    {
+      title: 'Flashcards',
+      url: "/dashboard/learner/flashcards",
+      icon: FileText,
     },
   ];
 
@@ -132,8 +168,8 @@ const AppSidebar = () => {
       icon: Shield,
     },
     {
-      title: 'Settings',
-      url: "/dashboard/settings",
+      title: t('settings'),
+      url: "/dashboard/learner/settings",
       icon: Settings,
     },
     {
@@ -226,12 +262,12 @@ const AppSidebar = () => {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <Collapsible>
+          <Collapsible defaultOpen>
             <CollapsibleTrigger asChild>
               <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Admin Tools
+                  <Zap className="h-4 w-4" />
+                  Learning Tools
                 </div>
                 <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
               </SidebarGroupLabel>
@@ -239,7 +275,7 @@ const AppSidebar = () => {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {adminTools.map((item) => (
+                  {learnerTools.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
@@ -258,6 +294,45 @@ const AppSidebar = () => {
             </CollapsibleContent>
           </Collapsible>
         </SidebarGroup>
+
+        {isAdmin && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <SidebarGroupLabel className="group/label text-sidebar-foreground/70 hover:text-sidebar-foreground cursor-pointer flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Admin Tools
+                    </div>
+                    <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]/label:rotate-180" />
+                  </SidebarGroupLabel>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {adminTools.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton 
+                            asChild 
+                            isActive={isActive(item.url)}
+                            className="pl-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+                          >
+                            <Link to={item.url}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </Collapsible>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-4">
