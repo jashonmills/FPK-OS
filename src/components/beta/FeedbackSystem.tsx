@@ -124,7 +124,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
         {trigger || defaultTrigger}
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:max-h-none">
         <DialogHeader>
           <DialogTitle>Beta Feedback</DialogTitle>
           <DialogDescription>
@@ -132,7 +132,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[70vh] sm:max-h-none overflow-y-auto pr-2">
           {/* Context Info */}
           <Card className="bg-muted/50">
             <CardContent className="p-4">
