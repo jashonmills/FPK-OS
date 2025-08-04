@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, DollarSign, Euro } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,8 +38,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   me: {
     name: 'FPK Me',
     badge: 'Individual',
-    monthly: 19.99,
-    annual: 19.99 * 12 * 0.9,
+    monthly: 21.99, // 10% increase from 19.99
+    annual: 21.99 * 12 * 0.9,
     features: [
       '150 AI chat messages/month',
       '90 minutes voice processing/month',
@@ -55,8 +55,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   us: {
     name: 'FPK Us',
     badge: 'Family',
-    monthly: 49.99,
-    annual: 49.99 * 12 * 0.85,
+    monthly: 54.99, // 10% increase from 49.99
+    annual: 54.99 * 12 * 0.85,
     popular: true,
     features: [
       '🏠 3 family member seats',
@@ -75,8 +75,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   universal: {
     name: 'FPK Universal',
     badge: 'Premium',
-    monthly: 79.99,
-    annual: 79.99 * 12 * 0.8,
+    monthly: 87.99, // 10% increase from 79.99
+    annual: 87.99 * 12 * 0.8,
     features: [
       '🚀 Unlimited AI interactions',
       '🚀 Unlimited voice processing',
@@ -96,11 +96,14 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
 };
 
 export function SubscriptionPlans() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true); // Changed to true to make annual default
+  const [isEuro, setIsEuro] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const { subscription, createCheckout } = useSubscription();
   const { toast } = useToast();
+
+  const EUR_RATE = 0.92; // Approximate USD to EUR conversion rate
 
   const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
     try {
@@ -132,20 +135,45 @@ export function SubscriptionPlans() {
     return null;
   };
 
+  const formatPrice = (price: number) => {
+    const convertedPrice = isEuro ? price * EUR_RATE : price;
+    const symbol = isEuro ? '€' : '$';
+    return `${symbol}${convertedPrice.toFixed(2)}`;
+  };
+
   return (
     <div className="space-y-8">
-      {/* Annual/Monthly Toggle */}
-      <div className="flex items-center justify-center space-x-4">
-        <Label htmlFor="billing-toggle">Monthly</Label>
-        <Switch
-          id="billing-toggle"
-          checked={isAnnual}
-          onCheckedChange={setIsAnnual}
-        />
-        <Label htmlFor="billing-toggle">
-          Annual 
-          <Badge variant="secondary" className="ml-2">Save up to 20%</Badge>
-        </Label>
+      {/* Currency and Billing Toggle */}
+      <div className="flex flex-col items-center space-y-4">
+        {/* Currency Toggle */}
+        <div className="flex items-center space-x-4">
+          <Label className="flex items-center">
+            <DollarSign className="h-4 w-4 mr-1" />
+            USD
+          </Label>
+          <Switch
+            checked={isEuro}
+            onCheckedChange={setIsEuro}
+          />
+          <Label className="flex items-center">
+            <Euro className="h-4 w-4 mr-1" />
+            EUR
+          </Label>
+        </div>
+        
+        {/* Annual/Monthly Toggle */}
+        <div className="flex items-center justify-center space-x-4">
+          <Label htmlFor="billing-toggle">Monthly</Label>
+          <Switch
+            id="billing-toggle"
+            checked={isAnnual}
+            onCheckedChange={setIsAnnual}
+          />
+          <Label htmlFor="billing-toggle">
+            Annual 
+            <Badge variant="secondary" className="ml-2">Save up to 20%</Badge>
+          </Label>
+        </div>
       </div>
 
       {/* Coupon Code Input */}
@@ -168,14 +196,16 @@ export function SubscriptionPlans() {
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
           
           return (
-            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg' : ''}`}>
               {plan.popular && (
-                <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  Most Popular
-                </Badge>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1 text-sm shadow-md">
+                    ⭐ Most Popular
+                  </Badge>
+                </div>
               )}
               
-              <CardHeader>
+              <CardHeader className={plan.popular ? 'pt-6' : ''}>
                 <CardTitle className="flex items-center justify-between">
                   <div>
                     <div className="text-lg font-bold">{plan.name}</div>
@@ -185,18 +215,18 @@ export function SubscriptionPlans() {
                 </CardTitle>
                 <CardDescription>
                   <div className="text-3xl font-bold">
-                    ${monthlyPrice.toFixed(2)}
+                    {formatPrice(monthlyPrice)}
                     <span className="text-base font-normal">/month</span>
                   </div>
                   {isAnnual && discount > 0 && (
                     <div className="text-sm text-muted-foreground">
-                      <span className="line-through">${plan.monthly.toFixed(2)}/month</span>
+                      <span className="line-through">{formatPrice(plan.monthly)}/month</span>
                       <Badge variant="secondary" className="ml-2">{discount}% off</Badge>
                     </div>
                   )}
                   {isAnnual && (
                     <div className="text-sm text-muted-foreground mt-1">
-                      Billed annually: ${price.toFixed(2)}
+                      Billed annually: {formatPrice(price)}
                     </div>
                   )}
                 </CardDescription>
