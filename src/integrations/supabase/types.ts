@@ -1427,6 +1427,39 @@ export type Database = {
         }
         Relationships: []
       }
+      google_oauth_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          refresh_token: string | null
+          scope: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          refresh_token?: string | null
+          scope: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string | null
+          scope?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guest_pitches: {
         Row: {
           bio: string
@@ -2784,6 +2817,39 @@ export type Database = {
             | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      synced_calendar_events: {
+        Row: {
+          calendar_id: string
+          google_event_id: string
+          id: string
+          last_updated: string
+          local_event_id: string
+          local_event_type: string
+          synced_at: string
+          user_id: string
+        }
+        Insert: {
+          calendar_id: string
+          google_event_id: string
+          id?: string
+          last_updated?: string
+          local_event_id: string
+          local_event_type: string
+          synced_at?: string
+          user_id: string
+        }
+        Update: {
+          calendar_id?: string
+          google_event_id?: string
+          id?: string
+          last_updated?: string
+          local_event_id?: string
+          local_event_type?: string
+          synced_at?: string
+          user_id?: string
         }
         Relationships: []
       }
