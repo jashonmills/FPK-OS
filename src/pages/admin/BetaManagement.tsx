@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 const BetaManagement = () => {
   const { user } = useAuth();
   const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
+  const [betaOnboardingOpen, setBetaOnboardingOpen] = useState(false);
 
   // Fetch beta users with real-time updates
   const { data: betaUsers, refetch: refetchUsers } = useQuery({
@@ -241,15 +242,17 @@ const BetaManagement = () => {
                   variant="outline" 
                   className="w-full"
                   onClick={() => {
-                    // Trigger onboarding modal manually
-                    const onboarding = document.querySelector('[data-onboarding-trigger]');
-                    if (onboarding) (onboarding as HTMLElement).click();
+                    setBetaOnboardingOpen(true);
                   }}
                 >
                   <TestTube className="w-4 h-4 mr-2" />
                   Preview Onboarding Flow
                 </Button>
-                <BetaOnboarding autoShow={false} />
+                <BetaOnboarding 
+                  autoShow={false} 
+                  forceShow={betaOnboardingOpen}
+                  onComplete={() => setBetaOnboardingOpen(false)}
+                />
                 <TestFeedbackSystem />
               </CardContent>
             </Card>

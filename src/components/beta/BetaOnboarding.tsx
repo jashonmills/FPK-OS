@@ -68,11 +68,13 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
 interface BetaOnboardingProps {
   autoShow?: boolean;
   onComplete?: () => void;
+  forceShow?: boolean;
 }
 
 const BetaOnboarding: React.FC<BetaOnboardingProps> = ({ 
   autoShow = true, 
-  onComplete 
+  onComplete,
+  forceShow = false 
 }) => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -80,8 +82,12 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
 
   useEffect(() => {
-    checkOnboardingStatus();
-  }, [user]);
+    if (forceShow) {
+      setIsOpen(true);
+    } else {
+      checkOnboardingStatus();
+    }
+  }, [user, forceShow]);
 
   const checkOnboardingStatus = async () => {
     if (!user) return;
