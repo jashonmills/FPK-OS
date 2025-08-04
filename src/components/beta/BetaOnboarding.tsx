@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     description: 'Navigate through video, audio, and interactive content designed for optimal learning.',
     icon: BookOpen,
     action: 'Try a Module',
-    link: '/dashboard/learner/learning-state/learning-state-beta'
+    link: '/dashboard/learner/learning-state'
   },
   {
     id: 'progress',
@@ -77,6 +78,7 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
   forceShow = false 
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
@@ -151,7 +153,13 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
     }
     
     if (step.link) {
-      window.location.href = step.link;
+      try {
+        navigate(step.link);
+      } catch (error) {
+        console.error('Navigation failed:', error);
+        // Fallback to window.location for external links
+        window.location.href = step.link;
+      }
     }
   };
 
