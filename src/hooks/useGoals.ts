@@ -7,11 +7,12 @@ import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
 class GoalsManager {
   private static instance: GoalsManager;
   private goals: Goal[] = [];
-  private loading: boolean = true;
+  private loading: boolean = false;
   private loadingPromise: Promise<Goal[]> | null = null;
   private error: string | null = null;
   private subscribers: Set<(goals: Goal[], loading: boolean, error: string | null) => void> = new Set();
   private userId: string | null = null;
+  private hasLoadedOnce: boolean = false;
 
   private constructor() {}
 
@@ -30,18 +31,21 @@ class GoalsManager {
     
     // If user changed, reset state
     if (this.userId !== userId) {
+      console.log('🎯 GoalsManager: User changed from', this.userId, 'to', userId);
       this.userId = userId || null;
       this.goals = [];
-      this.loading = true;
+      this.loading = false;
       this.error = null;
       this.loadingPromise = null;
+      this.hasLoadedOnce = false;
     }
 
     // Immediately notify with current state
     callback(this.goals, this.loading, this.error);
     
-    // Load goals if user is available
-    if (userId) {
+    // Only load goals if we need to (haven't loaded once, not currently loading, and have user)
+    if (userId && this.userId === userId && !this.hasLoadedOnce && !this.loading && !this.loadingPromise) {
+      console.log('🎯 GoalsManager: Initiating goals load for user:', userId);
       this.loadGoals(userId);
     }
     
@@ -57,25 +61,30 @@ class GoalsManager {
   }
 
   async loadGoals(userId: string, retryCount = 0): Promise<Goal[]> {
-    // If already loading for this user, return existing promise
+    // Prevent multiple simultaneous loads for the same user
     if (this.loadingPromise && this.userId === userId) {
       return this.loadingPromise;
     }
 
-    // If already loaded for this user, return cached data
-    if (this.goals.length > 0 && !this.loading && this.userId === userId) {
+    // If we have already loaded for this user, return cached data
+    if (this.userId === userId && this.hasLoadedOnce && !this.error) {
+      console.log('🎯 GoalsManager: Using cached goals:', this.goals.length);
       return this.goals;
     }
 
-    this.loading = true;
-    this.error = null;
-    this.notify();
+    // Only set loading if we're not already loading
+    if (!this.loading) {
+      this.loading = true;
+      this.error = null;
+      this.notify();
+    }
 
     this.loadingPromise = this.fetchGoals(userId, retryCount);
     const result = await this.loadingPromise;
     
     this.loading = false;
     this.loadingPromise = null;
+    this.hasLoadedOnce = true;
     this.notify();
     
     return result;
@@ -255,7 +264,7 @@ class GoalsManager {
 export const useGoals = () => {
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const goalsManager = GoalsManager.getInstance();
