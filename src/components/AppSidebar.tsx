@@ -1,125 +1,127 @@
-
+import React, { useState } from 'react';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { 
-  Home, 
-  Book, 
-  BarChart, 
-  Users, 
-  Award, 
-  StickyNote, 
-  Settings, 
-  HelpCircle,
-  BookUser,
-  Compass,
-  GraduationCap,
-  Shield,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import {
+  Home,
+  Book,
   BookOpen,
-  ExternalLink,
+  GraduationCap,
+  Settings,
   CreditCard,
-  Target
-} from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { useUserRole } from "@/hooks/useUserRole";
-import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
-import DualLanguageText from "@/components/DualLanguageText";
+  Shield,
+  Menu,
+  LogOut,
+  LayoutDashboard,
+  HelpCircle,
+  MessageSquare,
+  Users,
+  Brain,
+  Lightbulb,
+  FileText,
+} from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { useAuth } from '@/hooks/useAuth';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { getRoleBadgeVariant } from '@/types/user';
+import { Badge } from '@/components/ui/badge';
 
-export function AppSidebar() {
+interface SidebarProps {
+  className?: string;
+}
+
+const AppSidebar = ({ className }: SidebarProps) => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
-  const { isAdmin, isInstructor } = useUserRole();
-  const { t, tString } = useGlobalTranslation();
+  const [open, setOpen] = useState(false);
 
-  const learnerMenuItems = [
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate('/login');
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const mainItems = [
+    {
+      title: 'Dashboard',
+      url: "/dashboard/learner",
+      icon: LayoutDashboard,
+    },
     {
       title: 'Home',
-      url: "/dashboard/learner",
+      url: "/dashboard/home",
       icon: Home,
     },
     {
-      title: 'Courses',
-      url: "/dashboard/learner/courses",
+      title: 'Library',
+      url: "/dashboard/library",
       icon: Book,
     },
     {
-      title: 'Library',
-      url: "/dashboard/learner/library",
+      title: 'Browse',
+      url: "/dashboard/browse",
       icon: BookOpen,
     },
     {
-      title: 'Analytics',
-      url: "/dashboard/learner/analytics",
-      icon: BarChart,
-    },
-    {
-      title: 'Live Hub',
-      url: "/dashboard/learner/live-hub",
-      icon: Compass,
-    },
-    {
-      title: 'AI Study Coach',
-      url: "/dashboard/learner/ai-coach",
-      icon: BookUser,
-    },
-    {
-      title: 'Goals',
-      url: "/dashboard/learner/goals",
-      icon: Target,
-    },
-    {
-      title: 'Achievements & XP',
-      url: "/dashboard/learner/gamification",
-      icon: Award,
-    },
-    {
-      title: 'Notes',
-      url: "/dashboard/learner/notes",
-      icon: StickyNote,
+      title: 'Courses',
+      url: "/dashboard/courses",
+      icon: GraduationCap,
     },
   ];
 
-  const adminMenuItems = [
+  const aiTools = [
     {
-      title: 'Admin Dashboard',
-      url: "/dashboard/admin",
-      icon: Shield,
+      title: 'AI Study Chat',
+      url: "/dashboard/ai-chat",
+      icon: MessageSquare,
     },
     {
-      title: 'Course Manager',
-      url: "/dashboard/admin/courses",
-      icon: GraduationCap,
+      title: 'AI Knowledge Base',
+      url: "/dashboard/ai-knowledge",
+      icon: Brain,
     },
     {
-      title: 'Module Manager',
-      url: "/dashboard/admin/modules",
-      icon: Book,
+      title: 'AI Prompts',
+      url: "/dashboard/ai-prompts",
+      icon: Lightbulb,
     },
+  ];
+
+  const adminTools = [
     {
       title: 'User Management',
-      url: "/dashboard/admin/users",
+      url: "/admin/users",
       icon: Users,
     },
     {
-      title: 'Course Builder',
-      url: "https://themed-course-compass.lovable.app/dashboard/admin/course-builder",
-      icon: Book,
-      isExternal: true,
+      title: 'Content Management',
+      url: "/admin/content",
+      icon: FileText,
     },
   ];
 
@@ -130,192 +132,175 @@ export function AppSidebar() {
       icon: CreditCard,
     },
     {
+      title: 'Privacy',
+      url: "/privacy-preferences",
+      icon: Shield,
+    },
+    {
       title: 'Settings',
-      url: "/dashboard/learner/settings",
+      url: "/dashboard/settings",
       icon: Settings,
     },
     {
-      title: 'Exit',
-      url: "https://demo.fpkuniversity.com/",
-      icon: ExternalLink,
-      isExternal: true,
+      title: 'Help',
+      url: "/dashboard/help",
+      icon: HelpCircle,
+    },
+    {
+      title: 'Sign Out',
+      onClick: handleSignOut,
+      icon: LogOut,
     },
   ];
 
-  const getDisplayName = () => {
-    if (profile?.display_name) return profile.display_name;
-    if (profile?.full_name) return profile.full_name;
-    if (user?.email) return user.email.split('@')[0];
-    return 'User';
-  };
-
-  const getUserEmail = () => {
-    return user?.email || 'user@fpk.edu';
-  };
-
-  const getInitials = () => {
-    const displayName = getDisplayName();
-    return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
-  const isActive = (url: string) => {
-    if (url.startsWith('http')) {
-      // For external URLs, check if current location matches the path
-      return location.pathname === '/dashboard/admin/course-builder';
-    }
-    return location.pathname === url;
-  };
-
-  const handleNavigation = (item: any) => {
-    if (item.isExternal) {
-      window.location.href = item.url;
-    } else {
-      navigate(item.url);
-    }
-  };
-
   return (
-    <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">FPK</span>
-          </div>
-          <div>
-            <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
-            <p className="text-xs text-sidebar-foreground/70">
-              Learner Portal
-              {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
-            </p>
-          </div>
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent className="px-2">
-        {(isAdmin || isInstructor) && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-              Administration
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminMenuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
-                      className={`w-full transition-colors ${
-                        isActive(item.url) 
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-                      }`}
-                    >
-                      <button
-                        onClick={() => handleNavigation(item)}
-                        className="flex items-center gap-3 w-full text-left"
-                      >
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
-                        <span>{item.title}</span>
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className={`md:hidden ${className}`}>
+          <Menu className="h-4 w-4" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="p-0">
+        <SheetHeader className="px-6 pt-6 pb-2">
+          <SheetTitle>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url} />
+                <AvatarFallback>{profile?.display_name?.charAt(0) || 'U'}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-semibold">{profile?.display_name || user?.email}</div>
+                {user?.roles?.map((role) => (
+                  <Badge
+                    key={role}
+                    variant={getRoleBadgeVariant(role)}
+                    className="mr-1"
+                  >
+                    {role}
+                  </Badge>
                 ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+              </div>
+            </div>
+          </SheetTitle>
+          <SheetDescription>
+            Manage your account settings and set preferences.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="py-4">
+          <Separator />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          {mainItems.map((item) => (
+            <Button
+              key={item.title}
+              variant="ghost"
+              className={`w-full justify-start ${isActive(item.url) ? 'bg-secondary' : ''}`}
+              asChild
+            >
+              <Link to={item.url} onClick={() => setOpen(false)}>
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.title}</span>
+              </Link>
+            </Button>
+          ))}
+        </div>
+
+        <div className="py-4">
+          <Separator />
+        </div>
+
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="ai-tools">
+            <AccordionTrigger className="hover:no-underline">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              AI Tools
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-1">
+                {aiTools.map((item) => (
+                  <Button
+                    key={item.title}
+                    variant="ghost"
+                    className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
+                    asChild
+                  >
+                    <Link to={item.url} onClick={() => setOpen(false)}>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        {user?.roles?.includes('admin') && (
+          <>
+            <div className="py-4">
+              <Separator />
+            </div>
+
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="admin-tools">
+                <AccordionTrigger className="hover:no-underline">
+                  <Users className="mr-2 h-4 w-4" />
+                  Admin Tools
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-col gap-1">
+                    {adminTools.map((item) => (
+                      <Button
+                        key={item.title}
+                        variant="ghost"
+                        className={`w-full justify-start pl-8 ${isActive(item.url) ? 'bg-secondary' : ''}`}
+                        asChild
+                      >
+                        <Link to={item.url} onClick={() => setOpen(false)}>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </>
         )}
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            Learning Dashboard
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {learnerMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    className={`w-full transition-colors ${
-                      isActive(item.url) 
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-                    }`}
-                  >
-                    <button
-                      onClick={() => navigate(item.url)}
-                      className="flex items-center gap-3 w-full text-left"
-                    >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span>{item.title}</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-8">
-          <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            Support
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {footerItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    className={`w-full transition-colors ${
-                      isActive(item.url) 
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-                    }`}
-                  >
-                    <button
-                      onClick={() => handleNavigation(item)}
-                      className="flex items-center gap-3 w-full text-left"
-                    >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span>{item.title}</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
-            <AvatarFallback className="fpk-gradient text-white text-sm font-semibold">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">{getUserEmail()}</p>
-          </div>
+        <div className="mt-auto py-4">
+          <Separator />
         </div>
-        <Button 
-          onClick={handleLogout}
-          variant="ghost"
-          size="sm" 
-          className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        >
-          Sign Out
-        </Button>
-      </SidebarFooter>
-    </Sidebar>
+
+        <div className="flex flex-col gap-1 pb-4">
+          {footerItems.map((item) => (
+            <Button
+              key={item.title}
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={item.onClick}
+              asChild={item.url ? true : false}
+            >
+              {item.url ? (
+                <Link to={item.url} onClick={() => setOpen(false)}>
+                  <item.icon className="mr-2 h-4 w-4" />
+                  <span>{item.title}</span>
+                </Link>
+              ) : (
+                <>
+                  <item.icon className="mr-2 h-4 w-4" />
+                  <span>{item.title}</span>
+                </>
+              )}
+            </Button>
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
-}
+};
+
+export default AppSidebar;

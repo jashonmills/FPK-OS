@@ -1,215 +1,105 @@
-
-import React, { Suspense, lazy } from 'react';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/useAuth';
-import { GamificationProvider } from '@/contexts/GamificationContext';
-import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '@/i18n';
-import AccessibilityProvider from '@/components/AccessibilityProvider';
-import RouteBoundary from '@/components/RouteBoundary';
-import BetaAccessGate from '@/components/beta/BetaAccessGate';
-import { SubscriptionGate } from '@/components/SubscriptionGate';
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import DashboardLayout from "./components/DashboardLayout";
-import "./App.css";
+import ProtectedRoute from '@/components/ProtectedRoute';
+import DashboardLayout from '@/components/DashboardLayout';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import PrivacyBanner from '@/components/compliance/PrivacyBanner';
+import DataProtectionCenter from '@/components/compliance/DataProtectionCenter';
+import ConsentManager from '@/components/compliance/ConsentManager';
+import PrivacyPolicy from '@/pages/compliance/PrivacyPolicy';
+import DataProcessingAgreement from '@/pages/compliance/DataProcessingAgreement';
 
-// Lazy load dashboard pages for route isolation
-const LearnerHome = lazy(() => import("./pages/dashboard/LearnerHome"));
-const Library = lazy(() => import("./pages/dashboard/Library"));
-const MyCourses = lazy(() => import("./pages/dashboard/MyCourses"));
-const Notes = lazy(() => import("./pages/dashboard/Notes"));
-const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
-const Goals = lazy(() => import("./pages/dashboard/Goals"));
-const GoalInsights = lazy(() => import("./pages/dashboard/GoalInsights"));
-const Settings = lazy(() => import("./pages/dashboard/Settings"));
-const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
-const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
-const FlashcardManagerPage = lazy(() => import("./pages/dashboard/FlashcardManagerPage"));
-const LiveLearningHub = lazy(() => import("./pages/dashboard/LiveLearningHub"));
-const DynamicCourse = lazy(() => import("./pages/dashboard/DynamicCourse"));
-const LearningStateCourse = lazy(() => import("./pages/dashboard/LearningStateCourse"));
-const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmbed"));
-
-// Lazy load study components
-const StudySessionRouter = lazy(() => import("./components/study/StudySessionRouter"));
-
-// Lazy load admin pages
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
-const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
-const Analytics = lazy(() => import("./pages/admin/Analytics"));
-const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
-const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
-const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
-const FeedbackDashboard = lazy(() => import("./pages/admin/FeedbackDashboard"));
-const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
-const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
-const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
+// Lazy load components
+const Login = React.lazy(() => import('@/pages/auth/Login'));
+const Register = React.lazy(() => import('@/pages/auth/Register'));
+const ForgotPassword = React.lazy(() => import('@/pages/auth/ForgotPassword'));
+const LandingPage = React.lazy(() => import('@/pages/LandingPage'));
+const About = React.lazy(() => import('@/pages/About'));
+const Pricing = React.lazy(() => import('@/pages/Pricing'));
+const Contact = React.lazy(() => import('@/pages/Contact'));
+const PrivacyDeclined = React.lazy(() => import('@/pages/PrivacyDeclined'));
+const BookLibrary = React.lazy(() => import('@/pages/BookLibrary'));
+const BookReader = React.lazy(() => import('@/pages/BookReader'));
+const Dashboard = React.lazy(() => import('@/pages/dashboard/Dashboard'));
+const Settings = React.lazy(() => import('@/pages/dashboard/Settings'));
+const Subscription = React.lazy(() => import('@/pages/dashboard/Subscription'));
+const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+const UserManagement = React.lazy(() => import('@/pages/admin/UserManagement'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
+      retry: 1,
     },
   },
 });
 
-// Loading fallback component
-const PageLoader = () => (
-  <div className="min-h-[400px] flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading page...</p>
-    </div>
-  </div>
-);
-
-// Wrapper component for lazy-loaded routes
 const LazyRoute = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<PageLoader />}>
-    <RouteBoundary>
-      {children}
-    </RouteBoundary>
+  <Suspense fallback={<LoadingSpinner />}>
+    {children}
   </Suspense>
 );
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
+      <BrowserRouter>
         <AuthProvider>
-          <GamificationProvider>
-            <VoiceSettingsProvider>
-              <AccessibilityProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/login" element={<Login />} />
-                          
-                          {/* Dashboard Routes with Subscription Enforcement */}
-                          <Route path="/dashboard/*" element={
-                            <SubscriptionGate>
-                              <DashboardLayout />
-                            </SubscriptionGate>
-                          }>
-                            <Route path="learner" element={
-                            <LazyRoute><LearnerHome /></LazyRoute>
-                          } />
-                          <Route path="learner/library" element={
-                            <LazyRoute><Library /></LazyRoute>
-                          } />
-                          <Route path="learner/courses" element={
-                            <LazyRoute><MyCourses /></LazyRoute>
-                          } />
-                          <Route path="learner/goals" element={
-                            <LazyRoute><Goals /></LazyRoute>
-                          } />
-                          <Route path="learner/goals/insights" element={
-                            <LazyRoute><GoalInsights /></LazyRoute>
-                          } />
-                          <Route path="learner/notes" element={
-                            <LazyRoute><Notes /></LazyRoute>
-                          } />
-                          <Route path="learner/gamification" element={
-                            <LazyRoute><Gamification /></LazyRoute>
-                          } />
-                          <Route path="learner/settings" element={
-                            <LazyRoute><Settings /></LazyRoute>
-                          } />
-                          <Route path="learner/analytics" element={
-                            <LazyRoute><LearningAnalytics /></LazyRoute>
-                          } />
-                          <Route path="learner/ai-coach" element={
-                            <LazyRoute><AIStudyCoach /></LazyRoute>
-                          } />
-                          <Route path="learner/flashcards" element={
-                            <LazyRoute><FlashcardManagerPage /></LazyRoute>
-                          } />
-                          <Route path="learner/live-hub" element={
-                            <LazyRoute><LiveLearningHub /></LazyRoute>
-                          } />
-                          <Route path="learner/course/:courseId" element={
-                            <LazyRoute><DynamicCourse /></LazyRoute>
-                          } />
-                          <Route path="learner/learning-state/:courseId" element={
-                            <LazyRoute><LearningStateCourse /></LazyRoute>
-                          } />
-                          <Route path="learner/learning-state-embed/:moduleId" element={
-                            <LazyRoute><LearningStateEmbed /></LazyRoute>
-                          } />
-                          
-                          {/* Study Session Routes */}
-                          <Route path="learner/study/:mode" element={
-                            <LazyRoute><StudySessionRouter /></LazyRoute>
-                          } />
-                          
-                          {/* Admin Routes with Route Isolation */}
-                          <Route path="admin" element={
-                            <LazyRoute><AdminDashboard /></LazyRoute>
-                          } />
-                          <Route path="admin/users" element={
-                            <LazyRoute><UserManagement /></LazyRoute>
-                          } />
-                          <Route path="admin/courses" element={
-                            <LazyRoute><CourseManager /></LazyRoute>
-                          } />
-                          <Route path="admin/analytics" element={
-                            <LazyRoute><Analytics /></LazyRoute>
-                          } />
-                          <Route path="admin/modules" element={
-                            <LazyRoute><ModuleManagerPage /></LazyRoute>
-                          } />
-                          <Route path="admin/thresholds" element={
-                            <LazyRoute><ThresholdManagement /></LazyRoute>
-                          } />
-                          <Route path="admin/beta" element={
-                            <LazyRoute><BetaManagement /></LazyRoute>
-                          } />
-                          <Route path="admin/feedback" element={
-                            <LazyRoute><FeedbackDashboard /></LazyRoute>
-                          } />
-                          
-                          {/* Subscription Route */}
-                          <Route path="subscription" element={
-                            <LazyRoute><Subscription /></LazyRoute>
-                          } />
-                          
-                          {/* Default redirect */}
-                          <Route index element={<Navigate to="learner" replace />} />
-                        </Route>
-                        
-                        <Route path="/subscription-success" element={
-                          <LazyRoute><SubscriptionSuccess /></LazyRoute>
-                        } />
-                        <Route path="/choose-plan" element={
-                          <LazyRoute><ChoosePlan /></LazyRoute>
-                        } />
-                        
-                        {/* 404 Route */}
-                        <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </Suspense>
-                      </BrowserRouter>
-                    </TooltipProvider>
-                  </AccessibilityProvider>
-                </VoiceSettingsProvider>
-              </GamificationProvider>
-            </AuthProvider>
-          </I18nextProvider>
-        </QueryClientProvider>
-      );
-    }
+          <div className="min-h-screen bg-background">
+            <Routes>
+              {/* Authentication Routes */}
+              <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+              <Route path="/register" element={<LazyRoute><Register /></LazyRoute>} />
+              <Route path="/forgot-password" element={<LazyRoute><ForgotPassword /></LazyRoute>} />
+
+              {/* Public Routes */}
+              <Route path="/" element={<LazyRoute><LandingPage /></LazyRoute>} />
+              <Route path="/about" element={<LazyRoute><About /></LazyRoute>} />
+              <Route path="/pricing" element={<LazyRoute><Pricing /></LazyRoute>} />
+              <Route path="/contact" element={<LazyRoute><Contact /></LazyRoute>} />
+              <Route path="/privacy-declined" element={<LazyRoute><PrivacyDeclined /></LazyRoute>} />
+              <Route path="/books" element={<LazyRoute><BookLibrary /></LazyRoute>} />
+              <Route path="/books/:bookId" element={<LazyRoute><BookReader /></LazyRoute>} />
+
+              {/* Compliance Routes */}
+              <Route path="/privacy-policy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
+              <Route path="/data-protection" element={<LazyRoute><DataProtectionCenter /></LazyRoute>} />
+              <Route path="/privacy-preferences" element={<LazyRoute><ConsentManager /></LazyRoute>} />
+              <Route path="/data-processing-agreement" element={<LazyRoute><DataProcessingAgreement /></LazyRoute>} />
+              <Route path="/cookie-policy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
+              <Route path="/security-practices" element={<LazyRoute><DataProcessingAgreement /></LazyRoute>} />
+
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                <Route path="learner" element={<LazyRoute><Dashboard /></LazyRoute>} />
+                <Route path="settings" element={<LazyRoute><Settings /></LazyRoute>} />
+                <Route path="subscription" element={<LazyRoute><Subscription /></LazyRoute>} />
+                <Route index element={<Navigate to="learner" replace />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                <Route path="dashboard" element={<LazyRoute><AdminDashboard /></LazyRoute>} />
+                <Route path="users" element={<LazyRoute><UserManagement /></LazyRoute>} />
+                <Route index element={<Navigate to="dashboard" replace />} />
+              </Route>
+
+              {/* Catch all route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            
+            {/* Add Privacy Banner globally */}
+            <PrivacyBanner />
+          </div>
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
