@@ -196,16 +196,16 @@ export function SubscriptionPlans() {
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
           
           return (
-            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg mt-4' : ''}`}>
+            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg' : ''}`}>
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-primary text-primary-foreground font-semibold px-4 py-2 text-sm shadow-md rounded-full border-2 border-background">
-                    ⭐ Most Popular
+                <div className="absolute -top-2 -right-2 z-10">
+                  <Badge className="bg-primary text-primary-foreground font-medium px-2 py-1 text-xs shadow-md rounded-full">
+                    ⭐ Popular
                   </Badge>
                 </div>
               )}
               
-              <CardHeader className={plan.popular ? 'pt-8' : ''}>
+              <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div>
                     <div className="text-lg font-bold">{plan.name}</div>
