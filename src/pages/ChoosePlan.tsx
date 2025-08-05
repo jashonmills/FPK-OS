@@ -22,6 +22,7 @@ const PLANS: Record<string, PlanType> = {
     monthly: 0,
     annual: 0,
     features: [
+      '1 seat included',
       'Basic AI chat (10 messages/month)',
       'Essential learning tools',
       'Basic progress tracking',
@@ -30,9 +31,10 @@ const PLANS: Record<string, PlanType> = {
   },
   me: {
     name: 'FPK Me',
-    monthly: 16.49, // 10% increase from 14.99 annual
-    annual: 14.99,
+    monthly: 16.49,
+    annual: 179.88, // Updated to annual total
     features: [
+      '1 seat included',
       '150 AI chat messages/month',
       '90 minutes voice processing/month',
       '75 knowledge queries/month',
@@ -46,8 +48,8 @@ const PLANS: Record<string, PlanType> = {
   },
   us: {
     name: 'FPK Us',
-    monthly: 26.39, // 10% increase from 23.99 annual
-    annual: 23.99,
+    monthly: 26.39,
+    annual: 287.88, // Updated to annual total
     features: [
       '🏠 3 family member seats',
       '500 AI chat messages/month (shared)',
@@ -64,9 +66,10 @@ const PLANS: Record<string, PlanType> = {
   },
   universal: {
     name: 'FPK Universal',
-    monthly: 54.99, // 10% increase from 49.99 annual
-    annual: 49.99,
+    monthly: 54.99,
+    annual: 599.88, // Updated to annual total
     features: [
+      '1 seat included',
       '🚀 Unlimited AI interactions',
       '🚀 Unlimited voice processing',
       '🚀 Unlimited knowledge queries',
@@ -220,7 +223,7 @@ export default function ChoosePlan() {
                              <div className="flex items-center justify-center gap-2">
                                <span className="text-white/60 line-through text-sm">€{plan.monthly.toFixed(2)}/month</span>
                                <Badge variant="secondary" className="bg-accent/20 text-accent">
-                                 Save {savings}%
+                                 Save 10%
                                </Badge>
                              </div>
                              <div className="text-sm text-white/60">

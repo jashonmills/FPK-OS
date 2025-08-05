@@ -13,22 +13,22 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Pricing configuration with annual discounts (EUR converted to USD cents)
+// Pricing configuration (EUR in cents)
 const PRICING_CONFIG = {
   me: {
-    monthly: 1815, // €16.49 → $18.15 (10% increase from annual)
-    annual: 1649, // €14.99 → $16.49 annual price
-    name: "FPK Me - Individual"
+    monthly: 1649, // €16.49 in cents
+    annual: 17988, // €179.88 in cents (annual total)
+    name: "FPK Me - Individual (1 seat)"
   },
   us: {
-    monthly: 2903, // €26.39 → $29.03 (10% increase from annual)
-    annual: 2639, // €23.99 → $26.39 annual price
-    name: "FPK Us - Family"
+    monthly: 2639, // €26.39 in cents
+    annual: 28788, // €287.88 in cents (annual total)
+    name: "FPK Us - Family (3 seats)"
   },
   universal: {
-    monthly: 6049, // €54.99 → $60.49 (10% increase from annual)
-    annual: 5499, // €49.99 → $54.99 annual price
-    name: "FPK Universal - Premium"
+    monthly: 5499, // €54.99 in cents
+    annual: 59988, // €599.88 in cents (annual total)
+    name: "FPK Universal - Premium (1 seat)"
   }
 };
 
@@ -172,7 +172,7 @@ serve(async (req) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "eur",
             product_data: { 
               name: `${tierConfig.name} - ${interval === 'annual' ? 'Annual' : 'Monthly'}`,
               description: interval === 'annual' ? `Save 10% with annual billing` : undefined

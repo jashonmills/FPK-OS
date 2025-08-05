@@ -25,6 +25,7 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
     monthly: 0,
     annual: 0,
     features: [
+      '1 seat included',
       '5 AI chat messages/month',
       '2 minutes voice processing/month',
       '3 knowledge queries/month',
@@ -38,9 +39,10 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   me: {
     name: 'FPK Me',
     badge: 'Individual',
-    monthly: 16.49, // 10% increase from 14.99 annual
-    annual: 14.99,
+    monthly: 16.49,
+    annual: 179.88, // Updated to annual total
     features: [
+      '1 seat included',
       '150 AI chat messages/month',
       '90 minutes voice processing/month',
       '75 knowledge queries/month',
@@ -55,8 +57,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   us: {
     name: 'FPK Us',
     badge: 'Family',
-    monthly: 26.39, // 10% increase from 23.99 annual
-    annual: 23.99,
+    monthly: 26.39,
+    annual: 287.88, // Updated to annual total
     popular: true,
     features: [
       '🏠 3 family member seats',
@@ -75,9 +77,10 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   universal: {
     name: 'FPK Universal',
     badge: 'Premium',
-    monthly: 54.99, // 10% increase from 49.99 annual
-    annual: 49.99,
+    monthly: 54.99,
+    annual: 599.88, // Updated to annual total
     features: [
+      '1 seat included',
       '🚀 Unlimited AI interactions',
       '🚀 Unlimited voice processing',
       '🚀 Unlimited knowledge queries',
@@ -213,23 +216,23 @@ export function SubscriptionPlans() {
                   </div>
                   {getCurrentPlanBadge(tier)}
                 </CardTitle>
-                <CardDescription>
-                  <div className="text-3xl font-bold">
-                    {formatPrice(monthlyPrice)}
-                    <span className="text-base font-normal">/month</span>
-                  </div>
-                  {isAnnual && discount > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      <span className="line-through">{formatPrice(plan.monthly)}/month</span>
-                      <Badge variant="secondary" className="ml-2">{discount}% off</Badge>
-                    </div>
-                  )}
-                  {isAnnual && (
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Billed annually: {formatPrice(price)}
-                    </div>
-                  )}
-                </CardDescription>
+                 <CardDescription>
+                   <div className="text-3xl font-bold">
+                     {formatPrice(monthlyPrice)}
+                     <span className="text-base font-normal">/month</span>
+                   </div>
+                   {isAnnual && tier !== 'calm' && (
+                     <div className="text-sm text-muted-foreground">
+                       <span className="line-through">{formatPrice(plan.monthly)}/month</span>
+                       <Badge variant="secondary" className="ml-2">Save 10%</Badge>
+                     </div>
+                   )}
+                   {isAnnual && tier !== 'calm' && (
+                     <div className="text-sm text-muted-foreground mt-1">
+                       Billed annually: {formatPrice(price)}
+                     </div>
+                   )}
+                 </CardDescription>
               </CardHeader>
               
               <CardContent>
