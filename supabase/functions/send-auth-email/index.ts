@@ -186,8 +186,10 @@ function generateSignupEmail(emailData: any): string {
 }
 
 function generateRecoveryEmail(emailData: any): string {
-  // Use Supabase's public confirmation endpoint that doesn't require API key
-  const resetUrl = `${emailData.site_url}/verify?token=${emailData.token_hash}&type=recovery&redirect_to=${encodeURIComponent(emailData.redirect_to)}`;
+  // Extract the base Supabase URL and construct the proper verification endpoint
+  // emailData.site_url is typically https://PROJECT_ID.supabase.co/auth/v1
+  const baseUrl = emailData.site_url.replace('/auth/v1', '');
+  const resetUrl = `${baseUrl}/auth/v1/verify?token=${emailData.token_hash}&type=recovery&redirect_to=${encodeURIComponent(emailData.redirect_to)}`;
   
   return `
     <!DOCTYPE html>
