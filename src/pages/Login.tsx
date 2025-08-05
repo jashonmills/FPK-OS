@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { ArrowLeft } from 'lucide-react';
+import { getSiteUrl } from '@/utils/siteUrl';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
@@ -59,7 +60,7 @@ const Login = () => {
             setIsPasswordResetMode(true);
             setError('');
             // Clean up URL parameters
-            const newUrl = `https://courses.fpkuniversity.com/login?reset=true`;
+            const newUrl = `${getSiteUrl()}/login?reset=true`;
             window.history.replaceState({}, '', newUrl);
           }
         } catch (err) {
@@ -164,7 +165,7 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `https://courses.fpkuniversity.com/dashboard/learner`
+          emailRedirectTo: `${getSiteUrl()}/dashboard/learner`
         }
       });
 
@@ -196,7 +197,7 @@ const Login = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
-        redirectTo: `https://courses.fpkuniversity.com/reset-password`,
+        redirectTo: `${getSiteUrl()}/reset-password`,
       });
 
       if (error) {

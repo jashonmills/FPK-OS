@@ -68,11 +68,24 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("🔗 Referer:", referer);
     
     // Determine the correct domain based on referrer
-    let correctDomain = "https://courses.fpkuniversity.com"; // Default to production
+    let correctDomain = "https://courses.fpkuniversity.com"; // Default to primary production
     if (referer) {
       const refererUrl = new URL(referer);
-      if (refererUrl.hostname.includes("lovable.app")) {
+      const hostname = refererUrl.hostname;
+      
+      // Support all production domains
+      const productionDomains = [
+        'courses.fpkuniversity.com',
+        'learner.fpkadapt.com', 
+        'fpkuniversity.com'
+      ];
+      
+      if (hostname.includes("lovable.app")) {
+        // Use Lovable preview domain
         correctDomain = `${refererUrl.protocol}//${refererUrl.hostname}`;
+      } else if (productionDomains.includes(hostname)) {
+        // Use the specific production domain the user is on
+        correctDomain = `https://${hostname}`;
       }
     }
     
