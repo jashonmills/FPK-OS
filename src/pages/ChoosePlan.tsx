@@ -138,11 +138,8 @@ export default function ChoosePlan() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'calm' | 'me' | 'us' | 'universal') => {
-    if (tier === 'calm') return 0;
-    if (tier === 'me') return 10;
-    if (tier === 'us') return 15;
-    return 20;
+  const getSavingsPercentage = () => {
+    return 10; // Monthly is 10% higher than annual
   };
 
   return (
@@ -182,7 +179,7 @@ export default function ChoosePlan() {
           </button>
           <Label className="text-white">
             Annual
-            <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save up to 20%</Badge>
+            <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save 10%</Badge>
           </Label>
         </div>
 
@@ -190,8 +187,8 @@ export default function ChoosePlan() {
           {Object.entries(PLANS).map(([key, plan]) => {
             const tier = key as 'calm' | 'me' | 'us' | 'universal';
             const price = isAnnual ? plan.annual : plan.monthly;
-            const monthlyPrice = isAnnual ? price / 12 : price;
-            const discount = isAnnual ? getDiscountPercentage(tier) : 0;
+            const monthlyEquivalent = isAnnual ? plan.annual / 12 : plan.monthly;
+            const savings = getSavingsPercentage();
             const isPopular = tier === 'us';
             
             return (
@@ -207,25 +204,33 @@ export default function ChoosePlan() {
                 
                 <CardHeader className="text-center text-white">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-4xl font-bold">€{monthlyPrice.toFixed(2)}</span>
-                      <span className="text-white/60">/month</span>
-                    </div>
-                    {isAnnual && discount > 0 && (
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-white/60 line-through text-sm">€{plan.monthly.toFixed(2)}/month</span>
-                        <Badge variant="secondary" className="bg-accent/20 text-accent">
-                          {discount}% off
-                        </Badge>
-                      </div>
-                    )}
-                    {isAnnual && (
-                      <div className="text-sm text-white/60">
-                        Billed annually: €{price.toFixed(2)}
-                      </div>
-                    )}
-                  </div>
+                   <div className="space-y-2">
+                     {tier === 'calm' ? (
+                       <div className="flex items-center justify-center gap-2">
+                         <span className="text-4xl font-bold">Free</span>
+                       </div>
+                     ) : (
+                       <>
+                         <div className="flex items-center justify-center gap-2">
+                           <span className="text-4xl font-bold">€{monthlyEquivalent.toFixed(2)}</span>
+                           <span className="text-white/60">/month</span>
+                         </div>
+                         {isAnnual && (
+                           <>
+                             <div className="flex items-center justify-center gap-2">
+                               <span className="text-white/60 line-through text-sm">€{plan.monthly.toFixed(2)}/month</span>
+                               <Badge variant="secondary" className="bg-accent/20 text-accent">
+                                 Save {savings}%
+                               </Badge>
+                             </div>
+                             <div className="text-sm text-white/60">
+                               Billed annually: €{price.toFixed(2)}
+                             </div>
+                           </>
+                         )}
+                       </>
+                     )}
+                   </div>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
