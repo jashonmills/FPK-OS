@@ -13,34 +13,93 @@ import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { ArrowLeft } from 'lucide-react';
 import { getSiteUrl } from '@/utils/siteUrl';
+import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
+import { ResetPasswordModal } from '@/components/auth/ResetPasswordModal';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [error, setError] = useState('');
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading } = useAuth();
   
+  // Modal states
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [resetUserEmail, setResetUserEmail] = useState('');
 
-  // Check for password reset tokens and redirect to dedicated reset page
+  // Check for password reset tokens and handle them
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const tokenHash = searchParams.get('token');
     const type = searchParams.get('type');
+    const resetSuccess = searchParams.get('resetSuccess');
     
-    // If we have recovery tokens, redirect to dedicated reset password page
-    if ((accessToken && refreshToken && type === 'recovery') || (tokenHash && type === 'recovery')) {
-      console.log('🔐 Redirecting to reset password page...');
-      // Preserve all URL parameters for the reset page to handle
-      const urlParams = new URLSearchParams(window.location.search);
-      navigate(`/reset-password?${urlParams.toString()}`, { replace: true });
+    // Handle reset success message
+    if (resetSuccess === 'true') {
+      toast({
+        title: 'Password Updated',
+        description: 'Your password has been updated successfully. You can now sign in with your new password.',
+      });
+      // Clean up URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('resetSuccess');
+      setSearchParams(newSearchParams, { replace: true });
       return;
     }
-  }, [searchParams, navigate]);
+    
+    // Handle recovery tokens
+    if ((accessToken && refreshToken && type === 'recovery') || (tokenHash && type === 'recovery')) {
+      console.log('🔐 Processing password reset tokens...');
+      
+      const processTokens = async () => {
+        try {
+          let sessionData;
+          
+          // Try to set session with access/refresh tokens first
+          if (accessToken && refreshToken) {
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            sessionData = data;
+            if (error) throw error;
+          } 
+          // Fallback to verify OTP with token hash
+          else if (tokenHash) {
+            const { data, error } = await supabase.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: 'recovery'
+            });
+            sessionData = data;
+            if (error) throw error;
+          }
+
+          if (sessionData?.session?.user) {
+            console.log('✅ Reset session established');
+            setResetUserEmail(sessionData.session.user.email || '');
+            setShowResetPasswordModal(true);
+            
+            // Clean up URL parameters
+            const newSearchParams = new URLSearchParams();
+            setSearchParams(newSearchParams, { replace: true });
+          }
+        } catch (err) {
+          console.error('❌ Reset token processing error:', err);
+          setError('Password reset link is invalid or has expired. Please request a new one.');
+          
+          // Clean up URL parameters on error
+          const newSearchParams = new URLSearchParams();
+          setSearchParams(newSearchParams, { replace: true });
+        }
+      };
+
+      processTokens();
+    }
+  }, [searchParams, setSearchParams, toast]);
 
   // Redirect authenticated users immediately
   useEffect(() => {
@@ -140,36 +199,21 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!signInData.email) {
-      setError('Please enter your email address first.');
-      return;
-    }
-
-    setIsResettingPassword(true);
-    setError('');
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
-        redirectTo: `${getSiteUrl()}/reset-password`,
-      });
-
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Check your email for a link to reset your password.',
-      });
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsResettingPassword(false);
-    }
+  const handleForgotPassword = () => {
+    setShowForgotPasswordModal(true);
   };
 
+  const handleResetPasswordSuccess = (email?: string) => {
+    setShowResetPasswordModal(false);
+    if (email) {
+      setSignInData(prev => ({ ...prev, email }));
+    }
+    
+    // Add success parameter and navigate
+    const newSearchParams = new URLSearchParams();
+    newSearchParams.set('resetSuccess', 'true');
+    setSearchParams(newSearchParams, { replace: true });
+  };
 
   // Show loading while checking auth state
   if (loading) {
@@ -203,158 +247,182 @@ const Login = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
-                  <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
-                </TabsList>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
+              </TabsList>
 
-                {error && (
-                  <Alert className="mb-4 border-red-200 bg-red-50">
-                    <AlertDescription className="text-red-800">
-                      {error}
-                    </AlertDescription>
-                  </Alert>
-                )}
+              {error && (
+                <Alert className="mb-4 border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
 
-                <TabsContent value="signin">
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">{tString('email')}</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder={tString('emailPlaceholder')}
-                        value={signInData.email}
-                        onChange={(e) => setSignInData({...signInData, email: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">{tString('password')}</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder={tString('passwordPlaceholder')}
-                        value={signInData.password}
-                        onChange={(e) => setSignInData({...signInData, password: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                       />
-                     </div>
-                     
-                     <div className="flex justify-end">
-                       <Button
-                         type="button"
-                         variant="link"
-                         className="p-0 h-auto text-sm text-purple-600 hover:text-purple-700"
-                         onClick={handleForgotPassword}
-                         disabled={isResettingPassword}
-                       >
-                         {isResettingPassword ? 'Sending...' : 'Forgot password?'}
-                       </Button>
-                     </div>
-
-                     <Button 
-                       type="submit" 
-                       className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                       disabled={isLoading}
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">{tString('email')}</Label>
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      placeholder={tString('emailPlaceholder')}
+                      value={signInData.email}
+                      onChange={(e) => setSignInData({...signInData, email: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password">{tString('password')}</Label>
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      placeholder={tString('passwordPlaceholder')}
+                      value={signInData.password}
+                      onChange={(e) => setSignInData({...signInData, password: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                     />
+                   </div>
+                   
+                   <div className="flex justify-end">
+                     <Button
+                       type="button"
+                       variant="link"
+                       className="p-0 h-auto text-sm text-purple-600 hover:text-purple-700"
+                       onClick={handleForgotPassword}
                      >
-                       {isLoading ? tString('signingIn') : tString('signInButton')}
+                       Forgot password?
                      </Button>
-                  </form>
-                </TabsContent>
+                   </div>
 
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-name">{tString('displayName')}</Label>
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder={tString('fullNamePlaceholder')}
-                        value={signUpData.displayName}
-                        onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">{tString('email')}</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder={tString('emailPlaceholder')}
-                        value={signUpData.email}
-                        onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">{tString('password')}</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder={tString('createPassword')}
-                        value={signUpData.password}
-                        onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
-                      <Input
-                        id="signup-confirm"
-                        type="password"
-                        placeholder={tString('confirmPasswordPlaceholder')}
-                        value={signUpData.confirmPassword}
-                        onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
-                        required
-                        className="bg-white border-gray-200"
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? tString('creatingAccount') : tString('signUpButton')}
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                   <Button 
+                     type="submit" 
+                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                     disabled={isLoading}
+                   >
+                     {isLoading ? tString('signingIn') : tString('signInButton')}
+                   </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">{tString('displayName')}</Label>
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder={tString('fullNamePlaceholder')}
+                      value={signUpData.displayName}
+                      onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">{tString('email')}</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder={tString('emailPlaceholder')}
+                      value={signUpData.email}
+                      onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">{tString('password')}</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder={tString('createPassword')}
+                      value={signUpData.password}
+                      onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
+                    <Input
+                      id="signup-confirm"
+                      type="password"
+                      placeholder={tString('confirmPasswordPlaceholder')}
+                      value={signUpData.confirmPassword}
+                      onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
+                      required
+                      className="bg-white border-gray-200"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? tString('creatingAccount') : tString('signUpButton')}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6 space-y-4">
-          <div className="flex gap-2 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/choose-plan')}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+        {/* Modals */}
+        <ForgotPasswordModal
+          isOpen={showForgotPasswordModal}
+          onClose={() => setShowForgotPasswordModal(false)}
+          defaultEmail={signInData.email}
+        />
+        
+        <ResetPasswordModal
+          isOpen={showResetPasswordModal}
+          onClose={() => setShowResetPasswordModal(false)}
+          onSuccess={handleResetPasswordSuccess}
+          userEmail={resetUserEmail}
+        />
+
+        <div className="mt-8 flex flex-col items-center space-y-4 text-center">
+          <div className="flex space-x-6">
+            <Button 
+              variant="link" 
+              className="text-white/80 hover:text-white text-sm"
+              onClick={() => navigate('/pricing')}
             >
               View Pricing Plans
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => window.open('https://demo.fpkuniversity.com/', '_blank')}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white flex items-center gap-2"
+            <Button 
+              variant="link" 
+              className="text-white/80 hover:text-white text-sm"
+              onClick={() => navigate('/')}
             >
-              <ArrowLeft className="h-4 w-4" />
-              Return to Home
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Home
             </Button>
           </div>
-          <div className="flex gap-4 justify-center text-xs text-white/60">
-            <a href="/privacy-policy" className="hover:text-white/80 underline">
+          
+          <div className="flex space-x-4 text-xs">
+            <Button 
+              variant="link" 
+              className="text-white/60 hover:text-white/80 text-xs p-0 h-auto"
+              onClick={() => navigate('/privacy')}
+            >
               Privacy Policy
-            </a>
-            <a href="/terms-of-service" className="hover:text-white/80 underline">
+            </Button>
+            <span className="text-white/40">•</span>
+            <Button 
+              variant="link" 
+              className="text-white/60 hover:text-white/80 text-xs p-0 h-auto"
+              onClick={() => navigate('/terms')}
+            >
               Terms of Service
-            </a>
+            </Button>
           </div>
-          <p className="text-white/60 text-sm">
+          
+          <p className="text-white/50 text-xs">
             {tString('betaVersion')}
           </p>
         </div>
