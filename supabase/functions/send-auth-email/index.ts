@@ -63,33 +63,59 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Extract referrer domain to determine correct redirect URL
+    const referer = req.headers.get("referer");
+    console.log("🔗 Referer:", referer);
+    
+    // Determine the correct domain based on referrer
+    let correctDomain = "https://learner.fpkadapt.com"; // Default to production
+    if (referer) {
+      const refererUrl = new URL(referer);
+      if (refererUrl.hostname.includes("lovable.app")) {
+        correctDomain = `${refererUrl.protocol}//${refererUrl.hostname}`;
+      }
+    }
+    
+    // Override redirect URL to use correct domain
+    const correctedRedirectUrl = email_data.redirect_to?.replace(
+      /https:\/\/[^\/]+/,
+      correctDomain
+    ) || `${correctDomain}/reset-password`;
+    
     console.log("👤 Processing auth email for:", user.email);
     console.log("📝 Email action type:", email_data.email_action_type);
-    console.log("🔄 Redirect URL:", email_data.redirect_to);
+    console.log("🔄 Original Redirect URL:", email_data.redirect_to);
+    console.log("✅ Corrected Redirect URL:", correctedRedirectUrl);
     console.log("🌐 Site URL:", email_data.site_url);
+    
+    // Update email_data with corrected redirect URL
+    const correctedEmailData = {
+      ...email_data,
+      redirect_to: correctedRedirectUrl
+    };
 
     let subject = "";
     let emailContent = "";
     let fromEmail = "FPK University <onboarding@resend.dev>";
     
-    // Generate email content based on type
-    switch (email_data.email_action_type) {
+    // Generate email content based on type using corrected data
+    switch (correctedEmailData.email_action_type) {
       case "signup":
         subject = "Welcome to FPK University - Confirm Your Account";
-        emailContent = generateSignupEmail(email_data);
+        emailContent = generateSignupEmail(correctedEmailData);
         break;
       case "recovery":
         subject = "FPK University - Reset Your Password";
-        emailContent = generateRecoveryEmail(email_data);
+        emailContent = generateRecoveryEmail(correctedEmailData);
         break;
       case "magiclink":
         subject = "FPK University - Your Magic Link";
-        emailContent = generateMagicLinkEmail(email_data);
+        emailContent = generateMagicLinkEmail(correctedEmailData);
         break;
       default:
         subject = "FPK University - Account Action Required";
-        emailContent = generateDefaultEmail(email_data);
-        console.log("⚠️ Unknown email action type:", email_data.email_action_type);
+        emailContent = generateDefaultEmail(correctedEmailData);
+        console.log("⚠️ Unknown email action type:", correctedEmailData.email_action_type);
     }
 
     console.log("📧 Sending email with subject:", subject);
