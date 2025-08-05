@@ -33,8 +33,20 @@ const Login = () => {
   // Check for password reset mode
   useEffect(() => {
     const resetParam = searchParams.get('reset');
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      // If there's a session and reset=true, user clicked a valid reset link
+      if (resetParam === 'true' && session) {
+        setIsPasswordResetMode(true);
+      } else if (resetParam === 'true' && !session) {
+        // Reset link was invalid or expired
+        setError('Password reset link is invalid or has expired. Please request a new one.');
+        setIsPasswordResetMode(false);
+      }
+    };
+    
     if (resetParam === 'true') {
-      setIsPasswordResetMode(true);
+      checkSession();
     }
   }, [searchParams]);
 
