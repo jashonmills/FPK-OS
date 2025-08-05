@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,17 +18,33 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading } = useAuth();
+  
+  // Password reset states
+  const [isPasswordResetMode, setIsPasswordResetMode] = useState(false);
+  const [resetPasswordData, setResetPasswordData] = useState({
+    password: '',
+    confirmPassword: ''
+  });
+
+  // Check for password reset mode
+  useEffect(() => {
+    const resetParam = searchParams.get('reset');
+    if (resetParam === 'true') {
+      setIsPasswordResetMode(true);
+    }
+  }, [searchParams]);
 
   // Redirect authenticated users immediately
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && !isPasswordResetMode) {
       console.log('🔄 Login: User authenticated, redirecting to dashboard');
       navigate('/dashboard/learner', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isPasswordResetMode]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -150,6 +166,49 @@ const Login = () => {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    if (resetPasswordData.password !== resetPasswordData.confirmPassword) {
+      setError('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (resetPasswordData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: resetPasswordData.password
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      toast({
+        title: 'Password Updated Successfully',
+        description: 'Your password has been updated. You will be redirected to the dashboard.',
+      });
+
+      // Clear the reset mode and redirect
+      setIsPasswordResetMode(false);
+      navigate('/dashboard/learner', { replace: true });
+      
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Show loading while checking auth state
   if (loading) {
     return (
@@ -177,133 +236,193 @@ const Login = () => {
         <Card className="fpk-card shadow-2xl border-0">
           <CardHeader className="text-center pb-4">
             <CardTitle className="fpk-text-gradient text-2xl font-bold">
-              {tString('portalTitle')}
+              {isPasswordResetMode ? 'Reset Your Password' : tString('portalTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
-                <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
-              </TabsList>
-
-              {error && (
-                <Alert className="mb-4 border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
+            {isPasswordResetMode ? (
+              <>
+                {error && (
+                  <Alert className="mb-4 border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-800">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                <form onSubmit={handlePasswordReset} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">{tString('email')}</Label>
+                    <Label htmlFor="reset-password">New Password</Label>
                     <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder={tString('emailPlaceholder')}
-                      value={signInData.email}
-                      onChange={(e) => setSignInData({...signInData, email: e.target.value})}
+                      id="reset-password"
+                      type="password"
+                      placeholder="Enter your new password"
+                      value={resetPasswordData.password}
+                      onChange={(e) => setResetPasswordData({...resetPasswordData, password: e.target.value})}
                       required
                       className="bg-white border-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">{tString('password')}</Label>
+                    <Label htmlFor="reset-confirm">Confirm New Password</Label>
                     <Input
-                      id="signin-password"
+                      id="reset-confirm"
                       type="password"
-                      placeholder={tString('passwordPlaceholder')}
-                      value={signInData.password}
-                      onChange={(e) => setSignInData({...signInData, password: e.target.value})}
+                      placeholder="Confirm your new password"
+                      value={resetPasswordData.confirmPassword}
+                      onChange={(e) => setResetPasswordData({...resetPasswordData, confirmPassword: e.target.value})}
                       required
                       className="bg-white border-gray-200"
-                     />
-                   </div>
-                   
-                   <div className="flex justify-end">
-                     <Button
-                       type="button"
-                       variant="link"
-                       className="p-0 h-auto text-sm text-purple-600 hover:text-purple-700"
-                       onClick={handleForgotPassword}
-                       disabled={isResettingPassword}
+                    />
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setIsPasswordResetMode(false);
+                        navigate('/login', { replace: true });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      className="flex-1 fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Updating...' : 'Update Password'}
+                    </Button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
+                  <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
+                </TabsList>
+
+                {error && (
+                  <Alert className="mb-4 border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-800">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <TabsContent value="signin">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">{tString('email')}</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder={tString('emailPlaceholder')}
+                        value={signInData.email}
+                        onChange={(e) => setSignInData({...signInData, email: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">{tString('password')}</Label>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        placeholder={tString('passwordPlaceholder')}
+                        value={signInData.password}
+                        onChange={(e) => setSignInData({...signInData, password: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                       />
+                     </div>
+                     
+                     <div className="flex justify-end">
+                       <Button
+                         type="button"
+                         variant="link"
+                         className="p-0 h-auto text-sm text-purple-600 hover:text-purple-700"
+                         onClick={handleForgotPassword}
+                         disabled={isResettingPassword}
+                       >
+                         {isResettingPassword ? 'Sending...' : 'Forgot password?'}
+                       </Button>
+                     </div>
+
+                     <Button 
+                       type="submit" 
+                       className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                       disabled={isLoading}
                      >
-                       {isResettingPassword ? 'Sending...' : 'Forgot password?'}
+                       {isLoading ? tString('signingIn') : tString('signInButton')}
                      </Button>
-                   </div>
+                  </form>
+                </TabsContent>
 
-                   <Button 
-                     type="submit" 
-                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                     disabled={isLoading}
-                   >
-                     {isLoading ? tString('signingIn') : tString('signInButton')}
-                   </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">{tString('displayName')}</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder={tString('fullNamePlaceholder')}
-                      value={signUpData.displayName}
-                      onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">{tString('email')}</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder={tString('emailPlaceholder')}
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">{tString('password')}</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder={tString('createPassword')}
-                      value={signUpData.password}
-                      onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      placeholder={tString('confirmPasswordPlaceholder')}
-                      value={signUpData.confirmPassword}
-                      onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? tString('creatingAccount') : tString('signUpButton')}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="signup">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">{tString('displayName')}</Label>
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        placeholder={tString('fullNamePlaceholder')}
+                        value={signUpData.displayName}
+                        onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">{tString('email')}</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder={tString('emailPlaceholder')}
+                        value={signUpData.email}
+                        onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">{tString('password')}</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        placeholder={tString('createPassword')}
+                        value={signUpData.password}
+                        onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
+                      <Input
+                        id="signup-confirm"
+                        type="password"
+                        placeholder={tString('confirmPasswordPlaceholder')}
+                        value={signUpData.confirmPassword}
+                        onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
+                        required
+                        className="bg-white border-gray-200"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? tString('creatingAccount') : tString('signUpButton')}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            )}
           </CardContent>
         </Card>
 
