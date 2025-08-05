@@ -16,6 +16,7 @@ import { ArrowLeft } from 'lucide-react';
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -119,6 +120,36 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!signInData.email) {
+      setError('Please enter your email address first.');
+      return;
+    }
+
+    setIsResettingPassword(true);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
+        redirectTo: `${window.location.origin}/login?reset=true`,
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your email for a link to reset your password.',
+      });
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   // Show loading while checking auth state
   if (loading) {
     return (
@@ -188,15 +219,28 @@ const Login = () => {
                       onChange={(e) => setSignInData({...signInData, password: e.target.value})}
                       required
                       className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? tString('signingIn') : tString('signInButton')}
-                  </Button>
+                     />
+                   </div>
+                   
+                   <div className="flex justify-end">
+                     <Button
+                       type="button"
+                       variant="link"
+                       className="p-0 h-auto text-sm text-purple-600 hover:text-purple-700"
+                       onClick={handleForgotPassword}
+                       disabled={isResettingPassword}
+                     >
+                       {isResettingPassword ? 'Sending...' : 'Forgot password?'}
+                     </Button>
+                   </div>
+
+                   <Button 
+                     type="submit" 
+                     className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
+                     disabled={isLoading}
+                   >
+                     {isLoading ? tString('signingIn') : tString('signInButton')}
+                   </Button>
                 </form>
               </TabsContent>
 
