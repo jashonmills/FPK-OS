@@ -20,7 +20,11 @@ enable_signup = true
 [auth.email]
 enable_signup = true
 double_confirm_email = false
-enable_confirmations = false
+enable_confirmations = true
+
+[auth.hook.send_email]
+enabled = true
+uri = "https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/send-auth-email"
 
 [functions.voice-to-text]
 verify_jwt = false
