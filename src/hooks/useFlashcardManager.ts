@@ -18,7 +18,7 @@ export interface FlashcardManagerState {
 const RECENT_CARDS_MINUTES = 10; // Consider cards "new" for 10 minutes
 
 export const useFlashcardManager = () => {
-  const { flashcards, deleteFlashcard, updateFlashcard } = useFlashcards();
+  const { flashcards, deleteFlashcard, updateFlashcard, isLoading } = useFlashcards();
   const { sets } = useFlashcardSets();
   
   const [state, setState] = useState<FlashcardManagerState>({
@@ -326,6 +326,7 @@ export const useFlashcardManager = () => {
     totalCount: filteredFlashcards.length,
     recentCardIds,
     recentCardCount: recentCardIds.length,
+    isLoading,
     isCardRecent,
     folderHasRecentCards,
     getRecentCardCount,

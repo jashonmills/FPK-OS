@@ -18,6 +18,20 @@ const FlashcardManager: React.FC<FlashcardManagerProps> = ({ onBack }) => {
   const [showFilters, setShowFilters] = useState(false);
   const isMobile = useIsMobile();
 
+  // Show loading spinner while data is being fetched
+  if (manager.isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg border-2 border-slate-300 w-full overflow-hidden">
+        <div className="flex items-center justify-center min-h-64 p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading flashcards...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-lg border-2 border-slate-300 w-full overflow-hidden">
       {/* Header - Enhanced styling */}
