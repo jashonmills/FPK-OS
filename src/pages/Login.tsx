@@ -41,7 +41,7 @@ const Login = () => {
     // Handle reset success message
     if (resetSuccess === 'true') {
       toast({
-        title: 'Password Updated',
+        title: 'Password Reset Complete',
         description: 'Your password has been updated successfully. You can now sign in with your new password.',
       });
       // Clean up URL

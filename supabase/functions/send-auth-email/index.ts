@@ -86,14 +86,29 @@ const handler = async (req: Request): Promise<Response> => {
       } else if (productionDomains.includes(hostname)) {
         // Use the specific production domain the user is on
         correctDomain = `https://${hostname}`;
+      } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        // Development environment
+        correctDomain = `${refererUrl.protocol}//${refererUrl.hostname}${refererUrl.port ? ':' + refererUrl.port : ''}`;
       }
     }
     
-    // Override redirect URL to use correct domain
-    const correctedRedirectUrl = email_data.redirect_to?.replace(
-      /https:\/\/[^\/]+/,
-      correctDomain
-    ) || `${correctDomain}/reset-password`;
+    // Override redirect URL to use correct domain and ensure it includes reset-password path
+    let correctedRedirectUrl;
+    if (email_data.redirect_to) {
+      // Replace the domain but keep the path
+      correctedRedirectUrl = email_data.redirect_to.replace(
+        /^https?:\/\/[^\/]+/,
+        correctDomain
+      );
+      // Ensure it ends with reset-password for recovery emails
+      if (email_data.email_action_type === 'recovery' && !correctedRedirectUrl.includes('/reset-password')) {
+        correctedRedirectUrl = `${correctDomain}/reset-password`;
+      }
+    } else {
+      // Default redirect URL based on email type
+      const defaultPath = email_data.email_action_type === 'recovery' ? '/reset-password' : '/login';
+      correctedRedirectUrl = `${correctDomain}${defaultPath}`;
+    }
     
     console.log("👤 Processing auth email for:", user.email);
     console.log("📝 Email action type:", email_data.email_action_type);

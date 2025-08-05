@@ -72,21 +72,31 @@ export default function ResetPassword() {
       if (token && type === 'recovery') {
         console.log('🔗 Processing direct verification token...');
         try {
-          const { error } = await supabase.auth.verifyOtp({
+          const { data, error } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: 'recovery'
           });
           
           if (error) {
             console.error('❌ Token verification failed:', error);
-            setError('Password reset link is invalid or has expired. Please request a new one.');
+            if (error.message.includes('expired') || error.message.includes('invalid')) {
+              setError('Password reset link has expired or is invalid. Please request a new one.');
+            } else {
+              setError('Unable to verify reset link. Please try again or request a new one.');
+            }
             setIsProcessingToken(false);
             setTokenValid(false);
             return;
           }
           
-          console.log('✅ Direct token verified successfully');
-          setTokenValid(true);
+          // Set the session from the verification response
+          if (data.session) {
+            console.log('✅ Session established from token verification');
+            setTokenValid(true);
+          } else {
+            console.log('⚠️ Token verified but no session returned');
+            setTokenValid(true); // Still allow password reset if token is valid
+          }
           setIsProcessingToken(false);
           return;
         } catch (error) {
@@ -149,11 +159,20 @@ export default function ResetPassword() {
       console.log('✅ Password updated successfully');
       toast({
         title: 'Password Updated',
-        description: 'Your password has been updated successfully.',
+        description: 'Your password has been updated successfully. You can now sign in with your new password.',
       });
 
-      // Redirect to dashboard
-      navigate('/dashboard/learner', { replace: true });
+      // Clean up URL parameters and redirect to login with success message
+      const cleanUrl = window.location.origin + '/login?resetSuccess=true';
+      window.history.replaceState({}, '', cleanUrl);
+      
+      // Redirect to login after a brief delay
+      setTimeout(() => {
+        navigate('/login', { 
+          replace: true, 
+          state: { resetSuccess: true, autoFocusEmail: true }
+        });
+      }, 2000);
     } catch (err) {
       console.error('❌ Password reset error:', err);
       setError('An error occurred while updating your password. Please try again.');
