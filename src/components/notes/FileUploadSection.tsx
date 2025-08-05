@@ -249,7 +249,13 @@ const FileUploadSection: React.FC = () => {
       }
 
       try {
-        const fileName = `${Date.now()}-${file.name}`;
+        // Sanitize filename for storage
+        const sanitizedFileName = file.name
+          .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace invalid characters with underscore
+          .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+          .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+        
+        const fileName = `${Date.now()}-${sanitizedFileName}`;
         const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
