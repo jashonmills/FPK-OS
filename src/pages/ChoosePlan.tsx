@@ -17,6 +17,17 @@ interface PlanType {
 }
 
 const PLANS: Record<string, PlanType> = {
+  calm: {
+    name: 'FPK Calm',
+    monthly: 0,
+    annual: 0,
+    features: [
+      'Basic AI chat (10 messages/month)',
+      'Essential learning tools',
+      'Basic progress tracking',
+      'Community support'
+    ]
+  },
   me: {
     name: 'FPK Me',
     monthly: 16.49, // 10% increase from 14.99 annual
@@ -74,7 +85,7 @@ const PLANS: Record<string, PlanType> = {
 };
 
 export default function ChoosePlan() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState(false);
@@ -82,7 +93,7 @@ export default function ChoosePlan() {
   const { toast } = useToast();
   const { navigateBack, safeNavigate } = useSafeNavigation();
 
-  const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
+  const handleSubscribe = async (tier: 'calm' | 'me' | 'us' | 'universal') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -127,7 +138,8 @@ export default function ChoosePlan() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'me' | 'us' | 'universal') => {
+  const getDiscountPercentage = (tier: 'calm' | 'me' | 'us' | 'universal') => {
+    if (tier === 'calm') return 0;
     if (tier === 'me') return 10;
     if (tier === 'us') return 15;
     return 20;
@@ -174,9 +186,9 @@ export default function ChoosePlan() {
           </Label>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           {Object.entries(PLANS).map(([key, plan]) => {
-            const tier = key as 'me' | 'us' | 'universal';
+            const tier = key as 'calm' | 'me' | 'us' | 'universal';
             const price = isAnnual ? plan.annual : plan.monthly;
             const monthlyPrice = isAnnual ? price / 12 : price;
             const discount = isAnnual ? getDiscountPercentage(tier) : 0;
@@ -226,21 +238,31 @@ export default function ChoosePlan() {
                     ))}
                   </ul>
                   
-                  <Button 
-                    onClick={() => handleSubscribe(tier)}
-                    disabled={loading === tier}
-                    className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`}
-                    size="lg"
-                  >
-                    {loading === tier ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      `Subscribe to ${plan.name}`
-                    )}
-                  </Button>
+                  {tier === 'calm' ? (
+                    <Button 
+                      disabled
+                      className="w-full bg-green-600 hover:bg-green-600 text-white border-0"
+                      size="lg"
+                    >
+                      Free Forever
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => handleSubscribe(tier)}
+                      disabled={loading === tier}
+                      className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`}
+                      size="lg"
+                    >
+                      {loading === tier ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        `Subscribe to ${plan.name}`
+                      )}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );

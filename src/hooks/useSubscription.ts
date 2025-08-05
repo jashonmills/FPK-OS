@@ -45,9 +45,14 @@ export function useSubscription() {
     refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 
-  const createCheckout = async (tier: 'me' | 'us' | 'universal', interval: 'monthly' | 'annual', couponCode?: string) => {
+  const createCheckout = async (tier: 'calm' | 'me' | 'us' | 'universal', interval: 'monthly' | 'annual', couponCode?: string) => {
     if (!user || !session) {
       throw new Error('User not authenticated');
+    }
+
+    // Handle free tier - calm doesn't need checkout
+    if (tier === 'calm') {
+      return { success: true, freeAccess: true, message: 'Free access granted' };
     }
 
     const { data, error } = await supabase.functions.invoke('create-checkout', {
@@ -132,11 +137,11 @@ export function useSubscription() {
   };
 
   // Check if user has access to features based on tier
-  const hasFeatureAccess = (requiredTier: 'me' | 'us' | 'universal') => {
+  const hasFeatureAccess = (requiredTier: 'calm' | 'me' | 'us' | 'universal') => {
     if (!subscription?.subscribed) return false;
     
-    const tierLevels = { me: 1, us: 2, universal: 3 };
-    const userTierLevel = tierLevels[subscription.subscription_tier || 'me'];
+    const tierLevels = { calm: 0, me: 1, us: 2, universal: 3 };
+    const userTierLevel = tierLevels[subscription.subscription_tier || 'calm'];
     const requiredTierLevel = tierLevels[requiredTier];
     
     return userTierLevel >= requiredTierLevel;
