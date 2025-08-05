@@ -209,13 +209,13 @@ serve(async (req) => {
       .update({ processing_status: 'processing' })
       .eq('id', uploadId);
 
-    // Download file from storage with timeout
+    // Download file from storage with optimized timeout
     const downloadPromise = supabase.storage
       .from('study-files')
       .download(filePath);
 
     const downloadTimeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Download timeout')), 30000)
+      setTimeout(() => reject(new Error('Download timeout')), 15000) // Reduced from 30s to 15s
     );
 
     const { data: fileData, error: downloadError } = await Promise.race([
@@ -241,25 +241,29 @@ serve(async (req) => {
 
     console.log('Extracted text length:', textContent.length);
 
-    const maxChunkSize = 3000;
+    const maxChunkSize = 2000; // Reduced from 3000 for faster processing
     let allFlashcards: any[] = [];
 
     if (textContent.length > maxChunkSize) {
       const chunks = chunkText(textContent, maxChunkSize);
       console.log(`Processing ${chunks.length} chunks`);
       
-      for (let i = 0; i < Math.min(chunks.length, 3); i++) {
+      // Process chunks in parallel for better speed
+      const chunkPromises = chunks.slice(0, 2).map(async (chunk, i) => {
         try {
-          const chunkCards = await generateFlashcardsWithAI(chunks[i], `${fileName} (Part ${i+1})`, fileType, 4);
-          allFlashcards.push(...chunkCards);
-          
-          if (i < chunks.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
+          return await generateFlashcardsWithAI(chunk, `${fileName} (Part ${i+1})`, fileType, 3);
         } catch (error) {
           console.warn(`Failed to process chunk ${i+1}:`, error);
+          return [];
         }
-      }
+      });
+      
+      const chunkResults = await Promise.allSettled(chunkPromises);
+      chunkResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+          allFlashcards.push(...result.value);
+        }
+      });
     } else {
       allFlashcards = await generateFlashcardsWithAI(textContent, fileName, fileType);
     }
@@ -468,7 +472,7 @@ async function generateFlashcardsWithAI(textContent: string, fileName: string, f
   if (isAICoachContent) {
     prompt = `Create exactly ${targetFlashcards} high-quality study flashcards from this AI Learning Coach response: "${fileName}"
 
-Content: ${textContent.substring(0, 2500)}
+Content: ${textContent.substring(0, 1800)} // Reduced content size for faster processing
 
 Focus on extracting key learning concepts, study strategies, and actionable insights from this AI coaching response. 
 Create flashcards that help students remember and apply the guidance provided.
@@ -477,7 +481,7 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
   } else {
     prompt = `Create exactly ${targetFlashcards} high-quality study flashcards from "${fileName}" content.
 
-Content: ${textContent.substring(0, 2000)}
+Content: ${textContent.substring(0, 1500)} // Reduced content size for faster processing
 
 Generate diverse flashcards covering key concepts, definitions, and important details. Make them clear and educational.
 Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1-3}]`;
@@ -489,7 +493,7 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
     console.log('Target flashcards:', targetFlashcards);
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // Reduced from 30s to 20s
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -506,8 +510,8 @@ Return ONLY valid JSON: [{"front": "Question", "back": "Answer", "difficulty": 1
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.3,
-        max_tokens: 1000
+        temperature: 0.2, // Reduced from 0.3 for more consistent/faster responses
+        max_tokens: 800 // Reduced from 1000 for faster processing
       }),
       signal: controller.signal
     });
