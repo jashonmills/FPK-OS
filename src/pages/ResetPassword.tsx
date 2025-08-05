@@ -153,7 +153,7 @@ export default function ResetPassword() {
       });
 
       // Redirect to dashboard
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard/learner', { replace: true });
     } catch (err) {
       console.error('❌ Password reset error:', err);
       setError('An error occurred while updating your password. Please try again.');

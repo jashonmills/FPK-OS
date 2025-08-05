@@ -24,77 +24,31 @@ const Login = () => {
   const { toast } = useToast();
   const { user, loading } = useAuth();
   
-  // Password reset states
-  const [isPasswordResetMode, setIsPasswordResetMode] = useState(false);
-  const [resetPasswordData, setResetPasswordData] = useState({
-    password: '',
-    confirmPassword: ''
-  });
 
-  // Check for password reset mode and handle Supabase auth
+  // Check for password reset tokens and redirect to dedicated reset page
   useEffect(() => {
-    const resetParam = searchParams.get('reset');
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
+    const tokenHash = searchParams.get('token');
     const type = searchParams.get('type');
     
-    // Handle direct Supabase auth callback with tokens
-    if (accessToken && refreshToken && type === 'recovery') {
-      console.log('🔐 Processing password reset tokens...');
-      
-      const processTokens = async () => {
-        try {
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
-
-          if (error) {
-            console.error('❌ Token exchange failed:', error);
-            setError('Password reset link is invalid or has expired. Please request a new one.');
-            return;
-          }
-
-          if (data.session) {
-            console.log('✅ Reset session established');
-            setIsPasswordResetMode(true);
-            setError('');
-            // Clean up URL parameters
-            const newUrl = `${getSiteUrl()}/login?reset=true`;
-            window.history.replaceState({}, '', newUrl);
-          }
-        } catch (err) {
-          console.error('❌ Reset token processing error:', err);
-          setError('An error occurred processing the reset link. Please try again.');
-        }
-      };
-
-      processTokens();
-    } 
-    // Handle regular reset parameter check
-    else if (resetParam === 'true') {
-      const checkExistingSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log('✅ Existing reset session found');
-          setIsPasswordResetMode(true);
-        } else {
-          console.log('⚠️ No session for reset mode');
-          setError('Password reset link is invalid or has expired. Please request a new one.');
-        }
-      };
-      
-      checkExistingSession();
+    // If we have recovery tokens, redirect to dedicated reset password page
+    if ((accessToken && refreshToken && type === 'recovery') || (tokenHash && type === 'recovery')) {
+      console.log('🔐 Redirecting to reset password page...');
+      // Preserve all URL parameters for the reset page to handle
+      const urlParams = new URLSearchParams(window.location.search);
+      navigate(`/reset-password?${urlParams.toString()}`, { replace: true });
+      return;
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   // Redirect authenticated users immediately
   useEffect(() => {
-    if (!loading && user && !isPasswordResetMode) {
+    if (!loading && user) {
       console.log('🔄 Login: User authenticated, redirecting to dashboard');
       navigate('/dashboard/learner', { replace: true });
     }
-  }, [user, loading, navigate, isPasswordResetMode]);
+  }, [user, loading, navigate]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -216,48 +170,6 @@ const Login = () => {
     }
   };
 
-  const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    if (resetPasswordData.password !== resetPasswordData.confirmPassword) {
-      setError('Passwords do not match.');
-      setIsLoading(false);
-      return;
-    }
-
-    if (resetPasswordData.password.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: resetPasswordData.password
-      });
-
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      toast({
-        title: 'Password Updated Successfully',
-        description: 'Your password has been updated. You will be redirected to the dashboard.',
-      });
-
-      // Clear the reset mode and redirect
-      setIsPasswordResetMode(false);
-      navigate('/dashboard/learner', { replace: true });
-      
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Show loading while checking auth state
   if (loading) {
@@ -286,70 +198,11 @@ const Login = () => {
         <Card className="fpk-card shadow-2xl border-0">
           <CardHeader className="text-center pb-4">
             <CardTitle className="fpk-text-gradient text-2xl font-bold">
-              {isPasswordResetMode ? 'Reset Your Password' : tString('portalTitle')}
+              {tString('portalTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isPasswordResetMode ? (
-              <>
-                {error && (
-                  <Alert className="mb-4 border-red-200 bg-red-50">
-                    <AlertDescription className="text-red-800">
-                      {error}
-                    </AlertDescription>
-                  </Alert>
-                )}
-                
-                <form onSubmit={handlePasswordReset} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-password">New Password</Label>
-                    <Input
-                      id="reset-password"
-                      type="password"
-                      placeholder="Enter your new password"
-                      value={resetPasswordData.password}
-                      onChange={(e) => setResetPasswordData({...resetPasswordData, password: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-confirm">Confirm New Password</Label>
-                    <Input
-                      id="reset-confirm"
-                      type="password"
-                      placeholder="Confirm your new password"
-                      value={resetPasswordData.confirmPassword}
-                      onChange={(e) => setResetPasswordData({...resetPasswordData, confirmPassword: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => {
-                        setIsPasswordResetMode(false);
-                        navigate('/login', { replace: true });
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      className="flex-1 fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Updating...' : 'Update Password'}
-                    </Button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
                   <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
                   <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
@@ -472,7 +325,6 @@ const Login = () => {
                   </form>
                 </TabsContent>
               </Tabs>
-            )}
           </CardContent>
         </Card>
 
