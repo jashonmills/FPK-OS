@@ -48,6 +48,7 @@ export const useFileUploads = () => {
       file_size: number;
       file_type: string;
       storage_path: string;
+      processing_status?: 'pending' | 'processing';
     }) => {
       if (!user) throw new Error('User not authenticated');
 
@@ -59,7 +60,7 @@ export const useFileUploads = () => {
           file_size: uploadData.file_size,
           file_type: uploadData.file_type,
           storage_path: uploadData.storage_path,
-          processing_status: 'pending'
+          processing_status: uploadData.processing_status || 'processing'
         })
         .select()
         .single();
@@ -107,6 +108,7 @@ export const useFileUploads = () => {
     uploads,
     isLoading,
     createUpload: createUploadMutation.mutate,
+    createUploadAsync: createUploadMutation.mutateAsync,
     updateUpload: updateUploadMutation.mutate,
     deleteUpload: deleteUploadMutation.mutate,
     isCreating: createUploadMutation.isPending,

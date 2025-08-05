@@ -13,7 +13,7 @@ import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
-  const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
+  const { uploads, createUploadAsync, updateUpload, deleteUpload } = useFileUploads();
   const { addPreviewCards } = useFlashcardPreview();
   const { startProcessing, completeStage, errorStage } = useRealTimeProcessing();
   const { subscribe, unsubscribe, isConnected, startPolling, stopPolling } = useFileUploadSubscription();
@@ -284,31 +284,10 @@ const FileUploadSection: React.FC = () => {
         console.log('📝 Creating upload record with processing status');
         
         try {
-          const uploadRecord = await new Promise<any>((resolve, reject) => {
-            createUpload(uploadData);
-            
-            // Listen for the upload to be created
-            const checkForUpload = async () => {
-              const { data, error } = await supabase
-                .from('file_uploads')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('storage_path', filePath)
-                .single();
-              
-              if (data) {
-                resolve(data);
-              } else if (error) {
-                reject(error);
-              } else {
-                // Try again after a short delay
-                setTimeout(checkForUpload, 100);
-              }
-            };
-            
-            setTimeout(checkForUpload, 100);
-          });
-
+          // Use the async mutation to wait for the result
+          console.log('📝 Creating upload record...');
+          const uploadRecord = await createUploadAsync(uploadData);
+          
           console.log('📝 Upload record created:', uploadRecord.id);
 
           toast({
