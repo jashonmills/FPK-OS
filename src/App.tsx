@@ -61,6 +61,9 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
+// Password reset page
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -108,6 +111,9 @@ function App() {
                           <Routes>
                             <Route path="/" element={<Index />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/reset-password" element={
+                              <LazyRoute><ResetPassword /></LazyRoute>
+                            } />
                             
                             {/* Dashboard Routes */}
                             <Route path="/dashboard/*" element={
