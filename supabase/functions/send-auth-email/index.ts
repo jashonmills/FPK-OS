@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
-import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET');
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +26,6 @@ const handler = async (req: Request): Promise<Response> => {
   console.log("🔥 Auth email function called at:", new Date().toISOString());
   console.log("📧 Request method:", req.method);
   console.log("🔑 Environment check - RESEND_API_KEY exists:", !!Deno.env.get("RESEND_API_KEY"));
-  console.log("🔒 Environment check - HOOK_SECRET exists:", !!hookSecret);
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -40,14 +37,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // For Supabase auth hooks, parse JSON directly without webhook verification
-    // Supabase handles authentication at the service level
     console.log("📨 Processing Supabase auth hook request...");
     
     let authData: AuthEmailData;
     try {
       authData = await req.json();
       console.log("✅ Auth hook payload parsed successfully");
+      console.log("👤 User email:", authData.user?.email);
+      console.log("📝 Email action type:", authData.email_data?.email_action_type);
     } catch (parseError: any) {
       console.error("❌ Failed to parse auth hook payload:", parseError.message);
       return new Response(
@@ -58,6 +55,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { user, email_data } = authData;
     
+    if (!user?.email || !email_data) {
+      console.error("❌ Missing required data in payload");
+      return new Response(
+        JSON.stringify({ error: "Missing user email or email_data" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log("👤 Processing auth email for:", user.email);
     console.log("📝 Email action type:", email_data.email_action_type);
     console.log("🔄 Redirect URL:", email_data.redirect_to);
@@ -65,14 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     let subject = "";
     let emailContent = "";
-    let fromEmail = "FPK University <noreply@fpkuniversity.com>";
-    
-    // Try to use a verified sender domain, fallback to resend default if not verified
-    const isVerifiedDomain = false; // We'll need to check this in production
-    if (!isVerifiedDomain) {
-      fromEmail = "FPK University <onboarding@resend.dev>";
-      console.log("⚠️ Using Resend default sender - consider verifying your domain");
-    }
+    let fromEmail = "FPK University <onboarding@resend.dev>";
     
     // Generate email content based on type
     switch (email_data.email_action_type) {
