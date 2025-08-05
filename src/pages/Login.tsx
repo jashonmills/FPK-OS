@@ -59,7 +59,7 @@ const Login = () => {
             setIsPasswordResetMode(true);
             setError('');
             // Clean up URL parameters
-            const newUrl = `${window.location.origin}/login?reset=true`;
+            const newUrl = `https://courses.fpkuniversity.com/login?reset=true`;
             window.history.replaceState({}, '', newUrl);
           }
         } catch (err) {
@@ -164,7 +164,7 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard/learner`
+          emailRedirectTo: `https://courses.fpkuniversity.com/dashboard/learner`
         }
       });
 
@@ -196,7 +196,7 @@ const Login = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `https://courses.fpkuniversity.com/reset-password`,
       });
 
       if (error) {

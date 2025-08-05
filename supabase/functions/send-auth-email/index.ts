@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("🔗 Referer:", referer);
     
     // Determine the correct domain based on referrer
-    let correctDomain = "https://learner.fpkadapt.com"; // Default to production
+    let correctDomain = "https://courses.fpkuniversity.com"; // Default to production
     if (referer) {
       const refererUrl = new URL(referer);
       if (refererUrl.hostname.includes("lovable.app")) {
