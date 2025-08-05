@@ -10,8 +10,8 @@ max_rows = 1000
 [auth]
 enabled = true
 port = 54324
-site_url = "https://your-production-domain.com"
-additional_redirect_urls = ["https://zgcegkmqfgznbpdplscz.supabase.co", "https://your-production-domain.com"]
+site_url = "https://learner.fpkadapt.com"
+additional_redirect_urls = ["https://zgcegkmqfgznbpdplscz.supabase.co", "https://learner.fpkadapt.com"]
 jwt_expiry = 3600
 refresh_token_rotation_enabled = true
 security_update_password_require_reauthentication = true
