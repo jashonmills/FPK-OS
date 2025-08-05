@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Star, Loader2, Gift, ArrowLeft } from 'lucide-react';
+import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 interface PlanType {
   name: string;
@@ -89,6 +90,7 @@ const PLANS: Record<string, PlanType> = {
 
 export default function ChoosePlan() {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [isEuro, setIsEuro] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState(false);
@@ -145,6 +147,12 @@ export default function ChoosePlan() {
     return 10; // Monthly is 10% higher than annual
   };
 
+  const formatPrice = (price: number) => {
+    const convertedPrice = isEuro ? price : price * 1.1; // Convert EUR to USD with ~10% markup
+    const symbol = isEuro ? '€' : '$';
+    return `${symbol}${convertedPrice.toFixed(2)}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-fpk-purple to-fpk-amber flex items-center justify-center p-4">
       <div className="container mx-auto max-w-6xl">
@@ -167,23 +175,36 @@ export default function ChoosePlan() {
           </p>
         </div>
 
-        {/* Annual/Monthly Toggle */}
-        <div className="flex items-center justify-center space-x-4 mb-8">
-          <Label className="text-white">Monthly</Label>
-          <button
-            onClick={() => setIsAnnual(!isAnnual)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isAnnual ? 'bg-accent' : 'bg-white/20'
-            }`}
-          >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              isAnnual ? 'translate-x-6' : 'translate-x-1'
-            }`} />
-          </button>
-          <Label className="text-white">
-            Annual
-            <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save 10%</Badge>
-          </Label>
+        {/* Currency and Billing Toggles */}
+        <div className="flex flex-col items-center space-y-6 mb-8">
+          {/* Currency Toggle */}
+          <div className="flex items-center space-x-4">
+            <Label className="flex items-center text-white">
+              <DollarSign className="h-4 w-4 mr-1" />
+              USD
+            </Label>
+            <Switch
+              checked={isEuro}
+              onCheckedChange={setIsEuro}
+            />
+            <Label className="flex items-center text-white">
+              <Euro className="h-4 w-4 mr-1" />
+              EUR
+            </Label>
+          </div>
+
+          {/* Annual/Monthly Toggle */}
+          <div className="flex items-center space-x-4">
+            <Label className="text-white">Monthly</Label>
+            <Switch
+              checked={isAnnual}
+              onCheckedChange={setIsAnnual}
+            />
+            <Label className="text-white">
+              Annual
+              <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save 10%</Badge>
+            </Label>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -214,23 +235,23 @@ export default function ChoosePlan() {
                        </div>
                      ) : (
                        <>
-                         <div className="flex items-center justify-center gap-2">
-                           <span className="text-4xl font-bold">€{monthlyEquivalent.toFixed(2)}</span>
-                           <span className="text-white/60">/month</span>
-                         </div>
-                         {isAnnual && (
-                           <>
-                             <div className="flex items-center justify-center gap-2">
-                               <span className="text-white/60 line-through text-sm">€{plan.monthly.toFixed(2)}/month</span>
-                               <Badge variant="secondary" className="bg-accent/20 text-accent">
-                                 Save 10%
-                               </Badge>
-                             </div>
-                             <div className="text-sm text-white/60">
-                               Billed annually: €{price.toFixed(2)}
-                             </div>
-                           </>
-                         )}
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-4xl font-bold">{formatPrice(monthlyEquivalent)}</span>
+                            <span className="text-white/60">/month</span>
+                          </div>
+                          {isAnnual && (
+                            <>
+                              <div className="flex items-center justify-center gap-2">
+                                <span className="text-white/60 line-through text-sm">{formatPrice(plan.monthly)}/month</span>
+                                <Badge variant="secondary" className="bg-accent/20 text-accent">
+                                  Save 10%
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-white/60">
+                                Billed annually: {formatPrice(price)}
+                              </div>
+                            </>
+                          )}
                        </>
                      )}
                    </div>
