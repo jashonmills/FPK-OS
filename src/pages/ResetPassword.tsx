@@ -70,10 +70,32 @@ export default function ResetPassword() {
       
       // If this is a direct verification link (token parameter)
       if (token && type === 'recovery') {
-        console.log('🔗 Direct verification link detected, redirecting...');
-        // Let Supabase handle the verification and redirect back with proper tokens
-        window.location.href = `https://zgcegkmqfgznbpdplscz.supabase.co/auth/v1/verify?token=${token}&type=recovery&redirect_to=${encodeURIComponent(window.location.origin + '/reset-password')}`;
-        return;
+        console.log('🔗 Processing direct verification token...');
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: 'recovery'
+          });
+          
+          if (error) {
+            console.error('❌ Token verification failed:', error);
+            setError('Password reset link is invalid or has expired. Please request a new one.');
+            setIsProcessingToken(false);
+            setTokenValid(false);
+            return;
+          }
+          
+          console.log('✅ Direct token verified successfully');
+          setTokenValid(true);
+          setIsProcessingToken(false);
+          return;
+        } catch (error) {
+          console.error('❌ Direct token verification error:', error);
+          setError('Failed to verify reset link. Please request a new one.');
+          setIsProcessingToken(false);
+          setTokenValid(false);
+          return;
+        }
       }
       
       // No valid tokens found

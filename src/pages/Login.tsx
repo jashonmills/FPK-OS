@@ -196,7 +196,7 @@ const Login = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
-        redirectTo: 'https://preview--fpk-learner-v1.lovable.app/reset-password',
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
