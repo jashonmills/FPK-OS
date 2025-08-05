@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET');
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,18 +25,64 @@ interface AuthEmailData {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("🔥 Auth email function called at:", new Date().toISOString());
+  console.log("📧 Request method:", req.method);
+  console.log("🔑 Environment check - RESEND_API_KEY exists:", !!Deno.env.get("RESEND_API_KEY"));
+  console.log("🔒 Environment check - HOOK_SECRET exists:", !!hookSecret);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    console.error("❌ Invalid method:", req.method);
+    return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+  }
+
   try {
-    const authData: AuthEmailData = await req.json();
+    const payload = await req.text();
+    const headers = Object.fromEntries(req.headers);
+    
+    console.log("📨 Raw payload received, length:", payload.length);
+    console.log("🎯 Headers received:", Object.keys(headers));
+
+    // Webhook verification if secret is configured
+    let authData: AuthEmailData;
+    if (hookSecret) {
+      console.log("🔐 Verifying webhook signature...");
+      try {
+        const wh = new Webhook(hookSecret);
+        authData = wh.verify(payload, headers) as AuthEmailData;
+        console.log("✅ Webhook signature verified");
+      } catch (webhookError: any) {
+        console.error("🚫 Webhook verification failed:", webhookError.message);
+        return new Response(
+          JSON.stringify({ error: "Webhook verification failed" }),
+          { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    } else {
+      console.log("⚠️ No webhook secret configured, parsing payload directly");
+      authData = JSON.parse(payload);
+    }
+
     const { user, email_data } = authData;
     
-    console.log("Processing auth email for:", user.email, "Type:", email_data.email_action_type);
+    console.log("👤 Processing auth email for:", user.email);
+    console.log("📝 Email action type:", email_data.email_action_type);
+    console.log("🔄 Redirect URL:", email_data.redirect_to);
+    console.log("🌐 Site URL:", email_data.site_url);
 
     let subject = "";
     let emailContent = "";
+    let fromEmail = "FPK University <noreply@fpkuniversity.com>";
+    
+    // Try to use a verified sender domain, fallback to resend default if not verified
+    const isVerifiedDomain = false; // We'll need to check this in production
+    if (!isVerifiedDomain) {
+      fromEmail = "FPK University <onboarding@resend.dev>";
+      console.log("⚠️ Using Resend default sender - consider verifying your domain");
+    }
     
     // Generate email content based on type
     switch (email_data.email_action_type) {
@@ -53,18 +101,33 @@ const handler = async (req: Request): Promise<Response> => {
       default:
         subject = "FPK University - Account Action Required";
         emailContent = generateDefaultEmail(email_data);
+        console.log("⚠️ Unknown email action type:", email_data.email_action_type);
     }
 
+    console.log("📧 Sending email with subject:", subject);
+    console.log("📤 From:", fromEmail);
+    console.log("📥 To:", user.email);
+
     const emailResponse = await resend.emails.send({
-      from: "FPK University <noreply@fpkuniversity.com>",
+      from: fromEmail,
       to: [user.email],
       subject,
       html: emailContent,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    if (emailResponse.error) {
+      console.error("❌ Resend error:", emailResponse.error);
+      throw new Error(`Resend API error: ${emailResponse.error.message || emailResponse.error}`);
+    }
 
-    return new Response(JSON.stringify({ success: true, id: emailResponse.data?.id }), {
+    console.log("✅ Email sent successfully!");
+    console.log("📧 Resend email ID:", emailResponse.data?.id);
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      id: emailResponse.data?.id,
+      timestamp: new Date().toISOString()
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -72,9 +135,16 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error sending auth email:", error);
+    console.error("💥 Fatal error in send-auth-email function:");
+    console.error("📍 Error message:", error.message);
+    console.error("📚 Error stack:", error.stack);
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        function: "send-auth-email"
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

@@ -46,3 +46,6 @@ verify_jwt = false
 
 [functions.google-calendar-sync]
 verify_jwt = false
+
+[functions.send-auth-email]
+verify_jwt = false
