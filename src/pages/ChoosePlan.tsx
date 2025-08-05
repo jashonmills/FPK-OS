@@ -19,37 +19,56 @@ interface PlanType {
 const PLANS: Record<string, PlanType> = {
   me: {
     name: 'FPK Me',
-    monthly: 19.99,
-    annual: 19.99 * 12 * 0.9,
+    monthly: 16.49, // 10% increase from 14.99 annual
+    annual: 14.99,
     features: [
       '150 AI chat messages/month',
+      '90 minutes voice processing/month',
+      '75 knowledge queries/month',
+      '15 document processing/month',
+      '300 flashcard generations/month',
+      '75 AI insights/month',
+      '200MB knowledge storage',
       'Personal progress tracking',
-      'Email support',
-      'Individual analytics'
+      'Email support'
     ]
   },
   us: {
     name: 'FPK Us',
-    monthly: 49.99,
-    annual: 49.99 * 12 * 0.85,
+    monthly: 26.39, // 10% increase from 23.99 annual
+    annual: 23.99,
     features: [
       '🏠 3 family member seats',
       '500 AI chat messages/month (shared)',
+      '300 minutes voice processing/month (shared)',
+      '250 knowledge queries/month (shared)',
+      '50 document processing/month (shared)',
+      '1,000 flashcard generations/month (shared)',
+      '200 AI insights/month (shared)',
+      '1GB knowledge storage (shared)',
       'Family progress dashboard',
-      'Priority support',
-      'Shared knowledge base'
+      'Individual member tracking',
+      'Priority support'
     ]
   },
   universal: {
     name: 'FPK Universal',
-    monthly: 79.99,
-    annual: 79.99 * 12 * 0.8,
+    monthly: 54.99, // 10% increase from 49.99 annual
+    annual: 49.99,
     features: [
       '🚀 Unlimited AI interactions',
+      '🚀 Unlimited voice processing',
+      '🚀 Unlimited knowledge queries',
+      '🚀 Unlimited document processing',
+      '🚀 Unlimited flashcard generation',
+      '🚀 Unlimited AI insights',
+      '5GB knowledge storage',
       'Advanced analytics dashboard',
+      'Advanced course creation tools',
       'White-label options',
-      'API access',
-      'Dedicated support'
+      'API access (coming soon)',
+      'Dedicated support',
+      'Early access to new features'
     ]
   }
 };
@@ -178,12 +197,12 @@ export default function ChoosePlan() {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="space-y-2">
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-4xl font-bold">${monthlyPrice.toFixed(2)}</span>
+                      <span className="text-4xl font-bold">€{monthlyPrice.toFixed(2)}</span>
                       <span className="text-white/60">/month</span>
                     </div>
                     {isAnnual && discount > 0 && (
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-white/60 line-through text-sm">${plan.monthly.toFixed(2)}/month</span>
+                        <span className="text-white/60 line-through text-sm">€{plan.monthly.toFixed(2)}/month</span>
                         <Badge variant="secondary" className="bg-accent/20 text-accent">
                           {discount}% off
                         </Badge>
@@ -191,7 +210,7 @@ export default function ChoosePlan() {
                     )}
                     {isAnnual && (
                       <div className="text-sm text-white/60">
-                        Billed annually: ${price.toFixed(2)}
+                        Billed annually: €{price.toFixed(2)}
                       </div>
                     )}
                   </div>

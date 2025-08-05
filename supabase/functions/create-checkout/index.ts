@@ -13,22 +13,22 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Pricing configuration with annual discounts
+// Pricing configuration with annual discounts (EUR converted to USD cents)
 const PRICING_CONFIG = {
-  basic: {
-    monthly: 1499, // $14.99
-    annual: 1499 * 12 * 0.9, // 10% discount
-    name: "Basic Plan"
+  me: {
+    monthly: 1815, // €16.49 → $18.15 (10% increase from annual)
+    annual: 1649, // €14.99 → $16.49 annual price
+    name: "FPK Me - Individual"
   },
-  pro: {
-    monthly: 3999, // $39.99
-    annual: 3999 * 12 * 0.85, // 15% discount
-    name: "Pro Plan"
+  us: {
+    monthly: 2903, // €26.39 → $29.03 (10% increase from annual)
+    annual: 2639, // €23.99 → $26.39 annual price
+    name: "FPK Us - Family"
   },
-  premium: {
-    monthly: 5999, // $59.99
-    annual: 5999 * 12 * 0.8, // 20% discount
-    name: "Premium Plan"
+  universal: {
+    monthly: 6049, // €54.99 → $60.49 (10% increase from annual)
+    annual: 5499, // €49.99 → $54.99 annual price
+    name: "FPK Universal - Premium"
   }
 };
 
@@ -175,7 +175,7 @@ serve(async (req) => {
             currency: "usd",
             product_data: { 
               name: `${tierConfig.name} - ${interval === 'annual' ? 'Annual' : 'Monthly'}`,
-              description: interval === 'annual' ? `Save ${tier === 'basic' ? '10' : tier === 'pro' ? '15' : '20'}% with annual billing` : undefined
+              description: interval === 'annual' ? `Save 10% with annual billing` : undefined
             },
             unit_amount: Math.round(unitAmount),
             recurring: { interval: interval === 'annual' ? 'year' : 'month' },

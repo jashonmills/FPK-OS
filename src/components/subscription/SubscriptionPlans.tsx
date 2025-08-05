@@ -38,8 +38,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   me: {
     name: 'FPK Me',
     badge: 'Individual',
-    monthly: 21.99, // 10% increase from 19.99
-    annual: 21.99 * 12 * 0.9,
+    monthly: 16.49, // 10% increase from 14.99 annual
+    annual: 14.99,
     features: [
       '150 AI chat messages/month',
       '90 minutes voice processing/month',
@@ -55,8 +55,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   us: {
     name: 'FPK Us',
     badge: 'Family',
-    monthly: 54.99, // 10% increase from 49.99
-    annual: 54.99 * 12 * 0.85,
+    monthly: 26.39, // 10% increase from 23.99 annual
+    annual: 23.99,
     popular: true,
     features: [
       '🏠 3 family member seats',
@@ -75,8 +75,8 @@ const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   universal: {
     name: 'FPK Universal',
     badge: 'Premium',
-    monthly: 87.99, // 10% increase from 79.99
-    annual: 87.99 * 12 * 0.8,
+    monthly: 54.99, // 10% increase from 49.99 annual
+    annual: 49.99,
     features: [
       '🚀 Unlimited AI interactions',
       '🚀 Unlimited voice processing',
@@ -103,7 +103,7 @@ export function SubscriptionPlans() {
   const { subscription, createCheckout } = useSubscription();
   const { toast } = useToast();
 
-  const EUR_RATE = 0.92; // Approximate USD to EUR conversion rate
+  const EUR_RATE = 1; // Prices are already in EUR
 
   const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
     try {
@@ -136,7 +136,7 @@ export function SubscriptionPlans() {
   };
 
   const formatPrice = (price: number) => {
-    const convertedPrice = isEuro ? price * EUR_RATE : price;
+    const convertedPrice = isEuro ? price : price * 1.1; // Convert EUR to USD with ~10% markup
     const symbol = isEuro ? '€' : '$';
     return `${symbol}${convertedPrice.toFixed(2)}`;
   };
