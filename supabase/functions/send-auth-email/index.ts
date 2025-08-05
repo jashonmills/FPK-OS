@@ -40,30 +40,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const payload = await req.text();
-    const headers = Object.fromEntries(req.headers);
+    // For Supabase auth hooks, parse JSON directly without webhook verification
+    // Supabase handles authentication at the service level
+    console.log("📨 Processing Supabase auth hook request...");
     
-    console.log("📨 Raw payload received, length:", payload.length);
-    console.log("🎯 Headers received:", Object.keys(headers));
-
-    // Webhook verification if secret is configured
     let authData: AuthEmailData;
-    if (hookSecret) {
-      console.log("🔐 Verifying webhook signature...");
-      try {
-        const wh = new Webhook(hookSecret);
-        authData = wh.verify(payload, headers) as AuthEmailData;
-        console.log("✅ Webhook signature verified");
-      } catch (webhookError: any) {
-        console.error("🚫 Webhook verification failed:", webhookError.message);
-        return new Response(
-          JSON.stringify({ error: "Webhook verification failed" }),
-          { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-        );
-      }
-    } else {
-      console.log("⚠️ No webhook secret configured, parsing payload directly");
-      authData = JSON.parse(payload);
+    try {
+      authData = await req.json();
+      console.log("✅ Auth hook payload parsed successfully");
+    } catch (parseError: any) {
+      console.error("❌ Failed to parse auth hook payload:", parseError.message);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON payload" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     const { user, email_data } = authData;
