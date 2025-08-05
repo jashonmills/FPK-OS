@@ -266,44 +266,48 @@ const FileUploadSection: React.FC = () => {
           continue;
         }
 
-        // Create upload record and immediately start processing
+        // Create upload record with processing status
         const uploadData = {
           file_name: file.name,
           file_size: file.size,
           file_type: file.type,
-          storage_path: filePath
+          storage_path: filePath,
+          processing_status: 'processing' as const
         };
 
-        createUpload(uploadData);
-
-        toast({
-          title: "✅ File uploaded",
-          description: `${file.name} uploaded successfully. Starting AI processing...`,
-        });
-
-        // Get the upload record and immediately start processing
+        console.log('📝 Creating upload record with processing status');
+        
         try {
-          // Wait briefly for the database record to be created
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          const { data: uploadRecord, error: fetchError } = await supabase
-            .from('file_uploads')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('storage_path', filePath)
-            .single();
+          const uploadRecord = await new Promise<any>((resolve, reject) => {
+            createUpload(uploadData);
+            
+            // Listen for the upload to be created
+            const checkForUpload = async () => {
+              const { data, error } = await supabase
+                .from('file_uploads')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('storage_path', filePath)
+                .single();
+              
+              if (data) {
+                resolve(data);
+              } else if (error) {
+                reject(error);
+              } else {
+                // Try again after a short delay
+                setTimeout(checkForUpload, 100);
+              }
+            };
+            
+            setTimeout(checkForUpload, 100);
+          });
 
-          if (fetchError || !uploadRecord) {
-            console.error('Failed to fetch upload record:', fetchError);
-            throw new Error('Upload record not found');
-          }
+          console.log('📝 Upload record created:', uploadRecord.id);
 
-          console.log('📝 Found upload record:', uploadRecord.id);
-
-          // Immediately update status to processing
-          updateUpload({
-            id: uploadRecord.id,
-            processing_status: 'processing'
+          toast({
+            title: "✅ File uploaded",
+            description: `${file.name} uploaded successfully. Processing started...`,
           });
 
           const baseTimeout = 180000;
@@ -340,8 +344,37 @@ const FileUploadSection: React.FC = () => {
 
           console.log('🚀 Starting AI processing for:', uploadRecord.id);
           
-          // Start processing immediately
-          await processFileForFlashcards(file, uploadRecord.id, filePath);
+          // Start processing immediately with better error handling
+          try {
+            await processFileForFlashcards(file, uploadRecord.id, filePath);
+          } catch (processingError) {
+            console.error('❌ Processing failed:', processingError);
+            
+            // Update status to failed with error message
+            updateUpload({
+              id: uploadRecord.id,
+              processing_status: 'failed',
+              error_message: processingError instanceof Error ? processingError.message : 'AI processing failed'
+            });
+            
+            // Clear timeout
+            if (processingTimeouts[uploadRecord.id]) {
+              clearTimeout(processingTimeouts[uploadRecord.id]);
+              setProcessingTimeouts(prev => {
+                const newState = { ...prev };
+                delete newState[uploadRecord.id];
+                return newState;
+              });
+            }
+            
+            toast({
+              title: "❌ Processing failed",
+              description: "AI processing encountered an error. Please try again.",
+              variant: "destructive"
+            });
+            
+            return; // Don't continue with polling setup
+          }
 
           // Start polling as fallback if real-time isn't connected
           if (!isConnected) {
@@ -363,49 +396,11 @@ const FileUploadSection: React.FC = () => {
           }
 
         } catch (error) {
-          console.error('❌ Processing setup error:', error);
+          console.error('❌ Upload record creation error:', error);
           
-          // Try to find the upload record for cleanup
-          try {
-            const { data: uploadRecord } = await supabase
-              .from('file_uploads')
-              .select('*')
-              .eq('user_id', user.id)
-              .eq('storage_path', filePath)
-              .single();
-
-            if (uploadRecord) {
-              console.log('🔧 Updating failed upload record:', uploadRecord.id);
-              updateUpload({
-                id: uploadRecord.id,
-                processing_status: 'failed',
-                error_message: error instanceof Error ? error.message : 'Failed to start processing'
-              });
-
-              errorStage(uploadRecord.id, 'generation', 'Processing failed to start');
-
-              setProcessingProgress(prev => {
-                const newState = { ...prev };
-                delete newState[uploadRecord.id];
-                return newState;
-              });
-
-              setProcessingTimeouts(prev => {
-                if (prev[uploadRecord.id]) {
-                  clearTimeout(prev[uploadRecord.id]);
-                }
-                const newState = { ...prev };
-                delete newState[uploadRecord.id];
-                return newState;
-              });
-            }
-          } catch (cleanupError) {
-            console.error('❌ Failed to cleanup upload record:', cleanupError);
-          }
-
           toast({
-            title: "❌ Processing failed",
-            description: error instanceof Error ? error.message : "Failed to start processing. Please try again.",
+            title: "❌ Upload failed",
+            description: "Failed to create upload record. Please try again.",
             variant: "destructive"
           });
         }
