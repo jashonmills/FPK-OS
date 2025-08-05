@@ -30,23 +30,60 @@ const Login = () => {
     confirmPassword: ''
   });
 
-  // Check for password reset mode
+  // Check for password reset mode and handle Supabase auth
   useEffect(() => {
     const resetParam = searchParams.get('reset');
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      // If there's a session and reset=true, user clicked a valid reset link
-      if (resetParam === 'true' && session) {
-        setIsPasswordResetMode(true);
-      } else if (resetParam === 'true' && !session) {
-        // Reset link was invalid or expired
-        setError('Password reset link is invalid or has expired. Please request a new one.');
-        setIsPasswordResetMode(false);
-      }
-    };
+    const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
+    const type = searchParams.get('type');
     
-    if (resetParam === 'true') {
-      checkSession();
+    // Handle direct Supabase auth callback with tokens
+    if (accessToken && refreshToken && type === 'recovery') {
+      console.log('🔐 Processing password reset tokens...');
+      
+      const processTokens = async () => {
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+
+          if (error) {
+            console.error('❌ Token exchange failed:', error);
+            setError('Password reset link is invalid or has expired. Please request a new one.');
+            return;
+          }
+
+          if (data.session) {
+            console.log('✅ Reset session established');
+            setIsPasswordResetMode(true);
+            setError('');
+            // Clean up URL parameters
+            const newUrl = `${window.location.origin}/login?reset=true`;
+            window.history.replaceState({}, '', newUrl);
+          }
+        } catch (err) {
+          console.error('❌ Reset token processing error:', err);
+          setError('An error occurred processing the reset link. Please try again.');
+        }
+      };
+
+      processTokens();
+    } 
+    // Handle regular reset parameter check
+    else if (resetParam === 'true') {
+      const checkExistingSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('✅ Existing reset session found');
+          setIsPasswordResetMode(true);
+        } else {
+          console.log('⚠️ No session for reset mode');
+          setError('Password reset link is invalid or has expired. Please request a new one.');
+        }
+      };
+      
+      checkExistingSession();
     }
   }, [searchParams]);
 
