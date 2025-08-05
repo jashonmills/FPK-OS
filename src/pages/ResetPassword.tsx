@@ -33,43 +33,55 @@ export default function ResetPassword() {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const type = searchParams.get('type');
+    const token = searchParams.get('token'); // For direct verification links
     
     const processTokens = async () => {
-      console.log('🔐 Processing reset tokens...', { hasAccess: !!accessToken, hasRefresh: !!refreshToken, type });
+      console.log('🔐 Processing reset tokens...', { 
+        hasAccess: !!accessToken, 
+        hasRefresh: !!refreshToken, 
+        hasToken: !!token,
+        type,
+        url: window.location.href 
+      });
       
-      if (!accessToken || !refreshToken || type !== 'recovery') {
-        console.log('❌ Invalid or missing tokens');
-        setError('Password reset link is invalid or has expired. Please request a new one.');
-        setIsProcessingToken(false);
-        setTokenValid(false);
+      // If we have access_token and refresh_token (from Supabase verification redirect)
+      if (accessToken && refreshToken && type === 'recovery') {
+        console.log('✅ Valid recovery tokens found');
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) throw error;
+          
+          console.log('✅ Session established for password reset');
+          setTokenValid(true);
+          setIsProcessingToken(false);
+          return;
+        } catch (error) {
+          console.error('❌ Error setting session:', error);
+          setError('Failed to validate reset link. Please request a new one.');
+          setIsProcessingToken(false);
+          setTokenValid(false);
+          return;
+        }
+      }
+      
+      // If this is a direct verification link (token parameter)
+      if (token && type === 'recovery') {
+        console.log('🔗 Direct verification link detected, redirecting...');
+        // Let Supabase handle the verification and redirect back with proper tokens
+        window.location.href = `https://zgcegkmqfgznbpdplscz.supabase.co/auth/v1/verify?token=${token}&type=recovery&redirect_to=${encodeURIComponent(window.location.origin + '/reset-password')}`;
         return;
       }
+      
+      // No valid tokens found
+      console.log('❌ Invalid or missing tokens');
+      setError('Password reset link is invalid or has expired. Please request a new one.');
+      setIsProcessingToken(false);
+      setTokenValid(false);
 
-      try {
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
-
-        if (error) {
-          console.error('❌ Token exchange failed:', error);
-          setError('Password reset link is invalid or has expired. Please request a new one.');
-          setTokenValid(false);
-        } else if (data.session) {
-          console.log('✅ Reset session established');
-          setTokenValid(true);
-          setError('');
-          // Clean up URL parameters for security
-          const newUrl = `${window.location.origin}/reset-password`;
-          window.history.replaceState({}, '', newUrl);
-        }
-      } catch (err) {
-        console.error('❌ Reset token processing error:', err);
-        setError('An error occurred processing the reset link. Please try again.');
-        setTokenValid(false);
-      } finally {
-        setIsProcessingToken(false);
-      }
     };
 
     processTokens();
