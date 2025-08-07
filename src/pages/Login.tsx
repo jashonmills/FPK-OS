@@ -390,7 +390,7 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/80 hover:text-white text-sm"
-              onClick={() => navigate('/pricing')}
+              onClick={() => navigate('/choose-plan')}
             >
               View Pricing Plans
             </Button>
