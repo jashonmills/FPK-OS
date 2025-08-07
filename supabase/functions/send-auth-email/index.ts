@@ -106,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     } else {
       // Default redirect URL based on email type
-      const defaultPath = email_data.email_action_type === 'recovery' ? '/login' : '/login';
+      const defaultPath = email_data.email_action_type === 'recovery' ? '/reset-password' : '/login';
       correctedRedirectUrl = `${correctDomain}${defaultPath}`;
     }
     

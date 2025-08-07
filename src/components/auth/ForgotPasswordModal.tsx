@@ -39,7 +39,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${getSiteUrl()}/login`,
+        redirectTo: `${getSiteUrl()}/reset-password`,
       });
 
       if (error) {
