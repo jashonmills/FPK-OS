@@ -28,13 +28,22 @@ export default function ResetPassword() {
   const [tokenValid, setTokenValid] = useState(false);
   const [error, setError] = useState('');
 
-  // Process auth tokens on mount
+  // Process auth tokens on mount - prevent double processing
   useEffect(() => {
+    let hasProcessed = false;
+    
     const processTokens = async () => {
+      if (hasProcessed) {
+        console.log('🔐 Skipping token processing - already processed');
+        return;
+      }
+      hasProcessed = true;
+      
       console.log('🔐 Processing reset tokens...', { 
         url: window.location.href,
         hash: window.location.hash,
-        search: window.location.search
+        search: window.location.search,
+        timestamp: new Date().toISOString()
       });
       
       // Check for tokens in URL fragment (hash) - Supabase auth flow
@@ -42,36 +51,78 @@ export default function ResetPassword() {
       const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
       const type = hashParams.get('type') || searchParams.get('type');
+      const errorParam = hashParams.get('error') || searchParams.get('error');
+      const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
       
       console.log('🔐 Found tokens:', { 
         hasAccess: !!accessToken, 
         hasRefresh: !!refreshToken, 
         type,
+        error: errorParam,
+        errorDescription,
         fromHash: !!hashParams.get('access_token'),
         fromSearch: !!searchParams.get('access_token')
       });
       
+      // Check for explicit error parameters first
+      if (errorParam) {
+        console.error('❌ Auth error in URL:', { error: errorParam, description: errorDescription });
+        let errorMessage = 'Password reset link is invalid or has expired.';
+        
+        if (errorParam === 'access_denied') {
+          errorMessage = 'Access denied. The reset link may have expired.';
+        } else if (errorDescription && errorDescription.includes('expired')) {
+          errorMessage = 'Password reset link has expired. Please request a new one.';
+        } else if (errorDescription && errorDescription.includes('invalid')) {
+          errorMessage = 'Password reset link is invalid. Please request a new one.';
+        }
+        
+        setError(errorMessage);
+        setIsProcessingToken(false);
+        setTokenValid(false);
+        return;
+      }
+      
       // If we have access_token and refresh_token (from Supabase verification redirect)
       if (accessToken && refreshToken && type === 'recovery') {
-        console.log('✅ Valid recovery tokens found');
+        console.log('✅ Valid recovery tokens found, attempting session setup');
         try {
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           });
           
-          if (error) throw error;
+          if (error) {
+            console.error('❌ Session setup error:', error);
+            throw error;
+          }
           
-          console.log('✅ Session established for password reset');
-          setTokenValid(true);
-          setIsProcessingToken(false);
-          
-          // Clean up URL
-          window.history.replaceState({}, '', window.location.pathname);
-          return;
-        } catch (error) {
+          if (data.session) {
+            console.log('✅ Session established for password reset', {
+              userId: data.session.user?.id,
+              expiresAt: data.session.expires_at,
+              tokenExpiry: new Date(data.session.expires_at * 1000).toISOString()
+            });
+            setTokenValid(true);
+            setIsProcessingToken(false);
+            
+            // Clean up URL
+            window.history.replaceState({}, '', window.location.pathname);
+            return;
+          } else {
+            throw new Error('No session returned from setSession');
+          }
+        } catch (error: any) {
           console.error('❌ Error setting session:', error);
-          setError('Failed to validate reset link. Please request a new one.');
+          
+          let errorMessage = 'Failed to validate reset link. Please request a new one.';
+          if (error.message?.includes('expired')) {
+            errorMessage = 'Password reset link has expired. Please request a new one.';
+          } else if (error.message?.includes('invalid')) {
+            errorMessage = 'Password reset link is invalid. Please request a new one.';
+          }
+          
+          setError(errorMessage);
           setIsProcessingToken(false);
           setTokenValid(false);
           return;
@@ -86,7 +137,12 @@ export default function ResetPassword() {
     };
 
     processTokens();
-  }, [searchParams]);
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      hasProcessed = true;
+    };
+  }, []); // Remove searchParams dependency to prevent re-processing
 
   const handlePasswordChange = (field: 'newPassword' | 'confirmPassword', value: string) => {
     setPasswords(prev => ({ ...prev, [field]: value }));
