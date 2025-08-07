@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     let subject = "";
     let emailContent = "";
-    let fromEmail = "FPK University <onboarding@resend.dev>";
+    let fromEmail = "FPK University <noreply@fpkuniversity.com>";
     
     // Generate email content based on type using corrected data
     switch (correctedEmailData.email_action_type) {
