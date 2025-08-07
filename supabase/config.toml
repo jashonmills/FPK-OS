@@ -31,8 +31,7 @@ double_confirm_email = false
 enable_confirmations = true
 
 [auth.hook.send_email]
-enabled = true
-uri = "https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/send-auth-email"
+enabled = false
 
 [functions.voice-to-text]
 verify_jwt = false
@@ -55,8 +54,6 @@ verify_jwt = false
 [functions.google-calendar-sync]
 verify_jwt = false
 
-[functions.send-auth-email]
-verify_jwt = false
 
 [functions.email-events]
 verify_jwt = false
