@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     let subject = "";
     let emailContent = "";
-    let fromEmail = "FPK University <noreply@fpkuniversity.com>";
+    let fromEmail = "FPK University <onboarding@resend.dev>"; // Temporarily using verified domain for testing
     
     // Generate email content based on type using corrected data
     switch (correctedEmailData.email_action_type) {
@@ -166,6 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("✅ Email sent successfully!");
     console.log("📧 Resend email ID:", emailResponse.data?.id);
+    console.log("📧 Full Resend response:", JSON.stringify(emailResponse, null, 2));
 
     return new Response(JSON.stringify({ 
       success: true, 
