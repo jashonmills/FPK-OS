@@ -1,4 +1,6 @@
 // Lazy import Sentry to avoid bundle size impact
+import { logger } from '@/utils/logger';
+
 let sentryInitialized = false;
 
 export const initSentry = async () => {
@@ -23,16 +25,16 @@ export const initSentry = async () => {
     });
 
     sentryInitialized = true;
-    console.debug('🔍 Sentry initialized for error monitoring');
+    logger.debug('Sentry initialized for error monitoring', 'SENTRY');
   } catch (error) {
-    console.warn('Failed to initialize Sentry:', error);
+    logger.warn('Failed to initialize Sentry', 'SENTRY', error);
   }
 };
 
 export const captureError = async (error: Error, extra?: Record<string, any>) => {
   // Check if running in browser environment
   if (typeof window === 'undefined' || !import.meta.env?.VITE_SENTRY_DSN) {
-    console.error('Error captured (Sentry not available):', error, extra);
+    logger.error('Error captured (Sentry not available)', 'SENTRY', { error, extra });
     return;
   }
 
@@ -41,7 +43,7 @@ export const captureError = async (error: Error, extra?: Record<string, any>) =>
     const Sentry = await import('@sentry/react');
     Sentry.captureException(error, { extra });
   } catch (sentryError) {
-    console.warn('Failed to capture error with Sentry:', sentryError);
-    console.error('Original error:', error, extra);
+    logger.warn('Failed to capture error with Sentry', 'SENTRY', sentryError);
+    logger.error('Original error', 'SENTRY', { error, extra });
   }
 };

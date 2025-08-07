@@ -1,5 +1,6 @@
 
 import { EPUBStreamingError } from './EPUBStreamingTypes';
+import { logger } from '@/utils/logger';
 
 export class EPUBInstanceCreator {
   static async createStreamingEPUB(
@@ -34,7 +35,7 @@ export class EPUBInstanceCreator {
         })
       ]);
       
-      console.log('✅ EPUB instance ready');
+      logger.epub('EPUB instance ready');
       
       onProgress?.(50, 'EPUB structure loaded, preparing streaming...');
 

@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { logger } from '@/utils/logger';
 
 interface DebugCleanupOptions {
   removeDebugAttributes?: boolean;
@@ -54,21 +55,10 @@ export const useCleanupDebugUI = (options: DebugCleanupOptions = {}) => {
       });
     }
 
-    // Override console methods in production (optional)
-    if (removeConsoleOutputs && process.env.NODE_ENV === 'production') {
-      const originalConsole = { ...console };
-      console.log = () => {};
-      console.debug = () => {};
-      console.warn = (...args) => {
-        // Only show actual warnings, not debug warnings
-        if (args.some(arg => typeof arg === 'string' && arg.includes('Warning:'))) {
-          originalConsole.warn(...args);
-        }
-      };
-      
-      cleanupTasks.push(() => {
-        Object.assign(console, originalConsole);
-      });
+    // Note: Console override removed in favor of centralized logging system
+    // All logging should now use the logger utility which handles environment filtering
+    if (removeConsoleOutputs) {
+      logger.debug('Console cleanup requested - using centralized logging system instead', 'DEBUG_CLEANUP');
     }
 
     // Remove debug text content

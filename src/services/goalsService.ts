@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
+import { logger } from '@/utils/logger';
 
 export class GoalsService {
   static async loadGoals(): Promise<Goal[]> {
@@ -10,7 +11,7 @@ export class GoalsService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error loading goals:', error);
+      logger.error('Error loading goals', 'GOALS', error);
       throw error;
     }
 
@@ -25,7 +26,7 @@ export class GoalsService {
       .single();
 
     if (error) {
-      console.error('Error creating goal:', error);
+      logger.error('Error creating goal', 'GOALS', error);
       throw error;
     }
 
@@ -41,7 +42,7 @@ export class GoalsService {
       .single();
 
     if (error) {
-      console.error('Error updating goal:', error);
+      logger.error('Error updating goal', 'GOALS', error);
       throw error;
     }
 
@@ -55,7 +56,7 @@ export class GoalsService {
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting goal:', error);
+      logger.error('Error deleting goal', 'GOALS', error);
       throw error;
     }
   }

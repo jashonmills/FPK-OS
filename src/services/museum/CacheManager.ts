@@ -1,5 +1,6 @@
 
 import { CachedMuseumData, MuseumItem } from './types';
+import { logger } from '@/utils/logger';
 
 export class CacheManager {
   private readonly CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
@@ -21,7 +22,7 @@ export class CacheManager {
   getCachedData(key: string): MuseumItem[] | null {
     const cached = this.cache.get(key);
     if (cached && this.isCacheValid(cached)) {
-      console.log('🏛️ Museum: Using cached data');
+      logger.museum('Using cached data');
       return cached.data;
     }
     return null;
@@ -29,7 +30,7 @@ export class CacheManager {
 
   clearCache(): void {
     this.cache.clear();
-    console.log('🏛️ Museum: Cache cleared');
+    logger.museum('Cache cleared');
   }
 
   getCacheStats(): { size: number; entries: string[] } {
