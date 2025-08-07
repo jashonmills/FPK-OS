@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     let subject = "";
     let emailContent = "";
-    let fromEmail = "FPK University <onboarding@resend.dev>"; // Temporarily using verified domain for testing
+    let fromEmail = "FPK University <noreply@fpkuniversity.com>"; // Using verified domain
     
     // Generate email content based on type using corrected data
     switch (correctedEmailData.email_action_type) {
@@ -155,6 +155,18 @@ const handler = async (req: Request): Promise<Response> => {
       to: [user.email],
       subject,
       html: emailContent,
+      reply_to: "support@fpkuniversity.com",
+      headers: {
+        'List-Unsubscribe': '<mailto:unsubscribe@fpkuniversity.com>',
+        'X-Entity-Ref-ID': `auth-${correctedEmailData.email_action_type}-${user.id}`,
+        'X-Priority': '1',
+        'Importance': 'high'
+      },
+      tags: [
+        { name: 'category', value: 'authentication' },
+        { name: 'type', value: correctedEmailData.email_action_type },
+        { name: 'domain', value: new URL(correctDomain).hostname }
+      ]
     });
 
     if (emailResponse.error) {
