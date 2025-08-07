@@ -408,7 +408,7 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/60 hover:text-white/80 text-xs p-0 h-auto"
-              onClick={() => navigate('/privacy')}
+              onClick={() => navigate('/privacy-policy')}
             >
               Privacy Policy
             </Button>
@@ -416,7 +416,7 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/60 hover:text-white/80 text-xs p-0 h-auto"
-              onClick={() => navigate('/terms')}
+              onClick={() => navigate('/terms-of-service')}
             >
               Terms of Service
             </Button>
