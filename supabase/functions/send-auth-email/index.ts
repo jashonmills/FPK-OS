@@ -68,24 +68,24 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("🔗 Referer:", referer);
     
     // Determine the correct domain based on referrer
-    let correctDomain = "https://courses.fpkuniversity.com"; // Default to primary production
+    let correctDomain = "https://fpkuniversity.com"; // Default to primary production
     if (referer) {
       const refererUrl = new URL(referer);
       const hostname = refererUrl.hostname;
       
       // Support all production domains
       const productionDomains = [
+        'fpkuniversity.com',
         'courses.fpkuniversity.com',
-        'learner.fpkadapt.com', 
-        'fpkuniversity.com'
+        'learner.fpkadapt.com'
       ];
       
       if (hostname.includes("lovable.app")) {
         // Use Lovable preview domain
         correctDomain = `${refererUrl.protocol}//${refererUrl.hostname}`;
       } else if (productionDomains.includes(hostname)) {
-        // Use the specific production domain the user is on
-        correctDomain = `https://${hostname}`;
+        // Always redirect to primary domain for consistency
+        correctDomain = "https://fpkuniversity.com";
       } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
         // Development environment
         correctDomain = `${refererUrl.protocol}//${refererUrl.hostname}${refererUrl.port ? ':' + refererUrl.port : ''}`;
@@ -106,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     } else {
       // Default redirect URL based on email type
-      const defaultPath = email_data.email_action_type === 'recovery' ? '/reset-password' : '/login';
+      const defaultPath = email_data.email_action_type === 'recovery' ? '/login' : '/login';
       correctedRedirectUrl = `${correctDomain}${defaultPath}`;
     }
     

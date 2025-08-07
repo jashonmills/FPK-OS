@@ -5,7 +5,7 @@
 export const getSiteUrl = (): string => {
   if (typeof window === 'undefined') {
     // Server-side fallback
-    return 'https://courses.fpkuniversity.com';
+    return 'https://fpkuniversity.com';
   }
 
   const hostname = window.location.hostname;
@@ -24,25 +24,25 @@ export const getSiteUrl = (): string => {
 
   // Production domains - handle all supported domains
   const productionDomains = [
+    'fpkuniversity.com',
     'courses.fpkuniversity.com',
-    'learner.fpkadapt.com',
-    'fpkuniversity.com'
+    'learner.fpkadapt.com'
   ];
 
-  // If current hostname is one of our production domains, use it
+  // Always redirect to primary domain for consistency
   if (productionDomains.includes(hostname)) {
-    return `https://${hostname}`;
+    return 'https://fpkuniversity.com';
   }
 
   // Default fallback to primary production domain
-  return 'https://courses.fpkuniversity.com';
+  return 'https://fpkuniversity.com';
 };
 
 /**
  * Get the primary production domain (for email templates, etc.)
  */
 export const getPrimaryDomain = (): string => {
-  return 'https://courses.fpkuniversity.com';
+  return 'https://fpkuniversity.com';
 };
 
 /**
@@ -53,9 +53,9 @@ export const isProductionDomain = (): boolean => {
   
   const hostname = window.location.hostname;
   const productionDomains = [
+    'fpkuniversity.com',
     'courses.fpkuniversity.com',
-    'learner.fpkadapt.com',
-    'fpkuniversity.com'
+    'learner.fpkadapt.com'
   ];
   
   return productionDomains.includes(hostname);
