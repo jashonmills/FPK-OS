@@ -164,8 +164,8 @@ const handler = async (req: Request): Promise<Response> => {
       },
       tags: [
         { name: 'category', value: 'authentication' },
-        { name: 'type', value: correctedEmailData.email_action_type },
-        { name: 'domain', value: new URL(correctDomain).hostname }
+        { name: 'type', value: correctedEmailData.email_action_type.replace(/[^a-zA-Z0-9_-]/g, '_') },
+        { name: 'domain', value: new URL(correctDomain).hostname.replace(/\./g, '_') }
       ]
     });
 
