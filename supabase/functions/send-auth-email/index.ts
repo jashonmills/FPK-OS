@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     let subject = "";
     let emailContent = "";
-    let fromEmail = "FPK University <noreply@fpkuniversity.com>";
+    let fromEmail = "FPK University <onboarding@resend.dev>";
     
     // Generate email content based on type using corrected data
     switch (correctedEmailData.email_action_type) {
@@ -158,8 +158,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailResponse.error) {
-      console.error("❌ Resend error:", emailResponse.error);
-      throw new Error(`Resend API error: ${emailResponse.error.message || emailResponse.error}`);
+      console.error("❌ Resend error details:", JSON.stringify(emailResponse.error, null, 2));
+      console.error("❌ Resend error type:", typeof emailResponse.error);
+      console.error("❌ Resend error status:", emailResponse.error?.statusCode || 'unknown');
+      throw new Error(`Resend API error: ${JSON.stringify(emailResponse.error)}`);
     }
 
     console.log("✅ Email sent successfully!");
