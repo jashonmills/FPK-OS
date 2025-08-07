@@ -1049,6 +1049,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_delivery_logs: {
+        Row: {
+          created_at: string
+          email_id: string
+          event_data: Json | null
+          event_type: string
+          from_address: string | null
+          id: string
+          recipient: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_id: string
+          event_data?: Json | null
+          event_type: string
+          from_address?: string | null
+          id?: string
+          recipient: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_id?: string
+          event_data?: Json | null
+          event_type?: string
+          from_address?: string | null
+          id?: string
+          recipient?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       email_tracking: {
         Row: {
           bounced_at: string | null
