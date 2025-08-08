@@ -63,6 +63,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const EmailConfirm = lazy(() => import("./pages/EmailConfirm").then(module => ({ default: module.EmailConfirm })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 // Optimized loading component with better UX
@@ -111,6 +112,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           
           {/* Dashboard Routes */}

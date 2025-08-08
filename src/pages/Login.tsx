@@ -178,7 +178,7 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${getSiteUrl()}/dashboard/learner`
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
 
