@@ -225,9 +225,9 @@ export default function ChoosePlan() {
                 <CardHeader className="text-center text-white">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                    <div className="space-y-2">
-                     {tier === 'calm' ? <div className="flex items-center justify-center gap-2">
-                         <span className="text-4xl font-bold">BETA2025 - 2 Weeks free Premium access</span>
-                       </div> : <>
+                      {tier === 'calm' ? <div className="flex items-center justify-center gap-2">
+                          <span className="text-4xl font-bold">Free</span>
+                        </div> : <>
                           <div className="flex items-center justify-center gap-2">
                             <span className="text-4xl font-bold">{formatPrice(monthlyEquivalent)}</span>
                             <span className="text-white/60">/month</span>
