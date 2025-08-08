@@ -16,29 +16,28 @@ export const EmailConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Get tokens from URL
-        const accessToken = searchParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token');
+        // Get token and type from URL (Supabase format)
+        const token = searchParams.get('token');
         const type = searchParams.get('type');
         
         logger.auth('Email confirmation attempt', { 
-          hasAccessToken: !!accessToken, 
-          hasRefreshToken: !!refreshToken, 
-          type 
+          hasToken: !!token, 
+          type,
+          allParams: Object.fromEntries(searchParams.entries())
         });
 
-        if (!accessToken || !refreshToken) {
-          throw new Error('Missing confirmation tokens');
+        if (!token || !type) {
+          throw new Error('Missing confirmation token or type');
         }
 
-        // Set the session with the tokens
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
+        // Verify the OTP token
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: token,
+          type: type as any
         });
 
-        if (sessionError) {
-          throw sessionError;
+        if (verifyError) {
+          throw verifyError;
         }
 
         logger.auth('Email confirmation successful');

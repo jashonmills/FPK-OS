@@ -178,7 +178,7 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+          emailRedirectTo: `https://fpkuniversity.com/auth/confirm`
         }
       });
 
