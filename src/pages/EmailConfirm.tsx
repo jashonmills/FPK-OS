@@ -16,9 +16,12 @@ export const EmailConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Debug: Log all URL parameters
+        // Debug: Log all URL parameters and hash
         const allParams = Object.fromEntries(searchParams.entries());
-        console.log('🔍 All URL parameters:', allParams);
+        const hash = window.location.hash || '';
+        const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+        console.log('🔍 URL query params:', allParams);
+        console.log('🔍 URL hash params:', Object.fromEntries(hashParams.entries()));
         
         // Handle possible error returned in URL by Supabase (e.g., invalid/expired link)
         const urlErrorDesc = searchParams.get('error_description') || searchParams.get('message');
@@ -30,38 +33,46 @@ export const EmailConfirm = () => {
           return;
         }
 
-        // Get token hash or token from URL (prefer token_hash - Supabase format)
+        // Preferred flow: verify token_hash for signup/confirmation links
         const tokenHash = searchParams.get('token_hash') || searchParams.get('token');
-        const typeParam = searchParams.get('type') || 'signup';
-        
-        logger.auth('Email confirmation attempt', { 
-          hasTokenHash: !!tokenHash,
-          type: typeParam,
-          allParams: Object.fromEntries(searchParams.entries())
-        });
+        const typeParam = (searchParams.get('type') || 'signup') as any;
 
-        if (!tokenHash) {
-          throw new Error('Missing confirmation token');
+        if (tokenHash) {
+          logger.auth('Email confirmation via token_hash', { type: typeParam });
+          const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: typeParam });
+          if (verifyError) throw verifyError;
+          setStatus('success');
+          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          return;
         }
 
-        // Verify the OTP token with Supabase
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: typeParam as any
-        });
-
-        if (verifyError) {
-          throw verifyError;
+        // Fallback 1: OAuth/PKCE code param
+        const codeParam = searchParams.get('code');
+        if (codeParam) {
+          logger.auth('Email/OAuth confirmation via exchangeCodeForSession');
+          const { error: codeError } = await supabase.auth.exchangeCodeForSession(codeParam);
+          if (codeError) throw codeError;
+          setStatus('success');
+          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          return;
         }
 
-        logger.auth('Email confirmation successful');
-        setStatus('success');
-        
-        // Redirect to dashboard after a brief delay
-        setTimeout(() => {
-          navigate('/dashboard/learner', { replace: true });
-        }, 2000);
+        // Fallback 2: Hash tokens (e.g., access_token in URL fragment)
+        const accessTokenInHash = hashParams.get('access_token');
+        const refreshTokenInHash = hashParams.get('refresh_token');
+        if (accessTokenInHash && refreshTokenInHash) {
+          logger.auth('Email confirmation via setSession (hash tokens)');
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessTokenInHash,
+            refresh_token: refreshTokenInHash,
+          });
+          if (sessionError) throw sessionError;
+          setStatus('success');
+          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          return;
+        }
 
+        throw new Error('Missing confirmation token');
       } catch (err: any) {
         logger.auth('Email confirmation failed', { error: err.message });
         setError(err.message || 'Failed to confirm email');
