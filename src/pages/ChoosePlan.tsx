@@ -200,7 +200,7 @@ export default function ChoosePlan() {
               <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
                 <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
                 <div className="space-y-1 text-xs text-white/70">
-                  <p><strong className="text-white">BETA2025</strong> - 3 months free Premium access</p>
+                  <p><strong className="text-white">BETA2025</strong> - 2 weeks free Premium access</p>
                 </div>
               </div>
             </CardContent>
