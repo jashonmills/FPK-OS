@@ -142,6 +142,46 @@ export default function ChoosePlan() {
           )}
         </div>
 
+        {/* Coupon Code Entry - Moved to top for beta visibility */}
+        <div className="max-w-md mx-auto mb-8">
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardHeader className="text-center text-white">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <Gift className="h-5 w-5" />
+                Have a Coupon Code?
+              </CardTitle>
+              <CardDescription className="text-white/70">
+                Enter your coupon code to unlock free access or special discounts.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="coupon-input" className="text-white">Coupon Code</Label>
+                <Input id="coupon-input" placeholder="Enter your coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} onKeyDown={e => {
+                if (e.key === 'Enter' && !redeeming) {
+                  handleRedeemCoupon();
+                }
+              }} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+              </div>
+              <Button onClick={handleRedeemCoupon} disabled={redeeming || !couponCode.trim()} className="w-full bg-white/20 hover:bg-white/30 border-0">
+                {redeeming ? <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Redeeming...
+                  </> : 'Redeem Coupon'}
+              </Button>
+
+              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
+                <div className="space-y-1 text-xs text-white/70">
+                  <p><strong className="text-white">BETA2025</strong> - 3 months free Premium access</p>
+                  
+                  
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Currency and Billing Toggles */}
         <div className="flex flex-col items-center space-y-6 mb-8">
           {/* Currency Toggle */}
@@ -240,45 +280,6 @@ export default function ChoosePlan() {
         })}
         </div>
 
-        {/* Free Access with Coupon */}
-        <div className="max-w-md mx-auto">
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardHeader className="text-center text-white">
-              <CardTitle className="flex items-center justify-center gap-2">
-                <Gift className="h-5 w-5" />
-                Have a Coupon Code?
-              </CardTitle>
-              <CardDescription className="text-white/70">
-                Enter your coupon code to unlock free access or special discounts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="coupon-input" className="text-white">Coupon Code</Label>
-                <Input id="coupon-input" placeholder="Enter your coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} onKeyDown={e => {
-                if (e.key === 'Enter' && !redeeming) {
-                  handleRedeemCoupon();
-                }
-              }} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
-              </div>
-              <Button onClick={handleRedeemCoupon} disabled={redeeming || !couponCode.trim()} className="w-full bg-white/20 hover:bg-white/30 border-0">
-                {redeeming ? <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Redeeming...
-                  </> : 'Redeem Coupon'}
-              </Button>
-
-              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
-                <div className="space-y-1 text-xs text-white/70">
-                  <p><strong className="text-white">BETA2025</strong> - 3 months free Premium access</p>
-                  
-                  
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>;
 }
