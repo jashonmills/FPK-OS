@@ -20,24 +20,34 @@ export const EmailConfirm = () => {
         const allParams = Object.fromEntries(searchParams.entries());
         console.log('🔍 All URL parameters:', allParams);
         
-        // Get token and type from URL (Supabase format)
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
+        // Handle possible error returned in URL by Supabase (e.g., invalid/expired link)
+        const urlErrorDesc = searchParams.get('error_description') || searchParams.get('message');
+        const urlErrorCode = searchParams.get('error_code');
+        if (urlErrorDesc) {
+          logger.auth('Email confirmation error from URL', { urlErrorDesc, urlErrorCode });
+          setError(urlErrorCode ? `${urlErrorDesc} (${urlErrorCode})` : urlErrorDesc);
+          setStatus('error');
+          return;
+        }
+
+        // Get token hash or token from URL (prefer token_hash - Supabase format)
+        const tokenHash = searchParams.get('token_hash') || searchParams.get('token');
+        const typeParam = searchParams.get('type') || 'signup';
         
         logger.auth('Email confirmation attempt', { 
-          hasToken: !!token, 
-          type,
+          hasTokenHash: !!tokenHash,
+          type: typeParam,
           allParams: Object.fromEntries(searchParams.entries())
         });
 
-        if (!token || !type) {
-          throw new Error('Missing confirmation token or type');
+        if (!tokenHash) {
+          throw new Error('Missing confirmation token');
         }
 
-        // Verify the OTP token
+        // Verify the OTP token with Supabase
         const { error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: type as any
+          token_hash: tokenHash,
+          type: typeParam as any
         });
 
         if (verifyError) {
@@ -49,7 +59,7 @@ export const EmailConfirm = () => {
         
         // Redirect to dashboard after a brief delay
         setTimeout(() => {
-          navigate('/dashboard', { replace: true });
+          navigate('/dashboard/learner', { replace: true });
         }, 2000);
 
       } catch (err: any) {
