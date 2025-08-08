@@ -9,6 +9,9 @@ import { Check, Loader2, DollarSign, Euro } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 
+// Beta mode flag - set to false to re-enable subscription buttons post-beta
+const IS_BETA_MODE = true;
+
 interface PlanType {
   name: string;
   badge: string;
@@ -146,6 +149,18 @@ export function SubscriptionPlans() {
 
   return (
     <div className="space-y-8">
+      {/* Beta Mode Notice */}
+      {IS_BETA_MODE && (
+        <div className="text-center">
+          <Badge className="bg-accent text-white font-semibold px-4 py-2 mb-2">
+            BETA ACCESS ONLY
+          </Badge>
+          <p className="text-sm text-muted-foreground">
+            Subscription buttons are disabled during beta. Use coupon codes below for access.
+          </p>
+        </div>
+      )}
+
       {/* Currency and Billing Toggle */}
       <div className="flex flex-col items-center space-y-4">
         {/* Currency Toggle */}
@@ -249,11 +264,13 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => tier === 'calm' ? null : handleSubscribe(tier as 'me' | 'us' | 'universal')}
-                  disabled={tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
+                  onClick={() => IS_BETA_MODE || tier === 'calm' ? null : handleSubscribe(tier as 'me' | 'us' | 'universal')}
+                  disabled={IS_BETA_MODE || tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
                   variant={plan.popular ? 'default' : tier === 'calm' ? 'outline' : 'outline'}
                 >
-                  {tier === 'calm' ? (
+                  {IS_BETA_MODE ? (
+                    'Beta Access Only'
+                  ) : tier === 'calm' ? (
                     'Current Plan'
                   ) : loading === tier ? (
                     <>
