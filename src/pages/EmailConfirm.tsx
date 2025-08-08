@@ -16,6 +16,10 @@ export const EmailConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
+        // Debug: Log all URL parameters
+        const allParams = Object.fromEntries(searchParams.entries());
+        console.log('🔍 All URL parameters:', allParams);
+        
         // Get token and type from URL (Supabase format)
         const token = searchParams.get('token');
         const type = searchParams.get('type');

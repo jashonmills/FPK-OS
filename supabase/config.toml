@@ -15,6 +15,7 @@ additional_redirect_urls = [
   "https://zgcegkmqfgznbpdplscz.supabase.co", 
   "https://learner.fpkadapt.com",
   "https://fpkuniversity.com",
+  "https://fpkuniversity.com/auth/confirm",
   "https://fpkuniversity.com/reset-password",
   "https://courses.fpkuniversity.com",
   "https://fpk-learner-v1.lovable.app",
