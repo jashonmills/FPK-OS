@@ -140,32 +140,6 @@ export default function ChoosePlan() {
           )}
         </div>
 
-        {/* Currency and Billing Toggles */}
-        <div className="flex flex-col items-center space-y-6 mb-8">
-          {/* Currency Toggle */}
-          <div className="flex items-center space-x-4">
-            <Label className="flex items-center text-white">
-              <DollarSign className="h-4 w-4 mr-1" />
-              USD
-            </Label>
-            <Switch checked={isEuro} onCheckedChange={setIsEuro} />
-            <Label className="flex items-center text-white">
-              <Euro className="h-4 w-4 mr-1" />
-              EUR
-            </Label>
-          </div>
-
-          {/* Annual/Monthly Toggle */}
-          <div className="flex items-center space-x-4">
-            <Label className="text-white">Monthly</Label>
-            <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-            <Label className="text-white">
-              Annual
-              <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save 10%</Badge>
-            </Label>
-          </div>
-        </div>
-
         {/* Free Access with Coupon */}
         <div className="max-w-md mx-auto mb-8">
           <Card className="bg-white/10 backdrop-blur border-white/20">
@@ -217,6 +191,32 @@ export default function ChoosePlan() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Currency and Billing Toggles */}
+        <div className="flex flex-col items-center space-y-6 mb-8">
+          {/* Currency Toggle */}
+          <div className="flex items-center space-x-4">
+            <Label className="flex items-center text-white">
+              <DollarSign className="h-4 w-4 mr-1" />
+              USD
+            </Label>
+            <Switch checked={isEuro} onCheckedChange={setIsEuro} />
+            <Label className="flex items-center text-white">
+              <Euro className="h-4 w-4 mr-1" />
+              EUR
+            </Label>
+          </div>
+
+          {/* Annual/Monthly Toggle */}
+          <div className="flex items-center space-x-4">
+            <Label className="text-white">Monthly</Label>
+            <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+            <Label className="text-white">
+              Annual
+              <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">Save 10%</Badge>
+            </Label>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
