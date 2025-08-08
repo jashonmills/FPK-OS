@@ -5,13 +5,13 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalChatWidget from '@/components/GlobalChatWidget';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 
-const DashboardLayout = () => {
+const DashboardLayout: React.FC = () => {
   return (
-    <ErrorBoundary>
+    <ErrorBoundaryUnified>
       <VoiceSettingsProvider>
         <GamificationProvider>
           <SidebarProvider>
@@ -21,9 +21,9 @@ const DashboardLayout = () => {
                 <GlobalHeader />
                 <main className="flex-1 bg-gray-50 mobile-scroll-container">
                   <div className="w-full h-full mobile-container py-3 sm:py-4 md:py-6 lg:py-8">
-                    <ErrorBoundary>
+                    <ErrorBoundaryUnified resetOnPropsChange={true}>
                       <Outlet />
-                    </ErrorBoundary>
+                    </ErrorBoundaryUnified>
                   </div>
                 </main>
               </div>
@@ -32,7 +32,7 @@ const DashboardLayout = () => {
           </SidebarProvider>
         </GamificationProvider>
       </VoiceSettingsProvider>
-    </ErrorBoundary>
+    </ErrorBoundaryUnified>
   );
 };
 
