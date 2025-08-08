@@ -9,9 +9,6 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-
-// Beta mode flag - set to false to re-enable subscription buttons post-beta
-const IS_BETA_MODE = true;
 interface PlanType {
   name: string;
   monthly: number;
@@ -126,60 +123,9 @@ export default function ChoosePlan() {
 
         <div className="text-center mb-8 text-white">
           <h1 className="text-4xl font-bold mb-4">Choose Your Learning Plan</h1>
-          {IS_BETA_MODE ? (
-            <div className="space-y-2">
-              <Badge className="bg-accent text-white font-semibold px-4 py-2 mb-2">
-                BETA ACCESS ONLY
-              </Badge>
-              <p className="text-xl text-white/80 max-w-2xl mx-auto">
-                During our beta phase, access is available through coupon codes only. Use the coupon section below to unlock your plan.
-              </p>
-            </div>
-          ) : (
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-              Select the perfect plan to unlock your learning potential and access our premium features.
-            </p>
-          )}
-        </div>
-
-        {/* Coupon Code Entry - Moved to top for beta visibility */}
-        <div className="max-w-md mx-auto mb-8">
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardHeader className="text-center text-white">
-              <CardTitle className="flex items-center justify-center gap-2">
-                <Gift className="h-5 w-5" />
-                Have a Coupon Code?
-              </CardTitle>
-              <CardDescription className="text-white/70">
-                Enter your coupon code to unlock free access or special discounts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="coupon-input" className="text-white">Coupon Code</Label>
-                <Input id="coupon-input" placeholder="Enter your coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} onKeyDown={e => {
-                if (e.key === 'Enter' && !redeeming) {
-                  handleRedeemCoupon();
-                }
-              }} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
-              </div>
-              <Button onClick={handleRedeemCoupon} disabled={redeeming || !couponCode.trim()} className="w-full bg-white/20 hover:bg-white/30 border-0">
-                {redeeming ? <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Redeeming...
-                  </> : 'Redeem Coupon'}
-              </Button>
-
-              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
-                <div className="space-y-1 text-xs text-white/70">
-                  <p><strong className="text-white">BETA2025</strong> - 3 months free Premium access</p>
-                  
-                  
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            Select the perfect plan to unlock your learning potential and access our premium features.
+          </p>
         </div>
 
         {/* Currency and Billing Toggles */}
@@ -227,7 +173,7 @@ export default function ChoosePlan() {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                    <div className="space-y-2">
                      {tier === 'calm' ? <div className="flex items-center justify-center gap-2">
-                         <span className="text-4xl font-bold">Free</span>
+                         <span className="text-4xl font-bold">BETA2025 - 2 Weeks free Premium access</span>
                        </div> : <>
                           <div className="flex items-center justify-center gap-2">
                             <span className="text-4xl font-bold">{formatPrice(monthlyEquivalent)}</span>
@@ -256,30 +202,58 @@ export default function ChoosePlan() {
                       </li>)}
                   </ul>
                   
-                  <Button 
-                    onClick={() => IS_BETA_MODE ? null : handleSubscribe(tier)} 
-                    disabled={IS_BETA_MODE || loading === tier} 
-                    className={`w-full ${IS_BETA_MODE ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : tier === 'calm' ? 'bg-green-600 hover:bg-green-600' : isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} text-white border-0`} 
-                    size="lg"
-                  >
-                    {IS_BETA_MODE ? (
-                      tier === 'calm' ? 'Beta Access Only' : 'Beta Access Only'
-                    ) : loading === tier ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : tier === 'calm' ? (
-                      'Free Forever'
-                    ) : (
-                      `Subscribe to ${plan.name}`
-                    )}
-                  </Button>
+                  {tier === 'calm' ? <Button disabled className="w-full bg-green-600 hover:bg-green-600 text-white border-0" size="lg">
+                      Free Forever
+                    </Button> : <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">
+                      {loading === tier ? <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </> : `Subscribe to ${plan.name}`}
+                    </Button>}
                 </CardContent>
               </Card>;
         })}
         </div>
 
+        {/* Free Access with Coupon */}
+        <div className="max-w-md mx-auto">
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardHeader className="text-center text-white">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <Gift className="h-5 w-5" />
+                Have a Coupon Code?
+              </CardTitle>
+              <CardDescription className="text-white/70">
+                Enter your coupon code to unlock free access or special discounts.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="coupon-input" className="text-white">Coupon Code</Label>
+                <Input id="coupon-input" placeholder="Enter your coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} onKeyDown={e => {
+                if (e.key === 'Enter' && !redeeming) {
+                  handleRedeemCoupon();
+                }
+              }} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+              </div>
+              <Button onClick={handleRedeemCoupon} disabled={redeeming || !couponCode.trim()} className="w-full bg-white/20 hover:bg-white/30 border-0">
+                {redeeming ? <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Redeeming...
+                  </> : 'Redeem Coupon'}
+              </Button>
+
+              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
+                <div className="space-y-1 text-xs text-white/70">
+                  <p><strong className="text-white">BETA2025</strong> - 3 months free Premium access</p>
+                  
+                  
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>;
 }
