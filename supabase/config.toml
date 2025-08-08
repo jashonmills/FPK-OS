@@ -32,7 +32,7 @@ double_confirm_email = false
 enable_confirmations = true
 
 [auth.hook.send_email]
-enabled = false
+enabled = true
 
 [functions.voice-to-text]
 verify_jwt = false
