@@ -9,6 +9,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+
+const IS_BETA_MODE = true;
 interface PlanType {
   name: string;
   monthly: number;
@@ -126,6 +128,16 @@ export default function ChoosePlan() {
           <p className="text-xl text-white/80 max-w-2xl mx-auto">
             Select the perfect plan to unlock your learning potential and access our premium features.
           </p>
+          
+          {IS_BETA_MODE && (
+            <div className="mt-4 p-4 bg-white/10 rounded-lg border border-white/20 max-w-2xl mx-auto">
+              <p className="text-lg font-semibold text-white mb-2">🚀 Beta Access Only</p>
+              <p className="text-white/70 text-sm">
+                During our beta phase, all plans can only be activated using coupon codes. 
+                Please use the coupon section below to get started.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Currency and Billing Toggles */}
@@ -255,14 +267,26 @@ export default function ChoosePlan() {
                       </li>)}
                   </ul>
                   
-                  {tier === 'calm' ? <Button disabled className="w-full bg-green-600 hover:bg-green-600 text-white border-0" size="lg">
+                  {IS_BETA_MODE ? (
+                    <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 text-white border-0" size="lg">
+                      Beta Access Only
+                    </Button>
+                  ) : tier === 'calm' ? (
+                    <Button disabled className="w-full bg-green-600 hover:bg-green-600 text-white border-0" size="lg">
                       Free Forever
-                    </Button> : <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">
-                      {loading === tier ? <>
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">
+                      {loading === tier ? (
+                        <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Processing...
-                        </> : `Subscribe to ${plan.name}`}
-                    </Button>}
+                        </>
+                      ) : (
+                        `Subscribe to ${plan.name}`
+                      )}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>;
         })}
