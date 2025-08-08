@@ -16,19 +16,26 @@ export const EmailConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Debug: Log all URL parameters and hash
+        // Enhanced debug logging for SMTP troubleshooting
         const allParams = Object.fromEntries(searchParams.entries());
         const hash = window.location.hash || '';
         const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
-        console.log('🔍 URL query params:', allParams);
-        console.log('🔍 URL hash params:', Object.fromEntries(hashParams.entries()));
+        
+        console.log('🔍 Email confirmation debug:', {
+          url: window.location.href,
+          queryParams: allParams,
+          hashParams: Object.fromEntries(hashParams.entries()),
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString()
+        });
         
         // Handle possible error returned in URL by Supabase (e.g., invalid/expired link)
         const urlErrorDesc = searchParams.get('error_description') || searchParams.get('message');
         const urlErrorCode = searchParams.get('error_code');
         if (urlErrorDesc) {
           logger.auth('Email confirmation error from URL', { urlErrorDesc, urlErrorCode });
-          setError(urlErrorCode ? `${urlErrorDesc} (${urlErrorCode})` : urlErrorDesc);
+          console.error('❌ Email confirmation failed - URL error:', { urlErrorDesc, urlErrorCode });
+          setError(`Email confirmation failed: ${urlErrorDesc}${urlErrorCode ? ` (${urlErrorCode})` : ''}`);
           setStatus('error');
           return;
         }
@@ -38,9 +45,14 @@ export const EmailConfirm = () => {
         const typeParam = (searchParams.get('type') || 'signup') as any;
 
         if (tokenHash) {
+          console.log('🔑 Attempting token verification:', { type: typeParam, hasToken: true });
           logger.auth('Email confirmation via token_hash', { type: typeParam });
           const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: typeParam });
-          if (verifyError) throw verifyError;
+          if (verifyError) {
+            console.error('❌ Token verification failed:', verifyError);
+            throw verifyError;
+          }
+          console.log('✅ Token verification successful');
           setStatus('success');
           setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           return;
@@ -49,9 +61,14 @@ export const EmailConfirm = () => {
         // Fallback 1: OAuth/PKCE code param
         const codeParam = searchParams.get('code');
         if (codeParam) {
+          console.log('🔑 Attempting code exchange');
           logger.auth('Email/OAuth confirmation via exchangeCodeForSession');
           const { error: codeError } = await supabase.auth.exchangeCodeForSession(codeParam);
-          if (codeError) throw codeError;
+          if (codeError) {
+            console.error('❌ Code exchange failed:', codeError);
+            throw codeError;
+          }
+          console.log('✅ Code exchange successful');
           setStatus('success');
           setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           return;
@@ -61,20 +78,27 @@ export const EmailConfirm = () => {
         const accessTokenInHash = hashParams.get('access_token');
         const refreshTokenInHash = hashParams.get('refresh_token');
         if (accessTokenInHash && refreshTokenInHash) {
+          console.log('🔑 Attempting session restoration from hash');
           logger.auth('Email confirmation via setSession (hash tokens)');
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessTokenInHash,
             refresh_token: refreshTokenInHash,
           });
-          if (sessionError) throw sessionError;
+          if (sessionError) {
+            console.error('❌ Session restoration failed:', sessionError);
+            throw sessionError;
+          }
+          console.log('✅ Session restoration successful');
           setStatus('success');
           setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           return;
         }
 
-        throw new Error('Missing confirmation token');
+        console.error('❌ No valid confirmation token found');
+        throw new Error('Missing confirmation token - this usually indicates the email was not delivered properly');
       } catch (err: any) {
         logger.auth('Email confirmation failed', { error: err.message });
+        console.error('❌ Email confirmation process failed:', err);
         setError(err.message || 'Failed to confirm email');
         setStatus('error');
       }

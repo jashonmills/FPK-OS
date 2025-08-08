@@ -25,11 +25,13 @@ jwt_expiry = 3600
 refresh_token_rotation_enabled = true
 security_update_password_require_reauthentication = true
 enable_signup = true
+enable_confirmations = true
 
 [auth.email]
 enable_signup = true
 double_confirm_email = false
 enable_confirmations = true
+# DO NOT add any send_email hook here - use SMTP only
 
 [functions.voice-to-text]
 verify_jwt = false
