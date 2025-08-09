@@ -25,24 +25,24 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({
 
   const modes = [
     {
-      value: 'personal' as const,
-      label: 'My Data',
-      icon: Lock,
-      tooltip: 'Answer only from your study data',
-      badge: 'Personal Data Active',
-      badgeColor: 'bg-green-500/90'
-    },
-    {
       value: 'general' as const,
       label: 'General & Platform Guide',
       icon: Globe,
       tooltip: 'Platform help and general knowledge',
       badge: 'Smart Mode Active',
       badgeColor: 'bg-blue-500/90'
+    },
+    {
+      value: 'personal' as const,
+      label: 'My Data',
+      icon: Lock,
+      tooltip: 'Answer only from your study data',
+      badge: 'Personal Data Active',
+      badgeColor: 'bg-green-500/90'
     }
   ];
 
-  const currentMode = modes.find(m => m.value === mode)!;
+  const currentMode = modes.find(m => m.value === mode) || modes[0];
 
   // Mobile dropdown version
   if (isMobile) {
@@ -113,7 +113,7 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({
                 <modeOption.icon className="h-3 w-3" />
                 <span className="hidden sm:inline">{modeOption.label}</span>
                 <span className="sm:hidden">
-                  {modeOption.value === 'personal' ? '🔒' : '🌐'}
+                  {modeOption.value === 'general' ? '🌐' : '🔒'}
                 </span>
               </Button>
             </TooltipTrigger>
