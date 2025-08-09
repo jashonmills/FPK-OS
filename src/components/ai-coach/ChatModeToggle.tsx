@@ -50,9 +50,9 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm"
-                className={cn("text-white hover:bg-white/20 gap-2", className)}
+                className={cn("gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}
               >
                 <currentMode.icon className="h-3 w-3" />
                 <span className="truncate">{currentMode.label}</span>
