@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 export type ChatMode = 'personal' | 'general';
@@ -10,7 +11,7 @@ interface ChatModeAnalytics {
 }
 
 export const useChatMode = () => {
-  const [chatMode, setChatMode] = useState<ChatMode>('personal');
+  const [chatMode, setChatMode] = useState<ChatMode>('general'); // Changed default to 'general'
 
   // Load persisted mode from localStorage
   useEffect(() => {
