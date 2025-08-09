@@ -66,7 +66,7 @@ const LiveLearningHub = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="h-5 w-5 text-red-600" />
-              <DualLanguageText translationKey="liveHub.liveSessions" />
+              <DualLanguageText translationKey="liveHub.liveSessions" namespace="liveHub" />
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center py-12">
