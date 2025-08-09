@@ -69,6 +69,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const { settings, toggle } = useVoiceSettings();
   const voiceInput = useEnhancedVoiceInput();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Initialize session and load chat history
@@ -87,10 +88,39 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     }
   }, [user?.id]);
 
-  // Auto scroll to bottom
+  // Improved auto-scroll logic that keeps responses visible
+  const scrollToShowLatestMessage = useCallback(() => {
+    if (!messagesContainerRef.current) return;
+    
+    const container = messagesContainerRef.current;
+    const lastMessageElements = container.querySelectorAll('[data-message-role="assistant"]');
+    
+    if (lastMessageElements.length > 0) {
+      const lastAIMessage = lastMessageElements[lastMessageElements.length - 1];
+      
+      // Scroll to show the AI response within the visible area
+      lastAIMessage.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center', // Center the response in the viewport
+        inline: 'nearest'
+      });
+    } else {
+      // Fallback to scrolling to bottom if no AI messages found
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest'
+      });
+    }
+  }, []);
+
+  // Auto scroll when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messages.length > 0) {
+      // Use a longer delay to ensure DOM updates are complete
+      setTimeout(scrollToShowLatestMessage, 300);
+    }
+  }, [messages, scrollToShowLatestMessage]);
 
   const getWelcomeMessage = (mode = chatMode) => {
     if (mode === 'personal') {
@@ -682,13 +712,17 @@ What specific topic from your studies would you like to dive deeper into?`;
         
         <CardContent className={cn("flex flex-col", fixedHeight ? "flex-1 min-h-0" : "")}>
           {/* Messages Area */}
-          <div className={cn(
-            "flex-1 overflow-y-auto mb-4 space-y-4",
-            fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
-          )}>
+          <div 
+            ref={messagesContainerRef}
+            className={cn(
+              "flex-1 overflow-y-auto mb-4 space-y-4",
+              fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
+            )}
+          >
             {messages.map((msg) => (
               <div
                 key={msg.id}
+                data-message-role={msg.role}
                 className={cn(
                   "flex gap-3 p-3 rounded-lg group",
                   msg.role === 'user'
