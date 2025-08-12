@@ -53,6 +53,7 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
+const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
@@ -145,6 +146,7 @@ const App: React.FC = () => {
             <Route path="admin/courses" element={<LazyRoute><CourseManager /></LazyRoute>} />
             <Route path="admin/analytics" element={<LazyRoute><Analytics /></LazyRoute>} />
             <Route path="admin/modules" element={<LazyRoute><ModuleManagerPage /></LazyRoute>} />
+            <Route path="admin/courses/:slug/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
             <Route path="admin/thresholds" element={<LazyRoute><ThresholdManagement /></LazyRoute>} />
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             

@@ -305,6 +305,14 @@ const CourseManager = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
+                  onClick={() => window.open(`/dashboard/admin/courses/${course.slug}/lessons`, '_blank')}
+                >
+                  Manage Lessons
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
                   onClick={() => window.open(`/dashboard/learner/course/${course.slug}`, '_blank')}
                 >
                   Preview Course
