@@ -62,17 +62,28 @@ export const SignupVideoGuideModal: React.FC<SignupVideoGuideModalProps> = ({
         </DialogHeader>
         
         <div className="px-6 pb-6">
-          <div className="relative w-full bg-muted rounded-lg" style={{ paddingBottom: '56.25%' }}>
+          <div className="relative w-full bg-muted rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}>
             <iframe
-              className="absolute top-0 left-0 w-full h-full rounded-lg border-0"
-              src="https://www.youtube-nocookie.com/embed/YDGjZksEYmg?si=5IODoTpqFSXj8OS2&rel=0&modestbranding=1"
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/YDGjZksEYmg"
               title="How This Page Works - Video Guide"
-              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              loading="lazy"
+              onLoad={() => console.log('YouTube iframe loaded successfully')}
+              onError={() => console.log('YouTube iframe failed to load')}
             />
           </div>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            If the video doesn't load, you can{' '}
+            <a 
+              href="https://youtu.be/YDGjZksEYmg" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary underline hover:no-underline"
+            >
+              watch it on YouTube
+            </a>
+          </p>
         </div>
       </DialogContent>
     </Dialog>
