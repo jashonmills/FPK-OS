@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Compass, Calendar, Users, Video } from 'lucide-react';
+import { Compass, Calendar, Users, Video, HelpCircle } from 'lucide-react';
 import DualLanguageText from '@/components/DualLanguageText';
 import LiveHubAPODCard from '@/components/dashboard/LiveHubAPODCard';
+import { LiveHubVideoModal } from '@/components/live-hub/LiveHubVideoModal';
+import { useLiveHubVideoStorage } from '@/hooks/useLiveHubVideoStorage';
 import VisualOfTheWeekCarousel from '@/components/dashboard/VisualOfTheWeekCarousel';
 import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import ModelViewerModal from '@/components/dashboard/ModelViewerModal';
@@ -14,6 +16,26 @@ const LiveLearningHub = () => {
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
   const [isModelViewerOpen, setIsModelViewerOpen] = useState(false);
   const [selectedMuseumItem, setSelectedMuseumItem] = useState<MuseumItem | null>(null);
+
+  // Video guide storage and modal state
+  const { shouldShowAuto, markVideoAsSeen } = useLiveHubVideoStorage();
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Show video modal automatically on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setIsVideoModalOpen(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideoModal = () => {
+    setIsVideoModalOpen(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setIsVideoModalOpen(true);
+  };
 
   const handleAPODLearnMore = () => {
     setIsAPODModalOpen(true);
@@ -36,10 +58,20 @@ const LiveLearningHub = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          <DualLanguageText translationKey="liveHub.title" />
-        </h1>
-        <p className="text-gray-600">
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="text-3xl font-bold text-gray-900">
+            <DualLanguageText translationKey="liveHub.title" />
+          </h1>
+          <button
+            onClick={handleShowVideoManually}
+            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
+            aria-label="Watch video guide about how this page works"
+          >
+            <HelpCircle className="h-4 w-4" />
+            How this page works
+          </button>
+        </div>
+        <p className="text-gray-600 text-center mt-2">
           <DualLanguageText translationKey="liveHub.subtitle" />
         </p>
       </div>
@@ -112,6 +144,12 @@ const LiveLearningHub = () => {
         isOpen={isModelViewerOpen}
         onClose={handleCloseModelViewer}
         item={selectedMuseumItem}
+      />
+
+      {/* Video Guide Modal */}
+      <LiveHubVideoModal
+        isOpen={isVideoModalOpen}
+        onClose={handleCloseVideoModal}
       />
     </div>
   );
