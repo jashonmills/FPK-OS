@@ -1,9 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useTranslation } from 'react-i18next';
+import { HelpCircle } from 'lucide-react';
+import { HomeVideoModal } from '@/components/dashboard/HomeVideoModal';
+import { useHomeVideoStorage } from '@/hooks/useHomeVideoStorage';
 import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import APODCard from '@/components/dashboard/APODCard';
@@ -22,6 +25,26 @@ const LearnerHome = () => {
   const { profile } = useUserProfile();
   const { t } = useTranslation('dashboard');
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
+
+  // Video guide storage and modal state
+  const { shouldShowAuto, markVideoAsSeen } = useHomeVideoStorage();
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Show video modal automatically on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setIsVideoModalOpen(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideoModal = () => {
+    setIsVideoModalOpen(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setIsVideoModalOpen(true);
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -52,13 +75,23 @@ const LearnerHome = () => {
       
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
-        <h1 className="mobile-heading-xl mb-2">
-          <DualLanguageText 
-            translationKey="greeting"
-            fallback={`${getGreeting()}, ${getDisplayName()}!`}
-          />
-        </h1>
-        <p className="text-muted-foreground mobile-text-base">
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="mobile-heading-xl mb-2 text-center">
+            <DualLanguageText 
+              translationKey="greeting"
+              fallback={`${getGreeting()}, ${getDisplayName()}!`}
+            />
+          </h1>
+          <button
+            onClick={handleShowVideoManually}
+            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
+            aria-label="Watch video guide about how this page works"
+          >
+            <HelpCircle className="h-4 w-4" />
+            How this page works
+          </button>
+        </div>
+        <p className="text-muted-foreground mobile-text-base text-center mt-2">
           <DualLanguageText 
             translationKey="welcomeMessage"
             fallback="Ready to continue your learning journey today?"
@@ -134,6 +167,12 @@ const LearnerHome = () => {
       <APODGalleryModal
         isOpen={isAPODModalOpen}
         onClose={handleAPODGalleryClose}
+      />
+
+      {/* Video Guide Modal */}
+      <HomeVideoModal
+        isOpen={isVideoModalOpen}
+        onClose={handleCloseVideoModal}
       />
     </div>
   );
