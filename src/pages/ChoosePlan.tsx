@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSafeNavigation } from '@/hooks/useSafeNavigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro } from 'lucide-react';
+import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro, HelpCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { useChoosePlanVideoStorage } from '@/hooks/useChoosePlanVideoStorage';
+import { ChoosePlanVideoModal } from '@/components/choose-plan/ChoosePlanVideoModal';
 
 const IS_BETA_MODE = true;
 interface PlanType {
@@ -52,6 +54,7 @@ export default function ChoosePlan() {
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [redeeming, setRedeeming] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const {
     createCheckout,
     redeemCoupon
@@ -63,6 +66,26 @@ export default function ChoosePlan() {
     navigateBack,
     safeNavigate
   } = useSafeNavigation();
+  const {
+    shouldShowAuto,
+    markVideoAsSeen
+  } = useChoosePlanVideoStorage();
+
+  // Auto-show video modal on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleManualVideoOpen = () => {
+    setShowVideoModal(true);
+  };
   const handleSubscribe = async (tier: 'calm' | 'me' | 'us' | 'universal') => {
     try {
       setLoading(tier);
@@ -125,9 +148,21 @@ export default function ChoosePlan() {
 
         <div className="text-center mb-8 text-white">
           <h1 className="text-4xl font-bold mb-4">Choose Your Learning Plan</h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Select the perfect plan to unlock your learning potential and access our premium features.
-          </p>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <p className="text-xl text-white/80 max-w-2xl">
+              Select the perfect plan to unlock your learning potential and access our premium features.
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleManualVideoOpen}
+              className="text-white/70 hover:text-white hover:bg-white/10 border-0 flex items-center gap-1"
+              aria-label="Open video guide explaining how this page works"
+            >
+              <HelpCircle className="h-4 w-4" />
+              How this page works
+            </Button>
+          </div>
           
           {IS_BETA_MODE && (
             <div className="mt-4 p-4 bg-white/10 rounded-lg border border-white/20 max-w-2xl mx-auto">
@@ -291,6 +326,12 @@ export default function ChoosePlan() {
               </Card>;
         })}
         </div>
+
+        {/* Video Modal */}
+        <ChoosePlanVideoModal 
+          open={showVideoModal} 
+          onClose={handleCloseVideoModal}
+        />
       </div>
     </div>;
 }
