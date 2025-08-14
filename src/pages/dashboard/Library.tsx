@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Search, BookOpen, Filter, Grid, List, Upload, Users, Globe } from 'lucide-react';
+import { Search, BookOpen, Filter, Grid, List, Upload, Users, Globe, HelpCircle } from 'lucide-react';
+import { LibraryVideoModal } from '@/components/library/LibraryVideoModal';
+import { useLibraryVideoStorage } from '@/hooks/useLibraryVideoStorage';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { useOpenLibrarySearch } from '@/hooks/useOpenLibrarySearch';
 import LibraryWithMonitoring from '@/components/library/LibraryWithMonitoring';
@@ -21,6 +23,26 @@ const Library = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [activeTab, setActiveTab] = useState('public-domain');
+
+  // Video guide storage and modal state
+  const { shouldShowAuto, markVideoAsSeen } = useLibraryVideoStorage();
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Show video modal automatically on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setIsVideoModalOpen(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideoModal = () => {
+    setIsVideoModalOpen(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setIsVideoModalOpen(true);
+  };
   
   const { books: publicDomainBooks, isLoading: pdLoading } = usePublicDomainBooks();
   const { 
@@ -174,8 +196,18 @@ const Library = () => {
         {/* Header */}
         <div className="space-y-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Library</h1>
-            <p className="text-muted-foreground">
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="text-3xl font-bold text-gray-900">Library</h1>
+              <button
+                onClick={handleShowVideoManually}
+                className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
+                aria-label="Watch video guide about how this page works"
+              >
+                <HelpCircle className="h-4 w-4" />
+                How this page works
+              </button>
+            </div>
+            <p className="text-muted-foreground text-center mt-2">
               Discover, read, and organize your digital book collection
             </p>
           </div>
@@ -254,6 +286,12 @@ const Library = () => {
             {renderSearchResults()}
           </TabsContent>
         </Tabs>
+
+        {/* Video Guide Modal */}
+        <LibraryVideoModal
+          isOpen={isVideoModalOpen}
+          onClose={handleCloseVideoModal}
+        />
       </div>
     </LibraryWithMonitoring>
   );
