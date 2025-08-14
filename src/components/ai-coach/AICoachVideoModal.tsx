@@ -56,13 +56,6 @@ export function AICoachVideoModal({ isOpen, onClose }: AICoachVideoModalProps) {
             <HelpCircle className="h-5 w-5 text-primary" />
             How to Use AI Study Coach
           </DialogTitle>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            aria-label="Close video guide"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogHeader>
         
         <div className="px-6 pb-6">
