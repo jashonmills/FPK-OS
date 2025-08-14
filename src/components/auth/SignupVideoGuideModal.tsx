@@ -65,14 +65,12 @@ export const SignupVideoGuideModal: React.FC<SignupVideoGuideModalProps> = ({
           <div className="relative w-full bg-muted rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}>
             <iframe
               className="absolute top-0 left-0 w-full h-full border-0"
-              src="https://www.youtube-nocookie.com/embed/YDGjZksEYmg?autoplay=0&mute=0&controls=1&origin=https://lovable.dev&playsinline=1"
+              src="https://www.youtube-nocookie.com/embed/YDGjZksEYmg?autoplay=0&controls=1&rel=0&modestbranding=1"
               title="How This Page Works - Video Guide"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-              sandbox="allow-scripts allow-same-origin allow-presentation"
               onLoad={() => console.log('YouTube iframe loaded successfully')}
-              onError={() => console.log('YouTube iframe failed to load')}
+              onError={(e) => console.error('YouTube iframe failed to load:', e)}
             />
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
