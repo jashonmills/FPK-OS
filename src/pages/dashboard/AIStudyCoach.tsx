@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Bot, Brain, TrendingUp } from 'lucide-react';
+import { Bot, Brain, TrendingUp, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
@@ -19,6 +19,8 @@ import AICoachEngagementCard from '@/components/ai-coach/AICoachEngagementCard';
 import AICoachPerformanceCard from '@/components/ai-coach/AICoachPerformanceCard';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
+import { AICoachVideoModal } from '@/components/ai-coach/AICoachVideoModal';
+import { useAICoachVideoStorage } from '@/hooks/useAICoachVideoStorage';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +29,26 @@ const AIStudyCoach = () => {
   const { sessions } = useStudySessions();
   const { flashcards } = useFlashcards();
   const { insights } = useStudyInsights();
+
+  // Video guide storage and modal state
+  const { shouldShowAuto, markVideoAsSeen } = useAICoachVideoStorage();
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Show video modal automatically on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setIsVideoModalOpen(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideoModal = () => {
+    setIsVideoModalOpen(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setIsVideoModalOpen(true);
+  };
 
   // Add scroll restoration for better navigation UX
   useScrollRestoration('ai-coach-scroll');
@@ -70,9 +92,19 @@ const AIStudyCoach = () => {
       <div className="responsive-container responsive-spacing min-h-screen overflow-x-hidden">
         {/* Header Section - Fully Responsive */}
         <div className="text-center responsive-spacing max-w-full flex-shrink-0">
-          <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
-            AI Learning Coach
-          </h1>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
+              AI Learning Coach
+            </h1>
+            <button
+              onClick={handleShowVideoManually}
+              className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
+              aria-label="Watch video guide about how this page works"
+            >
+              <HelpCircle className="h-4 w-4" />
+              How this page works
+            </button>
+          </div>
           <p className="responsive-text text-muted-foreground max-w-4xl mx-auto leading-relaxed break-words">
             Your personalized AI coach analyzes your learning patterns, identifies strengths and weaknesses, 
             and provides tailored guidance to accelerate your educational journey.
@@ -189,6 +221,12 @@ const AIStudyCoach = () => {
             </AccessibilityErrorBoundary>
           </div>
         </div>
+
+        {/* Video Guide Modal */}
+        <AICoachVideoModal
+          isOpen={isVideoModalOpen}
+          onClose={handleCloseVideoModal}
+        />
       </div>
     </ErrorBoundary>
   );
