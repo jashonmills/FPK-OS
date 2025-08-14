@@ -60,7 +60,7 @@ const LiveLearningHub = () => {
       <div>
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-3xl font-bold text-gray-900">
-            <DualLanguageText translationKey="liveHub.title" />
+            <DualLanguageText translationKey="title" namespace="liveHub" />
           </h1>
           <button
             onClick={handleShowVideoManually}
@@ -72,7 +72,7 @@ const LiveLearningHub = () => {
           </button>
         </div>
         <p className="text-gray-600 text-center mt-2">
-          <DualLanguageText translationKey="liveHub.subtitle" />
+          <DualLanguageText translationKey="subtitle" namespace="liveHub" />
         </p>
       </div>
 
@@ -98,19 +98,19 @@ const LiveLearningHub = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="h-5 w-5 text-red-600" />
-              <DualLanguageText translationKey="liveHub.liveSessions" namespace="liveHub" />
+              <DualLanguageText translationKey="liveSessions" namespace="liveHub" />
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center py-12">
             <Video className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              <DualLanguageText translationKey="liveHub.noSessions" />
+              <DualLanguageText translationKey="noSessions" namespace="liveHub" />
             </h3>
             <p className="text-gray-500 mb-4">
-              <DualLanguageText translationKey="liveHub.noSessionsDesc" />
+              <DualLanguageText translationKey="noSessionsDesc" namespace="liveHub" />
             </p>
             <Button className="fpk-gradient text-white">
-              <DualLanguageText translationKey="liveHub.scheduleSession" />
+              <DualLanguageText translationKey="scheduleSession" namespace="liveHub" />
             </Button>
           </CardContent>
         </Card>
@@ -119,16 +119,16 @@ const LiveLearningHub = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-blue-600" />
-              <DualLanguageText translationKey="liveHub.upcomingEvents" />
+              <DualLanguageText translationKey="upcomingEvents" namespace="liveHub" />
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center py-12">
             <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              <DualLanguageText translationKey="liveHub.noEvents" />
+              <DualLanguageText translationKey="noEvents" namespace="liveHub" />
             </h3>
             <p className="text-gray-500">
-              <DualLanguageText translationKey="liveHub.noEventsDesc" />
+              <DualLanguageText translationKey="noEventsDesc" namespace="liveHub" />
             </p>
           </CardContent>
         </Card>
