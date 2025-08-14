@@ -15,6 +15,9 @@ import { ArrowLeft } from 'lucide-react';
 import { getSiteUrl } from '@/utils/siteUrl';
 import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
 import { ResetPasswordModal } from '@/components/auth/ResetPasswordModal';
+import { SignupVideoGuideModal } from '@/components/auth/SignupVideoGuideModal';
+import { useVideoGuideStorage } from '@/hooks/useVideoGuideStorage';
+import { HelpCircle } from 'lucide-react';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
@@ -29,6 +32,11 @@ const Login = () => {
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const [resetUserEmail, setResetUserEmail] = useState('');
+  const [showVideoGuideModal, setShowVideoGuideModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('signin');
+  
+  // Video guide storage hook
+  const { shouldShowAuto, markVideoAsSeen, showManually } = useVideoGuideStorage();
 
   // Check for password reset tokens and handle them
   useEffect(() => {
@@ -108,6 +116,13 @@ const Login = () => {
       navigate('/dashboard/learner', { replace: true });
     }
   }, [user, loading, navigate]);
+
+  // Auto-show video guide for signup tab
+  useEffect(() => {
+    if (activeTab === 'signup' && shouldShowAuto) {
+      setShowVideoGuideModal(true);
+    }
+  }, [activeTab, shouldShowAuto]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -215,6 +230,16 @@ const Login = () => {
     setSearchParams(newSearchParams, { replace: true });
   };
 
+  const handleVideoGuideClose = () => {
+    setShowVideoGuideModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoGuide = () => {
+    showManually();
+    setShowVideoGuideModal(true);
+  };
+
   // Show loading while checking auth state
   if (loading) {
     return (
@@ -246,7 +271,7 @@ const Login = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue="signin" className="w-full" onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
                 <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
@@ -309,6 +334,18 @@ const Login = () => {
               </TabsContent>
 
               <TabsContent value="signup">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1" />
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto flex items-center gap-1"
+                    onClick={handleShowVideoGuide}
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    How this page works
+                  </Button>
+                </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">{tString('displayName')}</Label>
@@ -383,6 +420,11 @@ const Login = () => {
           onClose={() => setShowResetPasswordModal(false)}
           onSuccess={handleResetPasswordSuccess}
           userEmail={resetUserEmail}
+        />
+        
+        <SignupVideoGuideModal
+          isOpen={showVideoGuideModal}
+          onClose={handleVideoGuideClose}
         />
 
         <div className="mt-8 flex flex-col items-center space-y-4 text-center">
