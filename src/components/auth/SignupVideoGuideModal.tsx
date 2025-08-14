@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,18 +56,21 @@ export const SignupVideoGuideModal: React.FC<SignupVideoGuideModalProps> = ({
               <X className="h-4 w-4" />
             </Button>
           </div>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Watch this quick guide to understand how to use the signup page.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-6">
-          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <div className="relative w-full bg-muted rounded-lg" style={{ paddingBottom: '56.25%' }}>
             <iframe
-              className="absolute top-0 left-0 w-full h-full rounded-lg"
-              src="https://www.youtube.com/embed/YDGjZksEYmg?si=5IODoTpqFSXj8OS2"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              className="absolute top-0 left-0 w-full h-full rounded-lg border-0"
+              src="https://www.youtube-nocookie.com/embed/YDGjZksEYmg?si=5IODoTpqFSXj8OS2&rel=0&modestbranding=1"
+              title="How This Page Works - Video Guide"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
+              loading="lazy"
             />
           </div>
         </div>
