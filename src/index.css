@@ -444,9 +444,16 @@
     background: #fff;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     position: relative;
-    padding: 24px;
+    padding: 16px;
     max-height: 90vh;
     overflow-y: auto;
+  }
+
+  .video-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0;
   }
 
   .closeBtn {
