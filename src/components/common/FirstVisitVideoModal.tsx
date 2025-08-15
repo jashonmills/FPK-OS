@@ -51,7 +51,7 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="helpModal max-w-[min(1100px,90vw)] w-full border-0 p-6 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
+        className="helpModal max-w-[min(1100px,90vw)] w-full border-0 p-6 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto"
         onClick={handleOverlayClick}
       >
         <DialogHeader className="p-0 mb-4">
@@ -63,7 +63,7 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
         
         <div className="p-0">
           {videoUrl ? (
-            <div className="videoWrap">
+            <div className="videoWrap mb-4">
               <iframe 
                 src={videoUrl}
                 title="YouTube video player" 
