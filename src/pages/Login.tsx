@@ -33,10 +33,12 @@ const Login = () => {
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const [resetUserEmail, setResetUserEmail] = useState('');
   const [showVideoGuideModal, setShowVideoGuideModal] = useState(false);
+  const [showSignInVideoModal, setShowSignInVideoModal] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
   
-  // Video guide storage hook
+  // Video guide storage hooks
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('signup_intro_seen');
+  const signInVideo = useFirstVisitVideo('signin_intro_seen');
 
   // Check for password reset tokens and handle them
   useEffect(() => {
@@ -123,6 +125,13 @@ const Login = () => {
       setShowVideoGuideModal(true);
     }
   }, [activeTab, shouldShowAuto, showVideoGuideModal]);
+
+  // Auto-show video guide for signin tab (only once)
+  useEffect(() => {
+    if (activeTab === 'signin' && signInVideo.shouldShowAuto() && !showSignInVideoModal) {
+      setShowSignInVideoModal(true);
+    }
+  }, [activeTab, signInVideo, showSignInVideoModal]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -239,6 +248,15 @@ const Login = () => {
     setShowVideoGuideModal(true);
   };
 
+  const handleSignInVideoClose = () => {
+    setShowSignInVideoModal(false);
+    signInVideo.markVideoAsSeen();
+  };
+
+  const handleShowSignInVideo = () => {
+    setShowSignInVideoModal(true);
+  };
+
   // Show loading while checking auth state
   if (loading) {
     return (
@@ -285,6 +303,9 @@ const Login = () => {
               )}
 
               <TabsContent value="signin">
+                <div className="flex flex-col items-center gap-2 mb-4">
+                  <PageHelpTrigger onOpen={handleShowSignInVideo} label="How this page works" />
+                </div>
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">{tString('email')}</Label>
@@ -417,6 +438,13 @@ const Login = () => {
           onClose={handleVideoGuideClose}
           title="How to Sign Up"
           videoUrl="https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha"
+        />
+        
+        <FirstVisitVideoModal
+          isOpen={showSignInVideoModal}
+          onClose={handleSignInVideoClose}
+          title="How to Sign In"
+          contentHtml={`<div class="videoWrap"><iframe src="https://www.youtube.com/embed/mZBNpSGKITc?si=R5q0WSikYBTpmVjh" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><p style="text-align: center; margin-top: 16px; font-size: 14px; color: #6b7280;">Learn how to sign in and access your personalized learning dashboard quickly and securely.</p>`}
         />
 
         <div className="mt-8 flex flex-col items-center space-y-4 text-center">
