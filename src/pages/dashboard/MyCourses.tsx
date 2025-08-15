@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,12 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Clock, User, Search, Filter } from 'lucide-react';
+import { BookOpen, Clock, User, Search, Filter, HelpCircle } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
+import { useCoursesVideoStorage } from '@/hooks/useCoursesVideoStorage';
+import { CoursesVideoModal } from '@/components/courses/CoursesVideoModal';
 import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
@@ -20,9 +22,29 @@ const MyCourses = () => {
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  
+  // Video storage hook
+  const { shouldShowAuto, markVideoAsSeen, showManually } = useCoursesVideoStorage();
 
   // Auto-enroll in preloaded courses
   useAutoEnrollPreloadedCourses();
+
+  // Show video modal on first visit
+  useEffect(() => {
+    if (shouldShowAuto() && !isLoading && courses.length > 0) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto, isLoading, courses.length]);
+
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setShowVideoModal(true);
+  };
 
   const enrolledCourseIds = enrollments.map(e => e.course_id);
   const enrolledCourses = courses.filter(course => enrolledCourseIds.includes(course.id));
@@ -185,10 +207,26 @@ const MyCourses = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('myCourses.title')}</h1>
-        <p className="text-gray-600 mt-2">{t('myCourses.description')}</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{t('myCourses.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('myCourses.description')}</p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleShowVideoManually}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <HelpCircle className="h-4 w-4" />
+          How this page works
+        </Button>
       </div>
+
+      <CoursesVideoModal
+        isOpen={showVideoModal}
+        onClose={handleCloseVideo}
+      />
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
