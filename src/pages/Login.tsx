@@ -15,9 +15,9 @@ import { ArrowLeft } from 'lucide-react';
 import { getSiteUrl } from '@/utils/siteUrl';
 import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
 import { ResetPasswordModal } from '@/components/auth/ResetPasswordModal';
-import { SignupVideoGuideModal } from '@/components/auth/SignupVideoGuideModal';
-import { useVideoGuideStorage } from '@/hooks/useVideoGuideStorage';
-import { HelpCircle } from 'lucide-react';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
@@ -36,7 +36,7 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState('signin');
   
   // Video guide storage hook
-  const { shouldShowAuto, markVideoAsSeen, showManually } = useVideoGuideStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('signup_intro_seen');
 
   // Check for password reset tokens and handle them
   useEffect(() => {
@@ -236,7 +236,6 @@ const Login = () => {
   };
 
   const handleShowVideoGuide = () => {
-    showManually();
     setShowVideoGuideModal(true);
   };
 
@@ -334,17 +333,8 @@ const Login = () => {
               </TabsContent>
 
               <TabsContent value="signup">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex-1" />
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto flex items-center gap-1"
-                    onClick={handleShowVideoGuide}
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                    How this page works
-                  </Button>
+                <div className="flex flex-col items-center gap-2 mb-4">
+                  <PageHelpTrigger onOpen={handleShowVideoGuide} label="How this page works" />
                 </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
@@ -422,9 +412,11 @@ const Login = () => {
           userEmail={resetUserEmail}
         />
         
-        <SignupVideoGuideModal
+        <FirstVisitVideoModal
           isOpen={showVideoGuideModal}
           onClose={handleVideoGuideClose}
+          title="How to Sign Up"
+          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
         />
 
         <div className="mt-8 flex flex-col items-center space-y-4 text-center">

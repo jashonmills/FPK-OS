@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Bot, Brain, TrendingUp, HelpCircle } from 'lucide-react';
+import { Bot, Brain, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
@@ -19,8 +19,9 @@ import AICoachEngagementCard from '@/components/ai-coach/AICoachEngagementCard';
 import AICoachPerformanceCard from '@/components/ai-coach/AICoachPerformanceCard';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
-import { AICoachVideoModal } from '@/components/ai-coach/AICoachVideoModal';
-import { useAICoachVideoStorage } from '@/hooks/useAICoachVideoStorage';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,7 @@ const AIStudyCoach = () => {
   const { insights } = useStudyInsights();
 
   // Video guide storage and modal state
-  const { shouldShowAuto, markVideoAsSeen } = useAICoachVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('aistudycoach_intro_seen');
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   // Show video modal automatically on first visit
@@ -96,14 +97,7 @@ const AIStudyCoach = () => {
             <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
               AI Learning Coach
             </h1>
-            <button
-              onClick={handleShowVideoManually}
-              className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
-              aria-label="Watch video guide about how this page works"
-            >
-              <HelpCircle className="h-4 w-4" />
-              How this page works
-            </button>
+            <PageHelpTrigger onOpen={handleShowVideoManually} />
           </div>
           <p className="responsive-text text-muted-foreground max-w-4xl mx-auto leading-relaxed break-words">
             Your personalized AI coach analyzes your learning patterns, identifies strengths and weaknesses, 
@@ -223,9 +217,11 @@ const AIStudyCoach = () => {
         </div>
 
         {/* Video Guide Modal */}
-        <AICoachVideoModal
+        <FirstVisitVideoModal
           isOpen={isVideoModalOpen}
           onClose={handleCloseVideoModal}
+          title="How to Use AI Study Coach"
+          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/aNq0jxs98U0?si=-BYqBZ8-yf3lv7ow' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
         />
       </div>
     </ErrorBoundary>

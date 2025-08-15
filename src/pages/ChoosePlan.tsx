@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro, HelpCircle } from 'lucide-react';
+import { Check, Star, Loader2, Gift, ArrowLeft, DollarSign, Euro } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { useChoosePlanVideoStorage } from '@/hooks/useChoosePlanVideoStorage';
-import { ChoosePlanVideoModal } from '@/components/choose-plan/ChoosePlanVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 
 const IS_BETA_MODE = true;
 interface PlanType {
@@ -66,10 +67,7 @@ export default function ChoosePlan() {
     navigateBack,
     safeNavigate
   } = useSafeNavigation();
-  const {
-    shouldShowAuto,
-    markVideoAsSeen
-  } = useChoosePlanVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('chooseplan_intro_seen');
 
   // Auto-show video modal on first visit
   useEffect(() => {
@@ -147,22 +145,13 @@ export default function ChoosePlan() {
         </div>
 
         <div className="text-center mb-8 text-white">
-          <h1 className="text-4xl font-bold mb-4">Choose Your Learning Plan</h1>
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <p className="text-xl text-white/80 max-w-2xl">
-              Select the perfect plan to unlock your learning potential and access our premium features.
-            </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleManualVideoOpen}
-              className="text-white/70 hover:text-white hover:bg-white/10 border-0 flex items-center gap-1"
-              aria-label="Open video guide explaining how this page works"
-            >
-              <HelpCircle className="h-4 w-4" />
-              How this page works
-            </Button>
+          <div className="flex flex-col items-center gap-2 mb-4">
+            <h1 className="text-4xl font-bold">Choose Your Learning Plan</h1>
+            <PageHelpTrigger onOpen={handleManualVideoOpen} label="How this page works" />
           </div>
+          <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            Select the perfect plan to unlock your learning potential and access our premium features.
+          </p>
           
           {IS_BETA_MODE && (
             <div className="mt-4 p-4 bg-white/10 rounded-lg border border-white/20 max-w-2xl mx-auto">
@@ -328,9 +317,11 @@ export default function ChoosePlan() {
         </div>
 
         {/* Video Modal */}
-        <ChoosePlanVideoModal 
-          open={showVideoModal} 
+        <FirstVisitVideoModal
+          isOpen={showVideoModal} 
           onClose={handleCloseVideoModal}
+          title="How to Choose Your Learning Plan"
+          contentHtml="<video controls autoplay muted style='width:100%;height:auto;border-radius:8px;'><source src='https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/video%20guide/Coupon%20Code%20Walk%20Through%20Video.mp4' type='video/mp4'>Your browser does not support the video tag.</video>"
         />
       </div>
     </div>;

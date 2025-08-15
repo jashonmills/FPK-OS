@@ -1,13 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { X } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 interface FirstVisitVideoModalProps {
   isOpen: boolean;
@@ -17,67 +15,65 @@ interface FirstVisitVideoModalProps {
 }
 
 export function FirstVisitVideoModal({ isOpen, onClose, title, contentHtml }: FirstVisitVideoModalProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
+  // Handle ESC key press
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      // Focus the close button when modal opens
-      setTimeout(() => {
-        closeButtonRef.current?.focus();
-      }, 100);
+      document.addEventListener('keydown', handleEscapeKey);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
-  const handleOverlayClick = (event: React.MouseEvent) => {
-    if (event.target === event.currentTarget) {
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    // Close modal when clicking on the overlay (outside the video)
+    if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  if (!isOpen) return null;
+  const handleVideoClick = (e: React.MouseEvent) => {
+    // Prevent modal from closing when clicking on the video itself
+    e.stopPropagation();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-[90vw] md:max-w-[70vw] p-0 gap-0"
+        className="max-w-[90vw] md:max-w-[70vw] p-0 bg-background/95 backdrop-blur-sm border-border"
         onClick={handleOverlayClick}
       >
-        <DialogHeader className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">
-              {title}
-            </DialogTitle>
-            <Button
-              ref={closeButtonRef}
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-              aria-label="Close help video"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+            <HelpCircle className="h-5 w-5 text-primary" />
+            {title}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="p-6">
-          <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg overflow-hidden">
+        <div className="px-6 pb-6">
+          <div 
+            className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden"
+            onClick={handleVideoClick}
+          >
             <div
-              className="w-full h-full"
+              className="absolute inset-0 w-full h-full"
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
-          </AspectRatio>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mt-4 text-center">
+            Learn how to make the most of this page's features and enhance your learning experience.
+          </p>
         </div>
       </DialogContent>
     </Dialog>
