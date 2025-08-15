@@ -59,7 +59,7 @@ const Gamification = () => {
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
         title="How to Use Achievements"
-        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/lR1a6nzyU3o?si=c44zioJi_gDnxNcU' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+        videoUrl="https://www.youtube.com/embed/lR1a6nzyU3o?si=c44zioJi_gDnxNcU"
       />
 
       {/* Goal & XP Tracker - Prominent Card */}
