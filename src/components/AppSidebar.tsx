@@ -140,12 +140,6 @@ export function AppSidebar() {
       url: "/dashboard/learner/settings",
       icon: Settings,
     },
-    {
-      title: 'Exit',
-      url: "https://demo.fpkuniversity.com/",
-      icon: ExternalLink,
-      isExternal: true,
-    },
   ];
 
   const getDisplayName = () => {
