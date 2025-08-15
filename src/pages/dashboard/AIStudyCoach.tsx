@@ -221,7 +221,7 @@ const AIStudyCoach = () => {
           isOpen={isVideoModalOpen}
           onClose={handleCloseVideoModal}
           title="How to Use AI Study Coach"
-          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/aNq0jxs98U0?si=-BYqBZ8-yf3lv7ow' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+          videoUrl="https://www.youtube.com/embed/aNq0jxs98U0?si=-BYqBZ8-yf3lv7ow"
         />
       </div>
     </ErrorBoundary>
