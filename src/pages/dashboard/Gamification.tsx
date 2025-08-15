@@ -10,11 +10,11 @@ import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
 import GoalDebugOverlay from '@/components/goals/GoalDebugOverlay';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
-import { useAchievementsVideoStorage } from '@/hooks/useAchievementsVideoStorage';
-import { AchievementsVideoModal } from '@/components/gamification/AchievementsVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { HelpCircle } from 'lucide-react';
 
 const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
@@ -22,7 +22,7 @@ const Gamification = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen } = useAchievementsVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('achievements_intro_seen');
   
   // Initialize automatic progress tracking
   useGoalProgressTracking();
@@ -45,29 +45,21 @@ const Gamification = () => {
 
   return (
     <div className={`mobile-container mobile-section-spacing ${getAccessibilityClasses('container')}`}>
-      <div className="flex justify-between items-start mb-4 sm:mb-6">
-        <div>
-          <h1 className={`mobile-heading-xl mb-2 ${getAccessibilityClasses('text')}`}>
-            Achievements & XP
-          </h1>
-          <p className={`text-muted-foreground mobile-text-base ${getAccessibilityClasses('text')}`}>
-            Track your learning journey, earn XP, unlock badges, and compete with others!
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleShowVideoManually}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <HelpCircle className="h-4 w-4" />
-          How this page works
-        </Button>
+      <div className="flex flex-col items-center gap-2 mb-4 sm:mb-6">
+        <h1 className={`mobile-heading-xl ${getAccessibilityClasses('text')}`}>
+          Achievements & XP
+        </h1>
+        <PageHelpTrigger onOpen={handleShowVideoManually} />
       </div>
+      <p className={`text-muted-foreground mobile-text-base text-center mb-6 ${getAccessibilityClasses('text')}`}>
+        Track your learning journey, earn XP, unlock badges, and compete with others!
+      </p>
 
-      <AchievementsVideoModal
+      <FirstVisitVideoModal
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
+        title="How to Use Achievements"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/lR1a6nzyU3o?si=c44zioJi_gDnxNcU' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
 
       {/* Goal & XP Tracker - Prominent Card */}

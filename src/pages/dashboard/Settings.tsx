@@ -11,9 +11,10 @@ import AccessibilitySettings from '@/components/settings/AccessibilitySettings';
 import LanguageSettings from '@/components/settings/LanguageSettings';
 import IntegrationSection from '@/components/settings/IntegrationSection';
 import { DataManagement } from '@/components/DataManagement';
-import { useSettingsVideoStorage } from '@/hooks/useSettingsVideoStorage';
-import { SettingsVideoModal } from '@/components/settings/SettingsVideoModal';
-import { User, Shield, Bell, Eye, Globe, Zap, FileText, HelpCircle } from 'lucide-react';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { User, Shield, Bell, Eye, Globe, Zap, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +27,7 @@ const Settings = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen } = useSettingsVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('settings_intro_seen');
 
   // Show video modal on first visit (only when not loading)
   useEffect(() => {
@@ -289,29 +290,19 @@ const Settings = () => {
   return (
     <div className="mobile-page-container">
       <div className="mobile-section-spacing">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <SettingsHeader
-              saving={saving}
-              hasUnsavedChanges={hasUnsavedChanges}
-              isInitializing={loading}
-              onRestoreDefaults={handleRestoreDefaults}
-            />
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleShowVideoManually}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <HelpCircle className="h-4 w-4" />
-            How this page works
-          </Button>
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <PageHelpTrigger onOpen={handleShowVideoManually} />
         </div>
+        <p className="text-muted-foreground text-center mb-6">
+          Customize your learning experience and account preferences
+        </p>
 
-        <SettingsVideoModal
+        <FirstVisitVideoModal
           isOpen={showVideoModal}
           onClose={handleCloseVideo}
+          title="How to Use Settings"
+          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/IjLiH-NWIto?si=UaS_tXWSHzaizyZB' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
         />
         
         <Card className="mobile-card border-0 shadow-sm">

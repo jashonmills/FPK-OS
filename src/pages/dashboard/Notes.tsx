@@ -9,10 +9,10 @@ import ProgressSection from '@/components/notes/ProgressSection';
 import RAGProcessingPanel from '@/components/notes/RAGProcessingPanel';
 import RAGStatusIndicator from '@/components/ai-coach/RAGStatusIndicator';
 import MobileTabsList from '@/components/notes/MobileTabsList';
-import { useNotesVideoStorage } from '@/hooks/useNotesVideoStorage';
-import { NotesVideoModal } from '@/components/notes/NotesVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { HelpCircle } from 'lucide-react';
 
 const Notes = () => {
   const [activeTab, setActiveTab] = useState('notes');
@@ -20,7 +20,7 @@ const Notes = () => {
   const isMobile = useIsMobile();
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen } = useNotesVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('notes_intro_seen');
 
   // Show video modal on first visit
   useEffect(() => {
@@ -41,30 +41,22 @@ const Notes = () => {
   return (
     <div className="max-w-7xl mx-auto mobile-section-spacing">
       {/* Mobile-Optimized Header with RAG Status */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start sm:gap-4">
-        <div>
-          <h1 className="mobile-heading-xl text-gray-900">Notes & Study Materials</h1>
-          <p className="text-gray-600 mt-1 mobile-text-base">
-            Organize your learning materials and enhance your AI coach with personal knowledge
-          </p>
-        </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleShowVideoManually}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <HelpCircle className="h-4 w-4" />
-            How this page works
-          </Button>
-          <RAGStatusIndicator compact />
-        </div>
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <h1 className="mobile-heading-xl text-foreground">Notes & Study Materials</h1>
+        <PageHelpTrigger onOpen={handleShowVideoManually} />
+      </div>
+      <p className="text-muted-foreground text-center mb-6 mobile-text-base">
+        Organize your learning materials and enhance your AI coach with personal knowledge
+      </p>
+      <div className="flex justify-center mb-6">
+        <RAGStatusIndicator compact />
       </div>
 
-      <NotesVideoModal
+      <FirstVisitVideoModal
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
+        title="How to Use Notes"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/rWKlC4xFRn4?si=mzknY-IDkUaX3OEM' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mobile-section-spacing">

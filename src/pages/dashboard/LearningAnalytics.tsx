@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3, HelpCircle } from 'lucide-react';
+import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
 import RouteBoundary from '@/components/RouteBoundary';
 import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
-import { useAnalyticsVideoStorage } from '@/hooks/useAnalyticsVideoStorage';
-import { AnalyticsVideoModal } from '@/components/analytics/AnalyticsVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 
 // Import analytics components with error boundaries
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
@@ -60,7 +61,7 @@ const LearningAnalytics = () => {
   const { data: quickStats, isLoading: quickStatsLoading } = useQuickStatsLive();
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen } = useAnalyticsVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('analytics_intro_seen');
 
   // Show video modal on first visit
   useEffect(() => {
@@ -80,27 +81,19 @@ const LearningAnalytics = () => {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Learning Analytics</h1>
-          <p className="text-gray-600">
-            Track your learning progress and insights across all activities
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleShowVideoManually}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <HelpCircle className="h-4 w-4" />
-          How this page works
-        </Button>
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <h1 className="text-3xl font-bold text-foreground">Learning Analytics</h1>
+        <PageHelpTrigger onOpen={handleShowVideoManually} />
       </div>
+      <p className="text-muted-foreground text-center mb-6">
+        Track your learning progress and insights across all activities
+      </p>
 
-      <AnalyticsVideoModal
+      <FirstVisitVideoModal
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
+        title="How to Use Analytics"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/yfKauiMPEX0?si=5oon8ri4QN3EptAX' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

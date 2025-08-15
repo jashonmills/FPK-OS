@@ -12,8 +12,9 @@ import { BookOpen, Clock, User, Search, Filter, HelpCircle } from 'lucide-react'
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
-import { useCoursesVideoStorage } from '@/hooks/useCoursesVideoStorage';
-import { CoursesVideoModal } from '@/components/courses/CoursesVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
@@ -25,7 +26,7 @@ const MyCourses = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen, showManually } = useCoursesVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('mycourses_intro_seen');
 
   // Auto-enroll in preloaded courses
   useAutoEnrollPreloadedCourses();
@@ -207,25 +208,17 @@ const MyCourses = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('myCourses.title')}</h1>
-          <p className="text-gray-600 mt-2">{t('myCourses.description')}</p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleShowVideoManually}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <HelpCircle className="h-4 w-4" />
-          How this page works
-        </Button>
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <h1 className="text-3xl font-bold text-foreground">{t('myCourses.title')}</h1>
+        <PageHelpTrigger onOpen={handleShowVideoManually} />
       </div>
+      <p className="text-muted-foreground text-center mb-6">{t('myCourses.description')}</p>
 
-      <CoursesVideoModal
+      <FirstVisitVideoModal
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
+        title="How to Use My Courses"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/aTzBu_VJ2gM?si=UcVUJGmUwbEbDGvy' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
 
       {/* Search and Filters */}

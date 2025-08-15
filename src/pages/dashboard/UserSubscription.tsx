@@ -8,10 +8,11 @@ import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 import { UsageDashboard } from '@/components/usage/UsageDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useSubscriptionVideoStorage } from '@/hooks/useSubscriptionVideoStorage';
-import { SubscriptionVideoModal } from '@/components/subscription/SubscriptionVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { useToast } from '@/hooks/use-toast';
-import { Gift, Loader2, HelpCircle } from 'lucide-react';
+import { Gift, Loader2 } from 'lucide-react';
 
 export default function UserSubscription() {
   const [couponCode, setCouponCode] = useState('');
@@ -21,7 +22,7 @@ export default function UserSubscription() {
   const { toast } = useToast();
   
   // Video storage hook
-  const { shouldShowAuto, markVideoAsSeen } = useSubscriptionVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('subscription_intro_seen');
 
   // Show video modal on first visit
   useEffect(() => {
@@ -66,27 +67,19 @@ export default function UserSubscription() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <div className="flex justify-between items-start">
-        <div className="text-center space-y-2 flex-1">
-          <h1 className="text-4xl font-bold">Manage Subscription</h1>
-          <p className="text-xl text-muted-foreground">
-            Manage your subscription, billing, and account preferences
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleShowVideoManually}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <HelpCircle className="h-4 w-4" />
-          How this page works
-        </Button>
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <h1 className="text-4xl font-bold text-foreground">Manage Subscription</h1>
+        <PageHelpTrigger onOpen={handleShowVideoManually} />
       </div>
+      <p className="text-xl text-muted-foreground text-center mb-8">
+        Manage your subscription, billing, and account preferences
+      </p>
 
-      <SubscriptionVideoModal
+      <FirstVisitVideoModal
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
+        title="How to Use Subscription"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/eGO0oX5VFcQ?si=xc8X0nCJakLVsw2l' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
 
       <Tabs defaultValue="usage" className="space-y-6">

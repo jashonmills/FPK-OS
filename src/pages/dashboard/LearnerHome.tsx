@@ -4,9 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useTranslation } from 'react-i18next';
-import { HelpCircle } from 'lucide-react';
-import { HomeVideoModal } from '@/components/dashboard/HomeVideoModal';
-import { useHomeVideoStorage } from '@/hooks/useHomeVideoStorage';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
 import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
 import APODCard from '@/components/dashboard/APODCard';
@@ -27,7 +27,7 @@ const LearnerHome = () => {
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
 
   // Video guide storage and modal state
-  const { shouldShowAuto, markVideoAsSeen } = useHomeVideoStorage();
+  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('home_intro_seen');
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   // Show video modal automatically on first visit
@@ -82,14 +82,7 @@ const LearnerHome = () => {
               fallback={`${getGreeting()}, ${getDisplayName()}!`}
             />
           </h1>
-          <button
-            onClick={handleShowVideoManually}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
-            aria-label="Watch video guide about how this page works"
-          >
-            <HelpCircle className="h-4 w-4" />
-            How this page works
-          </button>
+          <PageHelpTrigger onOpen={handleShowVideoManually} />
         </div>
         <p className="text-muted-foreground mobile-text-base text-center mt-2">
           <DualLanguageText 
@@ -170,9 +163,11 @@ const LearnerHome = () => {
       />
 
       {/* Video Guide Modal */}
-      <HomeVideoModal
+      <FirstVisitVideoModal
         isOpen={isVideoModalOpen}
         onClose={handleCloseVideoModal}
+        title="How to Use Home"
+        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
       />
     </div>
   );
