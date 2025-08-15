@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,11 @@ interface FirstVisitVideoModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  contentHtml: string;
+  videoUrl?: string;
+  contentHtml?: string;
 }
 
-export function FirstVisitVideoModal({ isOpen, onClose, title, contentHtml }: FirstVisitVideoModalProps) {
+export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, contentHtml }: FirstVisitVideoModalProps) {
   // Handle ESC key press
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -65,10 +66,24 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, contentHtml }: Fi
             className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden"
             onClick={handleVideoClick}
           >
-            <div
-              className="absolute inset-0 w-full h-full"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
+            {videoUrl ? (
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src={videoUrl}
+                title="YouTube video player" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerPolicy="strict-origin-when-cross-origin" 
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            ) : contentHtml ? (
+              <div
+                className="absolute inset-0 w-full h-full"
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+              />
+            ) : null}
           </div>
           
           <p className="text-sm text-muted-foreground mt-4 text-center">

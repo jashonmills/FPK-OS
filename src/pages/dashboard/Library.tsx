@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Search, BookOpen, Filter, Grid, List, Upload, Users, Globe, HelpCircle } from 'lucide-react';
-import { LibraryVideoModal } from '@/components/library/LibraryVideoModal';
-import { useLibraryVideoStorage } from '@/hooks/useLibraryVideoStorage';
+import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
+import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { useOpenLibrarySearch } from '@/hooks/useOpenLibrarySearch';
 import LibraryWithMonitoring from '@/components/library/LibraryWithMonitoring';
@@ -24,8 +25,8 @@ const Library = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [activeTab, setActiveTab] = useState('public-domain');
 
-  // Video guide storage and modal state
-  const { shouldShowAuto, markVideoAsSeen } = useLibraryVideoStorage();
+  // Video guide modal state
+  const { hasSeenVideo, shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('library_intro_seen');
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   // Show video modal automatically on first visit
@@ -198,14 +199,7 @@ const Library = () => {
           <div>
             <div className="flex flex-col items-center gap-2">
               <h1 className="text-3xl font-bold text-gray-900">Library</h1>
-              <button
-                onClick={handleShowVideoManually}
-                className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
-                aria-label="Watch video guide about how this page works"
-              >
-                <HelpCircle className="h-4 w-4" />
-                How this page works
-              </button>
+              <PageHelpTrigger onOpen={handleShowVideoManually} />
             </div>
             <p className="text-muted-foreground text-center mt-2">
               Discover, read, and organize your digital book collection
@@ -288,9 +282,11 @@ const Library = () => {
         </Tabs>
 
         {/* Video Guide Modal */}
-        <LibraryVideoModal
+        <FirstVisitVideoModal
           isOpen={isVideoModalOpen}
           onClose={handleCloseVideoModal}
+          title="How to Use Library"
+          videoUrl="https://www.youtube.com/embed/9t5czXP0UBk?si=gAemx4af6QQFl5Xa"
         />
       </div>
     </LibraryWithMonitoring>
