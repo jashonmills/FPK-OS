@@ -436,8 +436,8 @@ const Login = () => {
         <FirstVisitVideoModal
           isOpen={showVideoGuideModal}
           onClose={handleVideoGuideClose}
-          title="How to Sign Up"
-          videoUrl="https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha"
+          title="How to Sign Up and Use Coupon Codes"
+          contentHtml={`<div class="videoWrap"><iframe src="https://www.youtube.com/embed/YDGjZksEYmg?si=FSxE9q8YDFN-79LD" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><p style="text-align: center; margin-top: 16px; font-size: 14px; color: #6b7280;">Watch this quick guide to learn how to sign up and redeem coupon codes for discounts or free access.</p>`}
         />
         
         <FirstVisitVideoModal
