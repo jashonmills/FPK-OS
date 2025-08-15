@@ -167,7 +167,7 @@ const LearnerHome = () => {
         isOpen={isVideoModalOpen}
         onClose={handleCloseVideoModal}
         title="How to Use Home"
-        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+        videoUrl="https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha"
       />
     </div>
   );
