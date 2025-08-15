@@ -416,7 +416,7 @@ const Login = () => {
           isOpen={showVideoGuideModal}
           onClose={handleVideoGuideClose}
           title="How to Sign Up"
-          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+          videoUrl="https://www.youtube.com/embed/3ozgiObmM20?si=X7o_saMOz11bX0ha"
         />
 
         <div className="mt-8 flex flex-col items-center space-y-4 text-center">
