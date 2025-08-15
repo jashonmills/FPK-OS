@@ -1,7 +1,7 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export function useCoursesVideoStorage() {
-  const [hasSeenVideo, setHasSeenVideo] = useLocalStorage('courses-intro-video-seen', false);
+  const [hasSeenVideo, setHasSeenVideo] = useLocalStorage('mycourses_intro_seen', false);
 
   const shouldShowAuto = () => {
     return !hasSeenVideo;

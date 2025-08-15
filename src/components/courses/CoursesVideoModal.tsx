@@ -46,7 +46,7 @@ export function CoursesVideoModal({ isOpen, onClose }: CoursesVideoModalProps) {
         className="max-w-[90vw] md:max-w-[70vw] p-0 gap-0"
         onClick={handleOverlayClick}
       >
-        <DialogTitle className="sr-only">How the Courses Page Works</DialogTitle>
+        <DialogTitle className="sr-only">How to Use My Courses</DialogTitle>
         
         {/* Close button */}
         <Button
