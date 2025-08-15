@@ -1,18 +1,40 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 import { useAuth } from '@/hooks/useAuth';
+import { useGoalsVideoStorage } from '@/hooks/useGoalsVideoStorage';
+import { GoalsVideoModal } from '@/components/goals/GoalsVideoModal';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, LogIn } from 'lucide-react';
+import { AlertCircle, LogIn, HelpCircle } from 'lucide-react';
 
 const Goals = () => {
   const { user, loading: authLoading } = useAuth();
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  
+  // Video storage hook
+  const { shouldShowAuto, markVideoAsSeen } = useGoalsVideoStorage();
   
   // Initialize automatic progress tracking
   useGoalProgressTracking();
+
+  // Show video modal on first visit (only when authenticated)
+  useEffect(() => {
+    if (shouldShowAuto() && !authLoading && user) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto, authLoading, user]);
+
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setShowVideoModal(true);
+  };
   
   // Show loading state while checking authentication
   if (authLoading) {
@@ -60,12 +82,28 @@ const Goals = () => {
   return (
     <AccessibilityErrorBoundary componentName="Goals Page">
       <div className="mobile-section-spacing">
-        <div className="mb-4 sm:mb-6">
-          <h1 className="mobile-heading-xl mb-2">Goals & Progress</h1>
-          <p className="text-muted-foreground mobile-text-base">
-            Set learning goals, track your progress, and achieve your targets with intelligent automation
-          </p>
+        <div className="flex justify-between items-start mb-4 sm:mb-6">
+          <div>
+            <h1 className="mobile-heading-xl mb-2">Goals & Progress</h1>
+            <p className="text-muted-foreground mobile-text-base">
+              Set learning goals, track your progress, and achieve your targets with intelligent automation
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleShowVideoManually}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <HelpCircle className="h-4 w-4" />
+            How this page works
+          </Button>
         </div>
+
+        <GoalsVideoModal
+          isOpen={showVideoModal}
+          onClose={handleCloseVideo}
+        />
         
         <AccessibilityErrorBoundary componentName="Goals Dashboard">
           <GoalsDashboard />
