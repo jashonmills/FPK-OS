@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import NotesSection from '@/components/notes/NotesSection';
 import FileUploadSection from '@/components/notes/FileUploadSection';
 import FlashcardsSection from '@/components/notes/FlashcardsSection';
@@ -8,11 +9,34 @@ import ProgressSection from '@/components/notes/ProgressSection';
 import RAGProcessingPanel from '@/components/notes/RAGProcessingPanel';
 import RAGStatusIndicator from '@/components/ai-coach/RAGStatusIndicator';
 import MobileTabsList from '@/components/notes/MobileTabsList';
+import { useNotesVideoStorage } from '@/hooks/useNotesVideoStorage';
+import { NotesVideoModal } from '@/components/notes/NotesVideoModal';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HelpCircle } from 'lucide-react';
 
 const Notes = () => {
   const [activeTab, setActiveTab] = useState('notes');
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Video storage hook
+  const { shouldShowAuto, markVideoAsSeen } = useNotesVideoStorage();
+
+  // Show video modal on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setShowVideoModal(true);
+  };
 
   return (
     <div className="max-w-7xl mx-auto mobile-section-spacing">
@@ -24,10 +48,24 @@ const Notes = () => {
             Organize your learning materials and enhance your AI coach with personal knowledge
           </p>
         </div>
-        <div className="flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleShowVideoManually}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <HelpCircle className="h-4 w-4" />
+            How this page works
+          </Button>
           <RAGStatusIndicator compact />
         </div>
       </div>
+
+      <NotesVideoModal
+        isOpen={showVideoModal}
+        onClose={handleCloseVideo}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mobile-section-spacing">
         <MobileTabsList isMobile={isMobile} />
