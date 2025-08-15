@@ -302,7 +302,7 @@ const Settings = () => {
           isOpen={showVideoModal}
           onClose={handleCloseVideo}
           title="How to Use Settings"
-          contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/IjLiH-NWIto?si=UaS_tXWSHzaizyZB' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+          videoUrl="https://www.youtube.com/embed/IjLiH-NWIto?si=UaS_tXWSHzaizyZB"
         />
         
         <Card className="mobile-card border-0 shadow-sm">
