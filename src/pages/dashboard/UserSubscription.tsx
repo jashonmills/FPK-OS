@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +8,36 @@ import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 import { UsageDashboard } from '@/components/usage/UsageDashboard';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useSubscriptionVideoStorage } from '@/hooks/useSubscriptionVideoStorage';
+import { SubscriptionVideoModal } from '@/components/subscription/SubscriptionVideoModal';
 import { useToast } from '@/hooks/use-toast';
-import { Gift, Loader2 } from 'lucide-react';
+import { Gift, Loader2, HelpCircle } from 'lucide-react';
 
 export default function UserSubscription() {
   const [couponCode, setCouponCode] = useState('');
   const [redeeming, setRedeeming] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const { redeemCoupon } = useSubscription();
   const { toast } = useToast();
+  
+  // Video storage hook
+  const { shouldShowAuto, markVideoAsSeen } = useSubscriptionVideoStorage();
+
+  // Show video modal on first visit
+  useEffect(() => {
+    if (shouldShowAuto()) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto]);
+
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setShowVideoModal(true);
+  };
 
   const handleRedeemCoupon = async () => {
     if (!couponCode.trim()) {
@@ -44,12 +66,28 @@ export default function UserSubscription() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold">Manage Subscription</h1>
-        <p className="text-xl text-muted-foreground">
-          Manage your subscription, billing, and account preferences
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="text-center space-y-2 flex-1">
+          <h1 className="text-4xl font-bold">Manage Subscription</h1>
+          <p className="text-xl text-muted-foreground">
+            Manage your subscription, billing, and account preferences
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleShowVideoManually}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <HelpCircle className="h-4 w-4" />
+          How this page works
+        </Button>
       </div>
+
+      <SubscriptionVideoModal
+        isOpen={showVideoModal}
+        onClose={handleCloseVideo}
+      />
 
       <Tabs defaultValue="usage" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
