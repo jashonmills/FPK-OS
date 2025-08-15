@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap, Volume2, VolumeX } from 'lucide-react';
+import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap, Volume2, VolumeX, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -63,6 +63,10 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     null
   );
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
+  const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
+    localStorage.getItem('aistudycoach_voice_autoplay') === 'true'
+  );
   
   const { toast } = useToast();
   const { speak, stop, isSpeaking, isSupported } = useTextToSpeech();
@@ -263,11 +267,14 @@ What would you like to learn about today?`;
     }
   }, [speak, cleanTextForSpeech]);
 
-  // Auto-speak new AI messages when TTS is enabled
+  // Auto-speak new AI messages when TTS is enabled (only if auto-play is enabled)
   useEffect(() => {
     console.log('TTS Effect triggered:', { ttsEnabled: settings.enabled, messagesLength: messages.length, isLoading });
     
-    if (settings.enabled && settings.autoRead && messages.length > 0 && !isLoading) {
+    // Check if auto-play is enabled in localStorage
+    const autoPlayEnabled = localStorage.getItem('aistudycoach_voice_autoplay') === 'true';
+    
+    if (settings.enabled && settings.autoRead && autoPlayEnabled && messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
       console.log('Last message:', { id: lastMessage.id, role: lastMessage.role, lastSpokenId: lastSpokenMessageId });
       
@@ -636,6 +643,29 @@ What specific topic from your studies would you like to dive deeper into?`;
     }
   };
 
+  // Handle playing the introduction
+  const handlePlayIntroduction = useCallback(() => {
+    if (messages.length > 0) {
+      const welcomeMessage = messages.find(msg => msg.id === 'welcome' && msg.role === 'assistant');
+      if (welcomeMessage) {
+        speakText(welcomeMessage.content);
+        setHasPlayedIntro(true);
+      }
+    }
+  }, [messages, speakText]);
+
+  // Handle auto-play toggle
+  const handleAutoPlayToggle = useCallback(() => {
+    const newAutoPlayEnabled = !autoPlayEnabled;
+    setAutoPlayEnabled(newAutoPlayEnabled);
+    localStorage.setItem('aistudycoach_voice_autoplay', newAutoPlayEnabled.toString());
+    
+    if (newAutoPlayEnabled && !hasPlayedIntro && messages.length > 0) {
+      // If enabling auto-play and haven't played intro yet, play it now
+      setTimeout(() => handlePlayIntroduction(), 500);
+    }
+  }, [autoPlayEnabled, hasPlayedIntro, messages.length, handlePlayIntroduction]);
+
   return (
     <>
       <Card className={cn("w-full", fixedHeight ? "h-full flex flex-col" : "min-h-[600px]")}>
@@ -711,6 +741,34 @@ What specific topic from your studies would you like to dive deeper into?`;
         </CardHeader>
         
         <CardContent className={cn("flex flex-col", fixedHeight ? "flex-1 min-h-0" : "")}>
+          {/* Audio Introduction Controls */}
+          {!hasPlayedIntro && messages.length > 0 && messages[0].role === 'assistant' && (
+            <div className="flex items-center justify-between p-3 mb-4 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handlePlayIntroduction}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  size="sm"
+                  aria-label="Play introduction"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Play Introduction
+                </Button>
+                <span className="text-sm text-purple-700">Listen to a spoken welcome message</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoPlayEnabled}
+                    onChange={handleAutoPlayToggle}
+                    className="rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-purple-700">Enable auto-play next time</span>
+                </label>
+              </div>
+            </div>
+          )}
           {/* Messages Area */}
           <div 
             ref={messagesContainerRef}
