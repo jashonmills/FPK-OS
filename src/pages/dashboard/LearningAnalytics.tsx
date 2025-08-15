@@ -1,10 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3, HelpCircle } from 'lucide-react';
 import RouteBoundary from '@/components/RouteBoundary';
 import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
+import { useAnalyticsVideoStorage } from '@/hooks/useAnalyticsVideoStorage';
+import { AnalyticsVideoModal } from '@/components/analytics/AnalyticsVideoModal';
 
 // Import analytics components with error boundaries
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
@@ -53,16 +56,52 @@ const AICoachAnalytics = React.lazy(() =>
 
 const LearningAnalytics = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const { data: quickStats, isLoading: quickStatsLoading } = useQuickStatsLive();
+  
+  // Video storage hook
+  const { shouldShowAuto, markVideoAsSeen } = useAnalyticsVideoStorage();
+
+  // Show video modal on first visit
+  useEffect(() => {
+    if (shouldShowAuto() && !quickStatsLoading) {
+      setShowVideoModal(true);
+    }
+  }, [shouldShowAuto, quickStatsLoading]);
+
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    markVideoAsSeen();
+  };
+
+  const handleShowVideoManually = () => {
+    setShowVideoModal(true);
+  };
 
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Learning Analytics</h1>
-        <p className="text-gray-600">
-          Track your learning progress and insights across all activities
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">Learning Analytics</h1>
+          <p className="text-gray-600">
+            Track your learning progress and insights across all activities
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleShowVideoManually}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <HelpCircle className="h-4 w-4" />
+          How this page works
+        </Button>
       </div>
+
+      <AnalyticsVideoModal
+        isOpen={showVideoModal}
+        onClose={handleCloseVideo}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
