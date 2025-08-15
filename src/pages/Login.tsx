@@ -117,12 +117,12 @@ const Login = () => {
     }
   }, [user, loading, navigate]);
 
-  // Auto-show video guide for signup tab
+  // Auto-show video guide for signup tab (only once)
   useEffect(() => {
-    if (activeTab === 'signup' && shouldShowAuto) {
+    if (activeTab === 'signup' && shouldShowAuto() && !showVideoGuideModal) {
       setShowVideoGuideModal(true);
     }
-  }, [activeTab, shouldShowAuto]);
+  }, [activeTab, shouldShowAuto, showVideoGuideModal]);
 
   const [signInData, setSignInData] = useState({
     email: '',
