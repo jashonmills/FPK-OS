@@ -93,7 +93,7 @@ const LearningAnalytics = () => {
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
         title="How to Use Analytics"
-        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/yfKauiMPEX0?si=5oon8ri4QN3EptAX' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+        videoUrl="https://www.youtube.com/embed/yfKauiMPEX0?si=5oon8ri4QN3EptAX"
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
