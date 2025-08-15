@@ -218,7 +218,7 @@ const MyCourses = () => {
         isOpen={showVideoModal}
         onClose={handleCloseVideo}
         title="How to Use My Courses"
-        contentHtml="<iframe width='560' height='315' src='https://www.youtube.com/embed/aTzBu_VJ2gM?si=UcVUJGmUwbEbDGvy' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerpolicy='strict-origin-when-cross-origin' allowfullscreen></iframe>"
+        videoUrl="https://www.youtube.com/embed/aTzBu_VJ2gM?si=UcVUJGmUwbEbDGvy"
       />
 
       {/* Search and Filters */}
