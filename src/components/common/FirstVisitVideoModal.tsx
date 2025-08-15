@@ -51,7 +51,7 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="helpModal max-w-[min(1100px,90vw)] w-full border-0 p-4 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto"
+        className="helpModal helpModal-top max-w-[min(1100px,90vw)] w-full border-0 p-4 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
         onClick={handleOverlayClick}
       >
         <DialogHeader className="p-0 mb-3">

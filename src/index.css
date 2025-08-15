@@ -436,7 +436,28 @@
     @apply hidden;
   }
 
-  /* Video Modal Utilities - Library Modal Style */
+  /* Video Modal Utilities - Top-positioned modal */
+  :root {
+    --help-modal-top: 120px;
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --help-modal-top: 100px;
+    }
+  }
+
+  /* Override default dialog positioning */
+  .helpModal-top {
+    position: fixed !important;
+    top: var(--help-modal-top) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    max-height: calc(100vh - var(--help-modal-top) - 32px) !important;
+    overflow-y: auto;
+  }
+
   .helpModal {
     max-width: min(1100px, 90vw);
     width: 100%;
@@ -445,8 +466,12 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     position: relative;
     padding: 16px;
-    max-height: 90vh;
-    overflow-y: auto;
+  }
+
+  @media (max-width: 640px) {
+    .helpModal {
+      padding: 16px;
+    }
   }
 
   .video-modal-content {
