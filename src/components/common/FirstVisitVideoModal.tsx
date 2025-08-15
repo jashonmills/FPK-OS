@@ -51,44 +51,36 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-[90vw] md:max-w-[70vw] p-0 bg-background/95 backdrop-blur-sm border-border"
+        className="helpModal max-w-[min(1100px,90vw)] w-full border-0 p-6 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
         onClick={handleOverlayClick}
       >
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+        <DialogHeader className="p-0 mb-4">
+          <DialogTitle className="modalTitle flex items-center gap-2 text-xl font-semibold">
             <HelpCircle className="h-5 w-5 text-primary" />
             {title}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="px-6 pb-6">
-          <div 
-            className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden"
-            onClick={handleVideoClick}
-          >
-            {videoUrl ? (
+        <div className="p-0">
+          {videoUrl ? (
+            <div className="videoWrap">
               <iframe 
-                width="100%" 
-                height="100%" 
                 src={videoUrl}
                 title="YouTube video player" 
                 frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 referrerPolicy="strict-origin-when-cross-origin" 
                 allowFullScreen
-                className="absolute inset-0 w-full h-full"
+                onClick={handleVideoClick}
               />
-            ) : contentHtml ? (
-              <div
-                className="absolute inset-0 w-full h-full"
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
-              />
-            ) : null}
-          </div>
-          
-          <p className="text-sm text-muted-foreground mt-4 text-center">
-            Learn how to make the most of this page's features and enhance your learning experience.
-          </p>
+            </div>
+          ) : contentHtml ? (
+            <div
+              className="w-full"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              onClick={handleVideoClick}
+            />
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>

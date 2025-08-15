@@ -435,4 +435,52 @@
   .no-debug [data-dev-only] {
     @apply hidden;
   }
+
+  /* Video Modal Utilities - Library Modal Style */
+  .helpModal {
+    max-width: min(1100px, 90vw);
+    width: 100%;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    position: relative;
+    padding: 24px;
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    line-height: 1;
+    font-size: 20px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  /* Responsive video like Library */
+  .videoWrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+  }
+
+  .videoWrap iframe,
+  .videoWrap video {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0;
+    display: block;
+  }
+
+  /* Remove accidental inner spacing that causes offset */
+  .helpModal .videoWrap > * {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
