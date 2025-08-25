@@ -10,10 +10,16 @@ import HomepageFooter from '@/components/homepage/HomepageFooter';
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" 
+         style={{
+           backgroundImage: 'inherit', // Will inherit from parent or use fallback
+           backgroundSize: 'cover',
+           backgroundPosition: 'center',
+           backgroundRepeat: 'no-repeat'
+         }}>
       <HomepageNavigation />
       <HomepageHero />
-      <div className="bg-gradient-to-br from-fpk-purple via-fpk-secondary to-fpk-amber">
+      <div style={{ backgroundColor: 'transparent' }}> {/* Remove gradient background */}
         <IntroSection />
         <OfferingsSection />
         <WhyChooseSection />

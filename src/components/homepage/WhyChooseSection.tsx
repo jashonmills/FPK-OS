@@ -13,12 +13,12 @@ const WhyChooseSection = () => {
   return (
     <section className="py-20 px-6">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white/85 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-white/35">
+        <div className="bg-white/75 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 text-center">
             Why Choose FPK University?
           </h2>
           
-          <p className="text-xl text-slate-600 mb-12 text-center leading-relaxed">
+          <p className="text-xl text-slate-700 mb-12 text-center leading-relaxed">
             Because learning isn't one-size-fits-all. We understand the struggles many children face in traditional systems, and we've built a platform that works with their strengths — not against them.
           </p>
           
@@ -32,7 +32,7 @@ const WhyChooseSection = () => {
                 <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
                   <Check size={16} className="text-white" />
                 </div>
-                <p className="text-lg text-slate-700 leading-relaxed">
+                <p className="text-lg text-slate-800 leading-relaxed">
                   {benefit}
                 </p>
               </div>

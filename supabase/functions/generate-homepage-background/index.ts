@@ -29,7 +29,7 @@ serve(async (req) => {
 
     console.log('Generating FPK University homepage background...');
 
-    const prompt = `A vibrant, futuristic educational world inspired by colorful character art. Dynamic classroom environment with floating books, glowing science symbols, rainbow energy shards, mathematical formulas in light trails, creative sparks bursting like fireworks, and cosmic educational elements. Bright purples, oranges, blues, and energetic colors. Empowering learning atmosphere with depth and movement. Ultra high resolution 16:9 aspect ratio.`;
+    const prompt = `A vibrant, dynamic, full-width background inspired by colorful anime/cartoon character art with spiky colorful hair and energy effects. Features: explosive color splashes in red, orange, yellow, green, blue, purple; energy shards and light beams radiating outward; creative sparks and magical particles floating; educational symbols (books, atoms, mathematical formulas) integrated into the energy field; paintbrush strokes and artistic splatters; cosmic elements with stars and light; uplifting and energetic atmosphere perfect for a learning platform. Ultra high resolution 16:9 aspect ratio. No text or characters, just pure energy and color.`;
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',

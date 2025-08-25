@@ -27,17 +27,17 @@ const OfferingsSection = () => {
   return (
     <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white/85 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-white/35">
+        <div className="bg-white/75 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 text-center">
             Our Core Offerings
           </h2>
-          <p className="text-xl text-slate-600 mb-12 text-center max-w-3xl mx-auto">
+          <p className="text-xl text-slate-700 mb-12 text-center max-w-3xl mx-auto">
             At FPK University, education goes beyond worksheets and textbooks. We give learners, parents, and teachers the tools to succeed:
           </p>
           
           <div className="grid md:grid-cols-2 gap-8">
             {offerings.map((offering, index) => (
-              <div key={index} className="flex items-start space-x-4 p-6 rounded-xl bg-white/50 border border-white/30 hover:bg-white/70 transition-all duration-200">
+              <div key={index} className="flex items-start space-x-4 p-6 rounded-xl bg-white/60 border border-white/40 hover:bg-white/80 transition-all duration-200 shadow-md">
                 <div className="text-4xl mb-2 flex-shrink-0">
                   {offering.emoji}
                 </div>
@@ -45,7 +45,7 @@ const OfferingsSection = () => {
                   <h3 className="text-2xl font-bold text-slate-900 mb-3">
                     {offering.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-slate-700 leading-relaxed">
                     {offering.description}
                   </p>
                 </div>
