@@ -48,7 +48,7 @@ const HomepageFooter = () => {
           
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
             <p className="text-sm text-slate-600">
-              © 2025 FPK University | Empowering Learning by Olive Hickmott
+              © 2025 FPK University | Empowering Learning
             </p>
           </div>
         </div>
