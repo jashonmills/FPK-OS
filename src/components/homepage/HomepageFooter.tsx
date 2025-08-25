@@ -15,8 +15,12 @@ const HomepageFooter = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Logo and Copyright */}
             <div className="flex items-center space-x-4 mb-6 md:mb-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">F</span>
+              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10">
+                <img 
+                  src="/lovable-uploads/aee2697b-9823-4ce1-974d-680b18c2921f.png" 
+                  alt="FPK University Logo" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
               <div>
                 <div className="text-lg font-bold text-slate-900">FPK University</div>
