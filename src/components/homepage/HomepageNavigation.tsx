@@ -9,7 +9,7 @@ const HomepageNavigation = () => {
   const navLinks = [
     { label: 'Empowering Learning', href: 'https://empowering-learning.fpkadapt.com/', external: true },
     { label: 'Learning Portal', href: '/dashboard/learner' },
-    { label: 'Games', href: '/games', locked: true },
+    { label: 'Games', href: 'https://games.fpkadapt.com/', external: true },
     { label: 'Contact', href: '/contact' },
   ];
 
@@ -32,15 +32,7 @@ const HomepageNavigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              link.locked ? (
-                <span
-                  key={link.href}
-                  className="text-slate-400 font-medium flex items-center gap-1 cursor-not-allowed"
-                >
-                  <Lock size={16} />
-                  {link.label}
-                </span>
-              ) : link.external ? (
+              link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
@@ -82,15 +74,7 @@ const HomepageNavigation = () => {
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
-                link.locked ? (
-                  <span
-                    key={link.href}
-                    className="text-slate-400 font-medium flex items-center gap-1 cursor-not-allowed py-2"
-                  >
-                    <Lock size={16} />
-                    {link.label}
-                  </span>
-                ) : link.external ? (
+                link.external ? (
                   <a
                     key={link.href}
                     href={link.href}
