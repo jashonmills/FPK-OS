@@ -16,15 +16,18 @@ const HomepageHero = () => {
       console.log('Generating homepage background...');
       const { data, error } = await supabase.functions.invoke('generate-homepage-background');
       
-      if (error) throw error;
+      if (error) {
+        console.log('Background generation failed, using fallback gradient');
+        setIsLoading(false);
+        return;
+      }
       
       if (data?.imageUrl) {
         setBackgroundImage(data.imageUrl);
         console.log('Background generated:', data.imageUrl);
       }
     } catch (error) {
-      console.error('Failed to generate background:', error);
-      // Use fallback gradient
+      console.log('Background generation failed, using fallback gradient:', error);
     } finally {
       setIsLoading(false);
     }
