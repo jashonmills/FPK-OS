@@ -8,7 +8,6 @@ const HomepageNavigation = () => {
 
   const navLinks = [
     { label: 'Learning Portal', href: '/dashboard/learner' },
-    { label: 'Courses', href: '/courses' },
     { label: 'Games', href: '/games' },
     { label: 'Contact', href: '/contact' },
   ];
