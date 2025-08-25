@@ -9,7 +9,7 @@ const HomepageNavigation = () => {
   const navLinks = [
     { label: 'Empowering Learning', href: 'https://empowering-learning.fpkadapt.com/', external: true },
     { label: 'Learning Portal', href: '/dashboard/learner' },
-    { label: 'Games', href: 'https://games.fpkadapt.com/', external: true },
+    { label: 'Games', href: 'https://fpk-games.lovable.app/', external: true },
   ];
 
   return (
