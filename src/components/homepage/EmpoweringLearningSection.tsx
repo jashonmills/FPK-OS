@@ -8,9 +8,9 @@ const EmpoweringLearningSection = () => {
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
             <img 
-              src={oliveImage} 
+              src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/olive.png" 
               alt="Olive Hickmott, creator of Empowering Learning" 
-              className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full flex-shrink-0"
+              className="w-32 h-32 md:w-40 md:h-40 object-cover flex-shrink-0"
             />
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 text-center md:text-left">
               The Empowering Learning Foundation
