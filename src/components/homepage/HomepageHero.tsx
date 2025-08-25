@@ -33,14 +33,10 @@ const HomepageHero = () => {
     }
   };
 
-  const backgroundStyle = backgroundImage 
-    ? { backgroundImage: `url(${backgroundImage})` }
-    : {};
-
   return (
     <div 
-      className={`relative min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple via-fpk-secondary to-fpk-amber bg-cover bg-center bg-no-repeat ${isLoading ? 'animate-pulse' : ''}`}
-      style={backgroundStyle}
+      className={`relative min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-blue-500 to-orange-500 bg-cover bg-center bg-no-repeat ${isLoading ? 'animate-pulse' : ''}`}
+      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}}
     >
       {/* Gradient overlay for better text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
