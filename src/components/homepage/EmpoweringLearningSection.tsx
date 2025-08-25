@@ -22,9 +22,20 @@ const EmpoweringLearningSection = () => {
               FPK University helps children grow their WFA by connecting visual memory to words, making learning natural, memorable, and enjoyable.
             </p>
             
-            <p className="text-lg text-slate-700 leading-relaxed">
+            <p className="text-lg text-slate-700 mb-8 leading-relaxed">
               This approach has already helped <strong>thousands of children</strong> unlock their creativity, boost self-esteem, and rediscover the joy of learning.
             </p>
+            
+            <div className="text-center">
+              <a 
+                href="https://empowering-learning.fpkadapt.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-6 py-3 bg-fpk-orange hover:bg-fpk-orange/90 text-white font-semibold rounded-lg transition-colors duration-200"
+              >
+                Learn More About Empowering Learning
+              </a>
+            </div>
           </div>
         </div>
       </div>
