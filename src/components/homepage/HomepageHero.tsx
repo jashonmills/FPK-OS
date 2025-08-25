@@ -1,60 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 
 const HomepageHero = () => {
-  const [backgroundImage, setBackgroundImage] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    generateBackground();
-  }, []);
-
-  const generateBackground = async () => {
-    try {
-      console.log('Generating homepage background...');
-      const { data, error } = await supabase.functions.invoke('generate-homepage-background');
-      
-      if (error) {
-        console.log('Background generation failed, using fallback gradient');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (data?.imageUrl) {
-        setBackgroundImage(data.imageUrl);
-        console.log('Background generated:', data.imageUrl);
-      }
-    } catch (error) {
-      console.log('Background generation failed, using fallback gradient:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div 
-      className={`relative min-h-screen flex items-center justify-center ${isLoading ? 'animate-pulse' : ''}`}
-      style={
-        backgroundImage 
-          ? { 
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }
-          : {
-              backgroundColor: '#1e40af', // Fallback solid color instead of gradient
-            }
-      }
-    >
-      {/* Subtle overlay for text readability */}
+    <div className="relative min-h-screen flex items-center justify-center">
+      {/* Subtle overlay for better text readability */}
       <div className="absolute inset-0 bg-black/10" />
       
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
         {/* Main Hero Content */}
-        <div className="bg-white/75 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 mb-8">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 mb-8">
           <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
             FPK University
           </h1>
