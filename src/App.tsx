@@ -67,6 +67,10 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const EmailConfirm = lazy(() => import("./pages/EmailConfirm").then(module => ({ default: module.EmailConfirm })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
+// Homepage related pages
+const Games = lazy(() => import("./pages/Games"));
+const Contact = lazy(() => import("./pages/Contact"));
+
 // Optimized loading component with better UX
 const PageLoader: React.FC = React.memo(() => (
   <div className="min-h-[400px] flex items-center justify-center">
@@ -159,10 +163,15 @@ const App: React.FC = () => {
           {/* Public Routes */}
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
+          <Route path="/games" element={<LazyRoute><Games /></LazyRoute>} />
+          <Route path="/contact" element={<LazyRoute><Contact /></LazyRoute>} />
+          <Route path="/courses" element={<Navigate to="/dashboard/learner/courses" replace />} />
           
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
           <Route path="/terms-of-service" element={<LazyRoute><TermsOfService /></LazyRoute>} />
+          <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+          <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
           
           {/* 404 Route */}
           <Route path="*" element={<LazyRoute><NotFound /></LazyRoute>} />

@@ -71,6 +71,9 @@
     --mobile-line-height: 1.6;
     --desktop-line-height: 1.5;
     --touch-target-min: 44px;
+
+    /* FPK Homepage Colors */
+    --fpk-orange: 18 100% 54%;
   }
 
   .dark {

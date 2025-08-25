@@ -1,21 +1,25 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import HomepageNavigation from '@/components/homepage/HomepageNavigation';
+import HomepageHero from '@/components/homepage/HomepageHero';
+import IntroSection from '@/components/homepage/IntroSection';
+import OfferingsSection from '@/components/homepage/OfferingsSection';
+import WhyChooseSection from '@/components/homepage/WhyChooseSection';
+import EmpoweringLearningSection from '@/components/homepage/EmpoweringLearningSection';
+import CTASection from '@/components/homepage/CTASection';
+import HomepageFooter from '@/components/homepage/HomepageFooter';
 
 const Index = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to login page
-    navigate('/login');
-  }, [navigate]);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber">
-      <div className="text-center text-white">
-        <h1 className="text-4xl font-bold mb-4">FPK University</h1>
-        <p className="text-xl">Redirecting to learner portal...</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-fpk-purple via-fpk-secondary to-fpk-amber">
+      <HomepageNavigation />
+      <HomepageHero />
+      <IntroSection />
+      <OfferingsSection />
+      <WhyChooseSection />
+      <EmpoweringLearningSection />
+      <CTASection />
+      <HomepageFooter />
     </div>
   );
 };

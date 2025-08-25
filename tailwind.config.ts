@@ -68,6 +68,7 @@ export default {
 				'fpk-purple': '#4C1D6B',  /* Darker purple */
 				'fpk-amber': '#B45309',   /* Darker amber for better contrast */
 				'fpk-card': '#FBF6F0',
+				'fpk-orange': 'hsl(var(--fpk-orange))',
 			},
 			fontFamily: {
 				// Accessibility fonts with proper fallbacks
