@@ -10,7 +10,7 @@ const EmpoweringLearningSection = () => {
             <img 
               src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/olive.png" 
               alt="Olive Hickmott, creator of Empowering Learning" 
-              className="w-32 h-32 md:w-40 md:h-40 object-cover flex-shrink-0"
+              className="w-32 h-32 md:w-40 md:h-40 object-contain flex-shrink-0"
             />
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 text-center md:text-left">
               The Empowering Learning Foundation
