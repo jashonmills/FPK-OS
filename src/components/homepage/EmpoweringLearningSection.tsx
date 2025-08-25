@@ -1,13 +1,21 @@
 import React from 'react';
+import oliveImage from '@/assets/olive-hickmott.png';
 
 const EmpoweringLearningSection = () => {
   return (
     <section className="py-20 px-6 w-full">
       <div className="w-full max-w-none mx-auto">
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 text-center">
-            The Empowering Learning Foundation
-          </h2>
+          <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+            <img 
+              src={oliveImage} 
+              alt="Olive Hickmott, creator of Empowering Learning" 
+              className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full flex-shrink-0"
+            />
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 text-center md:text-left">
+              The Empowering Learning Foundation
+            </h2>
+          </div>
           
           <div className="prose prose-lg prose-slate max-w-none">
             <p className="text-xl text-slate-800 mb-6 leading-relaxed">
