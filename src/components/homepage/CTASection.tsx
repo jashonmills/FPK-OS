@@ -5,9 +5,9 @@ import { Sparkles } from 'lucide-react';
 
 const CTASection = () => {
   return (
-    <section className="py-20 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20">
+    <section className="py-20 px-6 w-full">
+      <div className="w-full max-w-none mx-auto text-center">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 max-w-4xl mx-auto">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-purple-500 rounded-full flex items-center justify-center">
               <Sparkles size={32} className="text-white" />

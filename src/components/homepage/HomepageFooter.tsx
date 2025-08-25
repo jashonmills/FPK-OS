@@ -9,9 +9,9 @@ const HomepageFooter = () => {
   ];
 
   return (
-    <footer className="py-12 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+    <footer className="py-12 px-6 w-full">
+      <div className="w-full max-w-none mx-auto">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Logo and Copyright */}
             <div className="flex items-center space-x-4 mb-6 md:mb-0">

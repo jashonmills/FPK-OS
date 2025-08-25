@@ -8,9 +8,9 @@ const HomepageHero = () => {
       {/* Subtle overlay for better text readability */}
       <div className="absolute inset-0 bg-black/10" />
       
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
+      <div className="w-full px-6 text-center">
         {/* Main Hero Content */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 mb-8">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 mb-8 max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
             FPK University
           </h1>

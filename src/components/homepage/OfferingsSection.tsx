@@ -25,9 +25,9 @@ const offerings = [
 
 const OfferingsSection = () => {
   return (
-    <section className="py-20 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20">
+    <section className="py-20 px-6 w-full">
+      <div className="w-full max-w-none mx-auto">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 text-center">
             Our Core Offerings
           </h2>
