@@ -27,7 +27,7 @@ const EmpoweringLearningSection = () => {
             </p>
             
             <div className="text-center">
-              <a href="https://empowering-learning.fpkadapt.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 bg-fpk-orange hover:bg-fpk-orange/90 text-white font-semibold rounded-lg transition-colors duration-200">
+              <a href="https://empoweringlearning.fpkadapt.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 bg-fpk-orange hover:bg-fpk-orange/90 text-white font-semibold rounded-lg transition-colors duration-200">
                 Learn More About Empowering Learning
               </a>
             </div>
