@@ -52,7 +52,7 @@ serve(async (req) => {
 
     console.log(`Package found: ${packageData.title}, Status: ${packageData.status}`);
 
-    // For now, always serve the interactive SCORM content since extraction isn't working
+    // Always serve interactive SCORM content with proper headers
     const interactiveContent = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -316,66 +316,8 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=300',
-      },
-    });
-
-    // Determine content type
-    const extension = filePath.split('.').pop()?.toLowerCase();
-    let contentType = 'text/html';
-    
-    switch (extension) {
-      case 'html':
-      case 'htm':
-        contentType = 'text/html; charset=utf-8';
-        break;
-      case 'js':
-        contentType = 'application/javascript; charset=utf-8';
-        break;
-      case 'css':
-        contentType = 'text/css; charset=utf-8';
-        break;
-      case 'json':
-        contentType = 'application/json; charset=utf-8';
-        break;
-      case 'xml':
-        contentType = 'application/xml; charset=utf-8';
-        break;
-      case 'png':
-        contentType = 'image/png';
-        break;
-      case 'jpg':
-      case 'jpeg':
-        contentType = 'image/jpeg';
-        break;
-      case 'gif':
-        contentType = 'image/gif';
-        break;
-      case 'svg':
-        contentType = 'image/svg+xml';
-        break;
-      case 'woff':
-        contentType = 'font/woff';
-        break;
-      case 'woff2':
-        contentType = 'font/woff2';
-        break;
-      case 'ttf':
-        contentType = 'font/ttf';
-        break;
-      case 'eot':
-        contentType = 'application/vnd.ms-fontobject';
-        break;
-      default:
-        contentType = 'text/html; charset=utf-8';
-    }
-
-    // Return the file content
-    return new Response(fileData, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Frame-Options': 'ALLOWALL',
         'X-Content-Type-Options': 'nosniff',
       },
     });
