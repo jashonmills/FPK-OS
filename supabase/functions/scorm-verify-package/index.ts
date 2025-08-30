@@ -1,3 +1,4 @@
+// /functions/scorm-verify-package/index.ts
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const BUCKET = 'scorm-packages';
 

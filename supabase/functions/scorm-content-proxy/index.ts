@@ -8,7 +8,6 @@ function normalizePath(path: string): string {
   if (p.endsWith('/')) p += 'index.html';
   return p;
 }
-
 function mime(p: string): string {
   p = p.toLowerCase();
   if (p.endsWith('.html') || p.endsWith('.htm')) return 'text/html; charset=utf-8';
@@ -25,7 +24,6 @@ function mime(p: string): string {
   if (p.endsWith('.mp3')) return 'audio/mpeg';
   return 'application/octet-stream';
 }
-
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -54,52 +52,12 @@ Deno.serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    
-    // Log the incoming request for debugging
-    console.log('SCORM Proxy Request:', {
-      method: req.method,
-      url: req.url,
-      pathname: url.pathname,
-      search: url.search,
-      searchParams: Object.fromEntries(url.searchParams)
-    });
-
-    let pkg = '';
-    let rawPath = '';
-
-    // Method 1: Query parameters (?pkg=...&path=...)
-    const queryPkg = url.searchParams.get('pkg');
-    const queryPath = url.searchParams.get('path');
-    
-    if (queryPkg && queryPath) {
-      pkg = queryPkg;
-      rawPath = queryPath;
-      console.log('Using query parameter format:', { pkg, rawPath });
-    } else {
-      // Method 2: Path-based format (/packageId/filepath)
-      // Remove leading /functions/v1/scorm-content-proxy/ or similar
-      const cleanPath = url.pathname.replace(/^.*\/scorm-content-proxy\/?/, '');
-      const pathParts = cleanPath.split('/');
-      
-      if (pathParts.length >= 2) {
-        pkg = pathParts[0];
-        rawPath = pathParts.slice(1).join('/');
-        console.log('Using path-based format:', { pkg, rawPath, cleanPath, pathParts });
-      }
-    }
-
+    const pkg = url.searchParams.get('pkg');
+    const rawPath = url.searchParams.get('path') || '';
     const path = normalizePath(rawPath);
-    
-    console.log('Parsed request:', { pkg, rawPath, normalizedPath: path });
-    
-    if (!pkg || !path) {
-      const error = `Bad Request: Missing package ID or path. pkg="${pkg}", path="${path}"`;
-      console.error(error);
-      return new Response(error, { status: 400 });
-    }
+    if (!pkg || !path) return new Response('Bad Request', { status: 400 });
 
     const objectPath = `scorm-unpacked/${pkg}/${path}`.replace(/\/+/g, '/');
-    console.log('Attempting to download:', objectPath);
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -108,25 +66,12 @@ Deno.serve(async (req) => {
     );
 
     const { data, error } = await supabase.storage.from(BUCKET).download(objectPath);
-    
-    if (error || !data) {
-      const errorMsg = `Not Found: ${objectPath} (Error: ${error?.message || 'No data'})`;
-      console.error(errorMsg);
-      return new Response(errorMsg, { status: 404 });
-    }
+    if (error || !data) return new Response(`Not Found: ${objectPath}`, { status: 404 });
 
     const buf = await data.arrayBuffer();
-    const contentType = mime(path);
-    
-    console.log('Successfully serving file:', { 
-      objectPath, 
-      contentType, 
-      size: buf.byteLength 
-    });
-
     return new Response(buf, {
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': mime(path),
         'Cache-Control': 'public, max-age=600',
         'X-Content-Type-Options': 'nosniff',
         'Content-Security-Policy': CSP,
@@ -134,8 +79,6 @@ Deno.serve(async (req) => {
       }
     });
   } catch (e) {
-    const errorMsg = `Proxy error: ${e.message}`;
-    console.error(errorMsg, e);
-    return new Response(errorMsg, { status: 500 });
+    return new Response(`Proxy error: ${e.message}`, { status: 500 });
   }
 });
