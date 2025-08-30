@@ -137,7 +137,12 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
       // Reload the iframe after a short delay
       setTimeout(() => {
         if (iframeRef.current) {
-          iframeRef.current.src = iframeRef.current.src;
+          const currentSrc = iframeRef.current.src;
+          addDebugLog(`🔄 Reloading iframe: ${currentSrc}`);
+          // Force reload by adding a cache-busting parameter
+          const url = new URL(currentSrc);
+          url.searchParams.set('t', Date.now().toString());
+          iframeRef.current.src = url.toString();
         }
       }, 1000);
       
@@ -420,6 +425,20 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                 <Button variant="outline" size="sm" onClick={handleRestart}>
                   <RotateCcw className="h-4 w-4 mr-1" />
                   Restart SCO
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    if (iframeRef.current) {
+                      const url = new URL(iframeRef.current.src);
+                      url.searchParams.set('refresh', Date.now().toString());
+                      iframeRef.current.src = url.toString();
+                      addDebugLog('🔄 Manual iframe refresh triggered');
+                    }
+                  }}
+                >
+                  🔄 Refresh Content
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleExit}>
                   Exit Course
