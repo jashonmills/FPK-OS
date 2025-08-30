@@ -37,7 +37,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useAppUser } from "@/hooks/useAppUser";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 
@@ -46,7 +46,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
-  const { isAdmin, isInstructor } = useUserRole();
+  const { isAdmin } = useAppUser();
   const { t, tString } = useGlobalTranslation();
 
   const learnerMenuItems = [
@@ -220,7 +220,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        {(isAdmin || isInstructor) && (
+        {isAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
               Administration
@@ -252,8 +252,8 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* SCORM - Only show if user is admin or instructor */}
-        {(isAdmin || isInstructor) && (
+        {/* SCORM - Admin only */}
+        {isAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
               SCORM

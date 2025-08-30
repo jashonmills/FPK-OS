@@ -59,6 +59,26 @@ serve(async (req) => {
       }
     );
 
+    // Verify user is authenticated and is admin
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userRole = (user.user_metadata as any)?.role;
+    if (userRole !== 'admin') {
+      console.log(`Access denied: User ${user.id} has role '${userRole}', admin required`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: Admin access required for SCORM parsing' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`SCORM Parser access granted for admin user: ${user.id}`);
+
     const { packageId, zipPath } = await req.json();
     
     if (!packageId || !zipPath) {

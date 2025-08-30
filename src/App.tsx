@@ -9,6 +9,7 @@ import { SubscriptionGate } from '@/components/SubscriptionGate';
 import { ConsentManager } from '@/components/compliance/ConsentManager';
 import { RouteProtector } from '@/components/RouteProtector';
 import { OnboardingFlowManager } from '@/components/OnboardingFlowManager';
+import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import "./App.css";
@@ -72,6 +73,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const EmailConfirm = lazy(() => import("./pages/EmailConfirm").then(module => ({ default: module.EmailConfirm })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Forbidden = lazy(() => import("./pages/system/Forbidden"));
 
 // Homepage related pages
 const Games = lazy(() => import("./pages/Games"));
@@ -163,25 +165,46 @@ const App: React.FC = () => {
             {/* Subscription Management */}
             <Route path="subscription" element={<LazyRoute><UserSubscription /></LazyRoute>} />
             
-            {/* SCORM Routes - now within dashboard layout */}
-            <Route path="scorm/studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
-            <Route path="scorm/packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
-            <Route path="scorm/assignments" element={<LazyRoute><ScormAssignments /></LazyRoute>} />
-            <Route path="scorm/upload" element={<LazyRoute><ScormUploadPage /></LazyRoute>} />
+            {/* SCORM Routes - Admin only */}
+            <Route path="scorm/studio" element={
+              <RequireAdmin>
+                <LazyRoute><ScormStudioPage /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="scorm/packages" element={
+              <RequireAdmin>
+                <LazyRoute><ScormPackages /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="scorm/assignments" element={
+              <RequireAdmin>
+                <LazyRoute><ScormAssignments /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="scorm/upload" element={
+              <RequireAdmin>
+                <LazyRoute><ScormUploadPage /></LazyRoute>
+              </RequireAdmin>
+            } />
             
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
           
-          {/* SCORM Player Routes - Keep outside dashboard for full-screen experience */}
+          {/* SCORM Player Routes - Admin only for full-screen experience */}
           <Route path="/scorm/*" element={
-            <RouteProtector>
-              <Routes>
-                <Route path="preview/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
-                <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
-                <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
-              </Routes>
-            </RouteProtector>
+            <RequireAdmin>
+              <RouteProtector>
+                <Routes>
+                  <Route path="preview/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
+                  <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
+                  <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
+                </Routes>
+              </RouteProtector>
+            </RequireAdmin>
           } />
+          
+          {/* Forbidden Page */}
+          <Route path="/403" element={<LazyRoute><Forbidden /></LazyRoute>} />
           
           {/* Public Routes */}
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
