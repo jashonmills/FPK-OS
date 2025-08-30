@@ -12,7 +12,10 @@ export function ScormCatalog() {
   const [filteredPackages, setFilteredPackages] = useState(packages || []);
 
   useEffect(() => {
-    if (!packages) return;
+    if (!packages) {
+      setFilteredPackages([]);
+      return;
+    }
     
     // Only show ready packages in catalog
     const published = packages.filter(pkg => pkg.status === 'ready');
@@ -22,13 +25,6 @@ export function ScormCatalog() {
     );
     setFilteredPackages(filtered);
   }, [packages, searchTerm]);
-
-  const mockStats = {
-    enrolled: 24,
-    completed: 18,
-    avgScore: 85,
-    avgTime: "45 min"
-  };
 
   if (isLoading) {
     return (
@@ -98,7 +94,7 @@ export function ScormCatalog() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <CardTitle className="text-lg leading-tight">{pkg.title}</CardTitle>
-                    <Badge variant="outline">SCORM 1.2</Badge>
+                    <Badge variant="outline">{pkg.scorm_version || 'SCORM 1.2'}</Badge>
                   </div>
                   <Button size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
                     <UserPlus className="mr-1 h-3 w-3" />
@@ -111,44 +107,30 @@ export function ScormCatalog() {
               </CardHeader>
               
               <CardContent>
-                {/* Package Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">{mockStats.enrolled}</p>
-                      <p className="text-xs text-muted-foreground">Enrolled</p>
+                {/* Package Info */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Views:</span>
+                    <span className="font-medium">{pkg.access_count || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge variant="outline" className="text-xs">
+                      {pkg.status}
+                    </Badge>
+                  </div>
+                  {pkg.is_public && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Visibility:</span>
+                      <Badge variant="secondary" className="text-xs">
+                        Public
+                      </Badge>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">{mockStats.completed}</p>
-                      <p className="text-xs text-muted-foreground">Completed</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Performance Metrics */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg. Score:</span>
-                    <span className="font-medium">{mockStats.avgScore}%</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg. Time:</span>
-                    <span className="font-medium">{mockStats.avgTime}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Completion Rate:</span>
-                    <span className="font-medium">
-                      {Math.round((mockStats.completed / mockStats.enrolled) * 100)}%
-                    </span>
-                  </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex space-x-2 mt-4">
+                <div className="flex space-x-2">
                   <Button variant="outline" size="sm" className="flex-1">
                     <BarChart3 className="mr-1 h-3 w-3" />
                     Analytics
@@ -164,30 +146,30 @@ export function ScormCatalog() {
         )}
       </div>
 
-      {/* Assignment Summary */}
+      {/* Summary */}
       {filteredPackages.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Assignment Summary</CardTitle>
-            <CardDescription>Overview of current assignments and enrollment</CardDescription>
+            <CardTitle>Catalog Summary</CardTitle>
+            <CardDescription>Overview of published SCORM packages</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="text-2xl font-bold">{filteredPackages.length}</p>
                 <p className="text-sm text-muted-foreground">Published Packages</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{mockStats.enrolled * filteredPackages.length}</p>
-                <p className="text-sm text-muted-foreground">Total Enrollments</p>
+                <p className="text-2xl font-bold">
+                  {filteredPackages.reduce((sum, pkg) => sum + (pkg.access_count || 0), 0)}
+                </p>
+                <p className="text-sm text-muted-foreground">Total Views</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{mockStats.completed * filteredPackages.length}</p>
-                <p className="text-sm text-muted-foreground">Completions</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold">{mockStats.avgScore}%</p>
-                <p className="text-sm text-muted-foreground">Avg Score</p>
+                <p className="text-2xl font-bold">
+                  {filteredPackages.filter(pkg => pkg.is_public).length}
+                </p>
+                <p className="text-sm text-muted-foreground">Public Packages</p>
               </div>
             </div>
           </CardContent>

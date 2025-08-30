@@ -14,12 +14,16 @@ import { useScormPackages } from '@/hooks/useScormPackages';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { ScormAnalytics } from '@/scorm/analytics/ScormAnalytics';
+import { useScormKPIs } from '@/hooks/useScormAnalytics';
 
 export const ScormStudio: React.FC = () => {
   const navigate = useNavigate();
   const { packages, isLoading } = useScormPackages();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Get real analytics data for the header KPIs
+  const kpisQuery = useScormKPIs({});
 
   const filteredPackages = packages.filter(pkg => {
     const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,13 +43,6 @@ export const ScormStudio: React.FC = () => {
     }
   };
 
-  const stats = {
-    totalPackages: packages.length,
-    readyPackages: packages.filter(p => p.status === 'ready').length,
-    totalViews: packages.reduce((sum, p) => sum + (p.access_count || 0), 0),
-    averageScore: 85 // Mock data
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -62,7 +59,7 @@ export const ScormStudio: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">SCORM Studio</h1>
-              <p className="text-muted-foreground">Manage your SCORM packages and track performance</p>
+              <p className="text-muted-foreground">Upload, manage, and deploy SCORM packages for your learning platform</p>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm">
@@ -78,65 +75,88 @@ export const ScormStudio: React.FC = () => {
         </div>
       </div>
 
+      {/* Header KPIs */}
+      <div className="border-b bg-muted/50">
+        <div className="container mx-auto px-6 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Packages</p>
+                    {kpisQuery.isLoading ? (
+                      <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                    ) : (
+                      <p className="text-2xl font-bold">{kpisQuery.data?.totalPackages || 0}</p>
+                    )}
+                  </div>
+                  <Package className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active Enrollments</p>
+                    {kpisQuery.isLoading ? (
+                      <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                    ) : (
+                      <p className="text-2xl font-bold">{kpisQuery.data?.activeEnrollments || 0}</p>
+                    )}
+                  </div>
+                  <Users className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
+                    {kpisQuery.isLoading ? (
+                      <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                    ) : (
+                      <p className="text-2xl font-bold">{Math.round(kpisQuery.data?.completionRate || 0)}%</p>
+                    )}
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Avg Score</p>
+                    {kpisQuery.isLoading ? (
+                      <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                    ) : (
+                      <p className="text-2xl font-bold">{Math.round(kpisQuery.data?.avgScore || 0)}%</p>
+                    )}
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 py-6">
         <Tabs defaultValue="packages" className="space-y-6">
           <TabsList>
             <TabsTrigger value="packages">Packages</TabsTrigger>
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="catalog">Catalog</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="qa-tests">QA Tests</TabsTrigger>
           </TabsList>
 
           <TabsContent value="packages" className="space-y-6">
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Packages</p>
-                      <p className="text-2xl font-bold">{stats.totalPackages}</p>
-                    </div>
-                    <Package className="h-8 w-8 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Ready to Launch</p>
-                      <p className="text-2xl font-bold">{stats.readyPackages}</p>
-                    </div>
-                    <Play className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Views</p>
-                      <p className="text-2xl font-bold">{stats.totalViews}</p>
-                    </div>
-                    <Users className="h-8 w-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Avg. Score</p>
-                      <p className="text-2xl font-bold">{stats.averageScore}%</p>
-                    </div>
-                    <BarChart3 className="h-8 w-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Filters and Search */}
             <Card>
               <CardContent className="p-6">
@@ -276,8 +296,62 @@ export const ScormStudio: React.FC = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="upload">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Upload SCORM Package</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Navigate to the upload page to add new SCORM packages.
+                  </p>
+                  <Button onClick={() => navigate('/scorm/upload')}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Go to Upload
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="catalog">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">SCORM Catalog</h3>
+                  <p className="text-muted-foreground mb-4">
+                    View and manage published SCORM packages for learner assignment.
+                  </p>
+                  <Button>
+                    <Package className="h-4 w-4 mr-2" />
+                    View Catalog
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="analytics">
             <ScormAnalytics />
+          </TabsContent>
+
+          <TabsContent value="qa-tests">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">QA Tests</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Test SCORM packages for compatibility and compliance.
+                  </p>
+                  <Button variant="outline">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Coming Soon
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
