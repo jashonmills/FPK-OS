@@ -47,9 +47,7 @@ export const ScormAnalytics: React.FC = () => {
   const kpisQuery = useScormSummary({});
   const performanceQuery = useScormSummary({ packageId: filters.packageId });
   const progressQuery = useLearnerProgress({ 
-    packageId: filters.packageId,
-    limit: filters.pageSize || 25,
-    offset: ((filters.page || 1) - 1) * (filters.pageSize || 25)
+    packageId: filters.packageId
   });
   const trendsQuery = useScormTrends({ ...filters, ...dateRange });
   const packagesQuery = useScormPackagesList();
@@ -167,7 +165,7 @@ export const ScormAnalytics: React.FC = () => {
                 {kpisQuery.isLoading ? (
                   <div className="h-8 w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{kpisQuery.data?.activeEnrollments || 0}</p>
+                  <p className="text-2xl font-bold">{kpisQuery.data?.totalEnrollments || 0}</p>
                 )}
               </div>
               <Users className="h-8 w-8 text-blue-600" />
@@ -183,7 +181,11 @@ export const ScormAnalytics: React.FC = () => {
                 {kpisQuery.isLoading ? (
                   <div className="h-8 w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{Math.round(kpisQuery.data?.completionRate || 0)}%</p>
+                  <p className="text-2xl font-bold">
+                    {kpisQuery.data?.totalEnrollments 
+                      ? Math.round((kpisQuery.data.completed / kpisQuery.data.totalEnrollments) * 100)
+                      : 0}%
+                  </p>
                 )}
               </div>
               <TrendingUp className="h-8 w-8 text-green-600" />
@@ -237,7 +239,7 @@ export const ScormAnalytics: React.FC = () => {
                     <div key={i} className="h-16 bg-muted animate-pulse rounded" />
                   ))}
                 </div>
-              ) : performanceQuery.data?.length === 0 ? (
+              ) : performanceQuery.data?.packages?.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No Data Available</h3>
@@ -245,20 +247,20 @@ export const ScormAnalytics: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {performanceQuery.data?.map((pkg) => (
-                    <div key={pkg.packageId} className="flex items-center justify-between p-4 border rounded-lg">
+                  {performanceQuery.data?.packages?.map((pkg) => (
+                    <div key={pkg.package_id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
-                        <h4 className="font-medium">{pkg.packageTitle}</h4>
+                        <h4 className="font-medium">{pkg.title}</h4>
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                           <span>{pkg.enrollments} enrollments</span>
                           <span>{pkg.completions} completions</span>
-                          <Badge variant={pkg.completionRate > 70 ? 'default' : 'secondary'}>
-                            {pkg.completionRate}% completion
+                          <Badge variant={pkg.completion_rate > 70 ? 'default' : 'secondary'}>
+                            {pkg.completion_rate}% completion
                           </Badge>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold">{Math.round(pkg.avgScore)}%</p>
+                        <p className="text-2xl font-bold">{Math.round(pkg.avg_score)}%</p>
                         <p className="text-sm text-muted-foreground">avg score</p>
                       </div>
                     </div>
@@ -290,7 +292,7 @@ export const ScormAnalytics: React.FC = () => {
                     <div key={i} className="h-12 bg-muted animate-pulse rounded" />
                   ))}
                 </div>
-              ) : progressQuery.data?.length === 0 ? (
+              ) : progressQuery.data?.data?.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No Progress Data</h3>
@@ -298,7 +300,7 @@ export const ScormAnalytics: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {progressQuery.data?.map((learner) => (
+                  {progressQuery.data?.data?.map((learner) => (
                     <div key={`${learner.userId}-${learner.packageId}`} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
@@ -327,34 +329,7 @@ export const ScormAnalytics: React.FC = () => {
                     </div>
                   ))}
                   
-                  {/* Pagination */}
-                  {progressQuery.data && progressQuery.data.total > filters.pageSize && (
-                    <div className="flex items-center justify-between pt-4">
-                      <p className="text-sm text-muted-foreground">
-                        Showing {((filters.page - 1) * filters.pageSize) + 1} to{' '}
-                        {Math.min(filters.page * filters.pageSize, progressQuery.data.total)} of{' '}
-                        {progressQuery.data.total} results
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={filters.page === 1}
-                          onClick={() => updateFilters({ page: filters.page - 1 })}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={filters.page * filters.pageSize >= progressQuery.data.total}
-                          onClick={() => updateFilters({ page: filters.page + 1 })}
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  {/* Pagination - removed since useLearnerProgress returns simple array */}
                 </div>
               )}
             </CardContent>
