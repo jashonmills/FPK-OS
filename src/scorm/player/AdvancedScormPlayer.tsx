@@ -25,7 +25,6 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   
   // State management
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentScoIndex, setCurrentScoIndex] = useState(0);
   const [sessionData, setSessionData] = useState<any>({});
   const [showDebugConsole, setShowDebugConsole] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
@@ -35,9 +34,19 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
   const { scos, isLoading: scosLoading } = useScormScos(packageId || '');
 
-  // Current SCO
-  const currentSco = scos[currentScoIndex];
+  // Current SCO - handle both direct SCO access and package-level access
+  const targetScoId = scoId;
+  const currentScoIndex = targetScoId ? scos.findIndex(sco => sco.id === targetScoId) : 0;
+  const currentSco = scos[Math.max(0, currentScoIndex)];
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
+
+  // Redirect to first SCO if accessing package directly
+  useEffect(() => {
+    if (!scoId && scos.length > 0 && mode === 'preview') {
+      navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
+      return;
+    }
+  }, [scoId, scos, packageId, navigate, mode]);
 
   const addDebugLog = useCallback((message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -121,7 +130,8 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
 
   const handleScoNavigation = (index: number) => {
     if (index >= 0 && index < scos.length) {
-      setCurrentScoIndex(index);
+      const targetSco = scos[index];
+      navigate(`/scorm/preview/${packageId}/${targetSco.id}`, { replace: true });
       setIsInitialized(false);
     }
   };
