@@ -2835,8 +2835,15 @@ export type Database = {
             foreignKeyName: "scorm_analytics_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
+            referencedRelation: "scorm_learner_progress"
             referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_analytics_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "scorm_analytics_package_id_fkey"
@@ -2969,8 +2976,15 @@ export type Database = {
             foreignKeyName: "scorm_enrollments_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
+            referencedRelation: "scorm_learner_progress"
             referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "scorm_enrollments_package_id_fkey"
@@ -3096,8 +3110,15 @@ export type Database = {
             foreignKeyName: "scorm_logs_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
+            referencedRelation: "scorm_learner_progress"
             referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_logs_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "scorm_logs_package_id_fkey"
@@ -3472,8 +3493,15 @@ export type Database = {
             foreignKeyName: "scorm_runtime_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
+            referencedRelation: "scorm_learner_progress"
             referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "scorm_runtime_package_id_fkey"
@@ -3551,8 +3579,15 @@ export type Database = {
             foreignKeyName: "scorm_scos_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
+            referencedRelation: "scorm_learner_progress"
             referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_scos_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "scorm_scos_package_id_fkey"
@@ -4844,15 +4879,15 @@ export type Database = {
     Views: {
       scorm_latest_attempt: {
         Row: {
+          completion_status:
+            | Database["public"]["Enums"]["completion_status_2004"]
+            | null
           enrollment_id: string | null
           last_commit_at: string | null
-          package_id: string | null
+          lesson_status: Database["public"]["Enums"]["lesson_status_12"] | null
           sco_id: string | null
-          score: number | null
-          seconds: number | null
-          session_start_time: string | null
-          status: string | null
-          user_id: string | null
+          score_raw: number | null
+          score_scaled: number | null
         }
         Relationships: [
           {
@@ -4870,20 +4905,6 @@ export type Database = {
             referencedColumns: ["enrollment_id"]
           },
           {
-            foreignKeyName: "scorm_runtime_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
-            referencedColumns: ["package_id"]
-          },
-          {
-            foreignKeyName: "scorm_runtime_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "scorm_packages"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "scorm_runtime_sco_id_fkey"
             columns: ["sco_id"]
             isOneToOne: false
@@ -4894,43 +4915,30 @@ export type Database = {
       }
       scorm_learner_progress: {
         Row: {
+          avg_score: number | null
+          completed_scos: number | null
+          enrolled_at: string | null
           enrollment_id: string | null
-          last_activity: string | null
+          last_commit_at: string | null
           learner_name: string | null
           package_id: string | null
           package_title: string | null
-          progress_pct: number | null
-          sco_completed: number | null
-          sco_count: number | null
+          progress_percentage: number | null
+          total_scos: number | null
           user_id: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "scorm_enrollments_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "scorm_package_metrics"
-            referencedColumns: ["package_id"]
-          },
-          {
-            foreignKeyName: "scorm_enrollments_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "scorm_packages"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       scorm_package_metrics: {
         Row: {
-          avg_minutes: number | null
           avg_score: number | null
           completion_rate: number | null
           completions: number | null
           created_at: string | null
-          enrollments: number | null
-          package_id: string | null
-          package_status: Database["public"]["Enums"]["package_status"] | null
+          description: string | null
+          enrollment_count: number | null
+          id: string | null
+          status: Database["public"]["Enums"]["package_status"] | null
           title: string | null
         }
         Relationships: []

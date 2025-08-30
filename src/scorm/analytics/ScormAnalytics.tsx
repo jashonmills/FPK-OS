@@ -248,11 +248,11 @@ export const ScormAnalytics: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {performanceQuery.data?.packages?.map((pkg) => (
-                    <div key={pkg.package_id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={pkg.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-medium">{pkg.title}</h4>
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span>{pkg.enrollments} enrollments</span>
+                          <span>{pkg.enrollment_count} enrollments</span>
                           <span>{pkg.completions} completions</span>
                           <Badge variant={pkg.completion_rate > 70 ? 'default' : 'secondary'}>
                             {pkg.completion_rate}% completion

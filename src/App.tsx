@@ -62,7 +62,7 @@ const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuc
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
 // SCORM pages
-const ScormStudio = lazy(() => import("./pages/scorm/ScormStudio"));
+const ScormStudioPage = lazy(() => import("./pages/scorm/ScormStudioPage"));
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
 
@@ -169,7 +169,7 @@ const App: React.FC = () => {
           <Route path="/scorm/*" element={
             <RouteProtector>
               <Routes>
-                <Route path="studio" element={<LazyRoute><ScormStudio /></LazyRoute>} />
+                <Route path="studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
                 <Route path="packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
                 <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />

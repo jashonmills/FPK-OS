@@ -111,11 +111,11 @@ export const ScormStudio: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Time</p>
+                <p className="text-sm font-medium text-muted-foreground">Avg Score</p>
                 {summaryQuery.isLoading ? (
                   <div className="h-8 w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{summaryQuery.data?.avgMinutes || 0}m</p>
+                  <p className="text-2xl font-bold">{summaryQuery.data?.avgScore || 0}%</p>
                 )}
               </div>
               <Clock className="h-8 w-8 text-purple-600" />

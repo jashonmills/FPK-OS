@@ -6,32 +6,33 @@ export interface ScormSummaryData {
   totalEnrollments: number;
   completed: number;
   avgScore: number;
-  avgMinutes: number;
   packages: PackageMetric[];
 }
 
 export interface PackageMetric {
-  package_id: string;
+  id: string;
   title: string;
-  package_status: string;
+  description: string;
+  status: string;
   created_at: string;
-  enrollments: number;
+  enrollment_count: number;
   completions: number;
   completion_rate: number;
   avg_score: number;
-  avg_minutes: number;
 }
 
 export interface LearnerProgress {
-  enrollment_id: string;
   user_id: string;
-  package_id: string;
-  package_title: string;
   learner_name: string;
-  sco_count: number;
-  sco_completed: number;
-  progress_pct: number;
-  last_activity: string | null;
+  package_title: string;
+  package_id: string;
+  enrollment_id: string;
+  enrolled_at: string;
+  last_commit_at: string | null;
+  total_scos: number;
+  completed_scos: number;
+  progress_percentage: number;
+  avg_score: number;
 }
 
 export function useScormSummary({ 
@@ -75,7 +76,7 @@ export function useScormSummary({
         let metricsQuery = supabase.from('scorm_package_metrics').select('*');
         
         if (packageId) {
-          metricsQuery = metricsQuery.eq('package_id', packageId);
+          metricsQuery = metricsQuery.eq('id', packageId);
         }
 
         const { data: packageMetrics, error: metricsError } = await metricsQuery;
@@ -89,15 +90,11 @@ export function useScormSummary({
           acc.completed += pkg.completions || 0;
           acc.scoreSum += (pkg.avg_score || 0);
           acc.pkgCount += pkg.avg_score ? 1 : 0; // Only count packages with scores
-          acc.minSum += (pkg.avg_minutes || 0);
-          acc.minCount += pkg.avg_minutes ? 1 : 0; // Only count packages with time data
           return acc;
         }, { 
           completed: 0, 
           scoreSum: 0, 
-          pkgCount: 0, 
-          minSum: 0, 
-          minCount: 0 
+          pkgCount: 0
         });
 
         return {
@@ -105,7 +102,6 @@ export function useScormSummary({
           totalEnrollments: totalEnrollments || 0,
           completed: totals.completed,
           avgScore: totals.pkgCount > 0 ? Math.round(totals.scoreSum / totals.pkgCount) : 0,
-          avgMinutes: totals.minCount > 0 ? Math.round(totals.minSum / totals.minCount) : 0,
           packages: packageMetrics || []
         };
       } catch (error) {
@@ -116,7 +112,6 @@ export function useScormSummary({
           totalEnrollments: 0,
           completed: 0,
           avgScore: 0,
-          avgMinutes: 0,
           packages: []
         };
       }
@@ -142,7 +137,7 @@ export function useLearnerProgress({
         let query = supabase
           .from('scorm_learner_progress')
           .select('*')
-          .order('last_activity', { ascending: false, nullsFirst: false })
+          .order('last_commit_at', { ascending: false, nullsFirst: false })
           .range(offset, offset + limit - 1);
         
         if (packageId) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,20 +38,16 @@ export function ScormPackageList() {
   const navigate = useNavigate();
   const { packages, isLoading, error } = useScormPackages();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredPackages, setFilteredPackages] = useState(packages || []);
 
-  useEffect(() => {
-    if (!packages) {
-      setFilteredPackages([]);
-      return;
-    }
+  // Memoize filtered packages to prevent infinite re-renders
+  const filteredPackages = useMemo(() => {
+    if (!packages) return [];
     
-    const filtered = packages.filter(pkg =>
+    return packages.filter(pkg =>
       pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pkg.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pkg.version?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredPackages(filtered);
   }, [packages, searchTerm]);
 
   const getStatusColor = (status: string) => {
