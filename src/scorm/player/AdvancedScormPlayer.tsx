@@ -59,13 +59,18 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     return launchHref;
   };
 
-  // Redirect to first SCO if accessing package directly
   useEffect(() => {
-    if (!scoId && scos.length > 0 && mode === 'preview') {
-      navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
-      return;
+    // Force iframe reload when SCO changes
+    if (iframeRef.current && currentSco) {
+      const newSrc = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`;
+      addDebugLog(`Loading SCO: ${currentSco.title}`);
+      addDebugLog(`Iframe URL: ${newSrc}`);
+      
+      if (iframeRef.current.src !== newSrc) {
+        iframeRef.current.src = newSrc;
+      }
     }
-  }, [scoId, scos, packageId, navigate, mode]);
+  }, [currentSco, packageId]);
 
   const addDebugLog = useCallback((message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -263,30 +268,45 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   referrerPolicy="no-referrer"
                   allow="fullscreen; autoplay"
                   onLoad={() => {
-                    addDebugLog(`Iframe loaded: ${currentSco?.title || 'SCORM Content'}`);
+                    addDebugLog(`✅ Iframe loaded successfully: ${currentSco?.title || 'SCORM Content'}`);
+                    
                     // Log the iframe src for debugging
                     if (iframeRef.current) {
-                      addDebugLog(`Iframe src: ${iframeRef.current.src}`);
+                      addDebugLog(`📍 Current iframe src: ${iframeRef.current.src}`);
                       
-                      // Check content type for diagnostics
+                      // Check content type for diagnostics with timeout
+                      const timeout = setTimeout(() => {
+                        addDebugLog('⚠️ Content-Type check timed out');
+                      }, 5000);
+                      
                       fetch(iframeRef.current.src, { method: 'HEAD' })
                         .then(response => {
+                          clearTimeout(timeout);
                           const contentType = response.headers.get('content-type');
-                          addDebugLog(`Content-Type: ${contentType}`);
+                          addDebugLog(`📋 Response Status: ${response.status}`);
+                          addDebugLog(`📋 Content-Type: ${contentType || 'not specified'}`);
                           
-                          if (contentType && !contentType.includes('text/html')) {
+                          if (response.status === 404) {
+                            setContentTypeWarning('Error: SCORM content not found (404). Check if the content proxy is deployed and the package is properly extracted.');
+                          } else if (response.status >= 400) {
+                            setContentTypeWarning(`Error: Server returned status ${response.status}. Check the content proxy logs.`);
+                          } else if (contentType && !contentType.includes('text/html')) {
                             setContentTypeWarning(`Warning: Content is being served as '${contentType}' instead of 'text/html'. This may cause display issues.`);
                           } else {
                             setContentTypeWarning(null);
+                            addDebugLog('✅ Content-Type looks good!');
                           }
                         })
                         .catch(err => {
-                          addDebugLog(`Content-Type check failed: ${err.message}`);
+                          clearTimeout(timeout);
+                          addDebugLog(`❌ Content-Type check failed: ${err.message}`);
+                          setContentTypeWarning(`Network Error: ${err.message}. The content proxy may not be deployed yet.`);
                         });
                     }
                   }}
                   onError={(e) => {
-                    addDebugLog(`Iframe error: ${e.toString()}`);
+                    addDebugLog(`❌ Iframe loading error: ${e.toString()}`);
+                    setContentTypeWarning('Iframe failed to load. Check the content proxy deployment and network connectivity.');
                   }}
                 />
               </CardContent>

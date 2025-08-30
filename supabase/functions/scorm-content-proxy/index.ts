@@ -59,7 +59,7 @@ serve(async (req) => {
     
     if (packageIndex === -1) {
       console.error('Package ID not found in path:', pathParts);
-      return new Response('Package ID not found in path', { 
+      return new Response('Package ID not found in path, expected UUID format', { 
         status: 400, 
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
       });
@@ -69,13 +69,16 @@ serve(async (req) => {
     filePath = pathParts.slice(packageIndex + 1).join('/');
     
     // Default to index.html if no file specified
-    if (!filePath) {
+    if (!filePath || filePath === '') {
       filePath = 'content/index.html';
+      console.log(`No file path specified, defaulting to: ${filePath}`);
     }
 
-    console.log(`Serving file: ${filePath} from package: ${packageId}`);
+    console.log(`📦 Package ID: ${packageId}`);
+    console.log(`📄 Requested file: ${filePath}`);
 
-    // Verify package exists
+    // Verify package exists and get metadata
+    console.log(`🔍 Looking up package: ${packageId}`);
     const { data: packageData, error: packageError } = await supabase
       .from('scorm_packages')
       .select('*')
@@ -83,74 +86,66 @@ serve(async (req) => {
       .single();
 
     if (packageError || !packageData) {
-      console.error('Package not found:', packageError);
-      return new Response('Package not found', { 
+      console.error('❌ Package not found:', packageError);
+      return new Response(`SCORM Package not found: ${packageId}`, { 
         status: 404, 
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
       });
     }
 
-    // Try to get the file from storage
-    // The extract_path contains the base path where files are stored
-    const storagePath = `${packageData.extract_path}${filePath}`;
-    console.log(`Attempting to fetch from storage: ${storagePath}`);
+    console.log(`✅ Package found: ${packageData.title} (Status: ${packageData.status})`);
+    console.log(`📂 Extract path: ${packageData.extract_path}`);
 
-    const { data: fileData, error: fileError } = await supabase.storage
-      .from('scorm-packages')
-      .download(storagePath);
+    // Try to get the file from storage with comprehensive path attempts
+    const storagePaths = [
+      `${packageData.extract_path}${filePath}`, // Primary path from package metadata
+      `${packageData.extract_path}/${filePath}`, // With extra slash safety
+      filePath, // Direct path
+      `content/${filePath}`, // With content prefix
+      `${packageId}/${filePath}`, // With package ID prefix
+      `packages/${packageId}/${filePath}`, // Full packages path
+      `packages/${packageId}/content/${filePath}`, // Full packages + content path
+    ];
 
-    if (fileError || !fileData) {
-      console.error(`File not found: ${storagePath}`, fileError);
+    console.log(`🔍 Attempting to fetch file from storage with ${storagePaths.length} possible paths...`);
+
+    for (let i = 0; i < storagePaths.length; i++) {
+      const storagePath = storagePaths[i];
+      console.log(`📁 Trying path ${i + 1}/${storagePaths.length}: ${storagePath}`);
       
-      // Try alternative paths
-      const alternativePaths = [
-        filePath, // Direct path
-        `content/${filePath}`, // With content prefix
-        `${packageId}/${filePath}`, // With package ID prefix
-      ];
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from('scorm-packages')
+        .download(storagePath);
 
-      for (const altPath of alternativePaths) {
-        console.log(`Trying alternative path: ${altPath}`);
-        const { data: altData, error: altError } = await supabase.storage
-          .from('scorm-packages')
-          .download(altPath);
+      if (!fileError && fileData) {
+        console.log(`✅ File found at: ${storagePath}`);
         
-        if (!altError && altData) {
-          console.log(`Found file at alternative path: ${altPath}`);
-          const arrayBuffer = await altData.arrayBuffer();
-          const mimeType = getMimeType(filePath);
-          
-          return new Response(arrayBuffer, {
-            headers: {
-              ...corsHeaders,
-              'Content-Type': mimeType,
-              'Cache-Control': 'public, max-age=600',
-              'X-Content-Type-Options': 'nosniff',
-            },
-          });
-        }
-      }
+        // Convert blob to array buffer
+        const arrayBuffer = await fileData.arrayBuffer();
+        const mimeType = getMimeType(filePath);
+        
+        console.log(`📤 Serving ${filePath} as ${mimeType}, size: ${arrayBuffer.byteLength} bytes`);
 
-      // If still not found, return 404
-      return new Response(`File not found: ${filePath}`, { 
-        status: 404, 
-        headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
-      });
+        return new Response(arrayBuffer, {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': mimeType,
+            'Cache-Control': 'public, max-age=600',
+            'X-Content-Type-Options': 'nosniff',
+          },
+        });
+      } else {
+        console.log(`❌ Not found at: ${storagePath} (${fileError?.message || 'no error details'})`);
+      }
     }
 
-    // Convert blob to array buffer
-    const arrayBuffer = await fileData.arrayBuffer();
-    const mimeType = getMimeType(filePath);
+    // If we get here, file was not found in any location
+    console.error(`❌ File not found in any location: ${filePath}`);
+    console.error(`📋 Searched paths:`, storagePaths);
     
-    console.log(`Serving ${filePath} as ${mimeType}, size: ${arrayBuffer.byteLength} bytes`);
-
-    return new Response(arrayBuffer, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': mimeType,
-        'Cache-Control': 'public, max-age=600',
-        'X-Content-Type-Options': 'nosniff',
-      },
+    return new Response(`SCORM Content File Not Found: ${filePath}\n\nSearched in:\n${storagePaths.join('\n')}`, { 
+      status: 404, 
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
     });
 
   } catch (error) {
