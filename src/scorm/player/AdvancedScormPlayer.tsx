@@ -230,7 +230,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`/scorm-content/${packageId}/${currentSco?.launch_href}`}
+                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${currentSco?.launch_href?.replace('packages/' + packageId + '/', '') || 'content/index.html'}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-forms allow-same-origin"

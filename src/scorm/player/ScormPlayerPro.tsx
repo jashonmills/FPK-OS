@@ -555,7 +555,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`${window.location.origin}/scorm-content/${packageId}/${currentSco?.launch_href || 'index.html'}`}
+                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${currentSco?.launch_href?.replace('packages/' + packageId + '/', '') || 'content/index.html'}`}
                   className="w-full h-full border-none rounded-lg"
                   title={`SCORM Content - ${currentSco?.title}`}
                   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"

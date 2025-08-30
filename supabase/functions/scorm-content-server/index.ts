@@ -4,71 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none';",
 };
-
-// Content type mappings
-const contentTypes: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.htm': 'text/html; charset=utf-8',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-  '.eot': 'application/vnd.ms-fontobject',
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.mp3': 'audio/mpeg',
-  '.wav': 'audio/wav',
-  '.pdf': 'application/pdf',
-  '.xml': 'application/xml',
-  '.txt': 'text/plain',
-};
-
-// Security: Sanitize file paths to prevent directory traversal
-function sanitizePath(path: string): string {
-  // Remove any .. sequences and normalize slashes
-  return path
-    .replace(/\.\./g, '')
-    .replace(/\/+/g, '/')
-    .replace(/^\//, '');
-}
-
-// Get content type from file extension
-function getContentType(filename: string): string {
-  const ext = filename.toLowerCase().match(/\.[^.]*$/)?.[0];
-  return ext ? (contentTypes[ext] || 'application/octet-stream') : 'application/octet-stream';
-}
-
-// Check if user has access to package
-async function checkPackageAccess(supabaseClient: any, packageId: string, userId: string): Promise<boolean> {
-  try {
-    const { data, error } = await supabaseClient
-      .from('scorm_packages')
-      .select(`
-        id,
-        created_by,
-        is_public,
-        scorm_enrollments!inner(user_id)
-      `)
-      .eq('id', packageId)
-      .or(`created_by.eq.${userId},is_public.eq.true,scorm_enrollments.user_id.eq.${userId}`)
-      .limit(1)
-      .maybeSingle();
-
-    return !error && !!data;
-  } catch {
-    return false;
-  }
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -77,320 +13,200 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
     
-    // Expected path: /scorm-content/{packageId}/{...filePath}
-    if (pathParts.length < 2 || pathParts[0] !== 'scorm-content') {
-      return new Response('Invalid path', { 
-        status: 400, 
-        headers: corsHeaders 
-      });
+    if (pathParts.length < 2) {
+      return new Response('Invalid path', { status: 400, headers: corsHeaders });
     }
 
-    const packageId = pathParts[1];
-    const filePath = pathParts.slice(2).join('/') || 'index.html';
-    const sanitizedPath = sanitizePath(filePath);
+    const packageId = pathParts[0];
+    const filePath = pathParts.slice(1).join('/');
 
-    console.log(`SCORM Content Server: ${packageId}/${sanitizedPath}`);
+    console.log(`SCORM Content Server: Serving ${filePath} from package ${packageId}`);
 
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
-
-    // Get user from auth context
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    
-    // For public packages, allow unauthenticated access
-    if (!user && !authError) {
-      // Check if package is public
-      const { data: publicPackage } = await supabaseClient
-        .from('scorm_packages')
-        .select('id')
-        .eq('id', packageId)
-        .eq('is_public', true)
-        .single();
-      
-      if (!publicPackage) {
-        return new Response('Authentication required', { 
-          status: 401, 
-          headers: corsHeaders 
-        });
-      }
-    }
-
-    // Check access permissions for authenticated users
-    if (user && !(await checkPackageAccess(supabaseClient, packageId, user.id))) {
-      return new Response('Access denied', { 
-        status: 403, 
-        headers: corsHeaders 
-      });
-    }
-
-    // Get package details
-    const { data: packageData, error: packageError } = await supabaseClient
+    // Get package info
+    const { data: packageData, error: packageError } = await supabase
       .from('scorm_packages')
-      .select('extract_path, status')
+      .select('*')
       .eq('id', packageId)
       .single();
 
     if (packageError || !packageData) {
-      return new Response('Package not found', { 
-        status: 404, 
-        headers: corsHeaders 
-      });
+      console.error('Package not found:', packageError);
+      return new Response('Package not found', { status: 404, headers: corsHeaders });
     }
 
-    if (packageData.status !== 'ready') {
-      return new Response('Package not ready', { 
-        status: 503, 
-        headers: corsHeaders 
-      });
+    // Build the full content path
+    let contentPath = filePath;
+    
+    // If the file path doesn't include the package structure, prepend it
+    if (!filePath.startsWith('packages/')) {
+      contentPath = `packages/${packageId}/${filePath}`;
     }
 
-    // In a real implementation, you would fetch the file from storage
-    // For now, we'll return a basic SCORM content wrapper
-    if (sanitizedPath === 'index.html' || sanitizedPath === '') {
-      const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCORM Content</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .api-status {
-      background: #e8f5e8;
-      border: 1px solid #4caf50;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-    }
-    .api-error {
-      background: #ffeaa7;
-      border: 1px solid #fdcb6e;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-    }
-    button {
-      background: #007cba;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    button:hover {
-      background: #005a8b;
-    }
-    #debug {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      padding: 10px;
-      margin-top: 20px;
-      font-family: monospace;
-      font-size: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>SCORM Test Content</h1>
-    <div id="api-status" class="api-status" style="display: none;">
-      ✓ SCORM API Connected
-    </div>
-    <div id="api-error" class="api-error" style="display: none;">
-      ⚠ SCORM API Not Found
-    </div>
-    
-    <div>
-      <h3>SCORM Controls</h3>
-      <button onclick="testInitialize()">Initialize</button>
-      <button onclick="testSetValue()">Set Score</button>
-      <button onclick="testCommit()">Commit</button>
-      <button onclick="testTerminate()">Terminate</button>
-    </div>
-    
-    <div id="debug"></div>
-  </div>
+    console.log(`Attempting to fetch: ${contentPath}`);
 
-  <script>
-  let scormAPI = null;
-  let debugLog = [];
+    // Try to get the file from storage
+    const { data: fileData, error: fileError } = await supabase.storage
+      .from('scorm-packages')
+      .download(contentPath);
 
-  function log(message) {
-    debugLog.push(new Date().toLocaleTimeString() + ': ' + message);
-    document.getElementById('debug').innerHTML = debugLog.slice(-20).join('<br>');
-  }
-
-  // SCORM API Discovery
-  function findAPI() {
-    let api = null;
-    
-    // Check current window
-    if (window.API_1484_11) {
-      api = window.API_1484_11;
-      log('Found SCORM 2004 API in current window');
-    } else if (window.API) {
-      api = window.API;
-      log('Found SCORM 1.2 API in current window');
-    }
-    
-    // Check parent windows
-    let win = window.parent;
-    let attempts = 0;
-    while (!api && win && win !== window && attempts < 10) {
-      try {
-        if (win.API_1484_11) {
-          api = win.API_1484_11;
-          log('Found SCORM 2004 API in parent window');
-          break;
-        }
-        if (win.API) {
-          api = win.API;
-          log('Found SCORM 1.2 API in parent window');
-          break;
-        }
-        if (win.parent && win.parent !== win) {
-          win = win.parent;
-        } else {
-          break;
-        }
-        attempts++;
-      } catch (e) {
-        log('Error accessing parent window: ' + e.message);
-        break;
-      }
-    }
-    
-    return api;
-  }
-
-  function testInitialize() {
-    if (!scormAPI) {
-      log('ERROR: No SCORM API available');
-      return;
-    }
-    
-    const result = scormAPI.Initialize ? scormAPI.Initialize('') : scormAPI.LMSInitialize('');
-    log('Initialize result: ' + result);
-    
-    if (result === 'true') {
-      const studentName = scormAPI.GetValue ? 
-        scormAPI.GetValue('cmi.learner_name') : 
-        scormAPI.LMSGetValue('cmi.core.student_name');
-      log('Student name: ' + studentName);
-    }
-  }
-
-  function testSetValue() {
-    if (!scormAPI) {
-      log('ERROR: No SCORM API available');
-      return;
-    }
-    
-    const score = Math.floor(Math.random() * 100);
-    const result = scormAPI.SetValue ? 
-      scormAPI.SetValue('cmi.score.raw', score.toString()) :
-      scormAPI.LMSSetValue('cmi.core.score.raw', score.toString());
-    log('Set score ' + score + ', result: ' + result);
-    
-    const status = scormAPI.SetValue ? 
-      scormAPI.SetValue('cmi.completion_status', 'completed') :
-      scormAPI.LMSSetValue('cmi.core.lesson_status', 'completed');
-    log('Set completion status, result: ' + status);
-  }
-
-  function testCommit() {
-    if (!scormAPI) {
-      log('ERROR: No SCORM API available');
-      return;
-    }
-    
-    const result = scormAPI.Commit ? scormAPI.Commit('') : scormAPI.LMSCommit('');
-    log('Commit result: ' + result);
-  }
-
-  function testTerminate() {
-    if (!scormAPI) {
-      log('ERROR: No SCORM API available');
-      return;
-    }
-    
-    const result = scormAPI.Terminate ? scormAPI.Terminate('') : scormAPI.LMSFinish('');
-    log('Terminate result: ' + result);
-  }
-
-  // Initialize on page load
-  window.onload = function() {
-    log('SCORM Test Content Loaded');
-    scormAPI = findAPI();
-    
-    if (scormAPI) {
-      document.getElementById('api-status').style.display = 'block';
-      log('SCORM API Found and Ready');
-    } else {
-      document.getElementById('api-error').style.display = 'block';
-      log('No SCORM API found - running in standalone mode');
-    }
-  };
-  </script>
-</body>
-</html>`;
-
-      return new Response(htmlContent, {
+    if (fileError || !fileData) {
+      console.error('File not found in storage:', fileError);
+      
+      // Return a helpful error page
+      return new Response(`
+        <html>
+          <head>
+            <title>SCORM Content Unavailable</title>
+            <style>
+              body { 
+                font-family: Arial, sans-serif; 
+                padding: 40px; 
+                text-align: center; 
+                background: #f5f5f5;
+              }
+              .container {
+                background: white;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                max-width: 600px;
+                margin: 0 auto;
+              }
+              .error-code { 
+                font-size: 3em; 
+                font-weight: bold; 
+                color: #e74c3c; 
+                margin-bottom: 20px; 
+              }
+              .message {
+                font-size: 1.2em;
+                color: #666;
+                margin-bottom: 30px;
+              }
+              .details {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 4px;
+                margin: 20px 0;
+                text-align: left;
+              }
+              .retry-btn {
+                background: #6366f1;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+              }
+              .retry-btn:hover {
+                background: #5048e5;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="error-code">404</div>
+              <div class="message">SCORM Content Not Found</div>
+              <p>The requested SCORM content file could not be located.</p>
+              
+              <div class="details">
+                <strong>Debug Information:</strong><br>
+                Package: ${packageData.title}<br>
+                Requested file: ${filePath}<br>
+                Storage path: ${contentPath}<br>
+                Package status: ${packageData.status}
+              </div>
+              
+              <p><strong>This usually means the SCORM package needs to be re-processed.</strong></p>
+              
+              <button class="retry-btn" onclick="window.parent.postMessage({type: 'scorm-reprocess', packageId: '${packageId}'}, '*')">
+                Reprocess Package
+              </button>
+              
+              <p style="margin-top: 20px; font-size: 14px; color: #888;">
+                If you continue to see this error, please contact support.
+              </p>
+            </div>
+          </body>
+        </html>
+      `, {
+        status: 404,
         headers: {
           ...corsHeaders,
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          'Content-Type': 'text/html',
         },
       });
     }
 
-    // For other file types, return appropriate response
-    // In production, you would fetch from Supabase Storage
-    return new Response('File not found', { 
-      status: 404, 
-      headers: corsHeaders 
+    // Determine content type
+    const extension = filePath.split('.').pop()?.toLowerCase();
+    let contentType = 'text/html';
+    
+    switch (extension) {
+      case 'js':
+        contentType = 'application/javascript';
+        break;
+      case 'css':
+        contentType = 'text/css';
+        break;
+      case 'json':
+        contentType = 'application/json';
+        break;
+      case 'xml':
+        contentType = 'application/xml';
+        break;
+      case 'png':
+        contentType = 'image/png';
+        break;
+      case 'jpg':
+      case 'jpeg':
+        contentType = 'image/jpeg';
+        break;
+      case 'gif':
+        contentType = 'image/gif';
+        break;
+      case 'svg':
+        contentType = 'image/svg+xml';
+        break;
+      default:
+        contentType = 'text/html';
+    }
+
+    // Return the file content
+    return new Response(fileData, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=3600',
+      },
     });
 
   } catch (error) {
-    console.error('SCORM Content Server error:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        message: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    console.error('SCORM Content Server Error:', error);
+    return new Response(`
+      <html>
+        <head><title>Server Error</title></head>
+        <body style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+          <h1>Server Error</h1>
+          <p>An error occurred while serving SCORM content.</p>
+          <p>${error.message}</p>
+        </body>
+      </html>
+    `, {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/html',
+      },
+    });
   }
 });

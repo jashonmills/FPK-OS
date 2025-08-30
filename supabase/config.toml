@@ -60,3 +60,6 @@ verify_jwt = false
 
 [functions.scorm-runtime-api]
 verify_jwt = false
+
+[functions.scorm-content-server]
+verify_jwt = false
