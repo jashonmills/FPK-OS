@@ -4978,6 +4978,10 @@ export type Database = {
         }
         Returns: string
       }
+      current_user_has_admin_role: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       detect_security_incident: {
         Args: {
           p_affected_systems?: Json
