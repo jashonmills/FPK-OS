@@ -67,6 +67,7 @@ import ScormUploadPage from "./pages/ScormUploadPage";
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormAssignments = lazy(() => import("./pages/scorm/ScormAssignments"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
+const ScormContentProxy = lazy(() => import("./components/scorm/ScormContentProxy").then(module => ({ default: module.ScormContentProxy })));
 
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -189,6 +190,9 @@ const App: React.FC = () => {
             
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
+          
+          {/* SCORM Content Proxy - Same-origin proxy for content delivery */}
+          <Route path="/api/scorm/content/:packageId/*" element={<LazyRoute><ScormContentProxy /></LazyRoute>} />
           
           {/* SCORM Player Routes - Admin only for full-screen experience */}
           <Route path="/scorm/*" element={

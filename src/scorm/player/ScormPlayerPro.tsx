@@ -586,7 +586,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                 <iframe
                   ref={iframeRef}
                   key={`${packageId}-${currentScoIndex}-${Date.now()}`}
-                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${currentSco?.launch_href?.replace(/^packages\/[^\/]+\//, '') || 'content/index.html'}`}
+                  src={`/api/scorm/content/${packageId}/${currentSco?.launch_href?.replace(/^packages\/[^\/]+\//, '') || 'content/index.html'}`}
                   className="w-full h-full border-none rounded-lg"
                   title={`SCORM Content - ${currentSco?.title}`}
                   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"

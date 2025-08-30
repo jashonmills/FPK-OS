@@ -63,7 +63,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   useEffect(() => {
     // Force iframe reload when SCO changes
     if (iframeRef.current && currentSco) {
-      const newSrc = `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`;
+      const newSrc = `/api/scorm/content/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`;
       addDebugLog(`Loading SCO: ${currentSco.title}`);
       addDebugLog(`Iframe URL: ${newSrc}`);
       
@@ -359,7 +359,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
+                  src={`/api/scorm/content/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation-by-user-activation allow-downloads"
