@@ -40,6 +40,11 @@ const CSP = [
 ].join('; ');
 
 Deno.serve(async (req) => {
+  // Health check endpoint
+  if (new URL(req.url).searchParams.get('health') === '1') {
+    return new Response('OK: proxy', { status: 200 });
+  }
+
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {

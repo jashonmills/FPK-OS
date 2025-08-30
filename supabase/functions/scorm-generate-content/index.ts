@@ -8,6 +8,11 @@ function htmlRedirect(to: string) {
 function ct(path: string) { return path.toLowerCase().endsWith('.html') ? 'text/html; charset=utf-8' : 'text/plain; charset=utf-8'; }
 
 Deno.serve(async (req) => {
+  // Health check endpoint
+  if (new URL(req.url).searchParams.get('health') === '1') {
+    return new Response('OK: generate-content', { status: 200 });
+  }
+
   if (req.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*','Access-Control-Allow-Methods':'POST,OPTIONS' } });
 
   try {
@@ -53,7 +58,10 @@ Deno.serve(async (req) => {
     // Ensure launch file exists or create redirect
     const { data: fileBlob } = await supabase.storage.from(BUCKET).download(launchFull);
     if (!fileBlob) {
-      const target = `/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(href)}`;
+      const projectRef = Deno.env.get('SUPABASE_URL')?.match(/https:\/\/([^.]+)/)?.[1] || 'localhost';
+      const target = projectRef === 'localhost' 
+        ? `http://127.0.0.1:54321/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(href)}`
+        : `https://${projectRef}.functions.supabase.co/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(href)}`;
       const html = htmlRedirect(target);
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(indexPath, new Blob([html], { type: 'text/html' }), {
         upsert: true, contentType: 'text/html; charset=utf-8'

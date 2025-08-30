@@ -1,0 +1,10 @@
+[[redirects]]
+  from = "/functions/v1/*"
+  to = "https://zgcegkmqfgznbpdplscz.functions.supabase.co/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

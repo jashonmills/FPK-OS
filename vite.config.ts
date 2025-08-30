@@ -14,7 +14,12 @@ export default defineConfig(({ mode }) => ({
       'Cross-Origin-Opener-Policy': 'same-origin'
     },
     proxy: {
-      // No SCORM proxy needed - direct edge function calls
+      // If you ever accidentally hit /functions/v1 locally, forward it
+      '/functions/v1': {
+        target: 'http://127.0.0.1:54321',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/functions\/v1/, '/functions/v1')
+      }
     }
   },
   plugins: [

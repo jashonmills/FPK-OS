@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/functions/v1/(.*)",
+      "destination": "https://zgcegkmqfgznbpdplscz.functions.supabase.co/$1"
+    },
+    {
       "source": "/((?!api|_next|_static|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)).*)",
       "destination": "/index.html"
     }

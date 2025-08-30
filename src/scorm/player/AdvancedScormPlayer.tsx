@@ -100,8 +100,9 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   }, [handleCommit, mode, toast, addDebugLog]);
 
   const generateContent = async () => {
+    const FNS = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
     try {
-      const response = await fetch('/functions/v1/scorm-generate-content', {
+      const response = await fetch(`${FNS}/scorm-generate-content`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json', 
@@ -134,7 +135,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
         setContentTypeWarning(null);
       } else {
         // If generation failed, automatically call verify to show detailed errors
-        const verifyResponse = await fetch('/functions/v1/scorm-verify-package', {
+        const verifyResponse = await fetch(`${FNS}/scorm-verify-package`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ packageId })
@@ -351,7 +352,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(currentSco?.launch_href || 'index.html')}`}
+                  src={`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(currentSco?.launch_href || 'index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
@@ -386,8 +387,8 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                             setContentTypeWarning(null);
                             addDebugLog('✅ Content-Type looks good!');
                             
-                            // Also fetch a small sample of the actual content for debugging
-                            fetch(iframeRef.current.src)
+                        // Also fetch a small sample of the actual content for debugging
+                        fetch(iframeRef.current.src)
                               .then(resp => resp.text())
                               .then(text => {
                                 const preview = text.substring(0, 200);

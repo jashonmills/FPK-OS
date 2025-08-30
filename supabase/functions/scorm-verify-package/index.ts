@@ -3,6 +3,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const BUCKET = 'scorm-packages';
 
 Deno.serve(async (req) => {
+  // Health check endpoint
+  if (new URL(req.url).searchParams.get('health') === '1') {
+    return new Response('OK: verify-package', { status: 200 });
+  }
+
   if (req.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*','Access-Control-Allow-Methods':'POST,OPTIONS' } });
 
   try {
