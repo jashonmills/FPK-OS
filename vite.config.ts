@@ -12,6 +12,22 @@ export default defineConfig(({ mode }) => ({
     headers: {
       'Cross-Origin-Embedder-Policy': 'unsafe-none',
       'Cross-Origin-Opener-Policy': 'same-origin'
+    },
+    proxy: {
+      // Proxy SCORM content requests to Supabase edge function
+      '/api/scorm/content': {
+        target: 'https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/scorm\/content/, '/scorm-content-proxy'),
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Proxying SCORM content request:', req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('SCORM content response:', proxyRes.statusCode, req.url);
+          });
+        }
+      }
     }
   },
   plugins: [
