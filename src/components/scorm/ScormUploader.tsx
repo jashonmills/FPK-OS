@@ -78,6 +78,12 @@ export function ScormUploader({ onUploadComplete }: ScormUploaderProps) {
     try {
       const { file } = fileInfo;
       
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+      
       // Step 1: Upload ZIP to storage
       const storageKey = `scorm-packages/${Date.now()}-${file.name}`;
       
@@ -91,13 +97,32 @@ export function ScormUploader({ onUploadComplete }: ScormUploaderProps) {
 
       updateFileProgress(fileIndex, 50, 'processing');
 
-      // Step 2: Process package with edge function
-      const { data, error: processError } = await supabase.functions.invoke('scorm-parser', {
-        body: {
-          storageKey,
+      // Step 2: Create package record
+      const { data: packageData, error: packageError } = await supabase
+        .from('scorm_packages')
+        .insert({
           title: packageInfo.title || file.name.replace('.zip', ''),
           description: packageInfo.description,
-          category: packageInfo.category
+          zip_path: storageKey,
+          status: 'uploading',
+          created_by: user.id,
+          metadata: {
+            originalFileName: file.name,
+            fileSize: file.size,
+            uploadedAt: new Date().toISOString()
+          }
+        })
+        .select()
+        .single();
+
+      if (packageError) throw packageError;
+
+      // Step 3: Process package with edge function
+      const { data, error: processError } = await supabase.functions.invoke('scorm-parser-production', {
+        body: {
+          packageId: packageData.id,
+          fileName: file.name,
+          fileSize: file.size
         }
       });
 
@@ -107,7 +132,7 @@ export function ScormUploader({ onUploadComplete }: ScormUploaderProps) {
       
       setUploadedFiles(prev => 
         prev.map((f, i) => 
-          i === fileIndex ? { ...f, packageId: data.packageId } : f
+          i === fileIndex ? { ...f, packageId: packageData.id } : f
         )
       );
 

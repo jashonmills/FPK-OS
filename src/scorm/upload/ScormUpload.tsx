@@ -75,6 +75,12 @@ export const ScormUpload: React.FC = () => {
         i === index ? { ...f, progress: 50 } : f
       ));
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // Create package record
       const packageData = {
         title: title || fileData.file.name.replace('.zip', ''),
@@ -84,6 +90,7 @@ export const ScormUpload: React.FC = () => {
         extract_path: '',
         status: 'uploading' as const,
         is_public: isPublic,
+        created_by: user.id,
         metadata: {
           originalFileName: fileData.file.name,
           fileSize: fileData.file.size,
