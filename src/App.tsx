@@ -60,8 +60,8 @@ const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription")
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
-// SCORM pages - using the PortalShell wrapped versions
-const ScormStudioPage = lazy(() => import("./pages/scorm/ScormStudioPage"));
+// SCORM pages - now using standard dashboard layout
+const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
 
@@ -161,15 +161,17 @@ const App: React.FC = () => {
             {/* Subscription Management */}
             <Route path="subscription" element={<LazyRoute><UserSubscription /></LazyRoute>} />
             
+            {/* SCORM Routes - now within dashboard layout */}
+            <Route path="scorm/studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
+            <Route path="scorm/packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
+            
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
           
-          {/* SCORM Routes - Outside dashboard for full-screen experience */}
+          {/* SCORM Player Routes - Keep outside dashboard for full-screen experience */}
           <Route path="/scorm/*" element={
             <RouteProtector>
               <Routes>
-                <Route path="studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
-                <Route path="packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
                 <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
               </Routes>

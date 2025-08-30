@@ -134,12 +134,12 @@ export function AppSidebar() {
   const scormMenuItems = [
     {
       title: 'SCORM Studio',
-      url: "/scorm/studio",
+      url: "/dashboard/scorm/studio",
       icon: Package,
     },
     {
       title: 'Packages',
-      url: "/scorm/packages",
+      url: "/dashboard/scorm/packages",
       icon: FolderOpen,
     },
   ];
@@ -186,6 +186,10 @@ export function AppSidebar() {
     if (url.startsWith('http')) {
       // For external URLs, check if current location matches the path
       return location.pathname === '/dashboard/admin/course-builder';
+    }
+    // Handle SCORM routes specifically for better matching
+    if (url.includes('/scorm/')) {
+      return location.pathname.startsWith(url);
     }
     return location.pathname === url;
   };
