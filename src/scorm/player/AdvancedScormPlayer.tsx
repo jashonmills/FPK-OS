@@ -124,7 +124,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
       addDebugLog('🔧 Generating SCORM content files...');
       setContentTypeWarning('Generating content files, please wait...');
       
-      const { data, error } = await supabase.functions.invoke('scorm-extract-package', {
+      const { data, error } = await supabase.functions.invoke('scorm-generate-content', {
         body: { packageId }
       });
       

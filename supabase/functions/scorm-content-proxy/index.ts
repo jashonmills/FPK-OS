@@ -42,18 +42,29 @@ function getMimeType(path: string): string {
 }
 
 function getCSPHeader(): string {
-  // CSP for SCORM content - allows inline scripts/styles that legacy SCOs need
+  // CSP for SCORM content - allows iframe embedding and necessary permissions
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
     "media-src 'self' blob:",
-    "connect-src 'self'",
+    "connect-src 'self'", 
     "object-src 'none'",
-    "frame-ancestors 'none'",
+    "frame-ancestors 'self' *", // Allow iframe embedding
+    "base-uri 'self'",
+    "form-action 'self'"
   ].join("; ");
+}
+
+function normalizePath(path: string): string {
+  // Prevent path traversal and normalize
+  if (!path || path.includes('..')) return 'content/index.html';
+  let p = path.replace(/^\/+/, '');
+  if (p.endsWith('/')) p += 'index.html';
+  if (!p) p = 'content/index.html';
+  return p;
 }
 
 serve(async (req) => {
@@ -64,9 +75,17 @@ serve(async (req) => {
   console.log(`SCORM Content Proxy Request: ${req.method} ${req.url}`);
 
   try {
+    // Use ANON_KEY for reads - more appropriate for content serving
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get('Authorization') || ''
+          }
+        }
+      }
     );
 
     const url = new URL(req.url);
@@ -78,11 +97,7 @@ serve(async (req) => {
       query: url.search
     });
     
-    // Handle multiple URL patterns:
-    // Pattern 1: /scorm-content-proxy/{packageId}/{filePath}
-    // Pattern 2: /functions/v1/scorm-content-proxy/{packageId}/{filePath}
-    // Pattern 3: /functions/v1/scorm-content-server/{packageId}/{filePath}
-    
+    // Parse URL pattern: /scorm-content-proxy/{packageId}/{filePath}
     let packageId = '';
     let filePath = '';
     
@@ -92,16 +107,12 @@ serve(async (req) => {
     
     if (packageIndex !== -1) {
       packageId = pathParts[packageIndex];
-      filePath = decodeURIComponent(pathParts.slice(packageIndex + 1).join('/')) || 'content/index.html';
+      filePath = normalizePath(decodeURIComponent(pathParts.slice(packageIndex + 1).join('/')));
     } else {
       console.error('❌ Package ID not found in path:', pathParts);
-      return new Response(JSON.stringify({ 
-        error: "Missing packageId or path",
-        receivedPath: url.pathname,
-        pathParts 
-      }), {
+      return new Response(`Bad Request: Missing packageId in path`, {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "text/plain" },
       });
     }
 
@@ -125,71 +136,54 @@ serve(async (req) => {
 
     console.log(`✅ Package found: ${packageData.title} (Status: ${packageData.status})`);
 
-    // Clean and normalize file path
-    filePath = filePath.replace(/^\/+/, '').replace(/\/+/g, '/');
+    // Build storage path using scorm-unpacked structure
+    const objectPath = `scorm-unpacked/${packageId}/${filePath}`;
     
-    // Build storage path - try multiple patterns to ensure compatibility
-    const storagePaths = [
-      `${packageData.extract_path}${filePath}`.replace(/\/+/g, "/"),
-      `${packageData.extract_path}/${filePath}`.replace(/\/+/g, "/"),
-      `packages/${packageId}/${filePath}`.replace(/\/+/g, "/"),
-      `packages/${packageId}/content/${filePath}`.replace(/\/+/g, "/"),
-      filePath,
-      `content/${filePath}`.replace(/\/+/g, "/")
-    ].filter((path, index, array) => array.indexOf(path) === index); // Remove duplicates
+    console.log(`🔍 Trying storage path: ${objectPath}`);
 
-    console.log(`🔍 Trying ${storagePaths.length} storage paths...`);
+    const { data: fileData, error: fileError } = await supabase.storage
+      .from('scorm-packages')
+      .download(objectPath);
 
-    for (const storagePath of storagePaths) {
-      console.log(`📁 Trying: ${storagePath}`);
-      
-      const { data: fileData, error: fileError } = await supabase.storage
-        .from('scorm-packages')
-        .download(storagePath);
-
-      if (!fileError && fileData) {
-        console.log(`✅ File found at: ${storagePath}`);
-        
-        // Get the correct MIME type
-        const contentType = getMimeType(filePath);
-        
-        // Stream the raw file bytes - NO escaping or JSON stringification
-        const arrayBuffer = await fileData.arrayBuffer();
-        
-        console.log(`📤 Serving ${filePath} as ${contentType}, size: ${arrayBuffer.byteLength} bytes`);
-
-        return new Response(arrayBuffer, {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": contentType,
-            "Content-Disposition": "inline",
-            "Content-Security-Policy": getCSPHeader(),
-            "X-Content-Type-Options": "nosniff",
-            "Cache-Control": "public, max-age=600",
-            "X-Frame-Options": "ALLOWALL",
-            "Accept-Ranges": "bytes",
-            "X-SCORM-Proxy": "v2.0",
-            "X-Package-ID": packageId,
-            "X-File-Path": filePath,
-          },
-        });
-      } else {
-        console.log(`❌ Not found at: ${storagePath}`);
-      }
+    if (fileError || !fileData) {
+      console.error(`❌ File not found: ${objectPath}`, fileError);
+      return new Response(`Not Found: ${filePath}`, {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8" },
+      });
     }
 
-    console.error(`❌ File not found: ${filePath}`);
-    return new Response(`Not found: ${filePath}`, {
-      status: 404,
-      headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8" },
+    console.log(`✅ File found at: ${objectPath}`);
+    
+    // Get the correct MIME type
+    const contentType = getMimeType(filePath);
+    
+    // Stream the raw file bytes
+    const arrayBuffer = await fileData.arrayBuffer();
+    
+    console.log(`📤 Serving ${filePath} as ${contentType}, size: ${arrayBuffer.byteLength} bytes`);
+
+    return new Response(arrayBuffer, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": contentType,
+        "Content-Disposition": "inline",
+        "Content-Security-Policy": getCSPHeader(),
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "public, max-age=600",
+        "Accept-Ranges": "bytes",
+        "X-SCORM-Proxy": "v3.0",
+        "X-Package-ID": packageId,
+        "X-File-Path": filePath,
+      },
     });
 
   } catch (error) {
     console.error('SCORM Content Proxy Error:', error);
-    return new Response(JSON.stringify({ error: "Proxy error" }), {
+    return new Response(`Proxy error: ${error.message}`, {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "text/plain" },
     });
   }
 });

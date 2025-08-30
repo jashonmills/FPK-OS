@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       // Proxy SCORM content requests to Supabase edge function
+      // Preserve full path: /api/scorm/content/packageId/filePath -> /scorm-content-proxy/packageId/filePath
       '/api/scorm/content': {
         target: 'https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1',
         changeOrigin: true,
