@@ -64,6 +64,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
 import ScormUploadPage from "./pages/ScormUploadPage";
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
+const ScormAssignments = lazy(() => import("./pages/scorm/ScormAssignments"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
 
 // Legal pages
@@ -165,6 +166,7 @@ const App: React.FC = () => {
             {/* SCORM Routes - now within dashboard layout */}
             <Route path="scorm/studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
             <Route path="scorm/packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
+            <Route path="scorm/assignments" element={<LazyRoute><ScormAssignments /></LazyRoute>} />
             <Route path="scorm/upload" element={<LazyRoute><ScormUploadPage /></LazyRoute>} />
             
             <Route index element={<Navigate to="learner" replace />} />
@@ -174,7 +176,7 @@ const App: React.FC = () => {
           <Route path="/scorm/*" element={
             <RouteProtector>
               <Routes>
-                <Route path="player/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
+                <Route path="preview/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
               </Routes>
