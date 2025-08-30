@@ -62,7 +62,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
 // SCORM pages - now using standard dashboard layout
 const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
-const ScormUploadPage = lazy(() => import("./pages/ScormUploadPage"));
+import ScormUploadPage from "./pages/ScormUploadPage";
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
 
