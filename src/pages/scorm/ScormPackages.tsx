@@ -100,13 +100,13 @@ const ScormPackages = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">SCORM Packages</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">SCORM Packages</h1>
           <p className="text-muted-foreground">Manage and organize your SCORM content packages</p>
         </div>
-        <Button onClick={() => navigate('/dashboard/scorm/upload')}>
+        <Button onClick={() => navigate('/dashboard/scorm/upload')} className="w-full sm:w-auto">
           <Upload className="h-4 w-4 mr-2" />
           Upload New Package
         </Button>
@@ -114,8 +114,8 @@ const ScormPackages = () => {
 
       {/* Search and Filter */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -126,7 +126,7 @@ const ScormPackages = () => {
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -143,63 +143,63 @@ const ScormPackages = () => {
       </Card>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Packages</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Packages</p>
                 {summaryQuery.isLoading ? (
-                  <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                  <div className="h-6 sm:h-8 w-12 sm:w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{summaryQuery.data?.totalPackages || packages.length}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{summaryQuery.data?.totalPackages || packages.length}</p>
                 )}
               </div>
-              <Package className="h-8 w-8 text-muted-foreground" />
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Ready to Use</p>
-                <p className="text-2xl font-bold">{packages.filter(pkg => pkg.status === 'ready').length}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Ready to Use</p>
+                <p className="text-xl sm:text-2xl font-bold">{packages.filter(pkg => pkg.status === 'ready').length}</p>
               </div>
-              <Play className="h-8 w-8 text-green-600" />
+              <Play className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Enrollments</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Enrollments</p>
                 {summaryQuery.isLoading ? (
-                  <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                  <div className="h-6 sm:h-8 w-12 sm:w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{summaryQuery.data?.totalEnrollments || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{summaryQuery.data?.totalEnrollments || 0}</p>
                 )}
               </div>
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Score</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Avg Score</p>
                 {summaryQuery.isLoading ? (
-                  <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                  <div className="h-6 sm:h-8 w-12 sm:w-16 bg-muted animate-pulse rounded" />
                 ) : (
-                  <p className="text-2xl font-bold">{summaryQuery.data?.avgScore || 0}%</p>
+                  <p className="text-xl sm:text-2xl font-bold">{summaryQuery.data?.avgScore || 0}%</p>
                 )}
               </div>
-              <BarChart3 className="h-8 w-8 text-purple-600" />
+              <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
@@ -229,14 +229,14 @@ const ScormPackages = () => {
           ) : (
             <div className="space-y-4">
               {filteredPackages.map((pkg) => (
-                <div key={pkg.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-accent flex items-center justify-center">
+                <div key={pkg.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow gap-4">
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div className="h-12 w-12 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
                       <Package className="h-6 w-6" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{pkg.title}</h3>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h3 className="font-semibold truncate">{pkg.title}</h3>
                         <Badge 
                           variant="outline" 
                           className={getStatusColor(pkg.status)}
@@ -249,32 +249,34 @@ const ScormPackages = () => {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-1">{pkg.description || 'No description available'}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mb-1 line-clamp-2">{pkg.description || 'No description available'}</p>
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                         <span>Updated {formatDistanceToNow(new Date(pkg.updated_at), { addSuffix: true })}</span>
                         {pkg.access_count && <span>{pkg.access_count} views</span>}
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                       {pkg.status === 'ready' && (
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => navigate(`/scorm/preview/${pkg.id}`)}
+                          className="flex-1 sm:flex-none"
                         >
-                          <Play className="h-4 w-4 mr-1" />
-                          Preview
+                          <Play className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Preview</span>
                         </Button>
                       )}
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => navigate(`/dashboard/scorm/assignments?packageId=${pkg.id}`)}
+                        className="flex-1 sm:flex-none"
                       >
-                        <Users className="h-4 w-4 mr-1" />
-                        Assign
+                        <Users className="h-4 w-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Assign</span>
                       </Button>
                     
                     <DropdownMenu>
