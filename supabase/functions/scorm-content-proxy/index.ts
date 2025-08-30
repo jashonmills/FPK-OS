@@ -148,8 +148,60 @@ serve(async (req) => {
           // Check if it's actually HTML or just text containing HTML
           if (textContent.toLowerCase().includes('<!doctype html>') || textContent.toLowerCase().includes('<html')) {
             console.log('✅ Content appears to be proper HTML');
+            
+            // Check if content contains escaped HTML (common issue)
+            if (textContent.includes('&lt;') || textContent.includes('&gt;')) {
+              console.log('⚠️ Content contains escaped HTML entities - will decode');
+              // Decode HTML entities
+              const unescapedContent = textContent
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/&amp;/g, '&');
+              
+              // Return the unescaped content
+              const correctedBuffer = new TextEncoder().encode(unescapedContent);
+              const headers = {
+                ...corsHeaders,
+                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'X-Content-Type-Options': 'nosniff',
+                'Content-Disposition': 'inline; filename="' + filePath.split('/').pop() + '"',
+                'X-Frame-Options': 'ALLOWALL',
+              };
+              console.log(`📋 Serving corrected HTML content, size: ${correctedBuffer.byteLength} bytes`);
+              console.log(`📋 Response headers:`, Object.keys(headers));
+              return new Response(correctedBuffer, { headers });
+            }
           } else {
             console.log('⚠️ Content does not appear to be proper HTML - might be text containing HTML code');
+            
+            // If content looks like it might be JSON or other format containing HTML, try to extract it
+            try {
+              const parsed = JSON.parse(textContent);
+              if (typeof parsed === 'string' && parsed.includes('<!DOCTYPE html>')) {
+                console.log('🔧 Found HTML content in JSON string, extracting...');
+                const extractedHTML = parsed;
+                const correctedBuffer = new TextEncoder().encode(extractedHTML);
+                const headers = {
+                  ...corsHeaders,
+                  'Content-Type': 'text/html; charset=utf-8',
+                  'Cache-Control': 'no-cache, no-store, must-revalidate',
+                  'Pragma': 'no-cache',
+                  'Expires': '0',
+                  'X-Content-Type-Options': 'nosniff',
+                  'Content-Disposition': 'inline; filename="' + filePath.split('/').pop() + '"',
+                  'X-Frame-Options': 'ALLOWALL',
+                };
+                console.log(`📋 Serving extracted HTML content, size: ${correctedBuffer.byteLength} bytes`);
+                return new Response(correctedBuffer, { headers });
+              }
+            } catch (e) {
+              // Not JSON, continue with original processing
+            }
           }
         }
         
