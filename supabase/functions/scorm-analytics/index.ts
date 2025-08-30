@@ -86,46 +86,67 @@ Deno.serve(async (req) => {
 async function getKPIs(supabase: any, request: AnalyticsRequest) {
   console.log('Getting KPIs...')
   
-  // Total Ready Packages
-  const { count: totalPackages, error: packagesError } = await supabase
-    .from('scorm_packages')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'ready')
+  try {
+    // Total Ready Packages - use proper count syntax
+    const { data: packagesData, count: totalPackages, error: packagesError } = await supabase
+      .from('scorm_packages')
+      .select('id', { count: 'exact' })
+      .eq('status', 'ready')
 
-  if (packagesError) {
-    console.error('Error getting packages count:', packagesError)
+    if (packagesError) {
+      console.error('Error getting packages count:', packagesError)
+    }
+
+    // Active Enrollments
+    const { data: enrollmentsData, count: activeEnrollments, error: enrollmentsError } = await supabase
+      .from('scorm_enrollments')
+      .select('id', { count: 'exact' })
+
+    if (enrollmentsError) {
+      console.error('Error getting enrollments count:', enrollmentsError)
+    }
+
+    // Global Average Score - handle case when no data
+    let avgScore = 0
+    if (totalPackages && totalPackages > 0) {
+      const { data: scoreData, error: scoreError } = await supabase.rpc('get_global_avg_score')
+      if (scoreError) {
+        console.error('Error getting global avg score:', scoreError)
+      } else {
+        avgScore = scoreData?.[0]?.avg_score || 0
+      }
+    }
+
+    // Global Completion Rate - handle case when no data  
+    let completionRate = 0
+    if (activeEnrollments && activeEnrollments > 0) {
+      const { data: completionData, error: completionError } = await supabase.rpc('get_global_completion_rate')
+      if (completionError) {
+        console.error('Error getting global completion rate:', completionError)
+      } else {
+        completionRate = completionData?.[0]?.completion_rate || 0
+      }
+    }
+
+    const result = {
+      totalPackages: totalPackages || 0,
+      activeEnrollments: activeEnrollments || 0,
+      avgScore: Math.round(avgScore),
+      completionRate: Math.round(completionRate)
+    }
+
+    console.log('KPIs result:', result)
+    return result
+  } catch (error) {
+    console.error('Error in getKPIs:', error)
+    // Return zeros on any error
+    return {
+      totalPackages: 0,
+      activeEnrollments: 0,
+      avgScore: 0,
+      completionRate: 0
+    }
   }
-
-  // Active Enrollments
-  const { count: activeEnrollments, error: enrollmentsError } = await supabase
-    .from('scorm_enrollments')
-    .select('*', { count: 'exact', head: true })
-
-  if (enrollmentsError) {
-    console.error('Error getting enrollments count:', enrollmentsError)
-  }
-
-  // Global Average Score
-  const { data: scoreData, error: scoreError } = await supabase.rpc('get_global_avg_score')
-  if (scoreError) {
-    console.error('Error getting global avg score:', scoreError)
-  }
-
-  // Global Completion Rate
-  const { data: completionData, error: completionError } = await supabase.rpc('get_global_completion_rate')
-  if (completionError) {
-    console.error('Error getting global completion rate:', completionError)
-  }
-
-  const result = {
-    totalPackages: totalPackages || 0,
-    activeEnrollments: activeEnrollments || 0,
-    avgScore: scoreData?.[0]?.avg_score || 0,
-    completionRate: completionData?.[0]?.completion_rate || 0
-  }
-
-  console.log('KPIs result:', result)
-  return result
 }
 
 async function getPackagePerformance(supabase: any, request: AnalyticsRequest) {

@@ -69,11 +69,20 @@ export function useScormKPIs(filters: AnalyticsFilters) {
     queryKey: ['scorm-kpis', filters.packageId, filters.dateFrom, filters.dateTo],
     queryFn: () => callAnalyticsFunction('kpis', filters),
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1, // Only retry once
+    // Provide default zeros while loading and on error
+    placeholderData: {
+      totalPackages: 0,
+      activeEnrollments: 0,
+      avgScore: 0,
+      completionRate: 0
+    }
   });
 
   // Handle errors with useEffect
   React.useEffect(() => {
     if (query.error) {
+      console.error('KPI query error:', query.error);
       toast({
         title: "Failed to load KPIs",
         description: (query.error as any).message,
