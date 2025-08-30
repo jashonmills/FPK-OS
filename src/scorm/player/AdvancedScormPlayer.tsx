@@ -29,6 +29,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const [showDebugConsole, setShowDebugConsole] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [contentTypeWarning, setContentTypeWarning] = useState<string | null>(null);
 
   // Data fetching
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
@@ -110,40 +111,33 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
   }, [handleCommit, mode, toast, addDebugLog]);
 
-  // Initialize SCORM API
+  // SCORM API initialization - CRITICAL: Expose on parent window
   useEffect(() => {
-    if (!currentSco || !iframeRef.current?.contentWindow) return;
+    if (!currentSco) return;
+    
+    const scormApi = isScorm2004 
+      ? createScorm2004API(handleCommit, handleFinish)
+      : createScorm12API(handleCommit, handleFinish);
 
-    const initializeAPI = () => {
-      const api = isScorm2004 
-        ? createScorm2004API(undefined, { onCommit: handleCommit, onTerminate: handleFinish })
-        : createScorm12API(undefined, { onCommit: handleCommit, onFinish: handleFinish });
+    // Expose API on parent window (not inside iframe)
+    if (isScorm2004) {
+      (window as any).API_1484_11 = scormApi;
+      addDebugLog('SCORM 2004 API exposed on parent window');
+    } else {
+      (window as any).API = scormApi;
+      addDebugLog('SCORM 1.2 API exposed on parent window');
+    }
 
-      // Inject API into iframe
-      const iframe = iframeRef.current?.contentWindow as any;
-      if (iframe) {
-        if (isScorm2004) {
-          iframe.API_1484_11 = api;
-        } else {
-          iframe.API = api;
-        }
-        
-        // Add postMessage support for cross-origin scenarios
-        iframe.addEventListener('message', (event: MessageEvent) => {
-          const { method, args, id } = event.data;
-          if (method && api[method]) {
-            const result = api[method](...(args || []));
-            iframe.postMessage({ id, result }, '*');
-          }
-        });
-
-        addDebugLog(`${isScorm2004 ? 'SCORM 2004' : 'SCORM 1.2'} API initialized`);
-        setIsInitialized(true);
+    setIsInitialized(true);
+    
+    // Cleanup on unmount
+    return () => {
+      if (isScorm2004) {
+        delete (window as any).API_1484_11;
+      } else {
+        delete (window as any).API;
       }
     };
-
-    const timer = setTimeout(initializeAPI, 1000);
-    return () => clearTimeout(timer);
   }, [currentSco, isScorm2004, handleCommit, handleFinish, addDebugLog]);
 
   const handleScoNavigation = (index: number) => {
@@ -242,22 +236,53 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
+          {/* Content Type Warning Banner */}
+          {contentTypeWarning && (
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 mb-4 mx-4 mt-4">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong>Content Type Issue:</strong> {contentTypeWarning}
+                  <br />
+                  <small>Check that the SCORM content proxy is serving files with correct MIME types.</small>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Content Frame */}
           <div className="flex-1 p-4">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
+                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation-by-user-activation"
-                  allow="cross-origin-isolated"
+                  referrerPolicy="no-referrer"
+                  allow="fullscreen; autoplay"
                   onLoad={() => {
                     addDebugLog(`Iframe loaded: ${currentSco?.title || 'SCORM Content'}`);
                     // Log the iframe src for debugging
                     if (iframeRef.current) {
                       addDebugLog(`Iframe src: ${iframeRef.current.src}`);
+                      
+                      // Check content type for diagnostics
+                      fetch(iframeRef.current.src, { method: 'HEAD' })
+                        .then(response => {
+                          const contentType = response.headers.get('content-type');
+                          addDebugLog(`Content-Type: ${contentType}`);
+                          
+                          if (contentType && !contentType.includes('text/html')) {
+                            setContentTypeWarning(`Warning: Content is being served as '${contentType}' instead of 'text/html'. This may cause display issues.`);
+                          } else {
+                            setContentTypeWarning(null);
+                          }
+                        })
+                        .catch(err => {
+                          addDebugLog(`Content-Type check failed: ${err.message}`);
+                        });
                     }
                   }}
                   onError={(e) => {
