@@ -4849,6 +4849,41 @@ export type Database = {
           total_duration_minutes: number
         }[]
       }
+      get_analytics_trends: {
+        Args: { date_from?: string; date_to?: string; package_id?: string }
+        Returns: {
+          active_learners: number
+          avg_score: number
+          completion_rate: number
+          date: string
+          enrollments: number
+        }[]
+      }
+      get_global_avg_score: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_score: number
+        }[]
+      }
+      get_global_completion_rate: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          completion_rate: number
+        }[]
+      }
+      get_package_avg_score: {
+        Args: { date_from?: string; date_to?: string; package_id: string }
+        Returns: {
+          avg_score: number
+        }[]
+      }
+      get_package_completion_stats: {
+        Args: { date_from?: string; date_to?: string; package_id: string }
+        Returns: {
+          completion_rate: number
+          completions: number
+        }[]
+      }
       get_public_platform_metrics: {
         Args: Record<PropertyKey, never>
         Returns: Json

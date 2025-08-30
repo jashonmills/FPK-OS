@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -64,41 +65,52 @@ async function callAnalyticsFunction(type: string, filters: AnalyticsFilters) {
 export function useScormKPIs(filters: AnalyticsFilters) {
   const { toast } = useToast();
 
-  return useQuery<KPIs>({
+  const query = useQuery<KPIs>({
     queryKey: ['scorm-kpis', filters.packageId, filters.dateFrom, filters.dateTo],
     queryFn: () => callAnalyticsFunction('kpis', filters),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (error: any) => {
+  });
+
+  // Handle errors with useEffect
+  React.useEffect(() => {
+    if (query.error) {
       toast({
         title: "Failed to load KPIs",
-        description: error.message,
+        description: (query.error as any).message,
         variant: "destructive",
       });
     }
-  });
+  }, [query.error, toast]);
+
+  return query;
 }
 
 export function usePackagePerformance(filters: AnalyticsFilters) {
   const { toast } = useToast();
 
-  return useQuery<PackagePerformance[]>({
+  const query = useQuery<PackagePerformance[]>({
     queryKey: ['package-performance', filters.packageId, filters.dateFrom, filters.dateTo],
     queryFn: () => callAnalyticsFunction('package-performance', filters),
     staleTime: 1000 * 60 * 2, // 2 minutes
-    onError: (error: any) => {
+  });
+
+  React.useEffect(() => {
+    if (query.error) {
       toast({
         title: "Failed to load package performance",
-        description: error.message,
+        description: (query.error as any).message,
         variant: "destructive",
       });
     }
-  });
+  }, [query.error, toast]);
+
+  return query;
 }
 
 export function useLearnerProgress(filters: AnalyticsFilters) {
   const { toast } = useToast();
 
-  return useQuery<{
+  const query = useQuery<{
     data: LearnerProgress[];
     total: number;
     page: number;
@@ -115,38 +127,48 @@ export function useLearnerProgress(filters: AnalyticsFilters) {
     ],
     queryFn: () => callAnalyticsFunction('learner-progress', filters),
     staleTime: 1000 * 60 * 2, // 2 minutes
-    keepPreviousData: true,
-    onError: (error: any) => {
+    placeholderData: (previousData) => previousData,
+  });
+
+  React.useEffect(() => {
+    if (query.error) {
       toast({
         title: "Failed to load learner progress",
-        description: error.message,
+        description: (query.error as any).message,
         variant: "destructive",
       });
     }
-  });
+  }, [query.error, toast]);
+
+  return query;
 }
 
 export function useScormTrends(filters: AnalyticsFilters) {
   const { toast } = useToast();
 
-  return useQuery<TrendData[]>({
+  const query = useQuery<TrendData[]>({
     queryKey: ['scorm-trends', filters.packageId, filters.dateFrom, filters.dateTo],
     queryFn: () => callAnalyticsFunction('trends', filters),
     staleTime: 1000 * 60 * 10, // 10 minutes
-    onError: (error: any) => {
+  });
+
+  React.useEffect(() => {
+    if (query.error) {
       toast({
         title: "Failed to load trends",
-        description: error.message,
+        description: (query.error as any).message,
         variant: "destructive",
       });
     }
-  });
+  }, [query.error, toast]);
+
+  return query;
 }
 
 export function useScormPackagesList() {
   const { toast } = useToast();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['scorm-packages-list'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -162,14 +184,19 @@ export function useScormPackagesList() {
       return data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
-    onError: (error: any) => {
+  });
+
+  React.useEffect(() => {
+    if (query.error) {
       toast({
         title: "Failed to load packages",
-        description: error.message,
+        description: (query.error as any).message,
         variant: "destructive",
       });
     }
-  });
+  }, [query.error, toast]);
+
+  return query;
 }
 
 export async function exportAnalytics(
