@@ -2770,38 +2770,141 @@ export type Database = {
         }
         Relationships: []
       }
+      scorm_attempts: {
+        Row: {
+          attempt_no: number
+          completion_status: string | null
+          enrollment_id: string | null
+          entry: string | null
+          exit: string | null
+          finished_at: string | null
+          id: string
+          last_commit_at: string | null
+          lesson_location: string | null
+          lesson_status: string | null
+          raw_cmi: Json | null
+          sco_id: string | null
+          score_max: number | null
+          score_min: number | null
+          score_raw: number | null
+          score_scaled: number | null
+          session_time: string | null
+          started_at: string | null
+          success_status: string | null
+          suspend_data: string | null
+          total_time: unknown | null
+        }
+        Insert: {
+          attempt_no?: number
+          completion_status?: string | null
+          enrollment_id?: string | null
+          entry?: string | null
+          exit?: string | null
+          finished_at?: string | null
+          id?: string
+          last_commit_at?: string | null
+          lesson_location?: string | null
+          lesson_status?: string | null
+          raw_cmi?: Json | null
+          sco_id?: string | null
+          score_max?: number | null
+          score_min?: number | null
+          score_raw?: number | null
+          score_scaled?: number | null
+          session_time?: string | null
+          started_at?: string | null
+          success_status?: string | null
+          suspend_data?: string | null
+          total_time?: unknown | null
+        }
+        Update: {
+          attempt_no?: number
+          completion_status?: string | null
+          enrollment_id?: string | null
+          entry?: string | null
+          exit?: string | null
+          finished_at?: string | null
+          id?: string
+          last_commit_at?: string | null
+          lesson_location?: string | null
+          lesson_status?: string | null
+          raw_cmi?: Json | null
+          sco_id?: string | null
+          score_max?: number | null
+          score_min?: number | null
+          score_raw?: number | null
+          score_scaled?: number | null
+          session_time?: string | null
+          started_at?: string | null
+          success_status?: string | null
+          suspend_data?: string | null
+          total_time?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_attempts_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorm_attempts_sco_id_fkey"
+            columns: ["sco_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_scos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scorm_enrollments: {
         Row: {
           assigned_at: string | null
+          assigned_by: string | null
           course_id: string | null
           created_by: string
           due_at: string | null
           id: string
           learner_id: string
           package_id: string | null
+          role: string | null
           status: string | null
+          user_id: string | null
         }
         Insert: {
           assigned_at?: string | null
+          assigned_by?: string | null
           course_id?: string | null
           created_by: string
           due_at?: string | null
           id?: string
           learner_id: string
           package_id?: string | null
+          role?: string | null
           status?: string | null
+          user_id?: string | null
         }
         Update: {
           assigned_at?: string | null
+          assigned_by?: string | null
           course_id?: string | null
           created_by?: string
           due_at?: string | null
           id?: string
           learner_id?: string
           package_id?: string | null
+          role?: string | null
           status?: string | null
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_analytics"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "scorm_enrollments_package_id_fkey"
             columns: ["package_id"]
@@ -2816,45 +2919,66 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          entry_sco_id: string | null
           extract_path: string
           id: string
           manifest_path: string
+          manifest_xml: string | null
           metadata: Json | null
           org_id: string | null
+          owner_user_id: string | null
+          slug: string | null
+          standard: string | null
           status: string
+          storage_key: string | null
           title: string
           updated_at: string
           version: string
+          version_number: number | null
           zip_path: string
         }
         Insert: {
           created_at?: string
           created_by: string
           description?: string | null
+          entry_sco_id?: string | null
           extract_path: string
           id?: string
           manifest_path: string
+          manifest_xml?: string | null
           metadata?: Json | null
           org_id?: string | null
+          owner_user_id?: string | null
+          slug?: string | null
+          standard?: string | null
           status?: string
+          storage_key?: string | null
           title: string
           updated_at?: string
           version?: string
+          version_number?: number | null
           zip_path: string
         }
         Update: {
           created_at?: string
           created_by?: string
           description?: string | null
+          entry_sco_id?: string | null
           extract_path?: string
           id?: string
           manifest_path?: string
+          manifest_xml?: string | null
           metadata?: Json | null
           org_id?: string | null
+          owner_user_id?: string | null
+          slug?: string | null
+          standard?: string | null
           status?: string
+          storage_key?: string | null
           title?: string
           updated_at?: string
           version?: string
+          version_number?: number | null
           zip_path?: string
         }
         Relationships: []
@@ -3009,8 +3133,10 @@ export type Database = {
           mastery_score: number | null
           package_id: string | null
           parameters: string | null
+          position: number | null
           prerequisites: string[] | null
           seq_order: number | null
+          sequencing_json: Json | null
           title: string
         }
         Insert: {
@@ -3022,8 +3148,10 @@ export type Database = {
           mastery_score?: number | null
           package_id?: string | null
           parameters?: string | null
+          position?: number | null
           prerequisites?: string[] | null
           seq_order?: number | null
+          sequencing_json?: Json | null
           title: string
         }
         Update: {
@@ -3035,11 +3163,20 @@ export type Database = {
           mastery_score?: number | null
           package_id?: string | null
           parameters?: string | null
+          position?: number | null
           prerequisites?: string[] | null
           seq_order?: number | null
+          sequencing_json?: Json | null
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "scorm_scos_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_analytics"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "scorm_scos_package_id_fkey"
             columns: ["package_id"]
@@ -4321,7 +4458,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      scorm_package_analytics: {
+        Row: {
+          avg_score: number | null
+          completed_enrollments: number | null
+          id: string | null
+          passed_enrollments: number | null
+          status: string | null
+          title: string | null
+          total_attempts: number | null
+          total_enrollments: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_level_from_xp: {
@@ -4361,6 +4510,10 @@ export type Database = {
       extract_chat_topics: {
         Args: { session_id: string }
         Returns: Json
+      }
+      generate_scorm_package_slug: {
+        Args: { title: string }
+        Returns: string
       }
       get_activity_heatmap: {
         Args: { days_back?: number; user_uuid: string }
@@ -4430,6 +4583,10 @@ export type Database = {
           p_usage_amount?: number
           p_user_id: string
         }
+        Returns: boolean
+      }
+      user_has_admin_role: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       validate_legal_basis: {
