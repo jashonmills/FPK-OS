@@ -4982,6 +4982,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       detect_security_incident: {
         Args: {
           p_affected_systems?: Json
@@ -5058,6 +5062,10 @@ export type Database = {
       initialize_user_quotas: {
         Args: { p_subscription_tier?: string; p_user_id: string }
         Returns: undefined
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       log_hipaa_access: {
         Args: {
