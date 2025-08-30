@@ -174,6 +174,7 @@ const App: React.FC = () => {
           <Route path="/scorm/*" element={
             <RouteProtector>
               <Routes>
+                <Route path="player/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
                 <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
               </Routes>
