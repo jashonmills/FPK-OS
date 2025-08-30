@@ -41,7 +41,10 @@ export function ScormPackageList() {
   const [filteredPackages, setFilteredPackages] = useState(packages || []);
 
   useEffect(() => {
-    if (!packages) return;
+    if (!packages) {
+      setFilteredPackages([]);
+      return;
+    }
     
     const filtered = packages.filter(pkg =>
       pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

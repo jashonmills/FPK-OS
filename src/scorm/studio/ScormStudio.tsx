@@ -23,7 +23,10 @@ export const ScormStudio: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Get real analytics data for the header KPIs
-  const kpisQuery = useScormKPIs({});
+  const kpisQuery = useScormKPIs({
+    // Force fresh data by adding timestamp to query key
+    _timestamp: Date.now()
+  });
 
   const filteredPackages = packages.filter(pkg => {
     const matchesSearch = pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

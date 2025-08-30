@@ -10,6 +10,7 @@ interface AnalyticsFilters {
   page?: number;
   pageSize?: number;
   search?: string;
+  _timestamp?: number;
 }
 
 interface KPIs {
@@ -66,17 +67,13 @@ export function useScormKPIs(filters: AnalyticsFilters) {
   const { toast } = useToast();
 
   const query = useQuery<KPIs>({
-    queryKey: ['scorm-kpis', filters.packageId, filters.dateFrom, filters.dateTo],
+    queryKey: ['scorm-kpis', filters.packageId, filters.dateFrom, filters.dateTo, filters._timestamp],
     queryFn: () => callAnalyticsFunction('kpis', filters),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache results (replaces cacheTime)
     retry: 1, // Only retry once
-    // Provide default zeros while loading and on error
-    placeholderData: {
-      totalPackages: 0,
-      activeEnrollments: 0,
-      avgScore: 0,
-      completionRate: 0
-    }
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   // Handle errors with useEffect
