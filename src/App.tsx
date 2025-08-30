@@ -62,6 +62,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
 // SCORM pages - now using standard dashboard layout
 const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
+const ScormUploadPage = lazy(() => import("./pages/ScormUploadPage"));
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
 
@@ -164,6 +165,7 @@ const App: React.FC = () => {
             {/* SCORM Routes - now within dashboard layout */}
             <Route path="scorm/studio" element={<LazyRoute><ScormStudioPage /></LazyRoute>} />
             <Route path="scorm/packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
+            <Route path="scorm/upload" element={<LazyRoute><ScormUploadPage /></LazyRoute>} />
             
             <Route index element={<Navigate to="learner" replace />} />
           </Route>

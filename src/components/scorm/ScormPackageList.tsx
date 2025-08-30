@@ -70,7 +70,7 @@ export function ScormPackageList() {
   };
 
   const handleManage = (packageId: string) => {
-    navigate(`/scorm/packages/${packageId}`);
+    navigate(`/dashboard/scorm/packages/${packageId}`);
   };
 
   if (isLoading) {
@@ -110,7 +110,7 @@ export function ScormPackageList() {
                 Manage your uploaded SCORM packages and their deployments
               </CardDescription>
             </div>
-            <Button onClick={() => navigate("/scorm/studio")}>
+            <Button onClick={() => navigate("/dashboard/scorm/upload")}>
               <Upload className="mr-2 h-4 w-4" />
               Upload New Package
             </Button>
@@ -142,7 +142,7 @@ export function ScormPackageList() {
                 {searchTerm ? "No packages match your search criteria." : "Upload your first SCORM package to get started."}
               </p>
               {!searchTerm && (
-                <Button onClick={() => navigate("/scorm/studio")}>
+                <Button onClick={() => navigate("/dashboard/scorm/upload")}>
                   <Upload className="mr-2 h-4 w-4" />
                   Upload Package
                 </Button>
@@ -213,11 +213,11 @@ export function ScormPackageList() {
                               <Settings className="mr-2 h-4 w-4" />
                               Manage
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/scorm/packages/${pkg.id}/enrollments`)}>
+                            <DropdownMenuItem onClick={() => navigate(`/dashboard/scorm/packages/${pkg.id}/enrollments`)}>
                               <Users className="mr-2 h-4 w-4" />
                               Enrollments
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/scorm/packages/${pkg.id}/analytics`)}>
+                            <DropdownMenuItem onClick={() => navigate(`/dashboard/scorm/packages/${pkg.id}/analytics`)}>
                               <BarChart3 className="mr-2 h-4 w-4" />
                               Analytics
                             </DropdownMenuItem>

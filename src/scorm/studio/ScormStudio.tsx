@@ -145,7 +145,7 @@ export const ScormStudio: React.FC = () => {
                     <FileText className="h-4 w-4 mr-2" />
                     Export CSV
                   </Button>
-                  <Button onClick={() => navigate('/scorm/upload')}>
+                  <Button onClick={() => navigate('/dashboard/scorm/upload')}>
                     <Upload className="h-4 w-4 mr-2" />
                     Upload Package
                   </Button>
@@ -200,7 +200,7 @@ export const ScormStudio: React.FC = () => {
                       ? "No packages match your search criteria." 
                       : "Upload your first SCORM package to get started."}
                   </p>
-                  <Button onClick={() => navigate('/scorm/upload')}>
+                  <Button onClick={() => navigate('/dashboard/scorm/upload')}>
                     <Upload className="mr-2 h-4 w-4" />
                     Upload Package
                   </Button>
@@ -235,7 +235,7 @@ export const ScormStudio: React.FC = () => {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => navigate(`/scorm/packages/${pkg.id}`)}
+                            onClick={() => navigate(`/dashboard/scorm/packages/${pkg.id}`)}
                           >
                             <Eye className="mr-1 h-3 w-3" />
                             View
@@ -295,7 +295,7 @@ export const ScormStudio: React.FC = () => {
               <p className="text-muted-foreground mb-4">
                 Upload and deploy SCORM 1.2 or SCORM 2004 packages to your learning platform.
               </p>
-              <Button onClick={() => navigate('/scorm/upload')}>
+              <Button onClick={() => navigate('/dashboard/scorm/upload')}>
                 <Upload className="mr-2 h-4 w-4" />
                 Start Upload
               </Button>
@@ -311,7 +311,7 @@ export const ScormStudio: React.FC = () => {
               <p className="text-muted-foreground mb-4">
                 Browse and manage your SCORM package library with advanced filtering and search.
               </p>
-              <Button onClick={() => navigate('/scorm/packages')}>
+              <Button onClick={() => navigate('/dashboard/scorm/packages')}>
                 <Eye className="mr-2 h-4 w-4" />
                 Browse Catalog
               </Button>

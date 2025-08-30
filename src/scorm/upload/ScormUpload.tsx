@@ -343,7 +343,7 @@ export const ScormUpload: React.FC = () => {
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => navigate('/scorm/studio')}
+                    onClick={() => navigate('/dashboard/scorm/studio')}
                   >
                     Return to Studio
                   </Button>

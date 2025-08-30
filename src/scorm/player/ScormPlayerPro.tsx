@@ -339,7 +339,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     if (mode === 'preview') {
       navigate(-1);
     } else {
-      navigate('/scorm/studio');
+      navigate('/dashboard/scorm/studio');
     }
   }, [mode, navigate, addDebugLog]);
 
