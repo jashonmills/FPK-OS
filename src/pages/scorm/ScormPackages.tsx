@@ -258,24 +258,24 @@ const ScormPackages = () => {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    {pkg.status === 'ready' && (
+                      {pkg.status === 'ready' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/scorm/preview/${pkg.id}`)}
+                        >
+                          <Play className="h-4 w-4 mr-1" />
+                          Preview
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => navigate(`/scorm/player/${pkg.id}`)}
+                        onClick={() => navigate(`/dashboard/scorm/assignments?packageId=${pkg.id}`)}
                       >
-                        <Play className="h-4 w-4 mr-1" />
-                        Preview
+                        <Users className="h-4 w-4 mr-1" />
+                        Assign
                       </Button>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate(`/dashboard/scorm/packages/${pkg.id}/assign`)}
-                    >
-                      <Users className="h-4 w-4 mr-1" />
-                      Assign
-                    </Button>
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

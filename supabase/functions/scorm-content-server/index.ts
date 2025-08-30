@@ -58,6 +58,12 @@ serve(async (req) => {
       contentPath = `packages/${packageId}/${filePath}`;
     }
 
+    // Handle default file - if requesting manifest or empty, serve index.html instead
+    if (!filePath || filePath === 'imsmanifest.xml' || filePath.endsWith('imsmanifest.xml')) {
+      contentPath = `packages/${packageId}/content/index.html`;
+      console.log(`Redirecting manifest request to: ${contentPath}`);
+    }
+
     console.log(`Attempting to fetch: ${contentPath}`);
 
     // Try to get the file from storage

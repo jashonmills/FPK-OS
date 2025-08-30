@@ -148,7 +148,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const handleExit = () => {
     addDebugLog('Exiting player');
     if (mode === 'preview') {
-      navigate(-1);
+      navigate('/dashboard/scorm/packages');
     } else {
       navigate('/dashboard');
     }
