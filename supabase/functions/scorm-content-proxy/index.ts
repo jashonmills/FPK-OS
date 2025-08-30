@@ -141,14 +141,22 @@ serve(async (req) => {
         
         console.log(`📤 Serving ${filePath} as ${mimeType}, size: ${arrayBuffer.byteLength} bytes`);
 
-        return new Response(arrayBuffer, {
-          headers: {
-            ...corsHeaders,
-            'Content-Type': mimeType,
-            'Cache-Control': 'public, max-age=600',
-            'X-Content-Type-Options': 'nosniff',
-          },
-        });
+        // Enhanced headers for proper HTML rendering
+        const headers = {
+          ...corsHeaders,
+          'Content-Type': mimeType,
+          'Cache-Control': 'public, max-age=600',
+          'X-Content-Type-Options': 'nosniff',
+        };
+
+        // Add Content-Disposition for HTML files to ensure proper rendering
+        if (mimeType.includes('text/html')) {
+          headers['Content-Disposition'] = 'inline';
+          headers['X-Frame-Options'] = 'SAMEORIGIN';
+          headers['Content-Security-Policy'] = "frame-ancestors 'self' https://*.supabase.co https://*.lovable.app;";
+        }
+
+        return new Response(arrayBuffer, { headers });
       } else {
         console.log(`❌ Not found at: ${storagePath} (${fileError?.message || 'no error details'})`);
       }
