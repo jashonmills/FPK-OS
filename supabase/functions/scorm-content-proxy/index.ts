@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -72,20 +72,38 @@ serve(async (req) => {
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
     
+    console.log(`🔍 URL Analysis:`, {
+      pathname: url.pathname,
+      pathParts,
+      query: url.search
+    });
+    
+    // Handle multiple URL patterns:
+    // Pattern 1: /scorm-content-proxy/{packageId}/{filePath}
+    // Pattern 2: /functions/v1/scorm-content-proxy/{packageId}/{filePath}
+    // Pattern 3: /functions/v1/scorm-content-server/{packageId}/{filePath}
+    
+    let packageId = '';
+    let filePath = '';
+    
     // Find the package ID (UUID format) in the path
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const packageIndex = pathParts.findIndex(part => uuidRegex.test(part));
     
-    if (packageIndex === -1) {
-      console.error('Package ID not found in path:', pathParts);
-      return new Response(JSON.stringify({ error: "Missing packageId or path" }), {
+    if (packageIndex !== -1) {
+      packageId = pathParts[packageIndex];
+      filePath = decodeURIComponent(pathParts.slice(packageIndex + 1).join('/')) || 'content/index.html';
+    } else {
+      console.error('❌ Package ID not found in path:', pathParts);
+      return new Response(JSON.stringify({ 
+        error: "Missing packageId or path",
+        receivedPath: url.pathname,
+        pathParts 
+      }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    
-    const packageId = pathParts[packageIndex];
-    const filePath = decodeURIComponent(pathParts.slice(packageIndex + 1).join('/')) || 'content/index.html';
 
     console.log(`📦 Package ID: ${packageId}`);
     console.log(`📄 Requested file: ${filePath}`);
@@ -107,13 +125,18 @@ serve(async (req) => {
 
     console.log(`✅ Package found: ${packageData.title} (Status: ${packageData.status})`);
 
-    // Build storage path - try the extract_path first, then fallback patterns
+    // Clean and normalize file path
+    filePath = filePath.replace(/^\/+/, '').replace(/\/+/g, '/');
+    
+    // Build storage path - try multiple patterns to ensure compatibility
     const storagePaths = [
       `${packageData.extract_path}${filePath}`.replace(/\/+/g, "/"),
       `${packageData.extract_path}/${filePath}`.replace(/\/+/g, "/"),
       `packages/${packageId}/${filePath}`.replace(/\/+/g, "/"),
-      filePath
-    ];
+      `packages/${packageId}/content/${filePath}`.replace(/\/+/g, "/"),
+      filePath,
+      `content/${filePath}`.replace(/\/+/g, "/")
+    ].filter((path, index, array) => array.indexOf(path) === index); // Remove duplicates
 
     console.log(`🔍 Trying ${storagePaths.length} storage paths...`);
 
@@ -145,6 +168,10 @@ serve(async (req) => {
             "X-Content-Type-Options": "nosniff",
             "Cache-Control": "public, max-age=600",
             "X-Frame-Options": "ALLOWALL",
+            "Accept-Ranges": "bytes",
+            "X-SCORM-Proxy": "v2.0",
+            "X-Package-ID": packageId,
+            "X-File-Path": filePath,
           },
         });
       } else {

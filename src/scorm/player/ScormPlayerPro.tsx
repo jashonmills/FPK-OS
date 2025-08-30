@@ -405,12 +405,12 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
       {/* Enhanced Header */}
       <div className="border-b bg-card shadow-sm">
         <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 lg:gap-4 flex-1 min-w-0">
               <Button variant="ghost" size="sm" onClick={handleExit}>
                 <X className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -419,16 +419,16 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                 >
                   <Menu className="h-4 w-4" />
                 </Button>
-                <div>
-                  <h1 className="font-semibold text-lg">{scormPackage.title}</h1>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{mode === 'preview' ? 'Preview Mode' : 'Learning Mode'}</span>
-                    <span>•</span>
-                    <span>SCO {currentScoIndex + 1} of {scos.length}</span>
-                    <span>•</span>
-                    <span>{scormVersion}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
+                <div className="min-w-0 flex-1">
+                  <h1 className="font-semibold text-sm lg:text-lg truncate">{scormPackage.title}</h1>
+                  <div className="flex items-center gap-2 lg:gap-4 text-xs lg:text-sm text-muted-foreground flex-wrap">
+                    <span className="hidden sm:inline">{mode === 'preview' ? 'Preview Mode' : 'Learning Mode'}</span>
+                    <span className="hidden sm:inline">•</span>
+                    <span>SCO {currentScoIndex + 1}/{scos.length}</span>
+                    <span className="hidden lg:inline">•</span>
+                    <span className="hidden lg:inline">{scormVersion}</span>
+                    <span className="hidden md:inline">•</span>
+                    <span className="hidden md:flex items-center gap-1">
                       <Timer className="h-3 w-3" />
                       {formatTime(sessionTime)}
                     </span>
@@ -437,29 +437,41 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
               {/* Progress and Score Display */}
-              <div className="hidden md:flex items-center gap-4 text-sm">
+              <div className="hidden lg:flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <Progress value={progressPercentage} className="w-20" />
-                  <span>{progressPercentage}%</span>
+                  <Progress value={progressPercentage} className="w-16 lg:w-20" />
+                  <span className="text-xs lg:text-sm">{progressPercentage}%</span>
                 </div>
                 
                 {currentScore !== null && (
                   <div className="flex items-center gap-1">
-                    <Award className="h-4 w-4 text-yellow-600" />
-                    <span>{currentScore}%</span>
+                    <Award className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-600" />
+                    <span className="text-xs lg:text-sm">{currentScore}%</span>
                   </div>
                 )}
                 
-                <Badge variant={completionStatus === 'completed' || completionStatus === 'passed' ? 'default' : 'secondary'}>
+                <Badge 
+                  variant={completionStatus === 'completed' || completionStatus === 'passed' ? 'default' : 'secondary'}
+                  className="text-xs"
+                >
                   {completionStatus}
                 </Badge>
               </div>
 
+              {/* Mobile Progress */}
+              <div className="flex lg:hidden items-center gap-1">
+                <Progress value={progressPercentage} className="w-12" />
+                <span className="text-xs">{progressPercentage}%</span>
+              </div>
+
               {/* API Status */}
-              <Badge variant={isInitialized ? "default" : "secondary"}>
-                {isInitialized ? 'API Ready' : 'Initializing...'}
+              <Badge 
+                variant={isInitialized ? "default" : "secondary"}
+                className="text-xs hidden sm:flex"
+              >
+                {isInitialized ? 'Ready' : 'Init...'}
               </Badge>
               
               {/* Controls */}
@@ -468,6 +480,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMuted(!isMuted)}
+                  className="hidden sm:flex"
                 >
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </Button>
@@ -476,6 +489,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={toggleFullscreen}
+                  className="hidden sm:flex"
                 >
                   <Maximize className="h-4 w-4" />
                 </Button>
@@ -485,7 +499,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                   size="sm"
                   onClick={() => setShowDebugConsole(!showDebugConsole)}
                 >
-                  <Terminal className="h-4 w-4" />
+                  <Terminal className="h-3 w-3 lg:h-4 lg:w-4" />
                 </Button>
               </div>
             </div>
@@ -494,12 +508,22 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Enhanced TOC Sidebar */}
+        {/* Enhanced Mobile-Responsive TOC Sidebar */}
         {showTOC && (
-          <div className="w-80 border-r bg-card flex flex-col">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold mb-2">Course Contents</h3>
-              <div className="text-sm text-muted-foreground">
+          <div className={`${showTOC ? 'w-80' : 'w-0'} lg:w-80 border-r bg-card flex flex-col transition-all duration-200 ${showTOC ? 'absolute lg:relative z-10 lg:z-0' : 'hidden lg:flex'} h-full lg:h-auto`}>
+            <div className="p-3 lg:p-4 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm lg:text-base">Course Contents</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowTOC(false)}
+                  className="lg:hidden"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="text-xs lg:text-sm text-muted-foreground mt-1">
                 Progress: {progressPercentage}% Complete
               </div>
             </div>
@@ -514,26 +538,32 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                   return (
                     <div 
                       key={sco.id}
-                      className={`p-3 rounded-lg cursor-pointer transition-all hover:bg-accent ${
+                      className={`p-2 lg:p-3 rounded-lg cursor-pointer transition-all hover:bg-accent ${
                         isCurrent ? 'bg-primary text-primary-foreground shadow-sm' : status.bgColor
                       }`}
-                      onClick={() => handleScoNavigation(index)}
+                      onClick={() => {
+                        handleScoNavigation(index);
+                        // Close sidebar on mobile after selection
+                        if (window.innerWidth < 1024) {
+                          setShowTOC(false);
+                        }
+                      }}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <StatusIcon className={`h-4 w-4 flex-shrink-0 ${isCurrent ? 'text-primary-foreground' : status.color}`} />
+                        <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
+                          <StatusIcon className={`h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0 ${isCurrent ? 'text-primary-foreground' : status.color}`} />
                           <div className="min-w-0 flex-1">
-                            <p className={`text-sm font-medium truncate ${isCurrent ? 'text-primary-foreground' : ''}`}>
+                            <p className={`text-xs lg:text-sm font-medium truncate ${isCurrent ? 'text-primary-foreground' : ''}`}>
                               {sco.title}
                             </p>
-                            <p className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                            <p className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'} hidden lg:block`}>
                               SCO {index + 1} • {sco.scorm_type?.toUpperCase() || 'SCO'}
                             </p>
                           </div>
                         </div>
                         
                         {sco.mastery_score && (
-                          <div className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                          <div className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'} hidden lg:block`}>
                             <Target className="h-3 w-3 inline mr-1" />
                             {sco.mastery_score}%
                           </div>
@@ -550,16 +580,17 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
           {/* Content Frame */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-2 lg:p-4">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${currentSco?.launch_href?.replace('packages/' + packageId + '/', '') || 'content/index.html'}`}
+                  key={`${packageId}-${currentScoIndex}-${Date.now()}`}
+                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${currentSco?.launch_href?.replace(/^packages\/[^\/]+\//, '') || 'content/index.html'}`}
                   className="w-full h-full border-none rounded-lg"
                   title={`SCORM Content - ${currentSco?.title}`}
-                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                  allow="fullscreen"
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+                  allow="fullscreen; autoplay; microphone; camera"
                 />
               </CardContent>
             </Card>
@@ -576,33 +607,37 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
             />
           )}
 
-          {/* Enhanced Controls */}
-          <div className="border-t p-4 bg-card">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          {/* Enhanced Mobile-Responsive Controls */}
+          <div className="border-t p-2 lg:p-4 bg-card">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1 lg:gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={currentScoIndex === 0}
                   onClick={() => handleScoNavigation(currentScoIndex - 1)}
+                  className="text-xs lg:text-sm"
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
+                  <ChevronLeft className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={currentScoIndex === scos.length - 1}
                   onClick={() => handleScoNavigation(currentScoIndex + 1)}
+                  className="text-xs lg:text-sm"
                 >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <span className="hidden sm:inline">Next</span>
+                  <span className="sm:hidden">Next</span>
+                  <ChevronRight className="h-3 w-3 lg:h-4 lg:w-4 ml-1" />
                 </Button>
               </div>
               
               {/* Middle: Current SCO Info */}
               <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground">
-                <span>{currentSco?.title}</span>
+                <span className="truncate max-w-48">{currentSco?.title}</span>
                 {currentSco?.mastery_score && (
                   <span className="flex items-center gap-1">
                     <Target className="h-3 w-3" />
@@ -611,13 +646,25 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                 )}
               </div>
               
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleRestart}>
-                  <RotateCcw className="h-4 w-4 mr-1" />
-                  Restart SCO
+              <div className="flex items-center gap-1 lg:gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRestart}
+                  className="text-xs lg:text-sm"
+                >
+                  <RotateCcw className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
+                  <span className="hidden sm:inline">Restart SCO</span>
+                  <span className="sm:hidden">Restart</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExit}>
-                  Exit Course
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleExit}
+                  className="text-xs lg:text-sm"
+                >
+                  <span className="hidden sm:inline">Exit Course</span>
+                  <span className="sm:hidden">Exit</span>
                 </Button>
               </div>
             </div>

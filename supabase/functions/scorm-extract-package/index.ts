@@ -245,11 +245,19 @@ serve(async (req) => {
           console.log(`📤 Uploading: ${fileName} → ${storagePath}`);
 
           try {
+            // Determine content type based on file extension
+            const contentType = fileName.endsWith('.html') || fileName.endsWith('.htm') ? 'text/html' :
+                              fileName.endsWith('.js') ? 'application/javascript' :
+                              fileName.endsWith('.css') ? 'text/css' :
+                              fileName.endsWith('.json') ? 'application/json' :
+                              fileName.endsWith('.xml') ? 'application/xml' :
+                              'text/html'; // Default for SCORM content
+
             const { error: uploadError } = await supabase.storage
               .from('scorm-packages')
-              .upload(storagePath, new Blob([htmlContent], { type: 'text/html' }), {
+              .upload(storagePath, new Blob([htmlContent], { type: contentType }), {
                 upsert: true,
-                contentType: 'text/html'
+                contentType: contentType
               });
 
             if (uploadError) {
