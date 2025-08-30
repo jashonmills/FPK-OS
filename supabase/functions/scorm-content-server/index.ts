@@ -12,6 +12,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log(`SCORM Content Server Request: ${req.method} ${req.url}`);
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

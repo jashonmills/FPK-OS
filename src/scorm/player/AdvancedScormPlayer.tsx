@@ -251,7 +251,18 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
-                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+                  allow="cross-origin-isolated"
+                  onLoad={() => {
+                    addDebugLog(`Iframe loaded: ${currentSco?.title || 'SCORM Content'}`);
+                    // Log the iframe src for debugging
+                    if (iframeRef.current) {
+                      addDebugLog(`Iframe src: ${iframeRef.current.src}`);
+                    }
+                  }}
+                  onError={(e) => {
+                    addDebugLog(`Iframe error: ${e.toString()}`);
+                  }}
                 />
               </CardContent>
             </Card>
