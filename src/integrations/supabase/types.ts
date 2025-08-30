@@ -2825,6 +2825,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "scorm_analytics_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_learner_progress"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "scorm_analytics_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
+          {
             foreignKeyName: "scorm_analytics_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
@@ -2955,6 +2969,13 @@ export type Database = {
             foreignKeyName: "scorm_enrollments_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
             referencedRelation: "scorm_packages"
             referencedColumns: ["id"]
           },
@@ -3063,6 +3084,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "scorm_enrollments"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorm_logs_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_learner_progress"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "scorm_logs_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
           },
           {
             foreignKeyName: "scorm_logs_package_id_fkey"
@@ -3427,6 +3462,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "scorm_runtime_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_learner_progress"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
+          {
             foreignKeyName: "scorm_runtime_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
@@ -3498,6 +3547,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "scorm_scos_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
           {
             foreignKeyName: "scorm_scos_package_id_fkey"
             columns: ["package_id"]
@@ -4786,7 +4842,99 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      scorm_latest_attempt: {
+        Row: {
+          enrollment_id: string | null
+          last_commit_at: string | null
+          package_id: string | null
+          sco_id: string | null
+          score: number | null
+          seconds: number | null
+          session_start_time: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_runtime_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_learner_progress"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_sco_id_fkey"
+            columns: ["sco_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_scos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorm_learner_progress: {
+        Row: {
+          enrollment_id: string | null
+          last_activity: string | null
+          learner_name: string | null
+          package_id: string | null
+          package_title: string | null
+          progress_pct: number | null
+          sco_completed: number | null
+          sco_count: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorm_package_metrics: {
+        Row: {
+          avg_minutes: number | null
+          avg_score: number | null
+          completion_rate: number | null
+          completions: number | null
+          created_at: string | null
+          enrollments: number | null
+          package_id: string | null
+          package_status: Database["public"]["Enums"]["package_status"] | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_level_from_xp: {

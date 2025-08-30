@@ -18,6 +18,9 @@ import {
   useScormPackagesList,
   exportAnalytics
 } from '@/hooks/useScormAnalytics';
+import { 
+  useScormSummary
+} from '@/hooks/scorm/useScormAnalytics';
 import { formatDistanceToNow } from 'date-fns';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, AreaChart, Area } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
@@ -41,9 +44,13 @@ export const ScormAnalytics: React.FC = () => {
   }, [filters.dateRange]);
 
   // Data hooks
-  const kpisQuery = useScormKPIs({ ...filters, ...dateRange });
-  const performanceQuery = usePackagePerformance({ ...filters, ...dateRange });
-  const progressQuery = useLearnerProgress({ ...filters, ...dateRange });
+  const kpisQuery = useScormSummary({});
+  const performanceQuery = useScormSummary({ packageId: filters.packageId });
+  const progressQuery = useLearnerProgress({ 
+    packageId: filters.packageId,
+    limit: filters.pageSize || 25,
+    offset: ((filters.page || 1) - 1) * (filters.pageSize || 25)
+  });
   const trendsQuery = useScormTrends({ ...filters, ...dateRange });
   const packagesQuery = useScormPackagesList();
 
@@ -283,7 +290,7 @@ export const ScormAnalytics: React.FC = () => {
                     <div key={i} className="h-12 bg-muted animate-pulse rounded" />
                   ))}
                 </div>
-              ) : progressQuery.data?.data.length === 0 ? (
+              ) : progressQuery.data?.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No Progress Data</h3>
@@ -291,7 +298,7 @@ export const ScormAnalytics: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {progressQuery.data?.data.map((learner) => (
+                  {progressQuery.data?.map((learner) => (
                     <div key={`${learner.userId}-${learner.packageId}`} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
