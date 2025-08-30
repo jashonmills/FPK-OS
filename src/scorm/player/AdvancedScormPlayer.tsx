@@ -116,6 +116,49 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
   }, [handleCommit, mode, toast, addDebugLog]);
 
+  const handleExtractPackage = useCallback(async () => {
+    if (!packageId) return;
+    
+    try {
+      addDebugLog('🔧 Generating SCORM content files...');
+      setContentTypeWarning('Generating content files, please wait...');
+      
+      const { data, error } = await supabase.functions.invoke('scorm-extract-package', {
+        body: { packageId }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      addDebugLog(`✅ Content generated: ${data.uploadedFiles} files created`);
+      setContentTypeWarning(null);
+      
+      // Reload the iframe after a short delay
+      setTimeout(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = iframeRef.current.src;
+        }
+      }, 1000);
+      
+      toast({
+        title: "Content Generated",
+        description: `Successfully created ${data.uploadedFiles} SCORM content files.`,
+      });
+      
+    } catch (error) {
+      console.error('Content generation error:', error);
+      addDebugLog(`❌ Content generation failed: ${error.message}`);
+      setContentTypeWarning(`Content generation failed: ${error.message}`);
+      
+      toast({
+        title: "Generation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [packageId, addDebugLog, toast]);
+
   // SCORM API initialization - CRITICAL: Expose on parent window
   useEffect(() => {
     if (!currentSco) return;
@@ -246,11 +289,20 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
             <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 mb-4 mx-4 mt-4">
               <div className="flex">
                 <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong>Content Type Issue:</strong> {contentTypeWarning}
+                <div className="flex-1">
+                  <strong>Content Issue:</strong> {contentTypeWarning}
                   <br />
-                  <small>Check that the SCORM content proxy is serving files with correct MIME types.</small>
+                  <small>The SCORM content files may need to be generated.</small>
                 </div>
+                {contentTypeWarning.includes('404') && (
+                  <Button 
+                    size="sm" 
+                    onClick={handleExtractPackage}
+                    className="ml-4"
+                  >
+                    🔧 Generate Content
+                  </Button>
+                )}
               </div>
             </div>
           )}
