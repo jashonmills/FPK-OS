@@ -21,12 +21,20 @@ serve(async (req) => {
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
     
-    if (pathParts.length < 2) {
-      return new Response('Invalid path', { status: 400, headers: corsHeaders });
+    // Handle different URL structures - the function might receive the full path or just the part after function name
+    let packageId: string;
+    let filePath: string;
+    
+    // Find the package ID (UUID format) in the path
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const packageIndex = pathParts.findIndex(part => uuidRegex.test(part));
+    
+    if (packageIndex === -1) {
+      return new Response('Package ID not found in path', { status: 400, headers: corsHeaders });
     }
-
-    const packageId = pathParts[0];
-    const filePath = pathParts.slice(1).join('/');
+    
+    packageId = pathParts[packageIndex];
+    filePath = pathParts.slice(packageIndex + 1).join('/');
 
     console.log(`SCORM Content Server: Serving ${filePath} from package ${packageId}`);
 
