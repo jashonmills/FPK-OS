@@ -38,8 +38,8 @@ export function ScormPackageList() {
   const navigate = useNavigate();
   const { packages, isLoading, error } = useScormPackages();
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Memoize filtered packages to prevent infinite re-renders
+  
+  // Use useMemo instead of useState + useEffect to prevent infinite loops
   const filteredPackages = useMemo(() => {
     if (!packages) return [];
     

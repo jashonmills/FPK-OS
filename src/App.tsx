@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -61,7 +60,7 @@ const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription")
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
-// SCORM pages
+// SCORM pages - using the PortalShell wrapped versions
 const ScormStudioPage = lazy(() => import("./pages/scorm/ScormStudioPage"));
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));

@@ -6,13 +6,13 @@ export interface ScormSummaryData {
   totalEnrollments: number;
   completed: number;
   avgScore: number;
+  avgMinutes: number;
   packages: PackageMetric[];
 }
 
 export interface PackageMetric {
   id: string;
   title: string;
-  description: string;
   status: string;
   created_at: string;
   enrollment_count: number;
@@ -22,16 +22,16 @@ export interface PackageMetric {
 }
 
 export interface LearnerProgress {
-  user_id: string;
-  learner_name: string;
-  package_title: string;
-  package_id: string;
   enrollment_id: string;
-  enrolled_at: string;
-  last_commit_at: string | null;
+  user_id: string;
+  package_id: string;
+  package_title: string;
+  learner_name: string;
   total_scos: number;
   completed_scos: number;
   progress_percentage: number;
+  last_commit_at: string | null;
+  enrolled_at: string;
   avg_score: number;
 }
 
@@ -49,8 +49,7 @@ export function useScormSummary({
         // Get total packages count
         const { count: totalPackages, error: packagesError } = await supabase
           .from('scorm_packages')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'ready');
+          .select('*', { count: 'exact', head: true });
 
         if (packagesError) {
           console.error('Error fetching packages count:', packagesError);
@@ -72,7 +71,7 @@ export function useScormSummary({
           console.error('Error fetching enrollments count:', enrollmentsError);
         }
 
-        // Get package metrics
+        // Get package metrics from the view
         let metricsQuery = supabase.from('scorm_package_metrics').select('*');
         
         if (packageId) {
@@ -87,21 +86,24 @@ export function useScormSummary({
 
         // Calculate totals from package metrics
         const totals = (packageMetrics || []).reduce((acc, pkg) => {
-          acc.completed += pkg.completions || 0;
-          acc.scoreSum += (pkg.avg_score || 0);
+          acc.completed += Number(pkg.completions) || 0;
+          acc.scoreSum += Number(pkg.avg_score) || 0;
           acc.pkgCount += pkg.avg_score ? 1 : 0; // Only count packages with scores
+          acc.enrollments += Number(pkg.enrollment_count) || 0;
           return acc;
         }, { 
           completed: 0, 
           scoreSum: 0, 
-          pkgCount: 0
+          pkgCount: 0, 
+          enrollments: 0
         });
 
         return {
           totalPackages: totalPackages || 0,
-          totalEnrollments: totalEnrollments || 0,
+          totalEnrollments: totals.enrollments || 0,
           completed: totals.completed,
           avgScore: totals.pkgCount > 0 ? Math.round(totals.scoreSum / totals.pkgCount) : 0,
+          avgMinutes: 0, // Not available in current view structure
           packages: packageMetrics || []
         };
       } catch (error) {
@@ -112,6 +114,7 @@ export function useScormSummary({
           totalEnrollments: 0,
           completed: 0,
           avgScore: 0,
+          avgMinutes: 0,
           packages: []
         };
       }
@@ -130,31 +133,36 @@ export function useLearnerProgress({
   limit?: number;
   offset?: number;
 } = {}) {
-  return useQuery<LearnerProgress[]>({
+  return useQuery<{ data: LearnerProgress[]; total: number; page: number; pageSize: number; }>({
     queryKey: ['scorm-learner-progress', packageId, limit, offset],
     queryFn: async () => {
       try {
         let query = supabase
           .from('scorm_learner_progress')
-          .select('*')
-          .order('last_commit_at', { ascending: false, nullsFirst: false })
+          .select('*', { count: 'exact' })
+          .order('enrolled_at', { ascending: false })
           .range(offset, offset + limit - 1);
         
         if (packageId) {
           query = query.eq('package_id', packageId);
         }
 
-        const { data, error } = await query;
+        const { data, error, count } = await query;
         
         if (error) {
           console.error('Error fetching learner progress:', error);
-          return [];
+          return { data: [], total: 0, page: Math.floor(offset / limit) + 1, pageSize: limit };
         }
 
-        return data || [];
+        return { 
+          data: data || [], 
+          total: count || 0, 
+          page: Math.floor(offset / limit) + 1, 
+          pageSize: limit 
+        };
       } catch (error) {
         console.error('Error in useLearnerProgress:', error);
-        return [];
+        return { data: [], total: 0, page: 1, pageSize: limit };
       }
     },
     staleTime: 60_000, // Cache for 1 minute
