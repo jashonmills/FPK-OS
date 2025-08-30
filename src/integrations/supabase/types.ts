@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1166,6 +1166,129 @@ export type Database = {
         }
         Relationships: []
       }
+      emotion_journal_entries: {
+        Row: {
+          created_at: string
+          emotions_practiced_json: Json
+          entry_date: string
+          generated_image_url: string | null
+          id: string
+          mood_rating: number | null
+          reflection_text: string | null
+          strategies_used_json: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emotions_practiced_json?: Json
+          entry_date?: string
+          generated_image_url?: string | null
+          id?: string
+          mood_rating?: number | null
+          reflection_text?: string | null
+          strategies_used_json?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emotions_practiced_json?: Json
+          entry_date?: string
+          generated_image_url?: string | null
+          id?: string
+          mood_rating?: number | null
+          reflection_text?: string | null
+          strategies_used_json?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotion_sessions: {
+        Row: {
+          calm_meter_final: number
+          completed_at: string | null
+          correct_answers: number
+          created_at: string
+          id: string
+          module_id: string
+          results_json: Json
+          session_type: string
+          started_at: string
+          strategies_used_json: Json
+          total_scenes: number
+          user_id: string
+        }
+        Insert: {
+          calm_meter_final?: number
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          module_id: string
+          results_json?: Json
+          session_type?: string
+          started_at?: string
+          strategies_used_json?: Json
+          total_scenes?: number
+          user_id: string
+        }
+        Update: {
+          calm_meter_final?: number
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          module_id?: string
+          results_json?: Json
+          session_type?: string
+          started_at?: string
+          strategies_used_json?: Json
+          total_scenes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotions: {
+        Row: {
+          ai_prompt: string | null
+          color: string | null
+          created_at: string
+          cues_json: Json
+          difficulty_level: number
+          icon: string | null
+          id: string
+          image_url: string | null
+          label: string
+          module_id: string
+        }
+        Insert: {
+          ai_prompt?: string | null
+          color?: string | null
+          created_at?: string
+          cues_json?: Json
+          difficulty_level?: number
+          icon?: string | null
+          id: string
+          image_url?: string | null
+          label: string
+          module_id: string
+        }
+        Update: {
+          ai_prompt?: string | null
+          color?: string | null
+          created_at?: string
+          cues_json?: Json
+          difficulty_level?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          label?: string
+          module_id?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_id: string
@@ -1323,6 +1446,48 @@ export type Database = {
           session_data?: Json | null
           submitted_at?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      game_sessions: {
+        Row: {
+          coins_earned: number
+          correct_answers: number
+          created_at: string
+          duration_seconds: number
+          id: string
+          levels_completed: number
+          max_streak: number
+          questions_answered: number
+          session_data: Json | null
+          session_mode: string
+          user_id: string
+        }
+        Insert: {
+          coins_earned?: number
+          correct_answers?: number
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          levels_completed?: number
+          max_streak?: number
+          questions_answered?: number
+          session_data?: Json | null
+          session_mode?: string
+          user_id: string
+        }
+        Update: {
+          coins_earned?: number
+          correct_answers?: number
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          levels_completed?: number
+          max_streak?: number
+          questions_answered?: number
+          session_data?: Json | null
+          session_mode?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1622,6 +1787,45 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
           user_role?: string | null
+        }
+        Relationships: []
+      }
+      imagination_sessions: {
+        Row: {
+          assembled_prompt: string | null
+          created_at: string
+          description_boost: string | null
+          generated_description: string | null
+          generated_image_url: string | null
+          id: string
+          model: string | null
+          session_data: Json
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assembled_prompt?: string | null
+          created_at?: string
+          description_boost?: string | null
+          generated_description?: string | null
+          generated_image_url?: string | null
+          id?: string
+          model?: string | null
+          session_data?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assembled_prompt?: string | null
+          created_at?: string
+          description_boost?: string | null
+          generated_description?: string | null
+          generated_image_url?: string | null
+          id?: string
+          model?: string | null
+          session_data?: Json
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2521,6 +2725,140 @@ export type Database = {
         }
         Relationships: []
       }
+      scenes: {
+        Row: {
+          ai_prompt: string
+          caption: string | null
+          created_at: string
+          cues_json: Json
+          difficulty_level: number
+          emotion_id: string
+          id: string
+          image_url: string | null
+          module_id: string
+          options_json: Json
+          scenario: string | null
+          title: string
+        }
+        Insert: {
+          ai_prompt: string
+          caption?: string | null
+          created_at?: string
+          cues_json?: Json
+          difficulty_level?: number
+          emotion_id: string
+          id?: string
+          image_url?: string | null
+          module_id: string
+          options_json?: Json
+          scenario?: string | null
+          title: string
+        }
+        Update: {
+          ai_prompt?: string
+          caption?: string | null
+          created_at?: string
+          cues_json?: Json
+          difficulty_level?: number
+          emotion_id?: string
+          id?: string
+          image_url?: string | null
+          module_id?: string
+          options_json?: Json
+          scenario?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      scorm_enrollments: {
+        Row: {
+          assigned_at: string | null
+          course_id: string | null
+          created_by: string
+          due_at: string | null
+          id: string
+          learner_id: string
+          package_id: string | null
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          course_id?: string | null
+          created_by: string
+          due_at?: string | null
+          id?: string
+          learner_id: string
+          package_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          course_id?: string | null
+          created_by?: string
+          due_at?: string | null
+          id?: string
+          learner_id?: string
+          package_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_enrollments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorm_packages: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          extract_path: string
+          id: string
+          manifest_path: string
+          metadata: Json | null
+          org_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          version: string
+          zip_path: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          extract_path: string
+          id?: string
+          manifest_path: string
+          metadata?: Json | null
+          org_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          version?: string
+          zip_path: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          extract_path?: string
+          id?: string
+          manifest_path?: string
+          metadata?: Json | null
+          org_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: string
+          zip_path?: string
+        }
+        Relationships: []
+      }
       scorm_progress: {
         Row: {
           cmi_core_lesson_location: string | null
@@ -2576,6 +2914,137 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorm_runtime: {
+        Row: {
+          credit: string | null
+          enrollment_id: string | null
+          entry: string | null
+          id: string
+          initialized_at: string | null
+          interactions: Json | null
+          last_commit_at: string | null
+          launch_data: string | null
+          lesson_location: string | null
+          lesson_status: string | null
+          mastery_score: number | null
+          sco_id: string | null
+          score_max: number | null
+          score_min: number | null
+          score_raw: number | null
+          session_time: string | null
+          suspend_data: string | null
+          terminated_at: string | null
+          total_time: string | null
+        }
+        Insert: {
+          credit?: string | null
+          enrollment_id?: string | null
+          entry?: string | null
+          id?: string
+          initialized_at?: string | null
+          interactions?: Json | null
+          last_commit_at?: string | null
+          launch_data?: string | null
+          lesson_location?: string | null
+          lesson_status?: string | null
+          mastery_score?: number | null
+          sco_id?: string | null
+          score_max?: number | null
+          score_min?: number | null
+          score_raw?: number | null
+          session_time?: string | null
+          suspend_data?: string | null
+          terminated_at?: string | null
+          total_time?: string | null
+        }
+        Update: {
+          credit?: string | null
+          enrollment_id?: string | null
+          entry?: string | null
+          id?: string
+          initialized_at?: string | null
+          interactions?: Json | null
+          last_commit_at?: string | null
+          launch_data?: string | null
+          lesson_location?: string | null
+          lesson_status?: string | null
+          mastery_score?: number | null
+          sco_id?: string | null
+          score_max?: number | null
+          score_min?: number | null
+          score_raw?: number | null
+          session_time?: string | null
+          suspend_data?: string | null
+          terminated_at?: string | null
+          total_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_runtime_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorm_runtime_sco_id_fkey"
+            columns: ["sco_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_scos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorm_scos: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          is_launchable: boolean | null
+          launch_href: string
+          mastery_score: number | null
+          package_id: string | null
+          parameters: string | null
+          prerequisites: string[] | null
+          seq_order: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          is_launchable?: boolean | null
+          launch_href: string
+          mastery_score?: number | null
+          package_id?: string | null
+          parameters?: string | null
+          prerequisites?: string[] | null
+          seq_order?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          is_launchable?: boolean | null
+          launch_href?: string
+          mastery_score?: number | null
+          package_id?: string | null
+          parameters?: string | null
+          prerequisites?: string[] | null
+          seq_order?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorm_scos_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -2712,6 +3181,48 @@ export type Database = {
           metadata?: Json | null
           name?: string
           xp_cost?: number
+        }
+        Relationships: []
+      }
+      strategies: {
+        Row: {
+          ai_prompt: string | null
+          created_at: string
+          description: string | null
+          duration_seconds: number | null
+          icon: string | null
+          id: string
+          image_url: string | null
+          label: string
+          mini_game_type: string
+          module_id: string
+          steps_json: Json
+        }
+        Insert: {
+          ai_prompt?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          icon?: string | null
+          id: string
+          image_url?: string | null
+          label: string
+          mini_game_type?: string
+          module_id: string
+          steps_json?: Json
+        }
+        Update: {
+          ai_prompt?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          label?: string
+          mini_game_type?: string
+          module_id?: string
+          steps_json?: Json
         }
         Relationships: []
       }
@@ -3280,6 +3791,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_earned_badges: {
+        Row: {
+          ai_generated_image_url: string | null
+          badge_description: string | null
+          badge_label: string
+          badge_type: string
+          created_at: string
+          earned_at: string
+          earned_for_module_id: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated_image_url?: string | null
+          badge_description?: string | null
+          badge_label: string
+          badge_type: string
+          created_at?: string
+          earned_at?: string
+          earned_for_module_id?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          ai_generated_image_url?: string | null
+          badge_description?: string | null
+          badge_label?: string
+          badge_type?: string
+          created_at?: string
+          earned_at?: string
+          earned_for_module_id?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_feedback: {
         Row: {
           created_at: string
@@ -3320,6 +3867,90 @@ export type Database = {
           screenshot_url?: string | null
           status?: string
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_module_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          is_unlocked: boolean
+          module_id: string
+          progress_percentage: number
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          is_unlocked?: boolean
+          module_id: string
+          progress_percentage?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          is_unlocked?: boolean
+          module_id?: string
+          progress_percentage?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          best_streak: number
+          correct_answers: number
+          created_at: string
+          current_streak: number
+          highest_level: number
+          id: string
+          last_mode: string
+          total_answers: number
+          total_coins: number
+          total_playtime_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number
+          correct_answers?: number
+          created_at?: string
+          current_streak?: number
+          highest_level?: number
+          id?: string
+          last_mode?: string
+          total_answers?: number
+          total_coins?: number
+          total_playtime_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_streak?: number
+          correct_answers?: number
+          created_at?: string
+          current_streak?: number
+          highest_level?: number
+          id?: string
+          last_mode?: string
+          total_answers?: number
+          total_coins?: number
+          total_playtime_minutes?: number
           updated_at?: string
           user_id?: string
         }
@@ -3440,6 +4071,42 @@ export type Database = {
           id?: string
           name?: string
           user_count?: number
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          animations_enabled: boolean
+          created_at: string
+          difficulty: string
+          id: string
+          sound_enabled: boolean
+          theme: string
+          tutorial_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          animations_enabled?: boolean
+          created_at?: string
+          difficulty?: string
+          id?: string
+          sound_enabled?: boolean
+          theme?: string
+          tutorial_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          animations_enabled?: boolean
+          created_at?: string
+          difficulty?: string
+          id?: string
+          sound_enabled?: boolean
+          theme?: string
+          tutorial_completed?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3586,6 +4253,72 @@ export type Database = {
         }
         Relationships: []
       }
+      y3_baseline_progress: {
+        Row: {
+          attempt_count: number | null
+          correct: boolean | null
+          created_at: string
+          id: string
+          item_id: string
+          lesson_id: string
+          response: string | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number | null
+          correct?: boolean | null
+          created_at?: string
+          id?: string
+          item_id: string
+          lesson_id: string
+          response?: string | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number | null
+          correct?: boolean | null
+          created_at?: string
+          id?: string
+          item_id?: string
+          lesson_id?: string
+          response?: string | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      y3_baseline_reflections: {
+        Row: {
+          answers_json: Json
+          created_at: string
+          id: string
+          lesson_id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          answers_json?: Json
+          created_at?: string
+          id?: string
+          lesson_id: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          answers_json?: Json
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -3601,27 +4334,27 @@ export type Database = {
       cleanup_expired_data: {
         Args: Record<PropertyKey, never>
         Returns: {
-          table_name: string
-          records_deleted: number
           cleanup_date: string
+          records_deleted: number
+          table_name: string
         }[]
       }
       create_data_subject_request: {
         Args: {
-          p_user_id: string
-          p_request_type: string
-          p_description?: string
           p_data_categories?: string[]
+          p_description?: string
+          p_request_type: string
+          p_user_id: string
         }
         Returns: string
       }
       detect_security_incident: {
         Args: {
-          p_incident_type: string
-          p_description: string
-          p_severity_level?: string
           p_affected_systems?: Json
           p_data_types_affected?: Json
+          p_description: string
+          p_incident_type: string
+          p_severity_level?: string
         }
         Returns: string
       }
@@ -3630,47 +4363,55 @@ export type Database = {
         Returns: Json
       }
       get_activity_heatmap: {
-        Args: { user_uuid: string; days_back?: number }
+        Args: { days_back?: number; user_uuid: string }
         Returns: {
+          activity_count: number
           activity_date: string
           hour_of_day: number
-          activity_count: number
           total_duration_minutes: number
         }[]
       }
+      get_public_platform_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       initialize_user_quotas: {
-        Args: { p_user_id: string; p_subscription_tier?: string }
+        Args: { p_subscription_tier?: string; p_user_id: string }
         Returns: undefined
       }
       log_hipaa_access: {
         Args: {
-          p_user_id: string
-          p_action_type: string
-          p_resource_type: string
-          p_resource_id?: string
-          p_phi_accessed?: boolean
           p_access_purpose?: string
+          p_action_type: string
           p_patient_id?: string
+          p_phi_accessed?: boolean
+          p_resource_id?: string
+          p_resource_type: string
+          p_user_id: string
         }
+        Returns: undefined
+      }
+      migrate_existing_scorm_lessons: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       record_audit_event: {
         Args: {
-          p_user_id: string
           p_action: string
-          p_table_name: string
-          p_record_id?: string
-          p_old_values?: Json
-          p_new_values?: Json
           p_legal_basis?: string
+          p_new_values?: Json
+          p_old_values?: Json
           p_purpose?: string
+          p_record_id?: string
+          p_table_name: string
+          p_user_id: string
         }
         Returns: undefined
       }
@@ -3678,25 +4419,29 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      safe_table_count: {
+        Args: { p_table_name: string }
+        Returns: number
+      }
       track_usage: {
         Args: {
-          p_user_id: string
           p_feature_type: string
-          p_usage_amount?: number
           p_metadata?: Json
+          p_usage_amount?: number
+          p_user_id: string
         }
         Returns: boolean
       }
       validate_legal_basis: {
         Args: {
-          p_user_id: string
-          p_processing_purpose: string
           p_data_categories: string[]
+          p_processing_purpose: string
+          p_user_id: string
         }
         Returns: Json
       }
       withdraw_user_consent: {
-        Args: { p_user_id: string; p_consent_type: string; p_reason?: string }
+        Args: { p_consent_type: string; p_reason?: string; p_user_id: string }
         Returns: Json
       }
     }
