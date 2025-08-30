@@ -97,17 +97,32 @@ serve(async (req) => {
     console.log(`📂 Extract path: ${packageData.extract_path}`);
 
     // Try to get the file from storage with comprehensive path attempts
+    // Handle path deduplication - if extract_path ends with content/ and filePath starts with content/, avoid duplication
+    let cleanFilePath = filePath;
+    if (packageData.extract_path?.endsWith('content/') && filePath.startsWith('content/')) {
+      cleanFilePath = filePath.substring('content/'.length);
+      console.log(`🔧 Path deduplication: ${filePath} → ${cleanFilePath}`);
+    }
+
     const storagePaths = [
-      `${packageData.extract_path}${filePath}`, // Primary path from package metadata
-      `${packageData.extract_path}/${filePath}`, // With extra slash safety
+      `${packageData.extract_path}${cleanFilePath}`, // Primary path with deduplication
+      `${packageData.extract_path}${filePath}`, // Original path with extract_path
+      `${packageData.extract_path}/${cleanFilePath}`, // With extra slash safety
+      `${packageData.extract_path}/${filePath}`, // With extra slash safety  
       filePath, // Direct path
-      `content/${filePath}`, // With content prefix
+      cleanFilePath, // Direct clean path
+      `content/${cleanFilePath}`, // With content prefix on clean path
       `${packageId}/${filePath}`, // With package ID prefix
+      `${packageId}/${cleanFilePath}`, // With package ID prefix on clean path
       `packages/${packageId}/${filePath}`, // Full packages path
-      `packages/${packageId}/content/${filePath}`, // Full packages + content path
+      `packages/${packageId}/${cleanFilePath}`, // Full packages path clean
+      `packages/${packageId}/content/${cleanFilePath}`, // Full packages + content path
     ];
 
     console.log(`🔍 Attempting to fetch file from storage with ${storagePaths.length} possible paths...`);
+    console.log(`📂 Extract path: ${packageData.extract_path}`);
+    console.log(`📄 Original file path: ${filePath}`);
+    console.log(`🧹 Clean file path: ${cleanFilePath}`);
 
     for (let i = 0; i < storagePaths.length; i++) {
       const storagePath = storagePaths[i];
