@@ -84,29 +84,48 @@ Deno.serve(async (req) => {
 })
 
 async function getKPIs(supabase: any, request: AnalyticsRequest) {
+  console.log('Getting KPIs...')
+  
   // Total Ready Packages
-  const { data: packagesData } = await supabase
+  const { count: totalPackages, error: packagesError } = await supabase
     .from('scorm_packages')
-    .select('id', { count: 'exact', head: true })
+    .select('*', { count: 'exact', head: true })
     .eq('status', 'ready')
 
+  if (packagesError) {
+    console.error('Error getting packages count:', packagesError)
+  }
+
   // Active Enrollments
-  const { data: enrollmentsData } = await supabase
+  const { count: activeEnrollments, error: enrollmentsError } = await supabase
     .from('scorm_enrollments')
-    .select('id', { count: 'exact', head: true })
+    .select('*', { count: 'exact', head: true })
+
+  if (enrollmentsError) {
+    console.error('Error getting enrollments count:', enrollmentsError)
+  }
 
   // Global Average Score
-  const { data: scoreData } = await supabase.rpc('get_global_avg_score')
+  const { data: scoreData, error: scoreError } = await supabase.rpc('get_global_avg_score')
+  if (scoreError) {
+    console.error('Error getting global avg score:', scoreError)
+  }
 
   // Global Completion Rate
-  const { data: completionData } = await supabase.rpc('get_global_completion_rate')
+  const { data: completionData, error: completionError } = await supabase.rpc('get_global_completion_rate')
+  if (completionError) {
+    console.error('Error getting global completion rate:', completionError)
+  }
 
-  return {
-    totalPackages: packagesData?.length || 0,
-    activeEnrollments: enrollmentsData?.length || 0,
+  const result = {
+    totalPackages: totalPackages || 0,
+    activeEnrollments: activeEnrollments || 0,
     avgScore: scoreData?.[0]?.avg_score || 0,
     completionRate: completionData?.[0]?.completion_rate || 0
   }
+
+  console.log('KPIs result:', result)
+  return result
 }
 
 async function getPackagePerformance(supabase: any, request: AnalyticsRequest) {
