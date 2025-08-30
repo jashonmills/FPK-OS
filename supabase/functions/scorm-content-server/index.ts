@@ -64,6 +64,12 @@ serve(async (req) => {
       console.log(`Redirecting manifest request to: ${contentPath}`);
     }
 
+    // If no specific file requested, default to index.html
+    if (!filePath || filePath === packageId) {
+      contentPath = `packages/${packageId}/content/index.html`;
+      console.log(`Using default index.html: ${contentPath}`);
+    }
+
     console.log(`Attempting to fetch: ${contentPath}`);
 
     // Try to get the file from storage
@@ -166,17 +172,21 @@ serve(async (req) => {
     let contentType = 'text/html';
     
     switch (extension) {
+      case 'html':
+      case 'htm':
+        contentType = 'text/html; charset=utf-8';
+        break;
       case 'js':
-        contentType = 'application/javascript';
+        contentType = 'application/javascript; charset=utf-8';
         break;
       case 'css':
-        contentType = 'text/css';
+        contentType = 'text/css; charset=utf-8';
         break;
       case 'json':
-        contentType = 'application/json';
+        contentType = 'application/json; charset=utf-8';
         break;
       case 'xml':
-        contentType = 'application/xml';
+        contentType = 'application/xml; charset=utf-8';
         break;
       case 'png':
         contentType = 'image/png';
@@ -191,8 +201,20 @@ serve(async (req) => {
       case 'svg':
         contentType = 'image/svg+xml';
         break;
+      case 'woff':
+        contentType = 'font/woff';
+        break;
+      case 'woff2':
+        contentType = 'font/woff2';
+        break;
+      case 'ttf':
+        contentType = 'font/ttf';
+        break;
+      case 'eot':
+        contentType = 'application/vnd.ms-fontobject';
+        break;
       default:
-        contentType = 'text/html';
+        contentType = 'text/html; charset=utf-8';
     }
 
     // Return the file content
@@ -201,6 +223,7 @@ serve(async (req) => {
         ...corsHeaders,
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=3600',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 

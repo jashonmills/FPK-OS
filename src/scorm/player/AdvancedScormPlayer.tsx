@@ -40,6 +40,24 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const currentSco = scos[Math.max(0, currentScoIndex)];
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
 
+  // Helper function to clean launch href for URL construction
+  const getCleanLaunchPath = (launchHref: string) => {
+    if (!launchHref) return 'content/index.html';
+    
+    // Remove package path prefix if present
+    const packagePrefix = `packages/${packageId}/`;
+    if (launchHref.startsWith(packagePrefix)) {
+      return launchHref.substring(packagePrefix.length);
+    }
+    
+    // If it starts with just packageId, remove that too
+    if (launchHref.startsWith(packageId + '/')) {
+      return launchHref.substring(packageId.length + 1);
+    }
+    
+    return launchHref;
+  };
+
   // Redirect to first SCO if accessing package directly
   useEffect(() => {
     if (!scoId && scos.length > 0 && mode === 'preview') {
@@ -230,10 +248,10 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${currentSco?.launch_href?.replace('packages/' + packageId + '/', '') || 'content/index.html'}`}
+                  src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-server/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
-                  sandbox="allow-scripts allow-forms allow-same-origin"
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
                 />
               </CardContent>
             </Card>
