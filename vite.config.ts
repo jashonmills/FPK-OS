@@ -14,21 +14,7 @@ export default defineConfig(({ mode }) => ({
       'Cross-Origin-Opener-Policy': 'same-origin'
     },
     proxy: {
-      // Proxy SCORM content requests to Supabase edge function
-      // Preserve full path: /api/scorm/content/packageId/filePath -> /scorm-content-proxy/packageId/filePath
-      '/api/scorm/content': {
-        target: 'https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/scorm\/content/, '/scorm-content-proxy'),
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Proxying SCORM content request:', req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('SCORM content response:', proxyRes.statusCode, req.url);
-          });
-        }
-      }
+      // No SCORM proxy needed - direct edge function calls
     }
   },
   plugins: [

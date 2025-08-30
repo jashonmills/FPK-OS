@@ -63,7 +63,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   useEffect(() => {
     // Force iframe reload when SCO changes
     if (iframeRef.current && currentSco) {
-      const newSrc = `/api/scorm/content/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`;
+      const newSrc = `/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(getCleanLaunchPath(currentSco?.launch_href || 'content/index.html'))}`;
       addDebugLog(`Loading SCO: ${currentSco.title}`);
       addDebugLog(`Iframe URL: ${newSrc}`);
       
@@ -117,53 +117,80 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
   }, [handleCommit, mode, toast, addDebugLog]);
 
-  const handleExtractPackage = useCallback(async () => {
+  const generateContent = async () => {
     if (!packageId) return;
     
     try {
-      addDebugLog('🔧 Generating SCORM content files...');
       setContentTypeWarning('Generating content files, please wait...');
       
-      const { data, error } = await supabase.functions.invoke('scorm-generate-content', {
-        body: { packageId }
+      const session = await supabase.auth.getSession();
+      const response = await fetch('/functions/v1/scorm-generate-content', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${session?.data.session?.access_token || ''}` 
+        },
+        body: JSON.stringify({ packageId })
       });
       
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        // Get verification details on failure
+        const verifyResponse = await fetch('/functions/v1/scorm-verify-package', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ packageId })
+        });
+        
+        if (verifyResponse.ok) {
+          const verification = await verifyResponse.json();
+          const failedChecks = verification.checks?.filter((c: any) => !c.ok) || [];
+          const details = failedChecks.map((c: any) => `${c.check}: ${c.reason || 'failed'}`).join(', ');
+          throw new Error(`Generation failed. Issues: ${details}`);
+        }
+        
+        throw new Error(`Edge Function returned a non-2xx status code (${response.status})`);
       }
       
-      addDebugLog(`✅ Content generated: ${data.uploadedFiles} files created`);
+      const result = await response.json();
+      if (!result.ok) {
+        throw new Error(result.error || 'Generation failed');
+      }
+      
+      addDebugLog(`✅ Content generated successfully: ${result.launch}`);
       setContentTypeWarning(null);
       
-      // Reload the iframe after a short delay
+      // Force reload the iframe after success
       setTimeout(() => {
         if (iframeRef.current) {
           const currentSrc = iframeRef.current.src;
           addDebugLog(`🔄 Reloading iframe: ${currentSrc}`);
-          // Force reload by adding a cache-busting parameter
-          const url = new URL(currentSrc);
-          url.searchParams.set('t', Date.now().toString());
-          iframeRef.current.src = url.toString();
+          iframeRef.current.src = '';
+          setTimeout(() => {
+            if (iframeRef.current) {
+              iframeRef.current.src = currentSrc;
+            }
+          }, 100);
         }
       }, 1000);
       
       toast({
         title: "Content Generated",
-        description: `Successfully created ${data.uploadedFiles} SCORM content files.`,
+        description: "SCORM content files created successfully.",
       });
       
     } catch (error) {
       console.error('Content generation error:', error);
-      addDebugLog(`❌ Content generation failed: ${error.message}`);
-      setContentTypeWarning(`Content generation failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Generation failed';
+      addDebugLog(`❌ Content generation failed: ${errorMessage}`);
+      setContentTypeWarning(`Content generation failed: ${errorMessage}`);
       
       toast({
         title: "Generation Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
-  }, [packageId, addDebugLog, toast]);
+  };
 
   // SCORM API initialization - CRITICAL: Expose on parent window
   useEffect(() => {
@@ -330,7 +357,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                 {(contentTypeWarning.includes('404') || contentTypeWarning.includes('not found')) && (
                   <Button 
                     size="sm" 
-                    onClick={handleExtractPackage}
+                    onClick={generateContent}
                     className="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold"
                   >
                     🔧 Generate Content
@@ -342,7 +369,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                 <div className="mt-3 pt-3 border-t border-yellow-300">
                   <p className="text-sm mb-2"><strong>Quick Fix:</strong> Click below to automatically generate the missing SCORM content files.</p>
                   <Button 
-                    onClick={handleExtractPackage}
+                    onClick={generateContent}
                     className="bg-green-600 hover:bg-green-700 text-white"
                     size="sm"
                   >
@@ -359,7 +386,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               <CardContent className="p-0 h-full">
                 <iframe
                   ref={iframeRef}
-                  src={`/api/scorm/content/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
+                  src={`/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(getCleanLaunchPath(currentSco?.launch_href || 'content/index.html'))}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation-by-user-activation allow-downloads"

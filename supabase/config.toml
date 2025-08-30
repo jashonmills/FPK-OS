@@ -72,3 +72,6 @@ verify_jwt = false
 
 [functions.scorm-generate-content]
 verify_jwt = false
+
+[functions.scorm-verify-package]
+verify_jwt = false
