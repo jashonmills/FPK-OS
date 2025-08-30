@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight, Clock, 
-  CheckCircle, AlertCircle, Settings, Terminal 
+  CheckCircle, AlertCircle, Settings, Terminal, Menu, MenuIcon
 } from 'lucide-react';
 import { createScorm12API } from '@/scorm/runtime/scorm12';
 import { createScorm2004API } from '@/scorm/runtime/scorm2004';
@@ -30,6 +30,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [contentTypeWarning, setContentTypeWarning] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Data fetching
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
@@ -230,30 +231,42 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <div className="border-b bg-card p-4">
+      <div className="border-b bg-card p-2 sm:p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" size="sm" onClick={handleExit}>
               <X className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="font-semibold">{scormPackage.title}</h1>
-              <p className="text-sm text-muted-foreground">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="md:hidden"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <MenuIcon className="h-4 w-4" />
+            </Button>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-semibold text-sm sm:text-base truncate">{scormPackage.title}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                 {mode === 'preview' ? 'Preview Mode' : 'Learning Mode'} •{' '}
                 SCO {currentScoIndex + 1} of {scos.length} •{' '}
                 {isScorm2004 ? 'SCORM 2004' : 'SCORM 1.2'}
               </p>
+              <p className="text-xs text-muted-foreground sm:hidden">
+                SCO {currentScoIndex + 1}/{scos.length}
+              </p>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <Badge variant={isInitialized ? "default" : "secondary"}>
+          <div className="flex items-center gap-2">
+            <Badge variant={isInitialized ? "default" : "secondary"} className="hidden sm:inline-flex">
               {isInitialized ? 'API Ready' : 'Initializing...'}
             </Badge>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowDebugConsole(!showDebugConsole)}
+              className="hidden sm:inline-flex"
             >
               <Terminal className="h-4 w-4" />
             </Button>
@@ -261,25 +274,38 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
         </div>
       </div>
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex relative">
         {/* TOC Sidebar */}
-        <div className="w-64 border-r bg-card p-4">
-          <h3 className="font-semibold mb-4">Course Contents</h3>
+        <div className={`${sidebarCollapsed ? 'hidden' : 'block'} w-64 md:w-64 border-r bg-card p-2 sm:p-4 ${sidebarCollapsed ? '' : 'absolute md:relative z-10 h-full md:h-auto'} md:block`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-sm sm:text-base">Course Contents</h3>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="md:hidden"
+              onClick={() => setSidebarCollapsed(true)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <div className="space-y-2">
             {scos.map((sco, index) => (
               <div 
                 key={sco.id}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-colors ${
                   index === currentScoIndex 
                     ? 'bg-primary text-primary-foreground' 
                     : 'hover:bg-accent'
                 }`}
-                onClick={() => handleScoNavigation(index)}
+                onClick={() => {
+                  handleScoNavigation(index);
+                  setSidebarCollapsed(true); // Close sidebar on mobile after selection
+                }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{sco.title}</span>
+                  <span className="text-xs sm:text-sm font-medium truncate">{sco.title}</span>
                   {sco.is_launchable && (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0 ml-2" />
                   )}
                 </div>
               </div>
@@ -336,7 +362,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation-by-user-activation"
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation-by-user-activation allow-downloads"
                   allow="fullscreen; autoplay; microphone; camera"
                   onLoad={() => {
                     addDebugLog(`✅ Iframe loaded successfully: ${currentSco?.title || 'SCORM Content'}`);
@@ -413,33 +439,35 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
           )}
 
           {/* Controls */}
-          <div className="border-t p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          <div className="border-t p-2 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={currentScoIndex === 0}
                   onClick={() => handleScoNavigation(currentScoIndex - 1)}
+                  className="flex-1 sm:flex-none"
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
+                  <ChevronLeft className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Previous</span>
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={currentScoIndex === scos.length - 1}
                   onClick={() => handleScoNavigation(currentScoIndex + 1)}
+                  className="flex-1 sm:flex-none"
                 >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="h-4 w-4 sm:ml-1" />
                 </Button>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleRestart}>
-                  <RotateCcw className="h-4 w-4 mr-1" />
-                  Restart SCO
+              <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+                <Button variant="outline" size="sm" onClick={handleRestart} className="whitespace-nowrap">
+                  <RotateCcw className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Restart</span>
                 </Button>
                 <Button 
                   variant="outline" 
@@ -452,11 +480,13 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                       addDebugLog('🔄 Manual iframe refresh triggered');
                     }
                   }}
+                  className="whitespace-nowrap"
                 >
-                  🔄 Refresh Content
+                  🔄 <span className="hidden sm:inline">Refresh</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExit}>
-                  Exit Course
+                <Button variant="outline" size="sm" onClick={handleExit} className="whitespace-nowrap">
+                  <span className="hidden sm:inline">Exit Course</span>
+                  <span className="sm:hidden">Exit</span>
                 </Button>
               </div>
             </div>
