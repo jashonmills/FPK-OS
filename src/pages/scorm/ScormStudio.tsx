@@ -8,6 +8,7 @@ import { ScormUploader } from "@/components/scorm/ScormUploader";
 import { ScormPackageList } from "@/components/scorm/ScormPackageList";
 import { ScormAnalytics } from "@/components/scorm/ScormAnalytics";
 import { ScormCatalog } from "@/components/scorm/ScormCatalog";
+import { TestPackages } from "@/scorm/qa/TestPackages";
 
 export default function ScormStudio() {
   const navigate = useNavigate();
@@ -82,11 +83,12 @@ export default function ScormStudio() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="packages">Packages</TabsTrigger>
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="catalog">Catalog</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="qa">QA Tests</TabsTrigger>
         </TabsList>
 
         <TabsContent value="packages" className="space-y-4">
@@ -113,6 +115,10 @@ export default function ScormStudio() {
 
         <TabsContent value="analytics" className="space-y-4">
           <ScormAnalytics />
+        </TabsContent>
+
+        <TabsContent value="qa" className="space-y-4">
+          <TestPackages />
         </TabsContent>
       </Tabs>
 
