@@ -336,7 +336,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   src={`https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/scorm-content-proxy/${packageId}/${getCleanLaunchPath(currentSco?.launch_href || 'content/index.html')}`}
                   className="w-full h-full border-none"
                   title="SCORM Content"
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation allow-forms allow-modals allow-pointer-lock allow-downloads"
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation-by-user-activation"
                   allow="fullscreen; autoplay; microphone; camera"
                   onLoad={() => {
                     addDebugLog(`✅ Iframe loaded successfully: ${currentSco?.title || 'SCORM Content'}`);

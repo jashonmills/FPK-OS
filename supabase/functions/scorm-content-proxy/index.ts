@@ -139,6 +139,20 @@ serve(async (req) => {
         const arrayBuffer = await fileData.arrayBuffer();
         const mimeType = getMimeType(filePath);
         
+        // Debug: Check if HTML content looks correct
+        if (mimeType.includes('text/html')) {
+          const textContent = new TextDecoder().decode(arrayBuffer);
+          const preview = textContent.substring(0, 200);
+          console.log(`🔍 HTML Content Preview (first 200 chars): ${preview}`);
+          
+          // Check if it's actually HTML or just text containing HTML
+          if (textContent.toLowerCase().includes('<!doctype html>') || textContent.toLowerCase().includes('<html')) {
+            console.log('✅ Content appears to be proper HTML');
+          } else {
+            console.log('⚠️ Content does not appear to be proper HTML - might be text containing HTML code');
+          }
+        }
+        
         console.log(`📤 Serving ${filePath} as ${mimeType}, size: ${arrayBuffer.byteLength} bytes`);
 
         // Enhanced headers for proper HTML rendering
