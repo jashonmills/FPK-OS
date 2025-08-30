@@ -366,6 +366,22 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                           } else {
                             setContentTypeWarning(null);
                             addDebugLog('✅ Content-Type looks good!');
+                            
+                            // Also fetch a small sample of the actual content for debugging
+                            fetch(iframeRef.current.src)
+                              .then(resp => resp.text())
+                              .then(text => {
+                                const preview = text.substring(0, 200);
+                                addDebugLog(`📝 Content preview: ${preview}`);
+                                if (text.includes('&lt;') || text.includes('&gt;')) {
+                                  addDebugLog('⚠️ Content appears to be HTML-encoded!');
+                                  setContentTypeWarning('Content appears to be HTML-encoded. The HTML entities need to be decoded.');
+                                } else if (!text.toLowerCase().includes('<!doctype') && !text.toLowerCase().includes('<html')) {
+                                  addDebugLog('⚠️ Content does not appear to be HTML!');
+                                  setContentTypeWarning('Content does not appear to be proper HTML format.');
+                                }
+                              })
+                              .catch(err => addDebugLog(`❌ Content fetch error: ${err.message}`));
                           }
                         })
                         .catch(err => {
