@@ -203,7 +203,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{sco.title}</span>
-                  {sco.isLaunchable && (
+                  {sco.is_launchable && (
                     <CheckCircle className="h-4 w-4 text-green-600" />
                   )}
                 </div>
@@ -224,9 +224,6 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   className="w-full h-full border-none"
                   title="SCORM Content"
                   sandbox="allow-scripts allow-forms allow-same-origin"
-                  style={{
-                    contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
-                  }}
                 />
               </CardContent>
             </Card>
