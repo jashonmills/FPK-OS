@@ -145,17 +145,20 @@ serve(async (req) => {
         const headers = {
           ...corsHeaders,
           'Content-Type': mimeType,
-          'Cache-Control': 'public, max-age=600',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
           'X-Content-Type-Options': 'nosniff',
         };
 
         // Add Content-Disposition for HTML files to ensure proper rendering
         if (mimeType.includes('text/html')) {
-          headers['Content-Disposition'] = 'inline';
-          headers['X-Frame-Options'] = 'SAMEORIGIN';
-          headers['Content-Security-Policy'] = "frame-ancestors 'self' https://*.supabase.co https://*.lovable.app;";
+          headers['Content-Disposition'] = 'inline; filename="' + filePath.split('/').pop() + '"';
+          headers['X-Frame-Options'] = 'ALLOWALL';
+          // Remove CSP that might block iframe loading
         }
 
+        console.log(`📋 Response headers:`, Object.keys(headers));
         return new Response(arrayBuffer, { headers });
       } else {
         console.log(`❌ Not found at: ${storagePath} (${fileError?.message || 'no error details'})`);
