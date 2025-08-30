@@ -7,12 +7,17 @@ export interface ScormPackage {
   org_id?: string;
   title: string;
   description?: string;
-  version: string;
+  version?: string;
   manifest_path: string;
   zip_path: string;
   extract_path: string;
-  status: 'uploaded' | 'parsed' | 'ready' | 'archived';
+  status: 'uploading' | 'parsing' | 'ready' | 'error' | 'archived';
   metadata: Record<string, any>;
+  scorm_version?: string;
+  standard?: 'SCORM 1.2' | 'SCORM 2004';
+  is_public?: boolean;
+  access_count?: number;
+  last_accessed_at?: string;
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -29,6 +34,10 @@ export interface ScormSco {
   is_launchable: boolean;
   seq_order: number;
   prerequisites?: string[];
+  scorm_type?: string;
+  completion_threshold?: number;
+  time_limit_action?: string;
+  data_from_lms?: string;
   created_at: string;
 }
 

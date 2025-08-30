@@ -58,7 +58,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   // Runtime data will be fetched via API calls
 
   // Determine SCORM standard
-  const isScorm2004 = scormPackage?.standard === 'SCORM 2004';
+  const isScorm2004 = scormPackage?.scorm_version === '2004' || scormPackage?.standard === 'SCORM 2004';
   const scormVersion = isScorm2004 ? 'SCORM 2004' : 'SCORM 1.2';
 
   // Progress calculation
@@ -527,7 +527,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
                               {sco.title}
                             </p>
                             <p className={`text-xs ${isCurrent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                              SCO {index + 1} • {sco.scorm_type.toUpperCase()}
+                              SCO {index + 1} • {sco.scorm_type?.toUpperCase() || 'SCO'}
                             </p>
                           </div>
                         </div>
@@ -568,7 +568,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
           {/* Enhanced Debug Console */}
           {showDebugConsole && (
             <ScormDebugConsole
-              logs={debugLogs}
+              debugLogs={debugLogs}
               cmiData={currentSco ? sessionData[currentSco.id] || {} : {}}
               apiCallCount={apiCallCount}
               sessionDuration={sessionTime}
