@@ -55,5 +55,8 @@ verify_jwt = false
 verify_jwt = false
 
 
-[functions.email-events]
+[functions.scorm-parser]
+verify_jwt = false
+
+[functions.scorm-runtime-api]
 verify_jwt = false

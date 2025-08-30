@@ -30,7 +30,9 @@ import {
   ExternalLink,
   CreditCard,
   Target,
-  MessageSquare
+  MessageSquare,
+  Package,
+  FolderOpen
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -129,6 +131,19 @@ export function AppSidebar() {
     },
   ];
 
+  const scormMenuItems = [
+    {
+      title: 'SCORM Studio',
+      url: "/scorm/studio",
+      icon: Package,
+    },
+    {
+      title: 'Packages',
+      url: "/scorm/packages",
+      icon: FolderOpen,
+    },
+  ];
+
   const footerItems = [
     {
       title: 'Subscription',
@@ -209,6 +224,39 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`w-full transition-colors ${
+                        isActive(item.url) 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }`}
+                    >
+                      <button
+                        onClick={() => handleNavigation(item)}
+                        className="flex items-center gap-3 w-full text-left"
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* SCORM - Only show if user is admin or instructor */}
+        {(isAdmin || isInstructor) && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+              SCORM
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {scormMenuItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 

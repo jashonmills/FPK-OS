@@ -61,6 +61,11 @@ const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription")
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
 const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 
+// SCORM pages
+const ScormStudio = lazy(() => import("./pages/scorm/ScormStudio"));
+const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
+const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
+
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -159,6 +164,18 @@ const App: React.FC = () => {
             
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
+          
+          {/* SCORM Routes - Outside dashboard for full-screen experience */}
+          <Route path="/scorm/*" element={
+            <RouteProtector>
+              <Routes>
+                <Route path="studio" element={<LazyRoute><ScormStudio /></LazyRoute>} />
+                <Route path="packages" element={<LazyRoute><ScormPackages /></LazyRoute>} />
+                <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
+                <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
+              </Routes>
+            </RouteProtector>
+          } />
           
           {/* Public Routes */}
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
