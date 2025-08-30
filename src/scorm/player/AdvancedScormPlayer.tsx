@@ -287,23 +287,38 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
           {/* Content Type Warning Banner */}
           {contentTypeWarning && (
             <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 mb-4 mx-4 mt-4">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <strong>Content Issue:</strong> {contentTypeWarning}
-                  <br />
-                  <small>The SCORM content files may need to be generated.</small>
+              <div className="flex items-start justify-between">
+                <div className="flex">
+                  <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <strong>Content Issue:</strong> {contentTypeWarning}
+                    <br />
+                    <small>The SCORM content files may need to be generated.</small>
+                  </div>
                 </div>
-                {contentTypeWarning.includes('404') && (
+                {(contentTypeWarning.includes('404') || contentTypeWarning.includes('not found')) && (
                   <Button 
                     size="sm" 
                     onClick={handleExtractPackage}
-                    className="ml-4"
+                    className="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold"
                   >
                     🔧 Generate Content
                   </Button>
                 )}
               </div>
+              {/* Always show button for 404 errors - secondary option */}
+              {(contentTypeWarning.includes('404') || contentTypeWarning.includes('not found')) && (
+                <div className="mt-3 pt-3 border-t border-yellow-300">
+                  <p className="text-sm mb-2"><strong>Quick Fix:</strong> Click below to automatically generate the missing SCORM content files.</p>
+                  <Button 
+                    onClick={handleExtractPackage}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    ✨ Create Missing Files Now
+                  </Button>
+                </div>
+              )}
             </div>
           )}
           
