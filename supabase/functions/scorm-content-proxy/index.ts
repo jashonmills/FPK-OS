@@ -73,12 +73,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Your extraction layout: scorm-unpacked/<pkgId>/content/...
-    const objectPath = `scorm-unpacked/${packageId}/${path}`.replace(/\/+/g, '/');
+    // Your extraction layout: Try common patterns for maximum compatibility
+    // Most common: scorm-unpacked/<pkgId>/<path>
+    let objectPath = `scorm-unpacked/${packageId}/${path}`.replace(/\/+/g, '/');
 
-    const { data, error } = await supabase.storage
+    let { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .download(objectPath);
+
+    // If not found, try alternative: packages/<pkgId>/<path>
+    if (error && error.message?.includes('not found')) {
+      objectPath = `packages/${packageId}/${path}`.replace(/\/+/g, '/');
+      const fallbackResult = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .download(objectPath);
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
 
     if (error || !data) {
       return new Response(

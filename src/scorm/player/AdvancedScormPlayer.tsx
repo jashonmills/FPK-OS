@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight, Clock, 
-  CheckCircle, AlertCircle, Settings, Terminal, Menu, MenuIcon
+  CheckCircle, AlertCircle, Settings, Terminal, Menu, MenuIcon, Loader2
 } from 'lucide-react';
-import { createScorm12API } from '@/scorm/runtime/scorm12';
-import { createScorm2004API } from '@/scorm/runtime/scorm2004';
 import { useScormPackage, useScormScos } from '@/hooks/useScormPackages';
+import { useScormLaunchUrl } from '@/lib/scorm/useScormLaunchUrl';
+import { Scorm12Adapter, Scorm2004Adapter, ScormAPIAdapter, DebugEventType } from '@/lib/scorm/ScormAPIAdapter';
+import { ContentTypeIssueBanner, RuntimeIssueBanner } from '@/components/scorm/ErrorBanners';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +23,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const navigate = useNavigate();
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const scormAdapterRef = useRef<ScormAPIAdapter | null>(null);
   
   // State management
   const [isPlaying, setIsPlaying] = useState(false);
@@ -30,7 +32,9 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [contentTypeWarning, setContentTypeWarning] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
 
   // Data fetching
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
@@ -41,67 +45,74 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const currentScoIndex = targetScoId ? scos.findIndex(sco => sco.id === targetScoId) : 0;
   const currentSco = scos[Math.max(0, currentScoIndex)];
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
+  
+  // Launch URL generation
+  const launchUrl = useScormLaunchUrl(packageId || '', currentSco);
 
-  useEffect(() => {
-    // Force iframe reload when SCO changes
-    if (iframeRef.current && currentSco) {
-      const newSrc = `/functions/v1/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(currentSco?.launch_href || 'index.html')}`;
-      addDebugLog(`Loading SCO: ${currentSco.title}`);
-      addDebugLog(`Iframe URL: ${newSrc}`);
-      
-      if (iframeRef.current.src !== newSrc) {
-        iframeRef.current.src = newSrc;
-      }
-    }
-  }, [currentSco, packageId]);
-
-  const addDebugLog = useCallback((message: string) => {
+  const handleDebugEvent = useCallback((type: DebugEventType, message: string) => {
     const timestamp = new Date().toLocaleTimeString();
-    setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`]);
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+    setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${icon} ${message}`]);
   }, []);
 
-  // SCORM API handlers
-  const handleCommit = useCallback(async (cmiData: any) => {
-    try {
-      addDebugLog(`Committing data: ${JSON.stringify(cmiData).substring(0, 100)}...`);
-      
-      const { error } = await supabase.functions.invoke('scorm-runtime-api', {
-        body: { 
-          action: 'commit',
-          enrollmentId: enrollmentId || 'preview',
-          scoId: currentSco?.id,
-          cmiData 
-        }
-      });
-      
-      if (error) throw error;
-      addDebugLog('Data committed successfully');
-    } catch (error) {
-      addDebugLog(`Commit error: ${error.message}`);
-    }
-  }, [enrollmentId, currentSco?.id, addDebugLog]);
+  const addDebugLog = useCallback((message: string) => {
+    handleDebugEvent('info', message);
+  }, [handleDebugEvent]);
 
-  const handleFinish = useCallback(async (cmiData: any) => {
-    try {
-      addDebugLog('Finishing SCORM session...');
-      await handleCommit(cmiData);
-      
-      if (mode === 'launch') {
-        toast({
-          title: "Session Complete",
-          description: "Your progress has been saved.",
-        });
-      }
-      
-      addDebugLog('Session finished successfully');
-    } catch (error) {
-      addDebugLog(`Finish error: ${error.message}`);
+  // Initialize SCORM API adapter
+  useEffect(() => {
+    if (!currentSco || !packageId) {
+      return;
     }
-  }, [handleCommit, mode, toast, addDebugLog]);
+
+    // Cleanup previous adapter
+    if (scormAdapterRef.current) {
+      scormAdapterRef.current.cleanup();
+    }
+
+    try {
+      const effectiveEnrollmentId = enrollmentId || 'preview';
+      
+      // Create appropriate adapter based on SCORM version
+      if (isScorm2004) {
+        scormAdapterRef.current = new Scorm2004Adapter(
+          effectiveEnrollmentId,
+          currentSco.id,
+          handleDebugEvent
+        );
+      } else {
+        scormAdapterRef.current = new Scorm12Adapter(
+          effectiveEnrollmentId,
+          currentSco.id,
+          handleDebugEvent
+        );
+      }
+
+      // Initialize the API
+      scormAdapterRef.current.initialize();
+      setIsInitialized(true);
+      setRuntimeError(null);
+    } catch (error: any) {
+      handleDebugEvent('error', `SCORM API initialization failed: ${error.message}`);
+      setRuntimeError(`API initialization failed: ${error.message}`);
+      setIsInitialized(false);
+    }
+
+    // Cleanup on unmount or SCO change
+    return () => {
+      if (scormAdapterRef.current) {
+        scormAdapterRef.current.cleanup();
+      }
+    };
+  }, [currentSco, packageId, enrollmentId, isScorm2004, handleDebugEvent]);
 
   const generateContent = async () => {
     const FNS = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
+    setIsLoadingContent(true);
+    
     try {
+      handleDebugEvent('info', 'Starting content generation...');
+      
       const response = await fetch(`${FNS}/scorm-generate-content`, {
         method: 'POST',
         headers: { 
@@ -118,74 +129,68 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
           title: "Content Generated",
           description: "✅ SCORM content generated successfully!",
         });
-        addDebugLog('✅ Content generation completed successfully');
+        handleDebugEvent('success', 'Content generation completed successfully');
         
-        // Refresh the iframe to load the newly generated content
-        if (iframeRef.current) {
-          const currentSrc = iframeRef.current.src;
-          iframeRef.current.src = '';
-          setTimeout(() => {
-            if (iframeRef.current) {
-              iframeRef.current.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'refresh=' + Date.now();
-            }
-          }, 100);
+        // Force iframe reload with the new content
+        if (iframeRef.current && launchUrl) {
+          setIsLoadingContent(false);
+          iframeRef.current.src = `${launchUrl}&refresh=${Date.now()}`;
         }
         
         // Clear any content type warnings
         setContentTypeWarning(null);
       } else {
-        // If generation failed, automatically call verify to show detailed errors
-        const verifyResponse = await fetch(`${FNS}/scorm-verify-package`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ packageId })
-        });
-        
-        const verifyData = await verifyResponse.json();
-        const failedChecks = verifyData.checks?.filter((c: any) => !c.ok) || [];
-        const errorDetails = failedChecks.map((c: any) => `${c.check}: ${c.reason}`).join(', ');
-        
-        throw new Error(data?.error || `Verification failed: ${errorDetails}`);
+        throw new Error(data?.error || 'Content generation failed');
       }
     } catch (error: any) {
-      console.error('Content generation failed:', error);
+      handleDebugEvent('error', `Content generation failed: ${error.message}`);
       toast({
         title: "Generation Failed",
         description: `❌ Content generation failed: ${error.message}`,
         variant: "destructive",
       });
-      addDebugLog(`❌ Content generation error: ${error.message}`);
+    } finally {
+      setIsLoadingContent(false);
     }
   };
 
-  // SCORM API initialization - CRITICAL: Expose on parent window
-  useEffect(() => {
-    if (!currentSco) return;
+  // Handle iframe loading and content validation
+  const handleIframeLoad = useCallback(() => {
+    if (!currentSco || !launchUrl) return;
     
-    const scormApi = isScorm2004 
-      ? createScorm2004API(handleCommit, handleFinish)
-      : createScorm12API(handleCommit, handleFinish);
-
-    // Expose API on parent window (not inside iframe)
-    if (isScorm2004) {
-      (window as any).API_1484_11 = scormApi;
-      addDebugLog('SCORM 2004 API exposed on parent window');
-    } else {
-      (window as any).API = scormApi;
-      addDebugLog('SCORM 1.2 API exposed on parent window');
-    }
-
-    setIsInitialized(true);
+    handleDebugEvent('success', `Iframe loaded: ${currentSco.title}`);
+    handleDebugEvent('info', `Launch URL: ${launchUrl}`);
     
-    // Cleanup on unmount
-    return () => {
-      if (isScorm2004) {
-        delete (window as any).API_1484_11;
-      } else {
-        delete (window as any).API;
-      }
-    };
-  }, [currentSco, isScorm2004, handleCommit, handleFinish, addDebugLog]);
+    // Validate content with timeout
+    const timeout = setTimeout(() => {
+      handleDebugEvent('warning', 'Content validation timed out');
+    }, 5000);
+    
+    fetch(launchUrl, { method: 'HEAD' })
+      .then(response => {
+        clearTimeout(timeout);
+        const contentType = response.headers.get('content-type') || 'unknown';
+        
+        handleDebugEvent('info', `Response Status: ${response.status}`);
+        handleDebugEvent('info', `Content-Type: ${contentType}`);
+        
+        if (response.status === 404) {
+          setContentTypeWarning('SCORM content not found (404). Content may need to be generated.');
+        } else if (response.status >= 400) {
+          setContentTypeWarning(`Server error: Status ${response.status}. Check content proxy.`);
+        } else if (!contentType.includes('text/html')) {
+          setContentTypeWarning(`Content served as '${contentType}' instead of HTML.`);
+        } else {
+          setContentTypeWarning(null);
+          handleDebugEvent('success', 'Content validation passed');
+        }
+      })
+      .catch(err => {
+        clearTimeout(timeout);
+        handleDebugEvent('error', `Content validation failed: ${err.message}`);
+        setContentTypeWarning(`Network error: ${err.message}. Content proxy may be unavailable.`);
+      });
+  }, [currentSco, launchUrl, handleDebugEvent]);
 
   const handleScoNavigation = (index: number) => {
     if (index >= 0 && index < scos.length) {
@@ -308,114 +313,63 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Content Type Warning Banner */}
-          {contentTypeWarning && (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 mb-4 mx-4 mt-4">
-              <div className="flex items-start justify-between">
-                <div className="flex">
-                  <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <strong>Content Issue:</strong> {contentTypeWarning}
-                    <br />
-                    <small>The SCORM content files may need to be generated.</small>
-                  </div>
-                </div>
-                {(contentTypeWarning.includes('404') || contentTypeWarning.includes('not found')) && (
-                  <Button 
-                    size="sm" 
-                    onClick={generateContent}
-                    className="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold"
-                  >
-                    🔧 Generate Content
-                  </Button>
-                )}
-              </div>
-              {/* Always show button for 404 errors - secondary option */}
-              {(contentTypeWarning.includes('404') || contentTypeWarning.includes('not found')) && (
-                <div className="mt-3 pt-3 border-t border-yellow-300">
-                  <p className="text-sm mb-2"><strong>Quick Fix:</strong> Click below to automatically generate the missing SCORM content files.</p>
-                  <Button 
-                    onClick={generateContent}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    size="sm"
-                  >
-                    ✨ Create Missing Files Now
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Error Banners */}
+          <div className="p-4 pb-0">
+            {contentTypeWarning && (
+              <ContentTypeIssueBanner
+                error={contentTypeWarning}
+                onGenerate={generateContent}
+                onDismiss={() => setContentTypeWarning(null)}
+              />
+            )}
+            
+            {runtimeError && (
+              <RuntimeIssueBanner
+                error={runtimeError}
+                diagnostics={debugLogs.slice(-5)}
+                onDismiss={() => setRuntimeError(null)}
+              />
+            )}
+          </div>
           
           {/* Content Frame */}
           <div className="flex-1 p-4">
             <Card className="h-full">
-              <CardContent className="p-0 h-full">
-                <iframe
-                  ref={iframeRef}
-                  src={`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(currentSco?.launch_href || 'index.html')}`}
-                  className="w-full h-full border-none"
-                  title="SCORM Content"
-                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
-                  allow="autoplay; fullscreen"
-                  key={`${packageId}-${currentSco?.id}-${Date.now()}`}
-                  onLoad={() => {
-                    addDebugLog(`✅ Iframe loaded successfully: ${currentSco?.title || 'SCORM Content'}`);
-                    
-                    // Log the iframe src for debugging
-                    if (iframeRef.current) {
-                      addDebugLog(`📍 Current iframe src: ${iframeRef.current.src}`);
-                      
-                      // Check content type for diagnostics with timeout
-                      const timeout = setTimeout(() => {
-                        addDebugLog('⚠️ Content-Type check timed out');
-                      }, 5000);
-                      
-                      fetch(iframeRef.current.src, { method: 'HEAD' })
-                        .then(response => {
-                          clearTimeout(timeout);
-                          const contentType = response.headers.get('content-type');
-                          addDebugLog(`📋 Response Status: ${response.status}`);
-                          addDebugLog(`📋 Content-Type: ${contentType || 'not specified'}`);
-                          
-                          if (response.status === 404) {
-                            setContentTypeWarning('Error: SCORM content not found (404). Check if the content proxy is deployed and the package is properly extracted.');
-                          } else if (response.status >= 400) {
-                            setContentTypeWarning(`Error: Server returned status ${response.status}. Check the content proxy logs.`);
-                          } else if (contentType && !contentType.includes('text/html')) {
-                            setContentTypeWarning(`Warning: Content is being served as '${contentType}' instead of 'text/html'. This may cause display issues.`);
-                          } else {
-                            setContentTypeWarning(null);
-                            addDebugLog('✅ Content-Type looks good!');
-                            
-                        // Also fetch a small sample of the actual content for debugging
-                        fetch(iframeRef.current.src)
-                              .then(resp => resp.text())
-                              .then(text => {
-                                const preview = text.substring(0, 200);
-                                addDebugLog(`📝 Content preview: ${preview}`);
-                                if (text.includes('&lt;') || text.includes('&gt;')) {
-                                  addDebugLog('⚠️ Content appears to be HTML-encoded!');
-                                  setContentTypeWarning('Content appears to be HTML-encoded. The HTML entities need to be decoded.');
-                                } else if (!text.toLowerCase().includes('<!doctype') && !text.toLowerCase().includes('<html')) {
-                                  addDebugLog('⚠️ Content does not appear to be HTML!');
-                                  setContentTypeWarning('Content does not appear to be proper HTML format.');
-                                }
-                              })
-                              .catch(err => addDebugLog(`❌ Content fetch error: ${err.message}`));
-                          }
-                        })
-                        .catch(err => {
-                          clearTimeout(timeout);
-                          addDebugLog(`❌ Content-Type check failed: ${err.message}`);
-                          setContentTypeWarning(`Network Error: ${err.message}. The content proxy may not be deployed yet.`);
-                        });
-                    }
-                  }}
-                  onError={(e) => {
-                    addDebugLog(`❌ Iframe loading error: ${e.toString()}`);
-                    setContentTypeWarning('Iframe failed to load. Check the content proxy deployment and network connectivity.');
-                  }}
-                />
+              <CardContent className="p-0 h-full relative">
+                {/* Loading Overlay */}
+                {isLoadingContent && (
+                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+                    <div className="text-center">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">Generating SCORM content...</p>
+                    </div>
+                  </div>
+                )}
+                
+                {launchUrl ? (
+                  <iframe
+                    ref={iframeRef}
+                    src={launchUrl}
+                    className="w-full h-full border-none"
+                    title="SCORM Content"
+                    sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
+                    allow="autoplay; fullscreen; microphone; camera"
+                    key={`${packageId}-${currentSco?.id}`}
+                    onLoad={handleIframeLoad}
+                    onError={(e) => {
+                      handleDebugEvent('error', `Iframe loading error: ${e.toString()}`);
+                      setContentTypeWarning('Failed to load SCORM content. Check if the content proxy is available.');
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full bg-muted/50">
+                    <div className="text-center">
+                      <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-lg font-medium text-muted-foreground mb-2">No Launch URL</p>
+                      <p className="text-sm text-muted-foreground">Unable to generate launch URL for this SCO</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
