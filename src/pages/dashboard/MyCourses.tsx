@@ -158,6 +158,22 @@ const MyCourses = () => {
 
     return (
       <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
+        {/* Course Image */}
+        {course.thumbnail_url && (
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+            <img
+              src={course.thumbnail_url}
+              alt={course.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Image failed to load:', course.thumbnail_url);
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+        
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -219,7 +235,7 @@ const MyCourses = () => {
 
             <Link to={courseRoute}>
               <Button className="w-full fpk-gradient text-white">
-                {isEnrolled ? 'Continue Learning' : 'View Course'}
+                {isEnrolled ? 'Continue Learning' : 'Start Course'}
               </Button>
             </Link>
           </div>
