@@ -9,6 +9,7 @@ export interface Course {
   description: string | null;
   featured: boolean | null;
   asset_path: string | null;
+  thumbnail_url: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -58,6 +59,7 @@ export function useEnrolledCourses() {
               description,
               featured,
               asset_path,
+              thumbnail_url,
               created_at,
               updated_at
             )

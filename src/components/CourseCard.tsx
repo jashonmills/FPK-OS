@@ -31,6 +31,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   return (
     <Card className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">
+      {course.thumbnail_url && (
+        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+          <img
+            src={course.thumbnail_url}
+            alt={course.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
