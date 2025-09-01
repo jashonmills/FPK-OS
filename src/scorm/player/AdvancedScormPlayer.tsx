@@ -8,12 +8,13 @@ import {
   CheckCircle, AlertCircle, Settings, Terminal, Menu, MenuIcon, Loader2
 } from 'lucide-react';
 import { useScormPackage, useScormScos } from '@/hooks/useScormPackages';
-import { useScormLaunchUrl } from '@/lib/scorm/useScormLaunchUrl';
 import { Scorm12Adapter, Scorm2004Adapter, ScormAPIAdapter, DebugEventType } from '@/lib/scorm/ScormAPIAdapter';
 import { ContentTypeIssueBanner, RuntimeIssueBanner } from '@/components/scorm/ErrorBanners';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { buildGenerateUrl } from '@/lib/scorm/urls';
+import { buildGenerateUrl, functionsBase } from '@/lib/scorm/urls';
+import { buildLaunchUrl } from '@/lib/scorm/buildLaunchUrl';
+import ScormIframe from '@/components/scorm/ScormIframe';
 
 interface AdvancedScormPlayerProps {
   mode?: 'preview' | 'launch';
@@ -53,8 +54,10 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
   const effectiveEnrollmentId = urlEnrollmentId || (mode === 'launch' ? 'preview' : undefined);
   
-  // Launch URL generation
-  const launchUrl = useScormLaunchUrl(packageId || '', currentSco);
+  // Launch URL generation using buildLaunchUrl
+  const launchUrl = currentSco && packageId ? 
+    buildLaunchUrl(functionsBase, packageId, currentSco.launch_href || 'index.html') : 
+    '';
 
   const handleDebugEvent = useCallback((type: DebugEventType, message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -211,42 +214,13 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
   };
 
-  // Handle iframe loading and content validation
+  // Handle iframe loading - removed content validation fetch
   const handleIframeLoad = useCallback(() => {
     if (!currentSco || !launchUrl) return;
     
-    handleDebugEvent('success', `Iframe loaded: ${currentSco.title}`);
+    handleDebugEvent('success', `SCORM iframe loaded: ${currentSco.title}`);
     handleDebugEvent('info', `Launch URL: ${launchUrl}`);
-    
-    // Validate content with timeout
-    const timeout = setTimeout(() => {
-      handleDebugEvent('warning', 'Content validation timed out');
-    }, 5000);
-    
-    fetch(launchUrl, { method: 'HEAD' })
-      .then(response => {
-        clearTimeout(timeout);
-        const contentType = response.headers.get('content-type') || 'unknown';
-        
-        handleDebugEvent('info', `Response Status: ${response.status}`);
-        handleDebugEvent('info', `Content-Type: ${contentType}`);
-        
-        if (response.status === 404) {
-          setContentTypeWarning('SCORM content not found (404). Content may need to be generated.');
-        } else if (response.status >= 400) {
-          setContentTypeWarning(`Server error: Status ${response.status}. Check content proxy.`);
-        } else if (!contentType.includes('text/html')) {
-          setContentTypeWarning(`Content served as '${contentType}' instead of HTML.`);
-        } else {
-          setContentTypeWarning(null);
-          handleDebugEvent('success', 'Content validation passed');
-        }
-      })
-      .catch(err => {
-        clearTimeout(timeout);
-        handleDebugEvent('error', `Content validation failed: ${err.message}`);
-        setContentTypeWarning(`Network error: ${err.message}. Content proxy may be unavailable.`);
-      });
+    setContentTypeWarning(null);
   }, [currentSco, launchUrl, handleDebugEvent]);
 
   const handleScoNavigation = (index: number) => {
@@ -445,18 +419,11 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                 )}
                 
                 {launchUrl ? (
-                  <iframe
-                    ref={iframeRef}
-                    src={launchUrl}
-                    className="w-full h-full border-none"
-                    title="SCORM Content"
-                    sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
-                    allow="autoplay; fullscreen; microphone; camera"
-                    key={`${packageId}-${currentSco?.id}`}
-                    onLoad={handleIframeLoad}
-                    onError={(e) => {
-                      handleDebugEvent('error', `Iframe loading error: ${e.toString()}`);
-                      setContentTypeWarning('Failed to load SCORM content. Check if the content proxy is available.');
+                  <ScormIframe
+                    launchUrl={launchUrl}
+                    onLoaded={() => {
+                      console.log("SCORM iframe loaded", launchUrl);
+                      handleIframeLoad();
                     }}
                   />
                 ) : (
@@ -519,11 +486,12 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   variant="outline" 
                   size="sm" 
                   onClick={() => {
-                    if (iframeRef.current) {
-                      const url = new URL(iframeRef.current.src);
-                      url.searchParams.set('refresh', Date.now().toString());
-                      iframeRef.current.src = url.toString();
-                      addDebugLog('🔄 Manual iframe refresh triggered');
+                    // Force refresh by updating the URL with a timestamp
+                    if (currentSco && packageId) {
+                      const refreshUrl = buildLaunchUrl(functionsBase, packageId, currentSco.launch_href || 'index.html') + 
+                        `&refresh=${Date.now()}`;
+                      window.location.reload();
+                      addDebugLog('🔄 Manual page refresh triggered');
                     }
                   }}
                   className="whitespace-nowrap"

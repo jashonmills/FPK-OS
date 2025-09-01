@@ -15,6 +15,9 @@ import { useScormPackage, useScormScos } from '@/hooks/useScormPackages';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ScormDebugConsole } from '@/scorm/player/ScormDebugConsole';
+import { functionsBase } from '@/lib/scorm/urls';
+import { buildLaunchUrl } from '@/lib/scorm/buildLaunchUrl';
+import ScormIframe from '@/components/scorm/ScormIframe';
 
 interface ScormPlayerProProps {
   mode?: 'preview' | 'launch' | 'review';
@@ -145,6 +148,11 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     const secs = seconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Launch URL generation using buildLaunchUrl  
+  const launchUrl = currentSco && packageId ? 
+    buildLaunchUrl(functionsBase, packageId, currentSco.launch_href || 'index.html') : 
+    '';
 
   // Enhanced SCORM API handlers with analytics
   const handleCommit = useCallback(async (cmiData: any) => {
@@ -647,14 +655,12 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
           <div className="flex-1 p-2 lg:p-4">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
-                <iframe
-                  ref={iframeRef}
-                  key={`${packageId}-${currentScoIndex}-${Date.now()}`}
-                  src={`/api/scorm/content/${packageId}/${currentSco?.launch_href?.replace(/^packages\/[^\/]+\//, '') || 'content/index.html'}`}
-                  className="w-full h-full border-none rounded-lg"
-                  title={`SCORM Content - ${currentSco?.title}`}
-                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-                  allow="fullscreen; autoplay; microphone; camera"
+                <ScormIframe
+                  launchUrl={launchUrl}
+                  onLoaded={() => {
+                    console.log("SCORM iframe loaded in ScormPlayerPro", launchUrl);
+                    addDebugLog('info', 'player', 'SCORM iframe loaded successfully');
+                  }}
                 />
               </CardContent>
             </Card>

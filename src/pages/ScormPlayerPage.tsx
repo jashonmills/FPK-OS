@@ -1,6 +1,6 @@
 import React from 'react';
-import { ScormPlayerPro } from '@/scorm/player/ScormPlayerPro';
+import { AdvancedScormPlayer } from '@/scorm/player/AdvancedScormPlayer';
 
 export default function ScormPlayerPage() {
-  return <ScormPlayerPro />;
+  return <AdvancedScormPlayer mode="launch" />;
 }
