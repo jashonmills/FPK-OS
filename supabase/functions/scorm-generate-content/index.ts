@@ -91,14 +91,25 @@ serve(async (req) => {
     const expectedPath = `packages/${packageId}`;
     const manifestPath = `${expectedPath}/imsmanifest.xml`;
     
+    console.log(`🔍 Checking for existing content at: ${manifestPath}`);
+    
     const { data: existingManifest } = await supabase.storage
       .from(STORAGE_BUCKET)
       .download(manifestPath);
     
     if (existingManifest) {
       // Content already exists, just parse and return launch info
+      console.log(`✅ Content already exists, parsing manifest`);
       const xml = await existingManifest.text();
       const launchHref = parseManifestForLaunch(xml);
+      
+      // Update database with correct extract path
+      await supabase.from('scorm_packages')
+        .update({ 
+          extract_path: `${expectedPath}/`,
+          status: 'ready'
+        })
+        .eq('id', packageId);
       
       return new Response(JSON.stringify({
         success: true,
@@ -112,6 +123,7 @@ serve(async (req) => {
     }
 
     // Download the ZIP file
+    console.log(`📦 Downloading ZIP file: ${actualZipPath}`);
     const { data: zipBlob, error: zipErr } = await supabase.storage
       .from(STORAGE_BUCKET)
       .download(actualZipPath);
@@ -169,10 +181,11 @@ serve(async (req) => {
       }
     }
 
-    // Update package metadata
+    // Update package metadata with correct extract path
+    console.log(`📝 Updating package metadata: ${fileCount} files extracted`);
     await supabase.from('scorm_packages')
       .update({ 
-        extract_path: expectedPath,
+        extract_path: `${expectedPath}/`,
         metadata: { 
           ...pkg.metadata, 
           computed_launch: launchHref, 

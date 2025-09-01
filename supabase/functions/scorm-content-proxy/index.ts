@@ -74,30 +74,87 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Your extraction layout: Try common patterns for maximum compatibility
-    // Most common: scorm-unpacked/<pkgId>/<path>
-    let objectPath = `scorm-unpacked/${packageId}/${path}`.replace(/\/+/g, '/');
+    // Get package info for proper path resolution
+    const { data: packageData } = await supabase
+      .from('scorm_packages')
+      .select('extract_path, status')
+      .eq('id', packageId)
+      .single();
 
-    let { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .download(objectPath);
+    console.log(`🔍 Proxy request: pkg=${packageId}, path=${path}, extract_path=${packageData?.extract_path}`);
 
-    // If not found, try alternative: packages/<pkgId>/<path>
-    if (error && error.message?.includes('not found')) {
-      objectPath = `packages/${packageId}/${path}`.replace(/\/+/g, '/');
-      const fallbackResult = await supabase.storage
+    // Try multiple path patterns for maximum compatibility
+    const pathsToTry = [
+      `scorm-unpacked/${packageId}/${path}`, // Original path
+      `packages/${packageId}/${path}`, // Direct package path  
+      `packages/${packageId}/content/${path}`, // With content subfolder
+      packageData?.extract_path ? `${packageData.extract_path}${path}` : null // Database extract path
+    ].filter(Boolean).map(p => p.replace(/\/+/g, '/'));
+
+    console.log(`📂 Trying paths:`, pathsToTry);
+
+    let data, error, objectPath;
+
+    // Try each path until we find the file
+    for (const tryPath of pathsToTry) {
+      const result = await supabase.storage
         .from(STORAGE_BUCKET)
-        .download(objectPath);
-      data = fallbackResult.data;
-      error = fallbackResult.error;
+        .download(tryPath);
+      
+      if (!result.error && result.data) {
+        data = result.data;
+        error = null;
+        objectPath = tryPath;
+        console.log(`✅ Found file at: ${tryPath}`);
+        break;
+      } else {
+        console.log(`❌ Not found at: ${tryPath} - ${result.error?.message}`);
+      }
+    }
+
+    // If still not found, try to trigger content generation
+    if (error || !data) {
+      console.log(`🔄 File not found, attempting content generation for package ${packageId}`);
+      
+      try {
+        const generateResult = await supabase.functions.invoke('scorm-generate-content', {
+          body: { packageId }
+        });
+        
+        if (generateResult.error) {
+          console.error('❌ Content generation failed:', generateResult.error);
+        } else {
+          console.log('✅ Content generation triggered, retrying download...');
+          
+          // Retry the first successful path pattern after generation
+          for (const tryPath of pathsToTry) {
+            const retryResult = await supabase.storage
+              .from(STORAGE_BUCKET)
+              .download(tryPath);
+            
+            if (!retryResult.error && retryResult.data) {
+              data = retryResult.data;
+              error = null;
+              objectPath = tryPath;
+              console.log(`✅ Found file after generation at: ${tryPath}`);
+              break;
+            }
+          }
+        }
+      } catch (genError) {
+        console.error('❌ Generation error:', genError);
+      }
     }
 
     if (error || !data) {
+      console.error(`❌ Final error: File not found after all attempts`);
       return new Response(
         JSON.stringify({
-          error: "Not found",
-          details: error?.message,
-          objectPath,
+          error: "Content not available",
+          details: `Tried paths: ${pathsToTry.join(', ')}`,
+          packageId,
+          requestedPath: path,
+          suggestion: "Content may need to be generated or re-uploaded"
         }),
         {
           status: 404,
