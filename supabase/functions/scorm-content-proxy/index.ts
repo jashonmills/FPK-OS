@@ -55,16 +55,15 @@ serve(async (req) => {
       );
     }
 
-    // Adjust bucket/path to WHERE your extracted files actually live.
-    // Suggested layout after extraction:
-    // bucket: scorm-public
-    // key: lessons/<pkg>/<path>
-    const BUCKET = "scorm-public";
-    const KEY = `lessons/${pkg}/${path}`;
+    // Use the existing bucket and path structure from your system
+    // Based on the logs, files are stored in scorm-packages bucket
+    // with paths like: packages/<packageId>/<path>
+    const BUCKET = "scorm-packages";
+    const KEY = `packages/${pkg}/${path}`;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } }
     );
 
