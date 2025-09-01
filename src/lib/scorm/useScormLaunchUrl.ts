@@ -41,19 +41,29 @@ export function useScormLaunchUrl(
       return '';
     }
 
-    // Try the provided launch_href first
-    let launchPath = sanitizePath(sco.launch_href);
+    // Smart path resolution: use computed launch from package metadata first
+    let launchPath = '';
     
-    // If no valid launch_href, try common fallbacks
-    if (!launchPath || launchPath === 'index.html') {
+    // Priority 1: Use computed launch from package metadata (most accurate)
+    const computedLaunch = scormPackage?.metadata?.computed_launch;
+    if (computedLaunch) {
+      launchPath = sanitizePath(computedLaunch);
+      console.log(`🎯 Using computed launch from package: ${launchPath}`);
+    }
+    // Priority 2: Use SCO launch_href
+    else if (sco.launch_href) {
+      launchPath = sanitizePath(sco.launch_href);
+    }
+    // Priority 3: Common fallbacks
+    else {
       const fallbacks = ['index.html', 'index_lms.html', 'story_html5.html', 'content/index.html'];
-      launchPath = fallbacks[0]; // Default to first fallback
+      launchPath = fallbacks[0];
     }
     
     // Build parameters if they exist
     const params = buildParams(sco.parameters);
     
-    // Use the content proxy with the extracted package structure
+    // Use the content proxy - it will handle intelligent path resolution
     return `${buildProxyUrl(packageId, launchPath)}${params}`;
   }, [packageId, sco, scormPackage]);
 }

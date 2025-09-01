@@ -241,6 +241,19 @@ serve(async (req) => {
       })
       .eq('id', packageId);
 
+    // Update SCO records to use the correct launch path from manifest
+    console.log(`🔄 Updating SCO launch paths to match computed launch: ${launchHref}`);
+    await supabase.from('scorm_scos')
+      .update({ 
+        launch_href: launchHref,
+        metadata: {
+          original_launch_href: 'content/index.html', // Keep track of original
+          computed_launch_href: launchHref,
+          updated_at: new Date().toISOString()
+        }
+      })
+      .eq('package_id', packageId);
+
     return new Response(JSON.stringify({
       success: true,
       packageId,

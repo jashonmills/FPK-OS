@@ -74,21 +74,36 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get package info for proper path resolution
+    // Get package info for proper path resolution including computed launch
     const { data: packageData } = await supabase
       .from('scorm_packages')
-      .select('extract_path, status')
+      .select('extract_path, status, metadata')
       .eq('id', packageId)
       .single();
 
     console.log(`🔍 Proxy request: pkg=${packageId}, path=${path}, extract_path=${packageData?.extract_path}`);
 
-    // Try multiple path patterns for maximum compatibility
+    // Smart path resolution: use computed launch from metadata if available
+    let resolvedPath = path;
+    const computedLaunch = packageData?.metadata?.computed_launch;
+    
+    // If requesting a generic path but we have a computed launch, use that instead
+    if (computedLaunch && (path === 'content/index.html' || path === 'index.html')) {
+      resolvedPath = computedLaunch;
+      console.log(`🎯 Using computed launch path: ${resolvedPath} instead of ${path}`);
+    }
+
+    // Build intelligent path attempts based on package structure
+    const basePath = packageData?.extract_path || `packages/${packageId}/`;
     const pathsToTry = [
-      `scorm-unpacked/${packageId}/${path}`, // Original path
-      `packages/${packageId}/${path}`, // Direct package path  
-      `packages/${packageId}/content/${path}`, // With content subfolder
-      packageData?.extract_path ? `${packageData.extract_path}${path}` : null // Database extract path
+      // Try exact computed launch path first
+      computedLaunch ? `${basePath}${computedLaunch}` : null,
+      // Try the resolved path
+      `${basePath}${resolvedPath}`,
+      // Fallback patterns for compatibility
+      `packages/${packageId}/${resolvedPath}`,
+      `packages/${packageId}/content/${resolvedPath}`,
+      `scorm-unpacked/${packageId}/${resolvedPath}`, // Legacy path
     ].filter(Boolean).map(p => p.replace(/\/+/g, '/'));
 
     console.log(`📂 Trying paths:`, pathsToTry);
