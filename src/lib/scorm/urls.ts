@@ -3,7 +3,8 @@
  * Ensures consistent URL generation and avoids React routing conflicts
  */
 
-export const functionsBase = import.meta.env.VITE_FUNCTIONS_BASE || import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
+// Use the direct Supabase functions URL - VITE_ env vars are not supported in Lovable
+export const functionsBase = "https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1";
 
 /**
  * Build URL for SCORM content proxy
