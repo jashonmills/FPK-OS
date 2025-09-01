@@ -6,6 +6,7 @@ interface ScormPlayerProps {
 }
 
 const ScormPlayer: React.FC<ScormPlayerProps> = ({ mode = 'preview' }) => {
+  console.log('🎮 ScormPlayer component rendering, mode:', mode);
   return <AdvancedScormPlayer mode={mode} />;
 };
 

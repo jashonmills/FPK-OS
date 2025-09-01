@@ -20,7 +20,9 @@ interface AdvancedScormPlayerProps {
 }
 
 export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode = 'preview' }) => {
+  console.log('🚀 AdvancedScormPlayer component initializing, mode:', mode);
   const { packageId, scoId, enrollmentId } = useParams();
+  console.log('📊 URL params:', { packageId, scoId, enrollmentId });
   const navigate = useNavigate();
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -40,6 +42,9 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   // Data fetching
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
   const { scos, isLoading: scosLoading } = useScormScos(packageId || '');
+  
+  console.log('📦 Package loading status:', { packageLoading, scormPackage: !!scormPackage });
+  console.log('📋 SCOs loading status:', { scosLoading, scosCount: scos.length });
 
   // Current SCO - handle both direct SCO access and package-level access
   const targetScoId = scoId;
@@ -219,12 +224,37 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   };
 
   if (packageLoading || scosLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading SCORM package...</div>;
+    console.log('⏳ SCORM Player waiting for data:', { packageLoading, scosLoading, packageId });
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-sm text-muted-foreground">Loading SCORM package...</p>
+          <p className="text-xs text-muted-foreground">Package ID: {packageId}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!scormPackage || !scos.length) {
-    return <div className="flex items-center justify-center h-screen">SCORM package not found</div>;
+    console.log('❌ SCORM Player data missing:', { scormPackage: !!scormPackage, scosLength: scos.length, packageId });
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-center space-y-4">
+          <p className="text-lg font-semibold">SCORM package not found</p>
+          <p className="text-sm text-muted-foreground">Package ID: {packageId}</p>
+          <Button onClick={handleExit}>Back to Packages</Button>
+        </div>
+      </div>
+    );
   }
+
+  console.log('✅ SCORM Player rendering with data:', { 
+    packageTitle: scormPackage.title, 
+    scosCount: scos.length,
+    currentScoIndex,
+    launchUrl: !!launchUrl
+  });
 
   return (
     <div className="h-screen flex flex-col bg-background">

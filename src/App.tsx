@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppProviders from '@/components/AppProviders';
 import RouteBoundary from '@/components/RouteBoundary';
+import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import BetaUpdateListener from '@/components/notifications/BetaUpdateListener';
 import { SubscriptionGate } from '@/components/SubscriptionGate';
 import { ConsentManager } from '@/components/compliance/ConsentManager';
@@ -66,7 +68,16 @@ const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
 import ScormUploadPage from "./pages/ScormUploadPage";
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormAssignments = lazy(() => import("./pages/scorm/ScormAssignments"));
-const ScormPlayer = lazy(() => import("./pages/scorm/ScormPlayer"));
+const ScormPlayer = lazy(() => {
+  console.log('🎮 Loading ScormPlayer component...');
+  return import("./pages/scorm/ScormPlayer").then(module => {
+    console.log('✅ ScormPlayer component loaded successfully');
+    return module;
+  }).catch(error => {
+    console.error('❌ Failed to load ScormPlayer component:', error);
+    throw error;
+  });
+});
 
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -210,9 +221,57 @@ const App: React.FC = () => {
             <RequireAdmin>
               <RouteProtector>
                 <Routes>
-                  <Route path="preview/:packageId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
-                  <Route path="preview/:packageId/:scoId" element={<LazyRoute><ScormPlayer mode="preview" /></LazyRoute>} />
-                  <Route path="launch/:enrollmentId/:scoId" element={<LazyRoute><ScormPlayer mode="launch" /></LazyRoute>} />
+                  <Route path="preview/:packageId" element={
+                    <LazyRoute>
+                      <ErrorBoundaryUnified 
+                        fallback={
+                          <div className="min-h-screen flex items-center justify-center">
+                            <div className="text-center">
+                              <h2 className="text-lg font-semibold mb-2">SCORM Player Loading Error</h2>
+                              <p className="text-muted-foreground mb-4">Unable to load SCORM player component</p>
+                              <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <ScormPlayer mode="preview" />
+                      </ErrorBoundaryUnified>
+                    </LazyRoute>
+                  } />
+                  <Route path="preview/:packageId/:scoId" element={
+                    <LazyRoute>
+                      <ErrorBoundaryUnified 
+                        fallback={
+                          <div className="min-h-screen flex items-center justify-center">
+                            <div className="text-center">
+                              <h2 className="text-lg font-semibold mb-2">SCORM Player Loading Error</h2>
+                              <p className="text-muted-foreground mb-4">Unable to load SCORM player component</p>
+                              <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <ScormPlayer mode="preview" />
+                      </ErrorBoundaryUnified>
+                    </LazyRoute>
+                  } />
+                  <Route path="launch/:enrollmentId/:scoId" element={
+                    <LazyRoute>
+                      <ErrorBoundaryUnified 
+                        fallback={
+                          <div className="min-h-screen flex items-center justify-center">
+                            <div className="text-center">
+                              <h2 className="text-lg font-semibold mb-2">SCORM Player Loading Error</h2>
+                              <p className="text-muted-foreground mb-4">Unable to load SCORM player component</p>
+                              <Button onClick={() => window.location.reload()}>Reload Page</Button>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <ScormPlayer mode="launch" />
+                      </ErrorBoundaryUnified>
+                    </LazyRoute>
+                  } />
                 </Routes>
               </RouteProtector>
             </RequireAdmin>
