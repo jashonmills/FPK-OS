@@ -66,7 +66,7 @@ export function ScormPackageList() {
   };
 
   const handlePreview = (packageId: string) => {
-    navigate(`/scorm/player/${packageId}`);
+    navigate(`/scorm/preview/${packageId}`);
   };
 
   const handleManage = (packageId: string) => {

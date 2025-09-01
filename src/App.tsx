@@ -186,6 +186,21 @@ const App: React.FC = () => {
                 <LazyRoute><ScormUploadPage /></LazyRoute>
               </RequireAdmin>
             } />
+            <Route path="scorm/packages/:packageId" element={
+              <RequireAdmin>
+                <LazyRoute><ScormPackages /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="scorm/packages/:packageId/enrollments" element={
+              <RequireAdmin>
+                <LazyRoute><ScormPackages /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="scorm/packages/:packageId/analytics" element={
+              <RequireAdmin>
+                <LazyRoute><ScormPackages /></LazyRoute>
+              </RequireAdmin>
+            } />
             
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
