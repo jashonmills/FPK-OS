@@ -101,8 +101,11 @@ serve(async (req) => {
         "Content-Disposition": `inline; filename="${encodeURIComponent(filename)}"`,
         "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
         "X-Content-Type-Options": "nosniff",
-        // Permissive CSP for SCORM content
-        "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors 'self';",
+        // Very permissive CSP for SCORM content - allows everything needed for interactive content
+        "Content-Security-Policy": "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src *; connect-src *; media-src *; frame-src *; frame-ancestors *;",
+        // Additional headers for SCORM compatibility
+        "X-Frame-Options": "ALLOWALL",
+        "Referrer-Policy": "no-referrer-when-downgrade",
       },
     });
   } catch (e) {
