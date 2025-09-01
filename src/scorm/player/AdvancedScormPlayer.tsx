@@ -21,14 +21,16 @@ interface AdvancedScormPlayerProps {
 
 export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode = 'preview' }) => {
   console.log('🚀 AdvancedScormPlayer component initializing, mode:', mode);
-  const { packageId, scoId, enrollmentId } = useParams();
-  console.log('📊 URL params:', { packageId, scoId, enrollmentId });
+  const { packageId, scoId, enrollmentId: urlEnrollmentId } = useParams();
+  console.log('📊 URL params:', { packageId, scoId, enrollmentId: urlEnrollmentId });
   const navigate = useNavigate();
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scormAdapterRef = useRef<ScormAPIAdapter | null>(null);
   
   // State management
+  const [currentScoIndex, setCurrentScoIndex] = useState(0);
+  const [urlProcessed, setUrlProcessed] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sessionData, setSessionData] = useState<any>({});
   const [showDebugConsole, setShowDebugConsole] = useState(false);
@@ -46,11 +48,10 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   console.log('📦 Package loading status:', { packageLoading, scormPackage: !!scormPackage });
   console.log('📋 SCOs loading status:', { scosLoading, scosCount: scos.length });
 
-  // Current SCO - handle both direct SCO access and package-level access
-  const targetScoId = scoId;
-  const currentScoIndex = targetScoId ? scos.findIndex(sco => sco.id === targetScoId) : 0;
-  const currentSco = scos[Math.max(0, currentScoIndex)];
+  // Current SCO - safe access with fallback
+  const currentSco = scos?.[currentScoIndex];
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
+  const effectiveEnrollmentId = urlEnrollmentId || (mode === 'launch' ? 'preview' : undefined);
   
   // Launch URL generation
   const launchUrl = useScormLaunchUrl(packageId || '', currentSco);
@@ -65,9 +66,55 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     handleDebugEvent('info', message);
   }, [handleDebugEvent]);
 
+  // URL processing and SCO selection
+  useEffect(() => {
+    if (!scos.length || urlProcessed) return;
+    
+    try {
+      console.log('🔄 Processing URL parameters:', { scoId, packageId, scosLength: scos.length });
+      
+      if (scoId) {
+        // Find SCO by ID if provided in URL
+        const scoIndex = scos.findIndex(sco => sco.id === scoId);
+        if (scoIndex !== -1) {
+          setCurrentScoIndex(scoIndex);
+          console.log('✅ Selected SCO from URL:', scos[scoIndex].title);
+          addDebugLog(`Selected SCO from URL: ${scos[scoIndex].title}`);
+        } else {
+          console.warn('⚠️ SCO ID not found, using first SCO');
+          addDebugLog(`SCO ID not found, using first SCO`);
+          setCurrentScoIndex(0);
+          // Redirect to first SCO
+          if (packageId && scos[0]) {
+            navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
+          }
+        }
+      } else if (scos.length > 0) {
+        // No SCO ID provided, redirect to first SCO
+        setCurrentScoIndex(0);
+        console.log('🔄 No SCO ID provided, redirecting to first SCO:', scos[0].title);
+        addDebugLog(`No SCO ID provided, redirecting to first SCO: ${scos[0].title}`);
+        if (packageId) {
+          navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
+        }
+      }
+      setUrlProcessed(true);
+    } catch (error) {
+      console.error('❌ URL processing error:', error);
+      addDebugLog(`URL processing error: ${error}`);
+      setCurrentScoIndex(0);
+      setUrlProcessed(true);
+    }
+  }, [scos, scoId, packageId, navigate, urlProcessed, addDebugLog]);
+
   // Initialize SCORM API adapter
   useEffect(() => {
-    if (!currentSco || !packageId) {
+    if (!currentSco || !packageId || !urlProcessed) {
+      console.log('🔄 Skipping API initialization:', { 
+        hasCurrentSco: !!currentSco,
+        hasPackageId: !!packageId,
+        urlProcessed 
+      });
       return;
     }
 
@@ -77,18 +124,23 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
 
     try {
-      const effectiveEnrollmentId = enrollmentId || 'preview';
+      const enrollmentIdToUse = effectiveEnrollmentId || 'preview';
+      console.log('🎯 Initializing SCORM API:', { 
+        scoTitle: currentSco.title,
+        enrollmentId: enrollmentIdToUse,
+        isScorm2004 
+      });
       
       // Create appropriate adapter based on SCORM version
       if (isScorm2004) {
         scormAdapterRef.current = new Scorm2004Adapter(
-          effectiveEnrollmentId,
+          enrollmentIdToUse,
           currentSco.id,
           handleDebugEvent
         );
       } else {
         scormAdapterRef.current = new Scorm12Adapter(
-          effectiveEnrollmentId,
+          enrollmentIdToUse,
           currentSco.id,
           handleDebugEvent
         );
@@ -110,7 +162,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
         scormAdapterRef.current.cleanup();
       }
     };
-  }, [currentSco, packageId, enrollmentId, isScorm2004, handleDebugEvent]);
+  }, [currentSco, packageId, effectiveEnrollmentId, isScorm2004, handleDebugEvent, urlProcessed]);
 
   const generateContent = async () => {
     setIsLoadingContent(true);
@@ -200,8 +252,10 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const handleScoNavigation = (index: number) => {
     if (index >= 0 && index < scos.length) {
       const targetSco = scos[index];
+      console.log('🧭 Navigating to SCO:', { index, title: targetSco.title });
       navigate(`/scorm/preview/${packageId}/${targetSco.id}`, { replace: true });
       setIsInitialized(false);
+      setSidebarCollapsed(true); // Close sidebar on mobile
     }
   };
 
@@ -223,26 +277,40 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
     }
   };
 
-  if (packageLoading || scosLoading) {
-    console.log('⏳ SCORM Player waiting for data:', { packageLoading, scosLoading, packageId });
+  if (packageLoading || scosLoading || !urlProcessed) {
+    console.log('⏳ SCORM Player waiting for data:', { packageLoading, scosLoading, packageId, urlProcessed });
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center space-y-4">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-sm text-muted-foreground">Loading SCORM package...</p>
+          {!urlProcessed && <p className="text-xs text-muted-foreground">Processing URL parameters...</p>}
           <p className="text-xs text-muted-foreground">Package ID: {packageId}</p>
         </div>
       </div>
     );
   }
 
-  if (!scormPackage || !scos.length) {
-    console.log('❌ SCORM Player data missing:', { scormPackage: !!scormPackage, scosLength: scos.length, packageId });
+  if (!scormPackage || !scos.length || !currentSco) {
+    console.log('❌ SCORM Player data missing:', { 
+      scormPackage: !!scormPackage, 
+      scosLength: scos.length, 
+      currentSco: !!currentSco,
+      packageId 
+    });
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center space-y-4">
-          <p className="text-lg font-semibold">SCORM package not found</p>
-          <p className="text-sm text-muted-foreground">Package ID: {packageId}</p>
+          <p className="text-lg font-semibold">
+            {!scormPackage ? 'SCORM package not found' : 
+             !scos.length ? 'No learning content available' : 
+             'Invalid content selection'}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {!scormPackage ? `Package ID: ${packageId}` :
+             !scos.length ? 'This package contains no SCOs' :
+             'The selected SCO is not available'}
+          </p>
           <Button onClick={handleExit}>Back to Packages</Button>
         </div>
       </div>

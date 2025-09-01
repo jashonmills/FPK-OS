@@ -25,7 +25,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   mode = 'preview',
   enrollmentId 
 }) => {
-  const { packageId, scoId } = useParams();
+  const { packageId, scoId, enrollmentId: urlEnrollmentId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -33,6 +33,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   
   // State management
   const [currentScoIndex, setCurrentScoIndex] = useState(0);
+  const [urlProcessed, setUrlProcessed] = useState(false);
   const [sessionData, setSessionData] = useState<any>({});
   const [showDebugConsole, setShowDebugConsole] = useState(false);
   const [showTOC, setShowTOC] = useState(true);
@@ -54,8 +55,10 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   // Data fetching
   const { package: scormPackage, isLoading: packageLoading } = useScormPackage(packageId || '');
   const { scos, isLoading: scosLoading } = useScormScos(packageId || '');
-  const currentSco = scos[currentScoIndex];
-  // Runtime data will be fetched via API calls
+  const currentSco = scos?.[currentScoIndex];
+  
+  // Use enrollmentId from URL if in launch mode, otherwise use prop
+  const effectiveEnrollmentId = urlEnrollmentId || enrollmentId;
 
   // Determine SCORM standard
   const isScorm2004 = scormPackage?.scorm_version === '2004' || scormPackage?.standard === 'SCORM 2004';
@@ -70,22 +73,6 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     });
     return Math.round((completedScos.length / scos.length) * 100);
   }, [scos, sessionData]);
-
-  // Session timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSessionTime(Math.floor((Date.now() - sessionStartTime.current) / 1000));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Format session time
-  const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Enhanced debug logging
   const addDebugLog = useCallback((
@@ -108,17 +95,73 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     console.log(`[SCORM ${level.toUpperCase()}] ${category}: ${message}`, data || '');
   }, []);
 
+  // URL processing and SCO selection
+  useEffect(() => {
+    if (!scos.length || urlProcessed) return;
+    
+    try {
+      if (scoId) {
+        // Find SCO by ID if provided in URL
+        const scoIndex = scos.findIndex(sco => sco.id === scoId);
+        if (scoIndex !== -1) {
+          setCurrentScoIndex(scoIndex);
+          addDebugLog('info', 'navigation', `Selected SCO from URL: ${scos[scoIndex].title}`, { scoId, scoIndex });
+        } else {
+          addDebugLog('warn', 'navigation', `SCO ID not found, using first SCO`, { scoId });
+          setCurrentScoIndex(0);
+          // Redirect to first SCO
+          if (packageId && scos[0]) {
+            navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
+          }
+        }
+      } else if (scos.length > 0) {
+        // No SCO ID provided, redirect to first SCO
+        setCurrentScoIndex(0);
+        addDebugLog('info', 'navigation', `No SCO ID provided, redirecting to first SCO: ${scos[0].title}`);
+        if (packageId) {
+          navigate(`/scorm/preview/${packageId}/${scos[0].id}`, { replace: true });
+        }
+      }
+      setUrlProcessed(true);
+    } catch (error) {
+      addDebugLog('error', 'navigation', 'URL processing error', error);
+      setCurrentScoIndex(0);
+      setUrlProcessed(true);
+    }
+  }, [scos, scoId, packageId, navigate, urlProcessed, addDebugLog]);
+
+  // Session timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionTime(Math.floor((Date.now() - sessionStartTime.current) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format session time
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Enhanced SCORM API handlers with analytics
   const handleCommit = useCallback(async (cmiData: any) => {
     try {
       addDebugLog('info', 'api', 'Committing CMI data...', { elements: Object.keys(cmiData).length });
       
       const startTime = Date.now();
+      if (!currentSco) {
+        addDebugLog('error', 'api', 'No current SCO available for commit');
+        throw new Error('No current SCO available');
+      }
+
       const { data, error } = await supabase.functions.invoke('scorm-runtime-production', {
         body: { 
           action: 'commit',
-          enrollmentId: enrollmentId || 'preview',
-          scoId: currentSco?.id,
+          enrollmentId: effectiveEnrollmentId || 'preview',
+          scoId: currentSco.id,
           cmiData
         }
       });
@@ -162,7 +205,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
         variant: "destructive",
       });
     }
-  }, [enrollmentId, currentSco?.id, addDebugLog, toast]);
+  }, [effectiveEnrollmentId, currentSco?.id, addDebugLog, toast]);
 
   const handleFinish = useCallback(async (cmiData: any) => {
     try {
@@ -171,12 +214,17 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
       // Final commit
       await handleCommit(cmiData);
       
+      if (!currentSco) {
+        addDebugLog('error', 'api', 'No current SCO available for termination');
+        return;
+      }
+
       // Terminate session
       const { error } = await supabase.functions.invoke('scorm-runtime-production', {
         body: { 
           action: 'terminate',
-          enrollmentId: enrollmentId || 'preview',
-          scoId: currentSco?.id,
+          enrollmentId: effectiveEnrollmentId || 'preview',
+          scoId: currentSco.id,
           cmiData
         }
       });
@@ -196,11 +244,11 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     } catch (error: any) {
       addDebugLog('error', 'api', `Termination error: ${error.message}`, error);
     }
-  }, [handleCommit, mode, toast, enrollmentId, currentSco?.id, addDebugLog]);
+  }, [handleCommit, mode, toast, effectiveEnrollmentId, currentSco?.id, addDebugLog]);
 
   // Enhanced SCORM API initialization with postMessage bridge
   useEffect(() => {
-    if (!currentSco || !iframeRef.current?.contentWindow) return;
+    if (!currentSco || !iframeRef.current?.contentWindow || !urlProcessed) return;
 
     const initializeAPI = async () => {
       try {
@@ -210,7 +258,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
         const { data: initData, error } = await supabase.functions.invoke('scorm-runtime-production', {
           body: {
             action: 'initialize',
-            enrollmentId: enrollmentId || 'preview',
+            enrollmentId: effectiveEnrollmentId || 'preview',
             scoId: currentSco.id
           }
         });
@@ -305,17 +353,24 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     // Delay to ensure iframe is fully loaded
     const timer = setTimeout(initializeAPI, 1500);
     return () => clearTimeout(timer);
-  }, [currentSco, isScorm2004, scormVersion, handleCommit, handleFinish, enrollmentId, addDebugLog, toast]);
+  }, [currentSco, isScorm2004, scormVersion, handleCommit, handleFinish, effectiveEnrollmentId, addDebugLog, toast, urlProcessed]);
 
   // Navigation handlers
   const handleScoNavigation = useCallback((index: number) => {
     if (index >= 0 && index < scos.length && index !== currentScoIndex) {
-      addDebugLog('info', 'navigation', `Navigating to SCO ${index + 1}: ${scos[index].title}`);
+      const targetSco = scos[index];
+      addDebugLog('info', 'navigation', `Navigating to SCO ${index + 1}: ${targetSco.title}`);
+      
+      // Update URL to reflect navigation
+      if (packageId && targetSco) {
+        navigate(`/scorm/preview/${packageId}/${targetSco.id}`, { replace: true });
+      }
+      
       setCurrentScoIndex(index);
       setIsInitialized(false);
       setApiCallCount(0);
     }
-  }, [scos, currentScoIndex, addDebugLog]);
+  }, [scos, currentScoIndex, addDebugLog, navigate, packageId]);
 
   const handleRestart = useCallback(() => {
     addDebugLog('info', 'player', 'Restarting current SCO');
@@ -376,24 +431,33 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     }
   }, [sessionData, currentScoIndex]);
 
-  if (packageLoading || scosLoading) {
+  if (packageLoading || scosLoading || !urlProcessed) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Loading SCORM package...</p>
+          {!urlProcessed && <p className="text-sm text-muted-foreground mt-2">Processing URL parameters...</p>}
         </div>
       </div>
     );
   }
 
-  if (!scormPackage || !scos.length) {
+  if (!scormPackage || !scos.length || !currentSco) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-lg font-semibold mb-2">Package Not Found</h2>
-          <p className="text-muted-foreground mb-4">The requested SCORM package could not be loaded.</p>
+          <h2 className="text-lg font-semibold mb-2">
+            {!scormPackage ? 'Package Not Found' : 
+             !scos.length ? 'No SCOs Available' : 
+             'Invalid SCO Selection'}
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            {!scormPackage ? 'The requested SCORM package could not be loaded.' :
+             !scos.length ? 'This SCORM package contains no learning content.' :
+             'The selected learning object is not available.'}
+          </p>
           <Button onClick={handleExit}>Return to Studio</Button>
         </div>
       </div>
