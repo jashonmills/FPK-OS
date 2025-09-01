@@ -143,13 +143,28 @@ serve(async (req) => {
     console.log(`📦 Extracting ZIP content...`);
     const zipBytes = new Uint8Array(await zipBlob.arrayBuffer());
     
-    // Use fflate for ZIP extraction - modern, no deprecated APIs
-    const { unzip } = await import("https://esm.sh/fflate@0.8.2");
+    // Validate ZIP format first
+    if (zipBytes.length < 22) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid ZIP file - too small' 
+      }), {
+        status: 400, 
+        headers: { ...cors, "Content-Type": "application/json" }
+      });
+    }
+    
+    // Use fflate for ZIP extraction - correct synchronous API
+    const { unzipSync } = await import("https://esm.sh/fflate@0.8.2");
     
     let extractedFiles: { [key: string]: Uint8Array };
     try {
-      extractedFiles = unzip(zipBytes);
+      extractedFiles = unzipSync(zipBytes);
       console.log(`✅ Extracted ${Object.keys(extractedFiles).length} files from ZIP`);
+      
+      // Validate we have files
+      if (Object.keys(extractedFiles).length === 0) {
+        throw new Error('No files found in ZIP archive');
+      }
     } catch (error) {
       console.error(`❌ ZIP extraction failed:`, error);
       return new Response(JSON.stringify({ 
