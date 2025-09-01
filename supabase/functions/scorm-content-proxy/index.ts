@@ -2,7 +2,7 @@
 // GET /scorm-content-proxy?pkg=<packageId>&path=<relative/path/inside/package>
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const BUCKETS = ["scorm-packages", "scorm-lessons", "scorm-content", "scorm-unpacked"]; // try in this order
+const BUCKETS = ["scorm-unpacked", "scorm-packages", "scorm-lessons", "scorm-content"]; // try in this order
 
 function mimeFor(path: string): string {
   const ext = path.split(".").pop()?.toLowerCase();
