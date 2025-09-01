@@ -10,7 +10,7 @@ const cors = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const MIME: Record<string, string> = {
+const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".htm":  "text/html; charset=utf-8",
   ".css":  "text/css; charset=utf-8",
@@ -29,11 +29,13 @@ const MIME: Record<string, string> = {
   ".mp4":  "video/mp4",
   ".mp3":  "audio/mpeg",
   ".wav":  "audio/wav",
+  ".xml":  "application/xml; charset=utf-8",
+  ".txt":  "text/plain; charset=utf-8",
 };
 
-function extname(path: string) {
-  const i = path.lastIndexOf(".");
-  return i >= 0 ? path.slice(i).toLowerCase() : "";
+function getContentType(filepath: string): string {
+  const ext = filepath.substring(filepath.lastIndexOf('.')).toLowerCase();
+  return MIME_TYPES[ext] || "application/octet-stream";
 }
 
 serve(async (req) => {
@@ -69,28 +71,38 @@ serve(async (req) => {
 
     const { data, error } = await supabase.storage.from(BUCKET).download(KEY);
     if (error || !data) {
-      // Helpful diagnostics in the response for admins/dev tools
+      console.error(`File not found: ${KEY}`, error);
       return new Response(
-        JSON.stringify({ error: "Not Found", detail: { bucket: BUCKET, key: KEY, supabase: error?.message } }),
+        JSON.stringify({ 
+          error: "File not found", 
+          detail: { 
+            bucket: BUCKET, 
+            key: KEY, 
+            message: error?.message || "File does not exist" 
+          } 
+        }),
         { status: 404, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // DO NOT stringify/escape; stream as bytes with correct type
-    const bytes = await data.arrayBuffer();
-    const ext = extname(path);
-    const type = MIME[ext] ?? "application/octet-stream";
+    // Get the correct MIME type based on file extension
+    const contentType = getContentType(path);
+    console.log(`Serving ${path} as ${contentType}`);
 
-    return new Response(bytes, {
+    // Stream the raw file content with correct MIME type
+    const fileBuffer = await data.arrayBuffer();
+    
+    const filename = path.split("/").pop() || "file";
+    
+    return new Response(fileBuffer, {
       headers: {
         ...cors,
-        "Content-Type": type,
-        "Content-Disposition": `inline; filename="${encodeURIComponent(path.split("/").pop() || "file")}"`,
+        "Content-Type": contentType,
+        "Content-Disposition": `inline; filename="${encodeURIComponent(filename)}"`,
         "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
         "X-Content-Type-Options": "nosniff",
-        // Allow SCORM JS to run in iframe
-        "Content-Security-Policy":
-          "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'self';",
+        // Permissive CSP for SCORM content
+        "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors 'self';",
       },
     });
   } catch (e) {
