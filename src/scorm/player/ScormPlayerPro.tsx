@@ -95,6 +95,17 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     console.log(`[SCORM ${level.toUpperCase()}] ${category}: ${message}`, data || '');
   }, []);
 
+  // Test content generation on mount
+  useEffect(() => {
+    if (packageId && !packageLoading && scormPackage) {
+      import('@/lib/scorm/testContentGeneration').then(({ testScormContentGeneration }) => {
+        testScormContentGeneration(packageId).then(result => {
+          addDebugLog('info', 'content', 'Content generation test completed', result);
+        });
+      });
+    }
+  }, [packageId, packageLoading, scormPackage, addDebugLog]);
+
   // URL processing and SCO selection
   useEffect(() => {
     if (!scos.length || urlProcessed) return;
