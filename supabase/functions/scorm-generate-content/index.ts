@@ -139,38 +139,68 @@ serve(async (req) => {
       });
     }
 
-    // Create temporary file for unzipping
+    // Extract ZIP using modern Web APIs
+    console.log(`📦 Extracting ZIP content...`);
     const zipBytes = new Uint8Array(await zipBlob.arrayBuffer());
-    const tempDir = await Deno.makeTempDir();
-    const zipFile = `${tempDir}/package.zip`;
-    await Deno.writeFile(zipFile, zipBytes);
-
-    // Import unzip dynamically to avoid import issues
-    const { decompress } = await import("https://deno.land/x/zip@v1.2.5/mod.ts");
     
-    // Unzip to temp directory
-    await decompress(zipFile, tempDir);
+    // Use fflate for ZIP extraction - modern, no deprecated APIs
+    const { unzip } = await import("https://esm.sh/fflate@0.8.2");
+    
+    let extractedFiles: { [key: string]: Uint8Array };
+    try {
+      extractedFiles = unzip(zipBytes);
+      console.log(`✅ Extracted ${Object.keys(extractedFiles).length} files from ZIP`);
+    } catch (error) {
+      console.error(`❌ ZIP extraction failed:`, error);
+      return new Response(JSON.stringify({ 
+        error: 'ZIP extraction failed', 
+        details: String(error) 
+      }), {
+        status: 400, 
+        headers: { ...cors, "Content-Type": "application/json" }
+      });
+    }
 
     // Upload all extracted files to Storage
     let fileCount = 0;
     let manifestContent = '';
     
-    for await (const entry of Deno.readDir(tempDir)) {
-      if (entry.isFile && entry.name !== 'package.zip') {
-        await processFile(tempDir, entry.name, expectedPath, supabase, '');
+    console.log(`📤 Uploading ${Object.keys(extractedFiles).length} files to storage...`);
+    
+    for (const [filePath, fileBytes] of Object.entries(extractedFiles)) {
+      try {
+        // Skip directory entries and __MACOSX files
+        if (filePath.endsWith('/') || filePath.includes('__MACOSX/')) {
+          continue;
+        }
+        
+        const storagePath = `${expectedPath}/${filePath}`;
+        console.log(`📁 Uploading: ${storagePath}`);
+        
+        const { error: uploadError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(storagePath, fileBytes, { 
+            upsert: true, 
+            contentType: guessMime(filePath) 
+          });
+        
+        if (uploadError) {
+          console.error(`❌ Failed to upload ${filePath}:`, uploadError);
+          continue; // Continue with other files
+        }
+        
         fileCount++;
         
-        if (entry.name === 'imsmanifest.xml') {
-          manifestContent = await Deno.readTextFile(`${tempDir}/${entry.name}`);
+        // Capture manifest content
+        if (filePath.toLowerCase().endsWith('imsmanifest.xml')) {
+          manifestContent = new TextDecoder().decode(fileBytes);
+          console.log(`📋 Found manifest file: ${filePath}`);
         }
-      } else if (entry.isDirectory) {
-        const subFileCount = await processDirectory(tempDir, entry.name, expectedPath, supabase);
-        fileCount += subFileCount;
+      } catch (error) {
+        console.error(`❌ Error processing file ${filePath}:`, error);
+        continue; // Continue with other files
       }
     }
-
-    // Clean up temp directory
-    await Deno.remove(tempDir, { recursive: true });
 
     // Parse manifest for launch information
     let launchHref = 'content/index.html'; // default fallback
@@ -218,92 +248,52 @@ serve(async (req) => {
   }
 });
 
-// Helper function to process individual files
-async function processFile(baseDir: string, fileName: string, targetPath: string, supabase: any, subPath: string) {
-  const fullFileName = subPath ? `${subPath}/${fileName}` : fileName;
-  const fileBytes = await Deno.readFile(`${baseDir}/${fullFileName}`);
-  const storagePath = `${targetPath}/${fullFileName}`;
-  
-  await supabase.storage
-    .from(STORAGE_BUCKET)
-    .upload(storagePath, fileBytes, { 
-      upsert: true, 
-      contentType: guessMime(fileName) 
-    });
-}
-
-// Helper function to process directories recursively
-async function processDirectory(baseDir: string, dirName: string, targetPath: string, supabase: any): Promise<number> {
-  let fileCount = 0;
-  const dirPath = `${baseDir}/${dirName}`;
-  
-  for await (const entry of Deno.readDir(dirPath)) {
-    if (entry.isFile) {
-      await processFile(baseDir, entry.name, targetPath, supabase, dirName);
-      fileCount++;
-    } else if (entry.isDirectory) {
-      const subFileCount = await processSubDirectory(dirPath, entry.name, targetPath, supabase, dirName);
-      fileCount += subFileCount;
-    }
-  }
-  
-  return fileCount;
-}
-
-// Helper function for nested directories
-async function processSubDirectory(parentDir: string, dirName: string, targetPath: string, supabase: any, parentPath: string): Promise<number> {
-  let fileCount = 0;
-  const dirPath = `${parentDir}/${dirName}`;
-  const fullDirPath = `${parentPath}/${dirName}`;
-  
-  for await (const entry of Deno.readDir(dirPath)) {
-    if (entry.isFile) {
-      const fileBytes = await Deno.readFile(`${dirPath}/${entry.name}`);
-      const storagePath = `${targetPath}/${fullDirPath}/${entry.name}`;
-      
-      await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(storagePath, fileBytes, { 
-          upsert: true, 
-          contentType: guessMime(entry.name) 
-        });
-      fileCount++;
-    } else if (entry.isDirectory) {
-      const subFileCount = await processSubDirectory(dirPath, entry.name, targetPath, supabase, fullDirPath);
-      fileCount += subFileCount;
-    }
-  }
-  
-  return fileCount;
-}
-
-// Helper function to parse manifest and find launch file
+// Enhanced manifest parsing with better error handling
 function parseManifestForLaunch(xml: string): string | null {
   try {
+    console.log(`🔍 Parsing manifest for launch file...`);
+    
     // Find default organization
     const defaultOrgMatch = /<organizations[^>]*\bdefault="([^"]+)"/i.exec(xml);
-    if (!defaultOrgMatch) return null;
+    if (!defaultOrgMatch) {
+      console.log(`❌ No default organization found in manifest`);
+      return null;
+    }
     
     const defaultOrg = defaultOrgMatch[1];
+    console.log(`📋 Found default organization: ${defaultOrg}`);
     
     // Find the organization block
     const orgRegex = new RegExp(`<organization[^>]*identifier="${defaultOrg}"[\\s\\S]*?<\\/organization>`, 'i');
     const orgMatch = orgRegex.exec(xml);
-    if (!orgMatch) return null;
+    if (!orgMatch) {
+      console.log(`❌ Organization block not found for: ${defaultOrg}`);
+      return null;
+    }
     
     // Find first item with identifierref
     const itemMatch = /<item[^>]*identifierref="([^"]+)"/i.exec(orgMatch[0]);
-    if (!itemMatch) return null;
+    if (!itemMatch) {
+      console.log(`❌ No item with identifierref found`);
+      return null;
+    }
     
     const resourceId = itemMatch[1];
+    console.log(`🎯 Found resource ID: ${resourceId}`);
     
     // Find resource with that identifier
     const resourceRegex = new RegExp(`<resource[^>]*identifier="${resourceId}"[^>]*href="([^"]+)"`, 'i');
     const resourceMatch = resourceRegex.exec(xml);
     
-    return resourceMatch ? resourceMatch[1] : null;
+    if (resourceMatch) {
+      console.log(`🚀 Found launch file: ${resourceMatch[1]}`);
+      return resourceMatch[1];
+    } else {
+      console.log(`❌ Resource not found for ID: ${resourceId}`);
+      return null;
+    }
   } catch (e) {
-    console.error('Error parsing manifest:', e);
+    console.error('❌ Error parsing manifest:', e);
     return null;
   }
 }
