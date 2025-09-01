@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useScormPackage } from '@/hooks/useScormPackages';
+import { buildProxyUrl } from '@/lib/scorm/urls';
 
 interface ScormSco {
   launch_href: string;
@@ -53,7 +54,6 @@ export function useScormLaunchUrl(
     const params = buildParams(sco.parameters);
     
     // Use the content proxy with the extracted package structure
-    const FNS = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
-    return `${FNS}/scorm-content-proxy?pkg=${packageId}&path=${encodeURIComponent(launchPath)}${params}`;
+    return `${buildProxyUrl(packageId, launchPath)}${params}`;
   }, [packageId, sco, scormPackage]);
 }

@@ -13,6 +13,7 @@ import { Scorm12Adapter, Scorm2004Adapter, ScormAPIAdapter, DebugEventType } fro
 import { ContentTypeIssueBanner, RuntimeIssueBanner } from '@/components/scorm/ErrorBanners';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { buildGenerateUrl } from '@/lib/scorm/urls';
 
 interface AdvancedScormPlayerProps {
   mode?: 'preview' | 'launch';
@@ -107,13 +108,12 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   }, [currentSco, packageId, enrollmentId, isScorm2004, handleDebugEvent]);
 
   const generateContent = async () => {
-    const FNS = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
     setIsLoadingContent(true);
     
     try {
       handleDebugEvent('info', 'Starting content generation...');
       
-      const response = await fetch(`${FNS}/scorm-generate-content`, {
+      const response = await fetch(buildGenerateUrl(), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json', 
@@ -124,7 +124,7 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
 
       const data = await response.json();
       
-      if (response.ok && data?.ok) {
+      if (response.ok && (data?.success || data?.ok)) {
         toast({
           title: "Content Generated",
           description: "✅ SCORM content generated successfully!",
