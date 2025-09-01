@@ -9,14 +9,37 @@ const ScormIframe: React.FC<Props> = ({ launchUrl, onLoaded }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!iframeRef.current) return;
-    // Set src directly; do NOT fetch and inject text (which rendered source)
-    iframeRef.current.src = launchUrl;
+    if (!iframeRef.current || !launchUrl) return;
+    
+    console.log('🎯 ScormIframe loading URL:', launchUrl);
+    
+    // Clear any previous content
+    iframeRef.current.src = 'about:blank';
+    
+    // Small delay to ensure clean state, then load the URL
+    setTimeout(() => {
+      if (iframeRef.current) {
+        iframeRef.current.src = launchUrl;
+      }
+    }, 100);
 
-    const handleLoad = () => onLoaded?.();
+    const handleLoad = () => {
+      console.log('✅ ScormIframe loaded successfully');
+      onLoaded?.();
+    };
+    
+    const handleError = () => {
+      console.error('❌ ScormIframe failed to load');
+    };
+    
     const el = iframeRef.current;
     el?.addEventListener("load", handleLoad);
-    return () => el?.removeEventListener("load", handleLoad);
+    el?.addEventListener("error", handleError);
+    
+    return () => {
+      el?.removeEventListener("load", handleLoad);
+      el?.removeEventListener("error", handleError);
+    };
   }, [launchUrl, onLoaded]);
 
   return (
