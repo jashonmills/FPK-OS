@@ -2,10 +2,9 @@
 // Deno Deploy / Supabase Edge Function
 // Purpose: Extract a SCORM zip into public storage so the content proxy can serve launch files.
 
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.200.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.2";
-import { ZipReader } from "https://deno.land/std@0.224.0/archive/zip/reader.ts";
-import { readAll } from "https://deno.land/std@0.224.0/io/read_all.ts";
+import { decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
 
 // -------- CORS --------
 const corsHeaders = {
@@ -131,9 +130,8 @@ serve(async (req) => {
     }
 
     // 3) Parse ZIP
-    const reader = new ZipReader(new Deno.Buffer(zipBytes));
-    const entries = await reader.entries();
-    if (!entries || entries.length === 0) {
+    const files = await decompress(zipBytes);
+    if (!files || files.length === 0) {
       throw new Error("Zip archive has no entries.");
     }
 
@@ -142,37 +140,28 @@ serve(async (req) => {
     const skipped: string[] = [];
 
     // 4) Upload each file to storage (preserve structure)
-    for (const entry of entries) {
+    for (const file of files) {
       // Skip directories
-      if (entry.isDirectory) continue;
+      if (file.name.endsWith("/")) continue;
 
-      const rawName = entry.filename;
-      const safeRelPath = sanitizePath(rawName);
+      const safeRelPath = sanitizePath(file.name);
       if (!safeRelPath || safeRelPath.endsWith("/")) continue; // skip weird names
-
-      // Read file content
-      const fileReader = await reader.getReader(entry);
-      if (!fileReader) {
-        skipped.push(rawName);
-        continue;
-      }
-      const fileBytes = await readAll(fileReader);
 
       const storagePath = `${extractPrefix}${safeRelPath}`;
       const ct = contentTypeFor(storagePath);
 
       const up = await supabase.storage
         .from(targetBucket)
-        .upload(storagePath, new Blob([fileBytes], { type: ct }), {
+        .upload(storagePath, new Blob([file.content], { type: ct }), {
           upsert: true,
           contentType: ct,
         });
 
       if (up.error) {
-        skipped.push(rawName + " :: " + up.error.message);
+        skipped.push(file.name + " :: " + up.error.message);
       } else {
         filesWritten++;
-        bytesWritten += fileBytes.byteLength;
+        bytesWritten += file.content.byteLength;
       }
     }
 
