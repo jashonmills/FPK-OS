@@ -79,6 +79,9 @@ const ScormPlayer = lazy(() => {
   });
 });
 
+// Native Course Player
+const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
+
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -275,6 +278,13 @@ const App: React.FC = () => {
                 </Routes>
               </RouteProtector>
             </RequireAdmin>
+          } />
+          
+          {/* Native Course Player Routes */}
+          <Route path="/courses/:slug" element={
+            <RouteProtector>
+              <LazyRoute><NativeCoursePlayer /></LazyRoute>
+            </RouteProtector>
           } />
           
           {/* Forbidden Page */}

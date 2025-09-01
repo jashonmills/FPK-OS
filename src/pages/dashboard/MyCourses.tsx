@@ -12,6 +12,8 @@ import { BookOpen, Clock, User, Search, Filter, HelpCircle } from 'lucide-react'
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
+import { useNativeCourses, useNativeEnrollments, useNativeEnrollmentMutations } from '@/hooks/useNativeCourses';
+import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -21,6 +23,11 @@ const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   const { courses, isLoading, error } = useCourses();
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
+  
+  // Native courses
+  const { data: nativeCourses = [], isLoading: nativeCoursesLoading } = useNativeCourses();
+  const { data: nativeEnrollments = [] } = useNativeEnrollments();
+  const { enrollInCourse, isEnrolling } = useNativeEnrollmentMutations();
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -53,6 +60,13 @@ const MyCourses = () => {
     !enrolledCourseIds.includes(course.id) && course.status === 'published'
   );
 
+  // Native course filtering
+  const enrolledNativeCourseIds = nativeEnrollments.map(e => e.course_id);
+  const enrolledNativeCourses = nativeCourses.filter(course => enrolledNativeCourseIds.includes(course.id));
+  const availableNativeCourses = nativeCourses.filter(course => 
+    !enrolledNativeCourseIds.includes(course.id)
+  );
+
   const filteredCourses = (courseList: typeof courses) => {
     return courseList.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,6 +81,14 @@ const MyCourses = () => {
     });
   };
 
+  const filteredNativeCourses = (courseList: typeof nativeCourses) => {
+    return courseList.filter(course => {
+      const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.summary?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  };
+
   const switchToAvailableTab = () => {
     const tabElement = document.querySelector('[data-state="inactive"][value="available"]') as HTMLElement;
     if (tabElement) {
@@ -74,7 +96,7 @@ const MyCourses = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || nativeCoursesLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
@@ -249,16 +271,29 @@ const MyCourses = () => {
       <Tabs defaultValue="enrolled" className="space-y-6">
         <TabsList>
           <TabsTrigger value="enrolled">
-            My Courses ({enrolledCourses.length})
+            My Courses ({enrolledCourses.length + enrolledNativeCourses.length})
           </TabsTrigger>
           <TabsTrigger value="available">
-            Available Courses ({availableCourses.length})
+            Available Courses ({availableCourses.length + availableNativeCourses.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="enrolled" className="space-y-6">
-          {filteredCourses(enrolledCourses).length > 0 ? (
+          {(filteredCourses(enrolledCourses).length > 0 || filteredNativeCourses(enrolledNativeCourses).length > 0) ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Native Courses */}
+              {filteredNativeCourses(enrolledNativeCourses).map((course) => {
+                const enrollment = nativeEnrollments.find(e => e.course_id === course.id);
+                return (
+                  <NativeCourseCard 
+                    key={course.id} 
+                    course={course} 
+                    enrollment={enrollment}
+                  />
+                );
+              })}
+              
+              {/* Regular Courses */}
               {filteredCourses(enrolledCourses).map((course) => (
                 <CourseCard key={course.id} course={course} isEnrolled={true} />
               ))}
@@ -285,8 +320,19 @@ const MyCourses = () => {
         </TabsContent>
 
         <TabsContent value="available" className="space-y-6">
-          {filteredCourses(availableCourses).length > 0 ? (
+          {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Available Native Courses */}
+              {filteredNativeCourses(availableNativeCourses).map((course) => (
+                <NativeCourseCard 
+                  key={course.id} 
+                  course={course}
+                  onEnroll={() => enrollInCourse.mutate(course.id)}
+                  isEnrolling={isEnrolling}
+                />
+              ))}
+              
+              {/* Available Regular Courses */}
               {filteredCourses(availableCourses).map((course) => (
                 <CourseCard key={course.id} course={course} isEnrolled={false} />
               ))}
