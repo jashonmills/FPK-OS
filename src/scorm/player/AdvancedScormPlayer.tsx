@@ -12,8 +12,8 @@ import { Scorm12Adapter, Scorm2004Adapter, ScormAPIAdapter, DebugEventType } fro
 import { ContentTypeIssueBanner, RuntimeIssueBanner } from '@/components/scorm/ErrorBanners';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { buildGenerateUrl, functionsBase } from '@/lib/scorm/urls';
-import { buildLaunchUrl } from '@/lib/scorm/buildLaunchUrl';
+import { buildGenerateUrl } from '@/lib/scorm/urls';
+import { useScormLaunchUrl } from '@/lib/scorm/useScormLaunchUrl';
 import ScormIframe from '@/components/scorm/ScormIframe';
 
 interface AdvancedScormPlayerProps {
@@ -54,10 +54,8 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
   const isScorm2004 = scormPackage?.metadata?.manifest?.standard === 'SCORM 2004';
   const effectiveEnrollmentId = urlEnrollmentId || (mode === 'launch' ? 'preview' : undefined);
   
-  // Launch URL generation using buildLaunchUrl
-  const launchUrl = currentSco && packageId ? 
-    buildLaunchUrl(functionsBase, packageId, currentSco.launch_href || 'index.html') : 
-    '';
+  // Launch URL generation using smart path resolution
+  const launchUrl = useScormLaunchUrl(packageId || '', currentSco);
 
   const handleDebugEvent = useCallback((type: DebugEventType, message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -486,12 +484,10 @@ export const AdvancedScormPlayer: React.FC<AdvancedScormPlayerProps> = ({ mode =
                   variant="outline" 
                   size="sm" 
                   onClick={() => {
-                    // Force refresh by updating the URL with a timestamp
-                    if (currentSco && packageId) {
-                      const refreshUrl = buildLaunchUrl(functionsBase, packageId, currentSco.launch_href || 'index.html') + 
-                        `&refresh=${Date.now()}`;
-                      window.location.reload();
-                      addDebugLog('🔄 Manual page refresh triggered');
+                    // Force refresh by reloading the iframe with current launch URL
+                    if (iframeRef.current && launchUrl) {
+                      iframeRef.current.src = `${launchUrl}&refresh=${Date.now()}`;
+                      addDebugLog('🔄 Manual iframe refresh triggered');
                     }
                   }}
                   className="whitespace-nowrap"
