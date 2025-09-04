@@ -239,6 +239,59 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          justification: string | null
+          organization_id: string | null
+          resource_id: string | null
+          resource_type: string
+          target_user_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          justification?: string | null
+          organization_id?: string | null
+          resource_id?: string | null
+          resource_type: string
+          target_user_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          justification?: string | null
+          organization_id?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          target_user_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
           badge_id: string
@@ -1703,6 +1756,7 @@ export type Database = {
           description: string | null
           id: string
           milestones: Json | null
+          organization_id: string | null
           priority: string
           progress: number
           status: string
@@ -1718,6 +1772,7 @@ export type Database = {
           description?: string | null
           id?: string
           milestones?: Json | null
+          organization_id?: string | null
           priority?: string
           progress?: number
           status?: string
@@ -1733,6 +1788,7 @@ export type Database = {
           description?: string | null
           id?: string
           milestones?: Json | null
+          organization_id?: string | null
           priority?: string
           progress?: number
           status?: string
@@ -1741,7 +1797,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       google_oauth_tokens: {
         Row: {
@@ -2604,32 +2668,55 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          is_private: boolean | null
+          organization_id: string | null
           tags: string[] | null
           title: string
           updated_at: string
           user_id: string
+          visibility_scope:
+            | Database["public"]["Enums"]["note_visibility_scope"]
+            | null
         }
         Insert: {
           category?: string | null
           content?: string | null
           created_at?: string
           id?: string
+          is_private?: boolean | null
+          organization_id?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
           user_id: string
+          visibility_scope?:
+            | Database["public"]["Enums"]["note_visibility_scope"]
+            | null
         }
         Update: {
           category?: string | null
           content?: string | null
           created_at?: string
           id?: string
+          is_private?: boolean | null
+          organization_id?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string
+          visibility_scope?:
+            | Database["public"]["Enums"]["note_visibility_scope"]
+            | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -2667,6 +2754,310 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      org_course_assignments: {
+        Row: {
+          assigned_by: string
+          course_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+          instructions: string | null
+          organization_id: string
+          student_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          course_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          organization_id: string
+          student_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          course_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          organization_id?: string
+          student_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_course_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_goals: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          folder_path: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string
+          priority: string | null
+          progress_percentage: number | null
+          status: string | null
+          student_id: string
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          folder_path?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          priority?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          student_id: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          folder_path?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          priority?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          student_id?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invitation_code: string | null
+          invited_by: string
+          metadata: Json | null
+          organization_id: string
+          status: Database["public"]["Enums"]["invitation_status"]
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invitation_code?: string | null
+          invited_by: string
+          metadata?: Json | null
+          organization_id: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invitation_code?: string | null
+          invited_by?: string
+          metadata?: Json | null
+          organization_id?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_members: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          organization_id: string
+          removed_at: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          status: Database["public"]["Enums"]["member_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          organization_id: string
+          removed_at?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: Database["public"]["Enums"]["member_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          organization_id?: string
+          removed_at?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: Database["public"]["Enums"]["member_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_notes: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          created_by: string
+          folder_path: string | null
+          id: string
+          is_private: boolean
+          metadata: Json | null
+          organization_id: string
+          student_id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          visibility_scope: Database["public"]["Enums"]["note_visibility_scope"]
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          folder_path?: string | null
+          id?: string
+          is_private?: boolean
+          metadata?: Json | null
+          organization_id: string
+          student_id: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          visibility_scope?: Database["public"]["Enums"]["note_visibility_scope"]
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          folder_path?: string | null
+          id?: string
+          is_private?: boolean
+          metadata?: Json | null
+          organization_id?: string
+          student_id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          visibility_scope?: Database["public"]["Enums"]["note_visibility_scope"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          seat_limit: number
+          seats_used: number
+          settings: Json | null
+          subscription_tier: Database["public"]["Enums"]["org_subscription_tier"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          seat_limit?: number
+          seats_used?: number
+          settings?: Json | null
+          subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          seat_limit?: number
+          seats_used?: number
+          settings?: Json | null
+          subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -5334,6 +5725,10 @@ export type Database = {
         Args: { session_id: string }
         Returns: Json
       }
+      generate_invitation_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_scorm_package_slug: {
         Args: { title: string }
         Returns: string
@@ -5460,6 +5855,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      user_is_org_member: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
+      user_is_org_owner: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
+      user_org_role: {
+        Args: { org_id: string }
+        Returns: Database["public"]["Enums"]["member_role"]
+      }
       validate_legal_basis: {
         Args: {
           p_data_categories: string[]
@@ -5480,6 +5887,7 @@ export type Database = {
         | "unknown"
         | "incomplete"
         | "completed"
+      invitation_status: "pending" | "accepted" | "declined" | "expired"
       lesson_status_12:
         | "not attempted"
         | "browsed"
@@ -5487,6 +5895,13 @@ export type Database = {
         | "completed"
         | "passed"
         | "failed"
+      member_role: "owner" | "instructor" | "student"
+      member_status: "active" | "paused" | "blocked" | "removed"
+      note_visibility_scope:
+        | "student-only"
+        | "instructor-visible"
+        | "org-public"
+      org_subscription_tier: "basic" | "standard" | "premium"
       package_status: "uploading" | "parsing" | "ready" | "error" | "archived"
       scorm_standard: "SCORM 1.2" | "SCORM 2004"
       subscription_status:
@@ -5631,6 +6046,7 @@ export const Constants = {
         "incomplete",
         "completed",
       ],
+      invitation_status: ["pending", "accepted", "declined", "expired"],
       lesson_status_12: [
         "not attempted",
         "browsed",
@@ -5639,6 +6055,14 @@ export const Constants = {
         "passed",
         "failed",
       ],
+      member_role: ["owner", "instructor", "student"],
+      member_status: ["active", "paused", "blocked", "removed"],
+      note_visibility_scope: [
+        "student-only",
+        "instructor-visible",
+        "org-public",
+      ],
+      org_subscription_tier: ["basic", "standard", "premium"],
       package_status: ["uploading", "parsing", "ready", "error", "archived"],
       scorm_standard: ["SCORM 1.2", "SCORM 2004"],
       subscription_status: [

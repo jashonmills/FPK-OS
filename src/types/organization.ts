@@ -1,0 +1,129 @@
+export type OrgSubscriptionTier = 'basic' | 'standard' | 'premium';
+export type NoteVisibilityScope = 'student-only' | 'instructor-visible' | 'org-public';
+export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'expired';
+export type MemberRole = 'owner' | 'instructor' | 'student';
+export type MemberStatus = 'active' | 'paused' | 'blocked' | 'removed';
+
+export interface Organization {
+  id: string;
+  name: string;
+  description?: string;
+  owner_id: string;
+  subscription_tier: OrgSubscriptionTier;
+  seat_limit: number;
+  seats_used: number;
+  settings: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgMember {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  role: MemberRole;
+  status: MemberStatus;
+  invited_by?: string;
+  joined_at?: string;
+  removed_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Join data
+  profiles?: {
+    full_name?: string;
+    display_name?: string;
+  };
+}
+
+export interface OrgInvitation {
+  id: string;
+  organization_id: string;
+  invited_by: string;
+  email?: string;
+  invitation_code?: string;
+  status: InvitationStatus;
+  expires_at: string;
+  accepted_by?: string;
+  accepted_at?: string;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgCourseAssignment {
+  id: string;
+  organization_id: string;
+  course_id: string;
+  assigned_by: string;
+  student_ids: string[];
+  due_date?: string;
+  instructions?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgGoal {
+  id: string;
+  organization_id: string;
+  created_by: string;
+  student_id: string;
+  title: string;
+  description?: string;
+  category?: string;
+  folder_path: string;
+  target_date?: string;
+  status: 'active' | 'completed' | 'paused' | 'cancelled';
+  priority: 'low' | 'medium' | 'high';
+  progress_percentage: number;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  // Join data
+  student_profile?: {
+    full_name?: string;
+    display_name?: string;
+  };
+}
+
+export interface OrgNote {
+  id: string;
+  organization_id: string;
+  created_by: string;
+  student_id: string;
+  title: string;
+  content: string;
+  category?: string;
+  folder_path: string;
+  visibility_scope: NoteVisibilityScope;
+  is_private: boolean;
+  tags: string[];
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  // Join data
+  student_profile?: {
+    full_name?: string;
+    display_name?: string;
+  };
+}
+
+export const SUBSCRIPTION_TIERS = {
+  basic: {
+    name: 'Basic',
+    seats: 3,
+    price: 29,
+    features: ['Up to 3 students', 'Basic analytics', 'Goal tracking', 'Note management']
+  },
+  standard: {
+    name: 'Standard',
+    seats: 10,
+    price: 79,
+    features: ['Up to 10 students', 'Advanced analytics', 'Course assignments', 'Bulk operations']
+  },
+  premium: {
+    name: 'Premium',
+    seats: 25,
+    price: 149,
+    features: ['Up to 25+ students', 'Full analytics suite', 'Custom reporting', 'Priority support']
+  }
+} as const;
