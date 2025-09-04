@@ -43,10 +43,14 @@ export interface OrgInvitation {
   invited_by: string;
   email?: string;
   invitation_code?: string;
+  invitation_link?: string;
   status: InvitationStatus;
   expires_at: string;
   accepted_by?: string;
   accepted_at?: string;
+  max_uses?: number;
+  current_uses?: number;
+  is_active?: boolean;
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
