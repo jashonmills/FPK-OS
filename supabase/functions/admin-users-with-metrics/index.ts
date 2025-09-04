@@ -54,21 +54,42 @@ serve(async (req) => {
       return new Response('Forbidden', { status: 403, headers: corsHeaders })
     }
 
-    // Parse query parameters
+    // Parse query parameters from both URL and body
     const url = new URL(req.url)
-    const page = parseInt(url.searchParams.get('page') || '1')
-    const pageSize = parseInt(url.searchParams.get('pageSize') || '20')
-    const search = url.searchParams.get('search') || ''
-    const role = url.searchParams.get('role') || 'all'
-    const activity = url.searchParams.get('activity') || 'all'
-    const progressBand = url.searchParams.get('progressBand') || 'all'
-    const hasGoals = url.searchParams.get('hasGoals') || 'all'
-    const sortBy = url.searchParams.get('sortBy') || 'createdAt'
-    const sortDir = url.searchParams.get('sortDir') || 'desc'
+    let params = {}
+    
+    if (req.method === 'POST') {
+      params = await req.json()
+    } else {
+      // GET request - parse from URL
+      params = {
+        page: parseInt(url.searchParams.get('page') || '1'),
+        pageSize: parseInt(url.searchParams.get('pageSize') || '20'),
+        search: url.searchParams.get('search') || '',
+        role: url.searchParams.get('role') || 'all',
+        activity: url.searchParams.get('activity') || 'all',
+        progressBand: url.searchParams.get('progressBand') || 'all',
+        hasGoals: url.searchParams.get('hasGoals') || 'all',
+        sortBy: url.searchParams.get('sortBy') || 'createdAt',
+        sortDir: url.searchParams.get('sortDir') || 'desc'
+      }
+    }
 
-    const offset = (page - 1) * pageSize
+    const {
+      page = 1,
+      pageSize = 20,
+      search = '',
+      role = 'all',
+      activity = 'all',
+      progressBand = 'all',
+      hasGoals = 'all',
+      sortBy = 'createdAt',
+      sortDir = 'desc'
+    } = params
 
-    // Get all profiles first with basic filtering  
+    console.log('Processing request with params:', params)
+
+    // Get ALL profiles first (without pagination) to properly filter and count
     let profilesQuery = supabaseClient
       .from('profiles')
       .select('id, full_name, display_name, created_at')
@@ -101,24 +122,34 @@ serve(async (req) => {
       }
     }
 
-    // Apply sorting and pagination
+    // Apply sorting
     if (sortBy === 'createdAt') {
       profilesQuery = profilesQuery.order('created_at', { ascending: sortDir === 'asc' })
     } else {
       profilesQuery = profilesQuery.order('created_at', { ascending: false })
     }
 
-    const { data: profiles, error: profilesError, count: totalCount } = await profilesQuery
-      .range(offset, offset + pageSize - 1)
+    // Get all matching profiles first
+    const { data: allProfiles, error: profilesError } = await profilesQuery
 
     if (profilesError) {
       console.error('Profiles query error:', profilesError)
       throw profilesError
     }
 
+    if (!allProfiles || allProfiles.length === 0) {
+      return new Response(
+        JSON.stringify({
+          users: [],
+          pagination: { page, pageSize, total: 0, totalPages: 0 }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Get detailed user data with metrics for each profile
     const users: UserWithMetrics[] = await Promise.all(
-      profiles.map(async (profile) => {
+      allProfiles.map(async (profile) => {
         // Get user roles
         const { data: roles } = await supabaseClient
           .from('user_roles')
@@ -286,14 +317,19 @@ serve(async (req) => {
       })
     }
 
+    // Apply pagination after filtering
+    const offset = (page - 1) * pageSize
+    const paginatedUsers = filteredUsers.slice(offset, offset + pageSize)
+    const totalFiltered = filteredUsers.length
+
     return new Response(
       JSON.stringify({
-        users: filteredUsers,
+        users: paginatedUsers,
         pagination: {
           page,
           pageSize,
-          total: totalCount || 0,
-          totalPages: Math.ceil((totalCount || 0) / pageSize)
+          total: totalFiltered,
+          totalPages: Math.ceil(totalFiltered / pageSize)
         }
       }),
       { 

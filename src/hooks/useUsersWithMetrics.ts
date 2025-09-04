@@ -66,6 +66,7 @@ export const useUsersWithMetrics = (options: UseUsersWithMetricsOptions = {}) =>
           throw error;
         }
 
+        console.log('Edge function returned:', data);
         return data;
       } catch (error) {
         console.warn('Edge function not available, using fallback query:', error);

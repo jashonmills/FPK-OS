@@ -120,10 +120,11 @@ const UserManagement = () => {
                 isAssigning={false}
                 isRemoving={false}
                 pagination={data.pagination}
-                onPaginationChange={(page) => setCurrentPage(page)}
+                onPaginationChange={(page, pageSize) => setCurrentPage(page)}
                 onFiltersChange={(filters) => {
-                  // TODO: Implement filter changes
-                  console.log('Filters changed:', filters);
+                  // Update the search and filters from the enhanced table
+                  if (filters.search !== undefined) setSearchQuery(filters.search);
+                  if (filters.role !== undefined) setRoleFilter(filters.role);
                 }}
               />
             </div>
