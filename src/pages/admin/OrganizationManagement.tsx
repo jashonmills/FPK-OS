@@ -33,12 +33,12 @@ export default function OrganizationManagement() {
     org.description?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const getTierColor = (tier: string) => {
+  const getTierVariant = (tier: string) => {
     switch (tier) {
-      case 'basic': return 'bg-blue-500';
-      case 'standard': return 'bg-purple-500';
-      case 'premium': return 'bg-gold-500';
-      default: return 'bg-gray-500';
+      case 'basic': return 'secondary';
+      case 'standard': return 'default';
+      case 'premium': return 'destructive';
+      default: return 'outline';
     }
   };
 
@@ -158,7 +158,7 @@ export default function OrganizationManagement() {
                     <div className="text-sm">{org.owner_id}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getTierColor(org.subscription_tier)}>
+                    <Badge variant={getTierVariant(org.subscription_tier) as any}>
                       {org.subscription_tier.toUpperCase()}
                     </Badge>
                   </TableCell>
