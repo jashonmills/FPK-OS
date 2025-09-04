@@ -176,6 +176,7 @@ const App: React.FC = () => {
             
             {/* Admin Routes */}
             <Route path="admin" element={<LazyRoute><AdminDashboard /></LazyRoute>} />
+            <Route path="admin/users" element={<LazyRoute><UserManagement /></LazyRoute>} />
             <Route path="admin/organizations" element={<LazyRoute><OrganizationManagement /></LazyRoute>} />
             <Route path="admin/instructors" element={<LazyRoute><InstructorConsole /></LazyRoute>} />
             <Route path="admin/analytics" element={<LazyRoute><Analytics /></LazyRoute>} />
