@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import type { Organization, OrgMember, OrgInvitation, OrgGoal, OrgNote } from '@/types/organization';
+import type { Organization, OrgMember, OrgInvitation, OrgGoal, OrgNote, OrgSubscriptionTier } from '@/types/organization';
 
 export function useOrganizations() {
   const { user } = useAuth();
@@ -85,15 +85,34 @@ export function useCreateOrganization() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (org: Omit<Organization, 'id' | 'created_at' | 'updated_at' | 'seats_used'>) => {
-      if (!user) throw new Error('User not authenticated');
+    mutationFn: async (orgInput: {
+      name: string;
+      description?: string;
+      subscription_tier: OrgSubscriptionTier;
+      seat_limit: number;
+      settings?: Record<string, any>;
+    }) => {
+      // Ensure user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be signed in to create an organization.');
+      }
 
-      // Ensure owner_id is set to current user
+      // Explicitly set owner_id to current user
       const organizationData = {
-        ...org,
-        owner_id: user.id,
-        seats_used: 0,
+        name: orgInput.name,
+        description: orgInput.description,
+        owner_id: user.id, // REQUIRED for RLS policy
+        subscription_tier: orgInput.subscription_tier,
+        seat_limit: orgInput.seat_limit,
+        settings: orgInput.settings || {},
+        is_beta_access: orgInput.subscription_tier === 'beta',
+        beta_expiration_date: orgInput.subscription_tier === 'beta' 
+          ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+          : null,
       };
+
+      console.log('Creating organization with data:', organizationData);
 
       const { data, error } = await supabase
         .from('organizations')
@@ -101,7 +120,12 @@ export function useCreateOrganization() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Organization creation error:', error);
+        throw error;
+      }
+
+      console.log('Organization created successfully:', data);
 
       // Create owner membership record
       const { error: memberError } = await supabase
@@ -131,9 +155,20 @@ export function useCreateOrganization() {
       });
     },
     onError: (error) => {
+      console.error('Organization creation failed:', error);
+      let errorMessage = 'Failed to create organization';
+      
+      if (error.message.includes('row-level security')) {
+        errorMessage = 'Authentication required. Please sign in and try again.';
+      } else if (error.message.includes('You must be signed in')) {
+        errorMessage = 'Please sign in to create an organization.';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: 'Error creating organization',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     },

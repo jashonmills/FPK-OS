@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
 import { useCreateOrganization } from '@/hooks/useOrganization';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { SUBSCRIPTION_TIERS, type OrgSubscriptionTier } from '@/types/organization';
 
 interface CreateOrganizationDialogProps {
@@ -31,17 +32,25 @@ export default function CreateOrganizationDialog({
   const [selectedTier, setSelectedTier] = useState<OrgSubscriptionTier>('basic');
   const createOrgMutation = useCreateOrganization();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) return;
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to create an organization.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       await createOrgMutation.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
-        owner_id: user!.id,
         subscription_tier: selectedTier,
         seat_limit: SUBSCRIPTION_TIERS[selectedTier].seats,
         settings: {},
@@ -53,7 +62,8 @@ export default function CreateOrganizationDialog({
       setSelectedTier('basic');
       onOpenChange(false);
     } catch (error) {
-      // Error handled by mutation
+      // Error handled by mutation onError callback
+      console.error('Organization creation error in component:', error);
     }
   };
 

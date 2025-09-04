@@ -5697,6 +5697,10 @@ export type Database = {
       }
     }
     Functions: {
+      auth_is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       calculate_level_from_xp: {
         Args: { total_xp: number }
         Returns: {
@@ -5880,10 +5884,6 @@ export type Database = {
           p_usage_amount?: number
           p_user_id: string
         }
-        Returns: boolean
-      }
-      user_can_view_org: {
-        Args: { org_id: string }
         Returns: boolean
       }
       user_has_admin_role: {
