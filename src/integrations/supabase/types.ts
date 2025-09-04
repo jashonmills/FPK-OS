@@ -5882,6 +5882,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_can_view_org: {
+        Args: { org_id: string }
+        Returns: boolean
+      }
       user_has_admin_role: {
         Args: Record<PropertyKey, never>
         Returns: boolean
