@@ -28,22 +28,22 @@ interface UseUsersWithMetricsOptions {
 }
 
 export const useUsersWithMetrics = (options: UseUsersWithMetricsOptions = {}) => {
+  const {
+    page = 1,
+    pageSize = 20,
+    search = '',
+    role = 'all',
+    activity = 'all',
+    progressBand = 'all',
+    hasGoals = 'all',
+    sortBy = 'createdAt',
+    sortDir = 'desc'
+  } = options;
+
   return useQuery({
-    queryKey: ['users-with-metrics', options],
+    queryKey: ['users-with-metrics', page, pageSize, search, role, activity, progressBand, hasGoals, sortBy, sortDir],
     queryFn: async () => {
-      console.log('Fetching users with metrics, options:', options);
-      
-      const {
-        page = 1,
-        pageSize = 20,
-        search = '',
-        role = 'all',
-        activity = 'all',
-        progressBand = 'all',
-        hasGoals = 'all',
-        sortBy = 'createdAt',
-        sortDir = 'desc'
-      } = options;
+      console.log('Fetching users with metrics, page:', page, 'pageSize:', pageSize, 'role:', role, 'search:', search);
 
       // Try to call the edge function first
       try {
