@@ -2868,11 +2868,15 @@ export type Database = {
           accepted_at: string | null
           accepted_by: string | null
           created_at: string
+          current_uses: number | null
           email: string | null
           expires_at: string
           id: string
           invitation_code: string | null
+          invitation_link: string | null
           invited_by: string
+          is_active: boolean | null
+          max_uses: number | null
           metadata: Json | null
           organization_id: string
           status: Database["public"]["Enums"]["invitation_status"]
@@ -2882,11 +2886,15 @@ export type Database = {
           accepted_at?: string | null
           accepted_by?: string | null
           created_at?: string
+          current_uses?: number | null
           email?: string | null
           expires_at?: string
           id?: string
           invitation_code?: string | null
+          invitation_link?: string | null
           invited_by: string
+          is_active?: boolean | null
+          max_uses?: number | null
           metadata?: Json | null
           organization_id: string
           status?: Database["public"]["Enums"]["invitation_status"]
@@ -2896,11 +2904,15 @@ export type Database = {
           accepted_at?: string | null
           accepted_by?: string | null
           created_at?: string
+          current_uses?: number | null
           email?: string | null
           expires_at?: string
           id?: string
           invitation_code?: string | null
+          invitation_link?: string | null
           invited_by?: string
+          is_active?: boolean | null
+          max_uses?: number | null
           metadata?: Json | null
           organization_id?: string
           status?: Database["public"]["Enums"]["invitation_status"]
@@ -2918,8 +2930,11 @@ export type Database = {
       }
       org_members: {
         Row: {
+          access_revoked_at: string | null
+          access_revoked_reason: string | null
           created_at: string
           id: string
+          invitation_link: string | null
           invited_by: string | null
           joined_at: string | null
           organization_id: string
@@ -2930,8 +2945,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          access_revoked_at?: string | null
+          access_revoked_reason?: string | null
           created_at?: string
           id?: string
+          invitation_link?: string | null
           invited_by?: string | null
           joined_at?: string | null
           organization_id: string
@@ -2942,8 +2960,11 @@ export type Database = {
           user_id: string
         }
         Update: {
+          access_revoked_at?: string | null
+          access_revoked_reason?: string | null
           created_at?: string
           id?: string
+          invitation_link?: string | null
           invited_by?: string | null
           joined_at?: string | null
           organization_id?: string
@@ -3144,8 +3165,10 @@ export type Database = {
           learning_styles: string[] | null
           line_spacing: number | null
           onboarding_completed: boolean | null
+          pending_role: string | null
           primary_language: string | null
           push_notifications_enabled: boolean | null
+          signup_completed: boolean | null
           speech_to_text_enabled: boolean | null
           text_size: number | null
           time_format: string | null
@@ -3176,8 +3199,10 @@ export type Database = {
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          pending_role?: string | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
+          signup_completed?: boolean | null
           speech_to_text_enabled?: boolean | null
           text_size?: number | null
           time_format?: string | null
@@ -3208,8 +3233,10 @@ export type Database = {
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          pending_role?: string | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
+          signup_completed?: boolean | null
           speech_to_text_enabled?: boolean | null
           text_size?: number | null
           time_format?: string | null
@@ -5727,6 +5754,10 @@ export type Database = {
       }
       generate_invitation_code: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_invitation_link: {
+        Args: { org_id: string }
         Returns: string
       }
       generate_scorm_package_slug: {
