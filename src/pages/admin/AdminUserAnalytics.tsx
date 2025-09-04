@@ -20,6 +20,9 @@ import RouteBoundary from '@/components/RouteBoundary';
 import { useUser } from '@/hooks/useUser';
 import RequireAdmin from '@/components/guards/RequireAdmin';
 import { getRoleBadgeVariant } from '@/types/user';
+import { useUserReadingAnalytics } from '@/hooks/useUserReadingAnalytics';
+import { useUserChatAnalytics } from '@/hooks/useUserChatAnalytics';
+import { useUserGoalsAnalytics } from '@/hooks/useUserGoalsAnalytics';
 
 // Import analytics components
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
@@ -71,6 +74,11 @@ const AdminUserAnalytics = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const { user: targetUser, isLoading: userLoading } = useUser(userId);
+  
+  // Get analytics data
+  const { data: readingAnalytics } = useUserReadingAnalytics(userId);
+  const { data: chatAnalytics } = useUserChatAnalytics(userId);
+  const { data: goalsAnalytics } = useUserGoalsAnalytics(userId);
 
   if (!userId) {
     return (
@@ -199,32 +207,32 @@ const AdminUserAnalytics = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
-                    <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">
-                        {targetUser.roles.length}
-                      </div>
-                      <p className="text-xs text-gray-500">Active Roles</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
-                        0h
-                      </div>
-                      <p className="text-xs text-gray-500">Hours Learned</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">
-                        0
-                      </div>
-                      <p className="text-xs text-gray-500">Enrollments</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600 mb-1">
-                        0
-                      </div>
-                      <p className="text-xs text-gray-500">Goals Met</p>
-                    </div>
-                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                     <div className="text-center">
+                       <div className="text-2xl font-bold text-blue-600 mb-1">
+                         {readingAnalytics?.totalSessions || 0}
+                       </div>
+                       <p className="text-xs text-gray-500">Reading Sessions</p>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-2xl font-bold text-green-600 mb-1">
+                         {Math.floor((readingAnalytics?.totalDurationMinutes || 0) / 60)}h
+                       </div>
+                       <p className="text-xs text-gray-500">Reading Time</p>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-2xl font-bold text-purple-600 mb-1">
+                         {chatAnalytics?.totalSessions || 0}
+                       </div>
+                       <p className="text-xs text-gray-500">Chat Sessions</p>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-2xl font-bold text-orange-600 mb-1">
+                         {goalsAnalytics?.completedGoals || 0}
+                       </div>
+                       <p className="text-xs text-gray-500">Goals Completed</p>
+                     </div>
+                     </div>
                   </CardContent>
                 </Card>
               </div>
@@ -233,7 +241,7 @@ const AdminUserAnalytics = () => {
 
           <TabsContent value="reading" className="mt-6">
             <RouteBoundary>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -243,11 +251,14 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+                      <div className="text-3xl font-bold text-blue-600 mb-2">
+                        {readingAnalytics?.totalSessions || 0}
+                      </div>
                       <p className="text-sm text-muted-foreground">Total reading sessions</p>
                     </div>
                   </CardContent>
                 </Card>
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -257,18 +268,59 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-green-600 mb-2">0h</div>
+                      <div className="text-3xl font-bold text-green-600 mb-2">
+                        {Math.floor((readingAnalytics?.totalDurationMinutes || 0) / 60)}h {((readingAnalytics?.totalDurationMinutes || 0) % 60)}m
+                      </div>
                       <p className="text-sm text-muted-foreground">Total time spent reading</p>
                     </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-purple-600" />
+                      Books Read
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        {readingAnalytics?.booksRead || 0}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Unique books accessed</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Reading Sessions */}
+                {readingAnalytics?.recentSessions && readingAnalytics.recentSessions.length > 0 && (
+                  <Card className="xl:col-span-3">
+                    <CardHeader>
+                      <CardTitle>Recent Reading Sessions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {readingAnalytics.recentSessions.map((session) => (
+                          <div key={session.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                            <div>
+                              <p className="font-medium">{session.bookTitle}</p>
+                              <p className="text-sm text-muted-foreground">{session.date}</p>
+                            </div>
+                            <Badge variant="secondary">{session.duration}min</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </RouteBoundary>
           </TabsContent>
 
           <TabsContent value="ai-coach" className="mt-6">
             <RouteBoundary>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -278,11 +330,14 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        {chatAnalytics?.totalSessions || 0}
+                      </div>
                       <p className="text-sm text-muted-foreground">Total AI coach sessions</p>
                     </div>
                   </CardContent>
                 </Card>
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -292,18 +347,79 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
+                      <div className="text-3xl font-bold text-orange-600 mb-2">
+                        {chatAnalytics?.totalMessages || 0}
+                      </div>
                       <p className="text-sm text-muted-foreground">Messages to AI coach</p>
                     </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-green-600" />
+                      Avg Messages/Session
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-green-600 mb-2">
+                        {chatAnalytics?.averageMessagesPerSession || 0}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Average per session</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Chat Sessions */}
+                {chatAnalytics?.recentSessions && chatAnalytics.recentSessions.length > 0 && (
+                  <Card className="xl:col-span-3">
+                    <CardHeader>
+                      <CardTitle>Recent Chat Sessions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {chatAnalytics.recentSessions.map((session) => (
+                          <div key={session.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                            <div>
+                              <p className="font-medium">{session.title}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {session.context} • {session.lastActivity}
+                              </p>
+                            </div>
+                            <Badge variant="secondary">{session.messageCount} messages</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Top Topics */}
+                {chatAnalytics?.topTopics && chatAnalytics.topTopics.length > 0 && (
+                  <Card className="xl:col-span-3">
+                    <CardHeader>
+                      <CardTitle>Popular Discussion Topics</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {chatAnalytics.topTopics.map((topic, index) => (
+                          <Badge key={topic} variant={index < 2 ? "default" : "secondary"}>
+                            {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </RouteBoundary>
           </TabsContent>
 
           <TabsContent value="goals" className="mt-6">
             <RouteBoundary>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -313,11 +429,14 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+                      <div className="text-3xl font-bold text-blue-600 mb-2">
+                        {goalsAnalytics?.activeGoals || 0}
+                      </div>
                       <p className="text-sm text-muted-foreground">Currently active goals</p>
                     </div>
                   </CardContent>
                 </Card>
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -327,11 +446,14 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-green-600 mb-2">0</div>
+                      <div className="text-3xl font-bold text-green-600 mb-2">
+                        {goalsAnalytics?.completedGoals || 0}
+                      </div>
                       <p className="text-sm text-muted-foreground">Successfully completed</p>
                     </div>
                   </CardContent>
                 </Card>
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -341,11 +463,71 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <div className="text-3xl font-bold text-purple-600 mb-2">0%</div>
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        {goalsAnalytics?.completionRate || 0}%
+                      </div>
                       <p className="text-sm text-muted-foreground">Goal completion rate</p>
                     </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-orange-600" />
+                      Total Goals
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-orange-600 mb-2">
+                        {goalsAnalytics?.totalGoals || 0}
+                      </div>
+                      <p className="text-sm text-muted-foreground">All time goals</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Goals */}
+                {goalsAnalytics?.recentGoals && goalsAnalytics.recentGoals.length > 0 && (
+                  <Card className="xl:col-span-4">
+                    <CardHeader>
+                      <CardTitle>Recent Goals</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {goalsAnalytics.recentGoals.slice(0, 5).map((goal) => (
+                          <div key={goal.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                            <div className="flex-1">
+                              <p className="font-medium">{goal.title}</p>
+                              <div className="flex items-center gap-4 mt-1">
+                                <Badge variant={
+                                  goal.status === 'completed' ? 'default' : 
+                                  goal.status === 'active' ? 'secondary' : 'outline'
+                                }>
+                                  {goal.status}
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  Progress: {goal.progress}%
+                                </span>
+                                {goal.dueDate && (
+                                  <span className="text-sm text-muted-foreground">
+                                    Due: {goal.dueDate}
+                                  </span>
+                                )}
+                                {goal.completedAt && (
+                                  <span className="text-sm text-muted-foreground">
+                                    Completed: {goal.completedAt}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </RouteBoundary>
           </TabsContent>

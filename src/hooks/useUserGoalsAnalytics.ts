@@ -33,7 +33,7 @@ export const useUserGoalsAnalytics = (userId?: string) => {
           status,
           progress,
           category,
-          due_date,
+          target_date,
           completed_at,
           created_at
         `)
@@ -63,7 +63,7 @@ export const useUserGoalsAnalytics = (userId?: string) => {
         title: goal.title || 'Untitled Goal',
         status: goal.status,
         progress: goal.progress || 0,
-        dueDate: goal.due_date ? new Date(goal.due_date).toLocaleDateString() : undefined,
+        dueDate: goal.target_date ? new Date(goal.target_date).toLocaleDateString() : undefined,
         completedAt: goal.completed_at ? new Date(goal.completed_at).toLocaleDateString() : undefined
       }));
 

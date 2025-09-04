@@ -28,7 +28,8 @@ export const useUserReadingAnalytics = (userId?: string) => {
           duration_seconds,
           session_start,
           session_end,
-          book_title,
+          book_id,
+          book_category,
           created_at
         `)
         .eq('user_id', userId)
@@ -47,13 +48,13 @@ export const useUserReadingAnalytics = (userId?: string) => {
 
       // Count unique books
       const uniqueBooks = new Set(
-        readingSessions?.map(session => session.book_title).filter(Boolean) || []
+        readingSessions?.map(session => session.book_id).filter(Boolean) || []
       ).size;
 
       // Format recent sessions
       const recentSessions = (readingSessions?.slice(0, 5) || []).map(session => ({
         id: session.id,
-        bookTitle: session.book_title || 'Unknown Book',
+        bookTitle: session.book_id || 'Unknown Book',
         duration: Math.round((session.duration_seconds || 0) / 60),
         date: new Date(session.session_start).toLocaleDateString()
       }));
