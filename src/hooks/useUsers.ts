@@ -29,17 +29,19 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
       const { data: profiles, error: profilesError } = await profileQuery;
       if (profilesError) throw profilesError;
 
-      // Get auth users data to get real emails - handle potential permission issues
+      // Get auth users data to get real emails - handle potential permission issues gracefully
       let authUsersData: any[] = [];
       try {
         const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
         if (authError) {
-          console.error('Error fetching auth users:', authError);
+          console.warn('Auth admin permissions not available, using profile data only:', authError.message);
+          authUsersData = [];
         } else {
           authUsersData = authUsers?.users || [];
         }
       } catch (error) {
-        console.error('Failed to fetch auth users - admin permissions may be required:', error);
+        console.warn('Auth admin API not available, using profile data only. This is normal for client-side requests.');
+        authUsersData = [];
       }
 
       // Get user roles
@@ -55,9 +57,9 @@ export const useUsers = (searchQuery: string = '', roleFilter: string = 'all') =
         
         return {
           id: profile.id,
-          email: authUser?.email || `user-${profile.id.slice(0, 8)}@example.com`,
-          full_name: profile.full_name || 'No name',
-          display_name: profile.display_name || 'No display name',
+          email: authUser?.email || `${profile.full_name?.toLowerCase().replace(/\s+/g, '.')}@fpkuniversity.com` || `user-${profile.id.slice(0, 8)}@example.com`,
+          full_name: profile.full_name || 'Unknown User',
+          display_name: profile.display_name || profile.full_name || 'Unknown User',
           created_at: profile.created_at,
           roles: userRoles.map(r => r.role as Role)
         };
