@@ -1,4 +1,4 @@
-export type OrgSubscriptionTier = 'basic' | 'standard' | 'premium';
+export type OrgSubscriptionTier = 'basic' | 'standard' | 'premium' | 'beta';
 export type NoteVisibilityScope = 'student-only' | 'instructor-visible' | 'org-public';
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'expired';
 export type MemberRole = 'owner' | 'instructor' | 'student';
@@ -13,6 +13,8 @@ export interface Organization {
   seat_limit: number;
   seats_used: number;
   settings: Record<string, any>;
+  beta_expiration_date?: string;
+  is_beta_access?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -125,5 +127,12 @@ export const SUBSCRIPTION_TIERS = {
     seats: 25,
     price: 149,
     features: ['Up to 25+ students', 'Full analytics suite', 'Custom reporting', 'Priority support']
+  },
+  beta: {
+    name: 'Beta (Free)',
+    seats: 50,
+    price: 0,
+    isBeta: true,
+    features: ['Up to 50+ students (Beta)', 'Full analytics suite', 'Custom reporting', 'Priority support', 'Early access features', 'Free during beta period']
   }
 } as const;

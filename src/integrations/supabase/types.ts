@@ -5901,7 +5901,7 @@ export type Database = {
         | "student-only"
         | "instructor-visible"
         | "org-public"
-      org_subscription_tier: "basic" | "standard" | "premium"
+      org_subscription_tier: "basic" | "standard" | "premium" | "beta"
       package_status: "uploading" | "parsing" | "ready" | "error" | "archived"
       scorm_standard: "SCORM 1.2" | "SCORM 2004"
       subscription_status:
@@ -6062,7 +6062,7 @@ export const Constants = {
         "instructor-visible",
         "org-public",
       ],
-      org_subscription_tier: ["basic", "standard", "premium"],
+      org_subscription_tier: ["basic", "standard", "premium", "beta"],
       package_status: ["uploading", "parsing", "ready", "error", "archived"],
       scorm_standard: ["SCORM 1.2", "SCORM 2004"],
       subscription_status: [

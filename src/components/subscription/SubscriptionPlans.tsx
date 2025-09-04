@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Check, Loader2, DollarSign, Euro } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useOrganizations } from '@/hooks/useOrganizations';
 import { useToast } from '@/hooks/use-toast';
 
 // Beta mode flag - set to false to re-enable subscription buttons post-beta
@@ -18,11 +19,12 @@ interface PlanType {
   monthly: number;
   annual: number;
   popular?: boolean;
+  isBeta?: boolean;
   features: string[];
 }
 
 // Organization subscription plans
-const ORG_PLANS: Record<'basic' | 'standard' | 'premium', PlanType> = {
+const ORG_PLANS: Record<'basic' | 'standard' | 'premium' | 'beta', PlanType> = {
   basic: {
     name: 'FPK Instructor Basic',
     badge: 'Up to 3 Students',
@@ -69,6 +71,25 @@ const ORG_PLANS: Record<'basic' | 'standard' | 'premium', PlanType> = {
       'Advanced reporting',
       'Dedicated support',
       'Early access features'
+    ]
+  },
+  beta: {
+    name: 'FPK Beta Access',
+    badge: 'Up to 50+ Students (FREE)',
+    monthly: 0,
+    annual: 0,
+    isBeta: true,
+    features: [
+      'Up to 50+ students (Beta)',
+      'Full analytics suite',
+      'White-label options',
+      'API access',
+      'Custom integrations',
+      'Advanced reporting',
+      'Dedicated support',
+      'Early access features',
+      '🆓 Free during beta period',
+      '⏰ Limited time offer'
     ]
   }
 };
@@ -180,6 +201,38 @@ export function SubscriptionPlans() {
     }
   };
 
+  const handleOrgSubscribe = async (tier: 'basic' | 'standard' | 'premium' | 'beta') => {
+    try {
+      setLoading(tier);
+      
+      if (tier === 'beta') {
+        // For beta tier, show success message and redirect to organization creation
+        toast({
+          title: "Beta Access Granted!",
+          description: "You now have access to all Premium features for free during the beta period.",
+        });
+        // Here you would typically redirect to organization creation
+        // For now, we'll just show the success message
+        return;
+      }
+
+      // For paid tiers, handle normal checkout process
+      // This would need to be implemented with organization-specific checkout
+      toast({
+        title: "Coming Soon",
+        description: "Organization subscriptions will be available soon!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to process subscription",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const getDiscountPercentage = (tier: 'calm' | 'me' | 'us' | 'universal') => {
     if (tier === 'calm') return 0;
     if (tier === 'me') return 10;
@@ -281,11 +334,22 @@ export function SubscriptionPlans() {
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;
           
           return (
-            <Card key={tier} className={`relative ${plan.popular ? 'ring-2 ring-primary border-primary shadow-lg' : ''}`}>
+            <Card key={tier} className={`relative ${
+              plan.popular ? 'ring-2 ring-primary border-primary shadow-lg' : ''
+            } ${
+              plan.isBeta ? 'ring-2 ring-gradient-to-r from-purple-500 to-pink-500 border-purple-500 shadow-xl bg-gradient-to-br from-purple-50 to-pink-50' : ''
+            }`}>
               {plan.popular && (
                 <div className="absolute -top-2 -right-2 z-10">
                   <Badge className="bg-primary text-primary-foreground font-medium px-2 py-1 text-xs shadow-md rounded-full">
                     ⭐ Popular
+                  </Badge>
+                </div>
+              )}
+              {plan.isBeta && (
+                <div className="absolute -top-2 -left-2 z-10">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold px-3 py-1 text-xs shadow-lg rounded-full animate-pulse">
+                    🚀 BETA
                   </Badge>
                 </div>
               )}
@@ -331,23 +395,64 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => IS_BETA_MODE || tier === 'calm' ? null : handleSubscribe(tier as 'me' | 'us' | 'universal')}
-                  disabled={IS_BETA_MODE || tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)}
-                  variant={plan.popular ? 'default' : tier === 'calm' ? 'outline' : 'outline'}
+                  onClick={() => {
+                    if (planType === 'organization') {
+                      if (plan.isBeta || !IS_BETA_MODE) {
+                        handleOrgSubscribe(tier as 'basic' | 'standard' | 'premium' | 'beta');
+                      }
+                    } else {
+                      if (!IS_BETA_MODE && tier !== 'calm') {
+                        handleSubscribe(tier as 'me' | 'us' | 'universal');
+                      }
+                    }
+                  }}
+                  disabled={
+                    planType === 'organization' 
+                      ? (!plan.isBeta && IS_BETA_MODE) || loading === tier
+                      : IS_BETA_MODE || tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)
+                  }
+                  variant={
+                    plan.popular ? 'default' : 
+                    plan.isBeta ? 'default' : 
+                    tier === 'calm' ? 'outline' : 
+                    'outline'
+                  }
                 >
-                  {IS_BETA_MODE ? (
-                    'Beta Access Only'
-                  ) : tier === 'calm' ? (
-                    'Current Plan'
-                  ) : loading === tier ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : subscription.subscribed && subscription.subscription_tier === tier ? (
-                    'Current Plan'
+                  {planType === 'organization' ? (
+                    plan.isBeta ? (
+                      loading === tier ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Start Beta Access'
+                      )
+                    ) : IS_BETA_MODE ? (
+                      'Coming Soon'
+                    ) : loading === tier ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Subscribe to ${plan.badge}`
+                    )
                   ) : (
-                    `Subscribe to ${plan.badge}`
+                    IS_BETA_MODE ? (
+                      'Beta Access Only'
+                    ) : tier === 'calm' ? (
+                      'Current Plan'
+                    ) : loading === tier ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : subscription.subscribed && subscription.subscription_tier === tier ? (
+                      'Current Plan'
+                    ) : (
+                      `Subscribe to ${plan.badge}`
+                    )
                   )}
                 </Button>
               </CardFooter>
