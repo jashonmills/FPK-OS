@@ -3,10 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import { User, Role, AVAILABLE_ROLES, getRoleBadgeVariant } from '@/types/user';
 import { Plus, X, BarChart3 } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UsersTableProps {
   users: User[];
@@ -19,6 +21,7 @@ interface UsersTableProps {
 export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isRemoving }: UsersTableProps) {
   const { getAccessibilityClasses } = useAccessibility();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleRoleAssign = (userId: string, roleValue: string) => {
     if (AVAILABLE_ROLES.includes(roleValue as Role)) {
@@ -31,6 +34,87 @@ export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isR
   
   console.log('📊 UsersTable: Applied accessibility classes:', { tableClasses, textClasses });
 
+  // Mobile card layout
+  if (isMobile) {
+    return (
+      <div className={`${tableClasses} accessibility-mobile-override space-y-4`}>
+        {users.map((user) => (
+          <Card key={user.id} className="w-full">
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                {/* User Info */}
+                <div>
+                  <div className={`font-medium ${textClasses} text-base`}>{user.full_name}</div>
+                  <div className={`text-sm text-muted-foreground ${textClasses}`}>{user.display_name}</div>
+                  <div className={`text-sm text-muted-foreground ${textClasses}`}>{user.email}</div>
+                  <div className={`text-xs text-muted-foreground ${textClasses} mt-1`}>
+                    Created: {new Date(user.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+
+                {/* Roles */}
+                <div>
+                  <div className={`text-sm font-medium ${textClasses} mb-2`}>Roles</div>
+                  <div className="flex flex-wrap gap-2">
+                    {user.roles.map((role) => (
+                      <div key={role} className="flex items-center gap-1">
+                        <Badge variant={getRoleBadgeVariant(role)} className={`${textClasses} text-xs`}>
+                          {role}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0"
+                          onClick={() => onRemoveRole(user.id, role)}
+                          disabled={isRemoving}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-3">
+                  <div>
+                    <div className={`text-sm font-medium ${textClasses} mb-2`}>Add Role</div>
+                    <Select onValueChange={(value) => handleRoleAssign(user.id, value)}>
+                      <SelectTrigger className={`w-full ${textClasses}`}>
+                        <SelectValue placeholder="Select role to add" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABLE_ROLES.filter(role => !user.roles.includes(role)).map((role) => (
+                          <SelectItem key={role} value={role} className={textClasses}>
+                            <div className="flex items-center gap-2">
+                              <Plus className="h-3 w-3" />
+                              {role}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/dashboard/admin/users/${user.id}/analytics`)}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    View Analytics
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop table layout
   return (
     <div className={`${tableClasses} accessibility-mobile-override`}>
       <div className="min-w-full">
