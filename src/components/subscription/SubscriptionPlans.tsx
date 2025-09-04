@@ -21,6 +21,58 @@ interface PlanType {
   features: string[];
 }
 
+// Organization subscription plans
+const ORG_PLANS: Record<'basic' | 'standard' | 'premium', PlanType> = {
+  basic: {
+    name: 'FPK Instructor Basic',
+    badge: 'Up to 3 Students',
+    monthly: 29,
+    annual: 290,
+    features: [
+      'Up to 3 students',
+      'Basic analytics',
+      'Goal tracking',
+      'Note management',
+      'Student progress reports',
+      'Course assignments',
+      'Email support'
+    ]
+  },
+  standard: {
+    name: 'FPK Instructor Standard', 
+    badge: 'Up to 10 Students',
+    monthly: 79,
+    annual: 790,
+    popular: true,
+    features: [
+      'Up to 10 students',
+      'Advanced analytics',
+      'Bulk operations',
+      'Custom reporting',
+      'Student portfolios',
+      'Assignment grading',
+      'Video conferencing',
+      'Priority support'
+    ]
+  },
+  premium: {
+    name: 'FPK Instructor Premium',
+    badge: 'Up to 25+ Students',
+    monthly: 149,
+    annual: 1490,
+    features: [
+      'Up to 25+ students',
+      'Full analytics suite',
+      'White-label options',
+      'API access',
+      'Custom integrations',
+      'Advanced reporting',
+      'Dedicated support',
+      'Early access features'
+    ]
+  }
+};
+
 const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
   calm: {
     name: 'FPK Calm',
@@ -106,6 +158,7 @@ export function SubscriptionPlans() {
   const [isEuro, setIsEuro] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
+  const [planType, setPlanType] = useState<'individual' | 'organization'>('individual');
   const { subscription, createCheckout } = useSubscription();
   const { toast } = useToast();
 
@@ -161,8 +214,22 @@ export function SubscriptionPlans() {
         </div>
       )}
 
-      {/* Currency and Billing Toggle */}
+      {/* Plan Type Toggle */}
       <div className="flex flex-col items-center space-y-4">
+        {/* Individual vs Organization Toggle */}
+        <div className="flex items-center space-x-4">
+          <Label className="flex items-center">
+            Individual Plans
+          </Label>
+          <Switch
+            checked={planType === 'organization'}
+            onCheckedChange={(checked) => setPlanType(checked ? 'organization' : 'individual')}
+          />
+          <Label className="flex items-center">
+            Organization Plans
+          </Label>
+        </div>
+
         {/* Currency Toggle */}
         <div className="flex items-center space-x-4">
           <Label className="flex items-center">
@@ -207,8 +274,8 @@ export function SubscriptionPlans() {
 
       {/* Pricing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Object.entries(PLANS).map(([key, plan]) => {
-          const tier = key as 'calm' | 'me' | 'us' | 'universal';
+        {Object.entries(planType === 'organization' ? ORG_PLANS : PLANS).map(([key, plan]) => {
+          const tier = key as any;
           const price = isAnnual ? plan.annual : plan.monthly;
           const monthlyPrice = isAnnual ? price / 12 : price;
           const discount = isAnnual ? getDiscountPercentage(tier) : 0;

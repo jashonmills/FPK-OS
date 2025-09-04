@@ -32,7 +32,9 @@ import {
   Target,
   MessageSquare,
   Package,
-  FolderOpen
+  FolderOpen,
+  Building2,
+  FileText
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -134,19 +136,44 @@ export function AppSidebar() {
       icon: Shield,
     },
     {
+      title: 'User Management',
+      url: "/dashboard/admin/users",
+      icon: Users,
+    },
+    {
+      title: 'Organization Management',
+      url: "/dashboard/admin/organizations",
+      icon: Building2,
+    },
+    {
+      title: 'Instructor Console',
+      url: "/dashboard/admin/instructors",
+      icon: GraduationCap,
+    },
+    {
       title: 'Course Manager',
       url: "/dashboard/admin/courses",
-      icon: GraduationCap,
+      icon: Book,
     },
     {
       title: 'Module Manager',
       url: "/dashboard/admin/modules",
-      icon: Book,
+      icon: BookOpen,
     },
     {
-      title: 'User Management',
-      url: "/dashboard/admin/users",
-      icon: Users,
+      title: 'SCORM Packages',
+      url: "/dashboard/admin/scorm",
+      icon: Package,
+    },
+    {
+      title: 'Analytics',
+      url: "/dashboard/admin/analytics",
+      icon: BarChart,
+    },
+    {
+      title: 'Threshold Management',
+      url: "/dashboard/admin/thresholds",
+      icon: Settings,
     },
     {
       title: 'Beta Management',
@@ -158,6 +185,11 @@ export function AppSidebar() {
       url: "https://themed-course-compass.lovable.app/dashboard/admin/course-builder",
       icon: Book,
       isExternal: true,
+    },
+    {
+      title: 'Audit Logs',
+      url: "/dashboard/admin/audit",
+      icon: FileText,
     },
   ];
 

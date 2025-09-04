@@ -1,14 +1,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CreditCard, Calendar, AlertCircle } from 'lucide-react';
+import { Loader2, CreditCard, Calendar, AlertCircle, Users, Building2 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useOrganizations } from '@/hooks/useOrganization';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export function SubscriptionStatus() {
   const { subscription, isLoading, openCustomerPortal, refreshSubscription } = useSubscription();
+  const { user } = useAuth();
+  const { data: organizations } = useOrganizations();
   const { toast } = useToast();
+
+  // Find user's owned organization
+  const ownedOrg = organizations?.find(org => org.owner_id === user?.id);
 
   const handleManageSubscription = async () => {
     try {
@@ -69,60 +76,105 @@ export function SubscriptionStatus() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center">
-            <CreditCard className="h-5 w-5 mr-2" />
-            Subscription Status
-          </div>
+    <div className="space-y-4">
+      {/* Individual Subscription */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center">
+              <CreditCard className="h-5 w-5 mr-2" />
+              Individual Subscription
+            </div>
+            <div className="flex gap-2">
+              <Badge className={getTierColor(subscription.subscription_tier)}>
+                {subscription.subscription_tier?.toUpperCase() || 'UNKNOWN'}
+              </Badge>
+              <Badge className={getStatusColor(subscription.subscription_status)}>
+                {subscription.subscription_status?.toUpperCase() || 'UNKNOWN'}
+              </Badge>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          {subscription.subscription_end && (
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span className="text-sm">
+                {subscription.cancel_at_period_end ? 'Expires on' : 'Renews on'}: {' '}
+                <strong>{format(new Date(subscription.subscription_end), 'PPP')}</strong>
+              </span>
+            </div>
+          )}
+
+          {subscription.cancel_at_period_end && (
+            <div className="p-3 bg-orange-50 border border-orange-200 rounded-md">
+              <p className="text-sm text-orange-800">
+                Your subscription is set to cancel at the end of the current period.
+              </p>
+            </div>
+          )}
+
+          {subscription.source === 'coupon' && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-800">
+                You're using free access from a redeemed coupon code.
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-2">
-            <Badge className={getTierColor(subscription.subscription_tier)}>
-              {subscription.subscription_tier?.toUpperCase() || 'UNKNOWN'}
-            </Badge>
-            <Badge className={getStatusColor(subscription.subscription_status)}>
-              {subscription.subscription_status?.toUpperCase() || 'UNKNOWN'}
-            </Badge>
+            <Button onClick={handleManageSubscription} variant="outline">
+              Manage Subscription
+            </Button>
+            <Button onClick={refreshSubscription} variant="ghost" size="sm">
+              Refresh Status
+            </Button>
           </div>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {subscription.subscription_end && (
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-            <span className="text-sm">
-              {subscription.cancel_at_period_end ? 'Expires on' : 'Renews on'}: {' '}
-              <strong>{format(new Date(subscription.subscription_end), 'PPP')}</strong>
-            </span>
-          </div>
-        )}
+        </CardContent>
+      </Card>
 
-        {subscription.cancel_at_period_end && (
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-md">
-            <p className="text-sm text-orange-800">
-              Your subscription is set to cancel at the end of the current period.
-            </p>
-          </div>
-        )}
+      {/* Organization Subscription */}
+      {ownedOrg && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Building2 className="h-5 w-5 mr-2" />
+                Organization Subscription
+              </div>
+              <div className="flex gap-2">
+                <Badge className="bg-blue-500">
+                  {ownedOrg.subscription_tier?.toUpperCase()}
+                </Badge>
+              </div>
+            </CardTitle>
+            <CardDescription>
+              {ownedOrg.name}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="text-sm">Seat Usage</span>
+              </div>
+              <Badge variant="outline">
+                {ownedOrg.seats_used}/{ownedOrg.seat_limit} seats
+              </Badge>
+            </div>
 
-        {subscription.source === 'coupon' && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-800">
-              You're using free access from a redeemed coupon code.
-            </p>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Button onClick={handleManageSubscription} variant="outline">
-            Manage Subscription
-          </Button>
-          <Button onClick={refreshSubscription} variant="ghost" size="sm">
-            Refresh Status
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            {ownedOrg.seats_used >= ownedOrg.seat_limit && (
+              <div className="p-3 bg-orange-50 border border-orange-200 rounded-md">
+                <p className="text-sm text-orange-800">
+                  You've reached your seat limit. Upgrade to add more students.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

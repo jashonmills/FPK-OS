@@ -58,6 +58,8 @@ const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
+const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
+const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
@@ -174,11 +176,13 @@ const App: React.FC = () => {
             
             {/* Admin Routes */}
             <Route path="admin" element={<LazyRoute><AdminDashboard /></LazyRoute>} />
-            <Route path="admin/users" element={<LazyRoute><UserManagement /></LazyRoute>} />
-            <Route path="admin/courses" element={<LazyRoute><CourseManager /></LazyRoute>} />
+            <Route path="admin/organizations" element={<LazyRoute><OrganizationManagement /></LazyRoute>} />
+            <Route path="admin/instructors" element={<LazyRoute><InstructorConsole /></LazyRoute>} />
             <Route path="admin/analytics" element={<LazyRoute><Analytics /></LazyRoute>} />
+            <Route path="admin/courses" element={<LazyRoute><CourseManager /></LazyRoute>} />
+            <Route path="admin/scorm" element={<LazyRoute><ScormPackages /></LazyRoute>} />
             <Route path="admin/modules" element={<LazyRoute><ModuleManagerPage /></LazyRoute>} />
-            <Route path="admin/courses/:slug/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
+            <Route path="admin/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
             <Route path="admin/thresholds" element={<LazyRoute><ThresholdManagement /></LazyRoute>} />
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             
