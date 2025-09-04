@@ -11,10 +11,14 @@ import { UsersTable } from '@/components/admin/UsersTable';
 import { AVAILABLE_ROLES } from '@/types/user';
 
 const UserManagement = () => {
+  console.log('🔧 UserManagement: Component rendering');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   
   const { users, isLoading, error, assignRole, removeRole, isAssigning, isRemoving } = useUsers(searchQuery, roleFilter);
+  
+  console.log('🔧 UserManagement: Hook results', { users, isLoading, error, usersLength: users?.length });
 
   if (error) {
     return (
