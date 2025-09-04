@@ -154,7 +154,7 @@ export const EnhancedUsersTable: React.FC<EnhancedUsersTableProps> = ({
     const diffDays = (now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24);
     
     if (diffDays > 30) {
-      return <AlertTriangle className="h-4 w-4 text-orange-500" title="No activity in 30+ days" />;
+      return <AlertTriangle className="h-4 w-4 text-orange-500" />;
     }
     return null;
   };

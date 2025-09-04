@@ -138,9 +138,16 @@ export const useUsersWithMetrics = (options: UseUsersWithMetricsOptions = {}) =>
             ]);
 
             const lastActivities = activitySources
-              .map(result => result.data?.created_at || result.data?.updated_at || result.data?.session_start)
+              .map(result => {
+                const data = result.data;
+                if (!data) return null;
+                if ('created_at' in data) return data.created_at;
+                if ('updated_at' in data) return data.updated_at;
+                if ('session_start' in data) return data.session_start;
+                return null;
+              })
               .filter(Boolean)
-              .map(date => new Date(date))
+              .map(date => new Date(date as string))
               .sort((a, b) => b.getTime() - a.getTime());
 
             const lastActiveAt = lastActivities.length > 0 ? lastActivities[0].toISOString() : null;
@@ -160,9 +167,10 @@ export const useUsersWithMetrics = (options: UseUsersWithMetricsOptions = {}) =>
               .select('progress')
               .eq('user_id', profile.id);
 
-            const progressValues = enrollments?.map(e => 
-              e.progress?.completion_percentage || 0
-            ).filter(p => p > 0) || [];
+            const progressValues = enrollments?.map(e => {
+              const progress = e.progress as any;
+              return progress?.completion_percentage || 0;
+            }).filter(p => p > 0) || [];
 
             const avgProgressPercent = progressValues.length > 0 
               ? Math.round(progressValues.reduce((sum, p) => sum + p, 0) / progressValues.length)

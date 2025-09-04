@@ -106,21 +106,10 @@ export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({
           .ilike('full_name', `%${data.ownerEmail.split('@')[0]}%`)
           .limit(5);
 
-        // Try to get user by email from auth
-        try {
-          const { data: authUsers } = await supabase.auth.admin.listUsers();
-          const authUser = authUsers?.users?.find(u => u.email === data.ownerEmail);
-          if (authUser) {
-            ownerId = authUser.id;
-          }
-        } catch (error) {
-          console.warn('Could not search auth users:', error);
-        }
-
-        if (!ownerId && profiles && profiles.length > 0) {
-          // If we can't find by email, suggest the closest match
-          const closestMatch = profiles[0];
-          throw new Error(`User not found with email ${data.ownerEmail}. Did you mean ${closestMatch.full_name}?`);
+        if (profiles && profiles.length > 0) {
+          ownerId = profiles[0].id;
+        } else {
+          throw new Error(`No user found matching email ${data.ownerEmail}. User must have an existing profile in the system.`);
         }
       }
 
@@ -128,10 +117,9 @@ export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({
       const orgData = {
         name: data.name,
         description: data.description || null,
-        subscription_tier: data.subscriptionTier,
+        subscription_tier: data.subscriptionTier as 'basic' | 'standard' | 'premium' | 'beta',
         seat_limit: seatLimit,
         seats_used: 0,
-        is_beta: data.subscriptionTier === 'beta',
         owner_id: ownerId
       };
 
