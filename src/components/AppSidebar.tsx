@@ -38,6 +38,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAppUser } from "@/hooks/useAppUser";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 
@@ -47,6 +48,7 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const { isAdmin } = useAppUser();
+  const { isInstructor, isLearner } = useUserRole();
   const { t, tString } = useGlobalTranslation();
 
   const learnerMenuItems = [
@@ -94,6 +96,34 @@ export function AppSidebar() {
       title: 'Notes',
       url: "/dashboard/learner/notes",
       icon: StickyNote,
+    },
+  ];
+
+  const instructorMenuItems = [
+    {
+      title: 'Students',
+      url: "/dashboard/instructor#students",
+      icon: Users,
+    },
+    {
+      title: 'Courses',
+      url: "/dashboard/instructor#courses",
+      icon: Book,
+    },
+    {
+      title: 'Goals',
+      url: "/dashboard/instructor#goals",
+      icon: Target,
+    },
+    {
+      title: 'Notes',
+      url: "/dashboard/instructor#notes",
+      icon: StickyNote,
+    },
+    {
+      title: 'Analytics',
+      url: "/dashboard/instructor#analytics",
+      icon: BarChart,
     },
   ];
 
@@ -212,8 +242,9 @@ export function AppSidebar() {
           <div>
             <h2 className="font-bold text-sidebar-foreground">FPK University</h2>
             <p className="text-xs text-sidebar-foreground/70">
-              Learner Portal
+              {isAdmin ? 'Admin Portal' : isInstructor ? 'Instructor Portal' : 'Learner Portal'}
               {isAdmin && <span className="ml-1 text-amber-500">(Admin)</span>}
+              {isInstructor && !isAdmin && <span className="ml-1 text-blue-500">(Instructor)</span>}
             </p>
           </div>
         </div>
@@ -261,6 +292,39 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {scormMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`w-full transition-colors ${
+                        isActive(item.url) 
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }`}
+                    >
+                      <button
+                        onClick={() => handleNavigation(item)}
+                        className="flex items-center gap-3 w-full text-left"
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Instructor Menu */}
+        {isInstructor && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
+              Organization Management
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {instructorMenuItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 

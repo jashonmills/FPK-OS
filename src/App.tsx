@@ -58,6 +58,9 @@ const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
+
+// Instructor pages
+const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
@@ -165,6 +168,9 @@ const App: React.FC = () => {
             
             {/* Study Session Routes */}
             <Route path="learner/study/:mode" element={<LazyRoute><StudySessionRouter /></LazyRoute>} />
+            
+            {/* Instructor Routes */}
+            <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<LazyRoute><AdminDashboard /></LazyRoute>} />
