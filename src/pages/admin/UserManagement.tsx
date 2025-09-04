@@ -4,17 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, UserPlus, AlertCircle } from 'lucide-react';
+import { Search, UserPlus, AlertCircle, Building2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useUsers } from '@/hooks/useUsers';
-import { UsersTable } from '@/components/admin/UsersTable';
+import { useUsersWithMetrics } from '@/hooks/useUsersWithMetrics';
+import { EnhancedUsersTable } from '@/components/admin/EnhancedUsersTable';
+import { AdminOrgCreationModal } from '@/components/admin/AdminOrgCreationModal';
 import { AVAILABLE_ROLES } from '@/types/user';
 
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [showOrgModal, setShowOrgModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
-  const { users, isLoading, error, assignRole, removeRole, isAssigning, isRemoving } = useUsers(searchQuery, roleFilter);
+  const { data, isLoading, error } = useUsersWithMetrics({
+    search: searchQuery,
+    role: roleFilter,
+    page: currentPage,
+    pageSize: 20
+  });
 
   if (error) {
     return (
@@ -38,10 +46,20 @@ const UserManagement = () => {
             Manage users, roles, and permissions
           </p>
         </div>
-        <Button className="fpk-gradient text-white w-full sm:w-auto">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Invite User
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button 
+            onClick={() => setShowOrgModal(true)}
+            variant="outline" 
+            className="flex-1 sm:flex-none"
+          >
+            <Building2 className="h-4 w-4 mr-2" />
+            Create Organization
+          </Button>
+          <Button className="fpk-gradient text-white flex-1 sm:flex-none">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite User
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -75,7 +93,7 @@ const UserManagement = () => {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">Loading users...</div>
-          ) : users.length === 0 ? (
+          ) : !data?.users || data.users.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No users found.</p>
               <p className="text-sm text-muted-foreground mt-2">
@@ -85,22 +103,38 @@ const UserManagement = () => {
           ) : (
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                Found {users.length} user{users.length !== 1 ? 's' : ''}
+                Found {data.pagination.total} user{data.pagination.total !== 1 ? 's' : ''}
                 {roleFilter !== 'all' && ` with role: ${roleFilter}`}
               </div>
-              <div className="overflow-x-auto">
-                <UsersTable
-                  users={users}
-                  onAssignRole={assignRole}
-                  onRemoveRole={removeRole}
-                  isAssigning={isAssigning}
-                  isRemoving={isRemoving}
-                />
-              </div>
+              <EnhancedUsersTable
+                users={data.users}
+                isLoading={isLoading}
+                onAssignRole={(userId, role) => {
+                  // TODO: Implement role assignment
+                  console.log('Assign role:', userId, role);
+                }}
+                onRemoveRole={(userId, role) => {
+                  // TODO: Implement role removal
+                  console.log('Remove role:', userId, role);
+                }}
+                isAssigning={false}
+                isRemoving={false}
+                pagination={data.pagination}
+                onPaginationChange={(page) => setCurrentPage(page)}
+                onFiltersChange={(filters) => {
+                  // TODO: Implement filter changes
+                  console.log('Filters changed:', filters);
+                }}
+              />
             </div>
           )}
         </CardContent>
       </Card>
+      
+      <AdminOrgCreationModal 
+        open={showOrgModal} 
+        onOpenChange={setShowOrgModal} 
+      />
     </div>
   );
 };
