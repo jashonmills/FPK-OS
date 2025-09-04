@@ -6,6 +6,9 @@ interface QuickStats {
   activeUsers: number | null;
   courses: number | null;
   booksInStorage: number | null;
+  organizations: number | null;
+  totalStudents: number | null;
+  totalInstructors: number | null;
   systemHealth: {
     status: 'ok' | 'degraded';
     message?: string;
@@ -19,13 +22,19 @@ export const useQuickStats = () => {
       console.log('🔄 Fetching admin quick stats...');
 
       // Fetch all stats in parallel
-      const [usersResult, coursesResult, storageResult, healthResult] = await Promise.allSettled([
+      const [usersResult, coursesResult, storageResult, organizationsResult, studentsResult, instructorsResult, healthResult] = await Promise.allSettled([
         // Active Users - count from profiles table with auth check
         fetchActiveUsers(),
         // Courses - count from courses table
         fetchCoursesCount(),
         // Books in Storage - count files in storage bucket
         fetchBooksInStorage(),
+        // Organizations - count from organizations table
+        fetchOrganizationsCount(),
+        // Total Students - count active student members
+        fetchStudentsCount(),
+        // Total Instructors - count organization owners
+        fetchInstructorsCount(),
         // System Health - check Supabase connection
         fetchSystemHealth()
       ]);
@@ -34,6 +43,9 @@ export const useQuickStats = () => {
         activeUsers: usersResult.status === 'fulfilled' ? usersResult.value : null,
         courses: coursesResult.status === 'fulfilled' ? coursesResult.value : null,
         booksInStorage: storageResult.status === 'fulfilled' ? storageResult.value : null,
+        organizations: organizationsResult.status === 'fulfilled' ? organizationsResult.value : null,
+        totalStudents: studentsResult.status === 'fulfilled' ? studentsResult.value : null,
+        totalInstructors: instructorsResult.status === 'fulfilled' ? instructorsResult.value : null,
         systemHealth: healthResult.status === 'fulfilled' ? healthResult.value : null
       };
 
@@ -46,6 +58,15 @@ export const useQuickStats = () => {
       }
       if (storageResult.status === 'rejected') {
         console.error('❌ Failed to fetch books in storage:', storageResult.reason);
+      }
+      if (organizationsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch organizations count:', organizationsResult.reason);
+      }
+      if (studentsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch students count:', studentsResult.reason);
+      }
+      if (instructorsResult.status === 'rejected') {
+        console.error('❌ Failed to fetch instructors count:', instructorsResult.reason);
       }
       if (healthResult.status === 'rejected') {
         console.error('❌ Failed to fetch system health:', healthResult.reason);
@@ -118,6 +139,44 @@ async function fetchBooksInStorage(): Promise<number> {
   } catch (error) {
     throw new Error(`Failed to fetch books in storage: ${error.message}`);
   }
+}
+
+async function fetchOrganizationsCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('organizations')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch organizations count: ${error.message}`);
+  }
+
+  return count || 0;
+}
+
+async function fetchStudentsCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('org_members')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'student')
+    .eq('status', 'active');
+
+  if (error) {
+    throw new Error(`Failed to fetch students count: ${error.message}`);
+  }
+
+  return count || 0;
+}
+
+async function fetchInstructorsCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('organizations')
+    .select('owner_id', { count: 'exact', head: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch instructors count: ${error.message}`);
+  }
+
+  return count || 0;
 }
 
 async function fetchSystemHealth(): Promise<{ status: 'ok' | 'degraded'; message?: string }> {

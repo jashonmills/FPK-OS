@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
 
 const AdminDashboard = () => {
@@ -19,6 +19,20 @@ const AdminDashboard = () => {
       color: "text-blue-600"
     },
     {
+      title: "Organization Management",
+      description: "Manage organizations, subscriptions, and seat usage",
+      icon: Building2,
+      path: "/dashboard/admin/organizations",
+      color: "text-orange-600"
+    },
+    {
+      title: "Instructor Console",
+      description: "Monitor instructor dashboards and organization activity",
+      icon: GraduationCap,
+      path: "/dashboard/admin/instructor-console",
+      color: "text-purple-600"
+    },
+    {
       title: "Course Manager",
       description: "Create and manage learning courses",
       icon: BookOpen,
@@ -30,14 +44,14 @@ const AdminDashboard = () => {
       description: "Manage EPUB downloads and storage",
       icon: Download,
       path: "/dashboard/admin/epub-storage",
-      color: "text-purple-600"
+      color: "text-indigo-600"
     },
     {
       title: "Analytics",
       description: "View detailed analytics and reports",
       icon: BarChart3,
       path: "/dashboard/admin/analytics",
-      color: "text-orange-600"
+      color: "text-pink-600"
     },
     {
       title: "System Settings",
@@ -144,7 +158,7 @@ const AdminDashboard = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <div 
               className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/user-management')}
@@ -157,9 +171,39 @@ const AdminDashboard = () => {
             
             <div 
               className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
-              onClick={() => navigate('/dashboard/admin/course-manager')}
+              onClick={() => navigate('/dashboard/admin/organizations')}
+            >
+              <div className="text-2xl font-bold text-orange-600">
+                {getStatValue(stats?.organizations || null, isLoading)}
+              </div>
+              <div className="text-sm text-muted-foreground">Organizations</div>
+            </div>
+            
+            <div 
+              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              onClick={() => navigate('/dashboard/admin/instructor-console')}
+            >
+              <div className="text-2xl font-bold text-purple-600">
+                {getStatValue(stats?.totalInstructors || null, isLoading)}
+              </div>
+              <div className="text-sm text-muted-foreground">Instructors</div>
+            </div>
+            
+            <div 
+              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              onClick={() => navigate('/dashboard/admin/organizations')}
             >
               <div className="text-2xl font-bold text-green-600">
+                {getStatValue(stats?.totalStudents || null, isLoading)}
+              </div>
+              <div className="text-sm text-muted-foreground">Students</div>
+            </div>
+            
+            <div 
+              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              onClick={() => navigate('/dashboard/admin/course-manager')}
+            >
+              <div className="text-2xl font-bold text-indigo-600">
                 {getStatValue(stats?.courses || null, isLoading)}
               </div>
               <div className="text-sm text-muted-foreground">Courses</div>
@@ -169,14 +213,14 @@ const AdminDashboard = () => {
               className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/epub-storage')}
             >
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-pink-600">
                 {getStatValue(stats?.booksInStorage || null, isLoading)}
               </div>
-              <div className="text-sm text-muted-foreground">Books in Storage</div>
+              <div className="text-sm text-muted-foreground">Books</div>
             </div>
             
             <div className="text-center">
-              <div className="text-lg font-bold text-orange-600 min-h-[2rem] flex items-center justify-center">
+              <div className="text-lg font-bold text-red-600 min-h-[2rem] flex items-center justify-center">
                 {getHealthDisplay()}
               </div>
               <div className="text-sm text-muted-foreground">System Health</div>
