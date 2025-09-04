@@ -68,234 +68,223 @@ serve(async (req) => {
 
     const offset = (page - 1) * pageSize
 
-    // Build base query for users with all metrics
-    let query = `
-      SELECT DISTINCT
-        p.id,
-        p.full_name as name,
-        p.created_at,
-        COALESCE(
-          GREATEST(
-            COALESCE(MAX(da.created_at), '1970-01-01'::timestamptz),
-            COALESCE(MAX(cs.updated_at), '1970-01-01'::timestamptz),
-            COALESCE(MAX(rs.session_start), '1970-01-01'::timestamptz),
-            COALESCE(MAX(ss.created_at), '1970-01-01'::timestamptz)
-          ),
-          '1970-01-01'::timestamptz
-        ) as last_active_at,
-        COALESCE(SUM(
-          CASE 
-            WHEN da.activity_date >= DATE_TRUNC('week', CURRENT_DATE) 
-            THEN da.duration_minutes * 60
-            ELSE 0 
-          END
-        ), 0) as weekly_seconds,
-        COUNT(DISTINCT e.id) as enrollment_count,
-        COALESCE(AVG(
-          COALESCE((e.progress->>'completion_percentage')::numeric, 0)
-        ), 0) as avg_progress_percent,
-        COUNT(DISTINCT CASE WHEN g.status = 'active' THEN g.id END) as goals_active,
-        COUNT(DISTINCT CASE WHEN g.status = 'completed' THEN g.id END) as goals_completed
-      FROM profiles p
-      LEFT JOIN daily_activities da ON da.user_id = p.id
-      LEFT JOIN chat_sessions cs ON cs.user_id = p.id  
-      LEFT JOIN reading_sessions rs ON rs.user_id = p.id
-      LEFT JOIN study_sessions ss ON ss.user_id = p.id
-      LEFT JOIN enrollments e ON e.user_id = p.id
-      LEFT JOIN goals g ON g.user_id = p.id
-    `
+    // Get all profiles first with basic filtering  
+    let profilesQuery = supabaseClient
+      .from('profiles')
+      .select('id, full_name, display_name, created_at')
+
+    // Add search filter if provided
+    if (search) {
+      profilesQuery = profilesQuery.or(`full_name.ilike.%${search}%,display_name.ilike.%${search}%`)
+    }
 
     // Add organization filter for instructors
     if (isInstructor && !isAdmin) {
-      query += `
-        INNER JOIN org_members om ON om.user_id = p.id
-        WHERE om.organization_id IN (
-          SELECT organization_id FROM org_members 
-          WHERE user_id = '${user.id}' AND role = 'owner'
-        )
-      `
-    } else {
-      query += ` WHERE 1=1 `
-    }
+      const { data: orgMembers } = await supabaseClient
+        .from('org_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .eq('role', 'owner')
 
-    // Add search filter
-    if (search) {
-      query += ` AND (p.full_name ILIKE '%${search}%' OR p.display_name ILIKE '%${search}%') `
-    }
+      if (orgMembers && orgMembers.length > 0) {
+        const orgIds = orgMembers.map(om => om.organization_id)
+        const { data: orgMemberUsers } = await supabaseClient
+          .from('org_members')
+          .select('user_id')
+          .in('organization_id', orgIds)
+          .eq('status', 'active')
 
-    query += ` GROUP BY p.id, p.full_name, p.created_at `
-
-    // Add HAVING clauses for aggregated filters
-    const havingClauses = []
-    
-    if (activity === 'active_7d') {
-      havingClauses.push(`MAX(COALESCE(da.created_at, cs.updated_at, rs.session_start, ss.created_at)) >= CURRENT_DATE - INTERVAL '7 days'`)
-    } else if (activity === 'inactive_14d') {
-      havingClauses.push(`MAX(COALESCE(da.created_at, cs.updated_at, rs.session_start, ss.created_at)) < CURRENT_DATE - INTERVAL '14 days' OR MAX(COALESCE(da.created_at, cs.updated_at, rs.session_start, ss.created_at)) IS NULL`)
-    }
-
-    if (progressBand !== 'all') {
-      const [min, max] = progressBand.split('-').map(Number)
-      if (max) {
-        havingClauses.push(`AVG(COALESCE((e.progress->>'completion_percentage')::numeric, 0)) BETWEEN ${min} AND ${max}`)
-      } else {
-        havingClauses.push(`AVG(COALESCE((e.progress->>'completion_percentage')::numeric, 0)) >= ${min}`)
-      }
-    }
-
-    if (hasGoals === 'yes') {
-      havingClauses.push(`COUNT(DISTINCT g.id) > 0`)
-    } else if (hasGoals === 'no') {
-      havingClauses.push(`COUNT(DISTINCT g.id) = 0`)
-    }
-
-    if (havingClauses.length > 0) {
-      query += ` HAVING ${havingClauses.join(' AND ')} `
-    }
-
-    // Add sorting
-    const sortField = {
-      'createdAt': 'p.created_at',
-      'lastActive': 'last_active_at',
-      'courses': 'enrollment_count',
-      'avgProgress': 'avg_progress_percent',
-      'timeWeek': 'weekly_seconds'
-    }[sortBy] || 'p.created_at'
-
-    query += ` ORDER BY ${sortField} ${sortDir.toUpperCase()} LIMIT ${pageSize} OFFSET ${offset}`
-
-    console.log('Executing query:', query)
-
-    // Execute the main query
-    const { data: usersData, error: usersError } = await supabaseClient.rpc('execute_sql', { 
-      query: query 
-    })
-
-    if (usersError) {
-      console.error('Users query error:', usersError)
-      // Fallback to simpler query if complex one fails
-      const { data: profiles, error: profilesError } = await supabaseClient
-        .from('profiles')
-        .select('id, full_name, display_name, created_at')
-        .limit(pageSize)
-        .range(offset, offset + pageSize - 1)
-
-      if (profilesError) {
-        throw profilesError
-      }
-
-      // Get basic user data with simplified metrics
-      const usersWithBasicMetrics = await Promise.all(
-        profiles.map(async (profile) => {
-          // Get user roles
-          const { data: roles } = await supabaseClient
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', profile.id)
-
-          // Get basic enrollment count
-          const { count: enrollmentCount } = await supabaseClient
-            .from('enrollments')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', profile.id)
-
-          // Get basic goal counts
-          const { data: goals } = await supabaseClient
-            .from('goals')
-            .select('status')
-            .eq('user_id', profile.id)
-
-          const goalsActive = goals?.filter(g => g.status === 'active').length || 0
-          const goalsCompleted = goals?.filter(g => g.status === 'completed').length || 0
-
-          // Try to get auth user email
-          let email = `${profile.full_name?.toLowerCase().replace(/\s+/g, '.')}@fpkuniversity.com`
-          try {
-            const { data: authUser } = await supabaseClient.auth.admin.getUserById(profile.id)
-            if (authUser?.user?.email) {
-              email = authUser.user.email
-            }
-          } catch (e) {
-            console.log('Could not get auth email for user', profile.id)
-          }
-
-          return {
-            id: profile.id,
-            name: profile.full_name || profile.display_name || 'Unknown User',
-            email,
-            roles: roles?.map(r => r.role) || [],
-            createdAt: profile.created_at,
-            lastActiveAt: null, // Will need to implement
-            weeklySeconds: 0,
-            enrollmentCount: enrollmentCount || 0,
-            avgProgressPercent: 0,
-            goalsActive,
-            goalsCompleted
-          }
-        })
-      )
-
-      return new Response(
-        JSON.stringify({
-          users: usersWithBasicMetrics,
-          pagination: {
-            page,
-            pageSize,
-            total: profiles.length,
-            totalPages: Math.ceil(profiles.length / pageSize)
-          }
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        if (orgMemberUsers && orgMemberUsers.length > 0) {
+          const userIds = orgMemberUsers.map(omu => omu.user_id)
+          profilesQuery = profilesQuery.in('id', userIds)
         }
-      )
+      }
     }
 
-    // Process the results and get additional user data
+    // Apply sorting and pagination
+    if (sortBy === 'createdAt') {
+      profilesQuery = profilesQuery.order('created_at', { ascending: sortDir === 'asc' })
+    } else {
+      profilesQuery = profilesQuery.order('created_at', { ascending: false })
+    }
+
+    const { data: profiles, error: profilesError, count: totalCount } = await profilesQuery
+      .range(offset, offset + pageSize - 1)
+
+    if (profilesError) {
+      console.error('Profiles query error:', profilesError)
+      throw profilesError
+    }
+
+    // Get detailed user data with metrics for each profile
     const users: UserWithMetrics[] = await Promise.all(
-      usersData.map(async (userData: any) => {
+      profiles.map(async (profile) => {
         // Get user roles
         const { data: roles } = await supabaseClient
           .from('user_roles')
           .select('role')
-          .eq('user_id', userData.id)
+          .eq('user_id', profile.id)
+
+        // Get enrollment count and avg progress
+        const { data: enrollments } = await supabaseClient
+          .from('enrollments')
+          .select('progress')
+          .eq('user_id', profile.id)
+
+        let avgProgressPercent = 0
+        if (enrollments && enrollments.length > 0) {
+          const progressValues = enrollments
+            .map(e => e.progress && typeof e.progress === 'object' && 'completion_percentage' in e.progress 
+              ? Number(e.progress.completion_percentage) || 0 
+              : 0)
+          avgProgressPercent = Math.round(
+            progressValues.reduce((sum, val) => sum + val, 0) / progressValues.length
+          )
+        }
+
+        // Get goal counts
+        const { data: goals } = await supabaseClient
+          .from('goals')
+          .select('status')
+          .eq('user_id', profile.id)
+
+        const goalsActive = goals?.filter(g => g.status === 'active').length || 0
+        const goalsCompleted = goals?.filter(g => g.status === 'completed').length || 0
+
+        // Get activity data for last active and weekly time
+        const weekStart = new Date()
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+        
+        const { data: dailyActivities } = await supabaseClient
+          .from('daily_activities')
+          .select('activity_date, duration_minutes, created_at')
+          .eq('user_id', profile.id)
+          .gte('activity_date', weekStart.toISOString().split('T')[0])
+
+        const weeklySeconds = dailyActivities?.reduce(
+          (sum, activity) => sum + (activity.duration_minutes * 60), 0
+        ) || 0
+
+        // Get latest activity timestamp
+        const { data: latestChatSession } = await supabaseClient
+          .from('chat_sessions')
+          .select('updated_at')
+          .eq('user_id', profile.id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+
+        const { data: latestReadingSession } = await supabaseClient
+          .from('reading_sessions')
+          .select('session_start')
+          .eq('user_id', profile.id)  
+          .order('session_start', { ascending: false })
+          .limit(1)
+
+        const { data: latestStudySession } = await supabaseClient
+          .from('study_sessions')
+          .select('created_at')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+
+        const activityDates = [
+          dailyActivities?.[0]?.created_at,
+          latestChatSession?.[0]?.updated_at,
+          latestReadingSession?.[0]?.session_start,
+          latestStudySession?.[0]?.created_at
+        ].filter(Boolean)
+
+        const lastActiveAt = activityDates.length > 0 
+          ? activityDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0]
+          : null
 
         // Try to get auth user email
-        let email = `${userData.name?.toLowerCase().replace(/\s+/g, '.')}@fpkuniversity.com`
+        let email = `${profile.full_name?.toLowerCase().replace(/\s+/g, '.')}@fpkuniversity.com`
         try {
-          const { data: authUser } = await supabaseClient.auth.admin.getUserById(userData.id)
+          const { data: authUser } = await supabaseClient.auth.admin.getUserById(profile.id)
           if (authUser?.user?.email) {
             email = authUser.user.email
           }
         } catch (e) {
-          console.log('Could not get auth email for user', userData.id)
+          console.log('Could not get auth email for user', profile.id)
         }
 
         return {
-          id: userData.id,
-          name: userData.name || 'Unknown User',
+          id: profile.id,
+          name: profile.full_name || profile.display_name || 'Unknown User',
           email,
           roles: roles?.map(r => r.role) || [],
-          createdAt: userData.created_at,
-          lastActiveAt: userData.last_active_at === '1970-01-01T00:00:00+00:00' ? null : userData.last_active_at,
-          weeklySeconds: parseInt(userData.weekly_seconds) || 0,
-          enrollmentCount: parseInt(userData.enrollment_count) || 0,
-          avgProgressPercent: Math.round(parseFloat(userData.avg_progress_percent) || 0),
-          goalsActive: parseInt(userData.goals_active) || 0,
-          goalsCompleted: parseInt(userData.goals_completed) || 0
+          createdAt: profile.created_at,
+          lastActiveAt,
+          weeklySeconds,
+          enrollmentCount: enrollments?.length || 0,
+          avgProgressPercent,
+          goalsActive,
+          goalsCompleted
         }
       })
     )
 
-    // Filter by role if specified
-    const filteredUsers = role === 'all' 
-      ? users 
-      : users.filter(user => user.roles.includes(role))
+    // Apply role filter
+    let filteredUsers = users
+    if (role !== 'all') {
+      filteredUsers = users.filter(user => user.roles.includes(role))
+    }
 
-    // Get total count for pagination
-    const { count: totalCount } = await supabaseClient
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
+    // Apply activity filter
+    if (activity === 'active_7d') {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      filteredUsers = filteredUsers.filter(user => 
+        user.lastActiveAt && new Date(user.lastActiveAt) >= sevenDaysAgo
+      )
+    } else if (activity === 'inactive_14d') {
+      const fourteenDaysAgo = new Date()
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
+      filteredUsers = filteredUsers.filter(user => 
+        !user.lastActiveAt || new Date(user.lastActiveAt) < fourteenDaysAgo
+      )
+    }
+
+    // Apply progress band filter
+    if (progressBand !== 'all') {
+      const [min, max] = progressBand.split('-').map(Number)
+      if (max) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.avgProgressPercent >= min && user.avgProgressPercent <= max
+        )
+      } else {
+        filteredUsers = filteredUsers.filter(user => user.avgProgressPercent >= min)
+      }
+    }
+
+    // Apply goals filter
+    if (hasGoals === 'yes') {
+      filteredUsers = filteredUsers.filter(user => 
+        user.goalsActive > 0 || user.goalsCompleted > 0
+      )
+    } else if (hasGoals === 'no') {
+      filteredUsers = filteredUsers.filter(user => 
+        user.goalsActive === 0 && user.goalsCompleted === 0
+      )
+    }
+
+    // Apply sorting (if not sorted by creation date already)
+    if (sortBy !== 'createdAt') {
+      filteredUsers.sort((a, b) => {
+        const aVal = sortBy === 'lastActive' ? (a.lastActiveAt ? new Date(a.lastActiveAt).getTime() : 0) :
+                     sortBy === 'courses' ? a.enrollmentCount :
+                     sortBy === 'avgProgress' ? a.avgProgressPercent :
+                     sortBy === 'timeWeek' ? a.weeklySeconds : 0
+        
+        const bVal = sortBy === 'lastActive' ? (b.lastActiveAt ? new Date(b.lastActiveAt).getTime() : 0) :
+                     sortBy === 'courses' ? b.enrollmentCount :
+                     sortBy === 'avgProgress' ? b.avgProgressPercent :
+                     sortBy === 'timeWeek' ? b.weeklySeconds : 0
+        
+        return sortDir === 'asc' ? aVal - bVal : bVal - aVal
+      })
+    }
 
     return new Response(
       JSON.stringify({

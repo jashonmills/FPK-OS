@@ -13,7 +13,8 @@ import {
   BarChart3, 
   User,
   Calendar,
-  Mail
+  Mail,
+  Clock
 } from 'lucide-react';
 import RouteBoundary from '@/components/RouteBoundary';
 import { useUser } from '@/hooks/useUser';
@@ -199,30 +200,30 @@ const AdminUserAnalytics = () => {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600 mb-1">
-                          0
-                        </div>
-                        <p className="text-xs text-gray-500">Total Sessions</p>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600 mb-1">
+                        {targetUser.roles.length}
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600 mb-1">
-                          0h
-                        </div>
-                        <p className="text-xs text-gray-500">Hours Learned</p>
+                      <p className="text-xs text-gray-500">Active Roles</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600 mb-1">
+                        0h
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600 mb-1">
-                          0
-                        </div>
-                        <p className="text-xs text-gray-500">Books Read</p>
+                      <p className="text-xs text-gray-500">Hours Learned</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600 mb-1">
+                        0
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-orange-600 mb-1">
-                          0
-                        </div>
-                        <p className="text-xs text-gray-500">Goals Met</p>
+                      <p className="text-xs text-gray-500">Enrollments</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600 mb-1">
+                        0
                       </div>
+                      <p className="text-xs text-gray-500">Goals Met</p>
+                    </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -232,43 +233,120 @@ const AdminUserAnalytics = () => {
 
           <TabsContent value="reading" className="mt-6">
             <RouteBoundary>
-              <React.Suspense fallback={
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                </div>
-              }>
-                <div className="p-4 text-center text-gray-500">
-                  <p>Reading analytics coming soon for admin view</p>
-                </div>
-              </React.Suspense>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-blue-600" />
+                      Reading Sessions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+                      <p className="text-sm text-muted-foreground">Total reading sessions</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-green-600" />
+                      Reading Time
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-green-600 mb-2">0h</div>
+                      <p className="text-sm text-muted-foreground">Total time spent reading</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </RouteBoundary>
           </TabsContent>
 
           <TabsContent value="ai-coach" className="mt-6">
             <RouteBoundary>
-              <React.Suspense fallback={
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                </div>
-              }>
-                <div className="p-4 text-center text-gray-500">
-                  <p>AI Coach analytics coming soon for admin view</p>
-                </div>
-              </React.Suspense>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-purple-600" />
+                      Chat Sessions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+                      <p className="text-sm text-muted-foreground">Total AI coach sessions</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-orange-600" />
+                      Messages Sent
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
+                      <p className="text-sm text-muted-foreground">Messages to AI coach</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </RouteBoundary>
           </TabsContent>
 
           <TabsContent value="goals" className="mt-6">
             <RouteBoundary>
-              <React.Suspense fallback={
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                </div>
-              }>
-                <div className="p-4 text-center text-gray-500">
-                  <p>Goals analytics coming soon for admin view</p>
-                </div>
-              </React.Suspense>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-blue-600" />
+                      Active Goals
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+                      <p className="text-sm text-muted-foreground">Currently active goals</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-green-600" />
+                      Completed Goals  
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-green-600 mb-2">0</div>
+                      <p className="text-sm text-muted-foreground">Successfully completed</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-purple-600" />
+                      Success Rate
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-3xl font-bold text-purple-600 mb-2">0%</div>
+                      <p className="text-sm text-muted-foreground">Goal completion rate</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </RouteBoundary>
           </TabsContent>
         </Tabs>
