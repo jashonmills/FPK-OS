@@ -36,15 +36,18 @@ interface AICoachMetrics {
   }>;
 }
 
-export const useAICoachAnalytics = () => {
+export const useAICoachAnalytics = (userId?: string) => {
   const [metrics, setMetrics] = useState<AICoachMetrics | null>(null);
   const [sessions, setSessions] = useState<AICoachSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
+  // Use provided userId or fall back to current user
+  const targetUserId = userId || user?.id;
+
   const loadAICoachAnalytics = async () => {
-    if (!user) return;
+    if (!targetUserId) return;
 
     try {
       setIsLoading(true);
@@ -54,7 +57,7 @@ export const useAICoachAnalytics = () => {
       const { data: sessionsData, error: sessionsError } = await supabase
         .from('chat_sessions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', targetUserId)
         .order('created_at', { ascending: false });
 
       if (sessionsError) throw sessionsError;
@@ -175,7 +178,7 @@ export const useAICoachAnalytics = () => {
 
   useEffect(() => {
     loadAICoachAnalytics();
-  }, [user]);
+  }, [targetUserId]);
 
   return {
     metrics,

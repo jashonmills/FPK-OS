@@ -6,8 +6,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieCha
 import { Bot, MessageCircle, Clock, TrendingUp, Users } from 'lucide-react';
 import { useAICoachAnalytics } from '@/hooks/useAICoachAnalytics';
 
-const AICoachEngagementCard = () => {
-  const { metrics, isLoading, error } = useAICoachAnalytics();
+interface AICoachEngagementCardProps {
+  userId?: string;
+}
+
+const AICoachEngagementCard = ({ userId }: AICoachEngagementCardProps) => {
+  const { metrics, isLoading, error } = useAICoachAnalytics(userId);
 
   if (isLoading) {
     return (

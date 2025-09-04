@@ -7,13 +7,17 @@ import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 
-const ReadingAnalyticsCard = () => {
+interface ReadingAnalyticsCardProps {
+  userId?: string;
+}
+
+const ReadingAnalyticsCard = ({ userId }: ReadingAnalyticsCardProps) => {
   const { 
     readingSessions, 
     readingProgress, 
     readingTrends,
     loading 
-  } = useReadingAnalytics();
+  } = useReadingAnalytics(userId);
 
   // Calculate analytics from the raw data
   const analytics = React.useMemo(() => {

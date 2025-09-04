@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { User, Role, AVAILABLE_ROLES, getRoleBadgeVariant } from '@/types/user';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, BarChart3 } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { useNavigate } from 'react-router-dom';
 
 interface UsersTableProps {
   users: User[];
@@ -17,6 +18,7 @@ interface UsersTableProps {
 
 export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isRemoving }: UsersTableProps) {
   const { getAccessibilityClasses } = useAccessibility();
+  const navigate = useNavigate();
   
   const handleRoleAssign = (userId: string, roleValue: string) => {
     if (AVAILABLE_ROLES.includes(roleValue as Role)) {
@@ -77,21 +79,32 @@ export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isR
                   {new Date(user.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <Select onValueChange={(value) => handleRoleAssign(user.id, value)}>
-                    <SelectTrigger className={`w-full sm:w-32 ${textClasses} text-xs sm:text-sm`}>
-                      <SelectValue placeholder="Add role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {AVAILABLE_ROLES.filter(role => !user.roles.includes(role)).map((role) => (
-                        <SelectItem key={role} value={role} className={textClasses}>
-                          <div className="flex items-center gap-2">
-                            <Plus className="h-3 w-3" />
-                            {role}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Select onValueChange={(value) => handleRoleAssign(user.id, value)}>
+                      <SelectTrigger className={`w-full sm:w-32 ${textClasses} text-xs sm:text-sm`}>
+                        <SelectValue placeholder="Add role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABLE_ROLES.filter(role => !user.roles.includes(role)).map((role) => (
+                          <SelectItem key={role} value={role} className={textClasses}>
+                            <div className="flex items-center gap-2">
+                              <Plus className="h-3 w-3" />
+                              {role}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/dashboard/admin/users/${user.id}/analytics`)}
+                      className="flex items-center gap-2 text-xs sm:text-sm"
+                    >
+                      <BarChart3 className="h-3 w-3" />
+                      <span className="hidden sm:inline">Analytics</span>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

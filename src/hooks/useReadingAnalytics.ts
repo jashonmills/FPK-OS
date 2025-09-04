@@ -23,7 +23,7 @@ export interface ReadingProgress {
   last_read_at: string;
 }
 
-export const useReadingAnalytics = () => {
+export const useReadingAnalytics = (userId?: string) => {
   const { user } = useAuth();
   const [readingSessions, setReadingSessions] = useState<ReadingSession[]>([]);
   const [readingProgress, setReadingProgress] = useState<ReadingProgress[]>([]);
@@ -31,8 +31,11 @@ export const useReadingAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Use provided userId or fall back to current user
+  const targetUserId = userId || user?.id;
+
   useEffect(() => {
-    if (!user?.id) return;
+    if (!targetUserId) return;
 
     const fetchReadingAnalytics = async () => {
       try {
@@ -42,7 +45,7 @@ export const useReadingAnalytics = () => {
         const { data: sessionsData, error: sessionsError } = await supabase
           .from('reading_sessions')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', targetUserId)
           .order('session_start', { ascending: false });
 
         if (sessionsError) throw sessionsError;
@@ -51,7 +54,7 @@ export const useReadingAnalytics = () => {
         const { data: progressData, error: progressError } = await supabase
           .from('reading_progress')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', targetUserId)
           .order('last_read_at', { ascending: false });
 
         if (progressError) throw progressError;
@@ -77,7 +80,7 @@ export const useReadingAnalytics = () => {
     };
 
     fetchReadingAnalytics();
-  }, [user?.id]);
+  }, [targetUserId]);
 
   return {
     readingSessions,

@@ -3,18 +3,25 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { AnalyticsCard } from './AnalyticsCard';
 import { Award } from 'lucide-react';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import { useUserProfile } from '@/hooks/useUserProfileForAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-const XPBreakdownCard: React.FC = () => {
-  const { profile, loading } = useUserProfile();
+interface XPBreakdownCardProps {
+  userId?: string;
+}
+
+const XPBreakdownCard: React.FC<XPBreakdownCardProps> = ({ userId }) => {
+  const { profile, loading } = useUserProfile(userId);
   const { user } = useAuth();
   const [xpBreakdown, setXpBreakdown] = React.useState<any[]>([]);
   const [breakdownLoading, setBreakdownLoading] = React.useState(true);
+  
+  // Use provided userId or fall back to current user
+  const targetUserId = userId || user?.id;
 
   React.useEffect(() => {
-    if (!user?.id) return;
+    if (!targetUserId) return;
 
     const fetchXPBreakdown = async () => {
       try {
@@ -23,7 +30,7 @@ const XPBreakdownCard: React.FC = () => {
         const { data: xpEvents, error } = await supabase
           .from('xp_events')
           .select('event_type, event_value')
-          .eq('user_id', user.id);
+          .eq('user_id', targetUserId);
 
         if (error) throw error;
 
@@ -53,7 +60,7 @@ const XPBreakdownCard: React.FC = () => {
     };
 
     fetchXPBreakdown();
-  }, [user?.id]);
+  }, [targetUserId]);
 
   return (
     <AnalyticsCard
