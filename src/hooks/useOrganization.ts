@@ -82,16 +82,45 @@ export function useOrgInvitations(orgId: string) {
 export function useCreateOrganization() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (org: Omit<Organization, 'id' | 'created_at' | 'updated_at' | 'seats_used'>) => {
+      if (!user) throw new Error('User not authenticated');
+
+      // Ensure owner_id is set to current user
+      const organizationData = {
+        ...org,
+        owner_id: user.id,
+        seats_used: 0,
+      };
+
       const { data, error } = await supabase
         .from('organizations')
-        .insert(org)
+        .insert(organizationData)
         .select()
         .single();
 
       if (error) throw error;
+
+      // Create owner membership record
+      const { error: memberError } = await supabase
+        .from('org_members')
+        .insert({
+          organization_id: data.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+          joined_at: new Date().toISOString(),
+        });
+
+      if (memberError) {
+        console.error('Error creating owner membership:', memberError);
+        // Clean up the organization if member creation fails
+        await supabase.from('organizations').delete().eq('id', data.id);
+        throw memberError;
+      }
+
       return data;
     },
     onSuccess: () => {
