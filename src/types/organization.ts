@@ -15,6 +15,10 @@ export interface Organization {
   settings: Record<string, any>;
   beta_expiration_date?: string;
   is_beta_access?: boolean;
+  status: 'active' | 'suspended' | 'deleted';
+  suspended_at?: string;
+  suspended_reason?: string;
+  suspended_by?: string;
   created_at: string;
   updated_at: string;
 }

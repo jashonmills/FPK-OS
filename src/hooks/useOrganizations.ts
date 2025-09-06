@@ -39,6 +39,10 @@ export function useOrganizations() {
         settings: org.settings || {},
         beta_expiration_date: org.beta_expiration_date || undefined,
         is_beta_access: org.is_beta_access || undefined,
+        status: org.status || 'active',
+        suspended_at: org.suspended_at || undefined,
+        suspended_reason: org.suspended_reason || undefined,
+        suspended_by: org.suspended_by || undefined,
         created_at: org.created_at,
         updated_at: org.updated_at,
       }));

@@ -20,13 +20,14 @@ import {
   Calendar,
   TrendingUp
 } from 'lucide-react';
-import { useOrganizations } from '@/hooks/useOrganization';
+import { useOrganizations } from '@/hooks/useOrganizations';
+import { OrganizationActionsDropdown } from '@/components/admin/OrganizationActionsDropdown';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 
 export default function OrganizationManagement() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: organizations, isLoading } = useOrganizations();
+  const { organizations, isLoading } = useOrganizations();
 
   const filteredOrganizations = organizations?.filter(org =>
     org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -186,9 +187,7 @@ export default function OrganizationManagement() {
                           View
                         </Link>
                       </Button>
-                      <Button size="sm" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <OrganizationActionsDropdown organization={org} />
                     </div>
                   </TableCell>
                 </TableRow>

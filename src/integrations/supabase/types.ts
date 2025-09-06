@@ -3043,6 +3043,100 @@ export type Database = {
           },
         ]
       }
+      organization_exports: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          expires_at: string
+          export_type: string
+          file_path: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          export_type: string
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          export_type?: string
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_exports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          organization_id: string
+          recipient_count: number
+          sent_at: string
+          sent_by: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          notification_type?: string
+          organization_id: string
+          recipient_count?: number
+          sent_at?: string
+          sent_by: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          organization_id?: string
+          recipient_count?: number
+          sent_at?: string
+          sent_by?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -3053,7 +3147,11 @@ export type Database = {
           seat_limit: number
           seats_used: number
           settings: Json | null
+          status: string
           subscription_tier: Database["public"]["Enums"]["org_subscription_tier"]
+          suspended_at: string | null
+          suspended_by: string | null
+          suspended_reason: string | null
           updated_at: string
         }
         Insert: {
@@ -3065,7 +3163,11 @@ export type Database = {
           seat_limit?: number
           seats_used?: number
           settings?: Json | null
+          status?: string
           subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_reason?: string | null
           updated_at?: string
         }
         Update: {
@@ -3077,7 +3179,11 @@ export type Database = {
           seat_limit?: number
           seats_used?: number
           settings?: Json | null
+          status?: string
           subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_reason?: string | null
           updated_at?: string
         }
         Relationships: []
