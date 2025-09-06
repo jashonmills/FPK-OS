@@ -12,6 +12,8 @@ export interface Organization {
   subscription_tier: OrgSubscriptionTier;
   seat_limit: number;
   seats_used: number;
+  instructor_limit?: number;
+  instructors_used?: number;
   settings: Record<string, any>;
   beta_expiration_date?: string;
   is_beta_access?: boolean;
@@ -121,26 +123,30 @@ export const SUBSCRIPTION_TIERS = {
   basic: {
     name: 'Basic',
     seats: 3,
+    instructors: 1,
     price: 29,
-    features: ['Up to 3 students', 'Basic analytics', 'Goal tracking', 'Note management']
+    features: ['Up to 3 students', '1 instructor', 'Basic analytics', 'Goal tracking', 'Note management']
   },
   standard: {
     name: 'Standard',
     seats: 10,
+    instructors: 3,
     price: 79,
-    features: ['Up to 10 students', 'Advanced analytics', 'Course assignments', 'Bulk operations']
+    features: ['Up to 10 students', '3 instructors', 'Advanced analytics', 'Course assignments', 'Bulk operations']
   },
   premium: {
     name: 'Premium',
     seats: 25,
+    instructors: 10,
     price: 149,
-    features: ['Up to 25+ students', 'Full analytics suite', 'Custom reporting', 'Priority support']
+    features: ['Up to 25+ students', '10 instructors', 'Full analytics suite', 'Custom reporting', 'Priority support']
   },
   beta: {
     name: 'Beta (Free)',
     seats: 50,
+    instructors: 20,
     price: 0,
     isBeta: true,
-    features: ['Up to 50+ students (Beta)', 'Full analytics suite', 'Custom reporting', 'Priority support', 'Early access features', 'Free during beta period']
+    features: ['Up to 50+ students (Beta)', '20 instructors (Beta)', 'Full analytics suite', 'Custom reporting', 'Priority support', 'Early access features', 'Free during beta period']
   }
 } as const;

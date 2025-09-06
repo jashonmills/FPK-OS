@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreHorizontal, Edit, Trash2, Ban, Download, Mail, Users, CreditCard, RotateCcw } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Ban, Download, Mail, Users, CreditCard, RotateCcw, UserCheck } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import { SuspendOrganizationDialog } from './SuspendOrganizationDialog';
 import { ExportDataDialog } from './ExportDataDialog';
 import { SendNotificationDialog } from './SendNotificationDialog';
 import { ManageMembersDialog } from './ManageMembersDialog';
+import { ManageInstructorsDialog } from './ManageInstructorsDialog';
 import { ChangeSubscriptionDialog } from './ChangeSubscriptionDialog';
 
 interface OrganizationActionsDropdownProps {
@@ -59,6 +60,11 @@ export function OrganizationActionsDropdown({ organization }: OrganizationAction
           <DropdownMenuItem onClick={() => setDialogOpen('members')} className="cursor-pointer hover:bg-muted">
             <Users className="mr-2 h-4 w-4" />
             Manage members
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => setDialogOpen('instructors')} className="cursor-pointer hover:bg-muted">
+            <UserCheck className="mr-2 h-4 w-4" />
+            Manage instructors
           </DropdownMenuItem>
           
           <DropdownMenuItem onClick={() => setDialogOpen('subscription')} className="cursor-pointer hover:bg-muted">
@@ -158,6 +164,12 @@ export function OrganizationActionsDropdown({ organization }: OrganizationAction
       <ChangeSubscriptionDialog
         organization={organization}
         open={dialogOpen === 'subscription'}
+        onOpenChange={(open) => !open && closeDialog()}
+      />
+      
+      <ManageInstructorsDialog
+        organization={organization}
+        open={dialogOpen === 'instructors'}
         onOpenChange={(open) => !open && closeDialog()}
       />
     </>

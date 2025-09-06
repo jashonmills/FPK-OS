@@ -3139,9 +3139,13 @@ export type Database = {
       }
       organizations: {
         Row: {
+          beta_expiration_date: string | null
           created_at: string
           description: string | null
           id: string
+          instructor_limit: number | null
+          instructors_used: number | null
+          is_beta_access: boolean | null
           name: string
           owner_id: string
           seat_limit: number
@@ -3155,9 +3159,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          beta_expiration_date?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          instructor_limit?: number | null
+          instructors_used?: number | null
+          is_beta_access?: boolean | null
           name: string
           owner_id: string
           seat_limit?: number
@@ -3171,9 +3179,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          beta_expiration_date?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          instructor_limit?: number | null
+          instructors_used?: number | null
+          is_beta_access?: boolean | null
           name?: string
           owner_id?: string
           seat_limit?: number

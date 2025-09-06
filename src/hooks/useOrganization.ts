@@ -16,6 +16,9 @@ export function useOrganizations() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Organizations data:', data);
+      
       return data as Organization[];
     },
     enabled: !!user,
@@ -33,6 +36,9 @@ export function useOrganization(orgId: string) {
         .single();
 
       if (error) throw error;
+      
+      console.log('Organization data:', data);
+      
       return data as Organization;
     },
     enabled: !!orgId,
