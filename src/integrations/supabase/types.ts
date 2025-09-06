@@ -2785,6 +2785,70 @@ export type Database = {
         }
         Relationships: []
       }
+      org_assignment_targets: {
+        Row: {
+          assignment_id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          assignment_id: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          assignment_id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_assignment_targets_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "org_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_assignments: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          org_id: string
+          resource_id: string
+          title: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          org_id: string
+          resource_id: string
+          title?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          org_id?: string
+          resource_id?: string
+          title?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_course_assignments: {
         Row: {
           assigned_by: string
@@ -2891,65 +2955,102 @@ export type Database = {
           },
         ]
       }
-      org_invitations: {
+      org_group_members: {
         Row: {
-          accepted_at: string | null
-          accepted_by: string | null
+          group_id: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "org_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          org_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          org_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_groups_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_invites: {
+        Row: {
+          code: string | null
           created_at: string
-          current_uses: number | null
+          created_by: string
           email: string | null
           expires_at: string
           id: string
-          invitation_code: string | null
-          invitation_link: string | null
-          invited_by: string
-          is_active: boolean | null
-          max_uses: number | null
-          metadata: Json | null
-          organization_id: string
+          max_uses: number
+          org_id: string
+          role: string
           status: Database["public"]["Enums"]["invitation_status"]
-          updated_at: string
+          uses_count: number
         }
         Insert: {
-          accepted_at?: string | null
-          accepted_by?: string | null
+          code?: string | null
           created_at?: string
-          current_uses?: number | null
+          created_by: string
           email?: string | null
           expires_at?: string
           id?: string
-          invitation_code?: string | null
-          invitation_link?: string | null
-          invited_by: string
-          is_active?: boolean | null
-          max_uses?: number | null
-          metadata?: Json | null
-          organization_id: string
+          max_uses?: number
+          org_id: string
+          role?: string
           status?: Database["public"]["Enums"]["invitation_status"]
-          updated_at?: string
+          uses_count?: number
         }
         Update: {
-          accepted_at?: string | null
-          accepted_by?: string | null
+          code?: string | null
           created_at?: string
-          current_uses?: number | null
+          created_by?: string
           email?: string | null
           expires_at?: string
           id?: string
-          invitation_code?: string | null
-          invitation_link?: string | null
-          invited_by?: string
-          is_active?: boolean | null
-          max_uses?: number | null
-          metadata?: Json | null
-          organization_id?: string
+          max_uses?: number
+          org_id?: string
+          role?: string
           status?: Database["public"]["Enums"]["invitation_status"]
-          updated_at?: string
+          uses_count?: number
         }
         Relationships: [
           {
             foreignKeyName: "org_invitations_organization_id_fkey"
-            columns: ["organization_id"]
+            columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
@@ -2963,13 +3064,10 @@ export type Database = {
           created_at: string
           id: string
           invitation_link: string | null
-          invited_by: string | null
           joined_at: string | null
-          organization_id: string
-          removed_at: string | null
+          org_id: string
           role: Database["public"]["Enums"]["member_role"]
           status: Database["public"]["Enums"]["member_status"]
-          updated_at: string
           user_id: string
         }
         Insert: {
@@ -2978,13 +3076,10 @@ export type Database = {
           created_at?: string
           id?: string
           invitation_link?: string | null
-          invited_by?: string | null
           joined_at?: string | null
-          organization_id: string
-          removed_at?: string | null
+          org_id: string
           role?: Database["public"]["Enums"]["member_role"]
           status?: Database["public"]["Enums"]["member_status"]
-          updated_at?: string
           user_id: string
         }
         Update: {
@@ -2993,19 +3088,16 @@ export type Database = {
           created_at?: string
           id?: string
           invitation_link?: string | null
-          invited_by?: string | null
           joined_at?: string | null
-          organization_id?: string
-          removed_at?: string | null
+          org_id?: string
           role?: Database["public"]["Enums"]["member_role"]
           status?: Database["public"]["Enums"]["member_status"]
-          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "org_members_organization_id_fkey"
-            columns: ["organization_id"]
+            columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
@@ -3066,6 +3158,38 @@ export type Database = {
             foreignKeyName: "org_notes_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_portal_settings: {
+        Row: {
+          allow_self_signup: boolean
+          default_auto_enroll_courses: string[] | null
+          default_auto_goals: string[] | null
+          org_id: string
+          require_invite: boolean
+        }
+        Insert: {
+          allow_self_signup?: boolean
+          default_auto_enroll_courses?: string[] | null
+          default_auto_goals?: string[] | null
+          org_id: string
+          require_invite?: boolean
+        }
+        Update: {
+          allow_self_signup?: boolean
+          default_auto_enroll_courses?: string[] | null
+          default_auto_goals?: string[] | null
+          org_id?: string
+          require_invite?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_portal_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -3222,64 +3346,52 @@ export type Database = {
       }
       organizations: {
         Row: {
-          beta_expiration_date: string | null
+          brand_accent: string | null
+          brand_primary: string | null
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
-          instructor_limit: number | null
-          instructors_used: number | null
-          is_beta_access: boolean | null
+          is_suspended: boolean
+          logo_url: string | null
           name: string
           owner_id: string
-          seat_limit: number
-          seats_used: number
-          settings: Json | null
+          plan: string
+          seat_cap: number
+          slug: string | null
           status: string
-          subscription_tier: Database["public"]["Enums"]["org_subscription_tier"]
-          suspended_at: string | null
-          suspended_by: string | null
-          suspended_reason: string | null
-          updated_at: string
         }
         Insert: {
-          beta_expiration_date?: string | null
+          brand_accent?: string | null
+          brand_primary?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
-          instructor_limit?: number | null
-          instructors_used?: number | null
-          is_beta_access?: boolean | null
+          is_suspended?: boolean
+          logo_url?: string | null
           name: string
           owner_id: string
-          seat_limit?: number
-          seats_used?: number
-          settings?: Json | null
+          plan?: string
+          seat_cap?: number
+          slug?: string | null
           status?: string
-          subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
-          suspended_at?: string | null
-          suspended_by?: string | null
-          suspended_reason?: string | null
-          updated_at?: string
         }
         Update: {
-          beta_expiration_date?: string | null
+          brand_accent?: string | null
+          brand_primary?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
-          instructor_limit?: number | null
-          instructors_used?: number | null
-          is_beta_access?: boolean | null
+          is_suspended?: boolean
+          logo_url?: string | null
           name?: string
           owner_id?: string
-          seat_limit?: number
-          seats_used?: number
-          settings?: Json | null
+          plan?: string
+          seat_cap?: number
+          slug?: string | null
           status?: string
-          subscription_tier?: Database["public"]["Enums"]["org_subscription_tier"]
-          suspended_at?: string | null
-          suspended_by?: string | null
-          suspended_reason?: string | null
-          updated_at?: string
         }
         Relationships: []
       }
@@ -5898,6 +6010,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_invite: {
+        Args: { p_code: string }
+        Returns: Json
+      }
       auth_is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -5933,6 +6049,10 @@ export type Database = {
           p_request_type: string
           p_user_id: string
         }
+        Returns: string
+      }
+      create_organization: {
+        Args: { p_name: string; p_plan?: string; p_slug: string }
         Returns: string
       }
       current_user_has_admin_role: {
@@ -6055,6 +6175,10 @@ export type Database = {
       migrate_existing_scorm_lessons: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      org_seat_available: {
+        Args: { p_org_id: string }
+        Returns: boolean
       }
       record_audit_event: {
         Args: {
