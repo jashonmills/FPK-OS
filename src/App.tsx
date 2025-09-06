@@ -60,6 +60,7 @@ const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
+const OrganizationDetail = lazy(() => import("./pages/admin/OrganizationDetail"));
 const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 
 // Instructor pages
@@ -180,6 +181,7 @@ const App: React.FC = () => {
             <Route path="admin/users" element={<LazyRoute><UserManagement /></LazyRoute>} />
             <Route path="admin/users/:userId/analytics" element={<LazyRoute><AdminUserAnalytics /></LazyRoute>} />
             <Route path="admin/organizations" element={<LazyRoute><OrganizationManagement /></LazyRoute>} />
+            <Route path="admin/organizations/:id" element={<LazyRoute><OrganizationDetail /></LazyRoute>} />
             <Route path="admin/instructors" element={<LazyRoute><InstructorConsole /></LazyRoute>} />
             <Route path="admin/analytics" element={<LazyRoute><Analytics /></LazyRoute>} />
             <Route path="admin/courses" element={<LazyRoute><CourseManager /></LazyRoute>} />
