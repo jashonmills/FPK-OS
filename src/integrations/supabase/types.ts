@@ -5831,6 +5831,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_org_member: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_org_owner: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: boolean
+      }
       log_hipaa_access: {
         Args: {
           p_access_purpose?: string
