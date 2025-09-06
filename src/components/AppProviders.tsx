@@ -1,9 +1,4 @@
-/**
- * Performance-optimized provider architecture
- * Combines related providers to reduce nesting and improve performance
- */
-
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { I18nextProvider } from 'react-i18next';
@@ -50,80 +45,30 @@ const createQueryClient = () => {
 const queryClient = createQueryClient();
 
 /**
- * Core Data Providers - Authentication and API
- * These providers handle the core data layer
+ * Simplified App Providers
+ * Removed complex memoization to fix React context issues
  */
-const CoreDataProviders: React.FC<{ children: ReactNode }> = React.memo(({ children }) => {
+export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ConsentProvider>
-          {children}
+          <GamificationProvider>
+            <VoiceSettingsProvider>
+              <AccessibilityProvider>
+                <TooltipProvider>
+                  <I18nextProvider i18n={i18n}>
+                    <BrowserRouter>
+                      {children}
+                    </BrowserRouter>
+                  </I18nextProvider>
+                </TooltipProvider>
+              </AccessibilityProvider>
+            </VoiceSettingsProvider>
+          </GamificationProvider>
         </ConsentProvider>
       </AuthProvider>
     </QueryClientProvider>
-  );
-});
-
-/**
- * User Experience Providers - UI and Interaction
- * These providers handle user experience and interaction states
- */
-const UserExperienceProviders: React.FC<{ children: ReactNode }> = React.memo(({ children }) => {
-  return (
-    <GamificationProvider>
-      <VoiceSettingsProvider>
-        <AccessibilityProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </AccessibilityProvider>
-      </VoiceSettingsProvider>
-    </GamificationProvider>
-  );
-});
-
-/**
- * Internationalization Provider - Localization
- * Separate provider for i18n to optimize bundle splitting
- */
-const InternationalizationProvider: React.FC<{ children: ReactNode }> = React.memo(({ children }) => {
-  return (
-    <I18nextProvider i18n={i18n}>
-      {children}
-    </I18nextProvider>
-  );
-});
-
-/**
- * Router Provider - Navigation
- * Separate provider for routing to optimize performance
- */
-const RouterProvider: React.FC<{ children: ReactNode }> = React.memo(({ children }) => {
-  return (
-    <BrowserRouter>
-      {children}
-    </BrowserRouter>
-  );
-});
-
-/**
- * Combined App Providers
- * Optimized provider composition with proper memoization
- */
-export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
-  const memoizedChildren = useMemo(() => children, [children]);
-
-  return (
-    <CoreDataProviders>
-      <InternationalizationProvider>
-        <UserExperienceProviders>
-          <RouterProvider>
-            {memoizedChildren}
-          </RouterProvider>
-        </UserExperienceProviders>
-      </InternationalizationProvider>
-    </CoreDataProviders>
   );
 };
 
