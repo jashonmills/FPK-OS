@@ -28,37 +28,42 @@ export default function OrgJoin() {
     setIsLoading(true);
 
     try {
-      // Find the invitation by code
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Please sign in to join an organization.');
+      }
+
+      // Find the invitation by code using type assertion since types aren't updated
       const { data: invitation, error: inviteError } = await supabase
-        .from('org_invitations')
+        .from('org_invites' as any)
         .select(`
           *,
-          organizations!inner (
+          organizations (
             id,
             name
           )
         `)
-        .eq('invitation_code', inviteCode.trim())
-        .eq('status', 'pending')
+        .eq('code', inviteCode.trim())
+        .gt('expires_at', new Date().toISOString())
         .single();
 
       if (inviteError || !invitation) {
         throw new Error('Invalid invitation code or expired invitation.');
       }
 
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('Please sign in to join an organization.');
+      // Check if invitation has reached max uses
+      if ((invitation as any).uses_count >= (invitation as any).max_uses) {
+        throw new Error('This invitation code has already been used the maximum number of times.');
       }
 
       // Check if user is already a member
       const { data: existingMember } = await supabase
-        .from('org_members')
+        .from('org_members' as any)
         .select('id')
-        .eq('organization_id', invitation.organization_id)
+        .eq('org_id', (invitation as any).org_id)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingMember) {
         throw new Error('You are already a member of this organization.');
@@ -66,13 +71,12 @@ export default function OrgJoin() {
 
       // Add user as member
       const { error: memberError } = await supabase
-        .from('org_members')
+        .from('org_members' as any)
         .insert({
-          organization_id: invitation.organization_id,
+          org_id: (invitation as any).org_id,
           user_id: user.id,
-          role: 'student',
-          status: 'active',
-          joined_at: new Date().toISOString(),
+          role: (invitation as any).role,
+          status: 'active'
         });
 
       if (memberError) {
@@ -81,18 +85,19 @@ export default function OrgJoin() {
 
       // Update invitation usage
       await supabase
-        .from('org_invitations')
+        .from('org_invites' as any)
         .update({
-          current_uses: (invitation.current_uses || 0) + 1,
-          status: ((invitation.current_uses || 0) + 1) >= (invitation.max_uses || 1) ? 'accepted' : 'pending'
+          uses_count: ((invitation as any).uses_count || 0) + 1
         })
-        .eq('id', invitation.id);
+        .eq('id', (invitation as any).id);
 
       toast({
         title: 'Success!',
-        description: `You have successfully joined ${invitation.organizations.name}.`,
+        description: `You have successfully joined ${(invitation as any).organizations.name}.`,
       });
-      navigate(`/org/${invitation.organization_id}`);
+      
+      // Navigate to the organization portal
+      navigate(`/org/${(invitation as any).org_id}`);
       
     } catch (error: any) {
       toast({
