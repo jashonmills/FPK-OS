@@ -49,6 +49,12 @@ const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmb
 // Study components
 const StudySessionRouter = lazy(() => import("./components/study/StudySessionRouter"));
 
+// Organization components
+const OrgLayout = lazy(() => import("./components/organizations/OrgLayout"));
+const OrgPortalHome = lazy(() => import("./pages/organizations/OrgPortalHome"));
+const OrgJoin = lazy(() => import("./pages/organizations/OrgJoin"));
+const OrgInstructorDashboard = lazy(() => import("./pages/organizations/OrgInstructorDashboard"));
+
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
@@ -301,6 +307,17 @@ const App: React.FC = () => {
               <LazyRoute><NativeCoursePlayer /></LazyRoute>
             </RouteProtector>
           } />
+          
+          {/* Organization Portal Routes */}
+          <Route path="/org/join" element={<LazyRoute><OrgJoin /></LazyRoute>} />
+          <Route path="/org" element={
+            <RouteProtector>
+              <LazyRoute><OrgLayout /></LazyRoute>
+            </RouteProtector>
+          }>
+            <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
+            <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
+          </Route>
           
           {/* Forbidden Page */}
           <Route path="/403" element={<LazyRoute><Forbidden /></LazyRoute>} />
