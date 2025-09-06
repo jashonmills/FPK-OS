@@ -932,6 +932,7 @@ export type Database = {
       courses: {
         Row: {
           asset_path: string | null
+          course_visibility: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -941,6 +942,7 @@ export type Database = {
           id: string
           instructor_name: string | null
           is_free: boolean | null
+          organization_id: string | null
           price: number | null
           published_at: string | null
           slug: string | null
@@ -952,6 +954,7 @@ export type Database = {
         }
         Insert: {
           asset_path?: string | null
+          course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -961,6 +964,7 @@ export type Database = {
           id: string
           instructor_name?: string | null
           is_free?: boolean | null
+          organization_id?: string | null
           price?: number | null
           published_at?: string | null
           slug?: string | null
@@ -972,6 +976,7 @@ export type Database = {
         }
         Update: {
           asset_path?: string | null
+          course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -981,6 +986,7 @@ export type Database = {
           id?: string
           instructor_name?: string | null
           is_free?: boolean | null
+          organization_id?: string | null
           price?: number | null
           published_at?: string | null
           slug?: string | null
@@ -990,7 +996,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_activities: {
         Row: {
@@ -2529,11 +2543,13 @@ export type Database = {
       }
       native_courses: {
         Row: {
+          course_visibility: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           est_minutes: number | null
           id: string
+          organization_id: string | null
           slug: string
           summary: string | null
           title: string
@@ -2541,11 +2557,13 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          course_visibility?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           est_minutes?: number | null
           id?: string
+          organization_id?: string | null
           slug: string
           summary?: string | null
           title: string
@@ -2553,18 +2571,28 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          course_visibility?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           est_minutes?: number | null
           id?: string
+          organization_id?: string | null
           slug?: string
           summary?: string | null
           title?: string
           updated_at?: string
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "native_courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       native_enrollments: {
         Row: {
@@ -3036,6 +3064,61 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "org_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_course_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          course_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          native_course_id: string | null
+          organization_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          course_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          native_course_id?: string | null
+          organization_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          native_course_id?: string | null
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_course_assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_course_assignments_native_course_id_fkey"
+            columns: ["native_course_id"]
+            isOneToOne: false
+            referencedRelation: "native_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_course_assignments_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"

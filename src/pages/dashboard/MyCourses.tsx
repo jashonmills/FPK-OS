@@ -13,6 +13,8 @@ import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
 import { useNativeCourses, useNativeEnrollments, useNativeEnrollmentMutations } from '@/hooks/useNativeCourses';
+import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
+import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
@@ -21,13 +23,26 @@ import { Link } from 'react-router-dom';
 
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
-  const { courses, isLoading, error } = useCourses();
+  
+  // Get user's organization membership
+  const { organization: userOrganization } = useUserPrimaryOrganization();
+  
+  // Fetch courses based on organization membership
+  const { courses, isLoading, error } = useCourses({
+    organizationId: userOrganization?.organization_id,
+  });
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
   
   // Native courses
-  const { data: nativeCourses = [], isLoading: nativeCoursesLoading } = useNativeCourses();
+  const { data: nativeCourses = [], isLoading: nativeCoursesLoading } = useNativeCourses({
+    organizationId: userOrganization?.organization_id,
+  });
   const { data: nativeEnrollments = [] } = useNativeEnrollments();
   const { enrollInCourse, isEnrolling } = useNativeEnrollmentMutations();
+  
+  // Organization-specific courses if user is in an organization
+  const { data: orgCourses } = useOrganizationCourses(userOrganization?.organization_id || '');
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -55,15 +70,37 @@ const MyCourses = () => {
   };
 
   const enrolledCourseIds = enrollments.map(e => e.course_id);
-  const enrolledCourses = courses.filter(course => enrolledCourseIds.includes(course.id));
-  const availableCourses = courses.filter(course => 
+  
+  // Combine global and organization courses
+  const allAvailableCourses = [
+    ...courses,
+    ...(orgCourses?.assignedCourses || []),
+    ...(orgCourses?.organizationOwnedCourses || []),
+  ].filter((course, index, self) => 
+    // Remove duplicates by id
+    index === self.findIndex(c => c.id === course.id)
+  );
+  
+  const enrolledCourses = allAvailableCourses.filter(course => enrolledCourseIds.includes(course.id));
+  const availableCourses = allAvailableCourses.filter(course => 
     !enrolledCourseIds.includes(course.id) && course.status === 'published'
   );
 
   // Native course filtering
   const enrolledNativeCourseIds = nativeEnrollments.map(e => e.course_id);
-  const enrolledNativeCourses = nativeCourses.filter(course => enrolledNativeCourseIds.includes(course.id));
-  const availableNativeCourses = nativeCourses.filter(course => 
+  
+  // Combine global and organization native courses
+  const allAvailableNativeCourses = [
+    ...nativeCourses,
+    ...(orgCourses?.assignedNativeCourses || []),
+    ...(orgCourses?.organizationOwnedNativeCourses || []),
+  ].filter((course, index, self) => 
+    // Remove duplicates by id
+    index === self.findIndex(c => c.id === course.id)
+  );
+  
+  const enrolledNativeCourses = allAvailableNativeCourses.filter(course => enrolledNativeCourseIds.includes(course.id));
+  const availableNativeCourses = allAvailableNativeCourses.filter(course => 
     !enrolledNativeCourseIds.includes(course.id)
   );
 

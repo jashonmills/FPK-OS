@@ -13,6 +13,8 @@ export interface NativeCourse {
   created_by?: string;
   created_at: string;
   updated_at: string;
+  organization_id?: string;
+  course_visibility?: 'global' | 'organization_only' | 'private';
 }
 
 export interface CourseModule {
@@ -69,15 +71,22 @@ export interface NativeEnrollment {
 }
 
 // Hook to fetch all native courses
-export function useNativeCourses() {
+export function useNativeCourses(options?: { organizationId?: string }) {
   return useQuery({
-    queryKey: ['native-courses'],
+    queryKey: ['native-courses', options],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('native_courses')
         .select('*')
         .eq('visibility', 'published')
         .order('created_at', { ascending: false });
+
+      // Filter by organization if specified
+      if (options?.organizationId) {
+        query = query.or(`organization_id.eq.${options.organizationId},course_visibility.eq.global,course_visibility.is.null`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching native courses:', error);

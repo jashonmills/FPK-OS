@@ -19,6 +19,8 @@ export interface Course {
   featured?: boolean;
   created_at?: string;
   updated_at?: string;
+  organization_id?: string;
+  course_visibility?: 'global' | 'organization_only' | 'private';
 }
 
 // Type for creating a new course (without id, created_at, updated_at)
@@ -28,6 +30,7 @@ export function useCourses(options?: {
   featured?: boolean; 
   status?: string;
   limit?: number;
+  organizationId?: string;
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -50,6 +53,11 @@ export function useCourses(options?: {
 
       if (options?.limit) {
         query = query.limit(options.limit);
+      }
+
+      // Filter by organization if specified
+      if (options?.organizationId) {
+        query = query.or(`organization_id.eq.${options.organizationId},course_visibility.eq.global`);
       }
 
       const { data, error } = await query;
