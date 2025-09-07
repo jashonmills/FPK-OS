@@ -37,10 +37,11 @@ export function useOrgInvitations(organizationId?: string) {
       return (data || []).map(item => ({
         ...item,
         invited_by: item.created_by,
-        organization_id: item.org_id,
         invitation_code: item.code,
         current_uses: item.uses_count,
-        metadata: (item.metadata as Record<string, any>) || {}
+        invitation_link: `org-invite-${item.code}`,
+        is_active: item.status === 'pending',
+        metadata: {}
       }));
     },
     enabled: !!organizationId && !!user,
@@ -72,7 +73,7 @@ export function useOrgInvitations(organizationId?: string) {
         expires_at: expiresAt.toISOString(),
         max_uses: data.maxUses || 1,
         uses_count: 0,
-        metadata: {}
+        role: 'student'
       };
 
       const { data: invitation, error } = await supabase
@@ -108,8 +109,8 @@ export function useOrgInvitations(organizationId?: string) {
   const deactivateInvitationMutation = useMutation({
     mutationFn: async (invitationId: string) => {
       const { error } = await supabase
-        .from('org_invitations')
-        .update({ is_active: false, status: 'expired' })
+        .from('org_invites')
+        .update({ status: 'expired' })
         .eq('id', invitationId);
 
       if (error) {
@@ -140,14 +141,13 @@ export function useOrgInvitations(organizationId?: string) {
 
       // First, get the invitation details
       const { data: invitation, error: inviteError } = await supabase
-        .from('org_invitations')
+        .from('org_invites')
         .select(`
           *,
           organizations (*)
         `)
-        .eq('invitation_code', invitationCode)
+        .eq('code', invitationCode)
         .eq('status', 'pending')
-        .eq('is_active', true)
         .gt('expires_at', new Date().toISOString())
         .single();
 
@@ -156,7 +156,7 @@ export function useOrgInvitations(organizationId?: string) {
       }
 
       // Check if max uses exceeded
-      if (invitation.current_uses >= invitation.max_uses) {
+      if (invitation.uses_count >= invitation.max_uses) {
         throw new Error('This invitation link has reached its maximum usage limit');
       }
 
@@ -164,13 +164,12 @@ export function useOrgInvitations(organizationId?: string) {
       const { error: memberError } = await supabase
         .from('org_members')
         .insert({
-          organization_id: invitation.organization_id,
+          org_id: invitation.org_id,
           user_id: user.id,
-          role: 'student',
+          role: (invitation.role || 'student') as 'owner' | 'instructor' | 'student',
           status: 'active',
-          invited_by: invitation.invited_by,
-          invitation_link: invitation.invitation_link,
-          joined_at: new Date().toISOString()
+          joined_at: new Date().toISOString(),
+          invited_by: invitation.created_by,
         });
 
       if (memberError) {
@@ -178,12 +177,12 @@ export function useOrgInvitations(organizationId?: string) {
         throw memberError;
       }
 
-      // Update invitation usage count
+      // Update invitation usage
       const { error: updateError } = await supabase
-        .from('org_invitations')
-        .update({ 
-          current_uses: invitation.current_uses + 1,
-          status: invitation.current_uses + 1 >= invitation.max_uses ? 'accepted' : 'pending'
+        .from('org_invites')
+        .update({
+          uses_count: invitation.uses_count + 1,
+          status: invitation.uses_count + 1 >= invitation.max_uses ? 'expired' : 'pending'
         })
         .eq('id', invitation.id);
 
@@ -191,12 +190,15 @@ export function useOrgInvitations(organizationId?: string) {
         console.error('Error updating invitation:', updateError);
       }
 
-      return invitation;
+      return {
+        organization: invitation.organizations,
+        role: invitation.role || 'student'
+      };
     },
-    onSuccess: (invitation) => {
+    onSuccess: (result: any) => {
       toast({
         title: "Welcome!",
-        description: `You've successfully joined ${invitation.organizations?.name}`,
+        description: `You've successfully joined ${result.organization?.name}`,
       });
     },
     onError: (error) => {

@@ -8,6 +8,7 @@ export interface UserOrganizationMembership {
   organizations: {
     id: string;
     name: string;
+    plan: string;
     subscription_tier: string;
   };
 }
@@ -20,13 +21,13 @@ export function useUserOrganizations() {
       const { data, error } = await supabase
         .from('org_members')
         .select(`
-          organization_id,
+          org_id,
           role,
           status,
           organizations!inner (
             id,
             name,
-            subscription_tier
+            plan
           )
         `)
         .eq('status', 'active');
@@ -36,7 +37,15 @@ export function useUserOrganizations() {
         throw error;
       }
 
-      return data as UserOrganizationMembership[];
+      return data.map(item => ({
+        organization_id: item.org_id,
+        role: item.role,
+        status: item.status,
+        organizations: {
+          ...item.organizations,
+          subscription_tier: item.organizations.plan
+        }
+      })) as UserOrganizationMembership[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

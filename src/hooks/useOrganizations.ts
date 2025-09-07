@@ -33,18 +33,20 @@ export function useOrganizations() {
         name: org.name,
         description: org.description || undefined,
         owner_id: org.owner_id,
-        subscription_tier: org.subscription_tier,
-        seat_limit: org.seat_limit,
-        seats_used: org.seats_used,
-        settings: org.settings || {},
-        beta_expiration_date: org.beta_expiration_date || undefined,
-        is_beta_access: org.is_beta_access || undefined,
+        plan: org.plan,
+        seat_cap: org.seat_cap,
+        seats_used: 0, // Default value since not in DB
+        brand_primary: org.brand_primary,
+        brand_accent: org.brand_accent,
+        logo_url: org.logo_url,
+        slug: org.slug,
+        is_suspended: org.is_suspended,
         status: org.status || 'active',
-        suspended_at: org.suspended_at || undefined,
-        suspended_reason: org.suspended_reason || undefined,
-        suspended_by: org.suspended_by || undefined,
+        created_by: org.created_by,
         created_at: org.created_at,
-        updated_at: org.updated_at,
+        // Computed properties for backward compatibility
+        subscription_tier: org.plan,
+        seat_limit: org.seat_cap,
       }));
     },
     enabled: !!user,
@@ -67,13 +69,12 @@ export function useOrganizations() {
         name: orgData.name,
         description: orgData.description,
         owner_id: user.id,
-        subscription_tier: orgData.subscription_tier,
-        seat_limit,
-        seats_used: 0,
-        is_beta_access: orgData.subscription_tier === 'beta',
-        beta_expiration_date: orgData.subscription_tier === 'beta' 
-          ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() // 90 days from now
-          : null,
+        plan: orgData.subscription_tier,
+        seat_cap: seat_limit,
+        slug: orgData.name.toLowerCase().replace(/\s+/g, '-'),
+        status: 'active',
+        created_by: user.id,
+        is_suspended: false,
       };
 
       const { data, error } = await supabase
@@ -111,7 +112,7 @@ export function useOrganizations() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       toast({
         title: "Organization Created!",
-        description: `${data.name} has been created successfully with ${data.subscription_tier} access.`,
+        description: `${data.name} has been created successfully with ${data.plan} access.`,
       });
     },
     onError: (error) => {

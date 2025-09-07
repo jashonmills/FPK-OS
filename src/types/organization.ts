@@ -9,20 +9,20 @@ export interface Organization {
   name: string;
   description?: string;
   owner_id: string;
-  subscription_tier: OrgSubscriptionTier;
-  seat_limit: number;
-  seats_used: number;
-  instructor_limit?: number;
-  instructors_used?: number;
-  settings: Record<string, any>;
-  beta_expiration_date?: string;
-  is_beta_access?: boolean;
+  plan: string; // This is subscription_tier in the database
+  seat_cap: number; // This is seat_limit
+  seats_used?: number;
+  brand_primary?: string;
+  brand_accent?: string;
+  logo_url?: string;
+  slug: string;
+  is_suspended?: boolean;
   status: 'active' | 'suspended' | 'deleted';
-  suspended_at?: string;
-  suspended_reason?: string;
-  suspended_by?: string;
+  created_by: string;
   created_at: string;
-  updated_at: string;
+  // Computed properties for backward compatibility
+  subscription_tier?: string;
+  seat_limit?: number;
 }
 
 export interface OrgMember {
@@ -47,19 +47,22 @@ export interface OrgMember {
 export interface OrgInvitation {
   id: string;
   org_id: string;
-  invited_by: string;
+  created_by: string;
   email?: string;
   code?: string;
-  invitation_link?: string;
   status: InvitationStatus;
   expires_at: string;
-  accepted_by?: string;
-  accepted_at?: string;
   max_uses?: number;
   uses_count?: number;
+  role?: string;
+  created_at: string;
+  // Computed properties for backward compatibility
+  invited_by?: string;
+  invitation_code?: string;
+  current_uses?: number;
+  invitation_link?: string;
   is_active?: boolean;
   metadata?: Record<string, any>;
-  created_at: string;
 }
 
 export interface OrgCourseAssignment {
