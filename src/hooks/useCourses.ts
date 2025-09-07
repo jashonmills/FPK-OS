@@ -21,6 +21,8 @@ export interface Course {
   updated_at?: string;
   organization_id?: string;
   course_visibility?: 'global' | 'organization_only' | 'private';
+  enrollments_count?: number;
+  completion_rate?: number;
 }
 
 // Type for creating a new course (without id, created_at, updated_at)
