@@ -3,9 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Organization } from '@/types/organization';
 
+console.log('🔍 useAdminOrganizations Hook - Loading');
+
 // Admin-specific hook to fetch ALL organizations in the system
 export function useAdminOrganizations() {
   const { user } = useAuth();
+
+  console.log('🔍 useAdminOrganizations Hook - User:', user);
 
   const { data: organizations, isLoading, error } = useQuery({
     queryKey: ['admin-organizations'],

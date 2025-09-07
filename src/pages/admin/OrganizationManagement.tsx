@@ -29,6 +29,8 @@ export default function OrganizationManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const { organizations, isLoading } = useAdminOrganizations();
 
+  console.log('🔍 OrganizationManagement Component - Organizations:', organizations, 'Loading:', isLoading);
+
   const filteredOrganizations = organizations?.filter(org =>
     org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     org.description?.toLowerCase().includes(searchQuery.toLowerCase())
