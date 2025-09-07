@@ -6239,6 +6239,10 @@ export type Database = {
         Args: { org_id: string }
         Returns: boolean
       }
+      user_is_org_owner_direct: {
+        Args: { check_user_id: string; org_id: string }
+        Returns: boolean
+      }
       user_org_role: {
         Args: { org_id: string }
         Returns: Database["public"]["Enums"]["member_role"]

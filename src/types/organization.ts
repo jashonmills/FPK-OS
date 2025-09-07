@@ -27,15 +27,16 @@ export interface Organization {
 
 export interface OrgMember {
   id: string;
-  organization_id: string;
+  org_id: string;
   user_id: string;
   role: MemberRole;
   status: MemberStatus;
   invited_by?: string;
   joined_at?: string;
-  removed_at?: string;
+  access_revoked_at?: string;
+  access_revoked_reason?: string;
+  invitation_link?: string;
   created_at: string;
-  updated_at: string;
   // Join data
   profiles?: {
     full_name?: string;
@@ -45,38 +46,36 @@ export interface OrgMember {
 
 export interface OrgInvitation {
   id: string;
-  organization_id: string;
+  org_id: string;
   invited_by: string;
   email?: string;
-  invitation_code?: string;
+  code?: string;
   invitation_link?: string;
   status: InvitationStatus;
   expires_at: string;
   accepted_by?: string;
   accepted_at?: string;
   max_uses?: number;
-  current_uses?: number;
+  uses_count?: number;
   is_active?: boolean;
-  metadata: Record<string, any>;
+  metadata?: Record<string, any>;
   created_at: string;
-  updated_at: string;
 }
 
 export interface OrgCourseAssignment {
   id: string;
-  organization_id: string;
+  org_id: string;
   course_id: string;
   assigned_by: string;
   student_ids: string[];
   due_date?: string;
   instructions?: string;
   created_at: string;
-  updated_at: string;
 }
 
 export interface OrgGoal {
   id: string;
-  organization_id: string;
+  org_id: string;
   created_by: string;
   student_id: string;
   title: string;
@@ -89,7 +88,6 @@ export interface OrgGoal {
   progress_percentage: number;
   metadata: Record<string, any>;
   created_at: string;
-  updated_at: string;
   // Join data
   student_profile?: {
     full_name?: string;
@@ -99,7 +97,7 @@ export interface OrgGoal {
 
 export interface OrgNote {
   id: string;
-  organization_id: string;
+  org_id: string;
   created_by: string;
   student_id: string;
   title: string;
@@ -111,7 +109,6 @@ export interface OrgNote {
   tags: string[];
   metadata: Record<string, any>;
   created_at: string;
-  updated_at: string;
   // Join data
   student_profile?: {
     full_name?: string;

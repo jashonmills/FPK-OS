@@ -91,7 +91,7 @@ export function useOrganizations() {
       const { error: memberError } = await supabase
         .from('org_members')
         .insert({
-          organization_id: data.id,
+          org_id: data.id,
           user_id: user.id,
           role: 'owner',
           status: 'active',
@@ -195,7 +195,7 @@ export function useOrganizationAccess(organizationId?: string) {
       const { data: memberData } = await supabase
         .from('org_members')
         .select('status')
-        .eq('organization_id', organizationId)
+        .eq('org_id', organizationId)
         .eq('user_id', user.id)
         .eq('status', 'active')
         .single();

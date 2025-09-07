@@ -24,9 +24,9 @@ export function useOrgInvitations(organizationId?: string) {
       if (!organizationId || !user) return [];
 
       const { data, error } = await supabase
-        .from('org_invitations')
+        .from('org_invites')
         .select('*')
-        .eq('organization_id', organizationId)
+        .eq('org_id', organizationId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -36,6 +36,10 @@ export function useOrgInvitations(organizationId?: string) {
 
       return (data || []).map(item => ({
         ...item,
+        invited_by: item.created_by,
+        organization_id: item.org_id,
+        invitation_code: item.code,
+        current_uses: item.uses_count,
         metadata: (item.metadata as Record<string, any>) || {}
       }));
     },
@@ -60,21 +64,19 @@ export function useOrgInvitations(organizationId?: string) {
       }
 
       const invitationData = {
-        organization_id: data.organizationId,
-        invited_by: user.id,
+        org_id: data.organizationId,
+        created_by: user.id,
         email: data.email || null,
-        invitation_link: linkData,
-        invitation_code: linkData.replace('org-invite-', ''),
+        code: linkData.replace('org-invite-', ''),
         status: 'pending' as const,
         expires_at: expiresAt.toISOString(),
         max_uses: data.maxUses || 1,
-        current_uses: 0,
-        is_active: true,
+        uses_count: 0,
         metadata: {}
       };
 
       const { data: invitation, error } = await supabase
-        .from('org_invitations')
+        .from('org_invites')
         .insert(invitationData)
         .select()
         .single();

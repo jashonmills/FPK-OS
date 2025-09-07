@@ -136,7 +136,7 @@ export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({
         const { error: memberError } = await supabase
           .from('org_members')
           .insert({
-            organization_id: org.id,
+            org_id: org.id,
             user_id: ownerId,
             role: 'owner',
             status: 'active'
