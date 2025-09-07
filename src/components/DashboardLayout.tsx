@@ -8,28 +8,31 @@ import GlobalChatWidget from '@/components/GlobalChatWidget';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
+import { OrgProvider } from '@/components/organizations/OrgContext';
 
 const DashboardLayout: React.FC = () => {
   return (
     <ErrorBoundaryUnified>
       <VoiceSettingsProvider>
         <GamificationProvider>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full overflow-x-hidden">
-              <AppSidebar />
-              <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-                <GlobalHeader />
-                <main className="flex-1 bg-gray-50 mobile-scroll-container">
-                  <div className="w-full h-full mobile-container py-3 sm:py-4 md:py-6 lg:py-8">
-                    <ErrorBoundaryUnified resetOnPropsChange={true}>
-                      <Outlet />
-                    </ErrorBoundaryUnified>
-                  </div>
-                </main>
+          <OrgProvider>
+            <SidebarProvider>
+              <div className="min-h-screen flex w-full overflow-x-hidden">
+                <AppSidebar />
+                <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+                  <GlobalHeader />
+                  <main className="flex-1 bg-gray-50 mobile-scroll-container">
+                    <div className="w-full h-full mobile-container py-3 sm:py-4 md:py-6 lg:py-8">
+                      <ErrorBoundaryUnified resetOnPropsChange={true}>
+                        <Outlet />
+                      </ErrorBoundaryUnified>
+                    </div>
+                  </main>
+                </div>
+                <GlobalChatWidget />
               </div>
-              <GlobalChatWidget />
-            </div>
-          </SidebarProvider>
+            </SidebarProvider>
+          </OrgProvider>
         </GamificationProvider>
       </VoiceSettingsProvider>
     </ErrorBoundaryUnified>

@@ -60,6 +60,11 @@ export function AppSidebar() {
       icon: Home,
     },
     {
+      title: 'Organizations',
+      url: "/org",
+      icon: Building2,
+    },
+    {
       title: 'Courses',
       url: "/dashboard/learner/courses",
       icon: Book,

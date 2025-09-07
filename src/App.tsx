@@ -28,6 +28,12 @@ const OrganizationSignup = lazy(() => import("./pages/OrganizationSignup"));
 const JoinOrganization = lazy(() => import("./pages/JoinOrganization"));
 const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 
+// Organization authenticated pages
+const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
+const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
+const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
+const OrgInvitationsPage = lazy(() => import("./pages/organizations/OrgInvitationsPage"));
+
 // Dashboard pages - lazy loaded for optimal performance
 const LearnerHome = lazy(() => {
   performanceMonitor.startRender('LearnerHome');
@@ -310,6 +316,28 @@ const App: React.FC = () => {
           <Route path="/courses/:slug" element={
             <RouteProtector>
               <LazyRoute><NativeCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          {/* Organization Routes - Authenticated */}
+          <Route path="/org" element={
+            <RouteProtector>
+              <LazyRoute><OrgHub /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/org/create" element={
+            <RouteProtector>
+              <LazyRoute><OrgCreatePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/org/join" element={
+            <RouteProtector>
+              <LazyRoute><OrgJoinPage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/org/invitations" element={
+            <RouteProtector>
+              <LazyRoute><OrgInvitationsPage /></LazyRoute>
             </RouteProtector>
           } />
           

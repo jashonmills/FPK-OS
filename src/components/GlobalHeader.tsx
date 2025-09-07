@@ -18,10 +18,13 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import { OrgSwitcher } from '@/components/organizations/OrgSwitcher';
+import { useOrgContext } from '@/components/organizations/OrgContext';
 
 const GlobalHeader = () => {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
+  const { isPersonalMode, currentOrg } = useOrgContext();
   const navigate = useNavigate();
 
   const getDisplayName = () => {
@@ -52,13 +55,18 @@ const GlobalHeader = () => {
               <span className="text-white font-bold text-sm">FPK</span>
             </div>
             <span className="font-semibold text-lg">
-              Learner Portal
+              {isPersonalMode ? 'Learner Portal' : currentOrg?.organizations.name || 'Organization Portal'}
             </span>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-md mx-4 hidden md:block">
+        {/* Center - Organization Switcher */}
+        <div className="flex-1 flex justify-center max-w-md mx-4">
+          <OrgSwitcher />
+        </div>
+
+        {/* Search Bar - Hidden on mobile when org switcher is present */}
+        <div className="flex-1 max-w-md mx-4 hidden lg:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input

@@ -19,6 +19,7 @@ import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
 import AIInsightsSection from '@/components/dashboard/AIInsightsSection';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
 import FeedbackSystem from '@/components/beta/FeedbackSystem';
+import OrgBanner from '@/components/dashboard/OrgBanner';
 
 const LearnerHome = () => {
   const { user } = useAuth();
@@ -72,6 +73,11 @@ const LearnerHome = () => {
     <div className="mobile-section-spacing">
       {/* Beta Onboarding */}
       <BetaOnboarding autoShow={true} />
+      
+      {/* Organization Banner - Shows when user has no organizations */}
+      <div className="mb-6">
+        <OrgBanner />
+      </div>
       
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
