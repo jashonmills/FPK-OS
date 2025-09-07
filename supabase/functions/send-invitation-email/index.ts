@@ -33,7 +33,8 @@ serve(async (req) => {
 
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     
-    const inviteUrl = `${Deno.env.get("SUPABASE_URL").replace('//', '//fpkuniversity.com')}/join/${invitationCode}`;
+    const baseUrl = "https://fpkuniversity.com";
+    const inviteUrl = `${baseUrl}/join/${invitationCode}`;
     
     const emailResponse = await resend.emails.send({
       from: "FPK University <noreply@fpkuniversity.com>",
