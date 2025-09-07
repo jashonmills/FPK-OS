@@ -77,9 +77,9 @@ export default function OrganizationSignup() {
 
   const uploadLogo = async (file: File, currentUser: any): Promise<string | null> => {
     try {
-      // Skip upload if no authenticated user yet
-      if (!currentUser) {
-        console.log('Skipping logo upload - user not authenticated yet');
+      // Skip upload for new signups - will be handled after email verification
+      if (!user) {
+        console.log('Skipping logo upload for new signup - will upload after verification');
         return null;
       }
 
@@ -166,11 +166,16 @@ export default function OrganizationSignup() {
         throw new Error('Unable to determine user ID.');
       }
       
-      // Upload logo if provided
+      // For new signups, wait a moment for the user to be properly created
+      if (!user) {
+        console.log('New signup detected, waiting for user creation...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
+      // Upload logo if provided (only for existing authenticated users)
       let logoUrl: string | null = null;
-      if (logoFile) {
-        const currentUser = user || { id: currentUserId };
-        logoUrl = await uploadLogo(logoFile, currentUser);
+      if (logoFile && user) {
+        logoUrl = await uploadLogo(logoFile, user);
       }
 
       // Generate a unique slug
