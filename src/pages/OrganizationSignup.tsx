@@ -170,27 +170,24 @@ export default function OrganizationSignup() {
         console.log('⏳ Waiting for user to be committed to database...');
         let userExists = false;
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 15;
         
         while (!userExists && attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
-          // Check if user exists in auth.users
-          const { data: userCheck, error: userCheckError } = await supabase
-            .rpc('user_exists_check', { user_id: currentUserId })
-            .single();
-            
-          if (!userCheckError && userCheck) {
+          // Try to get the user session to verify they exist
+          const { data: sessionData } = await supabase.auth.getUser();
+          if (sessionData.user && sessionData.user.id === currentUserId) {
             userExists = true;
-            console.log('✅ User confirmed to exist in database');
+            console.log('✅ User confirmed to exist via session');
           } else {
             attempts++;
-            console.log(`⏳ User not yet in database, attempt ${attempts}/${maxAttempts}`);
+            console.log(`⏳ User not yet available, attempt ${attempts}/${maxAttempts}`);
           }
         }
         
         if (!userExists) {
-          throw new Error('User was not properly created in the database. Please try again.');
+          throw new Error('User session was not properly established. Please try signing in instead.');
         }
       } else {
         currentUserId = user.id;
