@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_log: {
+        Row: {
+          created_at: string | null
+          event: string
+          id: string
+          metadata: Json | null
+          org_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event: string
+          id?: string
+          metadata?: Json | null
+          org_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event?: string
+          id?: string
+          metadata?: Json | null
+          org_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_outputs: {
         Row: {
           approved_at: string | null
@@ -925,6 +960,48 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "native_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress: {
+        Row: {
+          course_id: string | null
+          id: string
+          org_id: string | null
+          percent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          course_id?: string | null
+          id?: string
+          org_id?: string | null
+          percent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          course_id?: string | null
+          id?: string
+          org_id?: string | null
+          percent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "org_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -2893,6 +2970,88 @@ export type Database = {
           },
         ]
       }
+      org_courses: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          level: string | null
+          org_id: string
+          published: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          level?: string | null
+          org_id: string
+          published?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          level?: string | null
+          org_id?: string
+          published?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_courses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_goal_targets: {
+        Row: {
+          created_at: string | null
+          goal_id: string
+          progress: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          goal_id: string
+          progress?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          goal_id?: string
+          progress?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_goal_targets_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "org_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_goals: {
         Row: {
           category: string | null
@@ -3106,6 +3265,67 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_note_folders: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          name: string
+          org_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          name: string
+          org_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          name?: string
+          org_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_note_folders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_note_targets: {
+        Row: {
+          created_at: string | null
+          note_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          note_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          note_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_note_targets_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "org_notes"
             referencedColumns: ["id"]
           },
         ]
@@ -3355,6 +3575,7 @@ export type Database = {
           banner_url: string | null
           brand_accent: string | null
           brand_primary: string | null
+          branding: Json | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -3382,6 +3603,7 @@ export type Database = {
           banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
+          branding?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -3409,6 +3631,7 @@ export type Database = {
           banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
+          branding?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -4807,6 +5030,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      session_time: {
+        Row: {
+          created_at: string | null
+          day: string | null
+          id: string
+          minutes: number
+          org_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day?: string | null
+          id?: string
+          minutes?: number
+          org_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day?: string | null
+          id?: string
+          minutes?: number
+          org_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_time_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shop_items: {
         Row: {
@@ -6234,6 +6492,19 @@ export type Database = {
       migrate_existing_scorm_lessons: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      org_change_plan: {
+        Args: { p_org_id: string; p_plan: string }
+        Returns: undefined
+      }
+      org_create_invite: {
+        Args: {
+          p_expires_interval?: unknown
+          p_max_uses?: number
+          p_org_id: string
+          p_role: string
+        }
+        Returns: string
       }
       org_decrement_seats_if_needed: {
         Args: { p_org_id: string; p_role: string }
