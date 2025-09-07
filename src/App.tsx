@@ -23,6 +23,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
 const BetaAccessGate = lazy(() => import('@/components/beta/BetaAccessGate'));
 
+// Organization public pages
+const OrganizationSignup = lazy(() => import("./pages/OrganizationSignup"));
+const JoinOrganization = lazy(() => import("./pages/JoinOrganization"));
+const OrgLanding = lazy(() => import("./pages/OrgLanding"));
+
 // Dashboard pages - lazy loaded for optimal performance
 const LearnerHome = lazy(() => {
   performanceMonitor.startRender('LearnerHome');
@@ -323,6 +328,9 @@ const App: React.FC = () => {
           <Route path="/403" element={<LazyRoute><Forbidden /></LazyRoute>} />
           
           {/* Public Routes */}
+          <Route path="/organization-signup" element={<LazyRoute><OrganizationSignup /></LazyRoute>} />
+          <Route path="/join" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
+          <Route path="/o/:orgSlug" element={<LazyRoute><OrgLanding /></LazyRoute>} />
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
           <Route path="/games" element={<LazyRoute><Games /></LazyRoute>} />

@@ -10,6 +10,14 @@ const HomepageNavigation = () => {
     { label: 'Empowering Learning', href: 'https://empoweringlearning.fpkadapt.com/', external: true },
     { label: 'Learning Portal', href: '/dashboard/learner' },
     { label: 'Games', href: 'https://fpk-games.lovable.app/', external: true },
+    { 
+      label: 'Organizations', 
+      href: '/organizations',
+      dropdown: [
+        { label: 'Create Organization', href: '/organization-signup' },
+        { label: 'Join with Invite Code', href: '/join' }
+      ]
+    },
   ];
 
   return (
@@ -31,7 +39,25 @@ const HomepageNavigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              link.external ? (
+              link.dropdown ? (
+                <div key={link.label} className="relative group">
+                  <button className="text-slate-700 hover:text-fpk-orange transition-colors duration-200 font-medium flex items-center gap-1">
+                    {link.label}
+                    <span className="text-xs">▼</span>
+                  </button>
+                  <div className="absolute top-full left-0 bg-white rounded-lg shadow-lg border p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-48">
+                    {link.dropdown.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="block px-3 py-2 text-slate-700 hover:text-fpk-orange hover:bg-gray-50 rounded transition-colors text-sm whitespace-nowrap"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
@@ -73,7 +99,25 @@ const HomepageNavigation = () => {
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
-                link.external ? (
+                link.dropdown ? (
+                  <div key={link.label} className="space-y-2">
+                    <div className="text-slate-700 font-medium py-2">
+                      {link.label}
+                    </div>
+                    <div className="ml-4 space-y-2">
+                      {link.dropdown.map((item) => (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          className="block text-slate-700 hover:text-fpk-orange transition-colors duration-200 py-2"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : link.external ? (
                   <a
                     key={link.href}
                     href={link.href}

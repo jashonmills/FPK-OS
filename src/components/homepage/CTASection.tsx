@@ -36,7 +36,15 @@ const CTASection = () => {
               size="lg"
               className="border-2 border-purple-600 text-purple-600 bg-white/20 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
             >
-              <Link to="/login">Sign Up</Link>
+              <Link to="/organization-signup">Create Organization</Link>
+            </Button>
+            <Button 
+              asChild 
+              variant="outline" 
+              size="lg"
+              className="border-2 border-purple-600 text-purple-600 bg-white/20 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
+            >
+              <Link to="/join">Join with Invite Code</Link>
             </Button>
           </div>
         </div>

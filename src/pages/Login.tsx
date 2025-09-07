@@ -452,6 +452,23 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/80 hover:text-white text-sm"
+              onClick={() => navigate('/organization-signup')}
+            >
+              Instructor/Parent? Create an Organization
+            </Button>
+            <Button 
+              variant="link" 
+              className="text-white/80 hover:text-white text-sm"
+              onClick={() => navigate('/join')}
+            >
+              Have an Invite Code?
+            </Button>
+          </div>
+          
+          <div className="flex space-x-6">
+            <Button 
+              variant="link" 
+              className="text-white/80 hover:text-white text-sm"
               onClick={() => navigate('/choose-plan')}
             >
               View Pricing Plans
