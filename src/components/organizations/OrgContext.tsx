@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserOrganizations } from '@/hooks/useUserOrganization';
 import type { UserOrganizationMembership } from '@/hooks/useUserOrganization';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useOrgBranding } from '@/hooks/useOrgBranding';
 
 interface OrgContextType {
   currentOrg: UserOrganizationMembership | null;
@@ -12,6 +13,9 @@ interface OrgContextType {
   isPersonalMode: boolean;
   switchOrganization: (orgId: string | null) => void;
   switchToPersonal: () => void;
+  // Navigation context helpers
+  getNavigationContext: () => 'personal' | 'org-student' | 'org-instructor';
+  getUserRole: () => 'owner' | 'instructor' | 'student' | null;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -96,6 +100,23 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
 
   const isPersonalMode = activeOrgId === null;
 
+  // Helper functions for navigation context
+  const getNavigationContext = (): 'personal' | 'org-student' | 'org-instructor' => {
+    if (isPersonalMode) {
+      return 'personal';
+    }
+    
+    if (currentOrg?.role === 'owner' || currentOrg?.role === 'instructor') {
+      return 'org-instructor';
+    }
+    
+    return 'org-student';
+  };
+
+  const getUserRole = (): 'owner' | 'instructor' | 'student' | null => {
+    return currentOrg?.role || null;
+  };
+
   return (
     <OrgContext.Provider value={{
       currentOrg,
@@ -105,6 +126,8 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
       isPersonalMode,
       switchOrganization,
       switchToPersonal,
+      getNavigationContext,
+      getUserRole,
     }}>
       {children}
     </OrgContext.Provider>

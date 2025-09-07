@@ -1,4 +1,5 @@
 
+import React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +44,8 @@ import { useAppUser } from "@/hooks/useAppUser";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
+import { useOrgContext } from "@/components/organizations/OrgContext";
+import { navPersonal, navOrgStudent, navOrgInstructor, injectOrgId } from "@/config/nav";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -52,6 +55,7 @@ export function AppSidebar() {
   const { isAdmin } = useAppUser();
   const { isInstructor, isLearner } = useUserRole();
   const { t, tString } = useGlobalTranslation();
+  const { activeOrgId, getNavigationContext, isPersonalMode } = useOrgContext();
 
   const learnerMenuItems = [
     {
@@ -258,6 +262,15 @@ export function AppSidebar() {
     if (url.includes('/scorm/')) {
       return location.pathname.startsWith(url);
     }
+    // Handle org-specific routes by checking both path and query params
+    if (url.includes('?org=')) {
+      const [path, query] = url.split('?');
+      const currentParams = new URLSearchParams(location.search);
+      const urlParams = new URLSearchParams(query);
+      
+      return location.pathname === path && 
+             currentParams.get('org') === urlParams.get('org');
+    }
     return location.pathname === url;
   };
 
@@ -267,6 +280,35 @@ export function AppSidebar() {
     } else {
       navigate(item.url);
     }
+  };
+
+  // Get contextual navigation items based on org context
+  const getContextualNavItems = () => {
+    const context = getNavigationContext();
+    
+    let navItems;
+    switch (context) {
+      case 'org-instructor':
+        navItems = navOrgInstructor;
+        break;
+      case 'org-student':
+        navItems = navOrgStudent;
+        break;
+      default:
+        navItems = navPersonal;
+    }
+    
+    return injectOrgId(navItems, activeOrgId);
+  };
+
+  // Helper to extract icon component from React.createElement
+  const renderIcon = (iconElement: React.ReactNode) => {
+    if (React.isValidElement(iconElement)) {
+      return React.cloneElement(iconElement as React.ReactElement<any>, { 
+        className: "h-4 w-4 flex-shrink-0" 
+      });
+    }
+    return iconElement;
   };
 
   return (
@@ -386,28 +428,29 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
+        {/* Context-based Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium mb-2">
-            Learning Dashboard
+            {isPersonalMode ? 'Learning Dashboard' : 'Organization Dashboard'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {learnerMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              {getContextualNavItems().map((item) => (
+                <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton 
                     asChild 
                     className={`w-full transition-colors ${
-                      isActive(item.url) 
+                      isActive(item.to) 
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
                         : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
                     }`}
                   >
                     <button
-                      onClick={() => navigate(item.url)}
+                      onClick={() => navigate(item.to)}
                       className="flex items-center gap-3 w-full text-left"
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span>{item.title}</span>
+                      {renderIcon(item.icon)}
+                      <span>{item.label}</span>
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -3352,6 +3352,7 @@ export type Database = {
       }
       organizations: {
         Row: {
+          banner_url: string | null
           brand_accent: string | null
           brand_primary: string | null
           created_at: string
@@ -3372,9 +3373,13 @@ export type Database = {
           suspended_at: string | null
           suspended_by: string | null
           suspended_reason: string | null
+          theme_accent: string | null
+          theme_mode: string | null
           updated_at: string | null
+          updated_by: string | null
         }
         Insert: {
+          banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
           created_at?: string
@@ -3395,9 +3400,13 @@ export type Database = {
           suspended_at?: string | null
           suspended_by?: string | null
           suspended_reason?: string | null
+          theme_accent?: string | null
+          theme_mode?: string | null
           updated_at?: string | null
+          updated_by?: string | null
         }
         Update: {
+          banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
           created_at?: string
@@ -3418,7 +3427,10 @@ export type Database = {
           suspended_at?: string | null
           suspended_by?: string | null
           suspended_reason?: string | null
+          theme_accent?: string | null
+          theme_mode?: string | null
           updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }

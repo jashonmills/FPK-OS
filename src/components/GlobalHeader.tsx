@@ -20,6 +20,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { OrgSwitcher } from '@/components/organizations/OrgSwitcher';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { OrgBrandingBadge } from '@/components/org/OrgBrandingBadge';
 
 const GlobalHeader = () => {
   const { user, signOut } = useAuth();
@@ -55,9 +56,10 @@ const GlobalHeader = () => {
               <span className="text-white font-bold text-sm">FPK</span>
             </div>
             <span className="font-semibold text-lg">
-              {isPersonalMode ? 'Learner Portal' : currentOrg?.organizations.name || 'Organization Portal'}
+              FPK University
             </span>
           </div>
+          <OrgBrandingBadge />
         </div>
 
         {/* Center - Organization Switcher */}

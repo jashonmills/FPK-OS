@@ -83,6 +83,7 @@ const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
+const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
@@ -194,6 +195,7 @@ const App: React.FC = () => {
             
             {/* Instructor Routes */}
             <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
+            <Route path="instructor/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<LazyRoute><AdminDashboard /></LazyRoute>} />
