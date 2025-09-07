@@ -33,7 +33,8 @@ serve(async (req) => {
 
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     
-    const baseUrl = "https://fpkuniversity.com";
+    // Use the current deployment URL for now, can be updated when custom domain is ready
+    const baseUrl = "https://37f15120-5ac1-49d9-9773-7dabbcb6a72b.sandbox.lovable.dev";
     const inviteUrl = `${baseUrl}/join/${invitationCode}`;
     
     const emailResponse = await resend.emails.send({
