@@ -84,6 +84,13 @@ const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
+const OrganizationSettings = lazy(() => import("./pages/instructor/OrganizationSettings"));
+const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
+const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
+const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
+const GoalsManagement = lazy(() => import("./pages/instructor/GoalsManagement"));
+const NotesManagement = lazy(() => import("./pages/instructor/NotesManagement"));
+const AnalyticsOverview = lazy(() => import("./pages/instructor/AnalyticsOverview"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
@@ -195,6 +202,13 @@ const App: React.FC = () => {
             
             {/* Instructor Routes */}
             <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
+            <Route path="instructor/organization" element={<LazyRoute><OrganizationSettings /></LazyRoute>} />
+            <Route path="instructor/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
+            <Route path="instructor/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
+            <Route path="instructor/assignments" element={<LazyRoute><AssignmentsManagement /></LazyRoute>} />
+            <Route path="instructor/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
+            <Route path="instructor/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
+            <Route path="instructor/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
             <Route path="instructor/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             
             {/* Admin Routes */}
