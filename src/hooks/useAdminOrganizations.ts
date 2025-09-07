@@ -12,11 +12,15 @@ export function useAdminOrganizations() {
     queryFn: async (): Promise<Organization[]> => {
       if (!user) return [];
 
+      console.log('🔍 Admin Organizations Hook - Fetching organizations for admin:', user.id);
+
       // Fetch ALL organizations - admin policies will handle access control
       const { data, error } = await supabase
         .from('organizations')
         .select('*')
         .order('created_at', { ascending: false });
+
+      console.log('📊 Admin Organizations Query Result:', { data, error });
 
       if (error) {
         console.error('Error fetching admin organizations:', error);
