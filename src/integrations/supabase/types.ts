@@ -6291,6 +6291,10 @@ export type Database = {
         Args: { check_user_id: string; org_id: string }
         Returns: boolean
       }
+      user_is_org_member_safe: {
+        Args: { check_user_id: string; org_id: string }
+        Returns: boolean
+      }
       user_is_org_owner: {
         Args: { org_id: string }
         Returns: boolean
