@@ -113,11 +113,29 @@ const Login = () => {
 
   // Redirect authenticated users immediately
   useEffect(() => {
+    console.log('Login: Auth check - user:', !!user, 'loading:', loading);
+    
     if (!loading && user) {
-      console.log('🔄 Login: User authenticated, redirecting to dashboard');
+      console.log('🔄 Login: User authenticated, checking for redirects');
+      
+      const redirect = searchParams.get('redirect');
+      console.log('Login: Redirect parameter:', redirect);
+      
+      if (redirect === 'join-organization') {
+        const pendingInvitation = localStorage.getItem('pendingInvitation');
+        console.log('Login: Found pending invitation:', pendingInvitation);
+        
+        if (pendingInvitation) {
+          localStorage.removeItem('pendingInvitation');
+          navigate(`/join/${pendingInvitation}`, { replace: true });
+          return;
+        }
+      }
+      
+      console.log('🔄 Login: No redirect, going to dashboard');
       navigate('/dashboard/learner', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, searchParams]);
 
   // Auto-show video guide for signup tab (only once)
   useEffect(() => {
@@ -259,9 +277,17 @@ const Login = () => {
 
   // Show loading while checking auth state
   if (loading) {
+    console.log('Login: Authentication still loading, showing loading screen');
+    console.log('Login: Current URL:', window.location.href);
+    console.log('Login: Search params:', searchParams.toString());
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fpk-purple to-fpk-amber">
-        <div className="text-white">Loading...</div>
+        <div className="text-white flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          <div>Loading...</div>
+          <div className="text-sm opacity-80">Checking authentication...</div>
+        </div>
       </div>
     );
   }

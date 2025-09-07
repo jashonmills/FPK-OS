@@ -23,9 +23,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('useAuth: Setting up authentication listeners');
+    console.log('useAuth: Current domain:', window.location.hostname);
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('useAuth: Auth state changed', { event, hasSession: !!session, hasUser: !!session?.user });
         logger.auth('Auth state changed', { event, hasSession: !!session, hasUser: !!session?.user });
         setSession(session);
         setUser(session?.user ?? null);
@@ -34,13 +38,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    console.log('useAuth: Getting initial session...');
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('useAuth: Initial session result', { hasSession: !!session, error });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+    }).catch((err) => {
+      console.error('useAuth: Error getting initial session:', err);
+      setLoading(false); // Still set loading to false even on error
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('useAuth: Cleaning up auth listeners');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

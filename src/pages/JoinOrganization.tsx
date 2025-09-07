@@ -16,19 +16,24 @@ export function JoinOrganization() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    console.log('JoinOrganization: code =', code, 'user =', !!user);
+    
     if (!code) {
+      console.log('JoinOrganization: No code provided');
       setStatus('error');
       setErrorMessage('Invalid invitation link');
       return;
     }
 
     if (!user) {
+      console.log('JoinOrganization: User not authenticated, redirecting to login');
       // Redirect to sign up/login with the invitation code stored
       localStorage.setItem('pendingInvitation', code);
       navigate('/login?redirect=join-organization');
       return;
     }
 
+    console.log('JoinOrganization: Ready to process invitation');
     setStatus('ready');
   }, [code, user, navigate]);
 
