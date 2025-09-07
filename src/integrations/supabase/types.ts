@@ -3372,6 +3372,7 @@ export type Database = {
           suspended_at: string | null
           suspended_by: string | null
           suspended_reason: string | null
+          updated_at: string | null
         }
         Insert: {
           brand_accent?: string | null
@@ -3394,6 +3395,7 @@ export type Database = {
           suspended_at?: string | null
           suspended_by?: string | null
           suspended_reason?: string | null
+          updated_at?: string | null
         }
         Update: {
           brand_accent?: string | null
@@ -3416,6 +3418,7 @@ export type Database = {
           suspended_at?: string | null
           suspended_by?: string | null
           suspended_reason?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
