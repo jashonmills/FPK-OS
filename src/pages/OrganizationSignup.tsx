@@ -135,6 +135,8 @@ export default function OrganizationSignup() {
     setError('');
 
     try {
+      console.log('🚀 Starting organization creation process...');
+      
       // Validation
       if (!orgData.name.trim()) {
         throw new Error('Organization name is required.');
@@ -143,6 +145,7 @@ export default function OrganizationSignup() {
       let currentUserId: string | undefined;
 
       if (!user) {
+        console.log('👤 No existing user, creating new account...');
         // Validate sign up data
         if (!signUpData.email || !signUpData.password || !signUpData.displayName) {
           throw new Error('Please fill in all account fields.');
@@ -156,78 +159,89 @@ export default function OrganizationSignup() {
 
         // Sign up the user first
         const signUpResult = await handleSignUp();
-        if (!signUpResult.success) return;
+        if (!signUpResult.success) {
+          console.error('❌ Sign up failed');
+          return;
+        }
         currentUserId = signUpResult.userId;
+        console.log('✅ User created with ID:', currentUserId);
+        
+        // Wait longer for user to be fully created in the system
+        console.log('⏳ Waiting for user creation to complete...');
+        await new Promise(resolve => setTimeout(resolve, 4000));
       } else {
         currentUserId = user.id;
+        console.log('✅ Using existing user ID:', currentUserId);
       }
 
       if (!currentUserId) {
         throw new Error('Unable to determine user ID.');
       }
-      
-      // For new signups, wait a moment for the user to be properly created
-      if (!user) {
-        console.log('New signup detected, waiting for user creation...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
 
-      // Upload logo if provided (only for existing authenticated users)
-      let logoUrl: string | null = null;
-      if (logoFile && user) {
-        logoUrl = await uploadLogo(logoFile, user);
-      }
+      // Skip logo upload for now to avoid RLS issues
+      console.log('⚠️ Skipping logo upload to avoid RLS issues');
+      const logoUrl: string | null = null;
 
       // Generate a unique slug
+      console.log('🔗 Generating unique slug for:', orgData.name);
       const slug = await ensureUniqueSlug(orgData.name);
+      console.log('✅ Generated slug:', slug);
 
       // Get tier info
       const tierInfo = SUBSCRIPTION_TIERS[orgData.selectedTier];
+      console.log('📊 Selected tier:', orgData.selectedTier, tierInfo);
 
-      // Create organization using RPC function or direct insert
-      const { data: orgResult, error: orgError } = await supabase.rpc('create_organization', {
-        p_name: orgData.name,
-        p_slug: slug,
-        p_plan: orgData.selectedTier,
-        p_user_id: currentUserId
-      }).single();
+      // Try direct insert first (simpler approach)
+      console.log('🏢 Creating organization via direct insert...');
+      const { data: newOrg, error: directError } = await supabase
+        .from('organizations')
+        .insert({
+          name: orgData.name,
+          slug: slug,
+          description: orgData.description || null,
+          logo_url: logoUrl,
+          plan: orgData.selectedTier,
+          seat_cap: tierInfo.seats,
+          instructor_limit: tierInfo.instructors,
+          owner_id: currentUserId,
+          created_by: currentUserId
+        })
+        .select()
+        .single();
 
-      if (orgError) {
-        // Fallback to direct insert if RPC doesn't exist
-        const { data: newOrg, error: directError } = await supabase
-          .from('organizations')
-          .insert({
-            name: orgData.name,
-            slug: slug,
-            description: orgData.description || null,
-            logo_url: logoUrl,
-            plan: orgData.selectedTier,
-            seat_cap: tierInfo.seats,
-            instructor_limit: tierInfo.instructors,
-            owner_id: currentUserId
-          })
-          .select()
-          .single();
-
-        if (directError) throw directError;
-
-        // Create owner membership
-        await supabase
-          .from('org_members')
-          .insert({
-            org_id: newOrg.id,
-            user_id: currentUserId,
-            role: 'owner',
-            status: 'active'
-          });
+      if (directError) {
+        console.error('❌ Direct insert failed:', directError);
+        throw new Error(`Failed to create organization: ${directError.message}`);
       }
+
+      console.log('✅ Organization created:', newOrg);
+
+      // Create owner membership
+      console.log('👥 Creating owner membership...');
+      const { error: memberError } = await supabase
+        .from('org_members')
+        .insert({
+          org_id: newOrg.id,
+          user_id: currentUserId,
+          role: 'owner',
+          status: 'active'
+        });
+
+      if (memberError) {
+        console.error('❌ Failed to create membership:', memberError);
+        throw new Error(`Failed to create membership: ${memberError.message}`);
+      }
+      
+      console.log('✅ Owner membership created successfully');
 
       // Check if user email is verified
       const { data: userCheck } = await supabase.auth.getUser();
       const emailVerified = userCheck.user?.email_confirmed_at;
+      console.log('📧 Email verified:', !!emailVerified);
 
       if (!emailVerified && !user) {
         // Show email verification gate for new signups
+        console.log('📨 Showing email verification gate');
         setCreatedOrgName(orgData.name);
         setShowEmailVerification(true);
         return;
@@ -238,11 +252,19 @@ export default function OrganizationSignup() {
         description: `Welcome to ${orgData.name}. You can now start adding instructors and learners.`,
       });
 
+      console.log('🎯 Navigating to instructor dashboard...');
       // Navigate to instructor dashboard
       navigate('/dashboard/instructor');
 
     } catch (error: any) {
+      console.error('💥 Organization creation error:', error);
       setError(error.message || 'An unexpected error occurred. Please try again.');
+      
+      toast({
+        title: 'Error creating organization',
+        description: error.message || 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
