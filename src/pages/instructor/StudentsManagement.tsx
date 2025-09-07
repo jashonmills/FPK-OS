@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Search, Filter, MoreHorizontal } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgMembers } from '@/hooks/useOrgMembers';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,10 @@ import {
 
 export default function StudentsManagement() {
   const { currentOrg } = useOrgContext();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { members, isLoading } = useOrgMembers(searchQuery, 'student');
+  
+  const students = members.filter(m => m.role === 'student');
 
   if (!currentOrg) {
     return (
@@ -26,40 +31,6 @@ export default function StudentsManagement() {
       </div>
     );
   }
-
-  // Mock student data for demonstration
-  const mockStudents = [
-    {
-      id: '1',
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      joinedAt: '2024-01-15',
-      status: 'active',
-      progress: 85,
-      coursesCompleted: 3,
-      lastActivity: '2024-01-20'
-    },
-    {
-      id: '2',
-      name: 'Bob Smith',
-      email: 'bob@example.com',
-      joinedAt: '2024-01-10',
-      status: 'active',
-      progress: 62,
-      coursesCompleted: 2,
-      lastActivity: '2024-01-19'
-    },
-    {
-      id: '3',
-      name: 'Carol Davis',
-      email: 'carol@example.com',
-      joinedAt: '2024-01-08',
-      status: 'inactive',
-      progress: 45,
-      coursesCompleted: 1,
-      lastActivity: '2024-01-15'
-    }
-  ];
 
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
@@ -85,7 +56,7 @@ export default function StudentsManagement() {
               <span className="text-sm font-medium">Total Students</span>
             </div>
             <div className="text-2xl font-bold mt-2">
-              12
+              {students.length}
             </div>
           </CardContent>
         </Card>
@@ -95,7 +66,12 @@ export default function StudentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Active This Week</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600">2</div>
+            <div className="text-2xl font-bold mt-2 text-green-600">{students.filter(s => {
+              const lastActivity = new Date(s.last_activity || s.joined_at);
+              const weekAgo = new Date();
+              weekAgo.setDate(weekAgo.getDate() - 7);
+              return lastActivity >= weekAgo;
+            }).length}</div>
           </CardContent>
         </Card>
         
@@ -104,7 +80,9 @@ export default function StudentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Average Progress</span>
             </div>
-            <div className="text-2xl font-bold mt-2">64%</div>
+            <div className="text-2xl font-bold mt-2">{students.length > 0 ? Math.round(
+              students.reduce((acc, s) => acc + (s.progress || 0), 0) / students.length
+            ) : 0}%</div>
           </CardContent>
         </Card>
         
@@ -113,7 +91,9 @@ export default function StudentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Completion Rate</span>
             </div>
-            <div className="text-2xl font-bold mt-2">75%</div>
+            <div className="text-2xl font-bold mt-2">{students.length > 0 ? Math.round(
+              students.filter(s => (s.courses_completed || 0) > 0).length / students.length * 100
+            ) : 0}%</div>
           </CardContent>
         </Card>
       </div>
@@ -127,6 +107,8 @@ export default function StudentsManagement() {
               <Input 
                 placeholder="Search students..." 
                 className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button variant="outline">
@@ -147,28 +129,32 @@ export default function StudentsManagement() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockStudents.map((student) => (
+            {students.map((student) => (
               <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <span className="text-sm font-semibold text-primary">
-                      {student.name.split(' ').map(n => n[0]).join('')}
+                      {(student.full_name || student.display_name || 'User')
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <div className="font-medium">{student.name}</div>
-                    <div className="text-sm text-muted-foreground">{student.email}</div>
+                    <div className="font-medium">{student.full_name || student.display_name || 'Anonymous User'}</div>
+                    <div className="text-sm text-muted-foreground">ID: {student.user_id.slice(0, 8)}</div>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-6">
                   <div className="text-center">
-                    <div className="text-sm font-medium">{student.progress}%</div>
+                    <div className="text-sm font-medium">{student.progress || 0}%</div>
                     <div className="text-xs text-muted-foreground">Progress</div>
                   </div>
                   
                   <div className="text-center">
-                    <div className="text-sm font-medium">{student.coursesCompleted}</div>
+                    <div className="text-sm font-medium">{student.courses_completed || 0}</div>
                     <div className="text-xs text-muted-foreground">Completed</div>
                   </div>
                   
@@ -195,6 +181,20 @@ export default function StudentsManagement() {
                 </div>
               </div>
             ))}
+            
+            {students.length === 0 && !isLoading && (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Students Found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Invite students to join your organization.
+                </p>
+                <Button>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Invite Students
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

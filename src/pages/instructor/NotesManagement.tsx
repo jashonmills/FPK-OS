@@ -26,44 +26,8 @@ export default function NotesManagement() {
     );
   }
 
-  // Mock notes data for demonstration
-  const mockNotes = [
-    {
-      id: '1',
-      title: 'Weekly Learning Progress Review',
-      content: 'Review of student progress across all courses for the week of January 15-22...',
-      category: 'progress-report',
-      visibility: 'instructor-only',
-      tags: ['weekly-review', 'progress', 'assessment'],
-      createdAt: '2024-01-22',
-      updatedAt: '2024-01-22',
-      sharedWith: 0
-    },
-    {
-      id: '2',
-      title: 'Student Engagement Strategies',
-      content: 'Collection of effective strategies to improve student engagement in online learning...',
-      category: 'teaching-resource',
-      visibility: 'shared-with-students',
-      tags: ['engagement', 'strategies', 'best-practices'],
-      createdAt: '2024-01-20',
-      updatedAt: '2024-01-21',
-      sharedWith: 15
-    },
-    {
-      id: '3',
-      title: 'Course Curriculum Updates',
-      content: 'Proposed updates to the Learning State curriculum based on recent feedback...',
-      category: 'curriculum',
-      visibility: 'instructor-only',
-      tags: ['curriculum', 'updates', 'feedback'],
-      createdAt: '2024-01-18',
-      updatedAt: '2024-01-19',
-      sharedWith: 0
-    }
-  ];
-
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category?: string) => {
+    if (!category) return 'secondary';
     switch (category) {
       case 'progress-report': return 'default';
       case 'teaching-resource': return 'secondary';
@@ -72,10 +36,11 @@ export default function NotesManagement() {
     }
   };
 
-  const getVisibilityColor = (visibility: string) => {
-    switch (visibility) {
-      case 'shared-with-students': return 'default';
-      case 'instructor-only': return 'destructive';
+  const getVisibilityColor = (visibility_scope: string) => {
+    switch (visibility_scope) {
+      case 'organization': return 'default';
+      case 'student': return 'default';
+      case 'private': return 'destructive';
       default: return 'secondary';
     }
   };
@@ -103,7 +68,7 @@ export default function NotesManagement() {
               <Notebook className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Total Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2">3</div>
+            <div className="text-2xl font-bold mt-2">{notes.length}</div>
           </CardContent>
         </Card>
         
@@ -113,7 +78,7 @@ export default function NotesManagement() {
               <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Shared Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-600">1</div>
+            <div className="text-2xl font-bold mt-2 text-blue-600">{notes.filter(n => n.visibility_scope === 'organization').length}</div>
           </CardContent>
         </Card>
         
@@ -123,7 +88,7 @@ export default function NotesManagement() {
               <FileText className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Private Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2">2</div>
+            <div className="text-2xl font-bold mt-2">{notes.filter(n => n.visibility_scope === 'private').length}</div>
           </CardContent>
         </Card>
         
@@ -132,7 +97,12 @@ export default function NotesManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">This Week</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600">2</div>
+            <div className="text-2xl font-bold mt-2 text-green-600">{notes.filter(n => {
+              const createdAt = new Date(n.created_at);
+              const weekAgo = new Date();
+              weekAgo.setDate(weekAgo.getDate() - 7);
+              return createdAt >= weekAgo;
+            }).length}</div>
           </CardContent>
         </Card>
       </div>
@@ -144,8 +114,10 @@ export default function NotesManagement() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
-                placeholder="Search notes..." 
-                className="pl-10"
+              placeholder="Search notes..." 
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button variant="outline">
@@ -165,10 +137,10 @@ export default function NotesManagement() {
                 <CardTitle className="text-lg line-clamp-2">{note.title}</CardTitle>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant={getCategoryColor(note.category) as any}>
-                    {note.category.replace('-', ' ')}
+                    {note.category ? note.category.replace('-', ' ') : 'general'}
                   </Badge>
-                  <Badge variant={getVisibilityColor(note.visibility) as any}>
-                    {note.visibility === 'shared-with-students' ? 'shared' : 'private'}
+                  <Badge variant={getVisibilityColor(note.visibility_scope) as any}>
+                    {note.visibility_scope === 'organization' ? 'shared' : 'private'}
                   </Badge>
                 </div>
               </div>
@@ -180,24 +152,24 @@ export default function NotesManagement() {
               </CardDescription>
               
               <div className="flex flex-wrap gap-1 mb-4">
-                {note.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    #{tag}
-                  </Badge>
-                ))}
+              {note.tags?.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  #{tag}
+                </Badge>
+              ))}
               </div>
               
               <div className="mt-auto space-y-3">
                 <div className="text-xs text-muted-foreground">
-                  Created: {new Date(note.createdAt).toLocaleDateString()}
+                  Created: {new Date(note.created_at).toLocaleDateString()}
                   <br />
-                  Updated: {new Date(note.updatedAt).toLocaleDateString()}
+                  Updated: {new Date(note.updated_at).toLocaleDateString()}
                 </div>
                 
-                {note.visibility === 'shared-with-students' && (
+                {note.visibility_scope === 'organization' && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="w-3 h-3" />
-                    Shared with {note.sharedWith} students
+                    Shared with organization
                   </div>
                 )}
                 
@@ -215,42 +187,19 @@ export default function NotesManagement() {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common note templates and actions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <FileText className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Progress Report</div>
-                <div className="text-xs text-muted-foreground">Weekly student progress summary</div>
-              </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <Notebook className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Teaching Resource</div>
-                <div className="text-xs text-muted-foreground">Share learning materials</div>
-              </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <Users className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Student Feedback</div>
-                <div className="text-xs text-muted-foreground">Collect and organize feedback</div>
-              </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Empty state */}
+      {notes.length === 0 && !isLoading && (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Notebook className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Notes Created</h3>
+            <p className="text-muted-foreground mb-4">
+              Create instructional notes to organize your teaching materials.
+            </p>
+            <CreateNoteDialog />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

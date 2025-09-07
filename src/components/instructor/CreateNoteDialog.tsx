@@ -69,11 +69,12 @@ export default function CreateNoteDialog({ children }: CreateNoteDialogProps) {
     const noteData = {
       title: data.title,
       content: data.content,
-      student_id: data.student_id,
+      student_id: data.student_id || '',
       visibility_scope: data.visibility_scope,
       category: data.category,
       tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-      folder_id: data.folder_id,
+      folder_path: data.folder_id, // Using folder_id as folder_path for now
+      created_by: '', // Will be set by the hook
     };
     createNote(noteData as any);
     form.reset();

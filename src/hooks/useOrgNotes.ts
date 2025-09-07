@@ -138,9 +138,14 @@ export function useOrgNotes(searchQuery?: string, visibilityFilter?: string) {
   });
 
   return {
-    ...query,
-    createNote,
-    updateNote,
-    deleteNote,
+    notes: query.data || [],
+    isLoading: query.isLoading,
+    error: query.error,
+    createNote: createNote.mutate,
+    updateNote: updateNote.mutate,
+    deleteNote: deleteNote.mutate,
+    isCreating: createNote.isPending,
+    isUpdating: updateNote.isPending,
+    isDeleting: deleteNote.isPending,
   };
 }
