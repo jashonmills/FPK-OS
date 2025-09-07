@@ -206,8 +206,8 @@ export function useInviteToOrganization() {
       generate_code?: boolean;
     }) => {
       const inviteData: any = {
-        organization_id: invitation.organization_id,
-        invited_by: (await supabase.auth.getUser()).data.user?.id,
+        org_id: invitation.organization_id,
+        created_by: (await supabase.auth.getUser()).data.user?.id,
       };
 
       if (invitation.email) {
@@ -217,7 +217,7 @@ export function useInviteToOrganization() {
       if (invitation.generate_code) {
         // Generate unique code
         const { data: codeData } = await supabase.rpc('generate_invitation_code');
-        inviteData.invitation_code = codeData;
+        inviteData.code = codeData;
       }
 
       const { data, error } = await supabase
