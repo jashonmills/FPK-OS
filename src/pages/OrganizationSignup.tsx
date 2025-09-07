@@ -103,9 +103,9 @@ export default function OrganizationSignup() {
     }
   };
 
-  const handleSignUp = async (): Promise<boolean> => {
+  const handleSignUp = async (): Promise<{ success: boolean; userId?: string }> => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
         options: {
@@ -118,10 +118,10 @@ export default function OrganizationSignup() {
       });
 
       if (error) throw error;
-      return true;
+      return { success: true, userId: data.user?.id };
     } catch (error: any) {
       setError(error.message);
-      return false;
+      return { success: false };
     }
   };
 
@@ -136,6 +136,8 @@ export default function OrganizationSignup() {
         throw new Error('Organization name is required.');
       }
 
+      let currentUserId: string | undefined;
+
       if (!user) {
         // Validate sign up data
         if (!signUpData.email || !signUpData.password || !signUpData.displayName) {
@@ -149,19 +151,21 @@ export default function OrganizationSignup() {
         }
 
         // Sign up the user first
-        const signUpSuccess = await handleSignUp();
-        if (!signUpSuccess) return;
-
-        // Wait for auth state to update
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const signUpResult = await handleSignUp();
+        if (!signUpResult.success) return;
+        currentUserId = signUpResult.userId;
+      } else {
+        currentUserId = user.id;
       }
 
-      // Get current user after potential sign up
-      const currentUser = user || (await supabase.auth.getUser()).data.user;
+      if (!currentUserId) {
+        throw new Error('Unable to determine user ID.');
+      }
       
-      // Upload logo if provided and user is authenticated
+      // Upload logo if provided
       let logoUrl: string | null = null;
-      if (logoFile && currentUser) {
+      if (logoFile) {
+        const currentUser = user || { id: currentUserId };
         logoUrl = await uploadLogo(logoFile, currentUser);
       }
 
@@ -190,7 +194,8 @@ export default function OrganizationSignup() {
       const { data: orgResult, error: orgError } = await supabase.rpc('create_organization', {
         p_name: orgData.name,
         p_slug: slug,
-        p_plan: orgData.selectedTier
+        p_plan: orgData.selectedTier,
+        p_user_id: currentUserId
       }).single();
 
       if (orgError) {
@@ -205,7 +210,7 @@ export default function OrganizationSignup() {
             plan: orgData.selectedTier,
             seat_cap: tierInfo.seats,
             instructor_limit: tierInfo.instructors,
-            owner_id: currentUser?.id
+            owner_id: currentUserId
           })
           .select()
           .single();
@@ -217,7 +222,7 @@ export default function OrganizationSignup() {
           .from('org_members')
           .insert({
             org_id: newOrg.id,
-            user_id: currentUser?.id,
+            user_id: currentUserId,
             role: 'owner',
             status: 'active'
           });

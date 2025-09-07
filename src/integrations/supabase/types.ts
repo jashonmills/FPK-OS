@@ -6076,7 +6076,14 @@ export type Database = {
         Returns: string
       }
       create_organization: {
-        Args: { p_name: string; p_plan?: string; p_slug: string }
+        Args:
+          | { p_name: string; p_plan?: string; p_slug: string }
+          | {
+              p_name: string
+              p_plan?: string
+              p_slug: string
+              p_user_id?: string
+            }
         Returns: string
       }
       current_user_has_admin_role: {
