@@ -71,8 +71,14 @@ export default function OrganizationSignup() {
       .substring(0, 50);
   };
 
-  const uploadLogo = async (file: File): Promise<string | null> => {
+  const uploadLogo = async (file: File, currentUser: any): Promise<string | null> => {
     try {
+      // Skip upload if no authenticated user yet
+      if (!currentUser) {
+        console.log('Skipping logo upload - user not authenticated yet');
+        return null;
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `org-logos/${fileName}`;
@@ -81,7 +87,10 @@ export default function OrganizationSignup() {
         .from('avatars')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return null;
+      }
 
       const { data } = supabase.storage
         .from('avatars')
@@ -147,10 +156,13 @@ export default function OrganizationSignup() {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Upload logo if provided
+      // Get current user after potential sign up
+      const currentUser = user || (await supabase.auth.getUser()).data.user;
+      
+      // Upload logo if provided and user is authenticated
       let logoUrl: string | null = null;
-      if (logoFile) {
-        logoUrl = await uploadLogo(logoFile);
+      if (logoFile && currentUser) {
+        logoUrl = await uploadLogo(logoFile, currentUser);
       }
 
       // Generate unique slug
