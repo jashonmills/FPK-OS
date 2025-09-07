@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Notebook, Plus, Search, Filter, FileText, Users } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgNotes } from '@/hooks/useOrgNotes';
+import CreateNoteDialog from '@/components/instructor/CreateNoteDialog';
+import CreateFolderDialog from '@/components/instructor/CreateFolderDialog';
 
 export default function NotesManagement() {
   const { currentOrg } = useOrgContext();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { notes, isLoading } = useOrgNotes(searchQuery);
 
   if (!currentOrg) {
     return (
@@ -84,10 +89,10 @@ export default function NotesManagement() {
             Manage instructional notes and resources for your organization
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Note
-        </Button>
+        <div className="flex gap-2">
+          <CreateNoteDialog />
+          <CreateFolderDialog />
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -153,7 +158,7 @@ export default function NotesManagement() {
 
       {/* Notes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockNotes.map((note) => (
+        {notes.map((note) => (
           <Card key={note.id} className="flex flex-col">
             <CardHeader className="pb-3">
               <div className="space-y-2">

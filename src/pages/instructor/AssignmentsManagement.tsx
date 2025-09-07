@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardCheck, Plus, Search, Filter, Calendar, Users } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgAssignments } from '@/hooks/useOrgAssignments';
+import CreateAssignmentDialog from '@/components/instructor/CreateAssignmentDialog';
 
 export default function AssignmentsManagement() {
   const { currentOrg } = useOrgContext();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { assignments, isLoading } = useOrgAssignments(searchQuery);
 
   if (!currentOrg) {
     return (
@@ -85,10 +89,7 @@ export default function AssignmentsManagement() {
             Create and manage assignments for your students
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Assignment
-        </Button>
+        <CreateAssignmentDialog />
       </div>
 
       {/* Stats Cards */}
