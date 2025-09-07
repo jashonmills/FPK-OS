@@ -28,10 +28,13 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
 
-  // Debug logging
+  // Debug logging - Enhanced for troubleshooting
   console.log('OrgProvider - Current user:', user?.id, user?.email);
   console.log('OrgProvider - Organizations loaded:', organizations);
+  console.log('OrgProvider - Organizations length:', organizations?.length);
   console.log('OrgProvider - Active org ID:', activeOrgId);
+  console.log('OrgProvider - Current org:', currentOrg);
+  console.log('OrgProvider - Is personal mode:', activeOrgId === null);
 
   // Initialize activeOrgId from URL params or localStorage
   useEffect(() => {

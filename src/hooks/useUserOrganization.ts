@@ -13,7 +13,7 @@ export interface UserOrganizationMembership {
   };
 }
 
-// Hook to get the current user's organization memberships
+  // Hook to get the current user's organization memberships
 export function useUserOrganizations() {
   return useQuery({
     queryKey: ['user-organizations'],
@@ -25,7 +25,8 @@ export function useUserOrganizations() {
         return [];
       }
       
-      console.log('Fetching organizations for user:', user.id, user.email);
+      console.log('useUserOrganizations - Fetching organizations for user:', user.id, user.email);
+      console.log('useUserOrganizations - User authenticated:', !!user);
       
       // First get the user's memberships
       const { data: memberships, error: membershipsError } = await supabase
@@ -35,11 +36,14 @@ export function useUserOrganizations() {
         .eq('user_id', user.id);
 
       if (membershipsError) {
-        console.error('Error fetching user memberships:', membershipsError);
+        console.error('useUserOrganizations - Error fetching user memberships:', membershipsError);
         throw membershipsError;
       }
 
+      console.log('useUserOrganizations - Memberships found:', memberships);
+
       if (!memberships || memberships.length === 0) {
+        console.log('useUserOrganizations - No memberships found for user');
         return [];
       }
 
@@ -51,12 +55,14 @@ export function useUserOrganizations() {
         .in('id', orgIds);
 
       if (orgsError) {
-        console.error('Error fetching organizations:', orgsError);
+        console.error('useUserOrganizations - Error fetching organizations:', orgsError);
         throw orgsError;
       }
 
+      console.log('useUserOrganizations - Organizations found:', organizations);
+
       // Combine the data
-      return memberships.map(membership => {
+      const result = memberships.map(membership => {
         const org = organizations?.find(o => o.id === membership.org_id);
         return {
           organization_id: membership.org_id,
@@ -70,8 +76,14 @@ export function useUserOrganizations() {
           }
         };
       }) as UserOrganizationMembership[];
+      
+      console.log('useUserOrganizations - Final result:', result);
+      return result;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true, // Always refetch on mount
   });
 }
 
