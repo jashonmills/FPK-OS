@@ -78,7 +78,7 @@ export default function NotesManagement() {
               <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Shared Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-600">{notes.filter(n => n.visibility_scope === 'organization').length}</div>
+            <div className="text-2xl font-bold mt-2 text-blue-600">{notes.filter(n => n.visibility_scope === 'org-public').length}</div>
           </CardContent>
         </Card>
         
@@ -88,7 +88,7 @@ export default function NotesManagement() {
               <FileText className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Private Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{notes.filter(n => n.visibility_scope === 'private').length}</div>
+            <div className="text-2xl font-bold mt-2">{notes.filter(n => n.visibility_scope === 'student-only').length}</div>
           </CardContent>
         </Card>
         
@@ -140,7 +140,7 @@ export default function NotesManagement() {
                     {note.category ? note.category.replace('-', ' ') : 'general'}
                   </Badge>
                   <Badge variant={getVisibilityColor(note.visibility_scope) as any}>
-                    {note.visibility_scope === 'organization' ? 'shared' : 'private'}
+                    {note.visibility_scope === 'org-public' ? 'shared' : 'private'}
                   </Badge>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function NotesManagement() {
                   Updated: {new Date(note.updated_at).toLocaleDateString()}
                 </div>
                 
-                {note.visibility_scope === 'organization' && (
+                {note.visibility_scope === 'org-public' && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="w-3 h-3" />
                     Shared with organization

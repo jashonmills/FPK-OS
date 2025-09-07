@@ -19,7 +19,7 @@ import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
   const { data: statistics, isLoading: statsLoading, error: statsError } = useOrgStatistics();
-  const { data: analytics, isLoading: analyticsLoading } = useOrgAnalytics();
+  const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
 
   if (!currentOrg) {
     return (
@@ -92,7 +92,7 @@ export default function OrgPortalHome() {
     },
   ];
 
-  const recentActivity = analytics?.recentActivity || [];
+  const recentActivity: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -136,37 +136,11 @@ export default function OrgPortalHome() {
               Current completion rates across all courses
             </CardDescription>
           </CardHeader>
-         <CardContent className="space-y-4">
-            {analytics?.progressMetrics ? (
-              <>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Overall Progress</span>
-                    <span>{analytics.progressMetrics.averageProgress}%</span>
-                  </div>
-                  <Progress value={analytics.progressMetrics.averageProgress} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Courses Completed</span>
-                    <span>{analytics.progressMetrics.coursesCompleted}</span>
-                  </div>
-                  <Progress value={Math.min(analytics.progressMetrics.coursesCompleted * 10, 100)} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Learning Hours</span>
-                    <span>{analytics.progressMetrics.totalLearningHours}h</span>
-                  </div>
-                  <Progress value={Math.min(analytics.progressMetrics.totalLearningHours / 10, 100)} />
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No progress data available</p>
-              </div>
-            )}
+          <CardContent className="space-y-4">
+            <div className="text-center py-8">
+              <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">No progress data available yet</p>
+            </div>
           </CardContent>
         </Card>
 

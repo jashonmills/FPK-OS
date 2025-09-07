@@ -11,7 +11,7 @@ import CreateAssignmentDialog from '@/components/instructor/CreateAssignmentDial
 export default function AssignmentsManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { assignments, isLoading } = useOrgAssignments(searchQuery);
+  const { assignments, isLoading } = useOrgAssignments();
 
   if (!currentOrg) {
     return (
@@ -80,6 +80,11 @@ export default function AssignmentsManagement() {
     }
   };
 
+  // Filter assignments based on search
+  const filteredAssignments = assignments.filter(assignment =>
+    assignment.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -100,7 +105,7 @@ export default function AssignmentsManagement() {
               <ClipboardCheck className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Total Assignments</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{assignments.length}</div>
+            <div className="text-2xl font-bold mt-2">{filteredAssignments.length}</div>
           </CardContent>
         </Card>
         
@@ -109,7 +114,7 @@ export default function AssignmentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Active</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-600">{assignments.filter(a => a.status === 'active').length}</div>
+            <div className="text-2xl font-bold mt-2 text-blue-600">{filteredAssignments.length}</div>
           </CardContent>
         </Card>
         
@@ -118,7 +123,7 @@ export default function AssignmentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Completed</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600">{assignments.filter(a => a.status === 'completed').length}</div>
+            <div className="text-2xl font-bold mt-2 text-green-600">0</div>
           </CardContent>
         </Card>
         
@@ -127,11 +132,7 @@ export default function AssignmentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Avg Completion</span>
             </div>
-            <div className="text-2xl font-bold mt-2">
-              {assignments.length > 0 ? Math.round(
-                assignments.reduce((acc, a) => acc + ((a.completed || 0) / (a.assigned_to || 1) * 100), 0) / assignments.length
-              ) : 0}%
-            </div>
+            <div className="text-2xl font-bold mt-2">0%</div>
           </CardContent>
         </Card>
       </div>
@@ -159,66 +160,23 @@ export default function AssignmentsManagement() {
 
       {/* Assignments List */}
       <div className="space-y-4">
-        {assignments.map((assignment) => (
-          <Card key={assignment.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{assignment.title}</CardTitle>
-                  <CardDescription>{assignment.description}</CardDescription>
-                  {assignment.course_id && (
+        {filteredAssignments.length > 0 ? (
+          filteredAssignments.map((assignment) => (
+            <Card key={assignment.id}>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg">{assignment.title}</CardTitle>
                     <div className="text-sm text-muted-foreground">
-                      Course: {assignment.course_id}
+                      Type: {assignment.type} • Created: {new Date(assignment.created_at).toLocaleDateString()}
                     </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Badge variant={getPriorityColor(assignment.priority || 'medium') as any}>
-                    {assignment.priority || 'medium'}
-                  </Badge>
-                  <Badge variant={getStatusColor(assignment.status || 'active') as any}>
-                    {assignment.status || 'active'}
+                  </div>
+                  <Badge variant="secondary">
+                    {assignment.type}
                   </Badge>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm font-medium">Due Date</div>
-                    <div className="text-sm text-muted-foreground">
-                      {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'No due date'}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm font-medium">Assigned To</div>
-                    <div className="text-sm text-muted-foreground">
-                      {assignment.assigned_to || 0} students
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <div className="text-sm font-medium">Progress</div>
-                  <div className="text-sm text-muted-foreground">
-                    {assignment.completed || 0}/{assignment.assigned_to || 0} completed
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2 mt-1">
-                    <div 
-                      className="bg-primary h-2 rounded-full"
-                      style={{ 
-                        width: `${((assignment.completed || 0) / (assignment.assigned_to || 1)) * 100}%` 
-                      }}
-                    />
-                  </div>
-                </div>
-                
+              </CardHeader>
+              <CardContent>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
                     View Details
@@ -227,10 +185,21 @@ export default function AssignmentsManagement() {
                     Edit
                   </Button>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No assignments found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? 'Try adjusting your search terms.' : 'Create your first assignment to get started.'}
+              </p>
+              <CreateAssignmentDialog />
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   );

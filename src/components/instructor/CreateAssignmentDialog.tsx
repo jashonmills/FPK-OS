@@ -66,10 +66,8 @@ export default function CreateAssignmentDialog({ children }: CreateAssignmentDia
     
     createAssignment({
       title: data.title,
-      description: data.description || '',
-      due_date: data.due_date,
-      priority: data.priority,
-      course_id: data.course_id,
+      type: 'course_assignment',
+      resource_id: data.course_id || 'general',
     });
     form.reset();
     setOpen(false);

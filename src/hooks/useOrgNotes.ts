@@ -5,7 +5,7 @@ import { assertOrg } from '@/lib/org/context';
 
 export interface OrgNoteFolder {
   id: string;
-  organization_id: string;
+  org_id: string;
   name: string;
   created_by: string;
   created_at: string;
@@ -21,7 +21,7 @@ export interface OrgNote {
   content: string;
   category: string;
   folder_path: string;
-  visibility_scope: string;
+  visibility_scope: 'student-only' | 'instructor-visible' | 'org-public';
   is_private: boolean;
   tags: string[];
   metadata: any;
@@ -46,7 +46,7 @@ export function useOrgNoteFolders() {
       const { data, error } = await supabase
         .from('org_note_folders')
         .select('*')
-        .eq('organization_id', orgId)
+        .eq('org_id', orgId)
         .order('name', { ascending: true });
 
       if (error) {
@@ -54,13 +54,13 @@ export function useOrgNoteFolders() {
         throw error;
       }
 
-      return data as OrgNoteFolder[];
+      return data as any[];
     },
     staleTime: 1000 * 60 * 5,
   });
 
   const createFolderMutation = useMutation({
-    mutationFn: async (folderData: Omit<OrgNoteFolder, 'id' | 'created_at' | 'updated_at' | 'org_id' | 'created_by'>) => {
+    mutationFn: async (folderData: { name: string }) => {
       const { data, error } = await supabase
         .from('org_note_folders')
         .insert({
@@ -140,7 +140,7 @@ export function useOrgNotes(folderId?: string) {
           organization_id: orgId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
           folder_path: noteData.folder_path || '/',
-          visibility_scope: 'org-public',
+          visibility_scope: 'org-public' as const,
           is_private: false,
           tags: [],
           metadata: {},
