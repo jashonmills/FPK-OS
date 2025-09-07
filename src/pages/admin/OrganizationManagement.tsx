@@ -20,14 +20,14 @@ import {
   Calendar,
   TrendingUp
 } from 'lucide-react';
-import { useOrganizations } from '@/hooks/useOrganizations';
+import { useAdminOrganizations } from '@/hooks/useAdminOrganizations';
 import { OrganizationActionsDropdown } from '@/components/admin/OrganizationActionsDropdown';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 
 export default function OrganizationManagement() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { organizations, isLoading } = useOrganizations();
+  const { organizations, isLoading } = useAdminOrganizations();
 
   const filteredOrganizations = organizations?.filter(org =>
     org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -156,7 +156,7 @@ export default function OrganizationManagement() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{org.owner_id}</div>
+                    <div className="text-sm">{(org as any).owner_name || org.owner_id}</div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={getTierVariant(org.plan) as any}>
