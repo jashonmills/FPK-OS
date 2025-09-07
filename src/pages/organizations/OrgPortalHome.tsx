@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Loader2 } from 'lucide-react';
 import { 
   Users, 
   BookOpen, 
@@ -12,9 +13,13 @@ import {
   Award
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgStatistics } from '@/hooks/useOrgStatistics';
+import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 
 export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
+  const { data: statistics, isLoading: statsLoading, error: statsError } = useOrgStatistics();
+  const { data: analytics, isLoading: analyticsLoading } = useOrgAnalytics();
 
   if (!currentOrg) {
     return (
@@ -37,20 +42,57 @@ export default function OrgPortalHome() {
     );
   }
 
-  // Mock data for demonstration
+  if (statsLoading || analyticsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (statsError) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Error Loading Statistics</CardTitle>
+            <CardDescription>
+              Unable to load organization statistics. Please try again later.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   const stats = [
-    { label: 'Active Students', value: '24', icon: Users, color: 'text-blue-600' },
-    { label: 'Courses Assigned', value: '8', icon: BookOpen, color: 'text-green-600' },
-    { label: 'Goals Created', value: '15', icon: Target, color: 'text-purple-600' },
-    { label: 'Completion Rate', value: '87%', icon: TrendingUp, color: 'text-orange-600' },
+    { 
+      label: 'Active Students', 
+      value: statistics?.studentCount?.toString() || '0', 
+      icon: Users, 
+      color: 'text-blue-600' 
+    },
+    { 
+      label: 'Course Assignments', 
+      value: statistics?.courseAssignments?.toString() || '0', 
+      icon: BookOpen, 
+      color: 'text-green-600' 
+    },
+    { 
+      label: 'Active Goals', 
+      value: statistics?.activeGoals?.toString() || '0', 
+      icon: Target, 
+      color: 'text-purple-600' 
+    },
+    { 
+      label: 'Completion Rate', 
+      value: `${statistics?.completionRate || 0}%`, 
+      icon: TrendingUp, 
+      color: 'text-orange-600' 
+    },
   ];
 
-  const recentActivity = [
-    { type: 'goal', message: 'New goal created for Math fundamentals', time: '2 hours ago' },
-    { type: 'course', message: 'Physics course assigned to 5 students', time: '4 hours ago' },
-    { type: 'member', message: 'Sarah Johnson joined the organization', time: '1 day ago' },
-    { type: 'achievement', message: '3 students completed Chemistry basics', time: '2 days ago' },
-  ];
+  const recentActivity = analytics?.recentActivity || [];
 
   return (
     <div className="space-y-6">
@@ -94,28 +136,37 @@ export default function OrgPortalHome() {
               Current completion rates across all courses
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Mathematics</span>
-                <span>85%</span>
+         <CardContent className="space-y-4">
+            {analytics?.progressMetrics ? (
+              <>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Overall Progress</span>
+                    <span>{analytics.progressMetrics.averageProgress}%</span>
+                  </div>
+                  <Progress value={analytics.progressMetrics.averageProgress} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Courses Completed</span>
+                    <span>{analytics.progressMetrics.coursesCompleted}</span>
+                  </div>
+                  <Progress value={Math.min(analytics.progressMetrics.coursesCompleted * 10, 100)} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Learning Hours</span>
+                    <span>{analytics.progressMetrics.totalLearningHours}h</span>
+                  </div>
+                  <Progress value={Math.min(analytics.progressMetrics.totalLearningHours / 10, 100)} />
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <TrendingUp className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">No progress data available</p>
               </div>
-              <Progress value={85} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Science</span>
-                <span>72%</span>
-              </div>
-              <Progress value={72} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Language Arts</span>
-                <span>91%</span>
-              </div>
-              <Progress value={91} />
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -131,20 +182,27 @@ export default function OrgPortalHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {activity.message}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.time}
-                    </p>
+           <div className="space-y-4">
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {activity.student_name}: {activity.activity}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No recent activity</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

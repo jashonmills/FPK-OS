@@ -1,5 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -10,34 +12,36 @@ import {
   Award,
   Activity
 } from 'lucide-react';
+import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
+import { useOrgStatistics } from '@/hooks/useOrgStatistics';
 
 interface AnalyticsTabProps {
   organizationId: string;
 }
 
 export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
-  // Placeholder data - will be replaced with real analytics
+  const { data: statistics, isLoading: statsLoading } = useOrgStatistics();
+  const { data: analytics, isLoading: analyticsLoading } = useOrgAnalytics();
+
+  if (statsLoading || analyticsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   const stats = {
-    totalStudents: 12,
-    activeStudents: 8,
-    coursesCompleted: 24,
-    averageProgress: 67,
-    totalLearningHours: 156,
-    goalsCompleted: 18
+    totalStudents: statistics?.studentCount || 0,
+    activeStudents: statistics?.activeMembers || 0,
+    coursesCompleted: analytics?.progressMetrics?.coursesCompleted || 0,
+    averageProgress: analytics?.progressMetrics?.averageProgress || 0,
+    totalLearningHours: analytics?.progressMetrics?.totalLearningHours || 0,
+    goalsCompleted: statistics?.completedGoals || 0
   };
 
-  const recentActivity = [
-    { student: 'John Doe', activity: 'Completed Math Module 1', time: '2 hours ago' },
-    { student: 'Jane Smith', activity: 'Started Reading Course', time: '4 hours ago' },
-    { student: 'Mike Johnson', activity: 'Achieved goal: Complete 5 lessons', time: '1 day ago' },
-    { student: 'Sarah Wilson', activity: 'Submitted quiz with 95% score', time: '1 day ago' }
-  ];
-
-  const topPerformers = [
-    { name: 'John Doe', score: 95, courses: 3 },
-    { name: 'Jane Smith', score: 92, courses: 2 },
-    { name: 'Mike Johnson', score: 88, courses: 4 }
-  ];
+  const recentActivity = analytics?.recentActivity || [];
+  const topPerformers = analytics?.topPerformers || [];
 
   return (
     <div className="space-y-6">
@@ -139,16 +143,25 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{activity.student}</p>
-                    <p className="text-sm text-muted-foreground">{activity.activity}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{activity.student_name}</p>
+                      <p className="text-sm text-muted-foreground">{activity.activity}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Activity className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No recent activity</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -163,25 +176,32 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPerformers.map((performer, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
-                      {index + 1}
+              {topPerformers.length > 0 ? (
+                topPerformers.map((performer, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{performer.student_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {performer.completed_goals} goals completed
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">{performer.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {performer.courses} courses completed
-                      </p>
+                    <div className="text-right">
+                      <p className="text-sm font-bold">{performer.progress_score}%</p>
+                      <p className="text-xs text-muted-foreground">Average</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold">{performer.score}%</p>
-                    <p className="text-xs text-muted-foreground">Average</p>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Award className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">No performance data available</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
