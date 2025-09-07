@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
   Mail, 
@@ -13,7 +14,8 @@ import {
   MessageSquare,
   UserMinus,
   UserCheck,
-  UserX
+  UserX,
+  RefreshCw
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -30,8 +32,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useOrgMembers, useOrgInvitations, useRemoveMember } from '@/hooks/useOrganization';
+import { useOrgMembers, useOrgInvitations } from '@/hooks/useOrganization';
 import { useOrgInvitations as useInviteActions } from '@/hooks/useOrgInvitations';
+import { useOrgMemberManagement } from '@/hooks/useOrgMemberManagement';
 import InviteStudentDialog from './InviteStudentDialog';
 import type { MemberStatus } from '@/types/organization';
 
@@ -42,11 +45,19 @@ interface StudentsTabProps {
 export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const { toast } = useToast();
   
-  const { data: members, isLoading } = useOrgMembers(organizationId);
+  const { data: members, isLoading, refetch } = useOrgMembers(organizationId);
   const { data: invitations } = useOrgInvitations(organizationId);
   const { deactivateInvitation, isDeactivating } = useInviteActions(organizationId);
-  const removeMemberMutation = useRemoveMember();
+  const { 
+    removeMember, 
+    pauseMember, 
+    restoreMember, 
+    isRemoving, 
+    isPausing, 
+    isRestoring 
+  } = useOrgMemberManagement(organizationId);
 
   const students = members?.filter(m => m.role === 'student') || [];
   const activeStudents = students.filter(s => s.status === 'active');
@@ -55,7 +66,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   // Debug logging
   console.log('StudentsTab Debug:', {
     totalMembers: members?.length || 0,
-    allMembers: members?.map(m => ({ id: m.id, role: m.role, status: m.status })),
+    allMembers: members,
     students: students.length,
     activeStudents: activeStudents.length,
     pendingInvitations: pendingInvitations.length
@@ -76,10 +87,38 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
     }
   };
 
-  const handleRemoveStudent = async (memberId: string) => {
-    if (confirm('Are you sure you want to remove this student? They will lose access to the organization.')) {
-      await removeMemberMutation.mutateAsync({ memberId, orgId: organizationId });
+  const handleRemoveStudent = async (memberId: string, studentName: string) => {
+    if (confirm(`Are you sure you want to remove ${studentName}? They will lose access to the organization.`)) {
+      removeMember(memberId);
     }
+  };
+
+  const handlePauseStudent = async (memberId: string, studentName: string) => {
+    if (confirm(`Are you sure you want to pause access for ${studentName}?`)) {
+      pauseMember(memberId);
+    }
+  };
+
+  const handleRestoreStudent = async (memberId: string, studentName: string) => {
+    if (confirm(`Are you sure you want to restore access for ${studentName}?`)) {
+      restoreMember(memberId);
+    }
+  };
+
+  const handleViewProgress = (studentName: string) => {
+    // TODO: Navigate to student progress page
+    toast({
+      title: "View Progress",
+      description: `Coming soon: View progress for ${studentName}`,
+    });
+  };
+
+  const handleSendMessage = (studentName: string) => {
+    // TODO: Open message dialog
+    toast({
+      title: "Send Message",
+      description: `Coming soon: Send message to ${studentName}`,
+    });
   };
 
   const handleCancelInvitation = async (invitationId: string) => {
@@ -111,10 +150,16 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
           </div>
         </div>
         
-        <Button onClick={() => setShowInviteDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Invite Students
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={() => setShowInviteDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Invite Students
+          </Button>
+        </div>
       </div>
 
       {/* Search and filters */}
@@ -156,7 +201,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                     <TableCell>
                       <div>
                         <div className="font-medium">
-                          {student.profiles?.display_name || student.profiles?.full_name || 'Unknown'}
+                          {student.profiles?.display_name || student.profiles?.full_name || 'Unknown User'}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           Student ID: {student.user_id.slice(0, 8)}...
@@ -188,34 +233,41 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewProgress(student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Progress
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleSendMessage(student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Send Message
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {student.status === 'active' && (
-                            <DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handlePauseStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
+                              disabled={isPausing}
+                            >
                               <UserX className="h-4 w-4 mr-2" />
-                              Pause Access
+                              {isPausing ? 'Pausing...' : 'Pause Access'}
                             </DropdownMenuItem>
                           )}
                           {student.status === 'paused' && (
-                            <DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleRestoreStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
+                              disabled={isRestoring}
+                            >
                               <UserCheck className="h-4 w-4 mr-2" />
-                              Resume Access
+                              {isRestoring ? 'Restoring...' : 'Resume Access'}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive"
-                            onClick={() => handleRemoveStudent(student.id)}
+                            onClick={() => handleRemoveStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
+                            disabled={isRemoving}
                           >
                             <UserMinus className="h-4 w-4 mr-2" />
-                            Remove Student
+                            {isRemoving ? 'Removing...' : 'Remove Student'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
