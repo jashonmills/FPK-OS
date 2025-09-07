@@ -36,6 +36,24 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import type { Organization, OrgMember } from '@/types/organization';
 
+// Explicit interface to avoid deep type instantiation
+interface InstructorRow {
+  id: string;
+  org_id: string;
+  user_id: string;
+  role: string;
+  status: string;
+  created_at: string;
+  joined_at: string | null;
+  access_revoked_at: string | null;
+  access_revoked_reason: string | null;
+  invitation_link: string | null;
+  profiles: {
+    full_name: string | null;
+    display_name: string | null;
+  } | null;
+}
+
 interface ManageInstructorsDialogProps {
   organization: Organization;
   open: boolean;
@@ -54,7 +72,7 @@ export function ManageInstructorsDialog({
   // Fetch instructors for this organization
   const { data: instructors, isLoading } = useQuery({
     queryKey: ['org-instructors', organization.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<InstructorRow[]> => {
       const { data, error } = await supabase
         .from('org_members')
         .select(`
@@ -64,13 +82,13 @@ export function ManageInstructorsDialog({
             display_name
           )
         `)
-        .eq('organization_id', organization.id)
+        .eq('org_id', organization.id)
         .eq('role', 'instructor')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as OrgMember[];
+      return (data || []) as any[];
     },
     enabled: open,
   });

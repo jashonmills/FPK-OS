@@ -11,8 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SUBSCRIPTION_TIERS } from '@/types/organization';
-import { ArrowLeft, Upload, Users, Crown, Star, Zap } from 'lucide-react';
+import { ArrowLeft, Upload, Users, Crown, Star, Zap, Building, Building2 } from 'lucide-react';
 import type { OrgSubscriptionTier } from '@/types/organization';
+import { ensureUniqueSlug } from '@/lib/slug';
+import { EmailVerificationGate } from '@/components/auth/EmailVerificationGate';
 
 export default function OrganizationSignup() {
   const [orgData, setOrgData] = useState({
@@ -29,6 +31,8 @@ export default function OrganizationSignup() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [createdOrgName, setCreatedOrgName] = useState<string>('');
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -169,23 +173,8 @@ export default function OrganizationSignup() {
         logoUrl = await uploadLogo(logoFile, currentUser);
       }
 
-      // Generate unique slug
-      let slug = generateSlug(orgData.name);
-      let slugCount = 0;
-      
-      while (true) {
-        const { data: existingOrg } = await supabase
-          .from('organizations')
-          .select('id')
-          .eq('slug', slugCount === 0 ? slug : `${slug}-${slugCount}`)
-          .maybeSingle();
-        
-        if (!existingOrg) {
-          slug = slugCount === 0 ? slug : `${slug}-${slugCount}`;
-          break;
-        }
-        slugCount++;
-      }
+      // Generate a unique slug
+      const slug = await ensureUniqueSlug(orgData.name);
 
       // Get tier info
       const tierInfo = SUBSCRIPTION_TIERS[orgData.selectedTier];
@@ -228,12 +217,23 @@ export default function OrganizationSignup() {
           });
       }
 
+      // Check if user email is verified
+      const { data: userCheck } = await supabase.auth.getUser();
+      const emailVerified = userCheck.user?.email_confirmed_at;
+
+      if (!emailVerified && !user) {
+        // Show email verification gate for new signups
+        setCreatedOrgName(orgData.name);
+        setShowEmailVerification(true);
+        return;
+      }
+
       toast({
         title: 'Organization created successfully!',
-        description: `Welcome to ${orgData.name}! You can now manage your organization and invite members.`,
+        description: `Welcome to ${orgData.name}. You can now start adding instructors and learners.`,
       });
 
-      // Redirect to instructor dashboard
+      // Navigate to instructor dashboard
       navigate('/dashboard/instructor');
 
     } catch (error: any) {
@@ -245,13 +245,32 @@ export default function OrganizationSignup() {
 
   const getTierIcon = (tier: OrgSubscriptionTier) => {
     switch (tier) {
+      case 'beta': return <Building className="w-5 h-5" />;
       case 'basic': return <Users className="w-5 h-5" />;
-      case 'standard': return <Crown className="w-5 h-5" />;
-      case 'premium': return <Star className="w-5 h-5" />;
-      case 'beta': return <Zap className="w-5 h-5" />;
-      default: return <Users className="w-5 h-5" />;
+      case 'standard': return <Building2 className="w-5 h-5" />;
+      case 'premium': return <Crown className="w-5 h-5" />;
+      default: return <Building className="w-5 h-5" />;
     }
   };
+
+  const handleEmailVerified = () => {
+    setShowEmailVerification(false);
+    toast({
+      title: 'Organization created successfully!',
+      description: `Welcome to ${createdOrgName}. You can now start adding instructors and learners.`,
+    });
+    navigate('/dashboard/instructor');
+  };
+
+  if (showEmailVerification) {
+    return (
+      <EmailVerificationGate
+        email={signUpData.email}
+        organizationName={createdOrgName}
+        onVerified={handleEmailVerified}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-fpk-purple to-fpk-amber">
