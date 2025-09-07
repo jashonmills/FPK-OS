@@ -33,6 +33,7 @@ const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
 const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
 const OrgInvitationsPage = lazy(() => import("./pages/organizations/OrgInvitationsPage"));
+const OrgPageLayout = lazy(() => import("./components/organizations/OrgPageLayout").then(module => ({ default: module.OrgPageLayout })));
 
 // Dashboard pages - lazy loaded for optimal performance
 const LearnerHome = lazy(() => {
@@ -322,22 +323,38 @@ const App: React.FC = () => {
           {/* Organization Routes - Authenticated */}
           <Route path="/org" element={
             <RouteProtector>
-              <LazyRoute><OrgHub /></LazyRoute>
+              <LazyRoute>
+                <OrgPageLayout>
+                  <OrgHub />
+                </OrgPageLayout>
+              </LazyRoute>
             </RouteProtector>
           } />
           <Route path="/org/create" element={
             <RouteProtector>
-              <LazyRoute><OrgCreatePage /></LazyRoute>
+              <LazyRoute>
+                <OrgPageLayout>
+                  <OrgCreatePage />
+                </OrgPageLayout>
+              </LazyRoute>
             </RouteProtector>
           } />
           <Route path="/org/join" element={
             <RouteProtector>
-              <LazyRoute><OrgJoinPage /></LazyRoute>
+              <LazyRoute>
+                <OrgPageLayout>
+                  <OrgJoinPage />
+                </OrgPageLayout>
+              </LazyRoute>
             </RouteProtector>
           } />
           <Route path="/org/invitations" element={
             <RouteProtector>
-              <LazyRoute><OrgInvitationsPage /></LazyRoute>
+              <LazyRoute>
+                <OrgPageLayout>
+                  <OrgInvitationsPage />
+                </OrgPageLayout>
+              </LazyRoute>
             </RouteProtector>
           } />
           
