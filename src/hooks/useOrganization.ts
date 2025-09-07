@@ -49,11 +49,12 @@ export function useOrgMembers(orgId: string) {
   return useQuery({
     queryKey: ['org-members', orgId],
     queryFn: async () => {
+      console.log('useOrgMembers: Fetching members for org:', orgId);
       const { data, error } = await supabase
         .from('org_members')
         .select(`
           *,
-          profiles:user_id (
+          profiles!user_id (
             full_name,
             display_name
           )
@@ -61,7 +62,11 @@ export function useOrgMembers(orgId: string) {
         .eq('org_id', orgId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('useOrgMembers error:', error);
+        throw error;
+      }
+      console.log('useOrgMembers: Fetched members:', data);
       return data as OrgMember[];
     },
     enabled: !!orgId,
