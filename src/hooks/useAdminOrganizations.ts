@@ -15,13 +15,7 @@ export function useAdminOrganizations() {
       // Fetch ALL organizations - admin policies will handle access control
       const { data, error } = await supabase
         .from('organizations')
-        .select(`
-          *,
-          profiles:owner_id (
-            full_name,
-            display_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -35,7 +29,7 @@ export function useAdminOrganizations() {
         name: org.name,
         description: org.description || undefined,
         owner_id: org.owner_id,
-        owner_name: org.profiles?.full_name || org.profiles?.display_name || 'Unknown',
+        owner_name: org.owner_id, // Will show owner ID for now
         plan: org.plan,
         seat_cap: org.seat_cap,
         seats_used: org.seats_used || 0,
