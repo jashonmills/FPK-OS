@@ -65,10 +65,10 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
 
   const handleCreateInvitation = () => {
     createInvitation({
-      organizationId,
       email: email.trim() || undefined,
       maxUses: parseInt(maxUses) || 1,
-      expiresIn: parseInt(expiresIn) || 168
+      expiresInDays: Math.floor((parseInt(expiresIn) || 168) / 24),
+      role: 'student'
     });
 
     setShowCreateDialog(false);
@@ -77,8 +77,8 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
     setExpiresIn('168');
   };
 
-  const copyInviteLink = (invitationCode: string) => {
-    const inviteUrl = `${window.location.origin}/auth?invite=${invitationCode}`;
+  const copyInviteLink = (code: string) => {
+    const inviteUrl = `${window.location.origin}/join?code=${code}`;
     navigator.clipboard.writeText(inviteUrl).then(() => {
       toast({
         title: "Link Copied!",
@@ -87,8 +87,8 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
     });
   };
 
-  const getStatusBadgeVariant = (status: string, isActive: boolean, expiresAt: string) => {
-    if (!isActive || new Date(expiresAt) < new Date()) {
+  const getStatusBadgeVariant = (status: string, expiresAt: string) => {
+    if (new Date(expiresAt) < new Date()) {
       return 'secondary' as const;
     }
     switch (status) {
@@ -99,8 +99,7 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
     }
   };
 
-  const getStatusText = (status: string, isActive: boolean, expiresAt: string) => {
-    if (!isActive) return 'Deactivated';
+  const getStatusText = (status: string, expiresAt: string) => {
     if (new Date(expiresAt) < new Date()) return 'Expired';
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
@@ -219,10 +218,9 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
                   <TableCell>
                     <Badge variant={getStatusBadgeVariant(
                       invitation.status, 
-                      invitation.is_active || false, 
                       invitation.expires_at
                     )}>
-                      {getStatusText(invitation.status, invitation.is_active || false, invitation.expires_at)}
+                      {getStatusText(invitation.status, invitation.expires_at)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -238,7 +236,7 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
-                      {invitation.current_uses || 0} / {invitation.max_uses || 1}
+                      {invitation.uses_count || 0} / {invitation.max_uses || 1}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -259,7 +257,7 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem 
-                          onClick={() => copyInviteLink(invitation.invitation_code || '')}
+                          onClick={() => copyInviteLink(invitation.code || '')}
                         >
                           <Copy className="h-4 w-4 mr-2" />
                           Copy Link
@@ -267,7 +265,7 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
                         
                         <DropdownMenuItem 
                           onClick={() => {
-                            const inviteUrl = `${window.location.origin}/auth?invite=${invitation.invitation_code}`;
+                            const inviteUrl = `${window.location.origin}/join?code=${invitation.code}`;
                             window.open(inviteUrl, '_blank');
                           }}
                         >
@@ -275,7 +273,7 @@ export default function InviteLinkManager({ organizationId, organizationName }: 
                           Open Link
                         </DropdownMenuItem>
 
-                        {invitation.is_active && (
+                        {invitation.status === 'pending' && (
                           <DropdownMenuItem 
                             onClick={() => deactivateInvitation(invitation.id)}
                             disabled={isDeactivating}

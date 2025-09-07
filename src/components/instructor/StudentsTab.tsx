@@ -125,7 +125,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                 <div key={invitation.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <div className="font-medium">
-                      {invitation.email || `Code: ${invitation.invitation_code}`}
+                      {invitation.email || `Code: ${invitation.code}`}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Expires {new Date(invitation.expires_at).toLocaleDateString()}

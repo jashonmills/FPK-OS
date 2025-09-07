@@ -58,7 +58,7 @@ export function useOrgMembers(orgId: string) {
             display_name
           )
         `)
-        .eq('organization_id', orgId)
+        .eq('org_id', orgId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -72,14 +72,28 @@ export function useOrgInvitations(orgId: string) {
   return useQuery({
     queryKey: ['org-invitations', orgId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('org_invitations')
-        .select('*')
-        .eq('organization_id', orgId)
-        .order('created_at', { ascending: false });
+        const { data, error } = await supabase
+          .from('org_invites')
+          .select('*')
+          .eq('org_id', orgId)
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as OrgInvitation[];
+        if (error) throw error;
+        return data?.map((inv: any) => ({
+          id: inv.id,
+          org_id: inv.org_id,
+          created_by: inv.created_by,
+          email: inv.email,
+          code: inv.code,
+          token: inv.token,
+          status: inv.status,
+          expires_at: inv.expires_at,
+          max_uses: inv.max_uses || 1,
+          uses_count: inv.uses_count || 0,
+          role: inv.role,
+          metadata: inv.metadata || {},
+          created_at: inv.created_at,
+        })) || [];
     },
     enabled: !!orgId,
   });
@@ -137,7 +151,7 @@ export function useCreateOrganization() {
       const { error: memberError } = await supabase
         .from('org_members')
         .insert({
-          organization_id: data.id,
+          org_id: data.id,
           user_id: user.id,
           role: 'owner',
           status: 'active',
@@ -207,7 +221,7 @@ export function useInviteToOrganization() {
       }
 
       const { data, error } = await supabase
-        .from('org_invitations')
+        .from('org_invites')
         .insert(inviteData)
         .select()
         .single();
@@ -221,7 +235,7 @@ export function useInviteToOrganization() {
         title: 'Invitation created',
         description: variables.email 
           ? `Invitation sent to ${variables.email}` 
-          : `Invitation code generated: ${data.invitation_code}`,
+          : `Invitation code generated: ${data.code}`,
       });
     },
     onError: (error) => {

@@ -3016,9 +3016,11 @@ export type Database = {
           expires_at: string
           id: string
           max_uses: number
+          metadata: Json | null
           org_id: string
           role: string
           status: Database["public"]["Enums"]["invitation_status"]
+          token: string | null
           uses_count: number
         }
         Insert: {
@@ -3029,9 +3031,11 @@ export type Database = {
           expires_at?: string
           id?: string
           max_uses?: number
+          metadata?: Json | null
           org_id: string
           role?: string
           status?: Database["public"]["Enums"]["invitation_status"]
+          token?: string | null
           uses_count?: number
         }
         Update: {
@@ -3042,9 +3046,11 @@ export type Database = {
           expires_at?: string
           id?: string
           max_uses?: number
+          metadata?: Json | null
           org_id?: string
           role?: string
           status?: Database["public"]["Enums"]["invitation_status"]
+          token?: string | null
           uses_count?: number
         }
         Relationships: [
@@ -3352,14 +3358,20 @@ export type Database = {
           created_by: string | null
           description: string | null
           id: string
+          instructor_limit: number | null
+          instructors_used: number | null
           is_suspended: boolean
           logo_url: string | null
           name: string
           owner_id: string
           plan: string
           seat_cap: number
+          seats_used: number | null
           slug: string | null
           status: string
+          suspended_at: string | null
+          suspended_by: string | null
+          suspended_reason: string | null
         }
         Insert: {
           brand_accent?: string | null
@@ -3368,14 +3380,20 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          instructor_limit?: number | null
+          instructors_used?: number | null
           is_suspended?: boolean
           logo_url?: string | null
           name: string
           owner_id: string
           plan?: string
           seat_cap?: number
+          seats_used?: number | null
           slug?: string | null
           status?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_reason?: string | null
         }
         Update: {
           brand_accent?: string | null
@@ -3384,14 +3402,20 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          instructor_limit?: number | null
+          instructors_used?: number | null
           is_suspended?: boolean
           logo_url?: string | null
           name?: string
           owner_id?: string
           plan?: string
           seat_cap?: number
+          seats_used?: number | null
           slug?: string | null
           status?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_reason?: string | null
         }
         Relationships: []
       }
@@ -6174,6 +6198,14 @@ export type Database = {
       }
       migrate_existing_scorm_lessons: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      org_decrement_seats_if_needed: {
+        Args: { p_org_id: string; p_role: string }
+        Returns: undefined
+      }
+      org_increment_seats_if_needed: {
+        Args: { p_org_id: string; p_role: string }
         Returns: undefined
       }
       org_seat_available: {

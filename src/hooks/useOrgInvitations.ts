@@ -5,207 +5,227 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import type { OrgInvitation } from '@/types/organization';
 
-interface CreateInvitationData {
-  organizationId: string;
-  email?: string;
-  maxUses?: number;
-  expiresIn?: number; // hours
-}
-
 export function useOrgInvitations(organizationId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch invitations for an organization
-  const { data: invitations, isLoading, error } = useQuery({
+  // Fetch invitations
+  const {
+    data: invitations,
+    isLoading,
+    error,
+  } = useQuery<OrgInvitation[]>({
     queryKey: ['orgInvitations', organizationId],
-    queryFn: async (): Promise<OrgInvitation[]> => {
-      if (!organizationId || !user) return [];
+    queryFn: async () => {
+      if (!organizationId) return [];
 
       const { data, error } = await supabase
         .from('org_invites')
-        .select('*')
+        .select(`
+          *,
+          organizations (
+            id,
+            name,
+            slug
+          )
+        `)
         .eq('org_id', organizationId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching invitations:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      return (data || []).map(item => ({
-        ...item,
-        invited_by: item.created_by,
-        invitation_code: item.code,
-        current_uses: item.uses_count,
-        invitation_link: `org-invite-${item.code}`,
-        is_active: item.status === 'pending',
-        metadata: {}
+      return data.map((invite: any) => ({
+        id: invite.id,
+        org_id: invite.org_id,
+        created_by: invite.created_by,
+        email: invite.email,
+        code: invite.code,
+        token: invite.token,
+        status: invite.status,
+        expires_at: invite.expires_at,
+        max_uses: invite.max_uses || 1,
+        uses_count: invite.uses_count || 0,
+        role: invite.role,
+        metadata: invite.metadata || {},
+        created_at: invite.created_at,
+        organizations: invite.organizations
       }));
     },
     enabled: !!organizationId && !!user,
   });
 
-  // Create invitation mutation
-  const createInvitationMutation = useMutation({
-    mutationFn: async (data: CreateInvitationData) => {
-      if (!user) throw new Error('User not authenticated');
+  // Create invitation
+  const createInvitation = useMutation({
+    mutationFn: async ({ 
+      email, 
+      maxUses, 
+      expiresInDays, 
+      role 
+    }: { 
+      email?: string; 
+      maxUses: number; 
+      expiresInDays: number;
+      role: string;
+    }) => {
+      if (!organizationId) throw new Error('Organization ID is required');
 
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + (data.expiresIn || 168)); // Default 7 days
+      expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
-      // Generate invitation link
-      const { data: linkData, error: linkError } = await supabase
-        .rpc('generate_invitation_link', { org_id: data.organizationId });
+      // Generate invitation code
+      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
 
-      if (linkError) {
-        console.error('Error generating invitation link:', linkError);
-        throw linkError;
-      }
-
-      const invitationData = {
-        org_id: data.organizationId,
-        created_by: user.id,
-        email: data.email || null,
-        code: linkData.replace('org-invite-', ''),
-        status: 'pending' as const,
-        expires_at: expiresAt.toISOString(),
-        max_uses: data.maxUses || 1,
-        uses_count: 0,
-        role: 'student'
-      };
-
-      const { data: invitation, error } = await supabase
+      const { data, error } = await supabase
         .from('org_invites')
-        .insert(invitationData)
+        .insert([
+          {
+            org_id: organizationId,
+            email: email || null,
+            code,
+            role,
+            max_uses: maxUses,
+            uses_count: 0,
+            status: 'pending',
+            expires_at: expiresAt.toISOString(),
+            created_by: user?.id
+          }
+        ])
         .select()
         .single();
 
-      if (error) {
-        console.error('Error creating invitation:', error);
-        throw error;
-      }
-
-      return invitation;
+      if (error) throw error;
+      return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orgInvitations', organizationId] });
       toast({
-        title: "Invitation Created!",
-        description: "The invitation link has been generated successfully.",
+        title: 'Success',
+        description: 'Invitation created successfully',
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create invitation",
-        variant: "destructive"
+        title: 'Error creating invitation',
+        description: error.message,
+        variant: 'destructive',
       });
     },
   });
 
-  // Deactivate invitation mutation
-  const deactivateInvitationMutation = useMutation({
+  // Deactivate invitation
+  const deactivateInvitation = useMutation({
     mutationFn: async (invitationId: string) => {
       const { error } = await supabase
         .from('org_invites')
         .update({ status: 'expired' })
         .eq('id', invitationId);
 
-      if (error) {
-        console.error('Error deactivating invitation:', error);
-        throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orgInvitations', organizationId] });
       toast({
-        title: "Invitation Deactivated",
-        description: "The invitation has been deactivated successfully.",
+        title: 'Success',
+        description: 'Invitation deactivated',
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to deactivate invitation",
-        variant: "destructive"
+        title: 'Error deactivating invitation',
+        description: error.message,
+        variant: 'destructive',
       });
     },
   });
 
-  // Process invitation (for students accepting invites)
-  const processInvitationMutation = useMutation({
-    mutationFn: async (invitationCode: string) => {
-      if (!user) throw new Error('User not authenticated');
+  // Process invitation (for users accepting invites)
+  const processInvitation = useMutation({
+    mutationFn: async ({ code, token }: { code?: string; token?: string }) => {
+      if (!code && !token) throw new Error('Code or token is required');
 
-      // First, get the invitation details
-      const { data: invitation, error: inviteError } = await supabase
-        .from('org_invites')
-        .select(`
-          *,
-          organizations (*)
-        `)
-        .eq('code', invitationCode)
-        .eq('status', 'pending')
-        .gt('expires_at', new Date().toISOString())
-        .single();
+      let invitation;
 
-      if (inviteError || !invitation) {
-        throw new Error('Invalid or expired invitation');
+      if (code) {
+        const { data, error } = await supabase
+          .from('org_invites')
+          .select(`
+            *,
+            organizations (
+              id,
+              name,
+              slug
+            )
+          `)
+          .eq('code', code)
+          .gt('expires_at', new Date().toISOString())
+          .eq('status', 'pending')
+          .single();
+
+        if (error || !data) {
+          throw new Error('Invalid invitation code or expired invitation.');
+        }
+
+        invitation = data;
       }
 
-      // Check if max uses exceeded
+      if (!invitation) throw new Error('Invitation not found');
+
+      // Check if invitation has reached max uses
       if (invitation.uses_count >= invitation.max_uses) {
-        throw new Error('This invitation link has reached its maximum usage limit');
+        throw new Error('This invitation code has already been used the maximum number of times.');
       }
 
-      // Add user to organization
+      // Check if user is already a member
+      const { data: existingMember } = await supabase
+        .from('org_members')
+        .select('id')
+        .eq('org_id', invitation.org_id)
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (existingMember) {
+        throw new Error('You are already a member of this organization.');
+      }
+
+      // Add user as member
       const { error: memberError } = await supabase
         .from('org_members')
         .insert({
           org_id: invitation.org_id,
-          user_id: user.id,
-          role: (invitation.role || 'student') as 'owner' | 'instructor' | 'student',
-          status: 'active',
-          joined_at: new Date().toISOString(),
-          invited_by: invitation.created_by,
+          user_id: user?.id,
+          role: invitation.role,
+          status: 'active'
         });
 
-      if (memberError) {
-        console.error('Error adding member:', memberError);
-        throw memberError;
-      }
+      if (memberError) throw memberError;
 
       // Update invitation usage
-      const { error: updateError } = await supabase
+      await supabase
         .from('org_invites')
         .update({
-          uses_count: invitation.uses_count + 1,
-          status: invitation.uses_count + 1 >= invitation.max_uses ? 'expired' : 'pending'
+          uses_count: (invitation.uses_count || 0) + 1,
+          status: (invitation.uses_count + 1) >= invitation.max_uses ? 'accepted' : 'pending'
         })
         .eq('id', invitation.id);
 
-      if (updateError) {
-        console.error('Error updating invitation:', updateError);
-      }
-
       return {
-        organization: invitation.organizations,
-        role: invitation.role || 'student'
+        orgName: invitation.organizations?.name,
+        orgSlug: invitation.organizations?.slug,
+        role: invitation.role
       };
     },
-    onSuccess: (result: any) => {
+    onSuccess: (data) => {
       toast({
-        title: "Welcome!",
-        description: `You've successfully joined ${result.organization?.name}`,
+        title: 'Welcome!',
+        description: `You have successfully joined ${data.orgName}.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to process invitation",
-        variant: "destructive"
+        title: 'Error joining organization',
+        description: error.message,
+        variant: 'destructive',
       });
     },
   });
@@ -214,11 +234,11 @@ export function useOrgInvitations(organizationId?: string) {
     invitations: invitations || [],
     isLoading,
     error,
-    createInvitation: createInvitationMutation.mutate,
-    deactivateInvitation: deactivateInvitationMutation.mutate,
-    processInvitation: processInvitationMutation.mutate,
-    isCreating: createInvitationMutation.isPending,
-    isDeactivating: deactivateInvitationMutation.isPending,
-    isProcessing: processInvitationMutation.isPending,
+    createInvitation: createInvitation.mutate,
+    deactivateInvitation: deactivateInvitation.mutate,
+    processInvitation: processInvitation.mutate,
+    isCreating: createInvitation.isPending,
+    isDeactivating: deactivateInvitation.isPending,
+    isProcessing: processInvitation.isPending,
   };
 }

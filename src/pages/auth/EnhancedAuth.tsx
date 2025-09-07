@@ -57,16 +57,15 @@ export default function EnhancedAuth() {
   const validateInviteCode = async (code: string) => {
     try {
       const { data, error } = await supabase
-        .from('org_invitations')
+        .from('org_invites')
         .select(`
-          organization_id,
-          invitation_code,
-          invited_by,
+          org_id,
+          code,
+          created_by,
           organizations (name)
         `)
-        .eq('invitation_code', code)
+        .eq('code', code)
         .eq('status', 'pending')
-        .eq('is_active', true)
         .gt('expires_at', new Date().toISOString())
         .single();
 
@@ -80,9 +79,9 @@ export default function EnhancedAuth() {
       }
 
       setInviteData({
-        organization_id: data.organization_id,
+        organization_id: data.org_id,
         organization_name: data.organizations?.name || 'Unknown Organization',
-        invited_by: data.invited_by,
+        invited_by: data.created_by,
         invitation_code: code
       });
       
