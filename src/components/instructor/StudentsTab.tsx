@@ -31,6 +31,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useOrgMembers, useOrgInvitations, useRemoveMember } from '@/hooks/useOrganization';
+import { useOrgInvitations as useInviteManagement } from '@/hooks/useOrgInvitations';
 import InviteStudentDialog from './InviteStudentDialog';
 import type { MemberStatus } from '@/types/organization';
 
@@ -44,11 +45,21 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   
   const { data: members, isLoading } = useOrgMembers(organizationId);
   const { data: invitations } = useOrgInvitations(organizationId);
+  const { deactivateInvitation, isDeactivating } = useInviteManagement(organizationId);
   const removeMemberMutation = useRemoveMember();
 
   const students = members?.filter(m => m.role === 'student') || [];
   const activeStudents = students.filter(s => s.status === 'active');
   const pendingInvitations = invitations?.filter(i => i.status === 'pending') || [];
+
+  // Debug logging
+  console.log('StudentsTab Debug:', {
+    totalMembers: members?.length || 0,
+    allMembers: members?.map(m => ({ id: m.id, role: m.role, status: m.status })),
+    students: students.length,
+    activeStudents: activeStudents.length,
+    pendingInvitations: pendingInvitations.length
+  });
 
   const filteredStudents = students.filter(student => {
     const name = student.profiles?.display_name || student.profiles?.full_name || 'Unknown';
@@ -68,6 +79,12 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const handleRemoveStudent = async (memberId: string) => {
     if (confirm('Are you sure you want to remove this student? They will lose access to the organization.')) {
       await removeMemberMutation.mutateAsync({ memberId, orgId: organizationId });
+    }
+  };
+
+  const handleCancelInvitation = async (invitationId: string) => {
+    if (confirm('Are you sure you want to cancel this invitation?')) {
+      deactivateInvitation(invitationId);
     }
   };
 
@@ -131,7 +148,17 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                       Expires {new Date(invitation.expires_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <Badge variant="secondary">Pending</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">Pending</Badge>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleCancelInvitation(invitation.id)}
+                      disabled={isDeactivating}
+                    >
+                      {isDeactivating ? 'Cancelling...' : 'Cancel'}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

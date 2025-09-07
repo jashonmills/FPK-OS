@@ -46,7 +46,7 @@ export function JoinOrganization() {
       
       // Redirect to dashboard after 3 seconds
       setTimeout(() => {
-        navigate('/dashboard/instructor');
+        navigate('/dashboard/learner');
       }, 3000);
     } catch (error: any) {
       setStatus('error');
