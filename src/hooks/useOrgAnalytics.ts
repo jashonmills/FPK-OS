@@ -1,143 +1,145 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { assertOrg } from '@/lib/org/context';
 
 export interface OrgAnalytics {
-  recentActivity: Array<{
-    id: string;
-    student_name: string;
-    activity: string;
-    timestamp: string;
-    type: 'goal' | 'course' | 'note' | 'achievement';
-  }>;
-  topPerformers: Array<{
-    student_name: string;
-    completed_goals: number;
-    progress_score: number;
-  }>;
-  progressMetrics: {
-    totalLearningHours: number;
-    averageProgress: number;
-    coursesCompleted: number;
+  totalStudents: number;
+  activeThisWeek: number;
+  avgCompletion: number;
+  totalTimeOnTask: number;
+  assignmentStats: {
+    not_started: number;
+    in_progress: number;
+    submitted: number;
+    graded: number;
   };
 }
 
 export function useOrgAnalytics() {
-  const { currentOrg } = useOrgContext();
+  const orgId = assertOrg();
 
-  return useQuery({
-    queryKey: ['org-analytics', currentOrg?.organization_id],
+  const { data: analytics, isLoading, error } = useQuery({
+    queryKey: ['org-analytics', orgId],
     queryFn: async (): Promise<OrgAnalytics> => {
-      if (!currentOrg?.organization_id) {
-        throw new Error('No organization selected');
-      }
+      // Get total students
+      const { count: totalStudents } = await supabase
+        .from('org_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('org_id', orgId)
+        .eq('role', 'student')
+        .eq('status', 'active');
 
-      const orgId = currentOrg.organization_id;
+      // Get active users this week
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-      // Get recent activity from goals and notes
-      const { data: recentGoals, error: goalsError } = await supabase
-        .from('org_goals')
-        .select(`
-          id,
-          title,
-          updated_at,
-          student_id
-        `)
-        .eq('organization_id', orgId)
-        .order('updated_at', { ascending: false })
-        .limit(5);
+      const { data: activeUsers } = await supabase
+        .from('activity_log')
+        .select('user_id')
+        .eq('org_id', orgId)
+        .gte('created_at', oneWeekAgo.toISOString());
 
-      if (goalsError) console.error('Goals error:', goalsError);
+      const activeThisWeek = new Set(activeUsers?.map(a => a.user_id) || []).size;
 
-      const { data: recentNotes, error: notesError } = await supabase
-        .from('org_notes')
-        .select(`
-          id,
-          title,
-          updated_at,
-          student_id
-        `)
-        .eq('organization_id', orgId)
-        .order('updated_at', { ascending: false })
-        .limit(5);
+      // Get average completion rate
+      const { data: progressData } = await supabase
+        .from('course_progress')
+        .select('percent')
+        .eq('org_id', orgId);
 
-      if (notesError) console.error('Notes error:', notesError);
-
-      // Combine and format recent activity
-      const recentActivity = [
-        ...(recentGoals || []).map(goal => ({
-          id: goal.id,
-          student_name: 'Student', // Placeholder - would need profile lookup
-          activity: `Updated goal: ${goal.title}`,
-          timestamp: goal.updated_at,
-          type: 'goal' as const
-        })),
-        ...(recentNotes || []).map(note => ({
-          id: note.id,
-          student_name: 'Student', // Placeholder - would need profile lookup
-          activity: `Note updated: ${note.title}`,
-          timestamp: note.updated_at,
-          type: 'note' as const
-        }))
-      ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 10);
-
-      // Get top performers based on completed goals
-      const { data: performers, error: performersError } = await supabase
-        .from('org_goals')
-        .select(`
-          student_id,
-          status,
-          progress_percentage
-        `)
-        .eq('organization_id', orgId);
-
-      if (performersError) console.error('Performers error:', performersError);
-
-      // Calculate top performers
-      const performerStats: { [key: string]: { name: string; completed: number; totalProgress: number; count: number } } = {};
-      
-      (performers || []).forEach(goal => {
-        const userId = goal.student_id;
-        const name = 'Student'; // Placeholder - would need profile lookup
-        
-        if (!performerStats[userId]) {
-          performerStats[userId] = { name, completed: 0, totalProgress: 0, count: 0 };
-        }
-        
-        if (goal.status === 'completed') {
-          performerStats[userId].completed++;
-        }
-        performerStats[userId].totalProgress += goal.progress_percentage || 0;
-        performerStats[userId].count++;
-      });
-
-      const topPerformers = Object.values(performerStats)
-        .map(stats => ({
-          student_name: stats.name,
-          completed_goals: stats.completed,
-          progress_score: stats.count > 0 ? Math.round(stats.totalProgress / stats.count) : 0
-        }))
-        .sort((a, b) => b.progress_score - a.progress_score)
-        .slice(0, 5);
-
-      // Calculate progress metrics
-      const totalLearningHours = Math.round(Math.random() * 500); // Placeholder - would calculate from actual activity
-      const averageProgress = performers && performers.length > 0 
-        ? Math.round(performers.reduce((sum, p) => sum + (p.progress_percentage || 0), 0) / performers.length)
+      const avgCompletion = progressData && progressData.length > 0
+        ? progressData.reduce((sum, p) => sum + p.percent, 0) / progressData.length
         : 0;
-      const coursesCompleted = (performers || []).filter(p => p.status === 'completed').length;
+
+      // Get total time on task (in minutes)
+      const { data: sessionData } = await supabase
+        .from('session_time')
+        .select('minutes')
+        .eq('org_id', orgId);
+
+      const totalTimeOnTask = sessionData?.reduce((sum, s) => sum + s.minutes, 0) || 0;
+
+      // Assignment stats - simplified for now since table structure is different
+      const assignmentStats = {
+        not_started: 0,
+        in_progress: 0,
+        submitted: 0,
+        graded: 0,
+      };
 
       return {
-        recentActivity,
-        topPerformers,
-        progressMetrics: {
-          totalLearningHours,
-          averageProgress,
-          coursesCompleted
-        }
+        totalStudents: totalStudents || 0,
+        activeThisWeek,
+        avgCompletion: Math.round(avgCompletion),
+        totalTimeOnTask,
+        assignmentStats,
       };
     },
-    enabled: !!currentOrg?.organization_id,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
+
+  return {
+    analytics,
+    isLoading,
+    error,
+  };
+}
+
+export function useOrgActivityTrends(weeks: number = 8) {
+  const orgId = assertOrg();
+
+  const { data: trends, isLoading } = useQuery({
+    queryKey: ['org-activity-trends', orgId, weeks],
+    queryFn: async () => {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - (weeks * 7));
+
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('created_at, user_id')
+        .eq('org_id', orgId)
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by week
+      const weeklyData: { week: string; users: Set<string>; activities: number }[] = [];
+      const weekMap: Record<string, { users: Set<string>; activities: number }> = {};
+
+      data?.forEach(activity => {
+        const date = new Date(activity.created_at);
+        const weekStart = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
+        const weekKey = weekStart.toISOString().split('T')[0];
+
+        if (!weekMap[weekKey]) {
+          weekMap[weekKey] = { users: new Set(), activities: 0 };
+        }
+
+        weekMap[weekKey].users.add(activity.user_id);
+        weekMap[weekKey].activities++;
+      });
+
+      // Convert to array format
+      Object.entries(weekMap).forEach(([week, data]) => {
+        weeklyData.push({
+          week,
+          users: data.users,
+          activities: data.activities,
+        });
+      });
+
+      return weeklyData.map(week => ({
+        week: week.week,
+        activeUsers: week.users.size,
+        activities: week.activities,
+      }));
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+
+  return {
+    trends,
+    isLoading,
+  };
 }
