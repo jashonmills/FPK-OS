@@ -166,7 +166,8 @@ const App: React.FC = () => {
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
-          
+          <Route path="/join/:code" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
+
           {/* Dashboard Routes */}
           <Route path="/dashboard/*" element={
             <RouteProtector>

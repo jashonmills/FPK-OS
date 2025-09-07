@@ -208,13 +208,16 @@ export function useInviteToOrganization() {
       const inviteData: any = {
         org_id: invitation.organization_id,
         created_by: (await supabase.auth.getUser()).data.user?.id,
+        role: 'student', // Default role for invitations
+        max_uses: 1,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
       };
 
       if (invitation.email) {
         inviteData.email = invitation.email;
       }
 
-      if (invitation.generate_code) {
+      if (invitation.generate_code || !invitation.email) {
         // Generate unique code
         const { data: codeData } = await supabase.rpc('generate_invitation_code');
         inviteData.code = codeData;
@@ -227,6 +230,41 @@ export function useInviteToOrganization() {
         .single();
 
       if (error) throw error;
+
+      // Send email if email was provided
+      if (invitation.email && data.code) {
+        try {
+          // Get organization details
+          const { data: orgData } = await supabase
+            .from('organizations')
+            .select('name')
+            .eq('id', invitation.organization_id)
+            .single();
+
+          // Get current user for inviter name
+          const { data: { user } } = await supabase.auth.getUser();
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, full_name')
+            .eq('id', user?.id)
+            .single();
+
+          const inviterName = profile?.display_name || profile?.full_name || 'Someone';
+
+          await supabase.functions.invoke('send-invitation-email', {
+            body: {
+              email: invitation.email,
+              organizationName: orgData?.name || 'FPK University',
+              invitationCode: data.code,
+              inviterName
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send invitation email:', emailError);
+          // Don't throw error - invitation was created successfully
+        }
+      }
+
       return data;
     },
     onSuccess: (data, variables) => {

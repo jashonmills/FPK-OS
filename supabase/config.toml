@@ -33,6 +33,9 @@ double_confirm_email = false
 enable_confirmations = true
 # DO NOT add any send_email hook here - use SMTP only
 
+[functions.send-invitation-email]
+verify_jwt = false
+
 [functions.voice-to-text]
 verify_jwt = false
 
