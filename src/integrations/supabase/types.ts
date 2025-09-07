@@ -6086,6 +6086,19 @@ export type Database = {
             }
         Returns: string
       }
+      create_organization_with_membership: {
+        Args: {
+          p_description?: string
+          p_instructor_limit?: number
+          p_logo_url?: string
+          p_name: string
+          p_plan?: string
+          p_seat_cap?: number
+          p_slug: string
+          p_user_id?: string
+        }
+        Returns: string
+      }
       current_user_has_admin_role: {
         Args: Record<PropertyKey, never>
         Returns: boolean

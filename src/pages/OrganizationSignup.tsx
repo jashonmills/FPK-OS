@@ -191,48 +191,26 @@ export default function OrganizationSignup() {
       const tierInfo = SUBSCRIPTION_TIERS[orgData.selectedTier];
       console.log('📊 Selected tier:', orgData.selectedTier, tierInfo);
 
-      // Try direct insert first (simpler approach)
-      console.log('🏢 Creating organization via direct insert...');
-      const { data: newOrg, error: directError } = await supabase
-        .from('organizations')
-        .insert({
-          name: orgData.name,
-          slug: slug,
-          description: orgData.description || null,
-          logo_url: logoUrl,
-          plan: orgData.selectedTier,
-          seat_cap: tierInfo.seats,
-          instructor_limit: tierInfo.instructors,
-          owner_id: currentUserId,
-          created_by: currentUserId
-        })
-        .select()
-        .single();
-
-      if (directError) {
-        console.error('❌ Direct insert failed:', directError);
-        throw new Error(`Failed to create organization: ${directError.message}`);
-      }
-
-      console.log('✅ Organization created:', newOrg);
-
-      // Create owner membership
-      console.log('👥 Creating owner membership...');
-      const { error: memberError } = await supabase
-        .from('org_members')
-        .insert({
-          org_id: newOrg.id,
-          user_id: currentUserId,
-          role: 'owner',
-          status: 'active'
+      // Use database function to create organization (bypasses RLS issues)
+      console.log('🏢 Creating organization via database function...');
+      const { data: orgId, error: createError } = await supabase
+        .rpc('create_organization_with_membership', {
+          p_name: orgData.name,
+          p_slug: slug,
+          p_description: orgData.description || null,
+          p_logo_url: logoUrl,
+          p_plan: orgData.selectedTier,
+          p_seat_cap: tierInfo.seats,
+          p_instructor_limit: tierInfo.instructors,
+          p_user_id: currentUserId
         });
 
-      if (memberError) {
-        console.error('❌ Failed to create membership:', memberError);
-        throw new Error(`Failed to create membership: ${memberError.message}`);
+      if (createError) {
+        console.error('❌ Organization creation failed:', createError);
+        throw new Error(`Failed to create organization: ${createError.message}`);
       }
-      
-      console.log('✅ Owner membership created successfully');
+
+      console.log('✅ Organization created with ID:', orgId);
 
       // Check if user email is verified
       const { data: userCheck } = await supabase.auth.getUser();
