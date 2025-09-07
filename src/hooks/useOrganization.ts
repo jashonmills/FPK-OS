@@ -217,11 +217,9 @@ export function useInviteToOrganization() {
         inviteData.email = invitation.email;
       }
 
-      if (invitation.generate_code || !invitation.email) {
-        // Generate unique code
-        const { data: codeData } = await supabase.rpc('generate_invitation_code');
-        inviteData.code = codeData;
-      }
+      // Always generate a code for invitations (needed for email links and manual codes)
+      const { data: codeData } = await supabase.rpc('generate_invitation_code');
+      inviteData.code = codeData;
 
       const { data, error } = await supabase
         .from('org_invites')
