@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Settings, User, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import { OrgSwitcher } from './OrgSwitcher';
 
 const OrgHeader = () => {
   const { user, signOut } = useAuth();
@@ -42,7 +43,7 @@ const OrgHeader = () => {
   return (
     <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4">
-        {/* Left side - Back button and brand */}
+        {/* Left side - Back button, brand and org switcher */}
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
@@ -58,6 +59,9 @@ const OrgHeader = () => {
               <span className="text-white font-bold text-sm">FPK</span>
             </div>
             <span className="font-semibold text-lg">Organizations</span>
+          </div>
+          <div className="ml-4">
+            <OrgSwitcher />
           </div>
         </div>
 

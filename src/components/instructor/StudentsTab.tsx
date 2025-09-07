@@ -31,7 +31,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useOrgMembers, useOrgInvitations, useRemoveMember } from '@/hooks/useOrganization';
-import { useOrgInvitations as useInviteManagement } from '@/hooks/useOrgInvitations';
+import { useOrgInvitations as useInviteActions } from '@/hooks/useOrgInvitations';
 import InviteStudentDialog from './InviteStudentDialog';
 import type { MemberStatus } from '@/types/organization';
 
@@ -45,7 +45,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   
   const { data: members, isLoading } = useOrgMembers(organizationId);
   const { data: invitations } = useOrgInvitations(organizationId);
-  const { deactivateInvitation, isDeactivating } = useInviteManagement(organizationId);
+  const { deactivateInvitation, isDeactivating } = useInviteActions(organizationId);
   const removeMemberMutation = useRemoveMember();
 
   const students = members?.filter(m => m.role === 'student') || [];

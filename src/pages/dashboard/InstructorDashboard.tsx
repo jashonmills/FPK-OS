@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, BookOpen, Target, FileText, BarChart3, Plus } from 'lucide-react';
 import { useOrganizations, useOrganization, useOrgMembers } from '@/hooks/useOrganization';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams } from 'react-router-dom';
 import { SUBSCRIPTION_TIERS } from '@/types/organization';
 import StudentsTab from '@/components/instructor/StudentsTab';
 import CoursesTab from '@/components/instructor/CoursesTab';
@@ -17,12 +18,13 @@ import CreateOrganizationDialog from '@/components/instructor/CreateOrganization
 export default function InstructorDashboard() {
   const { user } = useAuth();
   const { data: organizations, isLoading } = useOrganizations();
-  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+  const [searchParams] = useSearchParams();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  // Find user's owned organization
+  // Get organization ID from URL params or find user's owned organization
+  const orgIdFromUrl = searchParams.get('org');
   const ownedOrg = organizations?.find(org => org.owner_id === user?.id);
-  const orgId = selectedOrgId || ownedOrg?.id || '';
+  const orgId = orgIdFromUrl || ownedOrg?.id || '';
 
   const { data: organization } = useOrganization(orgId);
   const { data: members } = useOrgMembers(orgId);
