@@ -130,42 +130,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
         </div>
       </div>
 
-      {/* Pending invitations */}
-      {pendingInvitations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Pending Invitations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {pendingInvitations.map((invitation) => (
-                <div key={invitation.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <div className="font-medium">
-                      {invitation.email || `Code: ${invitation.code}`}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Expires {new Date(invitation.expires_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Pending</Badge>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => handleCancelInvitation(invitation.id)}
-                      disabled={isDeactivating}
-                    >
-                      {isDeactivating ? 'Cancelling...' : 'Cancel'}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Students table */}
       <Card>
         <CardContent className="p-0">
@@ -263,6 +227,42 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Pending invitations */}
+      {pendingInvitations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Pending Invitations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {pendingInvitations.map((invitation) => (
+                <div key={invitation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <div className="font-medium">
+                      {invitation.email || `Code: ${invitation.code}`}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Expires {new Date(invitation.expires_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">Pending</Badge>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleCancelInvitation(invitation.id)}
+                      disabled={isDeactivating}
+                    >
+                      {isDeactivating ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <InviteStudentDialog
         open={showInviteDialog}

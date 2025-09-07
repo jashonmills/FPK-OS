@@ -50,24 +50,43 @@ export function useOrgMembers(orgId: string) {
     queryKey: ['org-members', orgId],
     queryFn: async () => {
       console.log('useOrgMembers: Fetching members for org:', orgId);
-      const { data, error } = await supabase
+      
+      // Fetch org members and profiles separately, then join manually
+      const { data: orgMembers, error: membersError } = await supabase
         .from('org_members')
-        .select(`
-          *,
-          profiles!user_id (
-            full_name,
-            display_name
-          )
-        `)
+        .select('*')
         .eq('org_id', orgId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('useOrgMembers error:', error);
-        throw error;
+      if (membersError) {
+        console.error('useOrgMembers members error:', membersError);
+        throw membersError;
       }
-      console.log('useOrgMembers: Fetched members:', data);
-      return data as OrgMember[];
+
+      // Fetch user profiles separately
+      const userIds = orgMembers?.map(m => m.user_id) || [];
+      if (userIds.length === 0) {
+        console.log('useOrgMembers: No members found');
+        return [];
+      }
+
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, display_name')
+        .in('id', userIds);
+
+      if (profilesError) {
+        console.warn('useOrgMembers profiles error:', profilesError);
+      }
+
+      // Manual join
+      const result = orgMembers?.map(member => ({
+        ...member,
+        profiles: profiles?.find(p => p.id === member.user_id) || null
+      })) || [];
+
+      console.log('useOrgMembers: Manual join result:', result);
+      return result as OrgMember[];
     },
     enabled: !!orgId,
   });
