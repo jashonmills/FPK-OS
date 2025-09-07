@@ -1,0 +1,422 @@
+import React, { useState } from 'react';
+import { useOrgContext } from '@/components/organizations/OrgContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  BookOpen, 
+  Plus, 
+  Search, 
+  MoreHorizontal, 
+  Eye, 
+  Edit, 
+  Trash2,
+  Users,
+  Play,
+  Pause,
+  BarChart
+} from 'lucide-react';
+import { useOrgCourses, OrgCourse } from '@/hooks/useOrgCourses';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+const courseSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+});
+
+type CourseFormData = z.infer<typeof courseSchema>;
+
+export default function CoursesPage() {
+  const { currentOrg, getUserRole } = useOrgContext();
+  const userRole = getUserRole();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<OrgCourse | null>(null);
+
+  const {
+    courses,
+    isLoading,
+    createCourse,
+    updateCourse,
+    deleteCourse,
+    togglePublish,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    isTogglingPublish,
+  } = useOrgCourses();
+
+  const form = useForm<CourseFormData>({
+    resolver: zodResolver(courseSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      level: 'beginner',
+    },
+  });
+
+  if (!currentOrg) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
+          <p className="text-muted-foreground">Please select an organization to view courses.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const canManageCourses = userRole === 'owner' || userRole === 'instructor';
+  
+  const filteredCourses = courses.filter(course => 
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleCreateCourse = (data: CourseFormData) => {
+    createCourse({
+      title: data.title,
+      description: data.description,
+      level: data.level,
+      published: false,
+    });
+    
+    form.reset();
+    setShowCreateDialog(false);
+  };
+
+  const handleEditCourse = (course: OrgCourse) => {
+    setEditingCourse(course);
+    form.reset({
+      title: course.title,
+      description: course.description || '',
+      level: (course.level as any) || 'beginner',
+    });
+  };
+
+  const handleUpdateCourse = (data: CourseFormData) => {
+    if (!editingCourse) return;
+    
+    updateCourse({
+      id: editingCourse.id,
+      title: data.title,
+      description: data.description,
+      level: data.level,
+    });
+    
+    form.reset();
+    setEditingCourse(null);
+  };
+
+  const handleTogglePublish = (course: OrgCourse) => {
+    togglePublish({
+      courseId: course.id,
+      published: !course.published,
+    });
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-8 w-8" />
+          <div>
+            <h1 className="text-3xl font-bold">Courses</h1>
+            <p className="text-muted-foreground">
+              Manage your organization's courses
+            </p>
+          </div>
+        </div>
+        
+        {canManageCourses && (
+          <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Course
+          </Button>
+        )}
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{courses.length}</div>
+            <p className="text-xs text-muted-foreground">All courses</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Published</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{courses.filter(c => c.published).length}</div>
+            <p className="text-xs text-muted-foreground">Available to students</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Draft</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{courses.filter(c => !c.published).length}</div>
+            <p className="text-xs text-muted-foreground">In development</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Across all courses</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search Bar */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search courses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {/* Courses Grid */}
+      <div className="space-y-4">
+        {isLoading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading courses...</p>
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="text-center py-8">
+            <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Courses Found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery ? 'No courses match your search.' : 'Start by creating your first course.'}
+            </p>
+            {canManageCourses && !searchQuery && (
+              <Button onClick={() => setShowCreateDialog(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Course
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCourses.map((course) => (
+              <Card key={course.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+                      <CardDescription className="line-clamp-3 mt-2">
+                        {course.description || 'No description provided'}
+                      </CardDescription>
+                    </div>
+                    {canManageCourses && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleEditCourse(course)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Course
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleTogglePublish(course)}>
+                            {course.published ? (
+                              <>
+                                <Pause className="h-4 w-4 mr-2" />
+                                Unpublish
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4 mr-2" />
+                                Publish
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => deleteCourse(course.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Course
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={course.published ? "default" : "secondary"}>
+                        {course.published ? 'Published' : 'Draft'}
+                      </Badge>
+                      {course.level && (
+                        <Badge variant="outline" className="capitalize">
+                          {course.level}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        0
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <BarChart className="h-3 w-3" />
+                        0%
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Create/Edit Course Dialog */}
+      <Dialog 
+        open={showCreateDialog || !!editingCourse} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowCreateDialog(false);
+            setEditingCourse(null);
+            form.reset();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingCourse ? 'Edit Course' : 'Create New Course'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingCourse ? 'Update course information.' : 'Add a new course to your organization.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form 
+              onSubmit={form.handleSubmit(editingCourse ? handleUpdateCourse : handleCreateCourse)} 
+              className="space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Course Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter course title" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Describe the course content..."
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Difficulty Level</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreateDialog(false);
+                    setEditingCourse(null);
+                    form.reset();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {editingCourse 
+                    ? (isUpdating ? 'Updating...' : 'Update Course')
+                    : (isCreating ? 'Creating...' : 'Create Course')
+                  }
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

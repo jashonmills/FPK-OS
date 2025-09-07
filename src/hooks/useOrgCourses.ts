@@ -133,6 +133,33 @@ export function useOrgCourses() {
     },
   });
 
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ courseId, published }: { courseId: string; published: boolean }) => {
+      const { error } = await supabase
+        .from('org_courses')
+        .update({ published })
+        .eq('id', courseId)
+        .eq('org_id', orgId);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { published }) => {
+      queryClient.invalidateQueries({ queryKey: ['org-courses'] });
+      toast({
+        title: "Success",
+        description: `Course ${published ? 'published' : 'unpublished'} successfully.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error toggling course publish status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update course status.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     courses,
     isLoading,
@@ -141,8 +168,10 @@ export function useOrgCourses() {
     createCourse: createCourseMutation.mutate,
     updateCourse: updateCourseMutation.mutate,
     deleteCourse: deleteCourseMutation.mutate,
+    togglePublish: togglePublishMutation.mutate,
     isCreating: createCourseMutation.isPending,
     isUpdating: updateCourseMutation.isPending,
     isDeleting: deleteCourseMutation.isPending,
+    isTogglingPublish: togglePublishMutation.isPending,
   };
 }
