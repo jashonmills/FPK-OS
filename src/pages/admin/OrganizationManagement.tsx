@@ -96,8 +96,8 @@ export default function OrganizationManagement() {
             <div className="text-2xl font-bold">
               {organizations && organizations.length > 0
                 ? Math.round(
-                    (organizations.reduce((sum, org) => sum + org.seats_used, 0) /
-                     organizations.reduce((sum, org) => sum + org.seat_limit, 0)) * 100
+                     (organizations.reduce((sum, org) => sum + org.seats_used, 0) /
+                      organizations.reduce((sum, org) => sum + org.seat_cap, 0)) * 100
                   )
                 : 0}%
             </div>
@@ -159,14 +159,14 @@ export default function OrganizationManagement() {
                     <div className="text-sm">{org.owner_id}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getTierVariant(org.subscription_tier) as any}>
-                      {org.subscription_tier.toUpperCase()}
+                    <Badge variant={getTierVariant(org.plan) as any}>
+                      {org.plan.toUpperCase()}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      <span>{org.seats_used}/{org.seat_limit}</span>
+                      <span>{org.seats_used}/{org.seat_cap}</span>
                     </div>
                   </TableCell>
                   <TableCell>

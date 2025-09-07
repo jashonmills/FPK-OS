@@ -93,7 +93,7 @@ export function SuspendOrganizationDialog({ organization, open, onOpenChange, mo
                 <h4 className="font-medium text-foreground mb-2">Organization Details:</h4>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p><span className="font-medium">Name:</span> {organization.name}</p>
-                  <p><span className="font-medium">Members:</span> {organization.seats_used} / {organization.seat_limit}</p>
+                  <p><span className="font-medium">Members:</span> {organization.seats_used} / {organization.seat_cap}</p>
                   <p><span className="font-medium">Current Status:</span> 
                     <span className={`ml-1 capitalize ${
                       organization.status === 'active' ? 'text-success' : 

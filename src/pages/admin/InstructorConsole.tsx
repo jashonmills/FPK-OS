@@ -154,7 +154,7 @@ export default function InstructorConsole() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {org.subscription_tier.toUpperCase()}
+                      {org.plan.toUpperCase()}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -169,20 +169,20 @@ export default function InstructorConsole() {
                         <div 
                           className="bg-primary h-2 rounded-full" 
                           style={{ 
-                            width: `${Math.min((org.seats_used / org.seat_limit) * 100, 100)}%` 
+                            width: `${Math.min((org.seats_used / org.seat_cap) * 100, 100)}%` 
                           }}
                         />
                       </div>
                       <span className="text-sm">
-                        {org.seats_used}/{org.seat_limit}
+                        {org.seats_used}/{org.seat_cap}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge 
-                      variant={org.seats_used >= org.seat_limit ? "destructive" : "secondary"}
+                      variant={org.seats_used >= org.seat_cap ? "destructive" : "secondary"}
                     >
-                      {org.seats_used >= org.seat_limit ? "Full" : "Active"}
+                      {org.seats_used >= org.seat_cap ? "Full" : "Active"}
                     </Badge>
                   </TableCell>
                   <TableCell>

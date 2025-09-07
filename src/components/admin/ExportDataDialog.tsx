@@ -112,7 +112,7 @@ export function ExportDataDialog({ organization, open, onOpenChange }: ExportDat
               <div className="rounded-lg border border-border bg-muted/30 p-4">
                 <h4 className="font-medium text-foreground mb-2">Organization: {organization.name}</h4>
                 <div className="text-sm text-muted-foreground">
-                  <p>Members: {organization.seats_used} / {organization.seat_limit}</p>
+                  <p>Members: {organization.seats_used} / {organization.seat_cap}</p>
                   <p>Created: {new Date(organization.created_at).toLocaleDateString()}</p>
                 </div>
               </div>

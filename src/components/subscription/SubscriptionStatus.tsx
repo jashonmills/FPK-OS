@@ -145,7 +145,7 @@ export function SubscriptionStatus() {
               </div>
               <div className="flex gap-2">
                 <Badge className="bg-blue-500">
-                  {ownedOrg.subscription_tier?.toUpperCase()}
+                  {ownedOrg.plan?.toUpperCase()}
                 </Badge>
               </div>
             </CardTitle>
@@ -161,11 +161,11 @@ export function SubscriptionStatus() {
                 <span className="text-sm">Seat Usage</span>
               </div>
               <Badge variant="outline">
-                {ownedOrg.seats_used}/{ownedOrg.seat_limit} seats
+                {ownedOrg.seats_used}/{ownedOrg.seat_cap} seats
               </Badge>
             </div>
 
-            {ownedOrg.seats_used >= ownedOrg.seat_limit && (
+            {ownedOrg.seats_used >= ownedOrg.seat_cap && (
               <div className="p-3 bg-orange-50 border border-orange-200 rounded-md">
                 <p className="text-sm text-orange-800">
                   You've reached your seat limit. Upgrade to add more students.

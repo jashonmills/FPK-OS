@@ -49,12 +49,12 @@ export function ChangeSubscriptionDialog({ organization, open, onOpenChange }: C
   const form = useForm<SubscriptionFormData>({
     resolver: zodResolver(subscriptionSchema),
     defaultValues: {
-      new_tier: organization.subscription_tier,
+      new_tier: organization.plan,
     },
   });
 
   const watchedTier = form.watch('new_tier');
-  const currentTier = organization.subscription_tier;
+  const currentTier = organization.plan;
   const isUpgrade = getTierLevel(watchedTier) > getTierLevel(currentTier);
   const isDowngrade = getTierLevel(watchedTier) < getTierLevel(currentTier);
   const isNoChange = watchedTier === currentTier;
@@ -118,7 +118,7 @@ export function ChangeSubscriptionDialog({ organization, open, onOpenChange }: C
                     <div className="text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
-                        {organization.seats_used} / {organization.seat_limit} seats used
+                        {organization.seats_used} / {organization.seat_cap} seats used
                       </div>
                     </div>
                   </div>

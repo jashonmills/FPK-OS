@@ -58,22 +58,20 @@ export function ManageMembersDialog({ organization, open, onOpenChange }: Manage
     queryFn: async () => {
       const { data, error } = await supabase
         .from('org_members')
-        .select(`
-          *,
-          profiles:profiles(full_name, display_name)
-        `)
-        .eq('organization_id', organization.id)
+        .select('*')
+        .eq('org_id', organization.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as (OrgMember & { profiles?: { full_name?: string; display_name?: string } })[];
+      return data || [];
     },
     enabled: open,
   });
 
   const filteredMembers = members.filter(member => {
-    const name = member.profiles?.full_name || member.profiles?.display_name || 'Unknown User';
-    return name.toLowerCase().includes(searchQuery.toLowerCase());
+    // Simple filter since we don't have profile data in this query
+    return member.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           member.role?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   const handleSelectMember = (memberId: string, checked: boolean) => {
@@ -235,7 +233,7 @@ export function ManageMembersDialog({ organization, open, onOpenChange }: Manage
                       <TableCell>
                         <div>
                           <div className="font-medium text-foreground">
-                            {member.profiles?.full_name || member.profiles?.display_name || 'Unknown User'}
+                            {member.user_id}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             Member ID: {member.id.slice(0, 8)}...

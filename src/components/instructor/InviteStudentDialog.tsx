@@ -60,7 +60,7 @@ export default function InviteStudentDialog({
         organization_id: organizationId,
         generate_code: true,
       });
-      setGeneratedCode(result.invitation_code);
+      setGeneratedCode(result.code);
       toast({
         title: 'Invitation code generated',
         description: 'Share this code with your student to join your organization.',

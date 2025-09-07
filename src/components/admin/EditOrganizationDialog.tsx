@@ -45,7 +45,7 @@ export function EditOrganizationDialog({ organization, open, onOpenChange }: Edi
     defaultValues: {
       name: organization.name,
       description: organization.description || '',
-      seat_limit: organization.seat_limit,
+      seat_limit: organization.seat_cap,
     },
   });
 

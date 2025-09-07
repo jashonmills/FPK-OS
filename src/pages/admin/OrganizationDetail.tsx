@@ -106,8 +106,8 @@ export default function OrganizationDetail() {
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <Badge variant={getTierVariant(organization.subscription_tier) as any} className="text-sm">
-              {organization.subscription_tier.toUpperCase()}
+            <Badge variant={getTierVariant(organization.plan) as any} className="text-sm">
+              {organization.plan.toUpperCase()}
             </Badge>
           </CardContent>
         </Card>
@@ -119,10 +119,10 @@ export default function OrganizationDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {organization.seats_used}/{organization.seat_limit}
+              {organization.seats_used}/{organization.seat_cap}
             </div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((organization.seats_used / organization.seat_limit) * 100)}% utilized
+              {Math.round((organization.seats_used / organization.seat_cap) * 100)}% utilized
             </p>
           </CardContent>
         </Card>

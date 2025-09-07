@@ -63,7 +63,7 @@ export default function InstructorDashboard() {
     );
   }
 
-  const tierInfo = SUBSCRIPTION_TIERS[organization.subscription_tier];
+  const tierInfo = SUBSCRIPTION_TIERS[organization.plan];
   const studentCount = members?.filter(m => m.role === 'student' && m.status === 'active').length || 0;
 
   return (
@@ -81,14 +81,14 @@ export default function InstructorDashboard() {
                   {tierInfo.name} Plan
                 </Badge>
                 <div className="text-sm text-muted-foreground">
-                  {studentCount} / {organization.seat_limit} seats used
+                  {studentCount} / {organization.seat_cap} seats used
                 </div>
               </div>
               <div className="w-2 h-12 bg-primary/20 rounded-full overflow-hidden">
                 <div 
                   className="w-full bg-primary transition-all duration-300"
                   style={{ 
-                    height: `${Math.min((studentCount / organization.seat_limit) * 100, 100)}%` 
+                    height: `${Math.min((studentCount / organization.seat_cap) * 100, 100)}%` 
                   }}
                 />
               </div>
