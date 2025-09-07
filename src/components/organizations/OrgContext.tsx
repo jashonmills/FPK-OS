@@ -54,11 +54,21 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
     
     if (orgId) {
       localStorage.setItem('fpk.activeOrgId', orgId);
-      // Update URL if we're in a dashboard context
+      
+      // Find the organization to check the user's role
+      const selectedOrg = organizations.find(o => o.organization_id === orgId);
+      
+      // Navigate to appropriate dashboard based on role and current location
       if (window.location.pathname.includes('/dashboard/')) {
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.set('org', orgId);
-        setSearchParams(newSearchParams);
+        if (selectedOrg?.role === 'owner' || selectedOrg?.role === 'instructor') {
+          // Navigate to instructor dashboard with org parameter
+          navigate(`/dashboard/instructor?org=${orgId}`);
+        } else {
+          // For students, stay on learner dashboard but add org parameter
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.set('org', orgId);
+          setSearchParams(newSearchParams);
+        }
       }
     } else {
       localStorage.removeItem('fpk.activeOrgId');
