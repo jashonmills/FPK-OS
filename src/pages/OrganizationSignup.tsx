@@ -203,10 +203,9 @@ export default function OrganizationSignup() {
             description: orgData.description || null,
             logo_url: logoUrl,
             plan: orgData.selectedTier,
-            subscription_tier: orgData.selectedTier,
             seat_cap: tierInfo.seats,
             instructor_limit: tierInfo.instructors,
-            owner_id: user?.id || (await supabase.auth.getUser()).data.user?.id
+            owner_id: currentUser?.id
           })
           .select()
           .single();
@@ -218,7 +217,7 @@ export default function OrganizationSignup() {
           .from('org_members')
           .insert({
             org_id: newOrg.id,
-            user_id: user?.id || (await supabase.auth.getUser()).data.user?.id,
+            user_id: currentUser?.id,
             role: 'owner',
             status: 'active'
           });
