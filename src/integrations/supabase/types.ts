@@ -6283,6 +6283,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      user_is_org_leader: {
+        Args: { check_org_id: string; check_user_id: string }
+        Returns: boolean
+      }
       user_is_org_member: {
         Args: { org_id: string }
         Returns: boolean
