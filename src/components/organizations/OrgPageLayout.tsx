@@ -1,6 +1,6 @@
 import React from 'react';
 import { OrgProvider } from './OrgContext';
-import GlobalHeader from '@/components/GlobalHeader';
+import OrgHeader from './OrgHeader';
 
 interface OrgPageLayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export function OrgPageLayout({ children }: OrgPageLayoutProps) {
   return (
     <OrgProvider>
       <div className="min-h-screen bg-gray-50">
-        <GlobalHeader />
+        <OrgHeader />
         <main className="flex-1">
           <div className="container mx-auto px-4 py-8">
             {children}

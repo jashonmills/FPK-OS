@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useParams } from 'react-router-dom';
 import { OrgProvider } from './OrgContext';
-import { OrgHeader } from './OrgHeader';
+import OrgHeader from './OrgHeader';
 import { OrgNavigation } from './OrgNavigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
