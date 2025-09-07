@@ -24,6 +24,11 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
 
+  // Debug logging
+  console.log('OrgProvider - Current user:', user?.id, user?.email);
+  console.log('OrgProvider - Organizations loaded:', organizations);
+  console.log('OrgProvider - Active org ID:', activeOrgId);
+
   // Initialize activeOrgId from URL params or localStorage
   useEffect(() => {
     const orgFromUrl = searchParams.get('org');
@@ -41,8 +46,10 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
 
   // Update currentOrg when activeOrgId or organizations change
   useEffect(() => {
+    console.log('Updating currentOrg - activeOrgId:', activeOrgId, 'organizations:', organizations.length);
     if (activeOrgId && organizations.length > 0) {
       const org = organizations.find(o => o.organization_id === activeOrgId);
+      console.log('Found org for activeOrgId:', org);
       setCurrentOrg(org || null);
     } else {
       setCurrentOrg(null);

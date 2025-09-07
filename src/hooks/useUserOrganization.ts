@@ -18,11 +18,21 @@ export function useUserOrganizations() {
   return useQuery({
     queryKey: ['user-organizations'],
     queryFn: async () => {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('No authenticated user found');
+        return [];
+      }
+      
+      console.log('Fetching organizations for user:', user.id, user.email);
+      
       // First get the user's memberships
       const { data: memberships, error: membershipsError } = await supabase
         .from('org_members')
         .select('org_id, role, status')
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .eq('user_id', user.id);
 
       if (membershipsError) {
         console.error('Error fetching user memberships:', membershipsError);
