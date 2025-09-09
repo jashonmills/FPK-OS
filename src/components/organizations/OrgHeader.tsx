@@ -48,11 +48,11 @@ const OrgHeader = () => {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => navigate('/dashboard/learner')}
+            onClick={() => navigate('/dashboard/organizations')}
             className="hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            All Organizations
           </Button>
           <div className="hidden sm:flex items-center gap-3 ml-4">
             <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">

@@ -9,7 +9,8 @@ import {
   FileText, 
   BarChart3,
   Settings,
-  UserPlus
+  UserPlus,
+  ArrowLeft
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 
@@ -26,6 +27,11 @@ export function OrgNavigation() {
   if (!currentOrg) return null;
 
   const navItems: NavItem[] = [
+    {
+      href: '/dashboard/organizations',
+      label: 'All Organizations',
+      icon: ArrowLeft,
+    },
     {
       href: `/org/${currentOrg.organization_id}`,
       label: 'Dashboard',
