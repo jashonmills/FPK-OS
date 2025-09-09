@@ -228,6 +228,9 @@ const App: React.FC = () => {
             <Route path="admin/thresholds" element={<LazyRoute><ThresholdManagement /></LazyRoute>} />
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             
+            {/* Organizations Hub */}
+            <Route path="organizations" element={<LazyRoute><OrgHub /></LazyRoute>} />
+            
             {/* Subscription Management */}
             <Route path="subscription" element={<LazyRoute><UserSubscription /></LazyRoute>} />
             
