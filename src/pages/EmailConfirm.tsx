@@ -54,7 +54,14 @@ export const EmailConfirm = () => {
           }
           console.log('✅ Token verification successful');
           setStatus('success');
-          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          
+          // Check for pending invite code and redirect appropriately
+          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
+          if (pendingInviteCode) {
+            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          } else {
+            setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          }
           return;
         }
 
@@ -70,7 +77,14 @@ export const EmailConfirm = () => {
           }
           console.log('✅ Code exchange successful');
           setStatus('success');
-          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          
+          // Check for pending invite code and redirect appropriately
+          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
+          if (pendingInviteCode) {
+            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          } else {
+            setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          }
           return;
         }
 
@@ -90,7 +104,14 @@ export const EmailConfirm = () => {
           }
           console.log('✅ Session restoration successful');
           setStatus('success');
-          setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          
+          // Check for pending invite code and redirect appropriately
+          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
+          if (pendingInviteCode) {
+            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          } else {
+            setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
+          }
           return;
         }
 

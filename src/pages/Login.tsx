@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,6 +25,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user, loading } = useAuth();
   
@@ -118,6 +119,16 @@ const Login = () => {
     if (!loading && user) {
       console.log('🔄 Login: User authenticated, checking for redirects');
       
+      // Check for state-based return URL first
+      const returnUrl = location.state?.returnUrl;
+      console.log('Login: Return URL from state:', returnUrl);
+      
+      if (returnUrl) {
+        navigate(returnUrl, { replace: true });
+        return;
+      }
+      
+      // Legacy redirect handling
       const redirect = searchParams.get('redirect');
       console.log('Login: Redirect parameter:', redirect);
       
@@ -135,7 +146,7 @@ const Login = () => {
       console.log('🔄 Login: No redirect, going to dashboard');
       navigate('/dashboard/learner', { replace: true });
     }
-  }, [user, loading, navigate, searchParams]);
+  }, [user, loading, navigate, searchParams, location.state]);
 
   // Auto-show video guide for signup tab (only once)
   useEffect(() => {
@@ -184,9 +195,15 @@ const Login = () => {
         description: tString('signInSuccess'),
       });
       
-      // Immediate redirect after successful sign in
-      console.log('🔄 Login: Sign in successful, redirecting to dashboard');
-      navigate('/dashboard/learner', { replace: true });
+      // Check for return URL after successful sign in
+      const returnUrl = location.state?.returnUrl;
+      if (returnUrl) {
+        console.log('🔄 Login: Sign in successful, redirecting to return URL:', returnUrl);
+        navigate(returnUrl, { replace: true });
+      } else {
+        console.log('🔄 Login: Sign in successful, redirecting to dashboard');
+        navigate('/dashboard/learner', { replace: true });
+      }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -233,6 +250,9 @@ const Login = () => {
         title: tString('accountCreated'),
         description: tString('checkEmail'),
       });
+      
+      // For signup, we handle the return URL after email confirmation
+      // The user will be redirected via the emailRedirectTo URL
       
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
