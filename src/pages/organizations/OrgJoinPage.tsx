@@ -4,25 +4,49 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Send, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 const OrgJoinPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const [inviteCode, setInviteCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
 
-  // Get code from URL parameters on mount
+  // Check authentication and get code from URL parameters
   useEffect(() => {
+    if (!loading && !user) {
+      // Store the invite code and redirect to login
+      const codeFromUrl = searchParams.get('code') || searchParams.get('token');
+      if (codeFromUrl) {
+        localStorage.setItem('pendingInviteCode', codeFromUrl);
+      }
+      navigate('/auth', { 
+        state: { 
+          returnUrl: '/join' + (codeFromUrl ? `?code=${codeFromUrl}` : '') 
+        } 
+      });
+      return;
+    }
+
+    // Get code from URL parameters on mount
     const codeFromUrl = searchParams.get('code') || searchParams.get('token');
     if (codeFromUrl) {
       setInviteCode(codeFromUrl);
+    } else {
+      // Check if there's a pending invite code from localStorage
+      const pendingCode = localStorage.getItem('pendingInviteCode');
+      if (pendingCode) {
+        setInviteCode(pendingCode);
+        localStorage.removeItem('pendingInviteCode');
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, navigate, user, loading]);
 
   const handleJoinOrganization = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +107,23 @@ const OrgJoinPage = () => {
       setIsJoining(false);
     }
   };
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto space-y-6 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="max-w-md mx-auto space-y-6">
