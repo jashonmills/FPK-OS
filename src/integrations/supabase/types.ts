@@ -1083,6 +1083,126 @@ export type Database = {
           },
         ]
       }
+      curriculum_files: {
+        Row: {
+          content_extraction_status: string | null
+          content_inventory: Json | null
+          created_at: string
+          extracted_activities: Json | null
+          extracted_assessments: Json | null
+          extracted_stories: Json | null
+          extracted_teacher_scripts: Json | null
+          extracted_vocabulary: Json | null
+          extracted_worksheets: Json | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          lesson_building_status: string | null
+          lessons_built_at: string | null
+          mime_type: string | null
+          parsed_content: Json | null
+          processing_status: string
+          structured_at: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_extraction_status?: string | null
+          content_inventory?: Json | null
+          created_at?: string
+          extracted_activities?: Json | null
+          extracted_assessments?: Json | null
+          extracted_stories?: Json | null
+          extracted_teacher_scripts?: Json | null
+          extracted_vocabulary?: Json | null
+          extracted_worksheets?: Json | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          lesson_building_status?: string | null
+          lessons_built_at?: string | null
+          mime_type?: string | null
+          parsed_content?: Json | null
+          processing_status?: string
+          structured_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_extraction_status?: string | null
+          content_inventory?: Json | null
+          created_at?: string
+          extracted_activities?: Json | null
+          extracted_assessments?: Json | null
+          extracted_stories?: Json | null
+          extracted_teacher_scripts?: Json | null
+          extracted_vocabulary?: Json | null
+          extracted_worksheets?: Json | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          lesson_building_status?: string | null
+          lessons_built_at?: string | null
+          mime_type?: string | null
+          parsed_content?: Json | null
+          processing_status?: string
+          structured_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      curriculum_lessons: {
+        Row: {
+          assessments: Json | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          curriculum_source: string | null
+          id: string
+          lesson_number: number | null
+          status: string
+          student_view: Json | null
+          teacher_resources: Json | null
+          title: string
+          updated_at: string
+          worksheets: Json | null
+        }
+        Insert: {
+          assessments?: Json | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          curriculum_source?: string | null
+          id?: string
+          lesson_number?: number | null
+          status?: string
+          student_view?: Json | null
+          teacher_resources?: Json | null
+          title: string
+          updated_at?: string
+          worksheets?: Json | null
+        }
+        Update: {
+          assessments?: Json | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          curriculum_source?: string | null
+          id?: string
+          lesson_number?: number | null
+          status?: string
+          student_view?: Json | null
+          teacher_resources?: Json | null
+          title?: string
+          updated_at?: string
+          worksheets?: Json | null
+        }
+        Relationships: []
+      }
       daily_activities: {
         Row: {
           activity_date: string
@@ -3713,6 +3833,48 @@ export type Database = {
           tags?: string[] | null
           title?: string
           transcript_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      processing_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_step: string | null
+          error_message: string | null
+          id: string
+          job_type: string
+          metadata: Json | null
+          progress: number | null
+          status: string
+          total_steps: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_step?: string | null
+          error_message?: string | null
+          id?: string
+          job_type: string
+          metadata?: Json | null
+          progress?: number | null
+          status?: string
+          total_steps?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_step?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          metadata?: Json | null
+          progress?: number | null
+          status?: string
+          total_steps?: number | null
           updated_at?: string
         }
         Relationships: []
