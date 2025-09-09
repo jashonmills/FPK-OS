@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Target, Search, Plus, Calendar, User, FolderOpen } from 'lucide-react';
-import { GoalCreationDialog } from '@/components/goals/GoalCreationDialog';
+import OrgGoalCreationDialog from '@/components/organizations/OrgGoalCreationDialog';
 
 interface GoalsTabProps {
   organizationId: string;
@@ -72,12 +72,12 @@ export default function GoalsTab({ organizationId }: GoalsTabProps) {
           <h2 className="text-2xl font-bold">Goals Management</h2>
           <p className="text-muted-foreground">Create and track learning goals for your students</p>
         </div>
-        <GoalCreationDialog>
+        <OrgGoalCreationDialog>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Create Goal
           </Button>
-        </GoalCreationDialog>
+        </OrgGoalCreationDialog>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4">
@@ -202,12 +202,12 @@ export default function GoalsTab({ organizationId }: GoalsTabProps) {
                 <p className="text-muted-foreground mb-4">
                   Create learning goals to help guide your students' progress.
                 </p>
-                <GoalCreationDialog>
+                <OrgGoalCreationDialog>
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Goal
                   </Button>
-                </GoalCreationDialog>
+                </OrgGoalCreationDialog>
               </CardContent>
             </Card>
           )}
