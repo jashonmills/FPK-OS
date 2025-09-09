@@ -15,6 +15,7 @@ import {
   FolderOpen,
   Calendar
 } from 'lucide-react';
+import CreateNoteDialog from '@/components/instructor/CreateNoteDialog';
 
 interface NotesTabProps {
   organizationId: string;
@@ -109,10 +110,12 @@ export default function NotesTab({ organizationId }: NotesTabProps) {
           <h2 className="text-2xl font-bold">Notes Management</h2>
           <p className="text-muted-foreground">Create and manage notes for your students</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Note
-        </Button>
+        <CreateNoteDialog>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Note
+          </Button>
+        </CreateNoteDialog>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4">
@@ -262,10 +265,12 @@ export default function NotesTab({ organizationId }: NotesTabProps) {
                 <p className="text-muted-foreground mb-4">
                   Create notes to track student progress and important observations.
                 </p>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Note
-                </Button>
+                <CreateNoteDialog>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Note
+                  </Button>
+                </CreateNoteDialog>
               </CardContent>
             </Card>
           )}
