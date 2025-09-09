@@ -25,6 +25,7 @@ export type NavItem = {
 
 export const navPersonal: NavItem[] = [
   { label: 'Home', icon: React.createElement(Home), to: '/dashboard/learner' },
+  { label: 'Organizations', icon: React.createElement(Building2), to: '/dashboard/organizations' },
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses' },
   { label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library' },
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics' },
