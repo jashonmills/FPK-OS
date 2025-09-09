@@ -33,6 +33,14 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       hasNavigated
     });
 
+    // Force redirect if stuck in loading state without auth
+    if (isDashboardRoute && !user && !authLoading) {
+      console.log('🔒 No auth detected - forcing redirect to login');
+      setHasNavigated(true);
+      navigate('/login', { replace: true });
+      return;
+    }
+
     // Only perform navigation once per route change
     if (hasNavigated) return;
 
@@ -82,12 +90,20 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   }, [currentPath]);
 
   // Show loading while checking auth for dashboard routes
-  if ((isDashboardRoute && authLoading) || (isDashboardRoute && user && subscriptionLoading)) {
+  // Add timeout protection to prevent infinite loading
+  if (isDashboardRoute && (authLoading || (user && subscriptionLoading))) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center">
         <div className="text-center text-white">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-lg">Loading your learning experience...</p>
+          {/* Add debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <p className="text-sm mt-2 opacity-75">
+              Auth: {authLoading ? 'loading' : user ? 'authenticated' : 'not authenticated'} | 
+              Subscription: {subscriptionLoading ? 'loading' : hasAccess ? 'active' : 'none'}
+            </p>
+          )}
         </div>
       </div>
     );
