@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrgInvitations } from '@/hooks/useOrgInvitations';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,12 +8,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Users, CheckCircle, XCircle } from 'lucide-react';
 
 export function JoinOrganization() {
-  const { code } = useParams();
+  const { code: codeFromParams } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { processInvitation, isProcessing } = useOrgInvitations();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'ready'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Get invitation code from either URL params or query params
+  const code = codeFromParams || searchParams.get('code') || searchParams.get('token');
 
   useEffect(() => {
     console.log('JoinOrganization: code =', code, 'user =', !!user);
@@ -123,10 +127,17 @@ export function JoinOrganization() {
     <div className="container max-w-md mx-auto mt-8">
       <Card>
         <CardHeader className="text-center">
-          <Users className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-          <CardTitle className="text-2xl">Join Organization</CardTitle>
+          {/* Waterford and Wexford Education and Training Board Logo */}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/lovable-uploads/44eb3e77-c5bb-47c8-a643-8320e9261df0.png" 
+              alt="Waterford and Wexford Education and Training Board" 
+              className="h-16 w-16 object-contain"
+            />
+          </div>
+          <CardTitle className="text-2xl">Join Waterford and Wexford ETB</CardTitle>
           <CardDescription>
-            You've been invited to join an organization on FPK University
+            You've been invited to join Waterford and Wexford Education and Training Board on FPK University
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
