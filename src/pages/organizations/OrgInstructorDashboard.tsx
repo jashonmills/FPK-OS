@@ -56,6 +56,31 @@ export default function OrgInstructorDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Co-branding header for Waterford and Wexford Education */}
+      {currentOrg.organizations.name === 'Waterford and Wexford Education' && (
+        <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 fpk-gradient rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">FPK</span>
+                </div>
+                <span className="text-lg font-semibold">FPK University</span>
+              </div>
+              <div className="w-px h-12 bg-border"></div>
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/f7480296-4389-41eb-a6b0-29e5eda50540.png" 
+                  alt="Wexford Education Logo" 
+                  className="w-12 h-12 object-contain"
+                />
+                <span className="text-lg font-semibold">Wexford Education</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
