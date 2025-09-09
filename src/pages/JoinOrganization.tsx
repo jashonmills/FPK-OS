@@ -23,9 +23,8 @@ export function JoinOrganization() {
     console.log('JoinOrganization: code =', code, 'user =', !!user);
     
     if (!code) {
-      console.log('JoinOrganization: No code provided');
-      setStatus('error');
-      setErrorMessage('Invalid invitation link');
+      console.log('JoinOrganization: No code provided, redirecting to join form');
+      navigate('/join', { replace: true });
       return;
     }
 
