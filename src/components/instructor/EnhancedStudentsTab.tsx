@@ -39,7 +39,8 @@ import {
   BookOpen,
   Target,
   FileText,
-  Mail
+  Mail,
+  Eye
 } from 'lucide-react';
 import { useOrgMembers } from '@/hooks/useOrganization';
 import { useOrgMemberManagement } from '@/hooks/useOrgMemberManagement';
@@ -93,7 +94,7 @@ export default function EnhancedStudentsTab({ organizationId, organizationName }
   };
 
   const navigateToStudentAnalytics = (studentId: string) => {
-    navigate(`/dashboard/instructor/students/${studentId}/analytics`);
+    navigate(`/dashboard/instructor/students/${studentId}/progress`);
   };
 
   const getInitials = (name: string) => {
@@ -218,8 +219,8 @@ export default function EnhancedStudentsTab({ organizationId, organizationName }
                           <DropdownMenuItem 
                             onClick={() => navigateToStudentAnalytics(student.user_id)}
                           >
-                            <BarChart3 className="h-4 w-4 mr-2" />
-                            View Analytics
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Progress
                           </DropdownMenuItem>
                           
                           <DropdownMenuItem 

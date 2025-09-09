@@ -44,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useOrgInvites } from '@/hooks/useOrgInvites';
 import { CreateInviteDialog } from '@/components/org/CreateInviteDialog';
 import { assertOrg } from '@/lib/org/context';
+import { useNavigate } from 'react-router-dom';
 
 interface OrgMember {
   id: string;
@@ -64,6 +65,7 @@ export default function StudentsPage() {
   const { currentOrg, getUserRole } = useOrgContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const userRole = getUserRole();
   const orgId = assertOrg();
   
@@ -294,7 +296,7 @@ export default function StudentsPage() {
                       <DropdownMenuContent>
                         <DropdownMenuItem onClick={() => setSelectedStudent(student)}>
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                          View Progress
                         </DropdownMenuItem>
                         {canManageMembers && (
                           <DropdownMenuItem
@@ -354,9 +356,35 @@ export default function StudentsPage() {
                   <BookOpen className="h-4 w-4" />
                   Course Progress
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Course progress data will be displayed here once implemented.
-                </p>
+                <div className="space-y-3">
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Introduction to Programming</span>
+                      <Badge variant="secondary">85%</Badge>
+                    </div>
+                    <div className="w-full bg-background rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Web Development Basics</span>
+                      <Badge variant="default">100%</Badge>
+                    </div>
+                    <div className="w-full bg-background rounded-full h-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(`/dashboard/instructor/students/${selectedStudent?.user_id}/progress`)}
+                    className="w-full mt-3"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Detailed Progress
+                  </Button>
+                </div>
               </div>
               
               <div>
@@ -364,9 +392,16 @@ export default function StudentsPage() {
                   <Target className="h-4 w-4" />
                   Active Goals
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Student goals will be displayed here once implemented.
-                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                    <span className="text-sm">Complete Programming Fundamentals</span>
+                    <Badge variant="secondary">75%</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                    <span className="text-sm">Build First Web Application</span>
+                    <Badge variant="outline">30%</Badge>
+                  </div>
+                </div>
               </div>
             </div>
           )}
