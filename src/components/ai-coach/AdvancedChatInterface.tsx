@@ -42,7 +42,21 @@ interface AdvancedChatInterfaceProps {
   fixedHeight?: boolean;
 }
 
-const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({ 
+// Helper to prevent hanging requests
+const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+    promise.then((value) => {
+      clearTimeout(timer);
+      resolve(value);
+    }).catch((err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+  });
+};
+
+const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   user, 
   completedSessions, 
   flashcards, 
@@ -386,21 +400,24 @@ You can upload PDFs, documents, or text files and I'll create personalized flash
       const result = await executeWithGate(
         'ai_chat',
         async () => {
-          const { data, error } = await supabase.functions.invoke('ai-study-chat', {
-            body: {
-              message: userMessage.content,
-              userId: user.id,
-              sessionId: sessionId,
-              chatMode,
-              voiceActive: false,
-              metadata: {
-                completedSessions: completedSessions?.length || 0,
-                flashcardCount: flashcards?.length || 0,
-                ragEnabled: true,
-                insights: insights
+          const { data, error } = await withTimeout(
+            supabase.functions.invoke('ai-study-chat', {
+              body: {
+                message: userMessage.content,
+                userId: user.id,
+                sessionId: sessionId,
+                chatMode,
+                voiceActive: false,
+                metadata: {
+                  completedSessions: completedSessions?.length || 0,
+                  flashcardCount: flashcards?.length || 0,
+                  ragEnabled: true,
+                  insights: insights
+                }
               }
-            }
-          });
+            }),
+            18000
+          );
           
           if (error) throw error;
           return data;
