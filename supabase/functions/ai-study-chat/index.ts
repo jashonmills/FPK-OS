@@ -1,7 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL } from './constants.ts';
+import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL } from './constants.ts';
 import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
 import { detectQueryMode, detectRecentFlashcardsRequest } from './mode-detection.ts';
@@ -68,7 +68,7 @@ serve(async (req) => {
 
     // Determine model and API based on chat mode
     const useOpenAI = chatMode === 'general';
-    const model = useOpenAI ? 'gpt-4.1-2025-04-14' : 'claude-sonnet-4-20250514';
+    const model = useOpenAI ? OPENAI_MODEL : CLAUDE_MODEL;
     
     console.log(`🤖 Using ${useOpenAI ? 'OpenAI' : 'Claude'} model: ${model} for ${chatMode} mode with RAG enhancement`);
 
