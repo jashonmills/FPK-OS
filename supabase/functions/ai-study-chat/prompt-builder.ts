@@ -6,6 +6,7 @@ import {
   STATE_PROMPT_INITIATE_SESSION,
   STATE_PROMPT_INITIATE_QUIZ,
   STATE_PROMPT_EVALUATE_ANSWER,
+  STATE_PROMPT_EVALUATE_QUIZ_ANSWER,
   STATE_PROMPT_PROACTIVE_HELP,
   STATE_PROMPT_EVALUATE_REFRESHER,
   STATE_PROMPT_DIRECT_ANSWER
@@ -83,12 +84,20 @@ export function buildContextPrompt(
     const refresherBlock = STATE_PROMPT_EVALUATE_REFRESHER.replace('[user_input]', trimmed);
     prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Refresher)\n${refresherBlock}`;
   } else if (conversationContext.isAnswering && conversationContext.lastAIQuestion) {
-    const teachingHistory = extractTeachingHistory(chatHistory);
-    const evalBlock = STATE_PROMPT_EVALUATE_ANSWER
-      .replace('[user_input]', trimmed)
-      .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used')
-      .replace('[incorrect_answers_count]', sessionContext.incorrectAnswersCount.toString());
-    prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
+    // Check if we're in a quiz session by looking for quiz indicators in chat history
+    const inQuizSession = isInQuizSession(chatHistory);
+    
+    if (inQuizSession) {
+      const quizEvalBlock = STATE_PROMPT_EVALUATE_QUIZ_ANSWER.replace('[user_input]', trimmed);
+      prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Quiz Answer)\n${quizEvalBlock}`;
+    } else {
+      const teachingHistory = extractTeachingHistory(chatHistory);
+      const evalBlock = STATE_PROMPT_EVALUATE_ANSWER
+        .replace('[user_input]', trimmed)
+        .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used')
+        .replace('[incorrect_answers_count]', sessionContext.incorrectAnswersCount.toString());
+      prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
+    }
   } else if (isQuizRequest(trimmed)) {
     const quizTopic = extractQuizTopic(trimmed);
     const quizBlock = STATE_PROMPT_INITIATE_QUIZ.replace('[quiz_topic]', quizTopic);
@@ -328,4 +337,28 @@ function extractQuizTopic(message: string): string {
   
   // Fallback: return the whole message if no pattern matches
   return message.trim();
+}
+
+function isInQuizSession(chatHistory: any[]): boolean {
+  // Look for recent quiz indicators in the chat history
+  for (let i = chatHistory.length - 1; i >= Math.max(0, chatHistory.length - 5); i--) {
+    const msg = chatHistory[i];
+    if (msg.role === 'assistant') {
+      const content = msg.content.toLowerCase();
+      // Check for quiz-specific language patterns
+      if (content.includes('quiz') || 
+          content.includes('test') ||
+          content.includes('let\'s start') ||
+          content.includes('great idea! let\'s begin') ||
+          content.includes('absolutely! let\'s start')) {
+        return true;
+      }
+    } else if (msg.role === 'user') {
+      // Check if user initiated a quiz recently
+      if (isQuizRequest(msg.content)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
