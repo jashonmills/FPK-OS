@@ -1,10 +1,10 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL } from './constants.ts';
+import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL, STATE_PROMPT_INITIATE_STUDY_SESSION } from './constants.ts';
 import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
-import { detectQueryMode, detectRecentFlashcardsRequest } from './mode-detection.ts';
+import { detectQueryMode, detectRecentFlashcardsRequest, detectStudySessionRequest } from './mode-detection.ts';
 import { callClaude, callOpenAI, handleToolCalls, postProcessResponse } from './claude-client.ts';
 import { RAGIntegration } from './rag-integration.ts';
 
@@ -109,6 +109,9 @@ serve(async (req) => {
     // Check for quiz request and handle directly
     const isQuizRequest = /quiz me on|give me a quiz on|test me on|can you quiz me|i want a quiz on/i.test(message);
     
+    // Check for study session request
+    const isStudySessionRequest = detectStudySessionRequest(message);
+    
     let enhancedPrompt = baseSystemPrompt;
     let ragMetadata = { ragEnabled: false, simplified: true };
 
@@ -120,6 +123,14 @@ serve(async (req) => {
 Start the quiz by asking a broad, open-ended question that assesses their general understanding of ${quizTopic}. Be engaging and encouraging.
 
 Example: "Absolutely! Let's start with a big question: What are some of the different types of ${quizTopic} you know of?"
+
+USER MESSAGE: ${message}`;
+    } else if (isStudySessionRequest) {
+      console.log('🔍 Study session request detected, building study session prompt');
+      const studyTopic = message.replace(/.*(?:help me study|teach me about|can you teach me|i want to study|study with me|let's study|i need to learn|teach me)\s+/i, '').trim();
+      enhancedPrompt = `${STATE_PROMPT_INITIATE_STUDY_SESSION}
+
+The user wants to study: ${studyTopic || 'a general subject'}
 
 USER MESSAGE: ${message}`;
     } else {

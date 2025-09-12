@@ -24,6 +24,12 @@ export function detectQueryMode(message: string): QueryMode {
     'struggling with', 'need practice', 'review my'
   ];
   
+  // Study session keywords (highest priority for academic study)
+  const studySessionKeywords = [
+    'help me study', 'teach me about', 'can you teach me', 'i want to study',
+    'study with me', 'let\'s study', 'i need to learn', 'teach me'
+  ];
+
   // Platform-specific keywords for how-to guides
   const platformKeywords = [
     // Flashcard creation and management
@@ -65,19 +71,28 @@ export function detectQueryMode(message: string): QueryMode {
     lowerMessage.includes(keyword)
   );
   
-  // Check for platform keywords (second priority)
+  // Check for study session keywords (second priority)
+  const hasStudySessionKeywords = studySessionKeywords.some(keyword => 
+    lowerMessage.includes(keyword)
+  );
+  
+  // Check for platform keywords (third priority)
   const hasPlatformKeywords = platformKeywords.some(keyword => 
     lowerMessage.includes(keyword)
   );
   
-  // Check for general knowledge keywords (third priority)
+  // Check for general knowledge keywords (fourth priority)
   const hasGeneralKeywords = generalKeywords.some(keyword => 
     lowerMessage.includes(keyword)
   );
   
-  // Prioritize: Personal > Platform > General
+  // Prioritize: Personal > Study Session > Platform > General
   if (hasPersonalKeywords) {
     return 'personal';
+  }
+  
+  if (hasStudySessionKeywords) {
+    return 'general'; // Study sessions use general mode but with special handling
   }
   
   if (hasPlatformKeywords) {
@@ -113,4 +128,16 @@ export function detectRecentFlashcardsRequest(message: string): boolean {
   ];
   
   return recentFlashcardPatterns.some(pattern => lowerMessage.includes(pattern));
+}
+
+// Detection for study session requests
+export function detectStudySessionRequest(message: string): boolean {
+  const lowerMessage = message.toLowerCase();
+  
+  const studySessionPatterns = [
+    'help me study', 'teach me about', 'can you teach me', 'i want to study',
+    'study with me', 'let\'s study', 'i need to learn', 'teach me'
+  ];
+  
+  return studySessionPatterns.some(pattern => lowerMessage.includes(pattern));
 }
