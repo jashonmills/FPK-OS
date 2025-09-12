@@ -315,14 +315,14 @@ What would you like to learn about today?`;
     };
   }, []);
 
-  // Quiz detection
+  // Flashcard quiz detection - only detects flashcard-specific quiz requests
   const detectQuizRequest = (text: string): boolean => {
-    const quizKeywords = [
-      'quiz me', 'practice', 'review these', 'test me', 'challenge me',
-      'quiz session', 'study session', 'practice cards', 'drill me',
-      'start quiz', 'quiz time'
+    const flashcardQuizKeywords = [
+      'quiz me with my flashcards', 'practice my flashcards', 'review my cards',
+      'flashcard quiz', 'practice cards', 'drill my flashcards', 
+      'quiz my cards', 'review my flashcards', 'practice my cards'
     ];
-    return quizKeywords.some(keyword => text.toLowerCase().includes(keyword));
+    return flashcardQuizKeywords.some(keyword => text.toLowerCase().includes(keyword));
   };
 
   const handleSendMessage = async () => {
