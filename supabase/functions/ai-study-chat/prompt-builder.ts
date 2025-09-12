@@ -1,13 +1,14 @@
 
 import { QueryMode } from './types.ts';
-import { 
-  SYSTEM_PROMPT_PERSONAL, 
-  SYSTEM_PROMPT_GENERAL, 
-  STATE_PROMPT_INITIATE_SESSION, 
-  STATE_PROMPT_EVALUATE_ANSWER, 
+import {
+  SYSTEM_PROMPT_PERSONAL,
+  SYSTEM_PROMPT_GENERAL,
+  STATE_PROMPT_INITIATE_SESSION,
+  STATE_PROMPT_INITIATE_QUIZ,
+  STATE_PROMPT_EVALUATE_ANSWER,
   STATE_PROMPT_PROACTIVE_HELP,
   STATE_PROMPT_EVALUATE_REFRESHER,
-  STATE_PROMPT_DIRECT_ANSWER 
+  STATE_PROMPT_DIRECT_ANSWER
 } from './constants.ts';
  
 export function buildContextPrompt(
@@ -88,6 +89,10 @@ export function buildContextPrompt(
       .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used')
       .replace('[incorrect_answers_count]', sessionContext.incorrectAnswersCount.toString());
     prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
+  } else if (isQuizRequest(trimmed)) {
+    const quizTopic = extractQuizTopic(trimmed);
+    const quizBlock = STATE_PROMPT_INITIATE_QUIZ.replace('[quiz_topic]', quizTopic);
+    prompt += `\n\n## STATE INSTRUCTIONS (Initiate Quiz)\n${quizBlock}`;
   } else {
     prompt += `\n\n## STATE INSTRUCTIONS (Initiate Session)\n${STATE_PROMPT_INITIATE_SESSION}`;
   }
@@ -116,10 +121,10 @@ function extractLastQuestion(chatHistory: any[], currentMessage: string): string
 }
 
 interface ConversationContext {
-  messageType: 'new_question' | 'answer_response' | 'platform_query' | 'unclear';
+  messageType: 'new_question' | 'answer_response' | 'platform_query' | 'quiz_request' | 'unclear';
   isAnswering: boolean;
   lastAIQuestion: string | null;
-  topicContinuity: 'same_topic' | 'new_topic' | 'platform_help';
+  topicContinuity: 'same_topic' | 'new_topic' | 'platform_help' | 'quiz_topic';
 }
 
 interface SessionContext {
@@ -131,6 +136,16 @@ interface SessionContext {
 function analyzeConversationContext(chatHistory: any[], currentMessage: string): ConversationContext {
   const lastAIMessage = chatHistory.length > 0 ? chatHistory[chatHistory.length - 1] : null;
   const lastAIQuestion = lastAIMessage?.role === 'assistant' ? extractLastQuestion([lastAIMessage], currentMessage) : null;
+  
+  // Check if it's a quiz request first
+  if (isQuizRequest(currentMessage)) {
+    return {
+      messageType: 'quiz_request',
+      isAnswering: false,
+      lastAIQuestion,
+      topicContinuity: 'quiz_topic'
+    };
+  }
   
   // Check if it's a platform query
   const platformKeywords = /how do i|how to|where is|getting started|make flashcards|study sessions|dashboard|progress/i;
@@ -282,4 +297,35 @@ function isFollowUpQuestion(message: string): boolean {
   ];
   
   return followUpPatterns.some(pattern => pattern.test(message.trim()));
+}
+
+function isQuizRequest(message: string): boolean {
+  const quizPatterns = [
+    /quiz me on/i,
+    /give me a quiz on/i,
+    /test me on/i,
+    /can you quiz me/i,
+    /i want a quiz on/i,
+    /quiz about/i,
+    /test my knowledge/i
+  ];
+  
+  return quizPatterns.some(pattern => pattern.test(message));
+}
+
+function extractQuizTopic(message: string): string {
+  // Extract topic from patterns like "quiz me on [topic]", "test me on [topic]", etc.
+  const patterns = [
+    /(?:quiz me on|give me a quiz on|test me on|can you quiz me (?:on|about)|i want a quiz on|quiz about|test my knowledge (?:of|on|about))\s+(.+)/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim().replace(/[?.!]*$/, ''); // Remove trailing punctuation
+    }
+  }
+  
+  // Fallback: return the whole message if no pattern matches
+  return message.trim();
 }
