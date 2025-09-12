@@ -1,7 +1,7 @@
 
 import { QueryMode } from './types.ts';
-import { SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL } from './constants.ts';
-
+import { SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, STATE_PROMPT_INITIATE_SESSION, STATE_PROMPT_EVALUATE_ANSWER, STATE_PROMPT_DIRECT_ANSWER } from './constants.ts';
+ 
 export function buildContextPrompt(
   learningContext: any,
   chatHistory: any[],
@@ -60,16 +60,22 @@ export function buildContextPrompt(
   }
 
   // Add current user message with enhanced context
-  prompt += `\n\n## CURRENT STUDENT MESSAGE: "${message}"
+  prompt += `\n\n## CURRENT STUDENT MESSAGE: "${message}"`;
 
-## RESPONSE INSTRUCTIONS:
-- CRITICAL: Analyze if this is a NEW QUESTION or an ANSWER to your previous question
-- If ANSWERING: Validate the response and provide appropriate feedback
-- If NEW QUESTION: Begin Socratic questioning approach
-- Maintain conversational context and topic persistence
-- Apply the appropriate mode rules (${chatMode} mode)
-- Stay encouraging and supportive`;
+  // Inject state-specific instructions
+  const trimmed = message.trim();
+  if (trimmed.startsWith('/answer')) {
+    prompt += `\n\n## STATE INSTRUCTIONS (Direct Answer Exception)\n${STATE_PROMPT_DIRECT_ANSWER}`;
+  } else if (conversationContext.isAnswering && conversationContext.lastAIQuestion) {
+    const evalBlock = STATE_PROMPT_EVALUATE_ANSWER.replace('[user_input]', trimmed);
+    prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
+  } else {
+    prompt += `\n\n## STATE INSTRUCTIONS (Initiate Session)\n${STATE_PROMPT_INITIATE_SESSION}`;
+  }
 
+  // General guardrails
+  prompt += `\n\n## RESPONSE INSTRUCTIONS:\n- Maintain conversational context and topic persistence\n- Apply the appropriate mode rules (${chatMode} mode)\n- Use Socratic method; do not give direct answers unless '/answer' is used\n- Be concise, supportive, and encouraging`;
+  
   return prompt;
 }
 
@@ -119,8 +125,14 @@ function analyzeConversationContext(chatHistory: any[], currentMessage: string):
     /^[a-zA-Z\s]{1,50}$/i, // Short responses likely to be answers
   ];
   
-  const isLikelyAnswer = lastAIQuestion && (
+  // Include numeric-only responses and simple math expressions as likely answers
+  const numericAnswer = /^\s*[-+]?\d+(?:\.\d+)?\s*$/; // e.g., 54, 3.14
+  const simpleMathExpr = /\b\d+\s*([x*×+\/-])\s*\d+\b/;
+
+  const isLikelyAnswer = !!lastAIQuestion && (
     answerPatterns.some(pattern => pattern.test(currentMessage.trim())) ||
+    numericAnswer.test(currentMessage) ||
+    simpleMathExpr.test(currentMessage) ||
     currentMessage.trim().length < 50 // Short responses are often answers
   );
 

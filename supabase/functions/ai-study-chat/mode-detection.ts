@@ -88,7 +88,14 @@ export function detectQueryMode(message: string): QueryMode {
     return 'general';
   }
   
-  // Default to platform for ambiguous queries (help users navigate)
+  // Heuristic fallback: question-like or math-like inputs are general knowledge
+  const looksLikeQuestion = /\b(what|who|why|how|when|where)\b|\?/i.test(lowerMessage);
+  const looksLikeMath = /\b\d+\s*([x*×+\/-])\s*\d+\b/.test(lowerMessage);
+  if (looksLikeQuestion || looksLikeMath) {
+    return 'general';
+  }
+  
+  // Default to platform for ambiguous navigation/help-like inputs
   return 'platform';
 }
 

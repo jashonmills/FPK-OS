@@ -98,11 +98,21 @@ serve(async (req) => {
       console.log(`🌐 General mode - detected query type: ${queryMode}`);
     }
 
-    // **RAG ENHANCEMENT** - Build enhanced prompt using RAG
+    // **RAG ENHANCEMENT** - Build enhanced prompt using conversation + RAG
     const baseSystemPrompt = chatMode === 'personal' ? SYSTEM_PROMPT_PERSONAL : SYSTEM_PROMPT_GENERAL;
+
+    // Build a context-aware prompt that encodes conversational state
+    const contextPrompt = (await import('./prompt-builder.ts')).buildContextPrompt(
+      learningContext,
+      chatHistory,
+      queryMode,
+      voiceActive,
+      message,
+      chatMode
+    );
     
     const { enhancedPrompt, metadata: ragMetadata } = await ragIntegration.enhancePromptWithRAG(
-      baseSystemPrompt,
+      contextPrompt || baseSystemPrompt,
       message,
       userId,
       chatMode,
