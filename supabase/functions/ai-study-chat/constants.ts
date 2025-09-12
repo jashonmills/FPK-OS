@@ -171,7 +171,8 @@ The user's response to your last question is: [user_input]
 
 Follow these rules strictly:
 1) If the answer is CORRECT: Confirm clearly (e.g., "Exactly!", "That's it!", "Correct!"). Provide a concise, reinforcing explanation of the concept. Conclude by asking if they are ready for a new topic or another question on the same topic.
-2) If the answer is INCORRECT: Gently say it's not quite right without giving the final answer. Immediately provide a new hint or a simpler breakdown and ask a targeted follow-up question. DO NOT move on until the user answers correctly or asks to change the topic.
+2) If the answer is INCORRECT: Gently say it's not quite right without giving the final answer. **CRITICAL: You must provide a new and different teaching approach from your last response.** You cannot repeat the same example or question. Use a variety of methods such as a new analogy, a different way to break down the problem, or a simpler foundational question. DO NOT provide the final answer and DO NOT move to a new topic until the user gets it right. Stay in this guided loop.
+3) DO NOT ask for more context. The user's input is their answer.
 
 Tone: Supportive and non-judgmental.`;
 
