@@ -30,6 +30,9 @@ serve(async (req) => {
       hasSessionId: !!sessionId,
       message: message.substring(0, 100) + '...'
     });
+
+    // Add debugging checkpoints
+    console.log('🔍 Debug checkpoint 1: Request received');
     
     if (!message || !userId) {
       throw new Error('Message and user ID are required');
@@ -73,6 +76,7 @@ serve(async (req) => {
     console.log(`🤖 Using ${useOpenAI ? 'OpenAI' : 'Claude'} model: ${model} for ${chatMode} mode with RAG enhancement`);
 
     // Context isolation and mode-specific data fetching
+    console.log('🔍 Debug checkpoint 2: Starting context fetching');
     let queryMode: QueryMode;
     let learningContext: any = null;
     let chatHistory: any[] = [];
@@ -99,9 +103,11 @@ serve(async (req) => {
     }
 
     // **RAG ENHANCEMENT** - Build enhanced prompt using conversation + RAG
+    console.log('🔍 Debug checkpoint 3: Building context prompt');
     const baseSystemPrompt = chatMode === 'personal' ? SYSTEM_PROMPT_PERSONAL : SYSTEM_PROMPT_GENERAL;
 
     // Build a context-aware prompt that encodes conversational state
+    console.log('🔍 Debug checkpoint 4: About to call buildContextPrompt');
     const contextPrompt = (await import('./prompt-builder.ts')).buildContextPrompt(
       learningContext,
       chatHistory,
@@ -111,6 +117,7 @@ serve(async (req) => {
       chatMode
     );
     
+    console.log('🔍 Debug checkpoint 5: Context prompt built, enhancing with RAG');
     const { enhancedPrompt, metadata: ragMetadata } = await ragIntegration.enhancePromptWithRAG(
       contextPrompt || baseSystemPrompt,
       message,
@@ -120,6 +127,7 @@ serve(async (req) => {
     );
 
     console.log('🔍 RAG Enhancement applied:', ragMetadata);
+    console.log('🔍 Debug checkpoint 6: RAG enhancement complete, preparing AI messages');
 
     // Prepare messages for AI
     const messages = [{
@@ -128,6 +136,7 @@ serve(async (req) => {
     }];
 
     // Initial call to appropriate AI service
+    console.log('🔍 Debug checkpoint 7: About to call AI service');
     let data;
     if (useOpenAI) {
       data = await callOpenAI(messages, model, chatMode);
