@@ -51,114 +51,50 @@ export class EnhancedRAGRetriever {
     userId: string,
     chatMode: 'personal' | 'general' = 'personal'
   ): Promise<EnhancedRetrievalResult> {
-    console.log('🔍 Enhanced RAG retrieval starting:', { query: query.substring(0, 50), userId, chatMode });
-
-    // For time-sensitive queries, skip cache
-    const skipCache = this.shouldSkipCache(query);
-    let cached = null;
-    
-    if (!skipCache) {
-      const queryHash = this.cache.generateQueryHash(query, userId, { chatMode });
-      cached = await this.cache.get(queryHash);
-      
-      if (cached && this.isCacheFresh(cached)) {
-        console.log('💾 Cache hit for query');
-        try {
-          const cachedResult = JSON.parse(cached.content) as EnhancedRetrievalResult;
-          return { ...cachedResult, cacheHit: true };
-        } catch (parseError) {
-          console.error('Error parsing cached result:', parseError);
-        }
-      }
-    }
-
-    // Parallel retrieval for better performance
-    const retrievalTasks = [];
-
-    // 1. Personal knowledge retrieval (for personal mode)
-    if (chatMode === 'personal') {
-      retrievalTasks.push(this.ragRetriever.retrievePersonalKnowledge(userId));
-    }
-
-    // 2. Enhanced external knowledge retrieval
-    retrievalTasks.push(this.externalService.retrieveExternalKnowledge(query));
-
-    // 3. Vector similarity search
-    const queryEmbedding = await this.vectorService.generateEmbedding(query);
-    if (queryEmbedding.length > 0) {
-      retrievalTasks.push(this.vectorService.findSimilarContent(queryEmbedding, 5, 0.7));
-    }
+    console.log('🔍 Enhanced RAG retrieval starting (simplified mode):', { query: query.substring(0, 50), userId, chatMode });
 
     try {
-      const results = await Promise.allSettled(retrievalTasks);
+      // Simplified retrieval - only try personal knowledge for personal mode
+      let personalKnowledge = [];
       
-      const personalKnowledge = chatMode === 'personal' && results[0]?.status === 'fulfilled' 
-        ? results[0].value : [];
-      
-      const externalKnowledge = results[chatMode === 'personal' ? 1 : 0]?.status === 'fulfilled' 
-        ? results[chatMode === 'personal' ? 1 : 0].value : [];
-      
-      const similarContent = queryEmbedding.length > 0 && results[results.length - 1]?.status === 'fulfilled'
-        ? results[results.length - 1].value : [];
-
-      // Calculate enhanced confidence and freshness
-      const confidence = this.calculateEnhancedConfidence(personalKnowledge, externalKnowledge, similarContent);
-      const freshness = this.calculateFreshness(externalKnowledge);
-      const sources = this.identifySources(personalKnowledge, externalKnowledge, similarContent);
-
-      const enhancedResult: EnhancedRetrievalResult = {
-        personalKnowledge: Array.isArray(personalKnowledge) ? personalKnowledge : [],
-        externalKnowledge: Array.isArray(externalKnowledge) ? externalKnowledge : [],
-        similarContent: Array.isArray(similarContent) ? similarContent : [],
-        cacheHit: false,
-        sources,
-        confidence,
-        freshness
-      };
-
-      // Cache the result (with shorter TTL for time-sensitive queries)
-      if (!skipCache) {
-        const queryHash = this.cache.generateQueryHash(query, userId, { chatMode });
-        const ttl = this.shouldSkipCache(query) ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 1 hour vs 24 hours
-        
-        await this.cache.set(
-          queryHash,
-          JSON.stringify(enhancedResult),
-          chatMode === 'personal' ? 'hybrid' : 'external',
-          { 
-            query_preview: query.substring(0, 100),
-            user_id: userId,
-            chat_mode: chatMode,
-            confidence,
-            sources: sources.length,
-            freshness
-          },
-          ttl
-        );
+      if (chatMode === 'personal') {
+        try {
+          personalKnowledge = await this.ragRetriever.retrievePersonalKnowledge(userId);
+        } catch (error) {
+          console.log('Personal knowledge retrieval failed, continuing:', error.message);
+          personalKnowledge = [];
+        }
       }
 
-      console.log('✅ Enhanced RAG retrieval completed:', {
+      // Return simplified result to avoid hanging on missing services
+      const enhancedResult: EnhancedRetrievalResult = {
+        personalKnowledge: Array.isArray(personalKnowledge) ? personalKnowledge : [],
+        externalKnowledge: [],
+        similarContent: [],
+        cacheHit: false,
+        sources: personalKnowledge.length > 0 ? ['Personal Study Data'] : [],
+        confidence: personalKnowledge.length > 0 ? 0.8 : 0.1,
+        freshness: 'current'
+      };
+
+      console.log('✅ Enhanced RAG retrieval completed (simplified):', {
         personalItems: enhancedResult.personalKnowledge.length,
-        externalItems: enhancedResult.externalKnowledge.length,
-        similarItems: enhancedResult.similarContent.length,
-        confidence: enhancedResult.confidence,
-        freshness: enhancedResult.freshness,
-        sources: enhancedResult.sources.length
+        confidence: enhancedResult.confidence
       });
 
       return enhancedResult;
     } catch (error) {
       console.error('❌ Error in enhanced RAG retrieval:', error);
       
-      // Return fallback result
+      // Return minimal fallback result
       return {
         personalKnowledge: [],
         externalKnowledge: [],
         similarContent: [],
         cacheHit: false,
         sources: [],
-        confidence: 0,
-        freshness: 'outdated'
+        confidence: 0.1,
+        freshness: 'current'
       };
     }
   }
