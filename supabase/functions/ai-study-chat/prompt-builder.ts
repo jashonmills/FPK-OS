@@ -67,7 +67,10 @@ export function buildContextPrompt(
   if (trimmed.startsWith('/answer')) {
     prompt += `\n\n## STATE INSTRUCTIONS (Direct Answer Exception)\n${STATE_PROMPT_DIRECT_ANSWER}`;
   } else if (conversationContext.isAnswering && conversationContext.lastAIQuestion) {
-    const evalBlock = STATE_PROMPT_EVALUATE_ANSWER.replace('[user_input]', trimmed);
+    const teachingHistory = extractTeachingHistory(chatHistory);
+    const evalBlock = STATE_PROMPT_EVALUATE_ANSWER
+      .replace('[user_input]', trimmed)
+      .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used');
     prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
   } else {
     prompt += `\n\n## STATE INSTRUCTIONS (Initiate Session)\n${STATE_PROMPT_INITIATE_SESSION}`;
@@ -162,6 +165,45 @@ function analyzeConversationContext(chatHistory: any[], currentMessage: string):
     lastAIQuestion,
     topicContinuity: 'same_topic'
   };
+}
+
+function extractTeachingHistory(chatHistory: any[]): string[] {
+  const teachingMethods: string[] = [];
+  
+  for (const msg of chatHistory) {
+    if (msg.role === 'assistant') {
+      const content = msg.content.toLowerCase();
+      
+      // Identify teaching methods used
+      if (content.includes('add') && content.includes('times')) {
+        teachingMethods.push('addition breakdown');
+      }
+      if (content.includes('analogy') || content.includes('like') || content.includes('imagine')) {
+        teachingMethods.push('analogy method');
+      }
+      if (content.includes('break down') || content.includes('step by step')) {
+        teachingMethods.push('step-by-step breakdown');
+      }
+      if (content.includes('example') || content.includes('for instance')) {
+        teachingMethods.push('example illustration');
+      }
+      if (content.includes('visual') || content.includes('picture') || content.includes('draw')) {
+        teachingMethods.push('visual approach');
+      }
+      if (content.includes('simpler') || content.includes('easier')) {
+        teachingMethods.push('simplification method');
+      }
+      if (content.includes('pattern') || content.includes('sequence')) {
+        teachingMethods.push('pattern recognition');
+      }
+      if (content.includes('group') || content.includes('set')) {
+        teachingMethods.push('grouping method');
+      }
+    }
+  }
+  
+  // Remove duplicates
+  return [...new Set(teachingMethods)];
 }
 
 function isFollowUpQuestion(message: string): boolean {
