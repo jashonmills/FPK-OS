@@ -185,10 +185,9 @@ USER MESSAGE: ${message}`;
       stopReason: data.stop_reason,
       model,
       chatMode,
-      simplified: true
-    });
+      simplified: true,
       aiProvider: useOpenAI ? 'OpenAI' : 'Claude',
-      ragEnhanced: ragMetadata.ragEnabled
+      ragEnhanced: ragMetadata.ragEnabled || false
     });
 
     // Handle tool usage (only for Claude/personal mode currently)
