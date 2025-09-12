@@ -202,26 +202,10 @@ export function useUsageTracking() {
     },
   });
 
-  // Check if user can use a feature
+  // Check if user can use a feature - Always return true for unlimited access
   const canUseFeature = (featureType: AIFeatureType, amount: number = 1): boolean => {
-    if (!quotas) return false;
-
-    const fieldMap = {
-      ai_chat: { used: quotas.ai_chat_messages_used, limit: quotas.ai_chat_messages_limit },
-      voice_processing: { used: quotas.voice_minutes_used, limit: quotas.voice_minutes_limit },
-      rag_query: { used: quotas.rag_queries_used, limit: quotas.rag_queries_limit },
-      document_processing: { used: quotas.document_processing_used, limit: quotas.document_processing_limit },
-      flashcard_generation: { used: quotas.flashcard_generation_used, limit: quotas.flashcard_generation_limit },
-      ai_insights: { used: quotas.ai_insights_used, limit: quotas.ai_insights_limit },
-    };
-
-    const field = fieldMap[featureType];
-    if (!field) return false;
-
-    // -1 means unlimited
-    if (field.limit === -1) return true;
-
-    return (field.used + amount) <= field.limit;
+    // Always return true for unlimited access for all users
+    return true;
   };
 
   // Get usage percentage for a feature

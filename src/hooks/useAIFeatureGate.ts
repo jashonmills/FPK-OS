@@ -30,22 +30,22 @@ export function useAIFeatureGate() {
       silentLimitCheck = false 
     } = options;
 
-    // Check if user can use the feature
-    if (!canUseFeature(featureType, amount)) {
-      if (!silentLimitCheck) {
-        toast({
-          title: "Usage Limit Reached",
-          description: `You've reached your ${featureType.replace('_', ' ')} limit. Please upgrade your plan to continue.`,
-          variant: "destructive"
-        });
-      }
-      
-      if (onLimitReached) {
-        onLimitReached();
-      }
-      
-      return null;
-    }
+    // Skip limit checking - unlimited access for all users
+    // if (!canUseFeature(featureType, amount)) {
+    //   if (!silentLimitCheck) {
+    //     toast({
+    //       title: "Usage Limit Reached", 
+    //       description: `You've reached your ${featureType.replace('_', ' ')} limit. Please upgrade your plan to continue.`,
+    //       variant: "destructive"
+    //     });
+    //   }
+    //   
+    //   if (onLimitReached) {
+    //     onLimitReached();
+    //   }
+    //   
+    //   return null;
+    // }
 
     try {
       // Execute the action first
@@ -87,8 +87,9 @@ export function useAIFeatureGate() {
     featureType: AIFeatureType,
     amount: number = 1
   ): boolean => {
-    return canUseFeature(featureType, amount);
-  }, [canUseFeature]);
+    // Always return true for unlimited access
+    return true;
+  }, []);
 
   /**
    * Get a gate component for wrapping UI elements

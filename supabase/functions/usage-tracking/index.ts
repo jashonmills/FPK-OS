@@ -34,20 +34,27 @@ serve(async (req) => {
     const { action, featureType, amount = 1, metadata = {} } = await req.json();
 
     if (action === 'check') {
-      // Check usage quotas
-      const { data: quotas, error: quotaError } = await supabaseClient
-        .from('usage_quotas')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('period_end', new Date().toISOString())
-        .single();
+      // Return unlimited quotas for all users
+      const unlimitedQuotas = {
+        user_id: user.id,
+        subscription_tier: 'unlimited',
+        ai_chat_messages_limit: -1,
+        voice_minutes_limit: -1,
+        rag_queries_limit: -1,
+        document_processing_limit: -1,
+        flashcard_generation_limit: -1,
+        ai_insights_limit: -1,
+        knowledge_base_storage_mb_limit: 50000,
+        ai_chat_messages_used: 0,
+        voice_minutes_used: 0,
+        rag_queries_used: 0,
+        document_processing_used: 0,
+        flashcard_generation_used: 0,
+        ai_insights_used: 0,
+        knowledge_base_storage_mb_used: 0
+      };
 
-      if (quotaError && quotaError.code !== 'PGRST116') {
-        console.error('Error fetching quotas:', quotaError);
-        throw quotaError;
-      }
-
-      return new Response(JSON.stringify({ quotas }), {
+      return new Response(JSON.stringify({ quotas: unlimitedQuotas }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
