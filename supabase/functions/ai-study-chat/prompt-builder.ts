@@ -1,6 +1,14 @@
 
 import { QueryMode } from './types.ts';
-import { SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, STATE_PROMPT_INITIATE_SESSION, STATE_PROMPT_EVALUATE_ANSWER, STATE_PROMPT_DIRECT_ANSWER } from './constants.ts';
+import { 
+  SYSTEM_PROMPT_PERSONAL, 
+  SYSTEM_PROMPT_GENERAL, 
+  STATE_PROMPT_INITIATE_SESSION, 
+  STATE_PROMPT_EVALUATE_ANSWER, 
+  STATE_PROMPT_PROACTIVE_HELP,
+  STATE_PROMPT_EVALUATE_REFRESHER,
+  STATE_PROMPT_DIRECT_ANSWER 
+} from './constants.ts';
  
 export function buildContextPrompt(
   learningContext: any,
@@ -62,15 +70,23 @@ export function buildContextPrompt(
   // Add current user message with enhanced context
   prompt += `\n\n## CURRENT STUDENT MESSAGE: "${message}"`;
 
-  // Inject state-specific instructions
+  // Inject state-specific instructions with enhanced logic
   const trimmed = message.trim();
+  const sessionContext = analyzeSessionContext(chatHistory, conversationContext);
+  
   if (trimmed.startsWith('/answer')) {
     prompt += `\n\n## STATE INSTRUCTIONS (Direct Answer Exception)\n${STATE_PROMPT_DIRECT_ANSWER}`;
+  } else if (isStruggleIndicator(trimmed)) {
+    prompt += `\n\n## STATE INSTRUCTIONS (Proactive Help)\n${STATE_PROMPT_PROACTIVE_HELP}`;
+  } else if (sessionContext.inRefresherMode) {
+    const refresherBlock = STATE_PROMPT_EVALUATE_REFRESHER.replace('[user_input]', trimmed);
+    prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Refresher)\n${refresherBlock}`;
   } else if (conversationContext.isAnswering && conversationContext.lastAIQuestion) {
     const teachingHistory = extractTeachingHistory(chatHistory);
     const evalBlock = STATE_PROMPT_EVALUATE_ANSWER
       .replace('[user_input]', trimmed)
-      .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used');
+      .replace('[teaching_history]', teachingHistory.join(', ') || 'No previous methods used')
+      .replace('[incorrect_answers_count]', sessionContext.incorrectAnswersCount.toString());
     prompt += `\n\n## STATE INSTRUCTIONS (Evaluate Answer)\n${evalBlock}`;
   } else {
     prompt += `\n\n## STATE INSTRUCTIONS (Initiate Session)\n${STATE_PROMPT_INITIATE_SESSION}`;
@@ -104,6 +120,12 @@ interface ConversationContext {
   isAnswering: boolean;
   lastAIQuestion: string | null;
   topicContinuity: 'same_topic' | 'new_topic' | 'platform_help';
+}
+
+interface SessionContext {
+  incorrectAnswersCount: number;
+  inRefresherMode: boolean;
+  currentTopic: string | null;
 }
 
 function analyzeConversationContext(chatHistory: any[], currentMessage: string): ConversationContext {
@@ -204,6 +226,51 @@ function extractTeachingHistory(chatHistory: any[]): string[] {
   
   // Remove duplicates
   return [...new Set(teachingMethods)];
+}
+
+function analyzeSessionContext(chatHistory: any[], conversationContext: ConversationContext): SessionContext {
+  let incorrectAnswersCount = 0;
+  let inRefresherMode = false;
+  let currentTopic: string | null = null;
+  
+  // Count recent consecutive incorrect answers
+  for (let i = chatHistory.length - 1; i >= 0; i--) {
+    const msg = chatHistory[i];
+    if (msg.role === 'assistant') {
+      const content = msg.content.toLowerCase();
+      // Check if AI indicated incorrect answer
+      if (content.includes('not quite') || content.includes('try again') || content.includes('incorrect')) {
+        incorrectAnswersCount++;
+      } else if (content.includes('correct') || content.includes('exactly') || content.includes('that\'s it')) {
+        // Reset count on correct answer
+        break;
+      } else if (content.includes('refresher') || content.includes('foundational')) {
+        inRefresherMode = true;
+        break;
+      }
+    }
+  }
+  
+  return {
+    incorrectAnswersCount,
+    inRefresherMode,
+    currentTopic
+  };
+}
+
+function isStruggleIndicator(message: string): boolean {
+  const struggleKeywords = [
+    /i need more help/i,
+    /can you help/i,
+    /i don't know/i,
+    /i'm stuck/i,
+    /i need to go back to the basics/i,
+    /i'm confused/i,
+    /this is hard/i,
+    /i don't understand/i
+  ];
+  
+  return struggleKeywords.some(pattern => pattern.test(message.trim()));
 }
 
 function isFollowUpQuestion(message: string): boolean {
