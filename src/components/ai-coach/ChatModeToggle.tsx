@@ -52,7 +52,7 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({
               <Button 
                 variant="outline" 
                 size="sm"
-                className={cn("gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}
+                className={cn("gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 min-w-0 w-full sm:w-auto max-w-full justify-between sm:justify-start", className)}
               >
                 <currentMode.icon className="h-3 w-3" />
                 <span className="truncate">{currentMode.label}</span>

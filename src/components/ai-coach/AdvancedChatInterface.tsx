@@ -687,8 +687,8 @@ What specific topic from your studies would you like to dive deeper into?`;
     <>
       <Card className={cn("w-full", fixedHeight ? "h-full flex flex-col" : "min-h-[600px]")}>
         <CardHeader className="flex-shrink-0 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
               <Brain className="h-6 w-6 text-purple-600" />
               <h2 className="font-semibold text-lg">AI Learning Coach</h2>
               <Badge variant="outline" className="text-xs">
@@ -696,7 +696,7 @@ What specific topic from your studies would you like to dive deeper into?`;
               </Badge>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
               {/* Chat Mode Toggle */}
               <ChatModeToggle 
                 mode={chatMode} 
@@ -714,7 +714,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                     }]);
                   }
                 }}
-                className="scale-90"
+                className="scale-90 w-full sm:w-auto max-w-full min-w-0"
               />
               
               {/* Text-to-Speech Controls */}
@@ -859,7 +859,7 @@ What specific topic from your studies would you like to dive deeper into?`;
             ))}
             
             {isLoading && (
-              <div className="flex gap-3 p-3 rounded-lg bg-gray-50 mr-8">
+              <div className="flex gap-3 p-3 rounded-lg bg-gray-50 sm:mr-8">
                 <Bot className="h-5 w-5 text-gray-600" />
                 <div className="flex items-center gap-2">
                   <div className="flex space-x-1">
@@ -927,10 +927,10 @@ What specific topic from your studies would you like to dive deeper into?`;
               </Button>
             </div>
             
-            <div className="flex justify-between items-center text-xs text-gray-500">
-              <div className="flex items-center gap-4">
-                <span>💡 Try: "Quiz me", "Analyze my progress", or click mic to speak</span>
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-xs text-gray-500">
+              <div className="flex items-center gap-4 min-w-0">
+                <span className="truncate">💡 Try: "Quiz me", "Analyze my progress", or click mic to speak</span>
+                <div className="flex items-center gap-3 flex-shrink-0">
                   {settings.enabled && (
                     <div className="flex items-center gap-1 text-green-600">
                       <Volume2 className="h-3 w-3" />
@@ -948,7 +948,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Badge variant="outline" className="text-xs">
                   {chatMode === 'personal' ? '🔒 My Data' : '🏫 General & Guide'}
                 </Badge>
