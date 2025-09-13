@@ -20,14 +20,6 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  ragMetadata?: {
-    ragEnabled: boolean;
-    personalItems: number;
-    externalItems: number;
-    similarItems: number;
-    confidence: number;
-    sources: string[];
-  };
 }
 
 // Helper to prevent hanging requests

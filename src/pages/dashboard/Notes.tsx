@@ -6,8 +6,6 @@ import NotesSection from '@/components/notes/NotesSection';
 import FileUploadSection from '@/components/notes/FileUploadSection';
 import FlashcardsSection from '@/components/notes/FlashcardsSection';
 import ProgressSection from '@/components/notes/ProgressSection';
-import RAGProcessingPanel from '@/components/notes/RAGProcessingPanel';
-import RAGStatusIndicator from '@/components/ai-coach/RAGStatusIndicator';
 import MobileTabsList from '@/components/notes/MobileTabsList';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
@@ -46,11 +44,8 @@ const Notes = () => {
         <PageHelpTrigger onOpen={handleShowVideoManually} />
       </div>
       <p className="text-muted-foreground text-center mb-6 mobile-text-base">
-        Organize your learning materials and enhance your AI coach with personal knowledge
+        Organize your learning materials and study resources effectively
       </p>
-      <div className="flex justify-center mb-6">
-        <RAGStatusIndicator compact />
-      </div>
 
       <FirstVisitVideoModal
         isOpen={showVideoModal}
@@ -73,10 +68,6 @@ const Notes = () => {
 
           <TabsContent value="flashcards" className="mt-0">
             <FlashcardsSection />
-          </TabsContent>
-
-          <TabsContent value="rag" className="mt-0">
-            <RAGProcessingPanel />
           </TabsContent>
 
           <TabsContent value="progress" className="mt-0">

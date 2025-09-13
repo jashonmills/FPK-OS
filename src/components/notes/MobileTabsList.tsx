@@ -2,7 +2,7 @@
 import React from 'react';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { FileText, Upload, Zap, Brain } from 'lucide-react';
+import { FileText, Upload, Zap } from 'lucide-react';
 
 interface MobileTabsListProps {
   isMobile: boolean;
@@ -11,7 +11,7 @@ interface MobileTabsListProps {
 const MobileTabsList: React.FC<MobileTabsListProps> = ({ isMobile }) => {
   if (!isMobile) {
     return (
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="notes" className="flex items-center gap-2">
           <FileText className="h-4 w-4" />
           Notes
@@ -23,10 +23,6 @@ const MobileTabsList: React.FC<MobileTabsListProps> = ({ isMobile }) => {
         <TabsTrigger value="flashcards" className="flex items-center gap-2">
           <Zap className="h-4 w-4" />
           Flashcards
-        </TabsTrigger>
-        <TabsTrigger value="rag" className="flex items-center gap-2">
-          <Brain className="h-4 w-4" />
-          AI Enhancement
         </TabsTrigger>
         <TabsTrigger value="progress" className="flex items-center gap-2">
           Progress
@@ -49,10 +45,6 @@ const MobileTabsList: React.FC<MobileTabsListProps> = ({ isMobile }) => {
         <TabsTrigger value="flashcards" className="flex items-center gap-2 whitespace-nowrap">
           <Zap className="h-4 w-4" />
           Flashcards
-        </TabsTrigger>
-        <TabsTrigger value="rag" className="flex items-center gap-2 whitespace-nowrap">
-          <Brain className="h-4 w-4" />
-          AI Enhancement
         </TabsTrigger>
         <TabsTrigger value="progress" className="flex items-center gap-2 whitespace-nowrap">
           Progress
