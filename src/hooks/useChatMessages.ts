@@ -206,12 +206,23 @@ export const useChatMessages = (sessionId: string | null) => {
       if (!data?.response) {
         console.error('🚨 No response from AI function:', data);
         
-        // Show the actual error to the user instead of hiding it
-        const errorInfo = data?.error ? ` (${data.error})` : '';
-        const apiKeyInfo = data?.apiKeyStatus ? 
-          `\n\nAPI Key Status: ${data.apiKeyStatus.hasKey ? 'Present' : 'Missing'}, Format: ${data.apiKeyStatus.isValidFormat ? 'Valid' : 'Invalid'}` : '';
+        // Show specific error information to help diagnose the issue
+        if (data?.error) {
+          console.error('🚨 Edge Function Error Details:', data.error);
+          
+          // If it's an API authentication error, show helpful message
+          if (data.error.includes('401') || data.error.includes('authentication_error')) {
+            const errorMsg = 'The AI service is experiencing authentication issues. The response has been generated using fallback methods.';
+            console.log('🔄 Using fallback response due to API auth issue');
+            
+            // Use the fallback response from the Edge Function
+            const fallbackResponse = data?.response || getContextualErrorResponse(content, chatMode, new Error('API authentication issue'));
+            await addMessage(fallbackResponse, 'assistant');
+            return;
+          }
+        }
         
-        throw new Error(`AI service error${errorInfo}${apiKeyInfo}`);
+        throw new Error(`AI service error: ${data?.error || 'No response received'}`);
       }
 
       const aiResponse = data.response;

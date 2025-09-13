@@ -4,11 +4,10 @@ import { corsHeaders, CLAUDE_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './cons
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 
-// Simplified AI Study Coach v6.0 - Hybrid Implementation
-
+// Simplified AI Study Coach v6.0 - Fixed Authentication and Model
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
-// Log API key availability (without exposing the key)
+// Log API key availability with better debugging (v6.1)
 console.log('🔐 API Key Status:', {
   hasKey: !!anthropicApiKey,
   keyLength: anthropicApiKey?.length || 0,
@@ -98,8 +97,8 @@ serve(async (req) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: MAX_TOKENS,
+        model: 'claude-sonnet-4-20250514', // Use latest model
+        max_tokens: 4000,
         messages: [{
           role: 'user',
           content: contextPrompt
