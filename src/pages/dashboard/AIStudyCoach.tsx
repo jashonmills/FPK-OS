@@ -159,26 +159,29 @@ const AIStudyCoach = () => {
           </AccessibilityErrorBoundary>
         </div>
 
-        {/* Main Content Layout - Mobile First Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Chat Interface - Mobile First */}
-          <div className="lg:col-span-2 min-w-0">
-            <div className={cn(
-              "mobile-card",
-              fixedHeightEnabled ? "h-[70vh]" : "min-h-[500px] sm:min-h-[600px]"
-            )}>
-              <AccessibilityErrorBoundary componentName="AdvancedChatInterface">
-                <AdvancedChatInterface 
-                  user={user}
-                  completedSessions={completedSessions}
-                  flashcards={flashcards}
-                  insights={insights}
-                />
-              </AccessibilityErrorBoundary>
-            </div>
+        {/* Chat Interface - Full Width on Mobile */}
+        <div className="mb-8 lg:mb-6">
+          <div className={cn(
+            "mobile-card",
+            fixedHeightEnabled ? "h-[70vh]" : "min-h-[500px] sm:min-h-[600px]"
+          )}>
+            <AccessibilityErrorBoundary componentName="AdvancedChatInterface">
+              <AdvancedChatInterface 
+                user={user}
+                completedSessions={completedSessions}
+                flashcards={flashcards}
+                insights={insights}
+              />
+            </AccessibilityErrorBoundary>
           </div>
+        </div>
 
-          {/* Sidebar - Mobile First Stack */}
+        {/* Main Content Layout - Desktop Grid, Mobile Stack */}
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+          {/* Spacer for desktop layout alignment */}
+          <div className="hidden lg:block lg:col-span-2"></div>
+
+          {/* Sidebar Content - Stack on Mobile, Sidebar on Desktop */}
           <div className="space-y-4 min-w-0 pb-20 sm:pb-4">
             <AccessibilityErrorBoundary componentName="StudyPlanCard">
               <StudyPlanCard todaysFocus={todaysFocus} />
