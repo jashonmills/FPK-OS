@@ -9,14 +9,6 @@ interface WidgetMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  ragMetadata?: {
-    ragEnabled: boolean;
-    personalItems: number;
-    externalItems: number;
-    similarItems: number;
-    confidence: number;
-    sources: string[];
-  };
 }
 
 export const useWidgetChatMessages = (userId?: string) => {
@@ -53,9 +45,7 @@ export const useWidgetChatMessages = (userId?: string) => {
           voiceActive: false,
           isWidget: true, // Flag to identify widget context
           metadata: {
-            context: context || 'widget_chat',
-            ragEnabled: true, // Enable RAG for widget too
-            enhancedKnowledgeRetrieval: true
+            context: context || 'widget_chat'
           },
           clientHistory
         }
@@ -63,20 +53,11 @@ export const useWidgetChatMessages = (userId?: string) => {
 
       if (error) throw error;
 
-      // Add AI response with potential RAG metadata
+      // Add AI response
       const aiMessage = addMessage({
         role: 'assistant',
         content: data.response || "I'm here to help with your learning journey!",
       });
-
-      // Show RAG enhancement notification for widget if applicable
-      if (data?.ragMetadata?.ragEnabled && data.ragMetadata.confidence > 0.3) {
-        const totalSources = data.ragMetadata.personalItems + data.ragMetadata.externalItems + data.ragMetadata.similarItems;
-        toast({
-          title: "Enhanced Widget Response",
-          description: `Response enhanced with ${totalSources} knowledge sources`,
-        });
-      }
 
     } catch (error) {
       console.error('Error sending widget message:', error);

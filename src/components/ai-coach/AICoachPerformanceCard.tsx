@@ -93,10 +93,10 @@ const AICoachPerformanceCard: React.FC = () => {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Zap className="h-3 w-3" />
-              RAG Success
+              <CheckCircle className="h-3 w-3" />
+              Success Rate
             </div>
-            <div className="text-lg font-bold text-foreground">{metrics.ragSuccessRate}%</div>
+            <div className="text-lg font-bold text-foreground">{100 - metrics.errorRate}%</div>
           </div>
         </div>
 

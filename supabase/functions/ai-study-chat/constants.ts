@@ -53,8 +53,8 @@ export const STATE_PROMPT_DIRECT_ANSWER = `The user has used the '/answer' comma
 Tone: Direct and informative.`;
 
 // Model Configuration
-export const CLAUDE_MODEL = 'claude-3-5-haiku-20241022';
-export const MAX_TOKENS = 300;
-export const TIMEOUT_MS = 25000;
+export const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+export const MAX_TOKENS = 4000;
+export const TIMEOUT_MS = 30000;
 
-export const BLUEPRINT_VERSION = '6.0-hybrid';
+export const BLUEPRINT_VERSION = 'v6.0';

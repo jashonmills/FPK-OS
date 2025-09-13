@@ -4,7 +4,6 @@ import { useAnalyticsEventBus } from '@/hooks/useAnalyticsEventBus';
 
 interface PerformanceMetrics {
   averageResponseTime: number;
-  ragSuccessRate: number;
   errorRate: number;
   userSatisfactionScore: number;
   modeUsageDistribution: {
@@ -19,7 +18,6 @@ interface ResponseTimeEntry {
   timestamp: number;
   responseTime: number;
   mode: 'personal' | 'general';
-  ragEnabled: boolean;
   success: boolean;
   errorType?: string;
 }
@@ -35,7 +33,6 @@ export const useAICoachPerformanceAnalytics = () => {
   const trackResponseTime = useCallback((
     responseTime: number,
     mode: 'personal' | 'general',
-    ragEnabled: boolean = true,
     success: boolean = true,
     errorType?: string
   ) => {
@@ -43,7 +40,6 @@ export const useAICoachPerformanceAnalytics = () => {
       timestamp: Date.now(),
       responseTime,
       mode,
-      ragEnabled,
       success,
       errorType
     };
@@ -58,7 +54,6 @@ export const useAICoachPerformanceAnalytics = () => {
     publishEvent('ai_coach.performance.response_time', {
       responseTime,
       mode,
-      ragEnabled,
       success,
       errorType,
       timestamp: new Date().toISOString()
@@ -84,23 +79,6 @@ export const useAICoachPerformanceAnalytics = () => {
     });
   }, [publishEvent]);
 
-  // Track RAG enhancement effectiveness
-  const trackRAGEffectiveness = useCallback((
-    queryType: string,
-    ragEnabled: boolean,
-    confidence: number,
-    sourceCount: number,
-    helpful: boolean
-  ) => {
-    publishEvent('ai_coach.rag.effectiveness', {
-      queryType,
-      ragEnabled,
-      confidence,
-      sourceCount,
-      helpful,
-      timestamp: new Date().toISOString()
-    });
-  }, [publishEvent]);
 
   // Calculate performance metrics
   const calculateMetrics = useCallback(() => {
@@ -113,11 +91,6 @@ export const useAICoachPerformanceAnalytics = () => {
 
     // Average response time
     const averageResponseTime = successfulResponses.reduce((sum, r) => sum + r.responseTime, 0) / successfulResponses.length;
-
-    // RAG success rate
-    const ragResponses = responseTimes.filter(r => r.ragEnabled);
-    const ragSuccessRate = ragResponses.length > 0 ? 
-      (ragResponses.filter(r => r.success).length / ragResponses.length) * 100 : 0;
 
     // Error rate
     const errorRate = ((totalResponses - successfulResponses.length) / totalResponses) * 100;
@@ -137,7 +110,6 @@ export const useAICoachPerformanceAnalytics = () => {
 
     return {
       averageResponseTime: Math.round(averageResponseTime * 100) / 100,
-      ragSuccessRate: Math.round(ragSuccessRate),
       errorRate: Math.round(errorRate),
       userSatisfactionScore: 4.2, // This would come from satisfaction ratings
       modeUsageDistribution,
@@ -176,14 +148,6 @@ export const useAICoachPerformanceAnalytics = () => {
       });
     }
 
-    if (metrics.ragSuccessRate < 80) {
-      insights.push({
-        type: 'info',
-        title: 'RAG Enhancement Opportunity',
-        description: `RAG success rate is ${metrics.ragSuccessRate}%. Upload more study materials for better context.`,
-        action: 'Upload additional PDFs or documents to improve AI responses.'
-      });
-    }
 
     if (metrics.errorRate > 10) {
       insights.push({
@@ -213,7 +177,6 @@ export const useAICoachPerformanceAnalytics = () => {
     trackResponseTime,
     trackSatisfactionRating,
     trackModeSwitch,
-    trackRAGEffectiveness,
     getPerformanceInsights
   };
 };

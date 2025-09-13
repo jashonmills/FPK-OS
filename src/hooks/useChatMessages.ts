@@ -10,14 +10,6 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  ragMetadata?: {
-    ragEnabled: boolean;
-    personalItems: number;
-    externalItems: number;
-    similarItems: number;
-    confidence: number;
-    sources: string[];
-  };
 }
 
 export const useChatMessages = (sessionId: string | null) => {
