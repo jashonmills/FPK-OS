@@ -12,6 +12,17 @@ export const useVoiceRecording = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const maxRecordingTime = 60; // 60 seconds
 
+  // Callbacks for auto/awaited transcription on stop
+  const autoCallbackRef = useRef<((text: string) => void) | null>(null);
+  const pendingResolveRef = useRef<((text: string) => void) | null>(null);
+  
+  // Audio analysis for auto-stop on silence
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const silenceCheckIntervalRef = useRef<number | null>(null);
+  const silenceStartRef = useRef<number | null>(null);
+
   // Timer effect for recording duration - Fixed to prevent circular dependencies
   useEffect(() => {
     if (isRecording) {
@@ -47,7 +58,7 @@ export const useVoiceRecording = () => {
     };
   }, [isRecording, maxRecordingTime]);
 
-  const startRecording = async () => {
+  const startRecording = async (onAutoTranscription?: (text: string) => void) => {
     try {
       // Ensure we're not already recording
       if (isRecording || mediaRecorderRef.current) {
@@ -67,6 +78,48 @@ export const useVoiceRecording = () => {
       });
       
       streamRef.current = stream;
+
+      // Setup audio analysis for silence detection
+      try {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+        sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        analyserRef.current.fftSize = 2048;
+        sourceRef.current.connect(analyserRef.current);
+
+        const checkSilence = () => {
+          if (!analyserRef.current || !mediaRecorderRef.current || mediaRecorderRef.current.state !== 'recording') return;
+          const bufferLength = analyserRef.current.fftSize;
+          const dataArray = new Uint8Array(bufferLength);
+          analyserRef.current.getByteTimeDomainData(dataArray);
+
+          // Compute RMS
+          let sumSquares = 0;
+          for (let i = 0; i < bufferLength; i++) {
+            const v = (dataArray[i] - 128) / 128; // normalize to -1..1
+            sumSquares += v * v;
+          }
+          const rms = Math.sqrt(sumSquares / bufferLength);
+          const quiet = rms < 0.01; // threshold
+          const now = performance.now();
+
+          if (quiet) {
+            if (!silenceStartRef.current) {
+              silenceStartRef.current = now;
+            } else if (now - (silenceStartRef.current || 0) > 1200) {
+              // Auto stop after ~1.2s of silence
+              try { mediaRecorderRef.current.stop(); } catch (_) {}
+              silenceStartRef.current = null;
+            }
+          } else {
+            silenceStartRef.current = null;
+          }
+        };
+        // Check ~6x per second
+        silenceCheckIntervalRef.current = window.setInterval(checkSilence, 160);
+      } catch (e) {
+        console.warn('Audio analysis unavailable, proceeding without auto-stop', e);
+      }
       
       // Use webm codec for better compression and quality
       const options = {
@@ -82,9 +135,105 @@ export const useVoiceRecording = () => {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
+      autoCallbackRef.current = onAutoTranscription || null;
+
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+        setIsProcessing(true);
+
+        try {
+          // Stop all tracks immediately to release microphone
+          streamRef.current?.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+
+          const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+
+          // Cleanup recorder and audio analysis
+          mediaRecorderRef.current = null;
+          if (silenceCheckIntervalRef.current) {
+            clearInterval(silenceCheckIntervalRef.current);
+            silenceCheckIntervalRef.current = null;
+          }
+          try {
+            sourceRef.current?.disconnect();
+            sourceRef.current = null;
+            analyserRef.current?.disconnect();
+            analyserRef.current = null;
+            await audioContextRef.current?.close();
+          } catch (_) { /* no-op */ }
+          audioContextRef.current = null;
+          silenceStartRef.current = null;
+
+          console.log('Audio blob size:', audioBlob.size, 'bytes');
+          console.log('Recording duration:', recordingDuration, 'seconds');
+          console.log('Audio format:', mimeType);
+
+          // Enhanced base64 conversion for larger files
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const chunkSize = 1024 * 1024; // 1MB chunks
+          let base64Audio = '';
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.slice(i, i + chunkSize);
+            const chunkString = String.fromCharCode(...chunk);
+            base64Audio += btoa(chunkString);
+          }
+
+          const controller = new AbortController();
+          const timeoutDuration = Math.max(20000, recordingDuration * 1000);
+          const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+
+          const { data, error } = await supabase.functions.invoke('speech-to-text', {
+            body: { 
+              audio: base64Audio,
+              format: mimeType.includes('webm') ? 'webm' : 'wav',
+              duration: recordingDuration
+            }
+          });
+
+          clearTimeout(timeoutId);
+
+          if (error) {
+            console.error('Speech-to-text error:', error);
+            throw new Error(`Failed to transcribe audio: ${error.message}`);
+          }
+
+          const transcription = data?.text || '';
+          console.log('Transcription result:', transcription);
+
+          setIsProcessing(false);
+          setRecordingDuration(0);
+          audioChunksRef.current = [];
+
+          // Deliver transcription to listeners
+          autoCallbackRef.current?.(transcription);
+          pendingResolveRef.current?.(transcription);
+          autoCallbackRef.current = null;
+          pendingResolveRef.current = null;
+        } catch (error) {
+          console.error('Transcription error:', error);
+          setIsProcessing(false);
+          setRecordingDuration(0);
+          audioChunksRef.current = [];
+
+          const msg = (error as any).name === 'AbortError'
+            ? 'Speech recognition timed out. Please try again with a shorter recording.'
+            : ((error as Error).message || 'Transcription failed');
+
+          // Notify pending promise rejection if any
+          if (pendingResolveRef.current) {
+            // We cannot reject via stored resolve; Consumer should handle via timeout if needed
+            pendingResolveRef.current('');
+            pendingResolveRef.current = null;
+          }
+          autoCallbackRef.current = null;
         }
       };
 
@@ -117,6 +266,22 @@ export const useVoiceRecording = () => {
 
           const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
           const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+
+          // Cleanup recorder and audio analysis
+          mediaRecorderRef.current = null;
+          if (silenceCheckIntervalRef.current) {
+            clearInterval(silenceCheckIntervalRef.current);
+            silenceCheckIntervalRef.current = null;
+          }
+          try {
+            sourceRef.current?.disconnect();
+            sourceRef.current = null;
+            analyserRef.current?.disconnect();
+            analyserRef.current = null;
+            await audioContextRef.current?.close();
+          } catch (_) { /* no-op */ }
+          audioContextRef.current = null;
+          silenceStartRef.current = null;
           
           console.log('Audio blob size:', audioBlob.size, 'bytes');
           console.log('Recording duration:', recordingDuration, 'seconds');
@@ -188,18 +353,35 @@ export const useVoiceRecording = () => {
     try {
       if (mediaRecorderRef.current && isRecording) {
         mediaRecorderRef.current.stop();
-        streamRef.current?.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-        setIsRecording(false);
-        setIsProcessing(false);
-        setRecordingDuration(0);
-        audioChunksRef.current = [];
-        
-        // Clear timer
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
+      }
+      streamRef.current?.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      
+      // Cleanup recorder and audio analysis
+      mediaRecorderRef.current = null;
+      if (silenceCheckIntervalRef.current) {
+        clearInterval(silenceCheckIntervalRef.current);
+        silenceCheckIntervalRef.current = null;
+      }
+      try {
+        sourceRef.current?.disconnect();
+        sourceRef.current = null;
+        analyserRef.current?.disconnect();
+        analyserRef.current = null;
+        audioContextRef.current?.close();
+      } catch (_) { /* no-op */ }
+      audioContextRef.current = null;
+      silenceStartRef.current = null;
+
+      setIsRecording(false);
+      setIsProcessing(false);
+      setRecordingDuration(0);
+      audioChunksRef.current = [];
+      
+      // Clear timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     } catch (error) {
       console.error('Error canceling recording:', error);

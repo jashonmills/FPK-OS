@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Loader2, Square, Clock } from 'lucide-react';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -17,18 +17,18 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   placeholder = "voice input",
   disabled = false
 }) => {
-  const { 
-    isRecording, 
-    isProcessing, 
+  const {
+    isRecording,
+    isProcessing,
     recordingDuration,
     maxRecordingTime,
-    startRecording, 
-    stopRecording, 
+    startRecording,
+    stopRecording,
     cancelRecording,
     getRemainingTime,
     getFormattedDuration,
     getFormattedRemainingTime
-  } = useVoiceRecording();
+  } = useEnhancedVoiceInput();
   const { toast } = useToast();
 
   const handleVoiceInput = async () => {
