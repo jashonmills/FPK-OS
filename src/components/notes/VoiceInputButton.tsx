@@ -66,7 +66,7 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
       }
     } else {
       try {
-        await startRecording();
+        await startRecording(onTranscription);
         // No toast for recording start - visual feedback is enough
       } catch (error) {
         console.error('Microphone access error:', error);
