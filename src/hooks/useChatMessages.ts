@@ -107,6 +107,8 @@ export const useChatMessages = (sessionId: string | null) => {
 
   // Simplified hybrid sendMessage with backend-driven intelligence
   const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'general') => {
+    console.log('🔍 DEBUG: sendMessage called', { content, chatMode, userId: user?.id, sessionId });
+    
     if (!user?.id || isSending || typeof user.id !== 'string') {
       console.warn('Invalid user or sending state:', { userId: user?.id, isSending });
       throw new Error('Invalid user state');
@@ -126,20 +128,42 @@ export const useChatMessages = (sessionId: string | null) => {
     setIsSending(true);
     
     try {
+      console.log('🔍 DEBUG: Adding user message...');
       // Add user message first
       const userMessage = await addMessage(content, 'user');
       if (!userMessage) {
         throw new Error('Failed to save user message');
       }
+      console.log('🔍 DEBUG: User message added successfully');
 
+      console.log('🔍 DEBUG: Preparing conversation history...');
       // Backend conversation analysis - moved from AI layer
       const conversationHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content,
         timestamp: msg.timestamp
       }));
+      console.log('🔍 DEBUG: Conversation history prepared, length:', conversationHistory.length);
 
-      const conversationState = analyzeConversation(conversationHistory, content);
+      console.log('🔍 DEBUG: Calling analyzeConversation...');
+      let conversationState;
+      try {
+        conversationState = analyzeConversation(conversationHistory, content);
+        console.log('🔍 DEBUG: analyzeConversation completed:', conversationState);
+      } catch (error) {
+        console.error('🚨 DEBUG: analyzeConversation failed:', error);
+        // Fallback to default state
+        conversationState = {
+          promptType: 'general_guidance',
+          isInQuiz: false,
+          inRefresherMode: false,
+          lastAIQuestion: null,
+          currentTopic: null,
+          incorrectAnswersCount: 0,
+          teachingMethods: []
+        };
+        console.log('🔍 DEBUG: Using fallback conversationState');
+      }
       
       // Prepare simple context data for Edge Function
       const contextData: any = {};
