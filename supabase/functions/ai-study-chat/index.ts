@@ -52,14 +52,12 @@ serve(async (req) => {
     // Handle missing API key gracefully
     if (!anthropicApiKey) {
       console.log('⚠️  ANTHROPIC_API_KEY not configured - using fallback response');
-      const fallbackResponse = chatMode === 'personal' 
-        ? "I'm your AI study coach! 🎓 While I work on getting fully connected, I'm here to help guide your learning through thoughtful questions. What would you like to explore today?"
-        : "Hello! I'm an AI assistant designed to help with general knowledge and learning. What can I help you with today?";
+      const fallbackResponse = getContextualResponse(message, chatMode, 'no_api_key');
       
       return new Response(
         JSON.stringify({ 
           response: fallbackResponse,
-          source: 'fallback',
+          source: 'no_api_key_fallback',
           blueprintVersion: BLUEPRINT_VERSION
         }),
         { headers: corsHeaders }
@@ -119,16 +117,19 @@ serve(async (req) => {
         headers: Object.fromEntries(response.headers.entries())
       });
       
-      // Provide a topic-specific fallback response
-      const topicSpecificResponse = chatMode === 'personal'
-        ? `I'm having trouble connecting to my AI services right now, but I'd love to help you learn about ${message.toLowerCase().includes('cloud') ? 'clouds' : 'your topic'}! While I work on the connection, can you tell me what specifically interests you about this subject?`
-        : `I'm experiencing a technical issue, but let's explore ${message.toLowerCase().includes('cloud') ? 'clouds' : 'your topic'} together! What aspect would you like to start with?`;
+      // Provide a contextual response based on user's question
+      const contextualResponse = getContextualResponse(message, chatMode, 'api_error');
       
       return new Response(JSON.stringify({
-        response: topicSpecificResponse,
+        response: contextualResponse,
         source: 'api_error_fallback',
         blueprintVersion: BLUEPRINT_VERSION,
-        error: `API Error ${response.status}: ${response.statusText}`
+        error: `API Error ${response.status}: ${response.statusText}`,
+        apiKeyStatus: {
+          hasKey: !!anthropicApiKey,
+          keyLength: anthropicApiKey?.length || 0,
+          isValidFormat: anthropicApiKey?.startsWith('sk-ant-api') || false
+        }
       }), {
         status: 200,
         headers: corsHeaders
@@ -161,23 +162,12 @@ serve(async (req) => {
       messageLength: message?.length || 0
     });
     
-    // Try to provide topic-specific error response
-    const topicKeywords = ['cloud', 'weather', 'sky', 'rain', 'storm'];
-    const isAboutClouds = topicKeywords.some(keyword => 
-      message?.toLowerCase().includes(keyword)
-    );
-    
-    const errorResponse = (chatMode || 'general') === 'personal'
-      ? isAboutClouds 
-        ? "I'm here to guide your learning journey! 🌤️ While I work through a technical issue, let's start with clouds - what draws you to this fascinating topic? Are you curious about how they form, their different types, or their role in weather?"
-        : "I'm here to guide your learning journey! 🧭 While I work through a technical issue, let me ask: What's one thing you're curious about today? What draws your attention and makes you want to learn more?"
-      : isAboutClouds
-        ? "I'm here to help with your questions about clouds! ☁️ While I resolve a technical issue, what specifically interests you about clouds - their formation, types, or role in weather patterns?"
-        : "I'm here to help with your questions! While I resolve a technical issue, please feel free to ask me anything you'd like to explore or understand better.";
+    // Provide contextual error response
+    const errorResponse = getContextualResponse(message, chatMode || 'general', 'system_error');
     
     return new Response(JSON.stringify({
       response: errorResponse,
-      source: 'error_fallback',
+      source: 'system_error_fallback',
       blueprintVersion: BLUEPRINT_VERSION,
       error: error.message
     }), {
@@ -186,3 +176,73 @@ serve(async (req) => {
     });
   }
 });
+
+// Helper function to provide contextual responses based on user input
+function getContextualResponse(message: string, chatMode: string, errorType: string): string {
+  const lowerMessage = message.toLowerCase();
+  
+  // Math questions
+  if (lowerMessage.match(/\d+\s*[\+\-\*\/]\s*\d+/) || lowerMessage.includes('what') && (lowerMessage.includes('+') || lowerMessage.includes('-') || lowerMessage.includes('*') || lowerMessage.includes('/'))) {
+    const mathMatch = message.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+    if (mathMatch) {
+      const [, num1, op, num2] = mathMatch;
+      const a = parseInt(num1), b = parseInt(num2);
+      let result;
+      switch(op) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        case '/': result = b !== 0 ? a / b : 'undefined (cannot divide by zero)'; break;
+      }
+      
+      if (chatMode === 'personal') {
+        return `Great math question! ${num1} ${op} ${num2} = ${result}. 🧮 Let me guide your learning: What do you notice about this calculation? Can you think of a real-world situation where you might use this type of problem?`;
+      } else {
+        return `${num1} ${op} ${num2} = ${result}. Would you like to explore more math problems or learn about the concepts behind this calculation?`;
+      }
+    }
+  }
+  
+  // Cloud/weather topics
+  if (lowerMessage.includes('cloud') || lowerMessage.includes('weather') || lowerMessage.includes('sky')) {
+    if (chatMode === 'personal') {
+      return "I'd love to guide your exploration of clouds! 🌤️ Let's start with what fascinates you most: Are you curious about how clouds form, the different types you see in the sky, or how they influence our weather? What draws your eye when you look up?";
+    } else {
+      return "Clouds are fascinating! ☁️ There are many aspects we could explore - cloud formation, types (cumulus, stratus, cirrus), their role in weather patterns, or even their cultural significance. What aspect interests you most?";
+    }
+  }
+  
+  // Science topics
+  if (lowerMessage.includes('science') || lowerMessage.includes('physics') || lowerMessage.includes('chemistry') || lowerMessage.includes('biology')) {
+    if (chatMode === 'personal') {
+      return "Science is everywhere around us! 🔬 What specific area has caught your curiosity? I'm here to guide your discovery through questions that help you think like a scientist.";
+    } else {
+      return "Science offers so many fascinating areas to explore! What field or specific question would you like to dive into? I can help you understand concepts through inquiry and examples.";
+    }
+  }
+  
+  // Generic greetings or simple questions
+  if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('help')) {
+    if (chatMode === 'personal') {
+      return "Hello! I'm your AI learning coach, ready to guide your curiosity through the Socratic method! 🎓 Instead of just giving answers, I'll ask questions that help you discover knowledge yourself. What topic has sparked your interest today?";
+    } else {
+      return "Hello! I'm here to help you learn and explore any topic. What would you like to know more about? I can assist with explanations, answer questions, or guide you through learning concepts.";
+    }
+  }
+  
+  // Error-specific responses
+  if (errorType === 'api_error') {
+    if (chatMode === 'personal') {
+      return `I'm temporarily having connection issues, but let's turn this into a learning opportunity! 🤔 About "${message}" - what do you already know about this topic? What questions come to mind when you think about it?`;
+    } else {
+      return `I'm experiencing a technical issue, but I can still help explore "${message}" with you! What aspect of this topic would you like to discuss first?`;
+    }
+  }
+  
+  // Default contextual responses
+  if (chatMode === 'personal') {
+    return `That's an interesting question about "${message}"! 🧠 Instead of just giving you the answer, let me guide your thinking: What do you already know about this topic? What connections can you make?`;
+  } else {
+    return `I'd be happy to help you explore "${message}"! What specific aspect would you like to understand better?`;
+  }
+}

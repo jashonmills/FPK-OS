@@ -198,10 +198,23 @@ export const useChatMessages = (sessionId: string | null) => {
       console.log('✅ Hybrid response received:', {
         promptType: conversationState.promptType,
         hasResponse: !!data?.response,
-        source: data?.source
+        source: data?.source,
+        error: data?.error
       });
 
-      const aiResponse = data?.response || "I'm your AI study coach, ready to guide your learning through thoughtful questions! 🎓 What would you like to explore together?";
+      // Better error handling and contextual responses
+      if (!data?.response) {
+        console.error('🚨 No response from AI function:', data);
+        
+        // Show the actual error to the user instead of hiding it
+        const errorInfo = data?.error ? ` (${data.error})` : '';
+        const apiKeyInfo = data?.apiKeyStatus ? 
+          `\n\nAPI Key Status: ${data.apiKeyStatus.hasKey ? 'Present' : 'Missing'}, Format: ${data.apiKeyStatus.isValidFormat ? 'Valid' : 'Invalid'}` : '';
+        
+        throw new Error(`AI service error${errorInfo}${apiKeyInfo}`);
+      }
+
+      const aiResponse = data.response;
       
       // Add AI response
       const assistantMessage = await addMessage(aiResponse, 'assistant');
@@ -236,15 +249,15 @@ export const useChatMessages = (sessionId: string | null) => {
     } catch (error) {
       console.error('❌ Error in hybrid sendMessage:', error);
       
-      const contextualFallback = chatMode === 'personal'
-        ? "I'm your AI learning coach, ready to guide your discovery through questions! 🔍 What aspect of this topic would you like to explore first?"
-        : "I'm here to facilitate your learning through guided inquiry! 🌐 What would you like to explore today?";
-        
+      // Provide a contextual error response that acknowledges what the user asked
+      const contextualFallback = getContextualErrorResponse(content, chatMode, error);
+      
       await addMessage(contextualFallback, 'assistant');
       
       toast({
-        title: "🤔 Socratic Mode Active",
-        description: "I'm here to guide your learning through thoughtful questions!",
+        title: "⚠️ Connection Issue",
+        description: `There's a technical problem, but I tried to help with "${content.substring(0, 30)}..."`,
+        variant: "destructive"
       });
     } finally {
       setIsSending(false);
@@ -264,3 +277,50 @@ export const useChatMessages = (sessionId: string | null) => {
     loadMessages
   };
 };
+
+// Helper function to provide contextual error responses
+function getContextualErrorResponse(message: string, chatMode: string, error: any): string {
+  const lowerMessage = message.toLowerCase();
+  
+  // Math questions - provide the answer even if AI is down
+  if (lowerMessage.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
+    const mathMatch = message.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+    if (mathMatch) {
+      const [, num1, op, num2] = mathMatch;
+      const a = parseInt(num1), b = parseInt(num2);
+      let result;
+      switch(op) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        case '/': result = b !== 0 ? a / b : 'undefined (cannot divide by zero)'; break;
+      }
+      
+      return `I can still help with your math question! ${num1} ${op} ${num2} = ${result} 🧮\n\nI'm having technical difficulties with my full AI capabilities, but I wanted to make sure you got an answer to your calculation. Once I'm back online, I can guide you through more complex mathematical concepts!`;
+    }
+  }
+  
+  // Extract key topics from the message
+  const topics = [];
+  if (lowerMessage.includes('cloud')) topics.push('clouds');
+  if (lowerMessage.includes('weather')) topics.push('weather');
+  if (lowerMessage.includes('science')) topics.push('science');
+  if (lowerMessage.includes('math')) topics.push('mathematics');
+  if (lowerMessage.includes('history')) topics.push('history');
+  
+  const topicText = topics.length > 0 ? topics.join(', ') : 'this topic';
+  
+  if (chatMode === 'personal') {
+    return `I apologize - I'm experiencing technical difficulties and can't provide my full Socratic guidance right now. But I noticed you're interested in ${topicText}! 
+
+While I work on reconnecting, here's what I'd normally ask you: What do you already know about ${topicText}? What specific aspect makes you curious? 
+
+Error details: ${error.message || 'Connection issue'}`;
+  } else {
+    return `I'm having technical difficulties but I see you're asking about ${topicText}. Let me try to help while I resolve the connection issue.
+
+What specific aspect of ${topicText} would you like to explore? I'll do my best to assist even with limited capabilities.
+
+Technical details: ${error.message || 'Service temporarily unavailable'}`;
+  }
+}
