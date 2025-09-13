@@ -97,6 +97,36 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     }
   };
 
+  // Add welcome message for new sessions
+  useEffect(() => {
+    if (sessionId && messages.length === 0 && user?.id && !isLoading) {
+      const welcomeContent = chatMode === 'personal' 
+        ? `Hello! I'm your personalized AI Learning Coach. I have access to your study data and can help you with:
+
+🎯 **Personalized Guidance** - Based on your uploaded materials and progress
+📚 **Study Sessions** - Using your flashcards and notes for targeted practice
+🧠 **Socratic Teaching** - I'll guide you to discover answers through questions
+🎮 **Interactive Quizzes** - Practice with your flashcards by saying "quiz me"
+💡 **Smart Insights** - Tailored advice based on your learning patterns
+
+I can see you have ${completedSessions?.length || 0} completed study sessions and ${flashcards?.length || 0} flashcards ready for practice.
+
+What would you like to focus on in today's learning session?`
+        : `Hello! I'm your AI Learning Coach in general knowledge mode. I can help you with:
+
+🌐 **General Knowledge** - Any subject, research, or educational topics
+📖 **Study Techniques** - Learning strategies and academic methods  
+💡 **Learning Guidance** - Study tips and educational advice
+🔍 **Research Help** - Information gathering and analysis
+
+For personalized features with your study materials, you can switch to Personal mode using the toggle above.
+
+What would you like to learn about today?`;
+
+      addMessage(welcomeContent, 'assistant');
+    }
+  }, [sessionId, messages.length, user?.id, isLoading, chatMode, completedSessions?.length, flashcards?.length, addMessage]);
+
   // Auto scroll when messages change
   useEffect(() => {
     if (messages.length > 0) {
