@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { buildContextPrompt } from './prompt-builder.ts';
 import { corsHeaders, CLAUDE_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
+import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 
 // Simplified AI Study Coach v6.0 - Hybrid Implementation
@@ -14,30 +14,39 @@ serve(async (req) => {
   }
 
   try {
-    const requestData: ChatRequest = await req.json();
-    const { message, userId, sessionId, chatMode = 'personal', voiceActive = false, clientHistory = [] } = requestData;
-    
-    console.log('🚀 AI STUDY COACH v6.0 HYBRID - PROCESSING:', { 
-      hasMessage: !!message, 
-      hasUserId: !!userId,
+    const {
+      message,
+      userId,
+      sessionId,
+      promptType,
+      contextData = {},
+      chatMode = 'personal',
+      voiceActive = false
+    }: any = await req.json();
+
+    console.log('🎯 Hybrid AI Processing:', {
+      messageLength: message?.length,
+      userId: userId?.substring(0, 8) + '...',
       sessionId: sessionId?.substring(0, 8) + '...',
+      promptType,
       chatMode,
       voiceActive,
-      historyLength: clientHistory.length,
-      timestamp: new Date().toISOString()
+      contextKeys: Object.keys(contextData)
     });
-    
-    if (!message || !userId) {
-      throw new Error('Message and user ID are required');
+
+    if (!message || !userId || !promptType) {
+      return new Response(
+        JSON.stringify({ error: 'Message, userId, and promptType are required' }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    // Check for Anthropic API key
+    // Handle missing API key gracefully
     if (!anthropicApiKey) {
-      const fallbackResponse = `I'm your AI study coach, ready to guide your learning through thoughtful questions! 🎓
-
-Rather than giving you direct answers, I'll help you discover knowledge through guided inquiry. This approach builds deeper understanding and critical thinking skills.
-
-What topic or concept would you like to explore together? I'll ask questions that help you think through it step by step.`;
+      console.log('⚠️  ANTHROPIC_API_KEY not configured - using fallback response');
+      const fallbackResponse = chatMode === 'personal' 
+        ? "I'm your AI study coach! 🎓 While I work on getting fully connected, I'm here to help guide your learning through thoughtful questions. What would you like to explore today?"
+        : "Hello! I'm an AI assistant designed to help with general knowledge and learning. What can I help you with today?";
       
       return new Response(
         JSON.stringify({ 
@@ -45,85 +54,76 @@ What topic or concept would you like to explore together? I'll ask questions tha
           source: 'fallback',
           blueprintVersion: BLUEPRINT_VERSION
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: corsHeaders }
       );
     }
 
-    // Build contextual prompt using simplified Blueprint v6.0 system
-    const contextPrompt = buildContextPrompt(
-      null, // learningContext managed by backend hooks
-      clientHistory,
-      'personal',
+    // Build simple prompt using Blueprint v6.0 system
+    const promptContext: SimplePromptContext = {
+      chatMode,
       voiceActive,
-      message,
-      chatMode
-    );
-    
-    console.log('🧠 HYBRID PROCESSING: Using simplified prompt system');
-    console.log('🤖 Calling Anthropic Claude with Blueprint v6.0');
+      userInput: message,
+      quizTopic: contextData.quizTopic,
+      teachingHistory: contextData.teachingHistory,
+      incorrectCount: contextData.incorrectCount
+    };
 
-    // Call Anthropic API with simplified prompt
-    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    const contextPrompt = buildSimplePrompt(promptType as PromptType, promptContext);
+
+    console.log('📝 Simple prompt generated:', { type: promptType, length: contextPrompt.length });
+
+    // Call Anthropic API
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${anthropicApiKey}`,
         'Content-Type': 'application/json',
-        'x-api-version': '2023-06-01',
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: MAX_TOKENS,
-        messages: [
-          {
-            role: 'user',
-            content: contextPrompt
-          }
-        ]
+        messages: [{
+          role: 'user',
+          content: contextPrompt
+        }]
       })
     });
 
-    if (!anthropicResponse.ok) {
-      const error = await anthropicResponse.text();
-      console.error('Anthropic API error:', error);
-      throw new Error(`Anthropic API error: ${anthropicResponse.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Anthropic API error:', response.status, errorText);
+      throw new Error(`Anthropic API error: ${response.status}`);
     }
 
-    const anthropicData = await anthropicResponse.json();
-    const aiResponse = anthropicData.content?.[0]?.text || "Let me ask you a question to help guide your learning. What specific part of this topic would you like to explore first?";
+    const data = await response.json();
+    const aiResponse = data.content?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
 
-    console.log('✅ HYBRID response generated successfully');
+    console.log('✅ Hybrid response generated successfully');
 
-    return new Response(
-      JSON.stringify({ 
-        response: aiResponse,
-        source: 'hybrid_blueprint',
-        blueprintVersion: BLUEPRINT_VERSION,
-        model: CLAUDE_MODEL
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({
+      response: aiResponse,
+      source: 'anthropic_claude_hybrid',
+      blueprintVersion: BLUEPRINT_VERSION
+    }), {
+      headers: corsHeaders
+    });
 
   } catch (error) {
-    console.error('Error in AI Study Coach Hybrid:', error);
+    console.error('❌ Error in ai-study-chat function:', error);
     
-    // Simple error fallback
-    const errorResponse = `I'm your AI study coach, ready to guide your learning through thoughtful questions! 🎓
-
-Rather than giving you direct answers, I'll help you discover knowledge through guided inquiry. This approach builds deeper understanding and critical thinking skills.
-
-What topic or concept would you like to explore together? I'll ask questions that help you think through it step by step.`;
+    const errorResponse = chatMode === 'personal'
+      ? "I'm here to guide your learning journey! 🧭 While I work through a technical issue, let me ask: What's one thing you're curious about today? What draws your attention and makes you want to learn more?"
+      : "I'm here to help with your questions! While I resolve a technical issue, please feel free to ask me anything you'd like to explore or understand better.";
     
-    return new Response(
-      JSON.stringify({ 
-        response: errorResponse,
-        source: 'error_fallback',
-        blueprintVersion: BLUEPRINT_VERSION,
-        error: error.message
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({
+      response: errorResponse,
+      source: 'error_fallback',
+      blueprintVersion: BLUEPRINT_VERSION,
+      error: error.message
+    }), {
+      status: 200, // Return 200 to avoid client-side errors
+      headers: corsHeaders
+    });
   }
 });

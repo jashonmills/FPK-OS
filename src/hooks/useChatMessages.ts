@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useConversationState } from '@/hooks/useConversationState';
 
 interface ChatMessage {
   id: string;
@@ -25,6 +26,7 @@ export const useChatMessages = (sessionId: string | null) => {
   const [isSending, setIsSending] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { analyzeConversation } = useConversationState();
 
   // Load messages for a session
   const loadMessages = async () => {
@@ -111,18 +113,16 @@ export const useChatMessages = (sessionId: string | null) => {
     }
   };
 
-  // Enhanced sendMessage with RAG support and advanced Socratic analysis
+  // Simplified hybrid sendMessage with backend-driven intelligence
   const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'personal') => {
-    // Critical validation: ensure we have valid IDs before proceeding
     if (!sessionId || !user?.id || isSending || typeof sessionId !== 'string' || typeof user.id !== 'string') {
       console.warn('Invalid state for sendMessage:', { sessionId, userId: user?.id, isSending });
       return;
     }
 
-    console.log('🚀 ADVANCED SOCRATIC SENDMESSAGE v2.0 - Starting enhanced processing...', { 
+    console.log('🎯 Hybrid sendMessage - Backend-driven analysis...', { 
       sessionId: sessionId.substring(0, 8) + '...', 
       content: content.substring(0, 50) + '...', 
-      context, 
       chatMode 
     });
     
@@ -135,89 +135,66 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save user message');
       }
 
-      // Prepare client history for advanced AI processing
-      const clientHistory = messages.map(msg => ({
+      // Backend conversation analysis - moved from AI layer
+      const conversationHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content,
         timestamp: msg.timestamp
       }));
 
-      // Call enhanced AI function with advanced Socratic capabilities
+      const conversationState = analyzeConversation(conversationHistory, content);
+      
+      // Prepare simple context data for Edge Function
+      const contextData: any = {};
+      
+      if (conversationState.promptType === 'initiate_quiz' && conversationState.currentTopic) {
+        contextData.quizTopic = conversationState.currentTopic;
+      }
+      
+      if (conversationState.promptType === 'evaluate_answer') {
+        contextData.teachingHistory = conversationState.teachingMethods?.join(', ') || '';
+        contextData.incorrectCount = conversationState.incorrectAnswersCount;
+      }
+
+      // Call simplified AI function with backend-determined prompt type
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
           userId: user.id,
           sessionId: sessionId,
+          promptType: conversationState.promptType,
+          contextData: contextData,
           chatMode: chatMode,
-          voiceActive: false,
-          pageContext: context,
-          clientHistory: clientHistory, // Send conversation history for advanced analysis
-          metadata: {
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            sessionLength: messages.length,
-            ragEnabled: true,
-            enhancedKnowledgeRetrieval: true,
-            socraticMode: true,
-            advancedStudentModeling: true
-          }
+          voiceActive: false
         }
       });
 
       if (error) {
-        console.error('🚨 Enhanced Socratic AI function error:', error);
+        console.error('🚨 Hybrid AI function error:', error);
         throw error;
       }
 
-      console.log('✅ ADVANCED SOCRATIC RESPONSE received:', {
+      console.log('✅ Hybrid response received:', {
+        promptType: conversationState.promptType,
         hasResponse: !!data?.response,
-        hasStudentProfile: !!data?.studentProfile,
-        hasConversationAnalysis: !!data?.conversationAnalysis,
-        hasMemoryState: !!data?.memoryState,
-        source: data?.source,
-        blueprintVersion: data?.blueprintVersion
+        source: data?.source
       });
 
       const aiResponse = data?.response || "I'm your AI study coach, ready to guide your learning through thoughtful questions! 🎓 What would you like to explore together?";
       
-      // Add AI response with enhanced metadata
+      // Add AI response
       const assistantMessage = await addMessage(aiResponse, 'assistant');
       if (!assistantMessage) {
         throw new Error('Failed to save AI response');
       }
 
-      // Store enhanced metadata in the message state
-      if (data?.studentProfile || data?.conversationAnalysis || data?.memoryState) {
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessage.id 
-            ? { 
-                ...msg, 
-                ragMetadata: {
-                  ragEnabled: true,
-                  personalItems: 0,
-                  externalItems: 0,
-                  similarItems: 0,
-                  confidence: data?.studentProfile?.understanding || 0.5,
-                  sources: ['advanced_socratic_analysis'],
-                  studentProfile: data?.studentProfile,
-                  conversationAnalysis: data?.conversationAnalysis,
-                  memoryState: data?.memoryState
-                }
-              }
-            : msg
-        ));
-      }
-
-      // Update session title and context tags for better organization
+      // Update session metadata on first message
       if (messages.length <= 1) {
         const title = content.length > 40 ? content.substring(0, 40) + '...' : content;
         const contextTag = context?.includes('Notes') ? 'Study Notes' : 
                          context?.includes('Coach') ? 'AI Coaching' : 
                          context?.includes('Flashcard') ? 'Flashcard Help' : 
                          content.toLowerCase().includes('quiz') ? 'Quiz Help' :
-                         content.toLowerCase().includes('strategy') ? 'Study Strategy' :
-                         content.toLowerCase().includes('research') ? 'Research' :
-                         content.toLowerCase().includes('definition') ? 'Definitions' :
                          chatMode === 'personal' ? 'Socratic Learning Session' : 'General Knowledge Exploration';
                          
         await supabase
@@ -230,33 +207,17 @@ export const useChatMessages = (sessionId: string | null) => {
           .eq('id', sessionId);
       }
 
-      // Show enhanced response notification
-      if (data?.studentProfile) {
-        const understanding = Math.round((data.studentProfile.understanding || 0.5) * 100);
-        const confidence = Math.round((data.studentProfile.confidence || 0.5) * 100);
-        
-        toast({
-          title: "🧠 Advanced Socratic Mode",
-          description: `Personalized response based on ${understanding}% understanding, ${confidence}% confidence`,
-        });
-      } else if (data?.source === 'adaptive_fallback') {
-        toast({
-          title: "📚 Adaptive Learning Mode",
-          description: "Using intelligent fallback with student modeling",
-        });
-      }
+      toast({
+        title: "🎯 Hybrid AI Active",
+        description: `Using ${conversationState.promptType.replace('_', ' ')} approach`,
+      });
 
     } catch (error) {
-      console.error('❌ Error in advanced Socratic sendMessage:', error);
+      console.error('❌ Error in hybrid sendMessage:', error);
       
-      // Enhanced fallback responses based on context with Socratic approach
-      const contextualFallback = context?.includes('Notes') 
-        ? "I'm here to help you think critically about your notes! 📚 Instead of giving you answers, let me ask: What patterns do you notice in the material you've studied? What questions arise as you review your notes?"
-        : context?.includes('Flashcard')
-        ? "Let's approach your flashcard study strategically! 🎯 Rather than just testing recall, what connections can you make between the concepts on your cards? How might you group them thematically?"
-        : chatMode === 'personal'
-        ? "I'm your AI learning coach, ready to guide your discovery through questions! 🔍 What aspect of this topic would you like to explore first? What do you already know that might connect to this?"
-        : "I'm here to facilitate your learning through guided inquiry! 🌐 Instead of providing direct answers, let me ask: What's your current understanding of this topic? What specific aspect intrigues you most?";
+      const contextualFallback = chatMode === 'personal'
+        ? "I'm your AI learning coach, ready to guide your discovery through questions! 🔍 What aspect of this topic would you like to explore first?"
+        : "I'm here to facilitate your learning through guided inquiry! 🌐 What would you like to explore today?";
         
       await addMessage(contextualFallback, 'assistant');
       
