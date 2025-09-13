@@ -30,48 +30,42 @@ export interface SimplePromptContext {
 }
 
 export function buildSimplePrompt(promptType: PromptType, context: SimplePromptContext): string {
-  const systemPrompt = context.chatMode === 'personal' 
-    ? SYSTEM_PROMPT_PERSONAL 
-    : SYSTEM_PROMPT_GENERAL;
-
-  let prompt = systemPrompt;
+  // Only include user context and message - let SOCRATIC_BLUEPRINT_V7 handle all behavioral logic
+  let prompt = '';
 
   // Add voice instructions if needed
   if (context.voiceActive) {
-    prompt += `\n\n## VOICE MODE
+    prompt += `## VOICE MODE
 - Keep responses concise and conversational
 - Avoid complex formatting
-- Use natural speech patterns`;
+- Use natural speech patterns
+
+`;
   }
 
-  // Add state-specific instructions
+  // Add minimal context based on conversation state
   switch (promptType) {
     case 'direct_answer':
-      prompt += `\n\n## STATE INSTRUCTIONS\n${STATE_PROMPT_DIRECT_ANSWER}`;
+      prompt += `## CONTEXT\nUser is asking for a direct answer to: "${context.userInput || ''}"\n`;
       break;
     case 'proactive_help':
-      prompt += `\n\n## STATE INSTRUCTIONS\n${STATE_PROMPT_PROACTIVE_HELP}`;
+      prompt += `## CONTEXT\nUser may need encouragement or guidance.\n`;
       break;
     case 'evaluate_refresher':
-      const refresherPrompt = STATE_PROMPT_EVALUATE_REFRESHER.replace('[user_input]', context.userInput || '');
-      prompt += `\n\n## STATE INSTRUCTIONS\n${refresherPrompt}`;
+      prompt += `## CONTEXT\nUser's response to refresher: "${context.userInput || ''}"\n`;
       break;
     case 'evaluate_quiz_answer':
-      const quizEvalPrompt = STATE_PROMPT_EVALUATE_QUIZ_ANSWER.replace('[user_input]', context.userInput || '');
-      prompt += `\n\n## STATE INSTRUCTIONS\n${quizEvalPrompt}`;
+      prompt += `## CONTEXT\nUser's quiz answer: "${context.userInput || ''}"\n`;
       break;
     case 'evaluate_answer':
-      prompt += `\n\n## CURRENT CONTEXT\n`;
-      prompt += `User's latest response: "${context.userInput || ''}"\n`;
-      prompt += `${STATE_PROMPT_EVALUATE_ANSWER}`;
+      prompt += `## CONTEXT\nUser's response: "${context.userInput || ''}"\n`;
       break;
     case 'initiate_quiz':
-      const quizPrompt = STATE_PROMPT_INITIATE_QUIZ.replace('[quiz_topic]', context.quizTopic || 'general knowledge');
-      prompt += `\n\n## STATE INSTRUCTIONS\n${quizPrompt}`;
+      prompt += `## CONTEXT\nUser wants a quiz on: ${context.quizTopic || 'general knowledge'}\n`;
       break;
     case 'initiate_session':
     default:
-      prompt += `\n\n## STATE INSTRUCTIONS\n${STATE_PROMPT_INITIATE_SESSION}`;
+      prompt += `## CONTEXT\nUser's question: "${context.userInput || ''}"\n`;
       break;
   }
 
