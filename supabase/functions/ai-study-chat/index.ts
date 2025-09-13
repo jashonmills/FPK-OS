@@ -13,11 +13,11 @@ const SYSTEM_PROMPT = `You are a friendly, patient, and encouraging AI study coa
 
 Upon receiving any user input, you will initiate a guided session. To do this, you will rephrase the user's input as a question, then ask a simple, probing question that encourages them to think about the topic. You will never provide a summary, facts, or a list of information.`;
 
-const OPENAI_MODEL = 'gpt-5-2025-08-07';
+const CLAUDE_MODEL = 'claude-3-haiku-20240307';
 const MAX_TOKENS = 200;
 const BLUEPRINT_VERSION = '1.0-failsafe';
 
-const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -38,8 +38,8 @@ serve(async (req) => {
       throw new Error('Message and user ID are required');
     }
 
-    // Check for OpenAI API key
-    if (!openaiApiKey) {
+    // Check for Anthropic API key
+    if (!anthropicApiKey) {
       const fallbackResponse = `I'm here to help with your studies! 🎓 Here are some quick tips:
 
 📖 **Reading Strategy**: Preview → Question → Read → Reflect → Review
@@ -68,36 +68,36 @@ User message: "${message}"`;
     
     console.log('🔬 FAILSAFE DIAGNOSTIC MODE: Socratic rephrasing only');
 
-    console.log('🤖 Calling OpenAI with FAILSAFE DIAGNOSTIC logic');
+    console.log('🤖 Calling Anthropic Claude with FAILSAFE DIAGNOSTIC logic');
 
-    // Call OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Anthropic API
+    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${anthropicApiKey}`,
         'Content-Type': 'application/json',
+        'x-api-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: CLAUDE_MODEL,
+        max_tokens: MAX_TOKENS,
         messages: [
           {
             role: 'user',
             content: finalPrompt
           }
-        ],
-        max_completion_tokens: MAX_TOKENS,
-        // Note: temperature not supported in GPT-5 models
+        ]
       })
     });
 
-    if (!openaiResponse.ok) {
-      const error = await openaiResponse.text();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    if (!anthropicResponse.ok) {
+      const error = await anthropicResponse.text();
+      console.error('Anthropic API error:', error);
+      throw new Error(`Anthropic API error: ${anthropicResponse.status}`);
     }
 
-    const openaiData = await openaiResponse.json();
-    const aiResponse = openaiData.choices?.[0]?.message?.content || "What specific aspect would you like to explore first? 🤔";
+    const anthropicData = await anthropicResponse.json();
+    const aiResponse = anthropicData.content?.[0]?.text || "What specific aspect would you like to explore first? 🤔";
 
     console.log('✅ FAILSAFE DIAGNOSTIC response generated successfully');
 
@@ -106,7 +106,7 @@ User message: "${message}"`;
         response: aiResponse,
         source: 'failsafe_socratic',
         blueprintVersion: BLUEPRINT_VERSION,
-        model: OPENAI_MODEL,
+        model: CLAUDE_MODEL,
         diagnostic: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
