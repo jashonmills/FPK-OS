@@ -66,12 +66,13 @@ const VoiceSettingsCard: React.FC = () => {
   );
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-lg">
+    <Card className="mobile-card w-full">
+      <CardHeader className="mobile-card-compact">
+        <CardTitle className="flex items-center justify-between mobile-heading-md">
           <div className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5" />
-            Voice Settings
+            <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Voice Settings</span>
+            <span className="sm:hidden">Voice</span>
           </div>
           <div className="flex items-center gap-2">
             <Switch
@@ -83,25 +84,25 @@ const VoiceSettingsCard: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8"
+              className="h-7 w-7 sm:h-8 sm:w-8"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Quick Status */}
-        <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+      <CardContent className="mobile-card-compact space-y-3">
+        {/* Quick Status - Mobile Optimized */}
+        <div className="flex items-center justify-between p-2 sm:p-3 bg-muted rounded-lg">
           <div className="flex items-center gap-2">
             {settings.enabled ? (
               <Volume2 className="h-4 w-4 text-green-500" />
             ) : (
               <VolumeX className="h-4 w-4 text-muted-foreground" />
             )}
-            <span className="text-sm font-medium">
-              {settings.enabled ? 'Voice Active' : 'Voice Disabled'}
+            <span className="mobile-text-sm font-medium">
+              {settings.enabled ? 'Active' : 'Disabled'}
             </span>
           </div>
           {settings.selectedVoice && (
@@ -109,7 +110,7 @@ const VoiceSettingsCard: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => testVoice()}
-              className="h-7 text-xs"
+              className="h-6 mobile-text-xs px-2"
             >
               <Play className="h-3 w-3 mr-1" />
               Test
@@ -117,17 +118,17 @@ const VoiceSettingsCard: React.FC = () => {
           )}
         </div>
 
-        {/* Current Voice Display */}
+        {/* Current Voice Display - Mobile Compact */}
         {settings.selectedVoice && (
-          <div className="text-sm text-muted-foreground">
-            Current voice: <span className="font-medium text-foreground">{settings.selectedVoice}</span>
+          <div className="mobile-text-xs text-muted-foreground">
+            Current: <span className="font-medium text-foreground">{settings.selectedVoice}</span>
           </div>
         )}
 
-        {/* Auto-read Setting */}
+        {/* Auto-read Setting - Mobile Optimized */}
         <div className="flex items-center justify-between">
-          <Label htmlFor="auto-read" className="text-sm font-medium">
-            Auto-read AI responses
+          <Label htmlFor="auto-read" className="mobile-text-sm font-medium">
+            Auto-read responses
           </Label>
           <Switch
             id="auto-read"
@@ -286,11 +287,15 @@ const VoiceSettingsCard: React.FC = () => {
           </>
         )}
 
-        {/* Voice Count Info */}
-        <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-          {englishVoices.length} English voices available
-          {femaleVoices.length > 0 && ` • ${femaleVoices.length} female`}
-          {maleVoices.length > 0 && ` • ${maleVoices.length} male`}
+        {/* Voice Count Info - Mobile Compact */}
+        <div className="mobile-text-xs text-muted-foreground text-center pt-2 border-t">
+          {englishVoices.length} voices
+          {femaleVoices.length > 0 && (
+            <span className="hidden sm:inline"> • {femaleVoices.length} female</span>
+          )}
+          {maleVoices.length > 0 && (
+            <span className="hidden sm:inline"> • {maleVoices.length} male</span>
+          )}
         </div>
       </CardContent>
     </Card>

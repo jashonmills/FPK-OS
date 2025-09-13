@@ -90,62 +90,61 @@ const AIStudyCoach = () => {
 
   return (
     <ErrorBoundary>
-      <div className="responsive-container responsive-spacing min-h-screen overflow-x-hidden">
-        {/* Header Section - Fully Responsive */}
-        <div className="text-center responsive-spacing max-w-full flex-shrink-0">
+      <div className="mobile-page-container min-h-screen overflow-x-hidden">
+        {/* Header Section - Mobile First */}
+        <div className="text-center mb-4 sm:mb-6 space-y-3 sm:space-y-4">
           <div className="flex flex-col items-center gap-2">
-            <h1 className="responsive-heading font-bold text-foreground break-words leading-tight">
+            <h1 className="mobile-heading-xl text-foreground">
               AI Learning Coach
             </h1>
             <PageHelpTrigger onOpen={handleShowVideoManually} />
           </div>
-          <p className="responsive-text text-muted-foreground max-w-4xl mx-auto leading-relaxed break-words">
-            Your personalized AI coach analyzes your learning patterns, identifies strengths and weaknesses, 
-            and provides tailored guidance to accelerate your educational journey.
+          <p className="mobile-text-base text-muted-foreground max-w-3xl mx-auto">
+            Your personalized AI coach analyzes your learning patterns and provides tailored guidance.
           </p>
           
-          {/* Feature Highlights - Responsive Layout */}
-          <div className="hidden sm:flex justify-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-muted-foreground flex-wrap mt-4">
-            <span className="break-words text-center">• Personalized learning analysis</span>
-            <span className="break-words text-center">• Proactive guidance</span>
-            <span className="break-words text-center">• Continuous support</span>
+          {/* Feature Highlights - Mobile Optimized */}
+          <div className="hidden sm:flex justify-center gap-4 mobile-text-sm text-muted-foreground flex-wrap">
+            <span>• Personalized analysis</span>
+            <span>• Proactive guidance</span>
+            <span>• Continuous support</span>
           </div>
           
-          {/* Mobile-friendly feature list */}
-          <div className="sm:hidden mt-4 space-y-1 text-xs text-muted-foreground">
-            <div className="break-words">• Personalized learning analysis</div>
-            <div className="break-words">• Proactive guidance and support</div>
-            <div className="break-words">• Continuous motivation</div>
+          {/* Mobile feature list */}
+          <div className="sm:hidden space-y-1 mobile-text-xs text-muted-foreground">
+            <div>• Personalized learning analysis</div>
+            <div>• Proactive guidance & support</div>
+            <div>• Continuous motivation</div>
           </div>
         </div>
 
-        {/* AI Coach Status Card - Enhanced Mobile Layout */}
-        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 w-full overflow-hidden flex-shrink-0">
-          <CardContent className="responsive-card-padding">
-            <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <Brain className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 flex-shrink-0 mt-0.5 sm:mt-0" />
+        {/* AI Coach Status Card - Mobile First */}
+        <Card className="mobile-card bg-gradient-to-r from-purple-500 to-purple-600 text-white mb-4 sm:mb-6">
+          <CardContent className="mobile-card-padding">
+            <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                <Brain className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0 mt-1 sm:mt-0" />
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold break-words leading-tight">
+                  <h2 className="mobile-heading-md text-white mb-1">
                     AI Learning Coach
                   </h2>
-                  <p className="text-purple-100 text-xs sm:text-sm lg:text-base leading-snug break-words mt-1">
+                  <p className="text-purple-100 mobile-text-sm leading-snug">
                     {completedSessions.length > 0 ? 
-                      `Analyzing your ${completedSessions.length} study sessions and ${flashcards?.length || 0} flashcards` :
-                      'Ready to analyze your learning patterns once you start studying'
+                      `Analyzing ${completedSessions.length} sessions & ${flashcards?.length || 0} flashcards` :
+                      'Ready to analyze your learning patterns'
                     }
                   </p>
                 </div>
               </div>
               
               {completedSessions.length > 0 && (
-                <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:text-right gap-2 sm:gap-1 flex-shrink-0">
-                  <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base lg:text-lg font-semibold">
-                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-                    <span className="break-words">{overallAccuracy}% Accuracy</span>
+                <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:text-right gap-2 sm:gap-1">
+                  <div className="flex items-center gap-2 mobile-text-base font-semibold">
+                    <TrendingUp className="h-4 w-4 flex-shrink-0" />
+                    <span>{overallAccuracy}% Accuracy</span>
                   </div>
-                  <p className="text-purple-200 text-xs sm:text-sm break-words">
-                    {currentStreak > 0 ? `${currentStreak} day streak!` : 'Start your streak today'}
+                  <p className="text-purple-200 mobile-text-sm">
+                    {currentStreak > 0 ? `${currentStreak} day streak!` : 'Start your streak'}
                   </p>
                 </div>
               )}
@@ -153,25 +152,20 @@ const AIStudyCoach = () => {
           </CardContent>
         </Card>
 
-        {/* Quick Study Challenges - Mobile Optimized */}
-        <div className="flex-shrink-0">
+        {/* Quick Study Challenges - Mobile First */}
+        <div className="mb-4 sm:mb-6">
           <AccessibilityErrorBoundary componentName="QuickChallengesCard">
             <QuickChallengesCard challenges={quickChallenges} />
           </AccessibilityErrorBoundary>
         </div>
 
-        {/* Main Content Layout - Responsive Grid with Height Constraint Only for Chat */}
-        <div className={cn(
-          "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full",
-          fixedHeightEnabled ? "min-h-[70vh]" : ""
-        )}>
-          {/* Chat Interface - Takes 2/3 on desktop, full width on mobile */}
-          <div className={cn(
-            "lg:col-span-2 min-w-0 w-full",
-            fixedHeightEnabled ? "flex flex-col" : ""
-          )}>
+        {/* Main Content Layout - Mobile First Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Chat Interface - Mobile First */}
+          <div className="lg:col-span-2 min-w-0">
             <div className={cn(
-              fixedHeightEnabled ? "h-[70vh] min-h-0" : "min-h-[600px]"
+              "mobile-card",
+              fixedHeightEnabled ? "h-[70vh]" : "min-h-[500px] sm:min-h-[600px]"
             )}>
               <AccessibilityErrorBoundary componentName="AdvancedChatInterface">
                 <AdvancedChatInterface 
@@ -184,8 +178,8 @@ const AIStudyCoach = () => {
             </div>
           </div>
 
-          {/* Right Sidebar - Stacks on mobile, sidebar on desktop */}
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0 w-full flex-shrink-0">
+          {/* Sidebar - Mobile First Stack */}
+          <div className="space-y-4 min-w-0">
             <AccessibilityErrorBoundary componentName="VoiceSettingsCard">
               <VoiceSettingsCard />
             </AccessibilityErrorBoundary>
