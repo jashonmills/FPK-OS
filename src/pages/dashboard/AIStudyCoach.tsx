@@ -90,9 +90,9 @@ const AIStudyCoach = () => {
 
   return (
     <ErrorBoundary>
-      <div className="mobile-page-container min-h-screen overflow-x-hidden">
+      <div className="mobile-page-container min-h-screen overflow-x-hidden flex flex-col">
         {/* Header Section - Mobile First */}
-        <div className="text-center mb-4 sm:mb-6 space-y-3 sm:space-y-4">
+        <div className="flex-shrink-0 text-center mb-4 sm:mb-6 space-y-3 sm:space-y-4">
           <div className="flex flex-col items-center gap-2">
             <h1 className="mobile-heading-xl text-foreground">
               AI Learning Coach
@@ -119,7 +119,7 @@ const AIStudyCoach = () => {
         </div>
 
         {/* AI Coach Status Card - Mobile First */}
-        <Card className="mobile-card bg-gradient-to-r from-purple-500 to-purple-600 text-white mb-4 sm:mb-6">
+        <Card className="flex-shrink-0 mobile-card bg-gradient-to-r from-purple-500 to-purple-600 text-white mb-4 sm:mb-6">
           <CardContent className="mobile-card-padding">
             <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
@@ -153,16 +153,16 @@ const AIStudyCoach = () => {
         </Card>
 
         {/* Quick Study Challenges - Mobile First */}
-        <div className="mb-4 sm:mb-6">
+        <div className="flex-shrink-0 mb-4 sm:mb-6">
           <AccessibilityErrorBoundary componentName="QuickChallengesCard">
             <QuickChallengesCard challenges={quickChallenges} />
           </AccessibilityErrorBoundary>
         </div>
 
-        {/* Chat Interface - Full Width on Mobile */}
-        <div className="mb-8 lg:mb-6">
+        {/* Chat Interface - Full Width, Flex Grow */}
+        <div className="flex-grow flex flex-col mb-6 lg:mb-0">
           <div className={cn(
-            "mobile-card",
+            "mobile-card flex-grow flex flex-col",
             fixedHeightEnabled ? "h-[70vh]" : "min-h-[500px] sm:min-h-[600px]"
           )}>
             <AccessibilityErrorBoundary componentName="AdvancedChatInterface">
@@ -176,13 +176,8 @@ const AIStudyCoach = () => {
           </div>
         </div>
 
-        {/* Main Content Layout - Desktop Grid, Mobile Stack */}
-        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
-          {/* Spacer for desktop layout alignment */}
-          <div className="hidden lg:block lg:col-span-2"></div>
-
-          {/* Sidebar Content - Stack on Mobile, Sidebar on Desktop */}
-          <div className="space-y-4 min-w-0 pb-20 sm:pb-4">
+        {/* Sidebar Content - Bottom Stack on Mobile, Hidden on Desktop */}
+        <div className="flex-shrink-0 lg:hidden space-y-4 pb-20">
             <AccessibilityErrorBoundary componentName="StudyPlanCard">
               <StudyPlanCard todaysFocus={todaysFocus} />
             </AccessibilityErrorBoundary>
@@ -211,7 +206,6 @@ const AIStudyCoach = () => {
               <FileUploadCard />
             </AccessibilityErrorBoundary>
           </div>
-        </div>
 
         {/* Video Guide Modal */}
         <FirstVisitVideoModal
