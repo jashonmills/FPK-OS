@@ -180,13 +180,11 @@ const App: React.FC = () => {
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           <Route path="/join/:code" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
 
-          {/* Standalone AI Study Coach Chat Route */}
+          {/* Standalone AI Study Coach Chat Route - Public Access */}
           <Route path="/ai-study-coach/chat-only" element={
-            <RouteProtector>
-              <LazyRoute>
-                <StandaloneAIStudyCoachChat />
-              </LazyRoute>
-            </RouteProtector>
+            <LazyRoute>
+              <StandaloneAIStudyCoachChat />
+            </LazyRoute>
           } />
 
           {/* Dashboard Routes */}
