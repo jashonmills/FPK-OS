@@ -92,6 +92,24 @@ What would you like to learn about today?`
     }
   }, [messages.length, addMessage]);
 
+  // Helper function to determine prompt type based on conversation context
+  const determinePromptType = (messageText: string, currentMessages: ChatMessage[]) => {
+    const lastAIMessage = currentMessages.filter(m => m.role === 'assistant').pop();
+    
+    // If this is the first message or after welcome, initiate new session
+    if (currentMessages.length <= 1) {
+      return 'initiate_session';
+    }
+    
+    // If the last AI message contained a question and user is responding, evaluate the answer
+    if (lastAIMessage && lastAIMessage.content.includes('?')) {
+      return 'evaluate_answer';
+    }
+    
+    // For new topics or general questions, initiate new session
+    return 'initiate_session';
+  };
+
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
 
@@ -112,13 +130,24 @@ What would you like to learn about today?`
         timestamp: m.timestamp
       }));
 
-      // Call AI function - works for both authenticated and anonymous users
+      // Determine appropriate prompt type for Socratic method
+      const promptType = determinePromptType(messageText, messages);
+      
+      console.log('🎯 Sending AI Study Chat request:', {
+        messageLength: messageText.length,
+        promptType,
+        sessionId: sessionId.substring(0, 8) + '...',
+        historyLength: clientHistory.length
+      });
+
+      // Call AI function with required promptType parameter
       const { data, error } = await withTimeout(
         supabase.functions.invoke('ai-study-chat', {
           body: {
             message: messageText,
             userId: user?.id || anonymousId,
             sessionId,
+            promptType, // Required parameter for Socratic method
             chatMode: 'general',
             voiceActive: false,
             clientHistory
@@ -127,17 +156,36 @@ What would you like to learn about today?`
         18000
       );
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ AI Study Chat API error:', {
+          error: error.message,
+          details: error,
+          promptType,
+          messageText: messageText.substring(0, 50) + '...'
+        });
+        throw error;
+      }
+
+      if (!data?.response) {
+        console.warn('⚠️ AI Study Chat: No response data received');
+        throw new Error('No response received from AI');
+      }
+
+      console.log('✅ AI Study Chat response received');
 
       const aiResponse = {
         role: 'assistant' as const,
-        content: data?.response || generateFallbackResponse(messageText)
+        content: data.response
       };
 
       addMessage(aiResponse);
 
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('❌ Chat error details:', {
+        error: error instanceof Error ? error.message : error,
+        messageText: messageText.substring(0, 50) + '...',
+        timestamp: new Date().toISOString()
+      });
       
       const fallbackResponse = {
         role: 'assistant' as const,
@@ -146,11 +194,15 @@ What would you like to learn about today?`
 
       addMessage(fallbackResponse);
       
+      // Show more specific error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isValidationError = errorMessage.includes('promptType') || errorMessage.includes('required');
+      
       toast({
-        title: "Connection Issue",
-        description: "Using offline mode",
-        variant: "default",
-        duration: 2000
+        title: isValidationError ? "Configuration Issue" : "Connection Issue",
+        description: isValidationError ? "Please refresh and try again" : "Using offline mode",
+        variant: isValidationError ? "destructive" : "default",
+        duration: 3000
       });
     } finally {
       setIsLoading(false);
