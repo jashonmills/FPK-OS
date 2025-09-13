@@ -280,10 +280,10 @@ What specific topic would you like to focus on?`;
         )}
       </div>
       
-      {/* Main Content Container */}
-      <div className="flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full overflow-hidden">
-        {/* Messages Area - Single scrollable container */}
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      {/* Main Content Container - Single scrollable area for messages only */}
+      <div className="flex-1 overflow-y-auto p-4 max-w-4xl mx-auto w-full scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        {/* Messages Area */}
+        <div className="space-y-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-muted-foreground">
@@ -366,10 +366,13 @@ What specific topic would you like to focus on?`;
             </>
           )}
         </div>
+      </div>
 
-        {/* Voice Controls Row - Fixed position */}
+      {/* Fixed Bottom Controls Container */}
+      <div className="flex-shrink-0 p-4 max-w-4xl mx-auto w-full">
+        {/* Voice Controls Row */}
         {settings.enabled && (
-          <div className="flex-shrink-0 flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-2">
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Button
@@ -418,8 +421,8 @@ What specific topic would you like to focus on?`;
           </div>
         )}
 
-        {/* Input Form - Fixed at bottom */}
-        <form onSubmit={handleSubmit} className="flex-shrink-0 flex gap-2 items-end">
+        {/* Input Form */}
+        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
           <div className="flex-1 relative">
             <Input
               ref={inputRef}
