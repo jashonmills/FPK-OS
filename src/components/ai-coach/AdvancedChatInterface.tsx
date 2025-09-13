@@ -106,6 +106,17 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     }
   }, [user?.id]);
 
+  // Watchdog: auto-clear stuck loading states
+  useEffect(() => {
+    if (!isLoading) return;
+    const timer = setTimeout(() => {
+      console.warn('AI Coach watchdog: clearing stuck loading after 20s');
+      setIsLoading(false);
+      toast({ title: 'Request timed out', description: 'Please try again.' });
+    }, 20000);
+    return () => clearTimeout(timer);
+  }, [isLoading, toast]);
+
   // Improved auto-scroll logic that keeps responses visible
   const scrollToShowLatestMessage = useCallback(() => {
     if (!messagesContainerRef.current) return;
@@ -685,8 +696,8 @@ What specific topic from your studies would you like to dive deeper into?`;
 
   return (
     <>
-      <Card className={cn("w-full", fixedHeight ? "h-full flex flex-col" : "min-h-[600px]")}>
-        <CardHeader className="flex-shrink-0 pb-4">
+      <Card className={cn("w-full overflow-x-hidden", fixedHeight ? "h-full flex flex-col" : "min-h-[600px]")}>
+        <CardHeader className="flex-shrink-0 pb-4 overflow-x-hidden">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 flex-wrap">
               <Brain className="h-6 w-6 text-purple-600" />
@@ -757,7 +768,7 @@ What specific topic from your studies would you like to dive deeper into?`;
           </div>
         </CardHeader>
         
-        <CardContent className={cn("flex flex-col", fixedHeight ? "flex-1 min-h-0" : "")}>
+        <CardContent className={cn("overflow-x-hidden flex flex-col", fixedHeight ? "flex-1 min-h-0" : "")}>
           {/* Audio Introduction Controls */}
           {!hasPlayedIntro && messages.length > 0 && messages[0].role === 'assistant' && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 mb-4 bg-purple-50 rounded-lg border border-purple-200">
