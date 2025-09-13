@@ -27,10 +27,11 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
     
-    console.log('🎯 AI Study Coach FAILSAFE DIAGNOSTIC request:', { 
+    console.log('🎯 FAILSAFE DIAGNOSTIC v1.0 - ACTIVE:', { 
       hasMessage: !!message, 
       hasUserId: !!userId, 
-      message: message?.substring(0, 50) + '...'
+      message: message?.substring(0, 50) + '...',
+      timestamp: new Date().toISOString()
     });
     
     if (!message || !userId) {
