@@ -760,18 +760,18 @@ What specific topic from your studies would you like to dive deeper into?`;
         <CardContent className={cn("flex flex-col", fixedHeight ? "flex-1 min-h-0" : "")}>
           {/* Audio Introduction Controls */}
           {!hasPlayedIntro && messages.length > 0 && messages[0].role === 'assistant' && (
-            <div className="flex items-center justify-between p-3 mb-4 bg-purple-50 rounded-lg border border-purple-200">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 mb-4 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                 <Button
                   onClick={handlePlayIntroduction}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  className="bg-purple-600 hover:bg-purple-700 text-white w-fit"
                   size="sm"
                   aria-label="Play introduction"
                 >
                   <Play className="h-4 w-4 mr-2" />
                   Play Introduction
                 </Button>
-                <span className="text-sm text-purple-700">Listen to a spoken welcome message</span>
+                <span className="text-xs sm:text-sm text-purple-700 break-words">Listen to a spoken welcome message</span>
               </div>
               <div className="flex items-center gap-2">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -779,9 +779,9 @@ What specific topic from your studies would you like to dive deeper into?`;
                     type="checkbox"
                     checked={autoPlayEnabled}
                     onChange={handleAutoPlayToggle}
-                    className="rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                    className="rounded border-purple-300 text-purple-600 focus:ring-purple-500 flex-shrink-0"
                   />
-                  <span className="text-sm text-purple-700">Enable auto-play next time</span>
+                  <span className="text-xs sm:text-sm text-purple-700 break-words">Enable auto-play next time</span>
                 </label>
               </div>
             </div>
