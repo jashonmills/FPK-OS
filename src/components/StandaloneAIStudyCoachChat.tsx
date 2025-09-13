@@ -232,14 +232,14 @@ What specific topic would you like to focus on?`;
   };
 
   const handleClearChat = () => {
-    if (messages.length > 1) { // Don't clear if only welcome message
-      clearAllMessages();
-      toast({
-        title: "Chat cleared",
-        description: "Starting fresh conversation",
-        duration: 2000
-      });
-    }
+    clearAllMessages();
+    stop(); // Stop any current speech
+    setLastSpokenMessageId(null);
+    toast({
+      title: "Chat cleared",
+      description: "Starting fresh conversation",
+      duration: 2000
+    });
   };
 
   // Auto-play AI responses if enabled
@@ -267,7 +267,7 @@ What specific topic would you like to focus on?`;
         <span className="text-sm text-muted-foreground">
           🤖 AI Study Coach Demo - No login required
         </span>
-        {messages.length > 1 && (
+        {messages.length >= 1 && (
           <Button
             variant="ghost"
             size="sm"
@@ -280,8 +280,8 @@ What specific topic would you like to focus on?`;
         )}
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col p-4 max-w-4xl mx-auto w-full">
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+      <div className="flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full min-h-0">
+        <div className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-muted-foreground">
@@ -388,7 +388,7 @@ What specific topic would you like to focus on?`;
                   <Play className="w-4 h-4 mr-1" />
                   Auto-play
                 </Button>
-                {messages.length > 1 && (
+                {messages.length >= 1 && (
                   <Button
                     variant="outline"
                     size="sm"
