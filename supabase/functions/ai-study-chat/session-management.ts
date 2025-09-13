@@ -208,19 +208,6 @@ Tone: ${prompt.tone}
 USER MESSAGE: "${message}"`;
 }
 
-function buildEvaluateRefresherPrompt(message: string, context: SessionContext): string {
-  const prompt = BLUEPRINT_PROMPTS.evaluate_refresher;
-  
-  return `${prompt.persona}
-
-${prompt.instruction.replace('[user_input]', message)}
-
-Original Question: ${context.originalQuestion || 'N/A'}
-Foundational Topic: ${context.currentTopic || 'N/A'}
-
-Tone: ${prompt.tone}`;
-}
-
 function buildEvaluateRefresherPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.evaluate_refresher;
   
@@ -251,6 +238,8 @@ ${prompt.tone}
 
 USER MESSAGE: "${message}"`;
 }
+
+function buildDirectAnswerPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.direct_answer_exception;
   const cleanMessage = message.replace(/^\/answer\s*/i, '');
   
