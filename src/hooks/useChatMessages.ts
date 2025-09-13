@@ -114,10 +114,15 @@ export const useChatMessages = (sessionId: string | null) => {
   };
 
   // Simplified hybrid sendMessage with backend-driven intelligence
-  const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'personal') => {
-    if (!sessionId || !user?.id || isSending || typeof sessionId !== 'string' || typeof user.id !== 'string') {
-      console.warn('Invalid state for sendMessage:', { sessionId, userId: user?.id, isSending });
-      return;
+  const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'general') => {
+    if (!user?.id || isSending || typeof user.id !== 'string') {
+      console.warn('Invalid user or sending state:', { userId: user?.id, isSending });
+      throw new Error('Invalid user state');
+    }
+    
+    if (!sessionId || typeof sessionId !== 'string') {
+      console.warn('Invalid session ID for sendMessage:', { sessionId });
+      throw new Error('No active session. Please refresh the page.');
     }
 
     console.log('🎯 Hybrid sendMessage - Backend-driven analysis...', { 

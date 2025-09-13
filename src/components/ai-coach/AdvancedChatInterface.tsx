@@ -33,6 +33,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const { chatMode, changeChatMode } = useChatMode();
   const [showQuizWidget, setShowQuizWidget] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isInitializingSession, setIsInitializingSession] = useState(false);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
@@ -57,17 +58,20 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
     loadMessages 
   } = useChatMessages(sessionId);
 
-  // Initialize session 
+  // Initialize session with proper race condition handling
   useEffect(() => {
-    if (user?.id && !sessionId) {
+    if (user?.id && !sessionId && !isInitializingSession) {
       initializeSession();
     }
-  }, [user?.id]);
+  }, [user?.id, sessionId, isInitializingSession]);
 
   const initializeSession = async () => {
+    if (!user || isInitializingSession) return;
+    
+    setIsInitializingSession(true);
     try {
-      // Create new chat session
-      const { data } = await supabase
+      console.log('Initializing new chat session...');
+      const { data, error } = await supabase
         .from('chat_sessions')
         .insert({
           user_id: user.id,
@@ -76,12 +80,20 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
         })
         .select()
         .single();
+
+      if (error) throw error;
       
-      if (data) {
-        setSessionId(data.id);
-      }
+      console.log('Session initialized:', data.id);
+      setSessionId(data.id);
     } catch (error) {
-      console.error('Error creating session:', error);
+      console.error('Error initializing session:', error);
+      toast({
+        title: "Session Error",
+        description: "Failed to initialize chat session. Please refresh the page.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsInitializingSession(false);
     }
   };
 
@@ -144,6 +156,32 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
 
   const handleSendMessage = async () => {
     if (!message.trim() || isSending || !user?.id) return;
+    
+    // If no session exists, wait for it to be created
+    if (!sessionId) {
+      if (!isInitializingSession) {
+        console.log('No session found, initializing...');
+        await initializeSession();
+      } else {
+        console.log('Session already initializing, waiting...');
+      }
+      
+      // Wait for session to be ready
+      let attempts = 0;
+      while (!sessionId && attempts < 50) { // 5 second timeout
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!sessionId) {
+        toast({
+          title: "Session Error",
+          description: "Could not create chat session. Please refresh the page.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
 
     // Check for quiz session request
     if (detectQuizRequest(message)) {
@@ -161,9 +199,24 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
       return;
     }
 
-    // Use the hybrid chat system
-    await sendMessage(message, undefined, chatMode);
+    // Store message before sending
+    const messageToSend = message;
     setMessage('');
+    
+    try {
+      console.log('Sending message with sessionId:', sessionId);
+      // Use the hybrid chat system
+      await sendMessage(messageToSend, undefined, chatMode);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      toast({
+        title: "Send Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+      // Restore the message if sending failed
+      setMessage(messageToSend);
+    }
   };
 
   const handleVoiceInput = async () => {
@@ -443,7 +496,7 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
               
               <Button
                 onClick={handleSendMessage}
-                disabled={isSending || !message.trim() || !user?.id}
+                disabled={isSending || !message.trim() || !user?.id || isInitializingSession}
                 size="icon"
                 className="bg-purple-600 hover:bg-purple-700"
               >
@@ -455,6 +508,12 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
               <div className="flex items-center gap-4 min-w-0">
                 <span className="truncate">💡 Try: "Quiz me", "Analyze my progress", or click mic to speak</span>
                 <div className="flex items-center gap-3 flex-shrink-0">
+                  {isInitializingSession && (
+                    <div className="flex items-center gap-1 text-yellow-600">
+                      <div className="animate-spin h-3 w-3 border border-current border-t-transparent rounded-full" />
+                      <span>Initializing...</span>
+                    </div>
+                  )}
                   {settings.enabled && (
                     <div className="flex items-center gap-1 text-green-600">
                       <Volume2 className="h-3 w-3" />
