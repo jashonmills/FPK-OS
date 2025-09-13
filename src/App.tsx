@@ -116,6 +116,9 @@ const ScormPlayer = lazy(() => {
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 
+// Standalone AI Study Coach Chat
+const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
+
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -176,6 +179,15 @@ const App: React.FC = () => {
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           <Route path="/join/:code" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
+
+          {/* Standalone AI Study Coach Chat Route */}
+          <Route path="/ai-study-coach/chat-only" element={
+            <RouteProtector>
+              <LazyRoute>
+                <StandaloneAIStudyCoachChat />
+              </LazyRoute>
+            </RouteProtector>
+          } />
 
           {/* Dashboard Routes */}
           <Route path="/dashboard/*" element={
