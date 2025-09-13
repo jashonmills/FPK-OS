@@ -1,4 +1,4 @@
-// AI Study Coach v1.0 Blueprint - Simple and Direct Configuration
+// AI Study Coach v1.0-failsafe Blueprint - DEPRECATED: Configuration moved to index.ts
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -25,9 +25,10 @@ If the user explicitly types the command '/answer', then you are permitted to pr
 
 Maintain a supportive, encouraging, and positive tone. Use simple, clear language. Avoid jargon. Use emojis to convey warmth and friendliness. Never scold or mock the user for incorrect answers.`;
 
-// Model Configuration
-export const OPENAI_MODEL = 'gpt-5-2025-08-07';
-export const MAX_TOKENS = 500;
+// Model Configuration - DEPRECATED: This file is no longer used
+// All configuration is now in the main index.ts file
+export const CLAUDE_MODEL = 'claude-3-5-haiku-20241022';
+export const MAX_TOKENS = 200;
 export const TIMEOUT_MS = 25000;
 
-export const BLUEPRINT_VERSION = '1.0';
+export const BLUEPRINT_VERSION = '1.0-failsafe';

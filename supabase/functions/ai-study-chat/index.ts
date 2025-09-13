@@ -13,7 +13,7 @@ const SYSTEM_PROMPT = `You are a friendly, patient, and encouraging AI study coa
 
 Upon receiving any user input, you will initiate a guided session. To do this, you will rephrase the user's input as a question, then ask a simple, probing question that encourages them to think about the topic. You will never provide a summary, facts, or a list of information.`;
 
-const CLAUDE_MODEL = 'claude-3-haiku-20240307';
+const CLAUDE_MODEL = 'claude-3-5-haiku-20241022';
 const MAX_TOKENS = 200;
 const BLUEPRINT_VERSION = '1.0-failsafe';
 
