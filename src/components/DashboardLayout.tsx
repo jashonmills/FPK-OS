@@ -24,7 +24,7 @@ const DashboardLayout: React.FC = () => {
                   <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
                     <GlobalHeader />
                     <main className="flex-1 bg-gray-50 mobile-scroll-container">
-                      <div className="w-full h-full mobile-container py-3 sm:py-4 md:py-6 lg:py-8">
+                      <div className="w-full h-full mobile-container pb-28 sm:pb-0 pr-16 sm:pr-0 py-3 sm:py-4 md:py-6 lg:py-8">
                         <ErrorBoundaryUnified resetOnPropsChange={true}>
                           <Outlet />
                         </ErrorBoundaryUnified>

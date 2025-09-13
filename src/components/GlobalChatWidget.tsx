@@ -14,7 +14,7 @@ const GlobalChatWidget = () => {
   const trigger = (
     <Button
       size="icon"
-      className="h-14 w-14 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg relative"
+      className="h-14 w-14 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg relative pointer-events-auto"
     >
       <MessageCircle className="h-6 w-6 text-white" />
       {hasUnreadMessages && (
@@ -26,7 +26,7 @@ const GlobalChatWidget = () => {
   );
 
   return (
-    <div className="fixed bottom-20 right-6 z-40">
+    <div className="fixed right-4 sm:right-6 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] sm:bottom-6 z-50 pointer-events-none">
       <ChatSheet 
         trigger={trigger}
         isOpen={isOpen}
