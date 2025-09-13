@@ -1,15 +1,5 @@
-// Simple Blueprint v6.0 Prompt Selector - Hybrid Architecture
-import {
-  SYSTEM_PROMPT_PERSONAL,
-  SYSTEM_PROMPT_GENERAL,
-  STATE_PROMPT_INITIATE_SESSION,
-  STATE_PROMPT_INITIATE_QUIZ,
-  STATE_PROMPT_EVALUATE_ANSWER,
-  STATE_PROMPT_EVALUATE_QUIZ_ANSWER,
-  STATE_PROMPT_PROACTIVE_HELP,
-  STATE_PROMPT_EVALUATE_REFRESHER,
-  STATE_PROMPT_DIRECT_ANSWER
-} from './constants.ts';
+// Simple Blueprint v7.0 Prompt Selector - Streamlined Architecture
+// No legacy imports needed - SOCRATIC_BLUEPRINT_V7 handles all behavioral logic
 
 export type PromptType = 
   | 'initiate_session'
