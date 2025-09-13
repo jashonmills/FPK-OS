@@ -155,7 +155,7 @@ export const OPENAI_MODEL = 'gpt-4o';
 export const MAX_TOKENS = 2000;
 export const TIMEOUT_MS = 30000;
 
-export const BLUEPRINT_VERSION = '4.0';
+export const BLUEPRINT_VERSION = '4.1';
 
 // ============================================
 // AI STUDY COACH FINAL BLUEPRINT v4.0 (Simplified)
@@ -175,7 +175,7 @@ export const BLUEPRINT_PROMPTS = {
     persona: "You are an AI Study Coach in the middle of a guided session. Your only task is to evaluate the user's answer to your previous question. Your primary objective is to keep the conversation focused on the original topic.",
     instruction: `The user's response is: [user_input]. Your task is to validate this answer and provide guidance. You MUST follow these rules strictly:
 
-1. **If the user's answer is correct:** Confirm their answer and provide a concise explanation. Then, ask if they are ready for the next topic.
+1. **If the user's answer is correct:** Explicitly confirm their answer is correct. Provide a concise explanation to reinforce the concept. Then, immediately ask a follow-up question that builds on their correct answer to continue the Socratic loop.
 
 2. **If the user's answer is incorrect:** Gently state that the answer is not quite right. Immediately provide a new, different approach to the problem by asking a new question or giving a hint.
 
