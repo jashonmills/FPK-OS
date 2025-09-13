@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Brain, User, Bot, Mic, MicOff, Volume2, VolumeX, Play, History, MessageCircle } from 'lucide-react';
+import { Send, Brain, User, Bot, Mic, MicOff, Volume2, VolumeX, Play, History, MessageCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -223,6 +223,17 @@ What specific topic would you like to focus on?`;
     });
   };
 
+  const handleClearChat = () => {
+    if (messages.length > 1) { // Don't clear if only welcome message
+      clearAllMessages();
+      toast({
+        title: "Chat cleared",
+        description: "Starting fresh conversation",
+        duration: 2000
+      });
+    }
+  };
+
   // Auto-play AI responses if enabled
   useEffect(() => {
     if (!autoPlayEnabled || !settings.enabled) return;
@@ -244,10 +255,21 @@ What specific topic would you like to focus on?`;
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Demo Badge */}
-      <div className="bg-primary/10 border-b border-border p-2 text-center">
+      <div className="bg-primary/10 border-b border-border p-2 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           🤖 AI Study Coach Demo - No login required
         </span>
+        {messages.length > 1 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearChat}
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Trash2 className="w-3 h-3 mr-1" />
+            Clear
+          </Button>
+        )}
       </div>
       
       <div className="flex-1 overflow-hidden flex flex-col p-4 max-w-4xl mx-auto w-full">
@@ -358,6 +380,17 @@ What specific topic would you like to focus on?`;
                   <Play className="w-4 h-4 mr-1" />
                   Auto-play
                 </Button>
+                {messages.length > 1 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearChat}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Clear
+                  </Button>
+                )}
               </div>
               {isSpeaking && (
                 <div className="text-sm text-muted-foreground flex items-center gap-1">
