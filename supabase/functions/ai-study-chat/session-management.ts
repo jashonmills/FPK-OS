@@ -106,8 +106,13 @@ export function buildPromptForState(
       return buildEvaluateAnswerPrompt(message, context, chatHistory);
       
     case 'refresher_active':
-      // Use evaluate_answer prompt as fallback since evaluate_refresher was removed in v4.0
-      return buildEvaluateAnswerPrompt(message, context, chatHistory);
+      if (context.lastAIQuestion) {
+        // Evaluating refresher answer
+        return buildEvaluateRefresherPrompt(message, context, chatHistory);
+      } else {
+        // Starting refresher
+        return buildProactiveHelpPrompt(message, context, chatHistory);
+      }
       
     case 'direct_answer_mode':
       return buildDirectAnswerPrompt(message, context, chatHistory);
@@ -216,7 +221,36 @@ Foundational Topic: ${context.currentTopic || 'N/A'}
 Tone: ${prompt.tone}`;
 }
 
-function buildDirectAnswerPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
+function buildEvaluateRefresherPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
+  const prompt = BLUEPRINT_PROMPTS.evaluate_refresher;
+  
+  return `${prompt.persona}
+
+${prompt.instruction.replace('[user_input]', message)}
+
+${prompt.tone}
+
+${prompt.creative_variation}
+
+Original Question: ${context.originalQuestion || 'N/A'}
+Foundational Topic: ${context.currentTopic || 'N/A'}
+Teaching History: ${context.teachingHistory?.join(', ') || 'None'}
+
+Recent conversation:
+${chatHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n')}`;
+}
+
+function buildProactiveHelpPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
+  const prompt = BLUEPRINT_PROMPTS.proactive_help;
+  
+  return `${prompt.persona}
+
+${prompt.instruction}
+
+${prompt.tone}
+
+USER MESSAGE: "${message}"`;
+}
   const prompt = BLUEPRINT_PROMPTS.direct_answer_exception;
   const cleanMessage = message.replace(/^\/answer\s*/i, '');
   
