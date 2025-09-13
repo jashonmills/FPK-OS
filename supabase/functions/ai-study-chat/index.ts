@@ -21,31 +21,59 @@ serve(async (req) => {
   }
 
   try {
+    const requestBody = await req.json().catch(() => ({}));
     const {
       message,
       userId,
       sessionId,
       promptType,
       contextData = {},
-      chatMode = 'personal',
-      voiceActive = false
-    }: any = await req.json();
+      chatMode = 'general',
+      voiceActive = false,
+      clientHistory = []
+    } = requestBody;
 
     console.log('🎯 Gemini AI Processing:', {
-      messageLength: message?.length,
-      userId: userId?.substring(0, 8) + '...',
-      sessionId: sessionId?.substring(0, 8) + '...',
-      promptType,
+      messageLength: message?.length || 0,
+      userId: userId?.substring(0, 8) + '...' || 'unknown',
+      sessionId: sessionId?.substring(0, 8) + '...' || 'none',
+      promptType: promptType || 'auto-detected',
       chatMode,
       voiceActive,
-      contextKeys: Object.keys(contextData)
+      contextKeys: Object.keys(contextData),
+      historyLength: clientHistory?.length || 0,
+      hasValidRequest: !!(message && userId)
     });
 
-    if (!message || !userId || !promptType) {
+    // Enhanced validation with detailed error responses
+    if (!message || typeof message !== 'string') {
+      console.error('❌ Invalid message parameter:', { message, type: typeof message });
       return new Response(
-        JSON.stringify({ error: 'Message, userId, and promptType are required' }),
+        JSON.stringify({ 
+          error: 'Valid message string is required',
+          received: { message: typeof message, length: message?.length }
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      console.error('❌ Invalid userId parameter:', { userId, type: typeof userId });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Valid userId string is required',
+          received: { userId: typeof userId }
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Auto-detect promptType if missing
+    let detectedPromptType = promptType;
+    if (!promptType || typeof promptType !== 'string') {
+      console.log('🔍 Auto-detecting promptType from message and history...');
+      detectedPromptType = autoDetectPromptType(message, clientHistory);
+      console.log(`🎯 Auto-detected promptType: ${detectedPromptType}`);
     }
 
     // Handle missing API key gracefully
@@ -73,9 +101,18 @@ serve(async (req) => {
       incorrectCount: contextData.incorrectCount
     };
 
-    const contextPrompt = buildSimplePrompt(promptType as PromptType, promptContext);
+    const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
 
-    console.log('📝 Simple prompt generated:', { type: promptType, length: contextPrompt.length });
+    console.log('📝 Simple prompt generated:', { 
+      type: detectedPromptType, 
+      length: contextPrompt.length,
+      context: {
+        hasUserInput: !!message,
+        voiceActive,
+        chatMode,
+        contextDataKeys: Object.keys(contextData)
+      }
+    });
 
     // Call Google Gemini API with Socratic Blueprint v7.0
     console.log('📡 Making Google Gemini API request:', {
@@ -165,9 +202,11 @@ serve(async (req) => {
       blueprintVersion: BLUEPRINT_VERSION,
       metadata: {
         model: GEMINI_MODEL,
-        promptType,
+        promptType: detectedPromptType,
         chatMode,
-        voiceActive
+        voiceActive,
+        contextProcessed: Object.keys(contextData),
+        historyLength: clientHistory?.length || 0
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -200,6 +239,39 @@ serve(async (req) => {
     });
   }
 });
+
+// Auto-detect prompt type based on message content and conversation history
+function autoDetectPromptType(message: string, history: any[]): string {
+  const trimmed = message.toLowerCase().trim();
+  
+  // Direct answer command
+  if (trimmed.startsWith('/answer')) {
+    return 'direct_answer';
+  }
+  
+  // Quiz requests
+  if (trimmed.includes('quiz me') || trimmed.includes('test me') || trimmed.includes('give me a quiz')) {
+    return 'initiate_quiz';
+  }
+  
+  // Struggle indicators
+  const struggleIndicators = ['help', 'stuck', 'confused', 'don\'t understand', 'don\'t know'];
+  if (struggleIndicators.some(indicator => trimmed.includes(indicator))) {
+    return 'proactive_help';
+  }
+  
+  // Check if user is responding to a previous question
+  if (history && history.length > 0) {
+    const lastAIMessage = history.filter(m => m.role === 'assistant').pop();
+    if (lastAIMessage?.content?.includes('?')) {
+      // User is likely answering a question
+      return 'evaluate_answer';
+    }
+  }
+  
+  // Default to session initiation
+  return 'initiate_session';
+}
 
 // Helper function to provide contextual responses based on user input
 function getContextualResponse(message: string, chatMode: string, errorType: string): string {
