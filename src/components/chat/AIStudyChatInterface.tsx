@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Brain, User, Bot, Mic, MicOff, Volume2, VolumeX, Play, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Send, Brain, User, Bot, Mic, MicOff, Volume2, VolumeX, Play, Trash2, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -14,6 +15,7 @@ import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 import { useConversationState, ChatMessage as ConversationMessage } from '@/hooks/useConversationState';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
+import ChatModeToggle from '@/components/ai-coach/ChatModeToggle';
 
 interface ChatMessage {
   id: string;
@@ -26,6 +28,12 @@ interface AIStudyChatInterfaceProps {
   chatMode?: 'personal' | 'general';
   showHeader?: boolean;
   placeholder?: string;
+  // Dashboard-specific props
+  user?: any;
+  completedSessions?: any[];
+  flashcards?: any[];
+  insights?: any;
+  fixedHeight?: boolean;
 }
 
 const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
@@ -42,14 +50,22 @@ const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI r
 };
 
 export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
-  chatMode = 'general',
+  chatMode: initialChatMode = 'general',
   showHeader = true,
-  placeholder = "Ask platform questions or general knowledge..."
+  placeholder = "Ask me anything about your studies...",
+  user,
+  completedSessions = [],
+  flashcards = [],
+  insights,
+  fixedHeight = false
 }) => {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  const currentUser = user || authUser;
+  const [chatMode, setChatMode] = useState(initialChatMode);
   const { toast } = useToast();
   const anonymousId = useState(() => `anonymous_${Date.now()}`)[0];
-  const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(user?.id || anonymousId);
+  const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(currentUser?.id || anonymousId);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { state: conversationState, analyzeConversation, updateState } = useConversationState();
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
@@ -61,7 +77,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   );
   
   const { speak, stop, isSpeaking } = useTextToSpeech();
-  const { settings } = useVoiceSettings();
+  const { settings, toggle } = useVoiceSettings();
   const voiceInput = useEnhancedVoiceInput();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -78,16 +94,22 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
     }
   }, [messages]);
 
-  // Add welcome message if no messages exist
+  // Add welcome message with dashboard data
   useEffect(() => {
     if (messages.length === 0) {
-      const welcomeMessage = {
-        role: 'assistant' as const,
-        content: chatMode === 'personal' 
-          ? `Hello! I'm your personalized AI Study Coach! 🎓 I use the Socratic method to guide your learning through thoughtful questions rather than giving direct answers.
+      const welcomeContent = chatMode === 'personal' 
+        ? `Hello! I'm your personalized AI Learning Coach. I have access to your study data and can help you with:
 
-I can help you with your study materials, create personalized learning sessions, and track your progress. What would you like to explore today?`
-          : `Hello! I'm your AI Study Coach in general mode! 🌐 I can help you with:
+🎯 **Personalized Guidance** - Based on your uploaded materials and progress
+📚 **Study Sessions** - Using your flashcards and notes for targeted practice
+🧠 **Socratic Teaching** - I'll guide you to discover answers through questions
+🎮 **Interactive Quizzes** - Practice with your flashcards by saying "quiz me"
+💡 **Smart Insights** - Tailored advice based on your learning patterns
+
+I can see you have ${completedSessions?.length || 0} completed study sessions and ${flashcards?.length || 0} flashcards ready for practice.
+
+What would you like to focus on in today's learning session?`
+        : `Hello! I'm your AI Learning Coach in general knowledge mode. I can help you with:
 
 🌐 **General Knowledge** - Any subject, research, or educational topics
 📖 **Study Techniques** - Learning strategies and academic methods  
@@ -96,12 +118,16 @@ I can help you with your study materials, create personalized learning sessions,
 
 For personalized features with your study materials, you can switch to Personal mode using the toggle above.
 
-What would you like to learn about today?`
+What would you like to learn about today?`;
+
+      const welcomeMessage = {
+        role: 'assistant' as const,
+        content: welcomeContent
       };
       
       addMessage(welcomeMessage);
     }
-  }, [messages.length, addMessage, chatMode]);
+  }, [messages.length, addMessage, chatMode, completedSessions?.length, flashcards?.length]);
 
   // Convert widget messages to conversation format for analysis
   const convertToConversationHistory = useCallback((widgetMessages: typeof messages): ConversationMessage[] => {
@@ -165,7 +191,7 @@ What would you like to learn about today?`
         supabase.functions.invoke('ai-study-chat', {
           body: {
             message: messageText,
-            userId: user?.id || anonymousId,
+            userId: currentUser?.id || anonymousId,
             sessionId,
             promptType: analyzedState.promptType,
             chatMode,
@@ -349,184 +375,174 @@ What specific aspect would you like to focus on?`;
   }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Header */}
+    <Card className={cn("w-full h-full flex flex-col", fixedHeight ? "h-full" : "min-h-[600px]")}>
       {showHeader && (
-        <div className="flex-shrink-0 bg-muted/30 border-b border-border p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-primary" />
-            <span className="font-medium">AI Study Coach</span>
-            <span className="text-sm text-muted-foreground">
-              ({chatMode === 'personal' ? 'Personal' : 'General'} Mode)
-            </span>
-          </div>
-          {messages.length >= 1 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearChat}
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              Clear
-            </Button>
-          )}
-        </div>
-      )}
-      
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={cn(
-              "flex gap-3 p-4 rounded-lg max-w-[85%]",
-              msg.role === 'user'
-                ? "ml-auto bg-primary text-primary-foreground"
-                : "mr-auto bg-muted"
-            )}
-          >
-            <div className="flex-shrink-0">
-              {msg.role === 'user' ? (
-                <User className="w-6 h-6" />
-              ) : (
-                <Bot className="w-6 h-6 text-primary" />
+        <CardHeader className="flex-shrink-0 pb-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Brain className="h-6 w-6 text-purple-600" />
+              <h2 className="font-semibold text-lg">AI Learning Coach</h2>
+              {(completedSessions?.length > 0 || flashcards?.length > 0) && (
+                <Badge variant="outline" className="text-xs">
+                  {completedSessions?.length || 0} Sessions • {flashcards?.length || 0} Cards
+                </Badge>
               )}
             </div>
-            <div className="flex-1 space-y-2">
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap break-words">
-                  {msg.content}
-                </div>
-              </div>
-              {msg.role === 'assistant' && settings.enabled && (
-                <div className="flex items-center gap-2 mt-2">
+            
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+              <ChatModeToggle 
+                mode={chatMode} 
+                onModeChange={setChatMode}
+                className="scale-90 w-full sm:w-auto max-w-full min-w-0"
+              />
+              
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggle}
+                  className={cn(
+                    "h-8 w-8 p-0",
+                    settings.enabled ? "text-green-600 bg-green-50" : "text-gray-500"
+                  )}
+                  title={settings.enabled ? "Disable text-to-speech" : "Enable text-to-speech"}
+                >
+                  {settings.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                </Button>
+                
+                {isSpeaking && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      if (isSpeaking && lastSpokenMessageId === msg.id) {
-                        stop();
-                      } else {
-                        speak(msg.content);
-                        setLastSpokenMessageId(msg.id);
-                      }
-                    }}
-                    disabled={!settings.enabled}
-                    className="h-6 px-2 text-xs"
+                    onClick={stop}
+                    className="h-8 w-8 p-0 text-red-600 bg-red-50"
+                    title="Stop speaking"
                   >
-                    {isSpeaking && lastSpokenMessageId === msg.id ? (
-                      <VolumeX className="w-3 h-3" />
-                    ) : (
-                      <Volume2 className="w-3 h-3" />
-                    )}
+                    <VolumeX className="h-4 w-4" />
                   </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="flex gap-3 p-4 rounded-lg max-w-[85%] mr-auto bg-muted">
-            <div className="flex-shrink-0">
-              <Bot className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-                <span className="text-sm">AI is thinking...</span>
+                )}
               </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Voice Controls */}
-      {settings.enabled && (
-        <div className="flex-shrink-0 p-4 border-t border-border">
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
-            <div className="flex items-center gap-3">
+              
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={handleTTSToggle}
-                disabled={!settings.enabled}
+                onClick={handleClearChat}
+                title="Clear chat"
+                className="h-8 w-8 p-0"
               >
-                {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                {isSpeaking ? 'Stop' : 'Read'}
-              </Button>
-              <Button
-                variant={autoPlayEnabled ? "default" : "outline"}
-                size="sm"
-                onClick={handleAutoPlayToggle}
-                disabled={!settings.enabled}
-              >
-                <Play className="w-4 h-4 mr-1" />
-                Auto-play
+                <History className="h-4 w-4" />
               </Button>
             </div>
-            {(isSpeaking || voiceInput.isRecording) && (
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                <div className={cn(
-                  "w-2 h-2 rounded-full animate-pulse",
-                  isSpeaking ? "bg-green-500" : "bg-red-500"
-                )}>
-                </div>
-                {isSpeaking ? 'Speaking...' : 'Recording...'}
-              </div>
-            )}
           </div>
-        </div>
+        </CardHeader>
       )}
 
-      {/* Input Form */}
-      <div className="flex-shrink-0 p-4 border-t border-border">
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-          <div className="flex-1 relative">
+      <CardContent className={cn("flex-1 flex flex-col overflow-hidden p-0", fixedHeight ? "min-h-0" : "")}>
+        {/* Messages Area */}
+        <div 
+          ref={messagesContainerRef}
+          className={cn(
+            "flex-1 overflow-y-auto px-6 py-4 space-y-4",
+            fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
+          )}
+        >
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={cn(
+                "flex gap-3 p-3 rounded-lg group",
+                msg.role === 'user'
+                  ? "bg-purple-50 ml-8"
+                  : "bg-gray-50 mr-8"
+              )}
+            >
+              <div className="flex-shrink-0">
+                {msg.role === 'user' ? (
+                  <User className="h-5 w-5 text-purple-600" />
+                ) : (
+                  <Bot className="h-5 w-5 text-gray-600" />
+                )}
+              </div>
+              <div className="flex-1 space-y-2">
+                <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">
+                  {msg.content}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
+                  
+                  {msg.role === 'assistant' && settings.enabled && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (isSpeaking && lastSpokenMessageId === msg.id) {
+                          stop();
+                        } else {
+                          speak(msg.content);
+                          setLastSpokenMessageId(msg.id);
+                        }
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                      title="Speak this message"
+                    >
+                      {isSpeaking && lastSpokenMessageId === msg.id ? (
+                        <VolumeX className="h-3 w-3" />
+                      ) : (
+                        <Volume2 className="h-3 w-3" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex gap-3 p-3 rounded-lg bg-gray-50 mr-8">
+              <Bot className="h-5 w-5 text-gray-600" />
+              <div className="flex items-center gap-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                </div>
+                <span className="text-sm text-gray-600">AI is thinking...</span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Form */}
+        <div className="flex-shrink-0 p-6 border-t border-border">
+          <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder={placeholder}
               disabled={isLoading}
-              className="pr-12"
+              className="flex-1"
             />
-            {settings.enabled && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <VoiceInputButton
-                  onTranscription={handleVoiceInput}
-                />
-              </div>
-            )}
-          </div>
-          <Button 
-            type="submit" 
-            disabled={isLoading || !input.trim()}
-            className="px-4"
-          >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
-        </form>
-        
-        {/* Debug info in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-2 text-xs text-muted-foreground">
-            State: {conversationState.promptType} | Quiz: {conversationState.isInQuiz ? 'Yes' : 'No'} | 
-            Topic: {conversationState.currentTopic || 'None'}
-          </div>
-        )}
-      </div>
-    </div>
+            <VoiceInputButton
+              onTranscription={handleVoiceInput}
+              disabled={isLoading}
+            />
+            <Button 
+              type="submit" 
+              disabled={isLoading || !input.trim()}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
