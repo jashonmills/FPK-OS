@@ -180,10 +180,6 @@ const AIStudyCoach = () => {
 
           {/* Sidebar - Mobile First Stack */}
           <div className="space-y-4 min-w-0 pb-20 sm:pb-4">
-            <AccessibilityErrorBoundary componentName="FileUploadCard">
-              <FileUploadCard />
-            </AccessibilityErrorBoundary>
-            
             <AccessibilityErrorBoundary componentName="StudyPlanCard">
               <StudyPlanCard todaysFocus={todaysFocus} />
             </AccessibilityErrorBoundary>
@@ -206,6 +202,10 @@ const AIStudyCoach = () => {
             
             <AccessibilityErrorBoundary componentName="AICoachPerformanceCard">
               <AICoachPerformanceCard />
+            </AccessibilityErrorBoundary>
+            
+            <AccessibilityErrorBoundary componentName="FileUploadCard">
+              <FileUploadCard />
             </AccessibilityErrorBoundary>
           </div>
         </div>
