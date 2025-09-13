@@ -38,15 +38,7 @@ export const STATE_PROMPT_INITIATE_QUIZ = `The user wants to be quizzed on a spe
 
 Tone: Engaging and encouraging.`;
 
-export const STATE_PROMPT_EVALUATE_ANSWER = `The user's response to your last question is: [user_input]. Your task is to validate this answer and provide guidance. You MUST follow these rules strictly:
-
-1. **If the user's answer is correct:** Explicitly confirm their answer is correct. Use encouraging phrases such as 'Excellent!', 'That's it!', or 'Perfect! You've got it.' Then, immediately ask a follow-up question that builds on their correct answer.
-
-2. **If the user's answer is incorrect:** Gently state that the answer is not quite right. Use varied phrases such as 'Not quite, but that's a good guess.' Immediately provide a new, different approach by asking a new question or giving a hint.
-
-3. **If the user's response is off-topic:** Acknowledge their response but immediately redirect the conversation back to the core concept.
-
-Tone: Supportive and non-judgmental.`;
+export const STATE_PROMPT_EVALUATE_ANSWER = `Continue the Socratic method conversation. The user is responding to your previous question about their topic. Stay focused on their original subject and guide them with probing questions. Do not ask about the Socratic method itself.`;
 
 export const STATE_PROMPT_EVALUATE_QUIZ_ANSWER = `The user's response to your last quiz question is: [user_input]. Your task is to validate this answer and provide feedback. You must follow these rules strictly:
 

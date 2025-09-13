@@ -61,11 +61,9 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       prompt += `\n\n## STATE INSTRUCTIONS\n${quizEvalPrompt}`;
       break;
     case 'evaluate_answer':
-      const evalPrompt = STATE_PROMPT_EVALUATE_ANSWER
-        .replace('[user_input]', context.userInput || '')
-        .replace('[teaching_history]', context.teachingHistory || 'No previous methods used')
-        .replace('[incorrect_answers_count]', (context.incorrectCount || 0).toString());
-      prompt += `\n\n## STATE INSTRUCTIONS\n${evalPrompt}`;
+      prompt += `\n\n## CURRENT CONTEXT\n`;
+      prompt += `User's latest response: "${context.userInput || ''}"\n`;
+      prompt += `${STATE_PROMPT_EVALUATE_ANSWER}`;
       break;
     case 'initiate_quiz':
       const quizPrompt = STATE_PROMPT_INITIATE_QUIZ.replace('[quiz_topic]', context.quizTopic || 'general knowledge');
