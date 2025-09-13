@@ -49,20 +49,20 @@ export function detectSessionState(message: string, chatHistory: any[]): Session
     return 'direct_answer_mode';
   }
   
-  // Quiz detection
-  const quizKeywords = BLUEPRINT_PROMPTS.initiate_quiz.keywords_to_recognize || [];
+  // Quiz detection - using direct keyword matching since keywords_to_recognize removed
+  const quizKeywords = ["quiz", "test", "questions", "challenge"];
   if (quizKeywords.some(keyword => lowerMessage.includes(keyword.toLowerCase()))) {
     return 'quiz_active';
   }
   
   // Study session detection
-  const studyKeywords = BLUEPRINT_PROMPTS.initiate_study_session.keywords_to_recognize || [];
+  const studyKeywords = ["study", "learn", "understand", "explain"];
   if (studyKeywords.some(keyword => lowerMessage.includes(keyword.toLowerCase()))) {
     return 'study_session_active';
   }
   
   // Struggle detection
-  const struggleKeywords = BLUEPRINT_PROMPTS.proactive_help.keywords_to_recognize || [];
+  const struggleKeywords = ["help", "stuck", "confused", "don't understand"];
   if (struggleKeywords.some(keyword => lowerMessage.includes(keyword.toLowerCase()))) {
     return 'refresher_active';
   }
@@ -88,54 +88,48 @@ export function buildPromptForState(
 ): string {
   switch (state) {
     case 'new_session':
-      return buildInitiateSessionPrompt(message);
+      return buildInitiateSessionPrompt(message, context, chatHistory);
       
     case 'study_session_active':
-      return buildStudySessionPrompt(message, context);
+      return buildStudySessionPrompt(message, context, chatHistory);
       
     case 'quiz_active':
       if (context.quizTopic) {
         // If we already have a quiz topic, we're evaluating an answer
-        return buildEvaluateQuizAnswerPrompt(message, context);
+        return buildEvaluateQuizAnswerPrompt(message, context, chatHistory);
       } else {
         // Starting a new quiz
-        return buildInitiateQuizPrompt(message);
+        return buildNewQuizPrompt(message, context, chatHistory);
       }
       
     case 'awaiting_answer':
-      return buildEvaluateAnswerPrompt(message, context);
+      return buildEvaluateAnswerPrompt(message, context, chatHistory);
       
     case 'refresher_active':
-      if (context.lastAIQuestion) {
-        // Evaluating refresher answer
-        return buildEvaluateRefresherPrompt(message, context);
-      } else {
-        // Starting refresher
-        return buildProactiveHelpPrompt(message);
-      }
+      // Use evaluate_answer prompt as fallback since evaluate_refresher was removed in v4.0
+      return buildEvaluateAnswerPrompt(message, context, chatHistory);
       
     case 'direct_answer_mode':
-      return buildDirectAnswerPrompt(message);
+      return buildDirectAnswerPrompt(message, context, chatHistory);
       
     default:
       return buildInitiateSessionPrompt(message);
   }
 }
 
-function buildInitiateSessionPrompt(message: string): string {
+function buildInitiateSessionPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.initiate_session;
+  
   return `${prompt.persona}
 
 ${prompt.instruction}
 
-Tone: ${prompt.tone}
-
-Example: ${prompt.examples?.[0] || 'Break down complex topics into simpler foundational concepts.'}
+${prompt.tone}
 
 USER MESSAGE: "${message}"`;
 }
 
-function buildStudySessionPrompt(message: string, context: SessionContext): string {
+function buildStudySessionPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.initiate_study_session;
   const studyTopic = extractStudyTopic(message);
   
@@ -145,12 +139,12 @@ ${prompt.instruction}
 
 ${studyTopic ? `Detected study topic: ${studyTopic}` : 'Please ask for a specific topic to focus on.'}
 
-Tone: ${prompt.tone}
+${prompt.tone}
 
 USER MESSAGE: "${message}"`;
 }
 
-function buildInitiateQuizPrompt(message: string): string {
+function buildNewQuizPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.initiate_quiz;
   const quizTopic = extractQuizTopic(message);
   
@@ -158,38 +152,43 @@ function buildInitiateQuizPrompt(message: string): string {
 
 ${prompt.instruction.replace('[quiz_topic]', quizTopic)}
 
-Tone: ${prompt.tone}
+${prompt.tone}
 
+Quiz topic requested: "${quizTopic}"
 USER MESSAGE: "${message}"`;
 }
 
-function buildEvaluateQuizAnswerPrompt(message: string, context: SessionContext): string {
-  const prompt = BLUEPRINT_PROMPTS.evaluate_quiz_answer;
+function buildEvaluateQuizAnswerPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
+  const prompt = BLUEPRINT_PROMPTS.evaluate_answer; // Use evaluate_answer for quiz answers in v4.0
   
   return `${prompt.persona}
 
 ${prompt.instruction.replace('[user_input]', message)}
 
-Quiz Topic: ${context.quizTopic}
-Previous Teaching Methods: ${context.teachingHistory.join(', ')}
+${prompt.tone}
 
-Tone: ${prompt.tone}`;
+Quiz Topic: ${context.quizTopic || 'Unknown'}
+Current Topic: ${context.currentTopic || 'Unknown'}
+
+Recent conversation:
+${chatHistory.slice(-2).map(msg => `${msg.role}: ${msg.content}`).join('\n')}`;
 }
 
-function buildEvaluateAnswerPrompt(message: string, context: SessionContext): string {
+function buildEvaluateAnswerPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.evaluate_answer;
   
   return `${prompt.persona}
 
-${prompt.instruction
-    .replace('[user_input]', message)
-    .replace('[teaching_history]', context.teachingHistory.join(', '))
-    .replace('[incorrect_answers_count]', context.incorrectAnswersCount.toString())}
+${prompt.instruction.replace('[user_input]', message)}
+
+${prompt.tone}
 
 Original Question: ${context.originalQuestion || 'N/A'}
 Current Topic: ${context.currentTopic || 'N/A'}
+Teaching History: ${context.teachingHistory?.join(', ') || 'None'}
 
-Tone: ${prompt.tone}`;
+Recent conversation:
+${chatHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n')}`;
 }
 
 function buildProactiveHelpPrompt(message: string): string {
@@ -217,7 +216,7 @@ Foundational Topic: ${context.currentTopic || 'N/A'}
 Tone: ${prompt.tone}`;
 }
 
-function buildDirectAnswerPrompt(message: string): string {
+function buildDirectAnswerPrompt(message: string, context: SessionContext, chatHistory: any[]): string {
   const prompt = BLUEPRINT_PROMPTS.direct_answer_exception;
   const cleanMessage = message.replace(/^\/answer\s*/i, '');
   
@@ -225,14 +224,16 @@ function buildDirectAnswerPrompt(message: string): string {
 
 ${prompt.instruction}
 
+${prompt.tone}
+
 USER QUESTION: "${cleanMessage}"
 
-Tone: ${prompt.tone}`;
+Context: ${context.originalQuestion || 'No previous question context'}`;
 }
 
 // Utility functions
 function extractQuizTopic(message: string): string {
-  const quizKeywords = BLUEPRINT_PROMPTS.initiate_quiz.keywords_to_recognize || [];
+  const quizKeywords = ["quiz", "test", "questions", "challenge"];
   for (const keyword of quizKeywords) {
     const regex = new RegExp(`${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(.+)`, 'i');
     const match = message.match(regex);
@@ -244,7 +245,7 @@ function extractQuizTopic(message: string): string {
 }
 
 function extractStudyTopic(message: string): string {
-  const studyKeywords = BLUEPRINT_PROMPTS.initiate_study_session.keywords_to_recognize || [];
+  const studyKeywords = ["study", "learn", "understand", "explain"];
   for (const keyword of studyKeywords) {
     const regex = new RegExp(`${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(.+)`, 'i');
     const match = message.match(regex);
