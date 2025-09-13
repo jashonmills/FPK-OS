@@ -6,30 +6,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Simple v1.0 System Prompt - Back to Basics
-const SYSTEM_PROMPT = `You are a friendly, patient, and encouraging AI study coach for the FPK University platform. Your primary goal is to facilitate learning, not to provide direct answers. You should adopt a Socratic tutoring style.
+// AI Study Coach Failsafe Diagnostic Blueprint v1.0-failsafe
+const SYSTEM_PROMPT = `You are a friendly, patient, and encouraging AI study coach. Your primary goal is to facilitate learning through a strict Socratic method. You will not provide direct answers.
 
-## CORE RULES
+## CORE INSTRUCTION
 
-**Rule 1:** Never give direct answers to academic or educational questions.
-
-**Rule 2:** Your main method should be to ask probing questions that lead the user to the correct answer.
-
-**Rule 3:** If the user is struggling, offer a hint or a simplified analogy.
-
-**Rule 4:** Once the user arrives at the correct answer, confirm it and briefly explain the underlying concept to reinforce their learning.
-
-## EXCEPTION
-
-If the user explicitly types the command '/answer', then you are permitted to provide a concise and direct answer to their question. This is the only exception to Rule 1.
-
-## TONE AND STYLE
-
-Maintain a supportive, encouraging, and positive tone. Use simple, clear language. Avoid jargon. Use emojis to convey warmth and friendliness. Never scold or mock the user for incorrect answers.`;
+Upon receiving any user input, you will initiate a guided session. To do this, you will rephrase the user's input as a question, then ask a simple, probing question that encourages them to think about the topic. You will never provide a summary, facts, or a list of information.`;
 
 const OPENAI_MODEL = 'gpt-5-2025-08-07';
-const MAX_TOKENS = 500;
-const BLUEPRINT_VERSION = '1.0';
+const MAX_TOKENS = 200;
+const BLUEPRINT_VERSION = '1.0-failsafe';
 
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -41,7 +27,7 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
     
-    console.log('🎯 AI Study Coach v1.0 request:', { 
+    console.log('🎯 AI Study Coach FAILSAFE DIAGNOSTIC request:', { 
       hasMessage: !!message, 
       hasUserId: !!userId, 
       message: message?.substring(0, 50) + '...'
@@ -72,26 +58,16 @@ What subject are you working on? I can provide more guidance!`;
       );
     }
 
-    // Handle direct answer command
-    let finalPrompt;
-    let isDirectAnswer = false;
-    
-    if (message.toLowerCase().startsWith('/answer')) {
-      isDirectAnswer = true;
-      const question = message.replace(/^\/answer\s*/i, '');
-      finalPrompt = `You are a helpful AI assistant. Provide a concise and direct answer to this question: "${question}"`;
-      console.log('🔍 Direct answer command detected');
-    } else {
-      // Standard Socratic coaching
-      finalPrompt = `${SYSTEM_PROMPT}
+    // Failsafe diagnostic mode - no exceptions, only Socratic rephrasing
+    const finalPrompt = `${SYSTEM_PROMPT}
 
-Current date: ${new Date().toISOString().split('T')[0]}
+DIAGNOSTIC MODE: For the user message below, rephrase it as a question and then ask ONE simple probing question. Do not provide facts, summaries, or lists.
 
 User message: "${message}"`;
-      console.log('🧠 Using Socratic method');
-    }
+    
+    console.log('🔬 FAILSAFE DIAGNOSTIC MODE: Socratic rephrasing only');
 
-    console.log('🤖 Calling OpenAI with simple v1.0 logic');
+    console.log('🤖 Calling OpenAI with FAILSAFE DIAGNOSTIC logic');
 
     // Call OpenAI API
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -120,22 +96,23 @@ User message: "${message}"`;
     }
 
     const openaiData = await openaiResponse.json();
-    const aiResponse = openaiData.choices?.[0]?.message?.content || "I'm here to help with your learning journey! What would you like to work on? 🎓";
+    const aiResponse = openaiData.choices?.[0]?.message?.content || "What specific aspect would you like to explore first? 🤔";
 
-    console.log('✅ Simple v1.0 AI response generated successfully');
+    console.log('✅ FAILSAFE DIAGNOSTIC response generated successfully');
 
     return new Response(
       JSON.stringify({ 
         response: aiResponse,
-        source: isDirectAnswer ? 'direct_answer' : 'socratic',
+        source: 'failsafe_socratic',
         blueprintVersion: BLUEPRINT_VERSION,
-        model: OPENAI_MODEL
+        model: OPENAI_MODEL,
+        diagnostic: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in AI Study Coach v1.0:', error);
+    console.error('Error in AI Study Coach FAILSAFE DIAGNOSTIC:', error);
     
     // Simple fallback response
     const fallbackResponse = `I'm here to help with your studies! 🎓 Here are some quick tips while I get back online:
