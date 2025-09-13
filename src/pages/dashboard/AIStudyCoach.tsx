@@ -179,11 +179,7 @@ const AIStudyCoach = () => {
           </div>
 
           {/* Sidebar - Mobile First Stack */}
-          <div className="space-y-4 min-w-0">
-            <AccessibilityErrorBoundary componentName="VoiceSettingsCard">
-              <VoiceSettingsCard />
-            </AccessibilityErrorBoundary>
-            
+          <div className="space-y-4 min-w-0 pb-20 sm:pb-4">
             <AccessibilityErrorBoundary componentName="FileUploadCard">
               <FileUploadCard />
             </AccessibilityErrorBoundary>
@@ -198,6 +194,10 @@ const AIStudyCoach = () => {
                 currentStreak={currentStreak}
                 progressToNextLevel={progressToNextLevel}
               />
+            </AccessibilityErrorBoundary>
+            
+            <AccessibilityErrorBoundary componentName="VoiceSettingsCard">
+              <VoiceSettingsCard />
             </AccessibilityErrorBoundary>
             
             <AccessibilityErrorBoundary componentName="AICoachEngagementCard">
