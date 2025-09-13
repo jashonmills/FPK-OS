@@ -1,19 +1,18 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, CLAUDE_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
+import { corsHeaders, SOCRATIC_BLUEPRINT_V7, GEMINI_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 
-// Simplified AI Study Coach v6.0 - Fixed Authentication and Model
-const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
+// AI Study Coach v7.0 - Google Gemini Implementation
+const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
 
-// Log API key availability with better debugging (v6.1)
-console.log('🔐 API Key Status:', {
-  hasKey: !!anthropicApiKey,
-  keyLength: anthropicApiKey?.length || 0,
-  keyPrefix: anthropicApiKey?.substring(0, 7) + '...' || 'N/A',
-  isValidFormat: anthropicApiKey?.startsWith('sk-ant-') || false,
-  fullKeyPrefix: anthropicApiKey?.substring(0, 15) + '...' || 'N/A'
+// Log API key availability
+console.log('🔐 Gemini API Key Status:', {
+  hasKey: !!geminiApiKey,
+  keyLength: geminiApiKey?.length || 0,
+  keyPrefix: geminiApiKey?.substring(0, 10) + '...' || 'N/A',
+  isValidFormat: geminiApiKey?.length > 30 || false
 });
 
 serve(async (req) => {
@@ -32,7 +31,7 @@ serve(async (req) => {
       voiceActive = false
     }: any = await req.json();
 
-    console.log('🎯 Hybrid AI Processing:', {
+    console.log('🎯 Gemini AI Processing:', {
       messageLength: message?.length,
       userId: userId?.substring(0, 8) + '...',
       sessionId: sessionId?.substring(0, 8) + '...',
@@ -45,13 +44,13 @@ serve(async (req) => {
     if (!message || !userId || !promptType) {
       return new Response(
         JSON.stringify({ error: 'Message, userId, and promptType are required' }),
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Handle missing API key gracefully
-    if (!anthropicApiKey) {
-      console.log('⚠️  ANTHROPIC_API_KEY not configured - using fallback response');
+    if (!geminiApiKey) {
+      console.log('⚠️  GOOGLE_GEMINI_API_KEY not configured - using fallback response');
       const fallbackResponse = getContextualResponse(message, chatMode, 'no_api_key');
       
       return new Response(
@@ -60,11 +59,11 @@ serve(async (req) => {
           source: 'no_api_key_fallback',
           blueprintVersion: BLUEPRINT_VERSION
         }),
-        { headers: corsHeaders }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Build simple prompt using Blueprint v6.0 system
+    // Build simple prompt using Blueprint v7.0 system
     const promptContext: SimplePromptContext = {
       chatMode,
       voiceActive,
@@ -78,39 +77,58 @@ serve(async (req) => {
 
     console.log('📝 Simple prompt generated:', { type: promptType, length: contextPrompt.length });
 
-    // Test API key with a simple validation call first
-    console.log('🔑 Testing Anthropic API key validity...');
-    
-    // Call Anthropic API with enhanced error logging
-    console.log('📡 Making Anthropic API request:', {
-      model: CLAUDE_MODEL,
+    // Call Google Gemini API with Socratic Blueprint v7.0
+    console.log('📡 Making Google Gemini API request:', {
+      model: GEMINI_MODEL,
       maxTokens: MAX_TOKENS,
       promptLength: contextPrompt.length,
-      apiUrl: 'https://api.anthropic.com/v1/messages'
+      apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
     });
     
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${anthropicApiKey}`,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', // Use latest model
-        max_tokens: 4000,
-        messages: [{
-          role: 'user',
-          content: contextPrompt
-        }]
+        contents: [{
+          parts: [{ text: contextPrompt }]
+        }],
+        systemInstruction: {
+          parts: [{ text: SOCRATIC_BLUEPRINT_V7 }]
+        },
+        generationConfig: {
+          maxOutputTokens: MAX_TOKENS,
+          temperature: 0.7,
+          topP: 0.9,
+          topK: 40
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH", 
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
       })
     });
 
-    console.log('📡 Anthropic API response status:', response.status);
+    console.log('📡 Google Gemini API response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Detailed Anthropic API error:', {
+      console.error('❌ Detailed Google Gemini API error:', {
         status: response.status,
         statusText: response.statusText,
         errorBody: errorText,
@@ -126,28 +144,33 @@ serve(async (req) => {
         blueprintVersion: BLUEPRINT_VERSION,
         error: `API Error ${response.status}: ${response.statusText}`,
         apiKeyStatus: {
-          hasKey: !!anthropicApiKey,
-          keyLength: anthropicApiKey?.length || 0,
-          isValidFormat: anthropicApiKey?.startsWith('sk-ant-') || false,
-          keyType: anthropicApiKey?.substring(0, 15) || 'none'
+          hasKey: !!geminiApiKey,
+          keyLength: geminiApiKey?.length || 0,
+          isValidFormat: geminiApiKey?.length > 30 || false
         }
       }), {
         status: 200,
-        headers: corsHeaders
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     const data = await response.json();
-    const aiResponse = data.content?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
+    const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
 
-    console.log('✅ Hybrid response generated successfully');
+    console.log('✅ Gemini response generated successfully');
 
     return new Response(JSON.stringify({
       response: aiResponse,
-      source: 'anthropic_claude_hybrid',
-      blueprintVersion: BLUEPRINT_VERSION
+      source: 'google_gemini_v7',
+      blueprintVersion: BLUEPRINT_VERSION,
+      metadata: {
+        model: GEMINI_MODEL,
+        promptType,
+        chatMode,
+        voiceActive
+      }
     }), {
-      headers: corsHeaders
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
@@ -173,7 +196,7 @@ serve(async (req) => {
       error: error.message
     }), {
       status: 200, // Return 200 to avoid client-side errors
-      headers: corsHeaders
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
@@ -197,9 +220,9 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
       }
       
       if (chatMode === 'personal') {
-        return `Great math question! ${num1} ${op} ${num2} = ${result}. 🧮 Let me guide your learning: What do you notice about this calculation? Can you think of a real-world situation where you might use this type of problem?`;
+        return `Great math question! Let me guide your thinking about ${num1} ${op} ${num2}. Instead of just giving you the answer, what do you think happens when we ${op === '+' ? 'combine' : op === '-' ? 'take away' : op === '*' ? 'repeatedly add' : 'split up'} these numbers? 🧮`;
       } else {
-        return `${num1} ${op} ${num2} = ${result}. Would you like to explore more math problems or learn about the concepts behind this calculation?`;
+        return `I see you're working on ${num1} ${op} ${num2}. Rather than just telling you the answer, can you think about what this operation means? What strategy could you use to solve it?`;
       }
     }
   }
@@ -207,43 +230,43 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
   // Cloud/weather topics
   if (lowerMessage.includes('cloud') || lowerMessage.includes('weather') || lowerMessage.includes('sky')) {
     if (chatMode === 'personal') {
-      return "I'd love to guide your exploration of clouds! 🌤️ Let's start with what fascinates you most: Are you curious about how clouds form, the different types you see in the sky, or how they influence our weather? What draws your eye when you look up?";
+      return "I'd love to guide your exploration of clouds! 🌤️ Let's start with what fascinates you most: When you look up at the sky, what do you notice about the clouds? What questions come to mind?";
     } else {
-      return "Clouds are fascinating! ☁️ There are many aspects we could explore - cloud formation, types (cumulus, stratus, cirrus), their role in weather patterns, or even their cultural significance. What aspect interests you most?";
+      return "Clouds are fascinating! ☁️ Rather than explaining everything at once, let's explore together. What have you observed about clouds that makes you curious?";
     }
   }
   
   // Science topics
   if (lowerMessage.includes('science') || lowerMessage.includes('physics') || lowerMessage.includes('chemistry') || lowerMessage.includes('biology')) {
     if (chatMode === 'personal') {
-      return "Science is everywhere around us! 🔬 What specific area has caught your curiosity? I'm here to guide your discovery through questions that help you think like a scientist.";
+      return "Science is everywhere around us! 🔬 What specific observation or question has sparked your curiosity? Let's explore it through questioning and discovery.";
     } else {
-      return "Science offers so many fascinating areas to explore! What field or specific question would you like to dive into? I can help you understand concepts through inquiry and examples.";
+      return "Science offers so many fascinating areas to explore! What specific phenomenon or question interests you? I'd like to guide you to discover the answer yourself.";
     }
   }
   
   // Generic greetings or simple questions
   if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('help')) {
     if (chatMode === 'personal') {
-      return "Hello! I'm your AI learning coach, ready to guide your curiosity through the Socratic method! 🎓 Instead of just giving answers, I'll ask questions that help you discover knowledge yourself. What topic has sparked your interest today?";
+      return "Hello! I'm your AI learning coach using the Socratic method! 🎓 Instead of giving direct answers, I'll guide you to discover knowledge through thoughtful questions. What topic has sparked your curiosity today?";
     } else {
-      return "Hello! I'm here to help you learn and explore any topic. What would you like to know more about? I can assist with explanations, answer questions, or guide you through learning concepts.";
+      return "Hello! I'm here to help you learn through guided questioning. Rather than just providing answers, I'll help you think through problems step by step. What would you like to explore?";
     }
   }
   
   // Error-specific responses
   if (errorType === 'api_error') {
     if (chatMode === 'personal') {
-      return `I'm temporarily having connection issues, but let's turn this into a learning opportunity! 🤔 About "${message}" - what do you already know about this topic? What questions come to mind when you think about it?`;
+      return `I'm having a temporary connection issue, but let's use this as a learning opportunity! 🤔 About "${message}" - what do you already know or think about this topic? What questions does it raise for you?`;
     } else {
-      return `I'm experiencing a technical issue, but I can still help explore "${message}" with you! What aspect of this topic would you like to discuss first?`;
+      return `I'm experiencing a technical issue, but I can still guide your learning about "${message}"! What aspect of this topic would you like to explore first through questioning?`;
     }
   }
   
-  // Default contextual responses
+  // Default contextual responses using Socratic method
   if (chatMode === 'personal') {
-    return `That's an interesting question about "${message}"! 🧠 Instead of just giving you the answer, let me guide your thinking: What do you already know about this topic? What connections can you make?`;
+    return `That's an interesting question about "${message}"! 🧠 Following the Socratic method, let me guide your thinking: What do you already know about this topic? What connections can you make to things you've learned before?`;
   } else {
-    return `I'd be happy to help you explore "${message}"! What specific aspect would you like to understand better?`;
+    return `I'd be happy to guide you through exploring "${message}"! Rather than just telling you the answer, what do you think you already know about this? What questions does it raise for you?`;
   }
 }
