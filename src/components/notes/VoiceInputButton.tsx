@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Loader2, Square, Clock } from 'lucide-react';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface VoiceInputButtonProps {
   onTranscription: (text: string) => void;
@@ -38,38 +39,42 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         const transcription = await stopRecording();
         if (transcription.trim()) {
           onTranscription(transcription);
-          toast({
-            title: "🎤 Voice recorded successfully",
-            description: `Transcribed: "${transcription.substring(0, 50)}${transcription.length > 50 ? '...' : ''}"`,
-          });
+          // Only show success toast for very short transcriptions (user might not see what was transcribed)
+          if (transcription.length < 30) {
+            toast({
+              title: "Voice recorded",
+              description: `"${transcription}"`,
+              duration: 2000,
+            });
+          }
         } else {
           toast({
-            title: "🔇 No speech detected",
-            description: "Please try speaking more clearly or check your microphone.",
-            variant: "destructive"
+            title: "No speech detected",
+            description: "Please try speaking more clearly.",
+            variant: "destructive",
+            duration: 3000
           });
         }
       } catch (error) {
         console.error('Voice recording error:', error);
         toast({
-          title: "❌ Recording failed",
-          description: error.message || "Could not process voice recording. Please try again.",
-          variant: "destructive"
+          title: "Recording failed",
+          description: "Please try again.",
+          variant: "destructive",
+          duration: 3000
         });
       }
     } else {
       try {
         await startRecording();
-        toast({
-          title: "🎤 Recording started",
-          description: `Speak clearly now. You have up to ${maxRecordingTime} seconds. Click the button again to stop.`,
-        });
+        // No toast for recording start - visual feedback is enough
       } catch (error) {
         console.error('Microphone access error:', error);
         toast({
-          title: "❌ Microphone access denied",
-          description: "Please allow microphone access and try again.",
-          variant: "destructive"
+          title: "Microphone access denied",
+          description: "Please allow microphone access in your browser.",
+          variant: "destructive",
+          duration: 4000
         });
       }
     }
@@ -77,25 +82,32 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
 
   const handleCancel = () => {
     cancelRecording();
-    toast({
-      title: "🚫 Recording cancelled",
-      description: "Voice recording was stopped.",
-    });
+    // No toast needed - visual feedback is sufficient
   };
 
   const getButtonContent = () => {
     if (isProcessing) {
-      return <Loader2 className="h-4 w-4 animate-spin" />;
+      return (
+        <div className="flex items-center gap-1">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="text-xs hidden sm:inline">Processing</span>
+        </div>
+      );
     }
     if (isRecording) {
-      return <MicOff className="h-4 w-4 text-red-500" />;
+      return (
+        <div className="flex items-center gap-1">
+          <MicOff className="h-4 w-4 text-red-500 animate-pulse" />
+          <span className="text-xs hidden sm:inline">Stop</span>
+        </div>
+      );
     }
     return <Mic className="h-4 w-4" />;
   };
 
   const getButtonVariant = () => {
     if (isRecording) return "destructive";
-    if (isProcessing) return "outline";
+    if (isProcessing) return "secondary";
     return "outline";
   };
 
@@ -110,14 +122,17 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   };
 
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1 items-center">
       <Button
         type="button"
         variant={getButtonVariant()}
         size="sm"
         onClick={handleVoiceInput}
         disabled={disabled || isProcessing}
-        className="shrink-0"
+        className={cn(
+          "shrink-0 transition-all duration-200",
+          isRecording && "ring-2 ring-red-500 ring-opacity-50"
+        )}
         title={getTitle()}
       >
         {getButtonContent()}

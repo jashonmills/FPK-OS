@@ -149,7 +149,8 @@ What would you like to learn about today?`
       toast({
         title: "Connection Issue",
         description: "Using offline mode",
-        variant: "default"
+        variant: "default",
+        duration: 2000
       });
     } finally {
       setIsLoading(false);
@@ -215,11 +216,10 @@ What specific topic would you like to focus on?`;
     setAutoPlayEnabled(newAutoPlay);
     localStorage.setItem('aistudycoach_voice_autoplay', newAutoPlay.toString());
     
+    // Shorter, less intrusive toast
     toast({
-      title: newAutoPlay ? "🔊 Auto-play enabled" : "🔇 Auto-play disabled",
-      description: newAutoPlay 
-        ? "AI responses will now be read aloud automatically" 
-        : "AI responses will no longer be read aloud automatically"
+      title: newAutoPlay ? "Auto-play on" : "Auto-play off",
+      duration: 1500
     });
   };
 
