@@ -3,36 +3,16 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Brain, User, Bot, Mic, MicOff, Settings, Save, History, Zap, Volume2, VolumeX, Play } from 'lucide-react';
+import { Send, Brain, User, Bot, Mic, MicOff, History, Volume2, VolumeX, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useChatMode } from '@/hooks/useChatMode';
-import { useAICoachPerformanceAnalytics } from '@/hooks/useAICoachPerformanceAnalytics';
-import { useAIFeatureGate } from '@/hooks/useAIFeatureGate';
+import { useChatMessages } from '@/hooks/useChatMessages';
 import { cn } from '@/lib/utils';
 import ChatModeToggle from './ChatModeToggle';
-// import SaveToNotesDialog from './SaveToNotesDialog';
-// import QuizSessionWidget from './QuizSessionWidget';
-// import { useQuizSession } from '@/hooks/useQuizSession';
-
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-  ragMetadata?: {
-    ragEnabled: boolean;
-    personalItems: number;
-    externalItems: number;
-    similarItems: number;
-    confidence: number;
-    sources: string[];
-  };
-}
 
 interface AdvancedChatInterfaceProps {
   user: any;
@@ -42,20 +22,6 @@ interface AdvancedChatInterfaceProps {
   fixedHeight?: boolean;
 }
 
-// Helper to prevent hanging requests
-const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
-    promise.then((value) => {
-      clearTimeout(timer);
-      resolve(value);
-    }).catch((err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
-  });
-};
-
 const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   user, 
   completedSessions, 
@@ -64,18 +30,9 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   fixedHeight = false 
 }) => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const { chatMode, changeChatMode } = useChatMode();
-  const { trackResponseTime, trackModeSwitch, trackRAGEffectiveness } = useAICoachPerformanceAnalytics();
-  const { executeWithGate, checkFeatureAccess } = useAIFeatureGate();
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [showQuizWidget, setShowQuizWidget] = useState(false);
-  const [sessionId, setSessionId] = useLocalStorage<string | null>(
-    user?.id ? `ai_coach_session_id_${user.id}` : 'ai_coach_session_id', 
-    null
-  );
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
@@ -90,201 +47,70 @@ const AdvancedChatInterface: React.FC<AdvancedChatInterfaceProps> = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize session and load chat history
+  // Use the new hybrid chat system
+  const { 
+    messages, 
+    isLoading, 
+    isSending, 
+    sendMessage, 
+    addMessage, 
+    loadMessages 
+  } = useChatMessages(sessionId);
+
+  // Initialize session 
   useEffect(() => {
-    if (user?.id) {
-      // Clear any non-user-specific session storage
-      const oldKey = 'ai_coach_session_id';
-      if (localStorage.getItem(oldKey)) {
-        localStorage.removeItem(oldKey);
-      }
-      
-      // Reset user context when switching users
-      setLastSpokenMessageId(null);
-      
+    if (user?.id && !sessionId) {
       initializeSession();
     }
   }, [user?.id]);
 
-  // Watchdog: auto-clear stuck loading states
-  useEffect(() => {
-    if (!isLoading) return;
-    const timer = setTimeout(() => {
-      console.warn('AI Coach watchdog: clearing stuck loading after 20s');
-      setIsLoading(false);
-      toast({ title: 'Request timed out', description: 'Please try again.' });
-    }, 20000);
-    return () => clearTimeout(timer);
-  }, [isLoading, toast]);
-
-  // Improved auto-scroll logic that keeps responses visible
-  const scrollToShowLatestMessage = useCallback(() => {
-    if (!messagesContainerRef.current) return;
-    
-    const container = messagesContainerRef.current;
-    const lastMessageElements = container.querySelectorAll('[data-message-role="assistant"]');
-    
-    if (lastMessageElements.length > 0) {
-      const lastAIMessage = lastMessageElements[lastMessageElements.length - 1];
+  const initializeSession = async () => {
+    try {
+      // Create new chat session
+      const { data } = await supabase
+        .from('chat_sessions')
+        .insert({
+          user_id: user.id,
+          title: 'AI Coach Session',
+          context_tag: 'AI Coach'
+        })
+        .select()
+        .single();
       
-      // Scroll to show the AI response within the visible area
-      lastAIMessage.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'center', // Center the response in the viewport
-        inline: 'nearest'
-      });
-    } else {
-      // Fallback to scrolling to bottom if no AI messages found
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest'
-      });
+      if (data) {
+        setSessionId(data.id);
+      }
+    } catch (error) {
+      console.error('Error creating session:', error);
     }
-  }, []);
+  };
 
   // Auto scroll when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      // Use a longer delay to ensure DOM updates are complete
-      setTimeout(scrollToShowLatestMessage, 300);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }, 100);
     }
-  }, [messages, scrollToShowLatestMessage]);
+  }, [messages]);
 
-  const getWelcomeMessage = (mode = chatMode) => {
-    if (mode === 'personal') {
-      return `Hello! I'm your AI Learning Coach with full access to your study data. I can help you with:
 
-🎯 **Personalized Study Guidance** - Based on your ${completedSessions.length} study sessions
-📚 **Flashcard Analysis** - Using your ${flashcards.length} flashcards  
-🧠 **Learning Pattern Insights** - From your study history
-🎮 **Quiz Sessions** - Just say "quiz me" to start practicing
-💡 **Study Tips** - Tailored to your learning style
-
-What would you like to work on today?`;
-    } else {
-      return `Hello! I'm your AI Learning Coach in General & Platform Guide mode. I can help you with:
-
-🏫 **Platform Guidance** - How to use features, create flashcards, navigate
-🌐 **General Knowledge** - Any subject, research, or educational topics
-📖 **Study Techniques** - Learning strategies and academic methods
-💡 **Getting Started** - Platform tutorials and feature explanations
-🔍 **How-To Guides** - Step-by-step instructions for platform features
-
-Note: I intelligently detect whether you need platform help or general knowledge. For your personal study data, switch to "My Data" mode.
-
-What would you like to learn about today?`;
-    }
-  };
-
-  const initializeSession = async () => {
-    try {
-      if (!sessionId) {
-        // Create new session
-        const { data, error } = await supabase
-          .from('chat_sessions')
-          .insert({
-            user_id: user.id,
-            title: 'AI Coach Session',
-            context_tag: 'AI Coach'
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        setSessionId(data.id);
-        
-        // Add welcome message based on current mode
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: getWelcomeMessage(),
-          timestamp: new Date().toISOString()
-        }]);
-      } else {
-        // Verify session exists and belongs to current user before loading
-        const { data: sessionData, error: sessionError } = await supabase
-          .from('chat_sessions')
-          .select('user_id')
-          .eq('id', sessionId)
-          .single();
-
-        if (sessionError || !sessionData || sessionData.user_id !== user.id) {
-          console.log('Invalid session found, creating new one');
-          // Clear invalid session and create new one
-          setSessionId(null);
-          await initializeSession();
-          return;
-        }
-
-        // Load existing messages
-        loadChatHistory();
-      }
-    } catch (error) {
-      console.error('Error initializing session:', error);
-      // Clear problematic session and start fresh
-      setSessionId(null);
-      setMessages([{
-        id: 'welcome',
-        role: 'assistant',
-        content: getWelcomeMessage(),
-        timestamp: new Date().toISOString()
-      }]);
-      toast({
-        title: "New Session Started", 
-        description: "Created a fresh chat session",
-        variant: "default"
-      });
-    }
-  };
-
-  const loadChatHistory = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('session_id', sessionId)
-        .order('timestamp', { ascending: true });
-
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        setMessages(data as ChatMessage[]);
-      } else {
-        // If no chat history, show welcome message
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: getWelcomeMessage(),
-          timestamp: new Date().toISOString()
-        }]);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      // Clear invalid session and reset
-      setSessionId(null);
-      setMessages([{
-        id: 'welcome',
-        role: 'assistant',
-        content: getWelcomeMessage(),
-        timestamp: new Date().toISOString()
-      }]);
-    }
-  };
 
   // Clean text for speech synthesis
   const cleanTextForSpeech = useCallback((text: string) => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
-      .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
-      .replace(/#{1,6}\s*(.*)/g, '$1') // Remove headers
-      .replace(/[🎯📚🧠🎮💡🌐📖🔍]/g, '') // Remove emojis
-      .replace(/\n\s*\n/g, '. ') // Replace double line breaks with periods
-      .replace(/\n/g, ' ') // Replace single line breaks with spaces
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s*(.*)/g, '$1')
+      .replace(/[🎯📚🧠🎮💡🌐📖🔍]/g, '')
+      .replace(/\n\s*\n/g, '. ')
+      .replace(/\n/g, ' ')
       .trim();
   }, []);
 
-  // Wrapper for speaking with text cleaning
   const speakText = useCallback((text: string) => {
     const cleanText = cleanTextForSpeech(text);
     if (cleanText) {
@@ -292,24 +118,17 @@ What would you like to learn about today?`;
     }
   }, [speak, cleanTextForSpeech]);
 
-  // Auto-speak new AI messages when TTS is enabled (only if auto-play is enabled)
+  // Auto-speak new AI messages when TTS is enabled
   useEffect(() => {
-    console.log('TTS Effect triggered:', { ttsEnabled: settings.enabled, messagesLength: messages.length, isLoading });
-    
-    // Check if auto-play is enabled in localStorage
     const autoPlayEnabled = localStorage.getItem('aistudycoach_voice_autoplay') === 'true';
     
     if (settings.enabled && settings.autoRead && autoPlayEnabled && messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
-      console.log('Last message:', { id: lastMessage.id, role: lastMessage.role, lastSpokenId: lastSpokenMessageId });
       
       if (lastMessage.role === 'assistant' && lastMessage.id !== lastSpokenMessageId) {
-        console.log('Speaking new message:', lastMessage.id);
         setLastSpokenMessageId(lastMessage.id);
-        
-        // Small delay to ensure message is fully rendered
         setTimeout(() => {
-          if (settings.enabled) { // Double-check TTS is still enabled
+          if (settings.enabled) {
             speakText(lastMessage.content);
           }
         }, 500);
@@ -317,298 +136,43 @@ What would you like to learn about today?`;
     }
   }, [messages, settings.enabled, settings.autoRead, isLoading, lastSpokenMessageId, speakText]);
 
-  // Clean up speech synthesis on unmount
-  useEffect(() => {
-    return () => {
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  // Flashcard quiz detection - only detects flashcard-specific quiz requests
+  // Flashcard quiz detection
   const detectQuizRequest = (text: string): boolean => {
-    const flashcardQuizKeywords = [
-      'quiz me with my flashcards', 'practice my flashcards', 'review my cards',
-      'flashcard quiz', 'practice cards', 'drill my flashcards', 
-      'quiz my cards', 'review my flashcards', 'practice my cards'
-    ];
-    return flashcardQuizKeywords.some(keyword => text.toLowerCase().includes(keyword));
+    const quizKeywords = ['quiz me', 'practice my flashcards', 'review my cards', 'flashcard quiz'];
+    return quizKeywords.some(keyword => text.toLowerCase().includes(keyword));
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim() || isLoading || !user?.id) return;
-
-    // Check usage limits before proceeding
-    if (!checkFeatureAccess('ai_chat', 1)) {
-      toast({
-        title: "Usage Limit Reached",
-        description: "You've reached your AI chat limit. Please upgrade your plan to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!message.trim() || isSending || !user?.id) return;
 
     // Check for quiz session request
-    if (detectQuizRequest(message) && flashcards && flashcards.length > 0) {
-      setShowQuizWidget(true);
-      setMessage('');
-      return;
-    } else if (detectQuizRequest(message) && (!flashcards || flashcards.length === 0)) {
-      // Handle no flashcards available
-      const noCardsMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: `I'd love to start a quiz session with you! However, you don't have any flashcards yet. 
+    if (detectQuizRequest(message)) {
+      if (flashcards && flashcards.length > 0) {
+        setShowQuizWidget(true);
+      } else {
+        await addMessage(`I'd love to start a quiz session! However, you don't have any flashcards yet. 
 
 📚 **To get started:**
 1. Upload study materials using the file upload card
 2. The AI will automatically generate flashcards from your content
-3. Then you can say "quiz me" to practice!
-
-You can upload PDFs, documents, or text files and I'll create personalized flashcards for you.`,
-        timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, noCardsMessage]);
+3. Then you can say "quiz me" to practice!`, 'assistant');
+      }
       setMessage('');
       return;
     }
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: message.trim(),
-      timestamp: new Date().toISOString()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    // Use the hybrid chat system
+    await sendMessage(message, undefined, chatMode);
     setMessage('');
-    setIsLoading(true);
-
-    const requestStartTime = performance.now();
-
-    try {
-      // Save user message to database
-      if (sessionId) {
-        await supabase
-          .from('chat_messages')
-          .insert({
-            session_id: sessionId,
-            role: 'user',
-            content: userMessage.content,
-            timestamp: userMessage.timestamp
-          });
-      }
-
-      console.log('🚀 Sending message to AI with mode:', { 
-        chatMode, 
-        message: userMessage.content.substring(0, 50) + '...',
-        userId: user.id,
-        sessionId 
-      });
-
-      // Call enhanced AI function with usage tracking
-      const result = await executeWithGate(
-        'ai_chat',
-        async () => {
-          const { data, error } = await withTimeout(
-            supabase.functions.invoke('ai-study-chat', {
-              body: {
-                message: userMessage.content,
-                userId: user.id,
-                sessionId: sessionId,
-                chatMode,
-                voiceActive: false,
-                metadata: {
-                  completedSessions: completedSessions?.length || 0,
-                  flashcardCount: flashcards?.length || 0,
-                  ragEnabled: true,
-                  insights: insights
-                }
-              }
-            }),
-            18000
-          );
-          
-          if (error) throw error;
-          return data;
-        },
-        {
-          amount: 1,
-          metadata: {
-            messageLength: userMessage.content.length,
-            chatMode,
-            sessionId,
-            feature: 'ai_study_chat'
-          }
-        }
-      );
-
-      const data = result;
-
-      let aiResponse: ChatMessage;
-
-      if (!data?.response) {
-        // Enhanced fallback with study-specific guidance
-        aiResponse = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: generateStudyFallbackResponse(userMessage.content, completedSessions, flashcards),
-          timestamp: new Date().toISOString()
-        };
-      } else {
-        const responseTime = performance.now() - requestStartTime;
-        
-        aiResponse = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: data.response,
-          timestamp: new Date().toISOString(),
-          ragMetadata: data.ragMetadata
-        };
-        
-        // Track performance analytics
-        trackResponseTime(
-          responseTime / 1000, // Convert to seconds
-          chatMode,
-          data.ragMetadata?.ragEnabled || false,
-          true
-        );
-        
-        // Track RAG effectiveness if available
-        if (data.ragMetadata) {
-          trackRAGEffectiveness(
-            'chat_query',
-            data.ragMetadata.ragEnabled,
-            data.ragMetadata.confidence || 0,
-            (data.ragMetadata.personalItems || 0) + (data.ragMetadata.externalItems || 0) + (data.ragMetadata.similarItems || 0),
-            true // Assume helpful for now - could be enhanced with user feedback
-          );
-        }
-        
-        // Handle API key missing warnings
-        if (data.error === 'openai_key_missing' && chatMode === 'general') {
-          toast({
-            title: "OpenAI API Key Required",
-            description: "General mode requires OpenAI configuration. Switching back to My Data mode.",
-            variant: "destructive"
-          });
-          changeChatMode('personal');
-          trackModeSwitch('general', 'personal', 'openai_key_missing');
-        } else if (data.error === 'anthropic_key_missing' && chatMode === 'personal') {
-          toast({
-            title: "Anthropic API Key Required", 
-            description: "My Data mode requires Anthropic configuration. Switching to General mode.",
-            variant: "destructive"
-          });
-          changeChatMode('general');
-          trackModeSwitch('personal', 'general', 'anthropic_key_missing');
-        }
-      }
-
-      setMessages(prev => [...prev, aiResponse]);
-
-      // Save AI response to database
-      if (sessionId) {
-        await supabase
-          .from('chat_messages')
-          .insert({
-            session_id: sessionId,
-            role: 'assistant',
-            content: aiResponse.content,
-            timestamp: aiResponse.timestamp
-          });
-      }
-
-    } catch (error) {
-      console.error('Chat error:', error);
-      
-      const responseTime = performance.now() - requestStartTime;
-      
-      // Track failed response
-      trackResponseTime(
-        responseTime / 1000,
-        chatMode,
-        false,
-        false,
-        'connection_error'
-      );
-      
-      const fallbackResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: generateStudyFallbackResponse(userMessage.content, completedSessions, flashcards),
-        timestamp: new Date().toISOString()
-      };
-
-      setMessages(prev => [...prev, fallbackResponse]);
-      
-      toast({
-        title: "Connection Issue",
-        description: "Using enhanced offline mode with your study data",
-        variant: "default"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const generateStudyFallbackResponse = (userMsg: string, sessions: any[], cards: any[]): string => {
-    const sessionCount = sessions?.length || 0;
-    const cardCount = cards?.length || 0;
-    
-    return `Based on your question about "${userMsg}" and your study data (${sessionCount} sessions, ${cardCount} flashcards):
-
-🎯 **Personalized Recommendations:**
-- You've completed ${sessionCount} study sessions - great progress!
-- With ${cardCount} flashcards, try active recall: test yourself without looking
-- Focus on spaced repetition: review cards at increasing intervals
-
-📚 **Study Techniques for Your Level:**
-- **Pomodoro Method**: 25-min focused sessions (perfect for your pace)
-- **Feynman Technique**: Explain concepts in simple terms
-- **Active Recall**: Quiz yourself regularly on your flashcards
-
-🧠 **Memory Enhancement:**
-- Create visual associations for difficult concepts
-- Use mnemonic devices for lists and sequences
-- Practice interleaving: mix different topics in study sessions
-
-💡 **Next Steps:**
-- Try saying "quiz me" to practice with your flashcards
-- Upload new study materials for personalized analysis
-- Set up a regular study schedule based on your ${sessionCount} completed sessions
-
-What specific topic from your studies would you like to dive deeper into?`;
   };
 
   const handleVoiceInput = async () => {
     if (voiceInput.isRecording) {
       try {
-        // Track voice processing usage
-        const transcribedText = await executeWithGate(
-          'voice_processing',
-          async () => {
-            const result = await voiceInput.stopRecording();
-            return result;
-          },
-          {
-            amount: Math.ceil(voiceInput.recordingDuration / 60), // Track per minute
-            metadata: {
-              duration: voiceInput.recordingDuration,
-              feature: 'voice_input_chat'
-            }
-          }
-        );
-        
+        const transcribedText = await voiceInput.stopRecording();
         if (transcribedText && transcribedText.trim()) {
           setMessage(transcribedText.trim());
-          // Auto-send the message
-          setTimeout(() => {
-            if (transcribedText.trim()) {
-              handleSendMessage();
-            }
-          }, 100);
+          setTimeout(() => handleSendMessage(), 100);
         }
       } catch (error) {
         console.error('Error stopping voice recording:', error);
@@ -641,27 +205,11 @@ What specific topic from your studies would you like to dive deeper into?`;
     }
   };
 
-  const handleSaveToNotes = (message: ChatMessage) => {
-    setSelectedMessage(message);
-    setShowSaveDialog(true);
-  };
-
   const clearChat = async () => {
     try {
-      // Stop any current speech and reset tracking
       stop();
       setLastSpokenMessageId(null);
-      
-      if (sessionId) {
-        await supabase
-          .from('chat_messages')
-          .delete()
-          .eq('session_id', sessionId);
-      }
-      setMessages([]);
       setSessionId(null);
-      await initializeSession();
-      
       toast({
         title: "Chat Cleared",
         description: "Started a new conversation",
@@ -671,10 +219,9 @@ What specific topic from your studies would you like to dive deeper into?`;
     }
   };
 
-  // Handle playing the introduction
   const handlePlayIntroduction = useCallback(() => {
     if (messages.length > 0) {
-      const welcomeMessage = messages.find(msg => msg.id === 'welcome' && msg.role === 'assistant');
+      const welcomeMessage = messages.find(msg => msg.role === 'assistant');
       if (welcomeMessage) {
         speakText(welcomeMessage.content);
         setHasPlayedIntro(true);
@@ -682,17 +229,11 @@ What specific topic from your studies would you like to dive deeper into?`;
     }
   }, [messages, speakText]);
 
-  // Handle auto-play toggle
   const handleAutoPlayToggle = useCallback(() => {
     const newAutoPlayEnabled = !autoPlayEnabled;
     setAutoPlayEnabled(newAutoPlayEnabled);
     localStorage.setItem('aistudycoach_voice_autoplay', newAutoPlayEnabled.toString());
-    
-    if (newAutoPlayEnabled && !hasPlayedIntro && messages.length > 0) {
-      // If enabling auto-play and haven't played intro yet, play it now
-      setTimeout(() => handlePlayIntroduction(), 500);
-    }
-  }, [autoPlayEnabled, hasPlayedIntro, messages.length, handlePlayIntroduction]);
+  }, [autoPlayEnabled]);
 
   return (
     <>
@@ -712,18 +253,8 @@ What specific topic from your studies would you like to dive deeper into?`;
               <ChatModeToggle 
                 mode={chatMode} 
                 onModeChange={(mode) => {
-                  console.log('🔄 Mode change triggered:', { from: chatMode, to: mode });
                   changeChatMode(mode);
-                  setLastSpokenMessageId(null); // Reset spoken tracking
-                  // Update welcome message if this is the only message
-                  if (messages.length === 1 && messages[0].id === 'welcome') {
-                    setMessages([{
-                      id: 'welcome',
-                      role: 'assistant',
-                      content: getWelcomeMessage(mode),
-                      timestamp: new Date().toISOString()
-                    }]);
-                  }
+                  setLastSpokenMessageId(null);
                 }}
                 className="scale-90 w-full sm:w-auto max-w-full min-w-0"
               />
@@ -828,24 +359,6 @@ What specific topic from your studies would you like to dive deeper into?`;
                     {msg.content}
                   </p>
                   
-                  {/* RAG Metadata */}
-                  {msg.ragMetadata && (
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">
-                        🔍 RAG Enhanced
-                      </Badge>
-                      {msg.ragMetadata.personalItems > 0 && (
-                        <Badge variant="outline" className="text-xs">
-                          📚 {msg.ragMetadata.personalItems} Personal
-                        </Badge>
-                      )}
-                      {msg.ragMetadata.externalItems > 0 && (
-                        <Badge variant="outline" className="text-xs">
-                          🌐 {msg.ragMetadata.externalItems} External
-                        </Badge>
-                      )}
-                    </div>
-                  )}
                   
                    <div className="flex items-center justify-between">
                      <span className="text-xs text-gray-500">
@@ -869,7 +382,7 @@ What specific topic from your studies would you like to dive deeper into?`;
               </div>
             ))}
             
-            {isLoading && (
+            {(isLoading || isSending) && (
               <div className="flex gap-3 p-3 rounded-lg bg-gray-50 sm:mr-8">
                 <Bot className="h-5 w-5 text-gray-600" />
                 <div className="flex items-center gap-2">
@@ -904,7 +417,7 @@ What specific topic from your studies would you like to dive deeper into?`;
                          : "Ask platform questions or general knowledge..."
                       : "Please log in to chat"
                   }
-                  disabled={isLoading || !user?.id}
+                  disabled={isSending || !user?.id}
                   className="pr-12"
                 />
                 
@@ -930,7 +443,7 @@ What specific topic from your studies would you like to dive deeper into?`;
               
               <Button
                 onClick={handleSendMessage}
-                disabled={isLoading || !message.trim() || !user?.id}
+                disabled={isSending || !message.trim() || !user?.id}
                 size="icon"
                 className="bg-purple-600 hover:bg-purple-700"
               >
