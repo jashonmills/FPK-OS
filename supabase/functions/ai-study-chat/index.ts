@@ -1,7 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL, BLUEPRINT_PROMPTS } from './constants.ts';
+import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL, BLUEPRINT_PROMPTS, BLUEPRINT_VERSION } from './constants.ts';
 import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
 import { detectQueryMode, detectRecentFlashcardsRequest, detectStudySessionRequest } from './mode-detection.ts';
@@ -30,7 +30,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, sessionId, chatMode = 'personal', voiceActive = false, metadata }: ChatRequest = await req.json();
+    const { message, userId, sessionId, chatMode = 'personal', voiceActive = false, metadata, clientHistory }: ChatRequest = await req.json();
     
     console.log('🎯 Enhanced AI Coach with RAG request:', { 
       hasMessage: !!message, 
@@ -112,8 +112,14 @@ serve(async (req) => {
       console.log(`🌐 General mode - detected query type: ${queryMode}`);
     }
 
+    // Use client-provided history if DB is empty
+    if (chatHistory.length === 0 && (Array.isArray((clientHistory as any)) && clientHistory.length > 0)) {
+      chatHistory = clientHistory as any[];
+      console.log('🧩 Using client-provided chatHistory', { count: chatHistory.length });
+    }
+
     // **BLUEPRINT-BASED SESSION MANAGEMENT** - Structured conversation states
-    console.log('🔍 Debug checkpoint 3: Implementing AI Study Coach Blueprint v3.1');
+    console.log(`🔍 Debug checkpoint 3: Implementing AI Study Coach Blueprint v${BLUEPRINT_VERSION}`);
     
     // Get or create session state
     let session: SessionState;
@@ -132,8 +138,14 @@ serve(async (req) => {
     });
     
     // Detect current session state based on message and history
-    const detectedState = detectSessionState(message, chatHistory);
-    console.log(`🎯 Session state detected: ${detectedState}`);
+    let detectedState = detectSessionState(message, chatHistory);
+    const lastAssistant = [...chatHistory].reverse().find((m: any) => m?.role === 'assistant');
+    const lastAssistantHasQuestionMark = !!lastAssistant?.content?.includes('?');
+    if (detectedState === 'new_session' && (lastAssistantHasQuestionMark || !!session.context.lastAIQuestion)) {
+      console.log('🪝 Anchor override: switching state to awaiting_answer due to prior assistant question/context');
+      detectedState = 'awaiting_answer';
+    }
+    console.log(`🎯 Session state detected: ${detectedState} | lastAssistantHasQuestionMark=${lastAssistantHasQuestionMark} | history=${chatHistory.length} | blueprint=${BLUEPRINT_VERSION}`);
     
     // Handle direct answer command
     if (detectedState === 'direct_answer_mode') {
@@ -204,7 +216,7 @@ serve(async (req) => {
     
     console.log('🔍 Debug checkpoint 4: Blueprint-based prompt built');
     
-    let ragMetadata = { ragEnabled: false, blueprintVersion: '3.1', sessionState: detectedState };
+    let ragMetadata = { ragEnabled: false, blueprintVersion: BLUEPRINT_VERSION, sessionState: detectedState };
 
     // Prepare messages for AI with proper typing
     const messages = [{
@@ -272,7 +284,7 @@ serve(async (req) => {
       model,
       chatMode,
       sessionState: detectedState,
-      blueprintVersion: '3.1',
+      blueprintVersion: BLUEPRINT_VERSION,
       aiProvider: useOpenAI ? 'OpenAI' : 'Claude',
       ragEnhanced: ragMetadata.ragEnabled || false
     });
@@ -312,7 +324,7 @@ serve(async (req) => {
             chatMode,
             model,
             sessionState: detectedState,
-            blueprintVersion: '3.1',
+            blueprintVersion: BLUEPRINT_VERSION,
             aiProvider: 'Claude',
             hasPersonalData: chatMode === 'personal' && queryMode === 'personal',
             ragMetadata
@@ -346,7 +358,7 @@ serve(async (req) => {
         chatMode,
         model,
         sessionState: detectedState,
-        blueprintVersion: '3.1',
+        blueprintVersion: BLUEPRINT_VERSION,
         aiProvider: useOpenAI ? 'OpenAI' : 'Claude',
         hasPersonalData: chatMode === 'personal',
         ragMetadata
@@ -363,7 +375,7 @@ serve(async (req) => {
       JSON.stringify({ 
         response: smartFallback,
         error: 'fallback_mode',
-        blueprintVersion: '3.1',
+        blueprintVersion: BLUEPRINT_VERSION,
         ragMetadata: { ragEnabled: false, error: 'System error' }
       }),
       {

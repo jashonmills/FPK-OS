@@ -113,6 +113,13 @@ What would you like to learn about today?`
     setIsLoading(true);
 
     try {
+      // Build lightweight client history (last 6 messages)
+      const clientHistory = messages.slice(-6).map(m => ({
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp
+      }));
+
       // Call AI function - works for both authenticated and anonymous users
       const { data, error } = await withTimeout(
         supabase.functions.invoke('ai-study-chat', {
@@ -121,7 +128,8 @@ What would you like to learn about today?`
             userId: user?.id || anonymousId,
             sessionId,
             chatMode: 'general',
-            voiceActive: false
+            voiceActive: false,
+            clientHistory
           }
         }),
         18000

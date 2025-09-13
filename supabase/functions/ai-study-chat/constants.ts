@@ -155,6 +155,8 @@ export const OPENAI_MODEL = 'gpt-4o';
 export const MAX_TOKENS = 2000;
 export const TIMEOUT_MS = 30000;
 
+export const BLUEPRINT_VERSION = '3.2';
+
 // ============================================
 // AI STUDY COACH FINAL BLUEPRINT v3.2
 // Comprehensive, programmatic prompt set with session state management

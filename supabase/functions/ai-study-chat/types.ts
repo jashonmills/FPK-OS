@@ -1,4 +1,10 @@
 
+export interface ClientHistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+}
+
 export interface ChatRequest {
   message: string;
   userId: string;
@@ -14,6 +20,7 @@ export interface ChatRequest {
     autoRead?: boolean;
     dualAIMode?: boolean;
   };
+  clientHistory?: ClientHistoryMessage[];
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed';
