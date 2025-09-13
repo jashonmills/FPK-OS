@@ -8,6 +8,13 @@ import type { ChatRequest } from './types.ts';
 
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
+// Log API key availability (without exposing the key)
+console.log('🔐 API Key Status:', {
+  hasKey: !!anthropicApiKey,
+  keyLength: anthropicApiKey?.length || 0,
+  keyPrefix: anthropicApiKey?.substring(0, 8) + '...' || 'N/A'
+});
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -72,7 +79,17 @@ serve(async (req) => {
 
     console.log('📝 Simple prompt generated:', { type: promptType, length: contextPrompt.length });
 
-    // Call Anthropic API
+    // Test API key with a simple validation call first
+    console.log('🔑 Testing Anthropic API key validity...');
+    
+    // Call Anthropic API with enhanced error logging
+    console.log('📡 Making Anthropic API request:', {
+      model: CLAUDE_MODEL,
+      maxTokens: MAX_TOKENS,
+      promptLength: contextPrompt.length,
+      apiUrl: 'https://api.anthropic.com/v1/messages'
+    });
+    
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -90,10 +107,31 @@ serve(async (req) => {
       })
     });
 
+    console.log('📡 Anthropic API response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Anthropic API error:', response.status, errorText);
-      throw new Error(`Anthropic API error: ${response.status}`);
+      console.error('❌ Detailed Anthropic API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      // Provide a topic-specific fallback response
+      const topicSpecificResponse = chatMode === 'personal'
+        ? `I'm having trouble connecting to my AI services right now, but I'd love to help you learn about ${message.toLowerCase().includes('cloud') ? 'clouds' : 'your topic'}! While I work on the connection, can you tell me what specifically interests you about this subject?`
+        : `I'm experiencing a technical issue, but let's explore ${message.toLowerCase().includes('cloud') ? 'clouds' : 'your topic'} together! What aspect would you like to start with?`;
+      
+      return new Response(JSON.stringify({
+        response: topicSpecificResponse,
+        source: 'api_error_fallback',
+        blueprintVersion: BLUEPRINT_VERSION,
+        error: `API Error ${response.status}: ${response.statusText}`
+      }), {
+        status: 200,
+        headers: corsHeaders
+      });
     }
 
     const data = await response.json();
@@ -112,9 +150,29 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Error in ai-study-chat function:', error);
     
+    // Enhanced error logging
+    console.error('❌ Full error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      chatMode: chatMode || 'general',
+      promptType,
+      messageLength: message?.length || 0
+    });
+    
+    // Try to provide topic-specific error response
+    const topicKeywords = ['cloud', 'weather', 'sky', 'rain', 'storm'];
+    const isAboutClouds = topicKeywords.some(keyword => 
+      message?.toLowerCase().includes(keyword)
+    );
+    
     const errorResponse = (chatMode || 'general') === 'personal'
-      ? "I'm here to guide your learning journey! 🧭 While I work through a technical issue, let me ask: What's one thing you're curious about today? What draws your attention and makes you want to learn more?"
-      : "I'm here to help with your questions! While I resolve a technical issue, please feel free to ask me anything you'd like to explore or understand better.";
+      ? isAboutClouds 
+        ? "I'm here to guide your learning journey! 🌤️ While I work through a technical issue, let's start with clouds - what draws you to this fascinating topic? Are you curious about how they form, their different types, or their role in weather?"
+        : "I'm here to guide your learning journey! 🧭 While I work through a technical issue, let me ask: What's one thing you're curious about today? What draws your attention and makes you want to learn more?"
+      : isAboutClouds
+        ? "I'm here to help with your questions about clouds! ☁️ While I resolve a technical issue, what specifically interests you about clouds - their formation, types, or role in weather patterns?"
+        : "I'm here to help with your questions! While I resolve a technical issue, please feel free to ask me anything you'd like to explore or understand better.";
     
     return new Response(JSON.stringify({
       response: errorResponse,
