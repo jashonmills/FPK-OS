@@ -261,9 +261,9 @@ What specific topic would you like to focus on?`;
   }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="h-screen flex flex-col bg-background">
       {/* Demo Badge */}
-      <div className="bg-primary/10 border-b border-border p-2 flex items-center justify-between">
+      <div className="flex-shrink-0 bg-primary/10 border-b border-border p-2 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           🤖 AI Study Coach Demo - No login required
         </span>
@@ -280,7 +280,9 @@ What specific topic would you like to focus on?`;
         )}
       </div>
       
-      <div className="flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full min-h-0">
+      {/* Main Content Container */}
+      <div className="flex-1 flex flex-col p-4 max-w-4xl mx-auto w-full overflow-hidden">
+        {/* Messages Area - Single scrollable container */}
         <div className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
@@ -365,9 +367,9 @@ What specific topic would you like to focus on?`;
           )}
         </div>
 
-        {/* Voice Controls Row */}
+        {/* Voice Controls Row - Fixed position */}
         {settings.enabled && (
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-2">
+          <div className="flex-shrink-0 flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-2">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Button
@@ -416,7 +418,8 @@ What specific topic would you like to focus on?`;
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+        {/* Input Form - Fixed at bottom */}
+        <form onSubmit={handleSubmit} className="flex-shrink-0 flex gap-2 items-end">
           <div className="flex-1 relative">
             <Input
               ref={inputRef}
