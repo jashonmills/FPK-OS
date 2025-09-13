@@ -112,7 +112,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Error in ai-study-chat function:', error);
     
-    const errorResponse = chatMode === 'personal'
+    const errorResponse = (chatMode || 'general') === 'personal'
       ? "I'm here to guide your learning journey! 🧭 While I work through a technical issue, let me ask: What's one thing you're curious about today? What draws your attention and makes you want to learn more?"
       : "I'm here to help with your questions! While I resolve a technical issue, please feel free to ask me anything you'd like to explore or understand better.";
     
