@@ -12,7 +12,8 @@ const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 console.log('🔐 API Key Status:', {
   hasKey: !!anthropicApiKey,
   keyLength: anthropicApiKey?.length || 0,
-  keyPrefix: anthropicApiKey?.substring(0, 8) + '...' || 'N/A'
+  keyPrefix: anthropicApiKey?.substring(0, 8) + '...' || 'N/A',
+  isValidFormat: anthropicApiKey?.startsWith('sk-ant-api') || false
 });
 
 serve(async (req) => {
