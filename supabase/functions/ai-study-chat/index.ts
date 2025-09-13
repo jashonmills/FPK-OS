@@ -1,12 +1,22 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL, STATE_PROMPT_INITIATE_STUDY_SESSION } from './constants.ts';
+import { corsHeaders, SYSTEM_PROMPT_PERSONAL, SYSTEM_PROMPT_GENERAL, CLAUDE_MODEL, OPENAI_MODEL, BLUEPRINT_PROMPTS } from './constants.ts';
 import { ChatRequest, QueryMode } from './types.ts';
 import { getLearningContext, getChatHistory } from './context.ts';
 import { detectQueryMode, detectRecentFlashcardsRequest, detectStudySessionRequest } from './mode-detection.ts';
 import { callClaude, callOpenAI, handleToolCalls, postProcessResponse } from './claude-client.ts';
 import { RAGIntegration } from './rag-integration.ts';
+import { 
+  detectSessionState, 
+  buildPromptForState, 
+  getSession, 
+  createSession, 
+  updateSession,
+  createSessionContext,
+  SessionState,
+  SessionStateType
+} from './session-management.ts';
 
 const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -102,56 +112,104 @@ serve(async (req) => {
       console.log(`🌐 General mode - detected query type: ${queryMode}`);
     }
 
-    // **SIMPLIFIED PROCESSING** - Direct prompt building for quiz functionality
-    console.log('🔍 Debug checkpoint 3: Building simplified prompt');
-    const baseSystemPrompt = chatMode === 'personal' ? SYSTEM_PROMPT_PERSONAL : SYSTEM_PROMPT_GENERAL;
-
-    // Check for quiz request and handle directly
-    const isQuizRequest = /quiz me on|give me a quiz on|test me on|can you quiz me|i want a quiz on/i.test(message);
+    // **BLUEPRINT-BASED SESSION MANAGEMENT** - Structured conversation states
+    console.log('🔍 Debug checkpoint 3: Implementing AI Study Coach Blueprint v3.1');
     
-    // Check for study session request
-    const isStudySessionRequest = detectStudySessionRequest(message);
-    
-    let enhancedPrompt = baseSystemPrompt;
-    let ragMetadata = { ragEnabled: false, simplified: true };
-
-    if (isQuizRequest) {
-      console.log('🔍 Quiz request detected, building quiz prompt');
-      const quizTopic = message.replace(/.*(?:quiz me on|give me a quiz on|test me on|can you quiz me (?:on|about)|i want a quiz on)\s+/i, '').trim();
-      enhancedPrompt = `You are an AI Study Coach and quiz master. The user wants to be quizzed on: ${quizTopic}
-
-Start the quiz by asking a broad, open-ended question that assesses their general understanding of ${quizTopic}. Be engaging and encouraging.
-
-Example: "Absolutely! Let's start with a big question: What are some of the different types of ${quizTopic} you know of?"
-
-USER MESSAGE: ${message}`;
-    } else if (isStudySessionRequest) {
-      console.log('🔍 Study session request detected, building study session prompt');
-      const studyTopic = message.replace(/.*(?:help me study|teach me about|can you teach me|i want to study|study with me|let's study|i need to learn|teach me)\s+/i, '').trim();
-      enhancedPrompt = `${STATE_PROMPT_INITIATE_STUDY_SESSION}
-
-The user wants to study: ${studyTopic || 'a general subject'}
-
-USER MESSAGE: ${message}`;
+    // Get or create session state
+    let session: SessionState;
+    if (sessionId) {
+      session = getSession(userId, sessionId) || createSession(userId, sessionId);
     } else {
-      // Simple context building for non-quiz requests
-      enhancedPrompt += `\n\nCURRENT DATE: ${new Date().toISOString().split('T')[0]}`;
-      if (voiceActive) {
-        enhancedPrompt += '\n\nVOICE MODE: Keep responses conversational and under 200 words.';
-      }
-      if (chatHistory.length > 0) {
-        enhancedPrompt += '\n\nRECENT CONVERSATION:\n' + 
-          chatHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n');
-      }
-      enhancedPrompt += `\n\nUSER MESSAGE: ${message}`;
+      session = createSession(userId, `temp_${Date.now()}`);
     }
-
-    console.log('🔍 Debug checkpoint 4: Simplified prompt built');
+    
+    // Update session metadata
+    session = updateSession(session, {
+      metadata: {
+        ...session.metadata,
+        isVoiceActive: voiceActive
+      }
+    });
+    
+    // Detect current session state based on message and history
+    const detectedState = detectSessionState(message, chatHistory);
+    console.log(`🎯 Session state detected: ${detectedState}`);
+    
+    // Handle direct answer command
+    if (detectedState === 'direct_answer_mode') {
+      console.log('🔍 Direct answer command detected');
+      const enhancedPrompt = buildPromptForState(detectedState, message, session.context, chatHistory);
+      session = updateSession(session, { 
+        currentState: detectedState,
+        context: { ...session.context, originalQuestion: message.replace(/^\/answer\s*/i, '') }
+      });
+    } else {
+      // Update session state and context based on detection
+      session = updateSession(session, { currentState: detectedState });
+      
+      // Build context based on session state
+      if (detectedState === 'quiz_active' && !session.context.quizTopic) {
+        // Starting new quiz
+        const quizTopic = extractQuizTopic(message);
+        session = updateSession(session, {
+          context: { 
+            ...session.context, 
+            quizTopic,
+            originalQuestion: message,
+            teachingHistory: []
+          }
+        });
+        console.log(`🔍 New quiz initiated on topic: ${quizTopic}`);
+      } else if (detectedState === 'study_session_active') {
+        // Starting study session
+        const studyTopic = extractStudyTopic(message);
+        session = updateSession(session, {
+          context: { 
+            ...session.context, 
+            studyTopic,
+            originalQuestion: message,
+            teachingHistory: []
+          }
+        });
+        console.log(`🔍 Study session initiated on topic: ${studyTopic}`);
+      } else if (detectedState === 'awaiting_answer' && chatHistory.length > 0) {
+        // User is answering a previous question
+        const lastAIMessage = chatHistory[chatHistory.length - 1];
+        if (lastAIMessage?.role === 'assistant') {
+          session = updateSession(session, {
+            context: { 
+              ...session.context, 
+              lastAIQuestion: lastAIMessage.content
+            }
+          });
+        }
+      } else if (detectedState === 'new_session') {
+        // Starting new academic session
+        session = updateSession(session, {
+          context: createSessionContext(message, extractTopic(message))
+        });
+        console.log('🔍 New academic session initiated');
+      }
+    }
+    
+    // Build structured prompt based on session state
+    const enhancedPrompt = buildPromptForState(detectedState, message, session.context, chatHistory);
+    
+    // Add voice mode and date context
+    let finalPrompt = enhancedPrompt;
+    if (voiceActive) {
+      finalPrompt += '\n\nVOICE MODE: Keep responses conversational and under 200 words.';
+    }
+    finalPrompt += `\n\nCURRENT DATE: ${new Date().toISOString().split('T')[0]}`;
+    
+    console.log('🔍 Debug checkpoint 4: Blueprint-based prompt built');
+    
+    let ragMetadata = { ragEnabled: false, blueprintVersion: '3.1', sessionState: detectedState };
 
     // Prepare messages for AI with proper typing
     const messages = [{
       role: 'user' as const,
-      content: enhancedPrompt
+      content: finalPrompt
     }];
 
     // Initial call to appropriate AI service with timeout protection
@@ -177,17 +235,34 @@ USER MESSAGE: ${message}`;
       console.log('🔍 Debug checkpoint 6: AI service responded successfully');
     } catch (error) {
       console.error('❌ AI service error or timeout:', error);
-      // Fallback response for quiz requests
-      if (isQuizRequest) {
-        const quizTopic = message.replace(/.*(?:quiz me on|give me a quiz on|test me on|can you quiz me (?:on|about)|i want a quiz on)\s+/i, '').trim();
+      // Blueprint-based fallback responses
+      if (detectedState === 'quiz_active') {
+        const quizTopic = session.context.quizTopic || 'the topic';
         data = {
           content: `I'd love to quiz you on ${quizTopic}! Let's start with a foundational question: What do you already know about ${quizTopic}? Share whatever comes to mind - there are no wrong answers here!`,
           stop_reason: 'fallback'
         };
-        console.log('✅ Used fallback quiz response');
+        console.log('✅ Used blueprint fallback quiz response');
+      } else if (detectedState === 'study_session_active') {
+        const studyTopic = session.context.studyTopic || 'your chosen subject';
+        data = {
+          content: `I'm excited to help you study ${studyTopic}! To get started, what specific area would you like to focus on? This will help me tailor our session to your needs.`,
+          stop_reason: 'fallback'
+        };
+        console.log('✅ Used blueprint fallback study session response');
       } else {
         throw error;
       }
+    }
+    
+    // Update session after successful AI response
+    if (data.content) {
+      session = updateSession(session, {
+        context: {
+          ...session.context,
+          lastAIQuestion: data.content.includes('?') ? data.content : undefined
+        }
+      });
     }
     
     console.log('📨 AI response received:', { 
@@ -196,7 +271,8 @@ USER MESSAGE: ${message}`;
       stopReason: data.stop_reason,
       model,
       chatMode,
-      simplified: true,
+      sessionState: detectedState,
+      blueprintVersion: '3.1',
       aiProvider: useOpenAI ? 'OpenAI' : 'Claude',
       ragEnhanced: ragMetadata.ragEnabled || false
     });
@@ -225,7 +301,7 @@ USER MESSAGE: ${message}`;
         
         aiResponse = postProcessResponse(aiResponse, chatMode);
         
-        console.log('✅ Final RAG-enhanced AI response generated successfully with tool data');
+        console.log('✅ Final blueprint-enhanced AI response generated successfully with tool data');
 
         return new Response(
           JSON.stringify({ 
@@ -235,6 +311,8 @@ USER MESSAGE: ${message}`;
             queryMode,
             chatMode,
             model,
+            sessionState: detectedState,
+            blueprintVersion: '3.1',
             aiProvider: 'Claude',
             hasPersonalData: chatMode === 'personal' && queryMode === 'personal',
             ragMetadata
@@ -257,7 +335,7 @@ USER MESSAGE: ${message}`;
     // Post-process the response
     aiResponse = postProcessResponse(aiResponse, chatMode);
     
-    console.log('✅ Direct RAG-enhanced AI response generated successfully');
+    console.log('✅ Direct blueprint-enhanced AI response generated successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -267,6 +345,8 @@ USER MESSAGE: ${message}`;
         queryMode,
         chatMode,
         model,
+        sessionState: detectedState,
+        blueprintVersion: '3.1',
         aiProvider: useOpenAI ? 'OpenAI' : 'Claude',
         hasPersonalData: chatMode === 'personal',
         ragMetadata
@@ -275,14 +355,15 @@ USER MESSAGE: ${message}`;
     );
 
   } catch (error) {
-    console.error('💥 Error in RAG-enhanced AI coach function:', error);
+    console.error('💥 Error in Blueprint-enhanced AI coach function:', error);
     
-    const smartFallback = "I'm here to support your learning journey with enhanced knowledge access! 🎯 I can help with both your study data and general knowledge questions. What would you like to explore?";
+    const smartFallback = "I'm here to support your learning journey with the AI Study Coach Blueprint! 🎯 I can help with quizzes, study sessions, Socratic learning, and more. What would you like to explore?";
     
     return new Response(
       JSON.stringify({ 
         response: smartFallback,
         error: 'fallback_mode',
+        blueprintVersion: '3.1',
         ragMetadata: { ragEnabled: false, error: 'System error' }
       }),
       {
@@ -292,3 +373,40 @@ USER MESSAGE: ${message}`;
     );
   }
 });
+
+// Utility functions for session management
+function extractQuizTopic(message: string): string {
+  const quizKeywords = BLUEPRINT_PROMPTS.initiate_quiz.keywords_to_recognize || [];
+  for (const keyword of quizKeywords) {
+    const regex = new RegExp(`${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(.+)`, 'i');
+    const match = message.match(regex);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  return 'general knowledge';
+}
+
+function extractStudyTopic(message: string): string {
+  const studyKeywords = BLUEPRINT_PROMPTS.initiate_study_session.keywords_to_recognize || [];
+  for (const keyword of studyKeywords) {
+    const regex = new RegExp(`${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(.+)`, 'i');
+    const match = message.match(regex);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  return '';
+}
+
+function extractTopic(message: string): string {
+  // Simple topic extraction for new academic questions
+  const words = message.toLowerCase().split(' ');
+  const commonQuestionWords = ['what', 'how', 'why', 'when', 'where', 'is', 'are', 'can', 'do', 'does'];
+  const meaningfulWords = words.filter(word => 
+    word.length > 3 && 
+    !commonQuestionWords.includes(word) &&
+    !/[^\w\s]/.test(word)
+  );
+  return meaningfulWords.slice(0, 3).join(' ') || 'general topic';
+}
