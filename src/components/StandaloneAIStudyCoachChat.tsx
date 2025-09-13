@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 import { v4 as uuidv4 } from 'uuid';
+import VoiceInputButton from '@/components/notes/VoiceInputButton';
 
 interface ChatMessage {
   id: string;
@@ -188,6 +189,58 @@ What specific topic would you like to focus on?`;
     sendMessage(input);
   };
 
+  const handleVoiceInput = (transcription: string) => {
+    if (transcription.trim()) {
+      setInput(transcription);
+      // Auto-send voice input
+      setTimeout(() => sendMessage(transcription), 100);
+    }
+  };
+
+  const handleTTSToggle = () => {
+    if (isSpeaking) {
+      stop();
+    } else {
+      // Find the last AI message and speak it
+      const lastAIMessage = messages.filter(m => m.role === 'assistant').pop();
+      if (lastAIMessage) {
+        speak(lastAIMessage.content);
+        setLastSpokenMessageId(lastAIMessage.id);
+      }
+    }
+  };
+
+  const handleAutoPlayToggle = () => {
+    const newAutoPlay = !autoPlayEnabled;
+    setAutoPlayEnabled(newAutoPlay);
+    localStorage.setItem('aistudycoach_voice_autoplay', newAutoPlay.toString());
+    
+    toast({
+      title: newAutoPlay ? "🔊 Auto-play enabled" : "🔇 Auto-play disabled",
+      description: newAutoPlay 
+        ? "AI responses will now be read aloud automatically" 
+        : "AI responses will no longer be read aloud automatically"
+    });
+  };
+
+  // Auto-play AI responses if enabled
+  useEffect(() => {
+    if (!autoPlayEnabled || !settings.enabled) return;
+    
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && 
+        lastMessage.role === 'assistant' && 
+        lastMessage.id !== lastSpokenMessageId &&
+        !isLoading) {
+      
+      // Small delay to ensure message is rendered
+      setTimeout(() => {
+        speak(lastMessage.content);
+        setLastSpokenMessageId(lastMessage.id);
+      }, 500);
+    }
+  }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Demo Badge */}
@@ -233,6 +286,30 @@ What specific topic would you like to focus on?`;
                         {msg.content}
                       </div>
                     </div>
+                    {msg.role === 'assistant' && settings.enabled && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (isSpeaking && lastSpokenMessageId === msg.id) {
+                              stop();
+                            } else {
+                              speak(msg.content);
+                              setLastSpokenMessageId(msg.id);
+                            }
+                          }}
+                          disabled={!settings.enabled}
+                          className="h-6 px-2 text-xs"
+                        >
+                          {isSpeaking && lastSpokenMessageId === msg.id ? (
+                            <VolumeX className="w-3 h-3" />
+                          ) : (
+                            <Volume2 className="w-3 h-3" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -258,8 +335,48 @@ What specific topic would you like to focus on?`;
           )}
         </div>
 
+        {/* Voice Controls Row */}
+        {settings.enabled && (
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTTSToggle}
+                  disabled={!settings.enabled}
+                >
+                  {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  {isSpeaking ? 'Stop' : 'Read'}
+                </Button>
+                <Button
+                  variant={autoPlayEnabled ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleAutoPlayToggle}
+                  disabled={!settings.enabled}
+                >
+                  <Play className="w-4 h-4 mr-1" />
+                  Auto-play
+                </Button>
+              </div>
+              {isSpeaking && (
+                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  Speaking...
+                </div>
+              )}
+            </div>
+            {voiceInput.isRecording && (
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                Recording...
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <Input
               ref={inputRef}
               value={input}
@@ -267,8 +384,17 @@ What specific topic would you like to focus on?`;
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about learning..."
               disabled={isLoading}
-              className="min-h-[44px]"
+              className="min-h-[44px] pr-12"
             />
+            {settings.enabled && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <VoiceInputButton
+                  onTranscription={handleVoiceInput}
+                  placeholder="voice input"
+                  disabled={isLoading}
+                />
+              </div>
+            )}
           </div>
           <Button 
             type="submit" 
