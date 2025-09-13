@@ -96,57 +96,61 @@ const AIStudyCoach = () => {
         {/* Fixed Header Section */}
         <div className="flex-shrink-0 w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+            <div className="text-center space-y-4 mb-6">
               <div className="flex flex-col items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight break-words max-w-full px-2">
                   AI Learning Coach
                 </h1>
                 <PageHelpTrigger onOpen={handleShowVideoManually} />
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4 leading-relaxed">
                 Your personalized AI coach analyzes your learning patterns and provides tailored guidance.
               </p>
               
-              {/* Feature Highlights */}
-              <div className="hidden sm:flex justify-center gap-4 text-sm text-muted-foreground flex-wrap">
-                <span>• Personalized analysis</span>
-                <span>• Proactive guidance</span>
-                <span>• Continuous support</span>
-              </div>
-              
-              <div className="sm:hidden space-y-1 text-xs text-muted-foreground px-4">
-                <div>• Personalized learning analysis</div>
-                <div>• Proactive guidance & support</div>
-                <div>• Continuous motivation</div>
+              {/* Feature Highlights - Improved Mobile Layout */}
+              <div className="text-xs sm:text-sm text-muted-foreground px-4">
+                <div className="hidden sm:flex justify-center gap-4 flex-wrap">
+                  <span>• Personalized analysis</span>
+                  <span>• Proactive guidance</span>
+                  <span>• Continuous support</span>
+                </div>
+                
+                <div className="sm:hidden flex justify-center gap-3 flex-wrap leading-relaxed">
+                  <span>• Analysis</span>
+                  <span>• Guidance</span>
+                  <span>• Support</span>
+                </div>
               </div>
             </div>
 
-            {/* AI Coach Status Card */}
-            <Card className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white mb-4 sm:mb-6">
+            {/* AI Coach Status Card - Improved Mobile Layout */}
+            <Card className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white mb-6">
               <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                    <Brain className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0 mt-1 sm:mt-0" />
+                <div className="flex flex-col space-y-4 sm:space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Brain className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
+                      <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-white leading-tight">
                         AI Learning Coach
                       </h2>
-                      <p className="text-purple-100 text-sm leading-snug">
+                      <p className="text-purple-100 text-xs sm:text-sm leading-snug break-words">
                         {completedSessions.length > 0 ? 
-                          `Analyzing ${completedSessions.length} sessions & ${flashcards?.length || 0} flashcards` :
-                          'Ready to analyze your learning patterns'
+                          `${completedSessions.length} sessions • ${flashcards?.length || 0} cards analyzed` :
+                          'Ready to analyze your learning'
                         }
                       </p>
                     </div>
                   </div>
                   
                   {completedSessions.length > 0 && (
-                    <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:text-right gap-2 sm:gap-1">
-                      <div className="flex items-center gap-2 text-base font-semibold">
+                    <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 pt-2 border-t border-purple-400/30">
+                      <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 flex-shrink-0" />
-                        <span>{overallAccuracy}% Accuracy</span>
+                        <span className="text-sm sm:text-base font-semibold whitespace-nowrap">
+                          {overallAccuracy}% Accuracy
+                        </span>
                       </div>
-                      <p className="text-purple-200 text-sm">
+                      <p className="text-purple-200 text-xs sm:text-sm whitespace-nowrap">
                         {currentStreak > 0 ? `${currentStreak} day streak!` : 'Start your streak'}
                       </p>
                     </div>
