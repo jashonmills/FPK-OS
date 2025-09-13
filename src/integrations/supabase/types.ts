@@ -689,6 +689,44 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_memory: {
+        Row: {
+          created_at: string
+          id: string
+          memory_data: Json
+          memory_type: string
+          session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          memory_data?: Json
+          memory_type: string
+          session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          memory_data?: Json
+          memory_type?: string
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_memory_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_codes: {
         Row: {
           code: string
@@ -2394,6 +2432,59 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      learning_analytics: {
+        Row: {
+          cognitive_load_estimate: number | null
+          created_at: string
+          difficulty_level: number | null
+          engagement_score: number | null
+          id: string
+          interaction_type: string
+          metadata: Json
+          session_id: string | null
+          success_rate: number | null
+          time_spent_seconds: number | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          cognitive_load_estimate?: number | null
+          created_at?: string
+          difficulty_level?: number | null
+          engagement_score?: number | null
+          id?: string
+          interaction_type: string
+          metadata?: Json
+          session_id?: string | null
+          success_rate?: number | null
+          time_spent_seconds?: number | null
+          topic: string
+          user_id: string
+        }
+        Update: {
+          cognitive_load_estimate?: number | null
+          created_at?: string
+          difficulty_level?: number | null
+          engagement_score?: number | null
+          id?: string
+          interaction_type?: string
+          metadata?: Json
+          session_id?: string | null
+          success_rate?: number | null
+          time_spent_seconds?: number | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       learning_attempts: {
         Row: {
@@ -5264,6 +5355,104 @@ export type Database = {
         }
         Relationships: []
       }
+      socratic_assessments: {
+        Row: {
+          assessment_type: string
+          confidence_level: number | null
+          created_at: string
+          id: string
+          misconceptions_identified: Json
+          next_learning_targets: Json
+          questions_asked: Json
+          session_id: string | null
+          skills_demonstrated: Json
+          student_responses: Json
+          topic_focus: string
+          understanding_level: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_type: string
+          confidence_level?: number | null
+          created_at?: string
+          id?: string
+          misconceptions_identified?: Json
+          next_learning_targets?: Json
+          questions_asked?: Json
+          session_id?: string | null
+          skills_demonstrated?: Json
+          student_responses?: Json
+          topic_focus: string
+          understanding_level?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_type?: string
+          confidence_level?: number | null
+          created_at?: string
+          id?: string
+          misconceptions_identified?: Json
+          next_learning_targets?: Json
+          questions_asked?: Json
+          session_id?: string | null
+          skills_demonstrated?: Json
+          student_responses?: Json
+          topic_focus?: string
+          understanding_level?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "socratic_assessments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      socratic_questions: {
+        Row: {
+          cognitive_load_target: number | null
+          created_at: string
+          difficulty_level: number | null
+          effectiveness_score: number | null
+          id: string
+          question_template: string
+          strategy_type: string
+          subject_areas: Json
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          cognitive_load_target?: number | null
+          created_at?: string
+          difficulty_level?: number | null
+          effectiveness_score?: number | null
+          id?: string
+          question_template: string
+          strategy_type: string
+          subject_areas?: Json
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          cognitive_load_target?: number | null
+          created_at?: string
+          difficulty_level?: number | null
+          effectiveness_score?: number | null
+          id?: string
+          question_template?: string
+          strategy_type?: string
+          subject_areas?: Json
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       strategies: {
         Row: {
           ai_prompt: string | null
@@ -5337,6 +5526,39 @@ export type Database = {
           last_activity_date?: string
           start_date?: string
           streak_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_profiles: {
+        Row: {
+          adaptive_metrics: Json
+          cognitive_load: Json
+          created_at: string
+          id: string
+          knowledge_state: Json
+          learning_style: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adaptive_metrics?: Json
+          cognitive_load?: Json
+          created_at?: string
+          id?: string
+          knowledge_state?: Json
+          learning_style?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adaptive_metrics?: Json
+          cognitive_load?: Json
+          created_at?: string
+          id?: string
+          knowledge_state?: Json
+          learning_style?: Json
           updated_at?: string
           user_id?: string
         }
@@ -6622,6 +6844,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      initialize_student_profile: {
+        Args: { p_user_id: string }
+        Returns: string
       }
       initialize_user_quotas: {
         Args: { p_subscription_tier?: string; p_user_id: string }

@@ -111,7 +111,7 @@ export const useChatMessages = (sessionId: string | null) => {
     }
   };
 
-  // Enhanced sendMessage with RAG support
+  // Enhanced sendMessage with RAG support and advanced Socratic analysis
   const sendMessage = async (content: string, context?: string, chatMode: 'personal' | 'general' = 'personal') => {
     // Critical validation: ensure we have valid IDs before proceeding
     if (!sessionId || !user?.id || isSending || typeof sessionId !== 'string' || typeof user.id !== 'string') {
@@ -119,7 +119,13 @@ export const useChatMessages = (sessionId: string | null) => {
       return;
     }
 
-    console.log('Starting enhanced sendMessage with RAG support...', { sessionId, content, context, chatMode });
+    console.log('🚀 ADVANCED SOCRATIC SENDMESSAGE v2.0 - Starting enhanced processing...', { 
+      sessionId: sessionId.substring(0, 8) + '...', 
+      content: content.substring(0, 50) + '...', 
+      context, 
+      chatMode 
+    });
+    
     setIsSending(true);
     
     try {
@@ -129,7 +135,14 @@ export const useChatMessages = (sessionId: string | null) => {
         throw new Error('Failed to save user message');
       }
 
-      // Call enhanced AI function with RAG capabilities
+      // Prepare client history for advanced AI processing
+      const clientHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+
+      // Call enhanced AI function with advanced Socratic capabilities
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
@@ -138,34 +151,59 @@ export const useChatMessages = (sessionId: string | null) => {
           chatMode: chatMode,
           voiceActive: false,
           pageContext: context,
+          clientHistory: clientHistory, // Send conversation history for advanced analysis
           metadata: {
             timestamp: new Date().toISOString(),
             userAgent: navigator.userAgent,
             sessionLength: messages.length,
             ragEnabled: true,
-            enhancedKnowledgeRetrieval: true
+            enhancedKnowledgeRetrieval: true,
+            socraticMode: true,
+            advancedStudentModeling: true
           }
         }
       });
 
       if (error) {
-        console.error('Enhanced AI function error:', error);
+        console.error('🚨 Enhanced Socratic AI function error:', error);
         throw error;
       }
 
-      const aiResponse = data?.response || "I'm here to guide your learning journey with enhanced knowledge access! 🌟 What would you like to explore together?";
+      console.log('✅ ADVANCED SOCRATIC RESPONSE received:', {
+        hasResponse: !!data?.response,
+        hasStudentProfile: !!data?.studentProfile,
+        hasConversationAnalysis: !!data?.conversationAnalysis,
+        hasMemoryState: !!data?.memoryState,
+        source: data?.source,
+        blueprintVersion: data?.blueprintVersion
+      });
+
+      const aiResponse = data?.response || "I'm your AI study coach, ready to guide your learning through thoughtful questions! 🎓 What would you like to explore together?";
       
-      // Add AI response with RAG metadata
+      // Add AI response with enhanced metadata
       const assistantMessage = await addMessage(aiResponse, 'assistant');
       if (!assistantMessage) {
         throw new Error('Failed to save AI response');
       }
 
-      // Store RAG metadata in the message state
-      if (data?.ragMetadata) {
+      // Store enhanced metadata in the message state
+      if (data?.studentProfile || data?.conversationAnalysis || data?.memoryState) {
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessage.id 
-            ? { ...msg, ragMetadata: data.ragMetadata }
+            ? { 
+                ...msg, 
+                ragMetadata: {
+                  ragEnabled: true,
+                  personalItems: 0,
+                  externalItems: 0,
+                  similarItems: 0,
+                  confidence: data?.studentProfile?.understanding || 0.5,
+                  sources: ['advanced_socratic_analysis'],
+                  studentProfile: data?.studentProfile,
+                  conversationAnalysis: data?.conversationAnalysis,
+                  memoryState: data?.memoryState
+                }
+              }
             : msg
         ));
       }
@@ -180,7 +218,7 @@ export const useChatMessages = (sessionId: string | null) => {
                          content.toLowerCase().includes('strategy') ? 'Study Strategy' :
                          content.toLowerCase().includes('research') ? 'Research' :
                          content.toLowerCase().includes('definition') ? 'Definitions' :
-                         chatMode === 'personal' ? 'Personal Study Support' : 'General Knowledge';
+                         chatMode === 'personal' ? 'Socratic Learning Session' : 'General Knowledge Exploration';
                          
         await supabase
           .from('chat_sessions')
@@ -192,32 +230,39 @@ export const useChatMessages = (sessionId: string | null) => {
           .eq('id', sessionId);
       }
 
-      // Show RAG enhancement notification
-      if (data?.ragMetadata?.ragEnabled && data.ragMetadata.confidence > 0.3) {
-        const totalSources = data.ragMetadata.personalItems + data.ragMetadata.externalItems + data.ragMetadata.similarItems;
+      // Show enhanced response notification
+      if (data?.studentProfile) {
+        const understanding = Math.round((data.studentProfile.understanding || 0.5) * 100);
+        const confidence = Math.round((data.studentProfile.confidence || 0.5) * 100);
+        
         toast({
-          title: "Enhanced Response",
-          description: `Used ${totalSources} knowledge sources with ${Math.round(data.ragMetadata.confidence * 100)}% confidence`,
+          title: "🧠 Advanced Socratic Mode",
+          description: `Personalized response based on ${understanding}% understanding, ${confidence}% confidence`,
+        });
+      } else if (data?.source === 'adaptive_fallback') {
+        toast({
+          title: "📚 Adaptive Learning Mode",
+          description: "Using intelligent fallback with student modeling",
         });
       }
 
     } catch (error) {
-      console.error('Error in enhanced sendMessage:', error);
+      console.error('❌ Error in advanced Socratic sendMessage:', error);
       
-      // Enhanced fallback responses based on context with RAG hints
+      // Enhanced fallback responses based on context with Socratic approach
       const contextualFallback = context?.includes('Notes') 
-        ? "I'm here to help optimize your note-taking and study materials with enhanced knowledge access! 📚 Ask me about effective strategies, concepts, or research on topics you're studying."
+        ? "I'm here to help you think critically about your notes! 📚 Instead of giving you answers, let me ask: What patterns do you notice in the material you've studied? What questions arise as you review your notes?"
         : context?.includes('Flashcard')
-        ? "I can help you maximize your flashcard study sessions with comprehensive knowledge retrieval! 🎯 Ask me about spaced repetition, memory techniques, or specific concepts."
+        ? "Let's approach your flashcard study strategically! 🎯 Rather than just testing recall, what connections can you make between the concepts on your cards? How might you group them thematically?"
         : chatMode === 'personal'
-        ? "I'm your AI learning coach with access to your personal study data and external knowledge sources! 🔒 Ask me about your progress, study strategies, or specific topics."
-        : "I'm here with enhanced knowledge access to support your learning! 🌐 Ask me about any topic, study strategies, definitions, or research.";
+        ? "I'm your AI learning coach, ready to guide your discovery through questions! 🔍 What aspect of this topic would you like to explore first? What do you already know that might connect to this?"
+        : "I'm here to facilitate your learning through guided inquiry! 🌐 Instead of providing direct answers, let me ask: What's your current understanding of this topic? What specific aspect intrigues you most?";
         
       await addMessage(contextualFallback, 'assistant');
       
       toast({
-        title: "AI Coach Ready",
-        description: "I'm here with enhanced knowledge access to support your learning!",
+        title: "🤔 Socratic Mode Active",
+        description: "I'm here to guide your learning through thoughtful questions!",
       });
     } finally {
       setIsSending(false);
