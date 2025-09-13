@@ -16,11 +16,14 @@ console.log('🔐 Gemini API Key Status:', {
 });
 
 serve(async (req) => {
+  const startTime = performance.now();
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const requestParseStart = performance.now();
     const requestBody = await req.json().catch(() => ({}));
     const {
       message,
@@ -33,7 +36,9 @@ serve(async (req) => {
       clientHistory = []
     } = requestBody;
 
-    console.log('🎯 Gemini AI Processing:', {
+    const requestParseTime = performance.now() - requestParseStart;
+
+    console.log('🎯 Gemini AI Processing (Enhanced Timing):', {
       messageLength: message?.length || 0,
       userId: userId?.substring(0, 8) + '...' || 'unknown',
       sessionId: sessionId?.substring(0, 8) + '...' || 'none',
@@ -42,7 +47,9 @@ serve(async (req) => {
       voiceActive,
       contextKeys: Object.keys(contextData),
       historyLength: clientHistory?.length || 0,
-      hasValidRequest: !!(message && userId)
+      hasValidRequest: !!(message && userId),
+      requestParseTime: `${requestParseTime.toFixed(2)}ms`,
+      totalTimeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
     });
 
     // Enhanced validation with detailed error responses
@@ -115,53 +122,72 @@ serve(async (req) => {
     });
 
     // Call Google Gemini API with Socratic Blueprint v7.0
-    console.log('📡 Making Google Gemini API request:', {
+    const geminiRequestStart = performance.now();
+    
+    console.log('📡 Making Google Gemini API request (with timeout):', {
       model: GEMINI_MODEL,
       maxTokens: MAX_TOKENS,
       promptLength: contextPrompt.length,
-      apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
+      apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
+      timeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
     });
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: contextPrompt }]
-        }],
-        systemInstruction: {
-          parts: [{ text: SOCRATIC_BLUEPRINT_V7 }]
+    // Add timeout to Gemini API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.error('⏰ Gemini API timeout after 15 seconds');
+      controller.abort();
+    }, 15000);
+    
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        generationConfig: {
-          maxOutputTokens: MAX_TOKENS,
-          temperature: 0.7,
-          topP: 0.9,
-          topK: 40
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: contextPrompt }]
+          }],
+          systemInstruction: {
+            parts: [{ text: SOCRATIC_BLUEPRINT_V7 }]
           },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH", 
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          generationConfig: {
+            maxOutputTokens: MAX_TOKENS,
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40
           },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
-      })
-    });
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH", 
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
 
-    console.log('📡 Google Gemini API response status:', response.status);
+      clearTimeout(timeoutId);
+      const geminiRequestTime = performance.now() - geminiRequestStart;
+      
+      console.log('📡 Google Gemini API response received:', {
+        status: response.status,
+        requestTime: `${geminiRequestTime.toFixed(2)}ms`,
+        totalTimeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
+      });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -191,26 +217,56 @@ serve(async (req) => {
       });
     }
 
-    const data = await response.json();
-    const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
+      const jsonParseStart = performance.now();
+      const data = await response.json();
+      const jsonParseTime = performance.now() - jsonParseStart;
+      
+      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
 
-    console.log('✅ Gemini response generated successfully');
+      const totalTime = performance.now() - startTime;
+      console.log('✅ Gemini response generated successfully:', {
+        totalProcessingTime: `${totalTime.toFixed(2)}ms`,
+        jsonParseTime: `${jsonParseTime.toFixed(2)}ms`,
+        responseLength: aiResponse.length
+      });
 
-    return new Response(JSON.stringify({
-      response: aiResponse,
-      source: 'google_gemini_v7',
-      blueprintVersion: BLUEPRINT_VERSION,
-      metadata: {
-        model: GEMINI_MODEL,
-        promptType: detectedPromptType,
-        chatMode,
-        voiceActive,
-        contextProcessed: Object.keys(contextData),
-        historyLength: clientHistory?.length || 0
+      return new Response(JSON.stringify({
+        response: aiResponse,
+        source: 'google_gemini_v7',
+        blueprintVersion: BLUEPRINT_VERSION,
+        metadata: {
+          model: GEMINI_MODEL,
+          promptType: detectedPromptType,
+          chatMode,
+          voiceActive,
+          contextProcessed: Object.keys(contextData),
+          historyLength: clientHistory?.length || 0,
+          processingTime: `${totalTime.toFixed(2)}ms`
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        console.error('⏰ Gemini API request timed out');
+        const timeoutResponse = getContextualResponse(message, chatMode, 'timeout');
+        
+        return new Response(JSON.stringify({
+          response: timeoutResponse,
+          source: 'timeout_fallback',
+          blueprintVersion: BLUEPRINT_VERSION,
+          error: 'Request timed out after 15 seconds'
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+      
+      throw fetchError;
+    }
 
   } catch (error) {
     console.error('❌ Error in ai-study-chat function:', error);
@@ -332,6 +388,14 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
       return `I'm having a temporary connection issue, but let's use this as a learning opportunity! 🤔 About "${message}" - what do you already know or think about this topic? What questions does it raise for you?`;
     } else {
       return `I'm experiencing a technical issue, but I can still guide your learning about "${message}"! What aspect of this topic would you like to explore first through questioning?`;
+    }
+  }
+  
+  if (errorType === 'timeout') {
+    if (chatMode === 'personal') {
+      return `That request took longer than expected, but I haven't forgotten about "${message}"! 🕐 While I process complex questions faster, let's break this down: What specific aspect of "${message}" interests you most? Sometimes the best learning happens through focused questions!`;
+    } else {
+      return `The request timed out, but I can still help with "${message}"! Let's approach this step by step - what particular aspect would you like to explore first? I work best with focused, specific questions.`;
     }
   }
   

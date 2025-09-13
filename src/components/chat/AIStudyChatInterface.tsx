@@ -36,14 +36,32 @@ interface AIStudyChatInterfaceProps {
   fixedHeight?: boolean;
 }
 
-const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
+const withProgressiveTimeout = <T,>(
+  promise: Promise<T>, 
+  onProgress: (message: string) => void,
+  ms = 18000
+): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+    let progressTimer: NodeJS.Timeout;
+    
+    // Show "Still thinking..." after 8 seconds
+    const progressTimeout = setTimeout(() => {
+      onProgress("Still thinking... This might take a moment.");
+    }, 8000);
+    
+    // Final timeout after 18 seconds
+    const finalTimeout = setTimeout(() => {
+      clearTimeout(progressTimeout);
+      reject(new Error('Request timed out - please try again'));
+    }, ms);
+    
     promise.then((value) => {
-      clearTimeout(timer);
+      clearTimeout(progressTimeout);
+      clearTimeout(finalTimeout);
       resolve(value);
     }).catch((err) => {
-      clearTimeout(timer);
+      clearTimeout(progressTimeout);
+      clearTimeout(finalTimeout);
       reject(err);
     });
   });
@@ -138,8 +156,17 @@ What would you like to learn about today?`;
     }));
   }, []);
 
+  const [progressMessage, setProgressMessage] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
+
+    // Cancel any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
 
     const userMessage = {
       role: 'user' as const,
@@ -149,23 +176,41 @@ What would you like to learn about today?`;
     addMessage(userMessage);
     setInput('');
     setIsLoading(true);
+    setProgressMessage(null);
 
     try {
-      // Convert messages to conversation format for analysis
-      const conversationHistory = convertToConversationHistory(messages);
+      // Optimize for simple math questions - skip heavy analysis
+      const isMathQuestion = /^\s*\d+\s*[\+\-\*\/]\s*\d+\s*[?]?\s*$/.test(messageText.trim());
       
-      // Analyze conversation to determine proper context and prompt type
-      const analyzedState = analyzeConversation(conversationHistory, messageText);
+      let analyzedState;
+      let contextData = {};
+      
+      if (isMathQuestion) {
+        // Fast path for simple math
+        analyzedState = {
+          promptType: 'direct_answer',
+          isInQuiz: false,
+          inRefresherMode: false,
+          currentTopic: 'mathematics',
+          teachingMethods: [],
+          incorrectAnswersCount: 0
+        };
+        console.log('🚀 Fast path: Simple math question detected');
+      } else {
+        // Full analysis for complex questions
+        const conversationHistory = convertToConversationHistory(messages);
+        analyzedState = analyzeConversation(conversationHistory, messageText);
+        
+        contextData = {
+          quizTopic: analyzedState.currentTopic,
+          teachingHistory: analyzedState.teachingMethods.join(', '),
+          incorrectCount: analyzedState.incorrectAnswersCount,
+          isInQuiz: analyzedState.isInQuiz,
+          inRefresherMode: analyzedState.inRefresherMode
+        };
+      }
+      
       updateState(analyzedState);
-      
-      // Build contextData from conversation state
-      const contextData = {
-        quizTopic: analyzedState.currentTopic,
-        teachingHistory: analyzedState.teachingMethods.join(', '),
-        incorrectCount: analyzedState.incorrectAnswersCount,
-        isInQuiz: analyzedState.isInQuiz,
-        inRefresherMode: analyzedState.inRefresherMode
-      };
 
       // Build lightweight client history (last 6 messages)
       const clientHistory = messages.slice(-6).map(m => ({
@@ -174,11 +219,12 @@ What would you like to learn about today?`;
         timestamp: m.timestamp
       }));
       
-      console.log('🎯 Sending AI Study Chat request (Enhanced):', {
+      console.log('🎯 Sending AI Study Chat request (Optimized):', {
         messageLength: messageText.length,
         promptType: analyzedState.promptType,
         sessionId: sessionId.substring(0, 8) + '...',
         historyLength: clientHistory.length,
+        isMathQuestion,
         conversationState: {
           isInQuiz: analyzedState.isInQuiz,
           currentTopic: analyzedState.currentTopic,
@@ -186,8 +232,8 @@ What would you like to learn about today?`;
         }
       });
 
-      // Call AI function with enhanced context
-      const { data, error } = await withTimeout(
+      // Call AI function with progressive timeout and cancellation
+      const { data, error } = await withProgressiveTimeout(
         supabase.functions.invoke('ai-study-chat', {
           body: {
             message: messageText,
@@ -200,6 +246,7 @@ What would you like to learn about today?`;
             clientHistory
           }
         }),
+        (progress) => setProgressMessage(progress),
         18000
       );
       
@@ -244,8 +291,15 @@ What would you like to learn about today?`;
         error: error instanceof Error ? error.message : error,
         messageText: messageText.substring(0, 50) + '...',
         timestamp: new Date().toISOString(),
-        conversationState: conversationState
+        conversationState: conversationState,
+        isAborted: abortControllerRef.current?.signal.aborted
       });
+      
+      // Don't show error if request was cancelled by user
+      if (abortControllerRef.current?.signal.aborted) {
+        console.log('🚫 Request cancelled by user');
+        return;
+      }
       
       const fallbackResponse = {
         role: 'assistant' as const,
@@ -255,16 +309,21 @@ What would you like to learn about today?`;
       addMessage(fallbackResponse);
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isTimeoutError = errorMessage.includes('timed out') || errorMessage.includes('timeout');
       const isValidationError = errorMessage.includes('promptType') || errorMessage.includes('required');
       
       toast({
-        title: isValidationError ? "Configuration Issue" : "Connection Issue",
-        description: isValidationError ? "Please refresh and try again" : "Using offline mode",
-        variant: isValidationError ? "destructive" : "default",
-        duration: 3000
+        title: isTimeoutError ? "Request Timed Out" : isValidationError ? "Configuration Issue" : "Connection Issue",
+        description: isTimeoutError ? 
+          "The request took too long. Please try a simpler question." :
+          isValidationError ? "Please refresh and try again" : "Using offline mode",
+        variant: isTimeoutError || isValidationError ? "destructive" : "default",
+        duration: isTimeoutError ? 5000 : 3000
       });
     } finally {
       setIsLoading(false);
+      setProgressMessage(null);
+      abortControllerRef.current = null;
     }
   };
 
@@ -446,6 +505,16 @@ What specific aspect would you like to focus on?`;
             fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
           )}
         >
+          {/* Progress Message */}
+          {isLoading && progressMessage && (
+            <div className="flex gap-3 p-3 rounded-lg bg-blue-50 mr-8">
+              <Bot className="h-5 w-5 text-blue-600 animate-pulse" />
+              <div className="flex-1">
+                <p className="text-sm text-blue-700">{progressMessage}</p>
+              </div>
+            </div>
+          )}
+          
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -518,27 +587,65 @@ What specific aspect would you like to focus on?`;
 
         {/* Input Form */}
         <div className="flex-shrink-0 p-6 border-t border-border">
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={placeholder}
-              disabled={isLoading}
-              className="flex-1"
-            />
-            <VoiceInputButton
-              onTranscription={handleVoiceInput}
-              disabled={isLoading}
-            />
-            <Button 
-              type="submit" 
-              disabled={isLoading || !input.trim()}
-              size="icon"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder={placeholder}
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <VoiceInputButton
+                onTranscription={handleVoiceInput}
+                disabled={isLoading}
+              />
+              
+              {/* Cancel button when loading */}
+              {isLoading && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (abortControllerRef.current) {
+                      abortControllerRef.current.abort();
+                      setIsLoading(false);
+                      setProgressMessage(null);
+                      toast({
+                        title: "Request cancelled",
+                        description: "You can try asking again",
+                        duration: 2000
+                      });
+                    }
+                  }}
+                  className="px-3 text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  Cancel
+                </Button>
+              )}
+              
+              <Button 
+                type="submit" 
+                disabled={isLoading || !input.trim()}
+                size="icon"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            
+            {/* Progress indicator */}
+            {isLoading && (
+              <div className="text-xs text-gray-500">
+                {progressMessage || "Processing your request..."}
+              </div>
+            )}
           </form>
         </div>
       </CardContent>
