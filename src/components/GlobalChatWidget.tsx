@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Brain } from 'lucide-react';
@@ -7,9 +7,18 @@ import { useGlobalChat } from '@/hooks/useGlobalChat';
 import { cn } from '@/lib/utils';
 import ChatSheet from '@/components/chat/ChatSheet';
 
-const GlobalChatWidget = () => {
+interface GlobalChatWidgetProps {
+  onOpenChange?: (isOpen: boolean) => void;
+}
+
+const GlobalChatWidget = ({ onOpenChange }: GlobalChatWidgetProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { hasUnreadMessages } = useGlobalChat();
+
+  // Notify parent when open state changes
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
   const trigger = (
     <Button

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -10,8 +10,12 @@ import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { OrgProvider } from '@/components/organizations/OrgContext';
 import { OrgThemeProvider } from '@/components/theme/OrgThemeProvider';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 const DashboardLayout: React.FC = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const isMobile = useIsMobile();
   return (
     <ErrorBoundaryUnified>
       <VoiceSettingsProvider>
@@ -21,7 +25,10 @@ const DashboardLayout: React.FC = () => {
               <SidebarProvider>
                 <div className="min-h-screen flex w-full overflow-x-hidden">
                   <AppSidebar />
-                  <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+                  <div className={cn(
+                    "flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300",
+                    isMobile && isChatOpen && "brightness-50 pointer-events-none"
+                  )}>
                     <GlobalHeader />
                     <main className="flex-1 bg-gray-50 mobile-scroll-container">
                       <div className="w-full h-full mobile-container pb-28 sm:pb-0 pr-16 sm:pr-0 py-3 sm:py-4 md:py-6 lg:py-8">
@@ -31,7 +38,7 @@ const DashboardLayout: React.FC = () => {
                       </div>
                     </main>
                   </div>
-                  <GlobalChatWidget />
+                  <GlobalChatWidget onOpenChange={setIsChatOpen} />
                 </div>
               </SidebarProvider>
             </OrgThemeProvider>

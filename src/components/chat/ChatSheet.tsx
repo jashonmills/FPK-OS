@@ -236,8 +236,8 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
       <SheetContent 
         side="bottom" 
         className={cn(
-          "w-full p-0 overflow-hidden",
-          isMobile ? "h-[100vh]" : "h-[85vh] max-w-6xl mx-auto"
+          "w-full p-0 overflow-hidden border-0",
+          isMobile ? "h-[100vh] rounded-none" : "h-[85vh] max-w-6xl mx-auto rounded-t-lg"
         )}
       >
         <div className="flex h-full overflow-hidden">
