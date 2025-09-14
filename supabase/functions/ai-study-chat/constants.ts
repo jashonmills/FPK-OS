@@ -79,7 +79,7 @@ Always be conversational, encouraging, and maintain forward momentum in the lear
 // Model Configuration
 export const GEMINI_MODEL = 'gemini-1.5-pro';
 export const MAX_TOKENS = 4000;
-export const TIMEOUT_MS = 30000;
+export const TIMEOUT_MS = 45000; // Increased from 30s to 45s for better reliability
 
 export const BLUEPRINT_VERSION = 'v4.4';
 

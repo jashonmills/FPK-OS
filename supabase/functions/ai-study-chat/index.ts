@@ -131,10 +131,10 @@ serve(async (req) => {
       }
     });
 
-    // Call Google Gemini API with Socratic Blueprint v7.0
+    // Call Google Gemini API with Socratic Blueprint v4.4 and retry logic
     const geminiRequestStart = performance.now();
     
-    console.log('📡 Making Google Gemini API request (with timeout):', {
+    console.log('📡 Making Google Gemini API request (with timeout and retry):', {
       model: GEMINI_MODEL,
       maxTokens: MAX_TOKENS,
       promptLength: contextPrompt.length,
@@ -142,147 +142,196 @@ serve(async (req) => {
       timeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
     });
     
-    // Add timeout to Gemini API call
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.error(`⏰ Gemini API timeout after ${TIMEOUT_MS/1000} seconds`);
-      controller.abort();
-    }, TIMEOUT_MS);
+    // Retry configuration
+    const maxRetries = 2;
+    let lastError = null;
     
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: contextPrompt }]
-          }],
-          systemInstruction: {
-            parts: [{ text: SOCRATIC_BLUEPRINT_V42 }]
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(`🔄 Gemini API attempt ${attempt}/${maxRetries}`);
+      
+      // Add timeout to Gemini API call
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.error(`⏰ Gemini API timeout after ${TIMEOUT_MS/1000} seconds (attempt ${attempt})`);
+        controller.abort();
+      }, TIMEOUT_MS);
+      
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
           },
-          generationConfig: {
-            maxOutputTokens: MAX_TOKENS,
-            temperature: 0.7,
-            topP: 0.9,
-            topK: 40
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: contextPrompt }]
+            }],
+            systemInstruction: {
+              parts: [{ text: SOCRATIC_BLUEPRINT_V42 }]
             },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH", 
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            generationConfig: {
+              maxOutputTokens: MAX_TOKENS,
+              temperature: 0.7,
+              topP: 0.9,
+              topK: 40
             },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      const geminiRequestTime = performance.now() - geminiRequestStart;
-      
-      console.log('📡 Google Gemini API response received:', {
-        status: response.status,
-        requestTime: `${geminiRequestTime.toFixed(2)}ms`,
-        totalTimeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
-      });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Detailed Google Gemini API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorBody: errorText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
-      // Provide a contextual response based on user's question
-      const contextualResponse = getContextualResponse(message, chatMode, 'api_error');
-      
-      return new Response(JSON.stringify({
-        response: contextualResponse,
-        source: 'api_error_fallback',
-        blueprintVersion: BLUEPRINT_VERSION,
-        error: `API Error ${response.status}: ${response.statusText}`,
-        apiKeyStatus: {
-          hasKey: !!geminiApiKey,
-          keyLength: geminiApiKey?.length || 0,
-          isValidFormat: geminiApiKey?.length > 30 || false
-        }
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-      const jsonParseStart = performance.now();
-      const data = await response.json();
-      const jsonParseTime = performance.now() - jsonParseStart;
-      
-      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
-
-      const totalTime = performance.now() - startTime;
-      console.log('✅ Gemini response generated successfully:', {
-        totalProcessingTime: `${totalTime.toFixed(2)}ms`,
-        jsonParseTime: `${jsonParseTime.toFixed(2)}ms`,
-        responseLength: aiResponse.length
-      });
-
-      return new Response(JSON.stringify({
-        response: aiResponse,
-        source: 'google_gemini_v7',
-        blueprintVersion: BLUEPRINT_VERSION,
-        metadata: {
-          model: GEMINI_MODEL,
-          promptType: detectedPromptType,
-          chatMode,
-          voiceActive,
-          contextProcessed: Object.keys(contextData),
-          historyLength: clientHistory?.length || 0,
-          processingTime: `${totalTime.toFixed(2)}ms`
-        }
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      
-      if (fetchError.name === 'AbortError') {
-        console.error(`⏰ Gemini API request timed out after ${TIMEOUT_MS/1000} seconds`, {
-          message: message.substring(0, 100),
-          chatMode,
-          promptType: detectedPromptType,
-          totalTime: `${(performance.now() - startTime).toFixed(2)}ms`
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH", 
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              }
+            ]
+          }),
+          signal: controller.signal
         });
-        const timeoutResponse = getContextualResponse(message, chatMode, 'timeout');
+
+        clearTimeout(timeoutId);
+        const geminiRequestTime = performance.now() - geminiRequestStart;
         
+        console.log('📡 Google Gemini API response received:', {
+          status: response.status,
+          attempt,
+          requestTime: `${geminiRequestTime.toFixed(2)}ms`,
+          totalTimeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`❌ Gemini API error (attempt ${attempt}):`, {
+            status: response.status,
+            statusText: response.statusText,
+            errorBody: errorText,
+            attempt,
+            willRetry: attempt < maxRetries
+          });
+          
+          lastError = new Error(`API Error ${response.status}: ${response.statusText}`);
+          
+          // If this is the last attempt, provide contextual response
+          if (attempt === maxRetries) {
+            const contextualResponse = getContextualResponse(message, chatMode, 'api_error');
+            
+            return new Response(JSON.stringify({
+              response: contextualResponse,
+              source: 'api_error_fallback',
+              blueprintVersion: BLUEPRINT_VERSION,
+              error: `API Error ${response.status}: ${response.statusText}`,
+              apiKeyStatus: {
+                hasKey: !!geminiApiKey,
+                keyLength: geminiApiKey?.length || 0,
+                isValidFormat: geminiApiKey?.length > 30 || false
+              }
+            }), {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          continue; // Try next attempt
+        }
+
+        // Success! Process the response
+        const jsonParseStart = performance.now();
+        const data = await response.json();
+        const jsonParseTime = performance.now() - jsonParseStart;
+        
+        const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
+
+        const totalTime = performance.now() - startTime;
+        console.log('✅ Gemini response generated successfully:', {
+          totalProcessingTime: `${totalTime.toFixed(2)}ms`,
+          jsonParseTime: `${jsonParseTime.toFixed(2)}ms`,
+          responseLength: aiResponse.length,
+          attempt,
+          success: true
+        });
+
         return new Response(JSON.stringify({
-          response: timeoutResponse,
-          source: 'timeout_fallback',
+          response: aiResponse,
+          source: 'google_gemini_v4.4',
           blueprintVersion: BLUEPRINT_VERSION,
-          error: `Request timed out after ${TIMEOUT_MS/1000} seconds`,
-          retryAdvice: 'Please try rephrasing your question more concisely or try again in a moment.'
+          metadata: {
+            model: GEMINI_MODEL,
+            promptType: detectedPromptType,
+            chatMode,
+            voiceActive,
+            contextProcessed: Object.keys(contextData),
+            historyLength: clientHistory?.length || 0,
+            processingTime: `${totalTime.toFixed(2)}ms`,
+            attempt,
+            retryLogic: 'enabled'
+          }
         }), {
-          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
+
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          console.error(`⏰ Gemini API request timed out after ${TIMEOUT_MS/1000} seconds (attempt ${attempt})`, {
+            message: message.substring(0, 100),
+            chatMode,
+            promptType: detectedPromptType,
+            totalTime: `${(performance.now() - startTime).toFixed(2)}ms`,
+            attempt,
+            willRetry: attempt < maxRetries
+          });
+          
+          lastError = new Error(`Request timed out after ${TIMEOUT_MS/1000} seconds`);
+          
+          // If this is the last attempt, return timeout response
+          if (attempt === maxRetries) {
+            const timeoutResponse = getContextualResponse(message, chatMode, 'timeout');
+            
+            return new Response(JSON.stringify({
+              response: timeoutResponse,
+              source: 'timeout_fallback',
+              blueprintVersion: BLUEPRINT_VERSION,
+              error: `Request timed out after ${TIMEOUT_MS/1000} seconds`,
+              retryAdvice: 'Please try rephrasing your question more concisely or try again in a moment.',
+              attemptsExhausted: maxRetries
+            }), {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          continue; // Try next attempt
+        }
+        
+        // Other fetch errors
+        console.error(`❌ Fetch error (attempt ${attempt}):`, fetchError);
+        lastError = fetchError;
+        
+        if (attempt === maxRetries) {
+          throw fetchError; // Let it fall through to main error handler
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        continue; // Try next attempt
       }
-      
-      throw fetchError;
     }
+    
+    // This should never be reached, but just in case
+    throw lastError || new Error('All retry attempts failed');
 
   } catch (error) {
     console.error('❌ Error in ai-study-chat function:', error);
