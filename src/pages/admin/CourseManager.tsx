@@ -297,7 +297,13 @@ const CourseManager = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
-                  onClick={() => window.open(`/dashboard/admin/courses/${course.slug}/modules`, '_blank')}
+                  onClick={() => {
+                    if (!course.slug) {
+                      alert('Course slug is missing. Please edit the course and add a slug first.');
+                      return;
+                    }
+                    window.location.href = `/dashboard/admin/courses/${course.slug}/modules`;
+                  }}
                 >
                   Manage Modules
                 </Button>
@@ -305,7 +311,13 @@ const CourseManager = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
-                  onClick={() => window.open(`/dashboard/admin/courses/${course.slug}/lessons`, '_blank')}
+                  onClick={() => {
+                    if (!course.slug) {
+                      alert('Course slug is missing. Please edit the course and add a slug first.');
+                      return;
+                    }
+                    window.location.href = `/dashboard/admin/courses/${course.slug}/lessons`;
+                  }}
                 >
                   Manage Lessons
                 </Button>
@@ -313,7 +325,13 @@ const CourseManager = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
-                  onClick={() => window.open(`/dashboard/learner/course/${course.slug}`, '_blank')}
+                  onClick={() => {
+                    if (!course.slug) {
+                      alert('Course slug is missing. Please edit the course and add a slug first.');
+                      return;
+                    }
+                    window.location.href = `/dashboard/learner/course/${course.slug}`;
+                  }}
                 >
                   Preview Course
                 </Button>
