@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface VoiceSettings {
   enabled: boolean;
   autoRead: boolean;
-  selectedVoice: string | null;
+  selectedVoice: string | null; // ElevenLabs voice ID
   rate: number;
   pitch: number;
   volume: number;
@@ -12,16 +12,21 @@ interface VoiceSettings {
   paused: boolean;
 }
 
+interface ElevenLabsVoice {
+  id: string;
+  name: string;
+  gender: string;
+}
+
 interface VoiceSettingsContextType {
   settings: VoiceSettings;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
-  availableVoices: SpeechSynthesisVoice[];
+  availableVoices: ElevenLabsVoice[];
   isSupported: boolean;
   toggle: () => void;
   togglePaused: () => void;
   initializeVoice: () => Promise<void>;
-  setSelectedVoice: (voiceName: string) => void;
-  getSelectedVoiceObject: () => SpeechSynthesisVoice | null;
+  setSelectedVoice: (voiceId: string) => void;
   saveSettingsToStorage: () => void;
   loadSettingsFromStorage: () => Partial<VoiceSettings>;
 }
@@ -36,58 +41,23 @@ export const useVoiceSettings = () => {
   return context;
 };
 
-// Enhanced voice selection logic for finding good female English voices
-const findBestEnglishVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
-  if (voices.length === 0) return null;
-
-  // Priority list of female-sounding English voices
-  const femaleVoiceNames = [
-    'Zira', 'Hazel', 'Karen', 'Samantha', 'Victoria', 'Susan', 'Allison',
-    'Kate', 'Serena', 'Tessa', 'Moira', 'Fiona', 'Ava', 'Emma', 'Joanna',
-    'Kendra', 'Kimberly', 'Salli', 'Nicole', 'Amy', 'Emma', 'Brian', 'Aditi'
-  ];
-
-  // First try to find voices with female-sounding names
-  for (const femaleName of femaleVoiceNames) {
-    const voice = voices.find(v => 
-      v.lang.startsWith('en') && 
-      v.name.toLowerCase().includes(femaleName.toLowerCase())
-    );
-    if (voice) {
-      console.log('🔊 Found preferred female voice:', voice.name);
-      return voice;
-    }
-  }
-
-  // Fallback: look for any English voice that doesn't have obviously male names
-  const maleVoiceNames = ['david', 'mark', 'daniel', 'alex', 'thomas', 'james', 'male'];
-  const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-  
-  const nonMaleVoices = englishVoices.filter(v => 
-    !maleVoiceNames.some(maleName => v.name.toLowerCase().includes(maleName))
-  );
-
-  if (nonMaleVoices.length > 0) {
-    console.log('🔊 Found English non-male voice:', nonMaleVoices[0].name);
-    return nonMaleVoices[0];
-  }
-
-  // Final fallback: any English voice
-  if (englishVoices.length > 0) {
-    console.log('🔊 Fallback to first English voice:', englishVoices[0].name);
-    return englishVoices[0];
-  }
-
-  // Last resort: any voice
-  console.log('🔊 Last resort - using first available voice:', voices[0].name);
-  return voices[0];
-};
+// ElevenLabs voice definitions
+const getElevenLabsVoices = (): ElevenLabsVoice[] => [
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah - Warm Female', gender: 'female' },
+  { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica - Professional Female', gender: 'female' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily - Youthful Female', gender: 'female' },
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte - Clear Female', gender: 'female' },
+  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian - Professional Male', gender: 'male' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel - Natural Male', gender: 'male' },
+  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam - Clear Male', gender: 'male' },
+  { id: 'bIHbv24MWmeRgasZH58o', name: 'Will - Conversational Male', gender: 'male' }
+];
 
 export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<VoiceSettings>({
     enabled: true,
     autoRead: true,
-    selectedVoice: null,
+    selectedVoice: 'EXAVITQu4vr4xnSDxMaL', // Default to Sarah
     rate: 1.0,
     pitch: 1.0,
     volume: 0.8,
@@ -95,8 +65,8 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     paused: false
   });
   
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const isSupported = 'speechSynthesis' in window;
+  const availableVoices = getElevenLabsVoices();
+  const isSupported = true; // ElevenLabs is always supported
 
   // Load settings from localStorage on mount
   const loadSettingsFromStorage = (): Partial<VoiceSettings> => {
@@ -143,24 +113,12 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     saveSettingsToStorage();
   }, [settings.enabled, settings.autoRead, settings.selectedVoice, settings.rate, settings.pitch, settings.volume]);
 
-  // Track user interaction for browser speech policies
+  // Track user interaction for ElevenLabs TTS
   useEffect(() => {
     const handleUserInteraction = () => {
       if (!settings.hasInteracted) {
-        console.log('🔊 User interaction detected, enabling voice capabilities');
+        console.log('🔊 User interaction detected, enabling ElevenLabs TTS');
         setSettings(prev => ({ ...prev, hasInteracted: true }));
-        
-        // Test voice synthesis after first interaction
-        if (isSupported && settings.enabled) {
-          try {
-            const testUtterance = new SpeechSynthesisUtterance('');
-            testUtterance.volume = 0;
-            window.speechSynthesis.speak(testUtterance);
-            console.log('🔊 Voice synthesis test successful');
-          } catch (error) {
-            console.error('🔊 Voice synthesis test failed:', error);
-          }
-        }
       }
     };
 
@@ -171,109 +129,24 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('keydown', handleUserInteraction);
     };
-  }, [isSupported, settings.enabled, settings.hasInteracted]);
-
-  // Monitor speech synthesis state changes
-  useEffect(() => {
-    if (!isSupported) return;
-
-    const checkSpeechState = () => {
-      if (!window.speechSynthesis.speaking) {
-        // If nothing is speaking, reset pause state
-        if (settings.paused) {
-          console.log('🔊 Speech ended, resetting pause state');
-          setSettings(prev => ({ ...prev, paused: false }));
-        }
-      }
-    };
-
-    const interval = setInterval(checkSpeechState, 500);
-    return () => clearInterval(interval);
-  }, [isSupported, settings.paused]);
-
-  // Load voices when they become available
-  useEffect(() => {
-    if (!isSupported) return;
-
-    const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      console.log('🔊 Loading voices:', voices.length, 'voices found');
-      setAvailableVoices(voices);
-      
-      // Auto-select a good voice if none selected or if stored voice is not available
-      if (voices.length > 0) {
-        const storedVoice = settings.selectedVoice;
-        const voiceExists = storedVoice && voices.some(v => v.name === storedVoice);
-        
-        if (!storedVoice || !voiceExists) {
-          const bestVoice = findBestEnglishVoice(voices);
-          if (bestVoice) {
-            console.log('🔊 Auto-selecting best voice:', bestVoice.name);
-            setSettings(prev => ({ ...prev, selectedVoice: bestVoice.name }));
-          }
-        } else {
-          console.log('🔊 Using stored voice:', storedVoice);
-        }
-      }
-    };
-
-    loadVoices();
-    
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    // Trigger voice loading with a silent utterance
-    if (availableVoices.length === 0) {
-      const utterance = new SpeechSynthesisUtterance('');
-      utterance.volume = 0;
-      window.speechSynthesis.speak(utterance);
-      setTimeout(loadVoices, 100);
-    }
-  }, [isSupported, settings.selectedVoice, availableVoices.length]);
+  }, [settings.hasInteracted]);
 
   const initializeVoice = async (): Promise<void> => {
-    if (!isSupported) {
-      console.warn('🔊 Speech synthesis not supported in this browser');
-      return;
-    }
-
-    try {
-      if (availableVoices.length === 0) {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          setAvailableVoices(voices);
-        }
-      }
-
-      console.log('🔊 Voice initialization complete');
-    } catch (error) {
-      console.error('🔊 Voice initialization failed:', error);
-    }
+    console.log('🔊 ElevenLabs voice system initialized with', availableVoices.length, 'voices');
   };
 
   const updateSettings = (updates: Partial<VoiceSettings>) => {
     setSettings(prev => ({ ...prev, ...updates }));
   };
 
-  const setSelectedVoice = (voiceName: string) => {
-    console.log('🔊 Setting selected voice to:', voiceName);
-    setSettings(prev => ({ ...prev, selectedVoice: voiceName }));
-  };
-
-  const getSelectedVoiceObject = (): SpeechSynthesisVoice | null => {
-    if (!settings.selectedVoice) return null;
-    return availableVoices.find(v => v.name === settings.selectedVoice) || null;
+  const setSelectedVoice = (voiceId: string) => {
+    console.log('🔊 Setting selected voice to:', voiceId);
+    setSettings(prev => ({ ...prev, selectedVoice: voiceId }));
   };
 
   const toggle = () => {
     const newEnabled = !settings.enabled;
-    console.log('🔊 Voice toggled:', newEnabled ? 'enabled' : 'disabled');
-    
-    if (!newEnabled && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
-    
+    console.log('🔊 ElevenLabs TTS toggled:', newEnabled ? 'enabled' : 'disabled');
     setSettings(prev => ({ ...prev, enabled: newEnabled, paused: false }));
   };
 
@@ -292,7 +165,6 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     togglePaused,
     initializeVoice,
     setSelectedVoice,
-    getSelectedVoiceObject,
     saveSettingsToStorage,
     loadSettingsFromStorage
   };

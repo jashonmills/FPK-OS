@@ -1,126 +1,172 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SpeechOptions {
   rate?: number;
   pitch?: number;
   volume?: number;
-  voice?: SpeechSynthesisVoice;
+  voice?: string; // ElevenLabs voice ID
   interrupt?: boolean;
+  model?: string;
 }
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const { settings, getSelectedVoiceObject } = useVoiceSettings();
-  const isSupported = 'speechSynthesis' in window;
+  const [isLoading, setIsLoading] = useState(false);
+  const { settings } = useVoiceSettings();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isSupported = true; // ElevenLabs is always supported
 
-  const speak = useCallback((text: string, options: SpeechOptions = {}) => {
-    if (!text.trim() || !isSupported || !settings.hasInteracted) {
-      console.warn('🔊 Cannot speak: missing requirements');
+  const speak = useCallback(async (text: string, options: SpeechOptions = {}) => {
+    if (!text.trim()) {
+      console.warn('🔊 Cannot speak: empty text');
+      return false;
+    }
+
+    if (!settings.hasInteracted) {
+      console.warn('🔊 Cannot speak: user interaction required');
       return false;
     }
 
     try {
       // Stop any current speech if interrupt is requested
-      if (options.interrupt && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
+      if (options.interrupt) {
+        stop();
       }
 
-      setIsSpeaking(true);
-      setIsPaused(false);
+      setIsLoading(true);
+      console.log('🔊 Generating speech with ElevenLabs for text:', text.substring(0, 50) + '...');
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Use selected voice from context or provided voice
-      const selectedVoice = getSelectedVoiceObject();
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        console.log('🔊 Using selected voice:', selectedVoice.name);
-      } else if (options.voice) {
-        utterance.voice = options.voice;
-        console.log('🔊 Using provided voice:', options.voice.name);
+      // Call ElevenLabs via our edge function
+      const { data, error } = await supabase.functions.invoke('elevenlabs-tts', {
+        body: {
+          text,
+          voiceId: options.voice || settings.selectedVoice || 'EXAVITQu4vr4xnSDxMaL', // Sarah as default
+          model: options.model || 'eleven_multilingual_v2',
+          stability: 0.5,
+          similarityBoost: 0.75,
+          style: 0.0,
+          useSpeakerBoost: true
+        }
+      });
+
+      if (error || !data?.audioContent) {
+        console.error('🔊 ElevenLabs TTS error:', error);
+        setIsLoading(false);
+        return false;
       }
 
-      // Apply settings from context with option overrides
-      utterance.rate = options.rate ?? settings.rate;
-      utterance.pitch = options.pitch ?? settings.pitch;
-      utterance.volume = options.volume ?? settings.volume;
+      // Create audio blob and play
+      const audioData = atob(data.audioContent);
+      const audioArray = new Uint8Array(audioData.length);
+      for (let i = 0; i < audioData.length; i++) {
+        audioArray[i] = audioData.charCodeAt(i);
+      }
 
-      // Add event handlers
-      utterance.onstart = () => {
-        console.log('🔊 Speech started');
+      const audioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Stop current audio if playing
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.volume = options.volume ?? settings.volume;
+
+      // Set up event listeners
+      audioRef.current.onloadstart = () => {
+        setIsLoading(false);
         setIsSpeaking(true);
         setIsPaused(false);
+        console.log('🔊 ElevenLabs speech started');
       };
 
-      utterance.onend = () => {
-        console.log('🔊 Speech ended');
+      audioRef.current.onended = () => {
         setIsSpeaking(false);
         setIsPaused(false);
+        URL.revokeObjectURL(audioUrl);
+        console.log('🔊 ElevenLabs speech ended');
       };
 
-      utterance.onerror = (event) => {
-        console.warn('🔊 Speech synthesis error:', event.error);
+      audioRef.current.onerror = (event) => {
+        console.error('🔊 Audio playback error:', event);
         setIsSpeaking(false);
         setIsPaused(false);
+        setIsLoading(false);
+        URL.revokeObjectURL(audioUrl);
       };
 
-      utterance.onpause = () => {
-        console.log('🔊 Speech paused');
+      audioRef.current.onpause = () => {
         setIsPaused(true);
+        console.log('🔊 ElevenLabs speech paused');
       };
 
-      utterance.onresume = () => {
-        console.log('🔊 Speech resumed');
+      audioRef.current.onplay = () => {
         setIsPaused(false);
+        console.log('🔊 ElevenLabs speech resumed');
       };
 
-      window.speechSynthesis.speak(utterance);
+      // Start playback
+      await audioRef.current.play();
       return true;
+
     } catch (error) {
-      console.error('🔊 Speech synthesis failed:', error);
+      console.error('🔊 ElevenLabs TTS failed:', error);
       setIsSpeaking(false);
       setIsPaused(false);
+      setIsLoading(false);
       return false;
     }
-  }, [settings, getSelectedVoiceObject, isSupported]);
+  }, [settings]);
 
   const stop = useCallback(() => {
-    if (isSupported && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
       setIsSpeaking(false);
       setIsPaused(false);
-      console.log('🔊 Speech stopped');
+      setIsLoading(false);
+      console.log('🔊 ElevenLabs speech stopped');
     }
-  }, [isSupported]);
+  }, []);
 
   const stopSpeech = useCallback(() => {
     stop();
   }, [stop]);
 
   const togglePauseSpeech = useCallback(() => {
-    if (!isSupported || !isSpeaking) return;
+    if (!audioRef.current || !isSpeaking) return;
 
     if (isPaused) {
-      window.speechSynthesis.resume();
-      setIsPaused(false);
-      console.log('🔊 Speech resumed');
+      audioRef.current.play();
     } else {
-      window.speechSynthesis.pause();
-      setIsPaused(true);
-      console.log('🔊 Speech paused');
+      audioRef.current.pause();
     }
-  }, [isSpeaking, isPaused, isSupported]);
+  }, [isSpeaking, isPaused]);
 
   const readAIMessage = useCallback((text: string) => {
     return speak(text, { interrupt: true });
   }, [speak]);
 
   const getVoices = useCallback(() => {
-    return isSupported ? window.speechSynthesis.getVoices() : [];
-  }, [isSupported]);
+    // Return ElevenLabs voices
+    return [
+      { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah - Warm Female', gender: 'female' },
+      { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica - Professional Female', gender: 'female' },
+      { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily - Youthful Female', gender: 'female' },
+      { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte - Clear Female', gender: 'female' },
+      { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian - Professional Male', gender: 'male' },
+      { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel - Natural Male', gender: 'male' },
+      { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam - Clear Male', gender: 'male' },
+      { id: 'bIHbv24MWmeRgasZH58o', name: 'Will - Conversational Male', gender: 'male' }
+    ];
+  }, []);
 
   return {
     speak,
@@ -130,6 +176,7 @@ export const useTextToSpeech = () => {
     readAIMessage,
     isSpeaking,
     isPaused,
+    isLoading,
     isSupported,
     getVoices
   };

@@ -17,53 +17,31 @@ const VoiceSettingsCard: React.FC = () => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const testVoice = (voiceName?: string) => {
-    const testText = "Hello! This is how I sound when reading your AI responses.";
+  const testVoice = (voiceId?: string) => {
+    const testText = "Hello! This is how I sound when reading your AI responses using ElevenLabs.";
     
-    if (voiceName) {
-      // Temporarily test a specific voice
-      const voice = availableVoices.find(v => v.name === voiceName);
-      if (voice) {
-        speak(testText, { voice, interrupt: true });
-      }
-    } else {
-      // Test current selected voice
-      speak(testText, { interrupt: true });
-    }
+    speak(testText, { 
+      voice: voiceId || settings.selectedVoice || 'EXAVITQu4vr4xnSDxMaL',
+      interrupt: true 
+    });
     
     toast({
       title: "Voice Preview",
-      description: "Playing voice sample...",
+      description: "Playing ElevenLabs voice sample...",
     });
   };
 
-  const handleVoiceChange = (voiceName: string) => {
-    setSelectedVoice(voiceName);
+  const handleVoiceChange = (voiceId: string) => {
+    setSelectedVoice(voiceId);
+    const voice = availableVoices.find(v => v.id === voiceId);
     toast({
       title: "Voice Updated",
-      description: `Switched to ${voiceName}`,
+      description: `Switched to ${voice?.name || voiceId}`,
     });
   };
 
-  const englishVoices = availableVoices.filter(voice => 
-    voice.lang.startsWith('en')
-  );
-
-  const femaleVoices = englishVoices.filter(voice => {
-    const name = voice.name.toLowerCase();
-    const femaleNames = ['zira', 'hazel', 'karen', 'samantha', 'victoria', 'susan', 'allison', 'kate', 'serena', 'tessa', 'moira', 'fiona', 'ava', 'emma', 'joanna', 'kendra', 'kimberly', 'salli', 'nicole', 'amy'];
-    return femaleNames.some(femaleName => name.includes(femaleName));
-  });
-
-  const maleVoices = englishVoices.filter(voice => {
-    const name = voice.name.toLowerCase();
-    const maleNames = ['david', 'mark', 'daniel', 'alex', 'thomas', 'james', 'kevin', 'ryan'];
-    return maleNames.some(maleName => name.includes(maleName));
-  });
-
-  const otherVoices = englishVoices.filter(voice => 
-    !femaleVoices.includes(voice) && !maleVoices.includes(voice)
-  );
+  const femaleVoices = availableVoices.filter(voice => voice.gender === 'female');
+  const maleVoices = availableVoices.filter(voice => voice.gender === 'male');
 
   return (
     <Card className="mobile-card w-full">
@@ -121,7 +99,9 @@ const VoiceSettingsCard: React.FC = () => {
         {/* Current Voice Display - Mobile Compact */}
         {settings.selectedVoice && (
           <div className="mobile-text-xs text-muted-foreground">
-            Current: <span className="font-medium text-foreground">{settings.selectedVoice}</span>
+            Current: <span className="font-medium text-foreground">
+              {availableVoices.find(v => v.id === settings.selectedVoice)?.name || 'ElevenLabs Voice'}
+            </span>
           </div>
         )}
 
@@ -150,14 +130,14 @@ const VoiceSettingsCard: React.FC = () => {
               {/* Female Voices */}
               {femaleVoices.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Female Voices (Recommended)</Label>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Female Voices (ElevenLabs)</Label>
                   <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a female voice..." />
                     </SelectTrigger>
                     <SelectContent>
                       {femaleVoices.map((voice) => (
-                        <SelectItem key={voice.name} value={voice.name}>
+                        <SelectItem key={voice.id} value={voice.id}>
                           <div className="flex items-center justify-between w-full">
                             <span>{voice.name}</span>
                             <Button
@@ -165,7 +145,7 @@ const VoiceSettingsCard: React.FC = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                testVoice(voice.name);
+                                testVoice(voice.id);
                               }}
                               className="h-6 w-12 ml-2 text-xs"
                             >
@@ -182,14 +162,14 @@ const VoiceSettingsCard: React.FC = () => {
               {/* Male Voices */}
               {maleVoices.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Male Voices</Label>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Male Voices (ElevenLabs)</Label>
                   <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a male voice..." />
                     </SelectTrigger>
                     <SelectContent>
                       {maleVoices.map((voice) => (
-                        <SelectItem key={voice.name} value={voice.name}>
+                        <SelectItem key={voice.id} value={voice.id}>
                           <div className="flex items-center justify-between w-full">
                             <span>{voice.name}</span>
                             <Button
@@ -197,39 +177,7 @@ const VoiceSettingsCard: React.FC = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                testVoice(voice.name);
-                              }}
-                              className="h-6 w-12 ml-2 text-xs"
-                            >
-                              <Play className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Other Voices */}
-              {otherVoices.length > 0 && (
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Other English Voices</Label>
-                  <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choose another voice..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {otherVoices.map((voice) => (
-                        <SelectItem key={voice.name} value={voice.name}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{voice.name}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                testVoice(voice.name);
+                                testVoice(voice.id);
                               }}
                               className="h-6 w-12 ml-2 text-xs"
                             >
@@ -289,7 +237,7 @@ const VoiceSettingsCard: React.FC = () => {
 
         {/* Voice Count Info - Mobile Compact */}
         <div className="mobile-text-xs text-muted-foreground text-center pt-2 border-t">
-          {englishVoices.length} voices
+          {availableVoices.length} ElevenLabs voices
           {femaleVoices.length > 0 && (
             <span className="hidden sm:inline"> • {femaleVoices.length} female</span>
           )}
