@@ -27,6 +27,13 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const [overallProgress, setOverallProgress] = useState(0);
   const extractZipMutation = useExtractLinearEquationsZip();
 
+  // Scroll to top when lesson changes
+  useEffect(() => {
+    if (currentLesson !== null) {
+      window.scrollTo(0, 0);
+    }
+  }, [currentLesson]);
+
   const lessons = [
     {
       id: 1,

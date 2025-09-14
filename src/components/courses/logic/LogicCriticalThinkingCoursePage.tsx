@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LogicLesson1_1 } from './LogicLesson1_1';
 import { LogicLesson1_2 } from './LogicLesson1_2';
 import { LogicLesson2_1 } from './LogicLesson2_1';
@@ -24,6 +24,13 @@ const LogicCriticalThinkingCoursePage = () => {
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState(new Set<number>());
   const [overallProgress, setOverallProgress] = useState(0);
+
+  // Scroll to top when lesson changes
+  useEffect(() => {
+    if (currentLesson !== null) {
+      window.scrollTo(0, 0);
+    }
+  }, [currentLesson]);
 
   const lessons = [
     {

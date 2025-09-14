@@ -27,6 +27,13 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
   const [overallProgress, setOverallProgress] = useState(0);
   const extractZipMutation = useExtractAlgebraZip();
 
+  // Scroll to top when lesson changes
+  useEffect(() => {
+    if (currentLesson !== null) {
+      window.scrollTo(0, 0);
+    }
+  }, [currentLesson]);
+
   const lessons = [
     {
       id: 1,

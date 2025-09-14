@@ -28,6 +28,11 @@ const DynamicCourse = () => {
     }
   }, [selectedModuleNumber, modules]);
 
+  // Scroll to top when module changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentModuleIndex]);
+
   if (courseLoading || modulesLoading) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
