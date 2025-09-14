@@ -7,7 +7,6 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DualLanguageText from '@/components/DualLanguageText';
-import fpkLogo from '/assets/fpk-logo.png';
 
 interface CourseHeaderProps {
   onBackToCourses: () => void;
@@ -33,7 +32,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
       <div className="flex items-center justify-between px-3 sm:px-6 h-full">
         <div className="flex items-center gap-2 sm:gap-3">
           <img 
-            src={fpkLogo} 
+            src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/fpk-branding-assets/fpk-logo.png" 
             alt="FPK University" 
             className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
           />
