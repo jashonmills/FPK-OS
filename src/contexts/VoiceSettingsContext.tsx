@@ -127,7 +127,8 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const storedSettings = loadSettingsFromStorage();
     if (Object.keys(storedSettings).length > 0) {
-      setSettings(prev => ({ ...prev, ...storedSettings }));
+      // Always ensure TTS is enabled by default, even if stored settings say otherwise
+      setSettings(prev => ({ ...prev, ...storedSettings, enabled: true }));
     }
   }, []);
 
