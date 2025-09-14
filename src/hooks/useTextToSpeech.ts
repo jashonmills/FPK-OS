@@ -31,6 +31,13 @@ export const useTextToSpeech = () => {
       return false;
     }
 
+    // Don't check settings.enabled for ElevenLabs TTS - let it work regardless
+    console.log('🔊 TTS Settings:', { 
+      enabled: settings.enabled, 
+      hasInteracted: settings.hasInteracted,
+      selectedVoice: settings.selectedVoice 
+    });
+
     try {
       // Stop any current speech if interrupt is requested
       if (options.interrupt) {
@@ -53,8 +60,16 @@ export const useTextToSpeech = () => {
         }
       });
 
-      if (error || !data?.audioContent) {
+      console.log('🔊 ElevenLabs response:', { data, error });
+
+      if (error) {
         console.error('🔊 ElevenLabs TTS error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      if (!data?.audioContent) {
+        console.error('🔊 No audio content received from ElevenLabs');
         setIsLoading(false);
         return false;
       }
