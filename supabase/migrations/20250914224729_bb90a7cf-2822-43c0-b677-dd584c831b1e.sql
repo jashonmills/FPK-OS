@@ -1,0 +1,38 @@
+-- Create the Introduction to Science course record
+INSERT INTO public.courses (
+  id,
+  title,
+  description,
+  featured,
+  status,
+  instructor_name,
+  duration_minutes,
+  difficulty_level,
+  tags,
+  thumbnail_url,
+  price,
+  is_free,
+  created_by,
+  organization_id,
+  course_visibility,
+  created_at,
+  updated_at
+) VALUES (
+  'interactive-science',
+  'Introduction to Science',
+  'Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.',
+  true,
+  'published',
+  'FPK University',
+  360,
+  'beginner',
+  ARRAY['Science', 'Biology', 'Chemistry', 'Physics', 'Scientific Method'],
+  null,
+  0.00,
+  true,
+  null,
+  null,
+  'global',
+  now(),
+  now()
+) ON CONFLICT (id) DO NOTHING;
