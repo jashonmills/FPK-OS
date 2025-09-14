@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LessonBlock {
   id: string;
@@ -34,148 +35,14 @@ interface QuizQuestion {
   explanation: string;
 }
 
-const COURSE_DATA = {
+// This will be populated with real content from the lesson files
+let COURSE_DATA = {
   id: 'interactive-linear-equations',
   title: 'Interactive Linear Equations',
   description: 'Master solving linear equations through interactive lessons and practice problems',
   estimatedTime: '3-4 hours',
   difficulty: 'Beginner',
-  lessons: [
-    {
-      id: 'lesson-1',
-      title: 'Introduction to Linear Equations',
-      description: 'Learn what linear equations are and their basic properties',
-      estimatedTime: '25 min',
-      blocks: [
-        {
-          id: 'text-1',
-          type: 'text',
-          title: 'What is a Linear Equation?',
-          content: 'A linear equation is an algebraic equation where each term is either a constant or the product of a constant and a single variable. Linear equations have no exponents higher than 1 and create straight lines when graphed.'
-        },
-        {
-          id: 'example-1', 
-          type: 'example',
-          title: 'Examples of Linear Equations',
-          content: '• 2x + 3 = 7\n• y = 5x - 2\n• 3a - 4 = 2a + 6\n• x/2 + 1 = 4'
-        },
-        {
-          id: 'practice-1',
-          type: 'practice',
-          title: 'Identify Linear Equations',
-          content: 'Which of these are linear equations?\n1. 3x + 2 = 8\n2. x² + 1 = 5\n3. 2y - 7 = 3\n4. x/3 = 4'
-        }
-      ]
-    },
-    {
-      id: 'lesson-2',
-      title: 'Solving One-Step Equations',
-      description: 'Learn to solve simple linear equations in one step',
-      estimatedTime: '30 min',
-      blocks: [
-        {
-          id: 'text-2',
-          type: 'text',
-          title: 'Addition and Subtraction',
-          content: 'To solve x + 5 = 12, subtract 5 from both sides:\nx + 5 - 5 = 12 - 5\nx = 7'
-        },
-        {
-          id: 'example-2',
-          type: 'example', 
-          title: 'More Examples',
-          content: '• x - 3 = 8 → x = 11\n• 2x = 10 → x = 5\n• x/4 = 3 → x = 12'
-        },
-        {
-          id: 'quiz-2',
-          type: 'quiz',
-          title: 'Practice Problems',
-          content: 'quiz'
-        }
-      ]
-    },
-    {
-      id: 'lesson-3',
-      title: 'Solving Two-Step Equations',
-      description: 'Master equations that require multiple operations',
-      estimatedTime: '35 min',
-      blocks: [
-        {
-          id: 'text-3',
-          type: 'text',
-          title: 'The Two-Step Process',
-          content: 'For equations like 2x + 3 = 11:\n1. First, subtract 3 from both sides: 2x = 8\n2. Then, divide both sides by 2: x = 4'
-        },
-        {
-          id: 'example-3',
-          type: 'example',
-          title: 'Step-by-Step Solution',
-          content: 'Solve: 3x - 7 = 14\nStep 1: Add 7 to both sides\n3x - 7 + 7 = 14 + 7\n3x = 21\n\nStep 2: Divide both sides by 3\n3x ÷ 3 = 21 ÷ 3\nx = 7'
-        }
-      ]
-    },
-    {
-      id: 'lesson-4',
-      title: 'Multi-Step Equations',
-      description: 'Solve complex equations with variables on both sides',
-      estimatedTime: '40 min',
-      blocks: [
-        {
-          id: 'text-4',
-          type: 'text',
-          title: 'Variables on Both Sides',
-          content: 'When variables appear on both sides, collect like terms first:\n5x + 2 = 3x + 8\nSubtract 3x from both sides: 2x + 2 = 8\nSubtract 2 from both sides: 2x = 6\nDivide by 2: x = 3'
-        }
-      ]
-    },
-    {
-      id: 'lesson-5',
-      title: 'Equations with Fractions',
-      description: 'Handle fractions in linear equations',
-      estimatedTime: '35 min',
-      blocks: [
-        {
-          id: 'text-5',
-          type: 'text',
-          title: 'Clearing Fractions',
-          content: 'To solve (x/3) + 2 = 5:\nSubtract 2: x/3 = 3\nMultiply by 3: x = 9'
-        }
-      ]
-    },
-    {
-      id: 'lesson-6',
-      title: 'Word Problems',
-      description: 'Apply linear equations to real-world situations',
-      estimatedTime: '45 min',
-      blocks: [
-        {
-          id: 'text-6',
-          type: 'text',
-          title: 'Setting Up Equations',
-          content: 'Problem: "A number increased by 7 is 15. What is the number?"\nLet x = the unknown number\nEquation: x + 7 = 15\nSolution: x = 8'
-        }
-      ]
-    },
-    {
-      id: 'lesson-7',
-      title: 'Review and Assessment',
-      description: 'Test your knowledge with comprehensive problems',
-      estimatedTime: '30 min',
-      blocks: [
-        {
-          id: 'text-7',
-          type: 'text',
-          title: 'Course Summary',
-          content: 'You have learned to solve:\n• One-step equations\n• Two-step equations\n• Multi-step equations\n• Equations with fractions\n• Word problems'
-        },
-        {
-          id: 'quiz-7',
-          type: 'quiz',
-          title: 'Final Assessment',
-          content: 'quiz'
-        }
-      ]
-    }
-  ] as Lesson[]
+  lessons: [] as Lesson[]
 };
 
 const QUIZ_QUESTIONS: { [key: string]: QuizQuestion[] } = {
@@ -220,15 +87,69 @@ const InteractiveLinearEquationsCoursePage = () => {
   const [completedLessons, setCompletedLessons] = useLocalStorage<string[]>('linear-equations-completed', []);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: string | number }>({});
   const [quizSubmitted, setQuizSubmitted] = useState<{ [key: string]: boolean }>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Load real course content on component mount
+  useEffect(() => {
+    const loadCourseContent = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase.functions.invoke('fetch-linear-equations-content');
+        
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.success) {
+          // Update course data with real content
+          COURSE_DATA = {
+            ...COURSE_DATA,
+            description: data.courseSummary || COURSE_DATA.description,
+            lessons: data.lessons.map((lessonData: any, index: number) => ({
+              id: lessonData.id,
+              title: lessonData.title,
+              description: `Lesson ${index + 1} content`,
+              estimatedTime: estimateReadingTime(lessonData.content),
+              blocks: lessonData.blocks.map((block: any, blockIndex: number) => ({
+                id: `${lessonData.id}-block-${blockIndex}`,
+                type: block.type,
+                title: block.title || `Section ${blockIndex + 1}`,
+                content: block.content
+              }))
+            }))
+          };
+          
+          setLoading(false);
+        } else {
+          throw new Error('Failed to load course content');
+        }
+      } catch (err) {
+        console.error('Error loading course content:', err);
+        setError('Failed to load course content. Please try again.');
+        setLoading(false);
+      }
+    };
+
+    loadCourseContent();
+  }, []);
+
+  // Helper function to estimate reading time
+  const estimateReadingTime = (content: string): string => {
+    const words = content.split(' ').length;
+    const minutes = Math.ceil(words / 200); // Assuming 200 words per minute
+    return `${minutes} min`;
+  };
+
+  // Don't access lesson data if still loading
   const currentLesson = COURSE_DATA.lessons[currentLessonIndex];
-  const currentBlock = currentLesson.blocks[currentBlockIndex];
+  const currentBlock = currentLesson?.blocks[currentBlockIndex];
   const totalLessons = COURSE_DATA.lessons.length;
   const progressPercentage = (completedLessons.length / totalLessons) * 100;
 
   const canGoPrevious = currentLessonIndex > 0 || currentBlockIndex > 0;
-  const canGoNext = currentLessonIndex < totalLessons - 1 || currentBlockIndex < currentLesson.blocks.length - 1;
-  const isLastBlock = currentBlockIndex === currentLesson.blocks.length - 1;
+  const canGoNext = currentLesson && (currentLessonIndex < totalLessons - 1 || currentBlockIndex < currentLesson.blocks.length - 1);
+  const isLastBlock = currentLesson && currentBlockIndex === currentLesson.blocks.length - 1;
 
   const handlePrevious = () => {
     if (currentBlockIndex > 0) {
@@ -271,9 +192,10 @@ const InteractiveLinearEquationsCoursePage = () => {
   };
 
   const renderBlock = () => {
+    if (!currentBlock) return null;
+
     switch (currentBlock.type) {
       case 'text':
-      case 'example':
         return (
           <Card className="w-full">
             <CardHeader>
@@ -283,11 +205,77 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm max-w-none">
-                {currentBlock.content.split('\n').map((line, index) => (
-                  <p key={index} className="mb-2 last:mb-0">
-                    {line}
-                  </p>
+              <div className="prose prose-sm max-w-none space-y-4">
+                {currentBlock.content.split('\n\n').map((paragraph, index) => (
+                  <div key={index} className="space-y-2">
+                    {paragraph.split('\n').map((line, lineIndex) => {
+                      // Handle mathematical expressions
+                      if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
+                        return (
+                          <div key={lineIndex} className="bg-muted p-3 rounded-lg font-mono text-center">
+                            {line}
+                          </div>
+                        );
+                      }
+                      // Handle bullet points
+                      if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                        return (
+                          <li key={lineIndex} className="ml-4">
+                            {line.replace(/^[•\-]\s*/, '')}
+                          </li>
+                        );
+                      }
+                      // Regular text
+                      return line.trim() ? (
+                        <p key={lineIndex} className="mb-2 last:mb-0">
+                          {line}
+                        </p>
+                      ) : null;
+                    })}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'example':
+        return (
+          <Card className="w-full border-blue-200 bg-blue-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-700">
+                <Calculator className="w-5 h-5" />
+                {currentBlock.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {currentBlock.content.split('\n\n').map((section, index) => (
+                  <div key={index} className="space-y-2">
+                    {section.split('\n').map((line, lineIndex) => {
+                      // Handle mathematical expressions
+                      if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
+                        return (
+                          <div key={lineIndex} className="bg-white p-4 rounded-lg border font-mono text-center text-lg">
+                            {line}
+                          </div>
+                        );
+                      }
+                      // Handle step indicators
+                      if (line.toLowerCase().includes('step')) {
+                        return (
+                          <h4 key={lineIndex} className="font-semibold text-blue-800 mt-3">
+                            {line}
+                          </h4>
+                        );
+                      }
+                      return line.trim() ? (
+                        <p key={lineIndex} className="text-gray-700">
+                          {line}
+                        </p>
+                      ) : null;
+                    })}
+                  </div>
                 ))}
               </div>
             </CardContent>
@@ -296,20 +284,30 @@ const InteractiveLinearEquationsCoursePage = () => {
 
       case 'practice':
         return (
-          <Card className="w-full">
+          <Card className="w-full border-green-200 bg-green-50/50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-green-700">
                 <Calculator className="w-5 h-5" />
                 {currentBlock.title}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {currentBlock.content.split('\n').map((line, index) => (
-                  <div key={index} className="p-3 bg-muted rounded-lg">
-                    {line}
-                  </div>
-                ))}
+                {currentBlock.content.split('\n').map((line, index) => {
+                  if (line.trim()) {
+                    return (
+                      <div key={index} className="p-4 bg-white rounded-lg border border-green-200">
+                        <p className="font-medium">{line}</p>
+                        <Input 
+                          type="text" 
+                          placeholder="Your solution..." 
+                          className="mt-2"
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
               </div>
             </CardContent>
           </Card>
@@ -371,6 +369,46 @@ const InteractiveLinearEquationsCoursePage = () => {
         return null;
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Loading Course Content</h2>
+          <p className="text-muted-foreground">Fetching your interactive lessons...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <h2 className="text-xl font-semibold mb-2 text-red-600">Error Loading Course</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  // No lessons loaded
+  if (!COURSE_DATA.lessons.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <h2 className="text-xl font-semibold mb-2">No Content Available</h2>
+          <p className="text-muted-foreground">Course content is not available at the moment.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">

@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.scorm-native-converter]
 verify_jwt = false
+
+[functions.fetch-linear-equations-content]
+verify_jwt = false
