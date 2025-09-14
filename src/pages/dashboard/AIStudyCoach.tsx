@@ -21,6 +21,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { SavedCoachChats } from '@/components/ai-coach/SavedCoachChats';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { calculateStudyStreak, generateTodaysFocus, generateQuickChallenges } from '@/utils/studyDataUtils';
 import { cn } from '@/lib/utils';
@@ -218,6 +219,10 @@ const AIStudyCoach = () => {
               
               <AccessibilityErrorBoundary componentName="FileUploadCard">
                 <FileUploadCard />
+              </AccessibilityErrorBoundary>
+              
+              <AccessibilityErrorBoundary componentName="SavedCoachChats">
+                <SavedCoachChats />
               </AccessibilityErrorBoundary>
             </div>
 

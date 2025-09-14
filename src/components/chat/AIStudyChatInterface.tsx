@@ -16,6 +16,8 @@ import { useConversationState, ChatMessage as ConversationMessage } from '@/hook
 import { v4 as uuidv4 } from 'uuid';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
 import ChatModeToggle from '@/components/ai-coach/ChatModeToggle';
+import { SaveBeforeClearDialog } from '@/components/ai-coach/SaveBeforeClearDialog';
+import { useSavedCoachChats } from '@/hooks/useSavedCoachChats';
 
 interface ChatMessage {
   id: string;
@@ -394,6 +396,17 @@ What specific aspect would you like to focus on?`;
     });
   };
 
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const { saveCurrentChat } = useSavedCoachChats();
+
+  const handleClearChatClick = () => {
+    if (messages.length > 1) { // Only show dialog if there are actual messages (beyond welcome)
+      setShowSaveDialog(true);
+    } else {
+      handleClearChat();
+    }
+  };
+
   const handleClearChat = () => {
     clearAllMessages();
     stop();
@@ -414,6 +427,22 @@ What specific aspect would you like to focus on?`;
       description: "Starting fresh conversation",
       duration: 2000
     });
+  };
+
+  const handleSaveAndClear = async (title?: string) => {
+    if (currentUser && messages.length > 0) {
+      await saveCurrentChat(messages, title);
+    }
+    handleClearChat();
+  };
+
+  // Generate suggested title for save dialog
+  const generateSuggestedTitle = () => {
+    const firstUserMessage = messages.find(m => m.role === 'user')?.content;
+    if (!firstUserMessage) return '';
+    
+    const words = firstUserMessage.split(' ').slice(0, 4).join(' ');
+    return words.length > 30 ? words.substring(0, 30) + '...' : words;
   };
 
   // Auto-play AI responses if enabled
@@ -485,7 +514,7 @@ What specific aspect would you like to focus on?`;
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleClearChat}
+                onClick={handleClearChatClick}
                 title="Clear chat"
                 className="h-8 w-8 p-0"
               >
@@ -649,6 +678,16 @@ What specific aspect would you like to focus on?`;
           </form>
         </div>
       </CardContent>
+
+      {/* Save Before Clear Dialog */}
+      <SaveBeforeClearDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSaveAndClear={handleSaveAndClear}
+        onClearWithoutSaving={handleClearChat}
+        messageCount={messages.length}
+        suggestedTitle={generateSuggestedTitle()}
+      />
     </Card>
   );
 };
