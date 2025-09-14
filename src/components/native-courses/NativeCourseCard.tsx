@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 import { NativeCourse, NativeEnrollment } from '@/hooks/useNativeCourses';
 
@@ -16,15 +15,6 @@ export function NativeCourseCard({
   isEnrolling = false 
 }: NativeCourseCardProps) {
   const isEnrolled = !!enrollment;
-  
-  // Get color theme based on course title
-  const getColorTheme = (): 'blue' | 'orange' | 'purple' | 'green' => {
-    const title = course.title.toLowerCase();
-    if (title.includes('economics') || title.includes('modern')) return 'blue';
-    if (title.includes('algebra')) return 'orange';
-    if (title.includes('learning') || title.includes('state')) return 'purple';
-    return 'green';
-  };
 
   const getCourseType = () => {
     if (course.title.includes('Modern Economics')) return 'Full Course Curriculum';
@@ -45,7 +35,6 @@ export function NativeCourseCard({
       route={`/courses/${course.slug}`}
       onEnroll={onEnroll}
       isEnrolling={isEnrolling}
-      colorTheme={getColorTheme()}
       isCompleted={enrollment?.status === 'completed'}
     />
   );

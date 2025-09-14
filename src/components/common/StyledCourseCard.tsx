@@ -6,6 +6,16 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, Clock, Play, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Import course images
+import courseLinearEquations from '@/assets/course-linear-equations.jpg';
+import courseTrigonometry from '@/assets/course-trigonometry.jpg';
+import courseAlgebra from '@/assets/course-algebra.jpg';
+import courseLogic from '@/assets/course-logic.jpg';
+import courseEconomics from '@/assets/course-economics.jpg';
+import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
+import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
+import courseScience from '@/assets/course-science.jpg';
+
 interface StyledCourseCardProps {
   id: string;
   title: string;
@@ -18,31 +28,41 @@ interface StyledCourseCardProps {
   route?: string;
   onEnroll?: () => void;
   isEnrolling?: boolean;
-  colorTheme: 'blue' | 'orange' | 'purple' | 'green';
   isCompleted?: boolean;
 }
 
-const themeConfig = {
-  blue: {
-    headerGradient: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700',
-    circleColor: 'bg-blue-400/30',
-    badgeClass: 'bg-blue-500 text-white'
-  },
-  orange: {
-    headerGradient: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700',
-    circleColor: 'bg-orange-400/30',
-    badgeClass: 'bg-orange-500 text-white'
-  },
-  purple: {
-    headerGradient: 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700',
-    circleColor: 'bg-purple-400/30',
-    badgeClass: 'bg-purple-500 text-white'
-  },
-  green: {
-    headerGradient: 'bg-gradient-to-br from-green-500 via-green-600 to-green-700',
-    circleColor: 'bg-green-400/30',
-    badgeClass: 'bg-green-500 text-white'
+// Map course IDs to their images
+const courseImageMap: Record<string, string> = {
+  'interactive-linear-equations': courseLinearEquations,
+  'interactive-trigonometry': courseTrigonometry,
+  'interactive-algebra': courseAlgebra,
+  'logic-critical-thinking': courseLogic,
+  'introduction-modern-economics': courseEconomics,
+  'el-spelling-reading': courseSpellingReading,
+  'neurodiversity-strengths-based-approach': courseNeurodiversity,
+  'interactive-science': courseScience,
+};
+
+// Fallback function for courses not in the map
+const getCourseImage = (id: string, title: string): string => {
+  // Check direct ID mapping first
+  if (courseImageMap[id]) {
+    return courseImageMap[id];
   }
+  
+  // Fallback based on title keywords
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquations;
+  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometry;
+  if (titleLower.includes('algebra')) return courseAlgebra;
+  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
+  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
+  if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
+  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
+  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
+  
+  // Default fallback
+  return courseScience;
 };
 
 export function StyledCourseCard({ 
@@ -57,35 +77,35 @@ export function StyledCourseCard({
   route,
   onEnroll,
   isEnrolling = false,
-  colorTheme,
   isCompleted = false
 }: StyledCourseCardProps) {
-  const theme = themeConfig[colorTheme];
+  const courseImage = getCourseImage(id, title);
   
   return (
     <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">
-      {/* Styled Header */}
-      <div className={`relative h-40 ${theme.headerGradient} overflow-hidden`}>
-        {/* Decorative circles */}
-        <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full ${theme.circleColor}`} />
-        <div className={`absolute top-8 -right-8 w-12 h-12 rounded-full ${theme.circleColor}`} />
-        <div className={`absolute -bottom-6 -left-6 w-20 h-20 rounded-full ${theme.circleColor}`} />
+      {/* AI Generated Image Header */}
+      <div 
+        className="relative h-40 bg-cover bg-center overflow-hidden"
+        style={{ backgroundImage: `url(${courseImage})` }}
+      >
+        {/* Dark overlay for text contrast */}
+        <div className="absolute inset-0 bg-black/40" />
         
         {/* Header content */}
         <div className="relative z-10 p-6 h-full flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
-            <Badge className={theme.badgeClass}>
+            <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm">
               {courseType}
             </Badge>
             {isCompleted && (
-              <Badge className="bg-green-500 text-white">
+              <Badge className="bg-green-500/90 text-white backdrop-blur-sm">
                 Completed
               </Badge>
             )}
           </div>
           
           <div className="flex-1 flex items-end">
-            <h3 className="text-white font-bold text-lg leading-tight">
+            <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg">
               {title}
             </h3>
           </div>

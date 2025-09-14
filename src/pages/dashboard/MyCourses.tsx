@@ -300,15 +300,7 @@ const MyCourses = () => {
     };
 
     // Get color theme based on course
-    const getColorTheme = (): 'blue' | 'orange' | 'purple' | 'green' => {
-      if (isInteractiveLinearEquations) return 'blue';
-      if (isInteractiveTrigonometry) return 'orange';
-      if (isInteractiveAlgebra || isLearningStateCourse) return 'purple';
-      if (isIntroductionModernEconomics) return 'blue';
-      if (isLogicCriticalThinking) return 'green';
-      if (isIntroductionToScience) return 'blue';
-      return 'green';
-    };
+    // NOTE: Removed color theme system in favor of AI-generated images
 
     // Fixed course route logic
     const getCourseRoute = () => {
@@ -363,7 +355,6 @@ const MyCourses = () => {
         duration={course.duration_minutes}
         instructor={course.instructor_name}
         route={isEnrolled ? getCourseRoute() : undefined}
-        colorTheme={getColorTheme()}
         isCompleted={progress?.completed || false}
         onEnroll={!isEnrolled ? handleEnrollment : undefined}
         isEnrolling={!isEnrolled ? isCourseEnrolling : false}
