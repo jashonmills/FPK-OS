@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import JSZip from "npm:jszip@3.10.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,23 +32,50 @@ serve(async (req) => {
     const zipBuffer = await response.arrayBuffer()
     console.log(`Downloaded zip file: ${zipBuffer.byteLength} bytes`)
 
-    // For now, we'll simulate the extraction process
-    // In a real implementation, you would extract the zip contents
-    // and process the lesson files
+    // Extract the zip file contents
+    const zip = new JSZip()
+    const zipContent = await zip.loadAsync(zipBuffer)
+    
+    console.log('Zip contents:', Object.keys(zipContent.files))
+    
+    // Extract lesson files
+    const lessons = []
+    const lessonContents = {}
+    
+    for (const [filename, file] of Object.entries(zipContent.files)) {
+      if (!file.dir && (filename.includes('lesson') || filename.includes('Lesson'))) {
+        console.log(`Processing file: ${filename}`)
+        const content = await file.async('text')
+        
+        // Extract lesson number from filename
+        const lessonMatch = filename.match(/lesson[_\s]*(\d+)/i)
+        if (lessonMatch) {
+          const lessonNum = parseInt(lessonMatch[1])
+          lessonContents[lessonNum] = {
+            filename,
+            content,
+            title: `Lesson ${lessonNum}` // Will be refined from content
+          }
+        }
+      }
+    }
+    
+    // Sort and format lessons
+    const sortedLessons = Object.keys(lessonContents)
+      .map(key => parseInt(key))
+      .sort((a, b) => a - b)
+      .map(num => ({
+        id: num,
+        ...lessonContents[num]
+      }))
+    
+    console.log(`Extracted ${sortedLessons.length} lessons:`, sortedLessons.map(l => l.filename))
     
     const extractedData = {
       courseId,
       status: 'extracted',
-      message: 'Algebra course content ready for processing',
-      lessons: [
-        { id: 1, title: 'Introduction to Algebra', file: 'lesson_3_1.md' },
-        { id: 2, title: 'Working with Variables', file: 'lesson_3_2.md' },
-        { id: 3, title: 'Solving Simple Equations', file: 'lesson_3_3.md' },
-        { id: 4, title: 'Linear Equations and Graphing', file: 'lesson_3_4.md' },
-        { id: 5, title: 'Systems of Equations', file: 'lesson_3_5.md' },
-        { id: 6, title: 'Quadratic Equations', file: 'lesson_3_6.md' },
-        { id: 7, title: 'Advanced Applications', file: 'lesson_3_7.md' }
-      ],
+      message: 'Algebra course content extracted successfully',
+      lessons: sortedLessons,
       extractedAt: new Date().toISOString()
     }
 

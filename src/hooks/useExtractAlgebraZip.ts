@@ -21,6 +21,12 @@ export const useExtractAlgebraZip = () => {
       }
 
       console.log('✅ Algebra course content extracted successfully:', data);
+      
+      // Store extracted lesson content in localStorage for the components to access
+      if (data.lessons) {
+        localStorage.setItem('algebra-lessons-content', JSON.stringify(data.lessons));
+      }
+      
       return data;
     },
     onSuccess: (data) => {
