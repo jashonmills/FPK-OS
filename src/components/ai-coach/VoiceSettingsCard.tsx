@@ -18,16 +18,21 @@ const VoiceSettingsCard: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const testVoice = (voiceId?: string) => {
-    const testText = "Hello! This is how I sound when reading your AI responses using ElevenLabs.";
+    const testText = "Hello! This is how I sound when reading your AI responses using browser text-to-speech.";
+    
+    // Find the actual SpeechSynthesisVoice object
+    const voices = window.speechSynthesis.getVoices();
+    const selectedVoiceId = voiceId || settings.selectedVoice;
+    const voiceObject = selectedVoiceId ? voices.find(v => v.name === selectedVoiceId) : voices[0];
     
     speak(testText, { 
-      voice: voiceId || settings.selectedVoice || 'EXAVITQu4vr4xnSDxMaL',
+      voice: voiceObject,
       interrupt: true 
     });
     
     toast({
       title: "Voice Preview",
-      description: "Playing ElevenLabs voice sample...",
+      description: "Playing browser voice sample...",
     });
   };
 
@@ -100,7 +105,7 @@ const VoiceSettingsCard: React.FC = () => {
         {settings.selectedVoice && (
           <div className="mobile-text-xs text-muted-foreground">
             Current: <span className="font-medium text-foreground">
-              {availableVoices.find(v => v.id === settings.selectedVoice)?.name || 'ElevenLabs Voice'}
+              {availableVoices.find(v => v.id === settings.selectedVoice)?.name || 'Browser Voice'}
             </span>
           </div>
         )}
@@ -130,7 +135,7 @@ const VoiceSettingsCard: React.FC = () => {
               {/* Female Voices */}
               {femaleVoices.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Female Voices (ElevenLabs)</Label>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Female Voices</Label>
                   <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a female voice..." />
@@ -162,7 +167,7 @@ const VoiceSettingsCard: React.FC = () => {
               {/* Male Voices */}
               {maleVoices.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Male Voices (ElevenLabs)</Label>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Male Voices</Label>
                   <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a male voice..." />
@@ -237,7 +242,7 @@ const VoiceSettingsCard: React.FC = () => {
 
         {/* Voice Count Info - Mobile Compact */}
         <div className="mobile-text-xs text-muted-foreground text-center pt-2 border-t">
-          {availableVoices.length} ElevenLabs voices
+          {availableVoices.length} browser voices available
           {femaleVoices.length > 0 && (
             <span className="hidden sm:inline"> • {femaleVoices.length} female</span>
           )}

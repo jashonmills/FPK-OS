@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface VoiceSettings {
   enabled: boolean;
   autoRead: boolean;
-  selectedVoice: string | null; // ElevenLabs voice ID
+  selectedVoice: string | null; // Browser voice name
   rate: number;
   pitch: number;
   volume: number;
@@ -12,7 +11,7 @@ interface VoiceSettings {
   paused: boolean;
 }
 
-interface ElevenLabsVoice {
+interface BrowserVoice {
   id: string;
   name: string;
   gender: string;
@@ -21,7 +20,7 @@ interface ElevenLabsVoice {
 interface VoiceSettingsContextType {
   settings: VoiceSettings;
   updateSettings: (updates: Partial<VoiceSettings>) => void;
-  availableVoices: ElevenLabsVoice[];
+  availableVoices: BrowserVoice[];
   isSupported: boolean;
   toggle: () => void;
   togglePaused: () => void;
@@ -41,23 +40,23 @@ export const useVoiceSettings = () => {
   return context;
 };
 
-// ElevenLabs voice definitions
-const getElevenLabsVoices = (): ElevenLabsVoice[] => [
-  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah - Warm Female', gender: 'female' },
-  { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica - Professional Female', gender: 'female' },
-  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily - Youthful Female', gender: 'female' },
-  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte - Clear Female', gender: 'female' },
-  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian - Professional Male', gender: 'male' },
-  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel - Natural Male', gender: 'male' },
-  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam - Clear Male', gender: 'male' },
-  { id: 'bIHbv24MWmeRgasZH58o', name: 'Will - Conversational Male', gender: 'male' }
-];
+// Get browser voices and map them to our interface
+const getBrowserVoices = (): BrowserVoice[] => {
+  if (!('speechSynthesis' in window)) return [];
+  
+  const voices = window.speechSynthesis.getVoices();
+  return voices.map(voice => ({
+    id: voice.name,
+    name: `${voice.name} (${voice.lang})`,
+    gender: voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman') ? 'female' : 'male'
+  }));
+};
 
 export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<VoiceSettings>({
     enabled: true,
     autoRead: true,
-    selectedVoice: 'EXAVITQu4vr4xnSDxMaL', // Default to Sarah
+    selectedVoice: null, // Will be set to first available voice
     rate: 1.0,
     pitch: 1.0,
     volume: 0.8,
@@ -65,8 +64,32 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     paused: false
   });
   
-  const availableVoices = getElevenLabsVoices();
-  const isSupported = true; // ElevenLabs is always supported
+  const [availableVoices, setAvailableVoices] = useState<BrowserVoice[]>([]);
+  const isSupported = 'speechSynthesis' in window;
+
+  // Load voices when available
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const loadVoices = () => {
+      const voices = getBrowserVoices();
+      setAvailableVoices(voices);
+      
+      // Set default voice if none selected
+      if (!settings.selectedVoice && voices.length > 0) {
+        const defaultVoice = voices.find(v => v.name.includes('English')) || voices[0];
+        setSettings(prev => ({ ...prev, selectedVoice: defaultVoice.id }));
+      }
+    };
+
+    // Load voices immediately and also when they change
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, [isSupported, settings.selectedVoice]);
 
   // Load settings from localStorage on mount
   const loadSettingsFromStorage = (): Partial<VoiceSettings> => {
@@ -113,11 +136,11 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     saveSettingsToStorage();
   }, [settings.enabled, settings.autoRead, settings.selectedVoice, settings.rate, settings.pitch, settings.volume]);
 
-  // Track user interaction for ElevenLabs TTS
+  // Track user interaction for TTS
   useEffect(() => {
     const handleUserInteraction = () => {
       if (!settings.hasInteracted) {
-        console.log('🔊 User interaction detected, enabling ElevenLabs TTS');
+        console.log('🔊 User interaction detected, enabling browser TTS');
         setSettings(prev => ({ ...prev, hasInteracted: true }));
       }
     };
@@ -132,7 +155,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [settings.hasInteracted]);
 
   const initializeVoice = async (): Promise<void> => {
-    console.log('🔊 ElevenLabs voice system initialized with', availableVoices.length, 'voices');
+    console.log('🔊 Browser voice system initialized with', availableVoices.length, 'voices');
   };
 
   const updateSettings = (updates: Partial<VoiceSettings>) => {
@@ -146,7 +169,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toggle = () => {
     const newEnabled = !settings.enabled;
-    console.log('🔊 ElevenLabs TTS toggled:', newEnabled ? 'enabled' : 'disabled');
+    console.log('🔊 Browser TTS toggled:', newEnabled ? 'enabled' : 'disabled');
     setSettings(prev => ({ ...prev, enabled: newEnabled, paused: false }));
   };
 
