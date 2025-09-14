@@ -65,33 +65,98 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      // Load course-level analytics
-      const { data: enrollmentData } = await supabase
+      console.log('🔄 Loading analytics data for user:', user.id);
+      
+      // Load course-level analytics for current user from new system
+      const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('interactive_course_enrollments')
-        .select('*');
+        .select('*')
+        .eq('user_id', user.id);
 
-      const { data: lessonData } = await supabase
+      if (enrollmentError) {
+        console.error('Error loading enrollments:', enrollmentError);
+      } else {
+        console.log('📊 Found new enrollments:', enrollmentData?.length || 0);
+      }
+
+      // Load from old enrollments table as fallback
+      const { data: oldEnrollmentData, error: oldEnrollmentError } = await supabase
+        .from('enrollments')
+        .select('course_id, enrolled_at, progress')
+        .eq('user_id', user.id)
+        .in('course_id', [
+          'introduction-modern-economics',
+          'interactive-linear-equations', 
+          'interactive-algebra',
+          'interactive-trigonometry'
+        ]);
+
+      if (oldEnrollmentError) {
+        console.error('Error loading old enrollments:', oldEnrollmentError);
+      } else {
+        console.log('📚 Found old enrollments:', oldEnrollmentData?.length || 0);
+      }
+
+      // Convert old enrollments to new format
+      const convertedEnrollments = (oldEnrollmentData || []).map(old => {
+        const progress = old.progress as any;
+        const completionPercentage = progress?.completion_percentage || 0;
+        return {
+          id: `old-${old.course_id}`,
+          user_id: user.id,
+          course_id: old.course_id,
+          course_title: getCourseTitle(old.course_id),
+          enrolled_at: old.enrolled_at,
+          last_accessed_at: new Date().toISOString(),
+          completion_percentage: completionPercentage,
+          completed_at: completionPercentage >= 100 ? new Date().toISOString() : null,
+          total_time_spent_minutes: 0
+        };
+      });
+
+      // Combine new and old enrollment data
+      const allEnrollments = [...(enrollmentData || []), ...convertedEnrollments];
+      console.log('📈 Total enrollments combined:', allEnrollments.length);
+
+      const { data: lessonData, error: lessonError } = await supabase
         .from('interactive_lesson_analytics')
-        .select('*');
+        .select('*')
+        .eq('user_id', user.id);
 
-      // Process course analytics
-      const courseStats = processCourseAnalytics(enrollmentData || [], lessonData || []);
+      if (lessonError) {
+        console.error('Error loading lesson data:', lessonError);
+      } else {
+        console.log('📚 Found lesson analytics:', lessonData?.length || 0);
+      }
+
+      // Process course analytics with combined data
+      const courseStats = processCourseAnalytics(allEnrollments, lessonData || []);
       setCourseAnalytics(courseStats);
+      console.log('📈 Processed course stats:', courseStats.length);
 
       // Load learning trends
       const trends = await loadLearningTrends(selectedTimeRange);
       setLearningTrends(trends);
 
-      // Load user progress (for admin view)
-      if (user) {
-        const progress = await loadUserProgress();
-        setUserProgress(progress);
-      }
+      // Load user progress (for current user only)
+      const progress = await loadUserProgress();
+      setUserProgress(progress);
+      
     } catch (error) {
       console.error('Error loading analytics data:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getCourseTitle = (courseId: string): string => {
+    const titles: Record<string, string> = {
+      'introduction-modern-economics': 'Introduction to Modern Economics',
+      'interactive-linear-equations': 'Linear Equations Mastery', 
+      'interactive-algebra': 'Algebra Fundamentals',
+      'interactive-trigonometry': 'Trigonometry Fundamentals'
+    };
+    return titles[courseId] || courseId;
   };
 
   const processCourseAnalytics = (enrollments: any[], lessons: any[]): CourseAnalytics[] => {
@@ -159,6 +224,7 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
     const { data: trendData } = await supabase
       .from('interactive_course_enrollments')
       .select('enrolled_at, completed_at, total_time_spent_minutes')
+      .eq('user_id', user?.id)
       .gte('enrolled_at', startDate.toISOString());
 
     // Process trends by day
