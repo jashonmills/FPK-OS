@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
+import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 
 // Import lesson components
 import { TrigonometryLesson1 } from '@/components/trigonometry/lessons/TrigonometryLesson1';
@@ -159,6 +160,14 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
               courseTitle="Interactive Trigonometry Course"
               courseDescription="Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving."
               lessons={lessons}
+            />
+          </div>
+
+          {/* Course Overview Video */}
+          <div className="mb-8">
+            <CourseOverviewVideo
+              videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Trigonometry__The_Secret_Language_of_Waves.mp4"
+              title="The Secret Language of Waves"
             />
           </div>
 

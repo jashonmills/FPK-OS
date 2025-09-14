@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
+import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { useExtractAlgebraZip } from '@/hooks/useExtractAlgebraZip';
 
 // Import lesson components
@@ -167,6 +168,14 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
                 courseTitle="Interactive Algebra Course"
                 courseDescription="Master algebra fundamentals through interactive lessons and practice problems. Learn algebraic expressions, equations, and problem-solving techniques step by step."
                 lessons={lessons}
+              />
+            </div>
+
+            {/* Course Overview Video */}
+            <div className="mb-8">
+              <CourseOverviewVideo
+                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Algebra_s_Secret_Language.mp4"
+                title="Algebra's Secret Language"
               />
             </div>
 
