@@ -8,12 +8,12 @@ import { useModules } from '@/hooks/useModules';
 import EnhancedModuleViewer from '@/components/admin/EnhancedModuleViewer';
 
 const DynamicCourse = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { courseId } = useParams<{ courseId: string }>();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const selectedModuleNumber = searchParams.get('module');
   
-  const { course, isLoading: courseLoading } = useCourse(slug || '');
+  const { course, isLoading: courseLoading } = useCourse(courseId || '');
   const { modules, isLoading: modulesLoading } = useModules(course?.id || '');
   
   const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
