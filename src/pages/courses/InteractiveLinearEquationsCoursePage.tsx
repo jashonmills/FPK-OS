@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
+import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { useExtractLinearEquationsZip } from '@/hooks/useExtractLinearEquationsZip';
 
 // Import lesson components
@@ -165,6 +166,12 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
               lessons={lessons}
             />
           </div>
+
+          {/* Course Overview Video */}
+          <CourseOverviewVideo
+            videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/The_Linear_Equation_Puzzle.mp4"
+            title="The Linear Equation Puzzle"
+          />
 
           {/* Lessons Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
