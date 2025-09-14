@@ -10,7 +10,12 @@ import { iframeAnalytics } from '@/utils/iframeAnalytics';
 
 import { Loader2 } from 'lucide-react';
 
-const CoursePlayer: React.FC = () => {
+interface CoursePlayerProps {
+  onProgress?: (progress: number) => void;
+  onComplete?: () => void;
+}
+
+const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -51,6 +56,7 @@ const CoursePlayer: React.FC = () => {
               moduleId: data.moduleId,
               timestamp: new Date().toISOString()
             });
+            onComplete?.();
             break;
 
           case 'COURSE_COMPLETE':
@@ -60,6 +66,7 @@ const CoursePlayer: React.FC = () => {
               completedAt: new Date().toISOString(),
               completed: true
             });
+            onComplete?.();
             break;
 
           case 'PROGRESS_UPDATE':
@@ -68,6 +75,7 @@ const CoursePlayer: React.FC = () => {
               type: 'progress_update',
               completionPercentage: data.percent
             });
+            onProgress?.(data.percent);
             break;
 
           case 'READY':
@@ -101,7 +109,7 @@ const CoursePlayer: React.FC = () => {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [updateProgress, user?.id, currentProgress]);
+  }, [updateProgress, user?.id, currentProgress, onProgress, onComplete]);
 
   // Handle iframe load event
   useEffect(() => {

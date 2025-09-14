@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useCleanupDebugUI } from '@/hooks/useCleanupDebugUI';
+import { useUnifiedProgressTracking } from '@/hooks/useUnifiedProgressTracking';
 import CourseHeader from '@/components/course/CourseHeader';
 import CourseOverview from '@/components/course/CourseOverview';
 import CoursePlayer from '@/components/course/CoursePlayer';
@@ -15,6 +16,7 @@ import { PolishedContainer } from '@/components/common/UIPolishProvider';
 const LearningStateCourse = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showStickyToolbar, setShowStickyToolbar] = useState(false);
+  const [currentLessonId, setCurrentLessonId] = useState<string>('cognitive-load');
   const [mediaState, setMediaState] = useState({
     isPlaying: false,
     progress: 0,
@@ -27,6 +29,57 @@ const LearningStateCourse = () => {
   const { getAccessibilityClasses } = useAccessibility();
   const isMobile = useIsMobile();
   
+  // Initialize unified progress tracking
+  const {
+    trackInteraction,
+    trackLessonCompletion,
+    trackCourseCompletion,
+    totalTimeSpent,
+    sessionActive
+  } = useUnifiedProgressTracking(
+    'learning-state-course',
+    'Learning State Course',
+    currentLessonId,
+    'Cognitive Load Theory'
+  );
+  
+  // Track interactions when component mounts
+  useEffect(() => {
+    // Track scroll interactions
+    const handleScroll = () => {
+      trackInteraction('page_scroll', {
+        scrollY: window.scrollY,
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    // Track click interactions
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      trackInteraction('click', {
+        elementType: target.tagName.toLowerCase(),
+        className: target.className,
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    // Add event listeners with throttling
+    let scrollTimeout: NodeJS.Timeout;
+    const throttledScrollHandler = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScroll, 1000); // Throttle to once per second
+    };
+
+    window.addEventListener('scroll', throttledScrollHandler);
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      window.removeEventListener('scroll', throttledScrollHandler);
+      document.removeEventListener('click', handleClick);
+      clearTimeout(scrollTimeout);
+    };
+  }, [trackInteraction]);
+
   // Clean up debug UI in production
   useCleanupDebugUI({
     removeDebugAttributes: true,
@@ -61,13 +114,39 @@ const LearningStateCourse = () => {
   // Media control handlers
   const handleMediaStateChange = (newState: Partial<typeof mediaState>) => {
     setMediaState(prev => ({ ...prev, ...newState }));
+    
+    // Track media interactions
+    if (newState.isPlaying !== undefined) {
+      trackInteraction(newState.isPlaying ? 'media_play' : 'media_pause', {
+        lessonId: currentLessonId,
+        progress: newState.progress || mediaState.progress
+      });
+    }
+    
+    if (newState.progress !== undefined && newState.progress > 0) {
+      trackInteraction('media_progress', {
+        lessonId: currentLessonId,
+        progress: newState.progress
+      });
+    }
   };
 
   const handleTogglePlay = () => {
-    setMediaState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    const newPlayState = !mediaState.isPlaying;
+    setMediaState(prev => ({ ...prev, isPlaying: newPlayState }));
+    
+    trackInteraction(newPlayState ? 'media_play' : 'media_pause', {
+      lessonId: currentLessonId,
+      progress: mediaState.progress
+    });
   };
 
   const handleSkip = (seconds: number) => {
+    trackInteraction('media_skip', {
+      lessonId: currentLessonId,
+      skipSeconds: seconds,
+      currentProgress: mediaState.progress
+    });
     console.log(`Skipping ${seconds} seconds`);
   };
 
@@ -119,7 +198,7 @@ const LearningStateCourse = () => {
               duration: '22',
               type: 'audio',
               isCompleted: false,
-              isActive: true,
+              isActive: currentLessonId === 'cognitive-load',
               isLocked: false,
               progress: 65
             },
@@ -129,7 +208,7 @@ const LearningStateCourse = () => {
               duration: '18',
               type: 'video',
               isCompleted: false,
-              isActive: false,
+              isActive: currentLessonId === 'attention',
               isLocked: false,
               progress: 0
             },
@@ -139,7 +218,7 @@ const LearningStateCourse = () => {
               duration: '25',
               type: 'text',
               isCompleted: false,
-              isActive: false,
+              isActive: currentLessonId === 'memory',
               isLocked: true,
               progress: 0
             },
@@ -149,13 +228,20 @@ const LearningStateCourse = () => {
               duration: '20',
               type: 'pdf',
               isCompleted: false,
-              isActive: false,
+              isActive: currentLessonId === 'metacognition',
               isLocked: true,
               progress: 0
             }
           ]}
           courseProgress={42}
-          onModuleSelect={(moduleId) => console.log('Selected module:', moduleId)}
+          onModuleSelect={(moduleId) => {
+            setCurrentLessonId(moduleId);
+            trackInteraction('lesson_select', {
+              previousLessonId: currentLessonId,
+              newLessonId: moduleId
+            });
+            console.log('Selected module:', moduleId);
+          }}
         />
       }
     >
@@ -168,7 +254,14 @@ const LearningStateCourse = () => {
         </div>
 
         <div ref={playerRef} className="mt-6">
-          <CoursePlayer />
+          <CoursePlayer 
+            onProgress={(progress) => {
+              handleMediaStateChange({ progress });
+            }}
+            onComplete={() => {
+              trackLessonCompletion(currentLessonId, 'Cognitive Load Theory');
+            }}
+          />
         </div>
       </PolishedContainer>
     </ResponsiveLayout>
