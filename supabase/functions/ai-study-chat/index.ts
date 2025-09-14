@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SOCRATIC_BLUEPRINT_V7, GEMINI_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
+import { corsHeaders, SOCRATIC_BLUEPRINT_V42, GEMINI_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 
@@ -150,7 +150,7 @@ serve(async (req) => {
             parts: [{ text: contextPrompt }]
           }],
           systemInstruction: {
-            parts: [{ text: SOCRATIC_BLUEPRINT_V7 }]
+            parts: [{ text: SOCRATIC_BLUEPRINT_V42 }]
           },
           generationConfig: {
             maxOutputTokens: MAX_TOKENS,
@@ -310,6 +310,12 @@ function autoDetectPromptType(message: string, history: any[]): string {
     return 'initiate_quiz';
   }
   
+  // Detect simple, foundational questions that need direct teaching first
+  const isSimpleFoundational = isSimpleFoundationalQuestion(trimmed);
+  if (isSimpleFoundational && (!history || history.length === 0)) {
+    return 'direct_teaching';
+  }
+  
   // Struggle indicators
   const struggleIndicators = ['help', 'stuck', 'confused', 'don\'t understand', 'don\'t know'];
   if (struggleIndicators.some(indicator => trimmed.includes(indicator))) {
@@ -327,6 +333,26 @@ function autoDetectPromptType(message: string, history: any[]): string {
   
   // Default to session initiation
   return 'initiate_session';
+}
+
+// Helper function to detect simple, foundational questions
+function isSimpleFoundationalQuestion(message: string): boolean {
+  // Basic math expressions (single operations)
+  if (message.match(/^\s*\d+\s*[\+\-\*\/]\s*\d+\s*$/)) {
+    return true;
+  }
+  
+  // Simple factual questions
+  const simplePatterns = [
+    /^what is \d+[\+\-\*\/]\d+/,  // "what is 2+2"
+    /^what color is the sky/,      // basic facts
+    /^what is water made of/,      // fundamental science
+    /^what is the capital of/,     // basic geography
+    /^how many .+ in a/,          // basic counting/conversion
+    /^what does .+ mean$/,        // simple definition requests
+  ];
+  
+  return simplePatterns.some(pattern => pattern.test(message));
 }
 
 // Helper function to provide contextual responses based on user input
