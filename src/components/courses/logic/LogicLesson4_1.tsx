@@ -335,19 +335,19 @@ export function LogicLesson4_1({ onComplete, onNext, hasNext = false }: LogicLes
             <div className="mt-3 space-y-3">
               <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded">
                 <p className="text-sm font-medium">Structure Type: Serial + Divergent</p>
-                <p class="text-sm">Serial chain: Social media → Mental health → Academic performance → Future opportunities</p>
-                <p class="text-sm">Divergent: Same premises lead to two different solutions (school limits + parent monitoring)</p>
+                <p className="text-sm">Serial chain: Social media → Mental health → Academic performance → Future opportunities</p>
+                <p className="text-sm">Divergent: Same premises lead to two different solutions (school limits + parent monitoring)</p>
               </div>
-              <div class="p-3 bg-green-50 dark:bg-green-950/20 rounded">
-                <p class="text-sm font-medium">Key Premises:</p>
-                <p class="text-sm">1. Social media increases teen anxiety/depression<br/>
+              <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded">
+                <p className="text-sm font-medium">Key Premises:</p>
+                <p className="text-sm">1. Social media increases teen anxiety/depression<br/>
                 2. Mental health affects academic focus<br/>
                 3. Poor grades limit opportunities<br/>
                 4. Teen mental health issues persist into adulthood</p>
               </div>
-              <div class="p-3 bg-orange-50 dark:bg-orange-950/20 rounded">
-                <p class="text-sm font-medium">Potential Weaknesses:</p>
-                <p class="text-sm">• Assumes correlation equals causation<br/>
+              <div className="p-3 bg-orange-50 dark:bg-orange-950/20 rounded">
+                <p className="text-sm font-medium">Potential Weaknesses:</p>
+                <p className="text-sm">• Assumes correlation equals causation<br/>
                 • May oversimplify complex relationship between social media and mental health<br/>
                 • Solutions may not address root causes</p>
               </div>
