@@ -28,7 +28,7 @@ export function useExtractLinearEquationsZip() {
     },
     onError: (error) => {
       console.error('Error extracting zip:', error);
-      toast.error('Failed to extract zip file');
+      // Toast notification removed as requested
     },
   });
 }
