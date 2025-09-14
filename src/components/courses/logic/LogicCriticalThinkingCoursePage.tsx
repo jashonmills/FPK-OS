@@ -183,7 +183,7 @@ const LogicCriticalThinkingCoursePage = () => {
 
           {/* Course Overview Video */}
           <CourseOverviewVideo
-            videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/critical_thinking_intro.mp4"
+            videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Logic_&_Critical_Thinking.mp4"
             title="Introduction to Critical Thinking"
           />
 
