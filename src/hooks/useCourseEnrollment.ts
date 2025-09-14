@@ -14,12 +14,16 @@ export function useCourseEnrollment() {
       }
 
       // Check if already enrolled
-      const { data: existingEnrollment } = await supabase
+      const { data: existingEnrollment, error: checkError } = await supabase
         .from('enrollments')
         .select('id')
         .eq('user_id', user.id)
         .eq('course_id', courseId)
-        .single();
+        .maybeSingle();
+
+      if (checkError) {
+        throw checkError;
+      }
 
       if (existingEnrollment) {
         throw new Error('Already enrolled in this course');
