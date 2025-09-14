@@ -16,6 +16,7 @@ import { useNativeCourses, useNativeEnrollments, useNativeEnrollmentMutations } 
 import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
+import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -211,24 +212,32 @@ const MyCourses = () => {
       return course.title;
     };
 
+    // Get course type for styling
+    const getCourseType = () => {
+      if (isLearningStateCourse) return 'Beta Course';
+      if (isElSpellingCourse) return 'Reading Course';
+      if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
+      return 'Full Course Curriculum';
+    };
+
+    // Get color theme based on course
+    const getColorTheme = (): 'blue' | 'orange' | 'purple' | 'green' => {
+      if (isInteractiveLinearEquations) return 'blue';
+      if (isInteractiveTrigonometry) return 'orange';
+      if (isInteractiveAlgebra || isLearningStateCourse) return 'purple';
+      return 'green';
+    };
+
     // Fixed course route logic
     const getCourseRoute = () => {
-      console.log('Getting course route for:', { 
-        courseId: course.id, 
-        slug: course.slug, 
-        isLearningState: isLearningStateCourse 
-      });
-      
       if (isLearningStateCourse) {
         return 'https://course-start-kit-react.lovable.app/';
       }
       
-      // Special case for EL Spelling & Reading course
       if (isElSpellingCourse) {
         return 'https://course-start-kit-react.lovable.app/el-spelling';
       }
       
-      // Special case for Interactive courses
       if (isInteractiveLinearEquations) {
         return '/courses/interactive-linear-equations';
       }
@@ -241,99 +250,24 @@ const MyCourses = () => {
         return '/courses/interactive-algebra';
       }
       
-      // For other courses, use slug if available, otherwise use id
       const identifier = course.slug || course.id;
       return `/dashboard/learner/course/${identifier}`;
     };
 
-    const courseRoute = getCourseRoute();
-    console.log('Final course route:', courseRoute);
-
     return (
-      <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
-        {/* Course Image */}
-        {course.thumbnail_url && (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-            <img
-              src={course.thumbnail_url}
-              alt={course.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                console.error('Image failed to load:', course.thumbnail_url);
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
-            />
-          </div>
-        )}
-        
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <CardTitle className="text-lg">{getDisplayTitle()}</CardTitle>
-              <CardDescription className="mt-2 line-clamp-2">
-                {course.description}
-              </CardDescription>
-            </div>
-            <div className="flex flex-col items-end space-y-1 ml-4">
-              {course.featured && (
-                <Badge variant="default" className="fpk-gradient text-white">
-                  Featured
-                </Badge>
-              )}
-              {(isLearningStateCourse || isElSpellingCourse || isInteractiveLinearEquations || isInteractiveTrigonometry) && (
-                <Badge variant="default" className="fpk-gradient text-white">
-                  {(isInteractiveLinearEquations || isInteractiveTrigonometry) ? 'Interactive' : 'Beta'}
-                </Badge>
-              )}
-              <Badge variant="outline">
-                {course.difficulty_level}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <div className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
-              {course.instructor_name && !isElSpellingCourse && (
-                <div className="flex items-center space-x-1">
-                  <User className="h-4 w-4" />
-                  <span>{course.instructor_name}</span>
-                </div>
-              )}
-              {course.duration_minutes && (
-                <div className="flex items-center space-x-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{course.duration_minutes} mins</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-4 mt-4">
-            {isEnrolled && progress && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Progress</span>
-                  <span className="text-sm text-gray-600">{progress.completion_percentage}%</span>
-                </div>
-                <Progress value={progress.completion_percentage} className="h-2" />
-                {progress.completed && (
-                  <Badge variant="default" className="w-full justify-center bg-green-600">
-                    Completed
-                  </Badge>
-                )}
-              </div>
-            )}
-
-            <Link to={courseRoute}>
-              <Button className="w-full fpk-gradient text-white">
-                {isEnrolled ? 'Continue Learning' : 'Start Course'}
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <StyledCourseCard
+        id={course.id}
+        title={getDisplayTitle()}
+        description={course.description}
+        courseType={getCourseType()}
+        isEnrolled={isEnrolled}
+        progress={progress?.completion_percentage || 0}
+        duration={course.duration_minutes}
+        instructor={course.instructor_name}
+        route={getCourseRoute()}
+        colorTheme={getColorTheme()}
+        isCompleted={progress?.completed || false}
+      />
     );
   };
 
