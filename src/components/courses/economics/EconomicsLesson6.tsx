@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,18 +8,36 @@ interface EconomicsLesson6Props {
   onComplete?: () => void;
   onNext?: () => void;
   hasNext?: boolean;
+  isCompleted?: boolean;
+  trackInteraction?: (type: string, data: any) => void;
+  lessonId?: number;
+  lessonTitle?: string;
 }
 
 export const EconomicsLesson6: React.FC<EconomicsLesson6Props> = ({ 
   onComplete, 
   onNext, 
-  hasNext 
+  hasNext,
+  isCompleted = false,
+  trackInteraction,
+  lessonId = 6,
+  lessonTitle = "Fiscal Policy"
 }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
-
   const handleComplete = () => {
-    setIsCompleted(true);
+    trackInteraction?.('lesson_complete_click', {
+      lesson_id: lessonId,
+      lesson_title: lessonTitle,
+      action: 'complete_button_clicked'
+    });
     onComplete?.();
+  };
+
+  const handleConceptClick = (concept: string) => {
+    trackInteraction?.('concept_interaction', {
+      lesson_id: lessonId,
+      concept,
+      action: 'concept_viewed'
+    });
   };
 
   return (

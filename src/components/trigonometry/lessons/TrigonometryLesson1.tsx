@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
@@ -8,15 +8,38 @@ interface TrigonometryLesson1Props {
   onComplete: () => void;
   onNext: () => void;
   hasNext: boolean;
+  isCompleted?: boolean;
+  trackInteraction?: (type: string, data: any) => void;
+  lessonId?: number;
+  lessonTitle?: string;
 }
 
-export const TrigonometryLesson1: React.FC<TrigonometryLesson1Props> = ({ onComplete, onNext, hasNext }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
+export const TrigonometryLesson1: React.FC<TrigonometryLesson1Props> = ({ 
+  onComplete, 
+  onNext, 
+  hasNext,
+  isCompleted = false,
+  trackInteraction,
+  lessonId = 1,
+  lessonTitle = "Introduction to Trigonometry"
+}) => {
   const lessonContentRef = useRef<HTMLDivElement>(null);
 
   const handleComplete = () => {
-    setIsCompleted(true);
+    trackInteraction?.('lesson_complete_click', {
+      lesson_id: lessonId,
+      lesson_title: lessonTitle,
+      action: 'complete_button_clicked'
+    });
     onComplete();
+  };
+
+  const handleConceptClick = (concept: string) => {
+    trackInteraction?.('concept_interaction', {
+      lesson_id: lessonId,
+      concept,
+      action: 'concept_viewed'
+    });
   };
 
   return (

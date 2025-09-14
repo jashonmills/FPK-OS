@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,18 +8,37 @@ interface EconomicsLesson1Props {
   onComplete?: () => void;
   onNext?: () => void;
   hasNext?: boolean;
+  isCompleted?: boolean;
+  trackInteraction?: (type: string, data: any) => void;
+  lessonId?: number;
+  lessonTitle?: string;
 }
 
 export const EconomicsLesson1: React.FC<EconomicsLesson1Props> = ({ 
   onComplete, 
   onNext, 
-  hasNext 
+  hasNext,
+  isCompleted = false,
+  trackInteraction,
+  lessonId = 1,
+  lessonTitle = "Introduction to Economics"
 }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
-
   const handleComplete = () => {
-    setIsCompleted(true);
+    // Track lesson completion interaction
+    trackInteraction?.('lesson_complete_click', {
+      lesson_id: lessonId,
+      lesson_title: lessonTitle,
+      action: 'complete_button_clicked'
+    });
     onComplete?.();
+  };
+
+  const handleConceptClick = (concept: string) => {
+    trackInteraction?.('concept_interaction', {
+      lesson_id: lessonId,
+      concept,
+      action: 'concept_viewed'
+    });
   };
 
   return (
@@ -56,15 +75,24 @@ export const EconomicsLesson1: React.FC<EconomicsLesson1Props> = ({
             <div className="bg-muted/50 p-4 rounded-lg">
               <h4 className="font-semibold mb-2">Key Economic Concepts:</h4>
               <ul className="space-y-2">
-                <li className="flex items-start space-x-2">
+                <li 
+                  className="flex items-start space-x-2 cursor-pointer hover:bg-muted/80 p-2 rounded transition-colors"
+                  onClick={() => handleConceptClick('scarcity')}
+                >
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span><strong>Scarcity:</strong> Resources are limited while wants are unlimited</span>
                 </li>
-                <li className="flex items-start space-x-2">
+                <li 
+                  className="flex items-start space-x-2 cursor-pointer hover:bg-muted/80 p-2 rounded transition-colors"
+                  onClick={() => handleConceptClick('choice')}
+                >
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span><strong>Choice:</strong> We must choose how to allocate our scarce resources</span>
                 </li>
-                <li className="flex items-start space-x-2">
+                <li 
+                  className="flex items-start space-x-2 cursor-pointer hover:bg-muted/80 p-2 rounded transition-colors"
+                  onClick={() => handleConceptClick('opportunity_cost')}
+                >
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <span><strong>Opportunity Cost:</strong> The value of the next best alternative given up</span>
                 </li>
@@ -72,7 +100,10 @@ export const EconomicsLesson1: React.FC<EconomicsLesson1Props> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+              <Card 
+                className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleConceptClick('microeconomics')}
+              >
                 <CardHeader>
                   <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Microeconomics</CardTitle>
                 </CardHeader>
@@ -84,7 +115,10 @@ export const EconomicsLesson1: React.FC<EconomicsLesson1Props> = ({
                 </CardContent>
               </Card>
 
-              <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
+              <Card 
+                className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleConceptClick('macroeconomics')}
+              >
                 <CardHeader>
                   <CardTitle className="text-lg text-green-700 dark:text-green-300">Macroeconomics</CardTitle>
                 </CardHeader>
