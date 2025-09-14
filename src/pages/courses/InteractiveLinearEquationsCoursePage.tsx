@@ -97,6 +97,8 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const handleNextLesson = () => {
     if (currentLesson !== null && currentLesson < lessons.length - 1) {
       setCurrentLesson(currentLesson + 1);
+      // Scroll to top of the page when navigating to next lesson
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
