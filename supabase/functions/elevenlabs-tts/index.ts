@@ -55,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log('🔊 Generating speech with ElevenLabs:', {
+    console.log('🔊 ElevenLabs TTS function started - generating speech:', {
       text: text.substring(0, 50) + '...',
       voiceId,
       model,

@@ -48,6 +48,8 @@ export const useTextToSpeech = () => {
       console.log('🔊 Generating speech with ElevenLabs for text:', text.substring(0, 50) + '...');
 
       // Call ElevenLabs via our edge function
+      console.log('🔊 Calling supabase.functions.invoke...');
+      
       const { data, error } = await supabase.functions.invoke('elevenlabs-tts', {
         body: {
           text,
@@ -60,16 +62,23 @@ export const useTextToSpeech = () => {
         }
       });
 
-      console.log('🔊 ElevenLabs response:', { data, error });
+      console.log('🔊 ElevenLabs response received:', { data, error, hasData: !!data, hasError: !!error });
 
       if (error) {
         console.error('🔊 ElevenLabs TTS error:', error);
+        console.error('🔊 Error details:', JSON.stringify(error, null, 2));
         setIsLoading(false);
         return false;
       }
 
-      if (!data?.audioContent) {
-        console.error('🔊 No audio content received from ElevenLabs');
+      if (!data) {
+        console.error('🔊 No data received from ElevenLabs function');
+        setIsLoading(false);
+        return false;
+      }
+
+      if (!data.audioContent) {
+        console.error('🔊 No audio content in response:', data);
         setIsLoading(false);
         return false;
       }
