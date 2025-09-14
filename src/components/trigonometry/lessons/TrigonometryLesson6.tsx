@@ -116,7 +116,7 @@ export const TrigonometryLesson6: React.FC<TrigonometryLesson6Props> = ({ onComp
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded">
-                    <h4 className="font-semibold">Problem: Solve sin x = 1/2 for 0° ≤ x < 360°</h4>
+                    <h4 className="font-semibold">Problem: Solve sin x = 1/2 for 0° &le; x &lt; 360°</h4>
                   </div>
                   
                   <div className="space-y-3">
