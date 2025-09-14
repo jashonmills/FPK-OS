@@ -46,6 +46,18 @@ const INTERACTIVE_TRIGONOMETRY_COURSE = {
   status: 'published'
 };
 
+const INTERACTIVE_ALGEBRA_COURSE = {
+  id: 'interactive-algebra',
+  title: 'Interactive Algebra',
+  description: 'Master algebra fundamentals through interactive lessons and practice problems. Learn algebraic expressions, equations, and problem-solving techniques.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 320,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -103,6 +115,7 @@ const MyCourses = () => {
     ...(orgCourses?.organizationOwnedCourses || []),
     INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded courses
     INTERACTIVE_TRIGONOMETRY_COURSE,
+    INTERACTIVE_ALGEBRA_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -188,6 +201,7 @@ const MyCourses = () => {
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
+    const isInteractiveAlgebra = course.id === 'interactive-algebra';
 
     // Get display title for the course
     const getDisplayTitle = () => {
@@ -221,6 +235,10 @@ const MyCourses = () => {
       
       if (isInteractiveTrigonometry) {
         return '/courses/interactive-trigonometry';
+      }
+      
+      if (isInteractiveAlgebra) {
+        return '/courses/interactive-algebra';
       }
       
       // For other courses, use slug if available, otherwise use id

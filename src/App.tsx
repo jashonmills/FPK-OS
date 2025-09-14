@@ -119,6 +119,7 @@ const NativeCoursePlayer = lazy(() => import("./components/native-courses/Native
 // Interactive Course Pages
 const InteractiveLinearEquationsCoursePage = lazy(() => import("./pages/courses/InteractiveLinearEquationsCoursePage"));
 const InteractiveTrigonometryCoursePage = lazy(() => import("./pages/courses/InteractiveTrigonometryCoursePage"));
+const InteractiveAlgebraCoursePage = lazy(() => import("./pages/courses/InteractiveAlgebraCoursePage"));
 
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
@@ -358,6 +359,11 @@ const App: React.FC = () => {
           <Route path="/courses/interactive-trigonometry" element={
             <RouteProtector>
               <LazyRoute><InteractiveTrigonometryCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/interactive-algebra" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveAlgebraCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           
