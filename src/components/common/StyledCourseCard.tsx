@@ -15,7 +15,7 @@ interface StyledCourseCardProps {
   progress?: number;
   duration?: number;
   instructor?: string;
-  route: string;
+  route?: string;
   onEnroll?: () => void;
   isEnrolling?: boolean;
   colorTheme: 'blue' | 'orange' | 'purple' | 'green';
@@ -130,12 +130,22 @@ export function StyledCourseCard({
         {/* Action button */}
         <div className="mt-auto">
           {isEnrolled ? (
-            <Link to={route}>
-              <Button className="w-full fpk-gradient text-white group-hover:shadow-md transition-shadow">
+            route ? (
+              <Link to={route}>
+                <Button className="w-full fpk-gradient text-white group-hover:shadow-md transition-shadow">
+                  <Play className="h-4 w-4 mr-2" />
+                  {progress === 0 ? 'Start Course' : 'Continue Learning'}
+                </Button>
+              </Link>
+            ) : (
+              <Button 
+                disabled={true}
+                className="w-full fpk-gradient text-white group-hover:shadow-md transition-shadow opacity-50"
+              >
                 <Play className="h-4 w-4 mr-2" />
                 {progress === 0 ? 'Start Course' : 'Continue Learning'}
               </Button>
-            </Link>
+            )
           ) : (
             <Button 
               onClick={onEnroll}

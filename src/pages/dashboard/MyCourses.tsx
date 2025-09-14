@@ -12,6 +12,7 @@ import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2 } from
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
+import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { useNativeCourses, useNativeEnrollments, useNativeEnrollmentMutations } from '@/hooks/useNativeCourses';
 import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
@@ -82,6 +83,7 @@ const MyCourses = () => {
     organizationId: userOrganization?.organization_id,
   });
   const { enrollments, getCourseProgress } = useEnrollmentProgress();
+  const { enrollInCourse: enrollInInteractiveCourse, isEnrolling: isCourseEnrolling } = useCourseEnrollment();
   
   // Native courses
   const { data: nativeCourses = [], isLoading: nativeCoursesLoading } = useNativeCourses({
@@ -218,14 +220,14 @@ const MyCourses = () => {
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
 
-    // Mock enrollment function for hardcoded courses
-    const handleEnrollment = () => {
-      // For hardcoded courses, we'll directly navigate to the course
-      const route = getCourseRoute();
-      if (route.startsWith('http')) {
-        window.open(route, '_blank');
-      } else {
-        window.location.href = route;
+    // Handle enrollment for hardcoded courses
+    const handleEnrollment = async () => {
+      if (!isEnrolled) {
+        try {
+          await enrollInInteractiveCourse.mutateAsync(course.id);
+        } catch (error) {
+          console.error('Failed to enroll:', error);
+        }
       }
     };
 
@@ -295,10 +297,11 @@ const MyCourses = () => {
         progress={progress?.completion_percentage || 0}
         duration={course.duration_minutes}
         instructor={course.instructor_name}
-        route={getCourseRoute()}
+        route={isEnrolled ? getCourseRoute() : undefined}
         colorTheme={getColorTheme()}
         isCompleted={progress?.completed || false}
         onEnroll={!isEnrolled ? handleEnrollment : undefined}
+        isEnrolling={!isEnrolled ? isCourseEnrolling : false}
       />
     );
   };
