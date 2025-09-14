@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
+import LessonTTSControls from '@/components/course/LessonTTSControls';
 
 interface LinearEquationsLesson1Props {
   onComplete: () => void;
@@ -11,6 +12,7 @@ interface LinearEquationsLesson1Props {
 
 export const LinearEquationsLesson1: React.FC<LinearEquationsLesson1Props> = ({ onComplete, onNext, hasNext }) => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -19,8 +21,16 @@ export const LinearEquationsLesson1: React.FC<LinearEquationsLesson1Props> = ({ 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* TTS Controls */}
+      <LessonTTSControls
+        lessonTitle="Introduction to Linear Equations"
+        lessonNumber={1}
+        totalLessons={7}
+        contentRef={lessonContentRef}
+      />
+
       {/* Lesson Introduction */}
-      <Card>
+      <Card ref={lessonContentRef}>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="h-6 w-6 text-primary" />

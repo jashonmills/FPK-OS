@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, Calculator, CheckCircle, PlayCircle, Trophy, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
+import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
+import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 
 // Import lesson components
 import { TrigonometryLesson1 } from '@/components/trigonometry/lessons/TrigonometryLesson1';
@@ -89,6 +91,8 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
   const handleNextLesson = () => {
     if (currentLesson < lessons.length - 1) {
       setCurrentLesson(currentLesson + 1);
+      // Scroll to top of the page when navigating to next lesson
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -112,13 +116,14 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
   // Course overview content
   if (currentLesson === null) {
     return (
-      <div className="min-h-screen bg-background">
-        <CourseHeader 
-          onBackToCourses={handleBackToCourses}
-          onDashboard={handleDashboard}
-        />
-        
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <VoiceSettingsProvider>
+        <div className="min-h-screen bg-background">
+          <CourseHeader 
+            onBackToCourses={handleBackToCourses}
+            onDashboard={handleDashboard}
+          />
+          
+          <div className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Course Header */}
           <header className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 text-primary">
@@ -147,6 +152,15 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
               <Progress value={overallProgress} className="h-3" />
             </div>
           </header>
+
+          {/* TTS Controls */}
+          <div className="mb-8">
+            <CourseOverviewTTS
+              courseTitle="Interactive Trigonometry Course"
+              courseDescription="Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving."
+              lessons={lessons}
+            />
+          </div>
 
           {/* Lessons Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -238,6 +252,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
           )}
         </div>
       </div>
+      </VoiceSettingsProvider>
     );
   }
 
@@ -248,13 +263,14 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
   const LessonComponent = currentLessonData.component;
 
   return (
-    <div className="min-h-screen bg-background">
-      <CourseHeader 
-        onBackToCourses={handleBackToCourses}
-        onDashboard={handleDashboard}
-      />
-      
-      <div className="container mx-auto px-4 py-8">
+    <VoiceSettingsProvider>
+      <div className="min-h-screen bg-background">
+        <CourseHeader 
+          onBackToCourses={handleBackToCourses}
+          onDashboard={handleDashboard}
+        />
+        
+        <div className="container mx-auto px-4 py-8">
         {/* Lesson Header */}
         <div className="flex items-center justify-between mb-6">
           <Button 
@@ -289,6 +305,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
         />
       </div>
     </div>
+    </VoiceSettingsProvider>
   );
 };
 

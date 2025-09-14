@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlayCircle, ArrowRight } from 'lucide-react';
+import LessonTTSControls from '@/components/course/LessonTTSControls';
 
 interface LinearEquationsLesson3Props {
   onComplete: () => void;
@@ -11,6 +12,7 @@ interface LinearEquationsLesson3Props {
 
 export const LinearEquationsLesson3: React.FC<LinearEquationsLesson3Props> = ({ onComplete, onNext, hasNext }) => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -19,7 +21,15 @@ export const LinearEquationsLesson3: React.FC<LinearEquationsLesson3Props> = ({ 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Card>
+      {/* TTS Controls */}
+      <LessonTTSControls
+        lessonTitle="Multi-Step Equations"
+        lessonNumber={3}
+        totalLessons={7}
+        contentRef={lessonContentRef}
+      />
+
+      <Card ref={lessonContentRef}>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <PlayCircle className="h-6 w-6 text-primary" />

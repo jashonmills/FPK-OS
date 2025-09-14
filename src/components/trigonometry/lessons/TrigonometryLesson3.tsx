@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlayCircle, ArrowRight } from 'lucide-react';
+import LessonTTSControls from '@/components/course/LessonTTSControls';
 
 interface TrigonometryLesson3Props {
   onComplete: () => void;

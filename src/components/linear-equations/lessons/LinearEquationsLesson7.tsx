@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trophy, ArrowRight } from 'lucide-react';
+import LessonTTSControls from '@/components/course/LessonTTSControls';
 
 interface LinearEquationsLesson7Props {
   onComplete: () => void;
@@ -11,6 +12,7 @@ interface LinearEquationsLesson7Props {
 
 export const LinearEquationsLesson7: React.FC<LinearEquationsLesson7Props> = ({ onComplete, onNext, hasNext }) => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -19,7 +21,15 @@ export const LinearEquationsLesson7: React.FC<LinearEquationsLesson7Props> = ({ 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Card>
+      {/* TTS Controls */}
+      <LessonTTSControls
+        lessonTitle="Mastery Challenge & Review"
+        lessonNumber={7}
+        totalLessons={7}
+        contentRef={lessonContentRef}
+      />
+
+      <Card ref={lessonContentRef}>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="h-6 w-6 text-primary" />

@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, Calculator, CheckCircle, PlayCircle, Trophy, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
+import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
+import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { useExtractLinearEquationsZip } from '@/hooks/useExtractLinearEquationsZip';
 
 // Import lesson components
@@ -118,13 +120,14 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
   // Course overview content
   if (currentLesson === null) {
     return (
-      <div className="min-h-screen bg-background">
-        <CourseHeader 
-          onBackToCourses={handleBackToCourses}
-          onDashboard={handleDashboard}
-        />
-        
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <VoiceSettingsProvider>
+        <div className="min-h-screen bg-background">
+          <CourseHeader 
+            onBackToCourses={handleBackToCourses}
+            onDashboard={handleDashboard}
+          />
+          
+          <div className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Course Header */}
           <header className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 text-primary">
@@ -153,6 +156,15 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
               <Progress value={overallProgress} className="h-3" />
             </div>
           </header>
+
+          {/* TTS Controls */}
+          <div className="mb-8">
+            <CourseOverviewTTS
+              courseTitle="Interactive Linear Equations Course"
+              courseDescription="Master solving linear equations through step-by-step lessons, interactive examples, and real-world applications. From basic algebra to complex problem solving."
+              lessons={lessons}
+            />
+          </div>
 
           {/* Lessons Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -244,6 +256,7 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
           )}
         </div>
       </div>
+      </VoiceSettingsProvider>
     );
   }
 
@@ -254,13 +267,14 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const LessonComponent = currentLessonData.component;
 
   return (
-    <div className="min-h-screen bg-background">
-      <CourseHeader 
-        onBackToCourses={handleBackToCourses}
-        onDashboard={handleDashboard}
-      />
-      
-      <div className="container mx-auto px-4 py-8">
+    <VoiceSettingsProvider>
+      <div className="min-h-screen bg-background">
+        <CourseHeader 
+          onBackToCourses={handleBackToCourses}
+          onDashboard={handleDashboard}
+        />
+        
+        <div className="container mx-auto px-4 py-8">
         {/* Lesson Header */}
         <div className="flex items-center justify-between mb-6">
           <Button 
@@ -295,6 +309,7 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
         />
       </div>
     </div>
+    </VoiceSettingsProvider>
   );
 };
 
