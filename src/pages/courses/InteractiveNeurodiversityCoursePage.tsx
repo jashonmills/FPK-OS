@@ -61,7 +61,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
     {
       id: 2,
       title: "Your Brain's Superpowers",
-      description: "Discover how to reframe neurodivergent traits as powerful strengths",
+      description: "Discover how to reframe neurodiverse traits as powerful strengths",
       component: NeurodiversityLesson2,
       icon: Lightbulb
     },
