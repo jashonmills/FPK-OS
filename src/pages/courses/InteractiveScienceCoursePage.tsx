@@ -53,7 +53,7 @@ const lessons: Lesson[] = [
 export const InteractiveScienceCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
-  const [currentLesson, setCurrentLesson] = useState(1);
+  const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
   };
 
   const handleNextLesson = () => {
-    if (currentLesson < lessons.length) {
+    if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/interactive-science/${nextLesson}`);
@@ -80,7 +80,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
   };
 
   const handlePrevLesson = () => {
-    if (currentLesson > 1) {
+    if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/interactive-science/${prevLesson}`);
@@ -100,8 +100,129 @@ export const InteractiveScienceCoursePage: React.FC = () => {
     navigate('/dashboard/learner');
   };
 
-  const currentLessonData = lessons.find(l => l.id === currentLesson);
+  const isLessonAccessible = (lessonId: number) => {
+    return lessonId === 1 || completedLessons.includes(lessonId - 1);
+  };
 
+  const progress = (completedLessons.length / lessons.length) * 100;
+
+  // Course overview (lesson selection)
+  if (currentLesson === null) {
+    return (
+      <VoiceSettingsProvider>
+        <InteractiveCourseWrapper
+          courseId="interactive-science"
+          courseTitle="Introduction to Science"
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+            <CourseHeader 
+              onDashboard={handleDashboard} 
+              onBackToCourses={handleBackToCourses}
+              courseTitle="Introduction to Science"
+            />
+          
+            <div className="container mx-auto px-4 py-8 space-y-8">
+              {/* Course Title and Description */}
+              <div className="text-center space-y-4">
+                <h1 className="text-4xl font-bold text-foreground">Introduction to Science</h1>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                  Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.
+                </p>
+                
+                {/* Course badges */}
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    {lessons.length} Lessons
+                  </Badge>
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    <Clock className="w-4 h-4 mr-2" />
+                    ~6 Hours
+                  </Badge>
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    <Users className="w-4 h-4 mr-2" />
+                    Beginner
+                  </Badge>
+                </div>
+
+                <div className="max-w-md mx-auto">
+                  <Progress value={progress} className="h-2 mb-2" />
+                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                    {completedLessons.length} of {lessons.length} lessons completed
+                  </p>
+                </div>
+              </div>
+
+              {/* Voice Controls */}
+              <div className="mb-8">
+                <CourseOverviewTTS 
+                  courseTitle="Introduction to Science"
+                  courseDescription="Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter."
+                  lessons={lessons}
+                />
+              </div>
+
+              {/* Video Overview */}
+              <CourseOverviewVideo 
+                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/A_Guide_to_the_Sciences.mp4" 
+                title="Introduction to Science"
+              />
+
+              {/* Lessons Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                {lessons.map((lesson) => {
+                  const isCompleted = completedLessons.includes(lesson.id);
+                  const isAccessible = isLessonAccessible(lesson.id);
+
+                  return (
+                    <Card 
+                      key={lesson.id}
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                        !isAccessible ? 'opacity-50' : ''
+                      } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
+                      onClick={() => isAccessible && setCurrentLesson(lesson.id)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-2 rounded-lg ${
+                              isCompleted 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'bg-muted text-muted-foreground'
+                            }`}>
+                              {isCompleted ? <Award className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
+                            </div>
+                            <div>
+                              <Badge className={lesson.unitColor}>
+                                Lesson {lesson.id}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-3">{lesson.description}</p>
+                        <Badge variant="outline" className={lesson.unitColor}>
+                          {lesson.unit}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </InteractiveCourseWrapper>
+      </VoiceSettingsProvider>
+    );
+  }
+
+  // Individual lesson view
+  const currentLessonData = lessons.find(l => l.id === currentLesson);
+  
   if (!currentLessonData) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -111,8 +232,8 @@ export const InteractiveScienceCoursePage: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/interactive-science/1')}>
-              Start From Beginning
+            <Button onClick={() => navigate('/courses/interactive-science')}>
+              Back to Course Overview
             </Button>
           </CardContent>
         </Card>
@@ -120,10 +241,8 @@ export const InteractiveScienceCoursePage: React.FC = () => {
     );
   }
 
-  const progress = (completedLessons.length / lessons.length) * 100;
   const hasNext = currentLesson < lessons.length;
   const hasPrev = currentLesson > 1;
-
   const LessonComponent = currentLessonData.component;
 
   return (
@@ -136,159 +255,68 @@ export const InteractiveScienceCoursePage: React.FC = () => {
       >
         <div className="min-h-screen bg-background">
           <CourseHeader 
-            onBackToCourses={handleBackToCourses}
+            onBackToCourses={() => navigate('/courses/interactive-science')}
             onDashboard={handleDashboard}
             courseTitle="Introduction to Science"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-6xl">
-            {/* Course Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-4 mb-6">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/dashboard/learner/courses')}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Back to Courses
-                </Button>
-                <Badge className={currentLessonData.unitColor}>
-                  {currentLessonData.unit}
-                </Badge>
-              </div>
-
-              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-8 rounded-lg shadow-sm mb-6">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Introduction to Science</h1>
-                <p className="text-lg text-gray-600 mb-6">
-                  Get to grips with the basics of biology, chemistry, and physics.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-blue-600" />
-                    <span>{lessons.length} Lessons</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-green-600" />
-                    <span>~6 hours</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-purple-600" />
-                    <span>Beginner Level</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-yellow-600" />
-                    <span>Certificate</span>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Course Progress</span>
-                    <span>{completedLessons.length}/{lessons.length} lessons completed</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
-              </div>
-
-              {/* TTS Controls */}
-              <div className="mb-8">
-                <CourseOverviewTTS
-                  courseTitle="Introduction to Science"
-                  courseDescription="Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter."
-                  lessons={lessons}
-                />
-              </div>
-
-              {/* Course Overview Video */}
-              <div className="mb-8">
-                <CourseOverviewVideo
-                  videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/A_Guide_to_the_Sciences.mp4"
-                  title="A Guide to the Sciences"
-                />
-              </div>
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/courses/interactive-science')}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Overview
+              </Button>
+              <Badge className={currentLessonData.unitColor}>
+                {currentLessonData.unit}
+              </Badge>
             </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            variant="outline"
-            onClick={handlePrevLesson}
-            disabled={!hasPrev}
-            className="flex items-center gap-2"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous Lesson
-          </Button>
+            {/* Navigation */}
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                variant="outline"
+                onClick={handlePrevLesson}
+                disabled={!hasPrev}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous Lesson
+              </Button>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Lesson {currentLesson} of {lessons.length}
-            </span>
-          </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Lesson {currentLesson} of {lessons.length}
+                </span>
+              </div>
 
-          <Button
-            variant="outline"
-            onClick={handleNextLesson}
-            disabled={!hasNext}
-            className="flex items-center gap-2"
-          >
-            Next Lesson
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Lesson Content */}
-        <div className="mb-8">
-          <InteractiveLessonWrapper
-            courseId="interactive-science"
-            lessonId={currentLesson}
-            lessonTitle={currentLessonData.title}
-            onComplete={() => handleLessonComplete(currentLesson)}
-            onNext={hasNext ? handleNextLesson : undefined}
-            hasNext={hasNext}
-            totalLessons={lessons.length}
-          >
-            <LessonComponent />
-          </InteractiveLessonWrapper>
-        </div>
-
-        {/* Lesson Navigation Grid */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Course Lessons</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lessons.map((lesson) => (
-                <div
-                  key={lesson.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    currentLesson === lesson.id
-                      ? 'bg-primary/10 border-primary'
-                      : completedLessons.includes(lesson.id)
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                  }`}
-                  onClick={() => handleLessonSelect(lesson.id)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Lesson {lesson.id}</span>
-                    {completedLessons.includes(lesson.id) && (
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-sm mb-1">{lesson.title}</h3>
-                  <Badge className={`${lesson.unitColor} text-xs`}>
-                    {lesson.unit}
-                  </Badge>
-                </div>
-              ))}
+              <Button
+                variant="outline"
+                onClick={handleNextLesson}
+                disabled={!hasNext}
+                className="flex items-center gap-2"
+              >
+                Next Lesson
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Lesson Content */}
+            <InteractiveLessonWrapper
+              courseId="interactive-science"
+              lessonId={currentLesson}
+              lessonTitle={currentLessonData.title}
+              onComplete={() => handleLessonComplete(currentLesson)}
+              onNext={hasNext ? handleNextLesson : undefined}
+              hasNext={hasNext}
+              totalLessons={lessons.length}
+            >
+              <LessonComponent />
+            </InteractiveLessonWrapper>
           </div>
         </div>
       </InteractiveCourseWrapper>
