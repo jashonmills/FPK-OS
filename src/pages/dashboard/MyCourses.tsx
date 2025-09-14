@@ -237,6 +237,7 @@ const MyCourses = () => {
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
+    const isIntroductionModernEconomics = course.id === 'introduction-modern-economics';
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
 
     // Handle enrollment for hardcoded courses
@@ -263,6 +264,7 @@ const MyCourses = () => {
       if (isLearningStateCourse) return 'Beta Course';
       if (isElSpellingCourse) return 'Reading Course';
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
+      if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
       return 'Full Course Curriculum';
     };
@@ -272,6 +274,7 @@ const MyCourses = () => {
       if (isInteractiveLinearEquations) return 'blue';
       if (isInteractiveTrigonometry) return 'orange';
       if (isInteractiveAlgebra || isLearningStateCourse) return 'purple';
+      if (isIntroductionModernEconomics) return 'blue';
       if (isLogicCriticalThinking) return 'green';
       return 'green';
     };
@@ -296,6 +299,10 @@ const MyCourses = () => {
       
       if (isInteractiveAlgebra) {
         return '/courses/interactive-algebra';
+      }
+      
+      if (isIntroductionModernEconomics) {
+        return '/courses/introduction-modern-economics';
       }
       
       if (isLogicCriticalThinking) {
