@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Clock, User, Search, Filter, HelpCircle } from 'lucide-react';
+import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2 } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
@@ -20,6 +20,7 @@ import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
+import { useProcessLinearEquationsCourse } from '@/hooks/useLinearEquationsCourse';
 
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
@@ -39,6 +40,7 @@ const MyCourses = () => {
   });
   const { data: nativeEnrollments = [] } = useNativeEnrollments();
   const { enrollInCourse, isEnrolling } = useNativeEnrollmentMutations();
+  const { mutate: processLinearCourse, isPending: isProcessingLinearCourse } = useProcessLinearEquationsCourse();
   
   // Organization-specific courses if user is in an organization
   const { data: orgCourses } = useOrganizationCourses(userOrganization?.organization_id || '');
@@ -319,6 +321,26 @@ const MyCourses = () => {
             <SelectItem value="advanced">Advanced</SelectItem>
           </SelectContent>
         </Select>
+        
+        {userOrganization && (
+          <Button
+            onClick={() => processLinearCourse(userOrganization.organization_id)}
+            disabled={isProcessingLinearCourse}
+            className="w-full sm:w-auto"
+          >
+            {isProcessingLinearCourse ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating Course...
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Linear Equations
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue="enrolled" className="space-y-6">
