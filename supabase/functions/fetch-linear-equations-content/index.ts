@@ -127,6 +127,8 @@ function parseMarkdownToBlocks(content: string): Array<{type: string, content: s
   const blocks: Array<{type: string, content: string, title?: string}> = [];
   let currentBlock: {type: string, content: string[], title?: string} | null = null;
 
+  console.log(`Parsing content with ${lines.length} lines`);
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     
@@ -146,31 +148,51 @@ function parseMarkdownToBlocks(content: string): Array<{type: string, content: s
         title: line.replace(/^#+\s*/, ''),
         content: []
       };
+      console.log(`Created text block: ${currentBlock.title}`);
     }
     // Main heading (single #)
     else if (line.startsWith('# ')) {
       // Skip main title, already extracted
       continue;
     }
+    // Interactive elements (look for keywords)
+    else if (line.toLowerCase().includes('interactive') || line.toLowerCase().includes('practice') || line.toLowerCase().includes('exercise')) {
+      if (currentBlock && currentBlock.content.length > 0) {
+        blocks.push(finalizeBlock(currentBlock));
+      }
+      currentBlock = {
+        type: 'practice',
+        title: 'Interactive Practice',
+        content: [line]
+      };
+      console.log(`Created practice block: Interactive Practice`);
+    }
     // Math expressions or equations
-    else if (line.includes('=') && (line.includes('x') || line.includes('y') || line.includes('a') || line.includes('b'))) {
-      if (currentBlock && currentBlock.type === 'text') {
+    else if (line.includes('=') && (line.includes('x') || line.includes('y') || line.includes('a') || line.includes('b') || /\d+/.test(line))) {
+      if (currentBlock && currentBlock.type === 'example') {
+        // Continue building example block
         currentBlock.content.push(line);
       } else {
+        // Start new example block
         if (currentBlock && currentBlock.content.length > 0) {
           blocks.push(finalizeBlock(currentBlock));
         }
         currentBlock = {
           type: 'example',
-          title: 'Mathematical Expression',
+          title: 'Mathematical Example',
           content: [line]
         };
+        console.log(`Created example block: Mathematical Example`);
       }
     }
     // Problems or exercises (lines starting with numbers or "Problem:")
-    else if (/^\d+[\.\)]/.test(line) || line.toLowerCase().startsWith('problem')) {
-      if (currentBlock && currentBlock.type !== 'practice') {
-        if (currentBlock.content.length > 0) {
+    else if (/^\d+[\.\)]/.test(line) || line.toLowerCase().startsWith('problem') || line.toLowerCase().startsWith('solve')) {
+      if (currentBlock && currentBlock.type === 'practice') {
+        // Continue building practice block
+        currentBlock.content.push(line);
+      } else {
+        // Start new practice block
+        if (currentBlock && currentBlock.content.length > 0) {
           blocks.push(finalizeBlock(currentBlock));
         }
         currentBlock = {
@@ -178,16 +200,43 @@ function parseMarkdownToBlocks(content: string): Array<{type: string, content: s
           title: 'Practice Problems',
           content: [line]
         };
-      } else if (currentBlock) {
-        currentBlock.content.push(line);
+        console.log(`Created practice block: Practice Problems`);
       }
+    }
+    // Step-by-step solutions (look for "Step" keywords)
+    else if (line.toLowerCase().includes('step') && (line.includes('1') || line.includes('2') || line.includes(':'))) {
+      if (currentBlock && currentBlock.type === 'example') {
+        currentBlock.content.push(line);
+      } else {
+        if (currentBlock && currentBlock.content.length > 0) {
+          blocks.push(finalizeBlock(currentBlock));
+        }
+        currentBlock = {
+          type: 'example',
+          title: 'Step-by-Step Solution',
+          content: [line]
+        };
+        console.log(`Created example block: Step-by-Step Solution`);
+      }
+    }
+    // Quiz indicators
+    else if (line.toLowerCase().includes('quiz') || line.toLowerCase().includes('test') || line.toLowerCase().includes('check your understanding')) {
+      if (currentBlock && currentBlock.content.length > 0) {
+        blocks.push(finalizeBlock(currentBlock));
+      }
+      currentBlock = {
+        type: 'quiz',
+        title: 'Knowledge Check',
+        content: [line]
+      };
+      console.log(`Created quiz block: Knowledge Check`);
     }
     // Regular content
     else if (line) {
       if (!currentBlock) {
         currentBlock = {
           type: 'text',
-          title: 'Introduction',
+          title: 'Lesson Content',
           content: [line]
         };
       } else {
@@ -205,15 +254,19 @@ function parseMarkdownToBlocks(content: string): Array<{type: string, content: s
     blocks.push(finalizeBlock(currentBlock));
   }
   
+  console.log(`Generated ${blocks.length} content blocks`);
   return blocks;
 }
 
 function finalizeBlock(block: {type: string, content: string[], title?: string}): {type: string, content: string, title?: string} {
   const content = block.content.join('\n').trim();
   
-  return {
+  const finalizedBlock = {
     type: block.type,
     content: content,
     title: block.title
   };
+  
+  console.log(`Finalized ${block.type} block: "${block.title}" (${content.length} chars)`);
+  return finalizedBlock;
 }

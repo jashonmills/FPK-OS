@@ -111,22 +111,32 @@ const InteractiveLinearEquationsCoursePage = () => {
         }
 
         if (data && data.success) {
+          console.log('Loaded course data:', data);
+          console.log('Number of lessons:', data.lessons?.length);
+          
           // Update course data with real content
           COURSE_DATA = {
             ...COURSE_DATA,
             description: data.courseSummary || COURSE_DATA.description,
-            lessons: data.lessons.map((lessonData: any, index: number) => ({
-              id: lessonData.id,
-              title: lessonData.title,
-              description: `Lesson ${index + 1} content`,
-              estimatedTime: estimateReadingTime(lessonData.content),
-              blocks: lessonData.blocks.map((block: any, blockIndex: number) => ({
-                id: `${lessonData.id}-block-${blockIndex}`,
-                type: block.type,
-                title: block.title || `Section ${blockIndex + 1}`,
-                content: block.content
-              }))
-            }))
+            lessons: data.lessons.map((lessonData: any, index: number) => {
+              console.log(`Processing lesson ${index + 1}: ${lessonData.title} with ${lessonData.blocks?.length || 0} blocks`);
+              
+              return {
+                id: lessonData.id,
+                title: lessonData.title,
+                description: `Lesson ${index + 1}: ${lessonData.title}`,
+                estimatedTime: estimateReadingTime(lessonData.content),
+                blocks: lessonData.blocks.map((block: any, blockIndex: number) => {
+                  console.log(`Block ${blockIndex + 1}: ${block.type} - ${block.title}`);
+                  return {
+                    id: `${lessonData.id}-block-${blockIndex}`,
+                    type: block.type || 'text',
+                    title: block.title || `Section ${blockIndex + 1}`,
+                    content: block.content || 'No content available'
+                  };
+                })
+              };
+            })
           };
           
           setLoading(false);
@@ -205,6 +215,9 @@ const InteractiveLinearEquationsCoursePage = () => {
 
   const renderBlock = () => {
     if (!currentBlock) return null;
+
+    console.log(`Rendering block: ${currentBlock.type} - ${currentBlock.title}`);
+    console.log(`Block content preview: ${currentBlock.content?.substring(0, 100) || 'No content'}...`);
 
     switch (currentBlock.type) {
       case 'text':
