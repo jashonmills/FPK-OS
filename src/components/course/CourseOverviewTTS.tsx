@@ -39,26 +39,34 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
       return;
     }
 
-    // Generate overview content
+    // Generate concise overview content (avoid very long text)
     const overviewText = `
       Welcome to the ${courseTitle} course. 
       ${courseDescription}
       
-      This course contains ${lessons.length} lessons:
-      ${lessons.map((lesson, index) => 
-        `Lesson ${lesson.id}: ${lesson.title}. ${lesson.description}`
-      ).join('. ')}
+      This course contains ${lessons.length} lessons covering topics like: ${lessons.slice(0, 3).map(lesson => lesson.title).join(', ')}${lessons.length > 3 ? ' and more' : ''}. 
       
       You can start with any unlocked lesson. Good luck with your learning journey!
     `;
 
     const mathContent = convertMathToSpeech(overviewText);
+    
+    // Ensure text isn't too long (max ~300 characters for TTS)
+    const finalText = mathContent.length > 300 ? mathContent.substring(0, 297) + '...' : mathContent;
+    
+    console.log('🔊 Overview TTS - Text length:', finalText.length, 'Text preview:', finalText.substring(0, 100));
+    
     setIsReadingOverview(true);
     
-    const success = speak(mathContent, { interrupt: true });
-    if (!success) {
+    speak(finalText, { interrupt: true }).then(success => {
+      if (!success) {
+        console.error('🔊 Overview TTS failed');
+        setIsReadingOverview(false);
+      }
+    }).catch(error => {
+      console.error('🔊 Overview TTS error:', error);
       setIsReadingOverview(false);
-    }
+    });
   };
 
   const handleReadLesson = (lesson: { title: string; description: string }) => {
