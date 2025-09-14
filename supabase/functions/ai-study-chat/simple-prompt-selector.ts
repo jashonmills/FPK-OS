@@ -9,7 +9,10 @@ export type PromptType =
   | 'proactive_help'
   | 'evaluate_refresher'
   | 'direct_answer'
-  | 'direct_teaching';
+  | 'direct_teaching'
+  | 'end_session'
+  | 'topic_transition'
+  | 'acknowledgment';
 
 export interface SimplePromptContext {
   chatMode: 'personal' | 'general';
@@ -62,6 +65,15 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       break;
     case 'evaluate_quiz_answer':
       prompt += `## CONTEXT\nUser's quiz answer: "${context.userInput || ''}"\n`;
+      break;
+    case 'end_session':
+      prompt += `## CONTEXT\nUser wants to end the session: "${context.userInput || ''}"\nProvide a graceful conclusion and encourage future learning.\n`;
+      break;
+    case 'topic_transition':
+      prompt += `## CONTEXT\nUser wants to transition to a new topic: "${context.userInput || ''}"\nAcknowledge the transition and start fresh with the new topic.\n`;
+      break;
+    case 'acknowledgment':
+      prompt += `## CONTEXT\nUser is expressing gratitude: "${context.userInput || ''}"\nAcknowledge graciously and either continue or transition as appropriate.\n`;
       break;
     case 'evaluate_answer':
       prompt += `## CONTEXT\nUser's response: "${context.userInput || ''}"\n`;

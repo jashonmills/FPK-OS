@@ -321,6 +321,21 @@ function autoDetectPromptType(message: string, history: any[]): string {
     return 'direct_answer';
   }
   
+  // Session ending signals
+  if (isSessionEndingSignal(trimmed)) {
+    return 'end_session';
+  }
+  
+  // Topic transition requests
+  if (isTopicTransitionRequest(trimmed)) {
+    return 'topic_transition';
+  }
+  
+  // Gratitude expressions (when not followed by new topic)
+  if (isGratitudeExpression(trimmed) && !isTopicTransitionRequest(trimmed)) {
+    return 'acknowledgment';
+  }
+  
   // Quiz requests
   if (trimmed.includes('quiz me') || trimmed.includes('test me') || trimmed.includes('give me a quiz')) {
     return 'initiate_quiz';
@@ -351,6 +366,62 @@ function autoDetectPromptType(message: string, history: any[]): string {
   return 'initiate_session';
 }
 
+// Detection functions for session management
+function isSessionEndingSignal(message: string): boolean {
+  const endingSignals = [
+    'i think i\'m done',
+    'i\'m done',
+    'that\'s enough',
+    'i\'m finished',
+    'i need to go',
+    'thanks, that\'s all',
+    'goodbye',
+    'bye',
+    'see you later',
+    'i\'ll stop here',
+    'enough for now',
+    'i\'m good'
+  ];
+  
+  return endingSignals.some(signal => message.includes(signal));
+}
+
+function isTopicTransitionRequest(message: string): boolean {
+  const transitionPatterns = [
+    'can we go over',
+    'let\'s switch to',
+    'let\'s talk about',
+    'tell me about',
+    'what about',
+    'how about',
+    'let\'s move to',
+    'can we discuss',
+    'i want to learn about',
+    'explain',
+    'teach me about'
+  ];
+  
+  return transitionPatterns.some(pattern => message.includes(pattern));
+}
+
+function isGratitudeExpression(message: string): boolean {
+  const gratitudePatterns = [
+    'thank you',
+    'thanks',
+    'appreciate',
+    'grateful',
+    'that helped',
+    'that\'s helpful',
+    'nice',
+    'good'
+  ];
+  
+  // Only consider it gratitude if it's a short message focused on appreciation
+  if (message.length > 50) return false;
+  
+  return gratitudePatterns.some(pattern => message.includes(pattern));
+}
+
 function isSimpleFoundationalQuestion(message: string): boolean {
   const simplePatterns = [
     /^\s*\d+\s*[\+\-\*\/]\s*\d+\s*$/,  // Basic math like "2+2"
@@ -364,6 +435,13 @@ function isSimpleFoundationalQuestion(message: string): boolean {
 }
 
 function extractOriginalTopic(clientHistory: any[], currentMessage: string): string | null {
+  // If this is a topic transition request, extract the new topic from current message
+  const trimmed = currentMessage.toLowerCase().trim();
+  if (isTopicTransitionRequest(trimmed)) {
+    // Reset and extract new topic from the transition request
+    return extractTopicFromMessage(currentMessage);
+  }
+  
   // If this is the first user message, extract topic from it
   if (clientHistory.length === 0) {
     return extractTopicFromMessage(currentMessage);
