@@ -218,6 +218,17 @@ const MyCourses = () => {
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
 
+    // Mock enrollment function for hardcoded courses
+    const handleEnrollment = () => {
+      // For hardcoded courses, we'll directly navigate to the course
+      const route = getCourseRoute();
+      if (route.startsWith('http')) {
+        window.open(route, '_blank');
+      } else {
+        window.location.href = route;
+      }
+    };
+
     // Get display title for the course
     const getDisplayTitle = () => {
       if (isElSpellingCourse) {
@@ -287,6 +298,7 @@ const MyCourses = () => {
         route={getCourseRoute()}
         colorTheme={getColorTheme()}
         isCompleted={progress?.completed || false}
+        onEnroll={!isEnrolled ? handleEnrollment : undefined}
       />
     );
   };
