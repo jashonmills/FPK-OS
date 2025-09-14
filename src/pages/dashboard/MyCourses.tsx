@@ -22,6 +22,19 @@ import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
 import { useProcessLinearEquationsCourse } from '@/hooks/useLinearEquationsCourse';
 
+// Hard-coded Interactive Linear Equations Course
+const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
+  id: 'interactive-linear-equations',
+  title: 'Interactive Linear Equations',
+  description: 'Master solving linear equations through interactive lessons and practice problems. Learn step-by-step problem solving with immediate feedback.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 240,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -78,6 +91,7 @@ const MyCourses = () => {
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
+    INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded course
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -161,6 +175,7 @@ const MyCourses = () => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
+    const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
 
     // Get display title for the course
     const getDisplayTitle = () => {
@@ -185,6 +200,11 @@ const MyCourses = () => {
       // Special case for EL Spelling & Reading course
       if (isElSpellingCourse) {
         return 'https://course-start-kit-react.lovable.app/el-spelling';
+      }
+      
+      // Special case for Interactive Linear Equations
+      if (isInteractiveLinearEquations) {
+        return '/courses/interactive-linear-equations';
       }
       
       // For other courses, use slug if available, otherwise use id
@@ -227,9 +247,9 @@ const MyCourses = () => {
                   Featured
                 </Badge>
               )}
-              {(isLearningStateCourse || isElSpellingCourse) && (
+              {(isLearningStateCourse || isElSpellingCourse || isInteractiveLinearEquations) && (
                 <Badge variant="default" className="fpk-gradient text-white">
-                  Beta
+                  {isInteractiveLinearEquations ? 'Interactive' : 'Beta'}
                 </Badge>
               )}
               <Badge variant="outline">
@@ -321,26 +341,6 @@ const MyCourses = () => {
             <SelectItem value="advanced">Advanced</SelectItem>
           </SelectContent>
         </Select>
-        
-        {userOrganization && (
-          <Button
-            onClick={() => processLinearCourse(userOrganization.organization_id)}
-            disabled={isProcessingLinearCourse}
-            className="w-full sm:w-auto"
-          >
-            {isProcessingLinearCourse ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Course...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Linear Equations
-              </>
-            )}
-          </Button>
-        )}
       </div>
 
       <Tabs defaultValue="enrolled" className="space-y-6">

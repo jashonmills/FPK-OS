@@ -116,6 +116,9 @@ const ScormPlayer = lazy(() => {
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 
+// Interactive Linear Equations Course
+const InteractiveLinearEquationsCoursePage = lazy(() => import("./pages/courses/InteractiveLinearEquationsCoursePage"));
+
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
 
@@ -343,6 +346,13 @@ const App: React.FC = () => {
                 </Routes>
               </RouteProtector>
             </RequireAdmin>
+          } />
+          
+          {/* Interactive Linear Equations Course Route */}
+          <Route path="/courses/interactive-linear-equations" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveLinearEquationsCoursePage /></LazyRoute>
+            </RouteProtector>
           } />
           
           {/* Native Course Player Routes */}
