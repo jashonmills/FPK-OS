@@ -61,10 +61,10 @@ export const NeurodiversityLesson2: React.FC<NeurodiversityLesson2Props> = ({
         <CardContent className="space-y-6">
           <div className="prose max-w-none dark:prose-invert">
             <p>
-              In this lesson, we reframe common neurodivergent traits as powerful strengths. Your brain is not a weakness; it's an asset. Your unique wiring is a source of talent that many neurotypical individuals don't possess. The key is to stop viewing your traits through a negative lens and start seeing their potential.
+              In this lesson, we reframe common neurodiverse traits as powerful strengths. Your brain is not a weakness; it's an asset. Your unique wiring is a source of talent that many neurotypical individuals don't possess. The key is to stop viewing your traits through a negative lens and start seeing their potential.
             </p>
             <p>
-              Here are some examples of how common neurodivergent traits can be leveraged as superpowers:
+              Here are some examples of how common neurodiverse traits can be leveraged as superpowers:
             </p>
           </div>
         </CardContent>

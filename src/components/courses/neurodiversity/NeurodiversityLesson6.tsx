@@ -211,7 +211,7 @@ export const NeurodiversityLesson6: React.FC<NeurodiversityLesson6Props> = ({
         <CardContent>
           <div className="prose max-w-none dark:prose-invert">
             <p>
-              Logic and critical thinking are not abstract subjects; they are practical skills that will help you in every area of your life. Your neurodivergent mind is uniquely equipped to excel at this. You can cut through the noise, see the underlying structure of an argument, and build a case that is sound and true. This course will give you the tools and the language to express what you already intuitively understand.
+              Logic and critical thinking are not abstract subjects; they are practical skills that will help you in every area of your life. Your neurodiverse mind is uniquely equipped to excel at this. You can cut through the noise, see the underlying structure of an argument, and build a case that is sound and true. This course will give you the tools and the language to express what you already intuitively understand.
             </p>
           </div>
         </CardContent>

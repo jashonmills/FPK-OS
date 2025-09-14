@@ -75,7 +75,7 @@ export const NeurodiversityLesson4: React.FC<NeurodiversityLesson4Props> = ({
           <CardContent className="pt-6">
             <p><strong>Myth:</strong> Using technology and tools to learn is cheating.</p>
             <p className="mt-2 text-muted-foreground">
-              <strong>Fact:</strong> Assistive technology is a powerful tool for leveling the playing field. Just as a person with a broken leg uses crutches, a neurodivergent learner can use tools like text-to-speech software, noise-canceling headphones, and AI coaches to access information in a way that works for them. Technology isn't cheating; it's empowering.
+              <strong>Fact:</strong> Assistive technology is a powerful tool for leveling the playing field. Just as a person with a broken leg uses crutches, a neurodiverse learner can use tools like text-to-speech software, noise-canceling headphones, and AI coaches to access information in a way that works for them. Technology isn't cheating; it's empowering.
             </p>
           </CardContent>
         </Card>

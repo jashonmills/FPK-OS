@@ -59,8 +59,8 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
     },
     {
       id: 2,
-      question: "Briefly define \"neurodivergent\" and explain why this term was coined.",
-      answer: "\"Neurodivergent\" refers to an individual whose brain functions in a way that diverges significantly from the neurotypical majority. This term was created to be more empowering and inclusive, moving away from older, often pathologising clinical labels."
+      question: "Briefly define \"neurodiverse\" and explain why this term was coined.",
+      answer: "\"Neurodiverse\" refers to an individual whose brain functions in a way that diverges significantly from the neurotypical majority. This term was created to be more empowering and inclusive, moving away from older, often pathologising clinical labels."
     },
     {
       id: 3,
@@ -94,8 +94,8 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
     },
     {
       id: 9,
-      question: "Why does the text argue that neurodivergent minds have a \"natural advantage\" in economics?",
-      answer: "The text argues that neurodivergent minds have a \"natural advantage\" in economics because the field is built on patterns, relationships, and cause-and-effect logic. Strengths like systematic thinking and pattern recognition allow them to understand underlying economic structures rather than just memorise facts."
+      question: "Why does the text argue that neurodiverse minds have a \"natural advantage\" in economics?",
+      answer: "The text argues that neurodiverse minds have a \"natural advantage\" in economics because the field is built on patterns, relationships, and cause-and-effect logic. Strengths like systematic thinking and pattern recognition allow them to understand underlying economic structures rather than just memorise facts."
     },
     {
       id: 10,
@@ -106,15 +106,15 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
 
   const glossaryData = [
     { term: "Neurodiversity", definition: "A concept proposing that variations in brain function, including how we learn, socialise, and pay attention, are natural and valuable parts of human diversity, akin to biodiversity. Coined by Judy Singer in 1998." },
-    { term: "Neurodivergent", definition: "An individual whose brain functions in a way that diverges significantly from the neurotypical majority. This term aims to be empowering and inclusive." },
+    { term: "Neurodiverse", definition: "An individual whose brain functions in a way that diverges significantly from the neurotypical majority. This term aims to be empowering and inclusive." },
     { term: "Neurotypical", definition: "An individual whose brain functions in a way that aligns with the societal norm. Used to highlight the existence of neurological diversity." },
     { term: "Medical Model", definition: "A traditional perspective that views neurological differences as medical problems or disorders that need to be 'cured' or 'fixed.'" },
     { term: "Social Model", definition: "A perspective that argues the real issue isn't the individual's brain, but a society that is not built to accommodate a wide range of minds, advocating for environmental and societal accommodations." },
-    { term: "Pattern Recognition", definition: "The ability to identify regularities and structures in data or information, often a strength in neurodivergent individuals, particularly those with dyslexia." },
+    { term: "Pattern Recognition", definition: "The ability to identify regularities and structures in data or information, often a strength in neurodiverse individuals, particularly those with dyslexia." },
     { term: "Hyperfocus", definition: "An intense, prolonged period of concentration on a specific task or area of interest, often experienced by individuals with ADHD or autism, allowing for deep and productive work." },
     { term: "Universal Design for Learning (UDL)", definition: "A framework that advocates for designing learning environments and materials to be accessible and effective for all learners, recognising that diverse approaches benefit everyone." },
-    { term: "Multisensory Learning", definition: "An approach to learning that engages multiple senses (e.g., visual, auditory, kinesthetic, tactile) to improve comprehension and retention, especially beneficial for neurodivergent learners." },
-    { term: "Self-Advocacy", definition: "The ability to understand one's own needs and confidently communicate them to others, particularly important for neurodivergent individuals seeking appropriate accommodations and support." },
+    { term: "Multisensory Learning", definition: "An approach to learning that engages multiple senses (e.g., visual, auditory, kinesthetic, tactile) to improve comprehension and retention, especially beneficial for neurodiverse learners." },
+    { term: "Self-Advocacy", definition: "The ability to understand one's own needs and confidently communicate them to others, particularly important for neurodiverse individuals seeking appropriate accommodations and support." },
   ];
 
   const filteredQuestions = questions.filter(q => 
@@ -202,31 +202,31 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">1.</p>
               <p className="text-sm">
-                Discuss how the shift from a "medical model" to a "social model" of neurodiversity fundamentally changes the approach to supporting neurodivergent individuals in educational and societal contexts. Provide specific examples from the text to illustrate this change.
+                Discuss how the shift from a "medical model" to a "social model" of neurodiversity fundamentally changes the approach to supporting neurodiverse individuals in educational and societal contexts. Provide specific examples from the text to illustrate this change.
               </p>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">2.</p>
               <p className="text-sm">
-                Analyse how the concept of "reframing traits as strengths" applies to at least two specific neurodivergent conditions (e.g., dyslexia, ADHD, autism) as described in the source material. How do these reframed traits contribute to unique academic or professional "superpowers"?
+                Analyse how the concept of "reframing traits as strengths" applies to at least two specific neurodiverse conditions (e.g., dyslexia, ADHD, autism) as described in the source material. How do these reframed traits contribute to unique academic or professional "superpowers"?
               </p>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">3.</p>
               <p className="text-sm">
-                Evaluate the core learning strategies (structure and predictability, multisensory learning, self-advocacy) introduced in Lesson 2.1. Explain how each strategy addresses common challenges faced by neurodivergent learners and provides a personalised path to success.
+                Evaluate the core learning strategies (structure and predictability, multisensory learning, self-advocacy) introduced in Lesson 2.1. Explain how each strategy addresses common challenges faced by neurodiverse learners and provides a personalised path to success.
               </p>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">4.</p>
               <p className="text-sm">
-                FPK University positions itself as a platform "built for your brain." Discuss how its core features (customisable interface, flexible pacing, AI study coach) embody the principles of Universal Design for Learning (UDL) and actively support neurodivergent students beyond traditional educational models.
+                FPK University positions itself as a platform "built for your brain." Discuss how its core features (customisable interface, flexible pacing, AI study coach) embody the principles of Universal Design for Learning (UDL) and actively support neurodiverse students beyond traditional educational models.
               </p>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">5.</p>
               <p className="text-sm">
-                Drawing on the "Applying Your Strengths" unit, explain how neurodivergent cognitive styles are particularly well-suited for excelling in subjects like Economics and Logic & Critical Thinking. Provide examples of specific strengths and how they can be applied to master these fields.
+                Drawing on the "Applying Your Strengths" unit, explain how neurodiverse cognitive styles are particularly well-suited for excelling in subjects like Economics and Logic & Critical Thinking. Provide examples of specific strengths and how they can be applied to master these fields.
               </p>
             </div>
           </div>

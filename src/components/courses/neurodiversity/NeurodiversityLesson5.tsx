@@ -81,7 +81,7 @@ export const NeurodiversityLesson5: React.FC<NeurodiversityLesson5Props> = ({
           <CardContent className="pt-6">
             <p><strong>Myth:</strong> Economics is a subject about memorizing a lot of complicated facts.</p>
             <p className="mt-2 text-muted-foreground">
-              <strong>Fact:</strong> Economics is a science of cause and effect. It's about recognizing patterns and understanding relationships. Your neurodivergent ability to see connections and think in systems gives you a natural advantage in this field. You don't have to memorize; you can <strong>understand</strong> the logic.
+              <strong>Fact:</strong> Economics is a science of cause and effect. It's about recognizing patterns and understanding relationships. Your neurodiverse ability to see connections and think in systems gives you a natural advantage in this field. You don't have to memorize; you can <strong>understand</strong> the logic.
             </p>
           </CardContent>
         </Card>
@@ -121,7 +121,7 @@ export const NeurodiversityLesson5: React.FC<NeurodiversityLesson5Props> = ({
               </CardHeader>
               <CardContent className="space-y-4">
                 <p>
-                  A financial analyst with a neurodivergent mind might look at a complex stock market graph and instantly see a pattern—a repeating shape or trend—that a neurotypical mind would have to analyze with slow, deliberate steps. This ability to spot patterns can lead to a significant competitive advantage. For example, they might be the first to notice a company's stock price repeating a specific pattern just before a major breakthrough, giving them a heads-up on the market.
+                  A financial analyst with a neurodiverse mind might look at a complex stock market graph and instantly see a pattern—a repeating shape or trend—that a neurotypical mind would have to analyze with slow, deliberate steps. This ability to spot patterns can lead to a significant competitive advantage. For example, they might be the first to notice a company's stock price repeating a specific pattern just before a major breakthrough, giving them a heads-up on the market.
                 </p>
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
                   <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2">Moment of Reflection:</h4>

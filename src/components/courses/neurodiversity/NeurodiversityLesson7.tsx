@@ -115,7 +115,7 @@ export const NeurodiversityLesson7: React.FC<NeurodiversityLesson7Props> = ({
                 </span>
               </h4>
               <p className="text-sm text-muted-foreground">
-                The central idea that common neurodivergent traits can be seen as powerful assets.
+                The central idea that common neurodiverse traits can be seen as powerful assets.
               </p>
             </div>
             
@@ -239,7 +239,7 @@ export const NeurodiversityLesson7: React.FC<NeurodiversityLesson7Props> = ({
                 </span>
               </h4>
               <p className="text-sm text-muted-foreground">
-                A field that rewards systematic thinking, attention to detail, and logical reasoning, making it a natural fit for neurodivergent minds.
+                A field that rewards systematic thinking, attention to detail, and logical reasoning, making it a natural fit for neurodiverse minds.
               </p>
             </div>
             

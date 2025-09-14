@@ -111,7 +111,7 @@ export const NeurodiversityLesson3: React.FC<NeurodiversityLesson3Props> = ({
           <CardContent className="space-y-4">
             <div className="prose max-w-none dark:prose-invert">
               <p>
-                Neurodivergent brains often thrive on routine. Our platform is designed with clear deadlines and a structured format to reduce anxiety and free up your mental energy for learning.
+                Neurodiverse brains often thrive on routine. Our platform is designed with clear deadlines and a structured format to reduce anxiety and free up your mental energy for learning.
               </p>
             </div>
             

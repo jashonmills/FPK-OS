@@ -116,7 +116,7 @@ export const NeurodiversityLesson1: React.FC<NeurodiversityLesson1Props> = ({
               </p>
             </div>
             <div className="border-l-4 border-l-green-500 pl-4">
-              <h4 className="font-semibold">Neurodivergent:</h4>
+              <h4 className="font-semibold">Neurodiverse:</h4>
               <p className="text-muted-foreground">
                 An individual whose brain functions in a way that diverges significantly from the neurotypical majority. This term was created to be more empowering and inclusive than older clinical labels.
               </p>
@@ -139,7 +139,7 @@ export const NeurodiversityLesson1: React.FC<NeurodiversityLesson1Props> = ({
           <CardContent className="pt-6">
             <p><strong>Myth:</strong> Neurodiversity is a new, trendy concept that romanticizes disabilities.</p>
             <p className="mt-2 text-muted-foreground">
-              <strong>Fact:</strong> The concept has existed for over two decades and is supported by a growing body of scientific research and advocacy. It doesn't deny the challenges associated with neurodivergence; instead, it reframes them in a way that promotes dignity and empowers individuals to seek appropriate support without shame.
+              <strong>Fact:</strong> The concept has existed for over two decades and is supported by a growing body of scientific research and advocacy. It doesn't deny the challenges associated with neurodiversity; instead, it reframes them in a way that promotes dignity and empowers individuals to seek appropriate support without shame.
             </p>
           </CardContent>
         </Card>
