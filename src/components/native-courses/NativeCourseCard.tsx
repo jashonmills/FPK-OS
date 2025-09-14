@@ -21,14 +21,13 @@ export function NativeCourseCard({
   const getColorTheme = (): 'blue' | 'orange' | 'purple' | 'green' => {
     const title = course.title.toLowerCase();
     if (title.includes('economics') || title.includes('modern')) return 'blue';
-    if (title.includes('algebra') || title.includes('pathfinder')) return 'orange';
+    if (title.includes('algebra')) return 'orange';
     if (title.includes('learning') || title.includes('state')) return 'purple';
     return 'green';
   };
 
   const getCourseType = () => {
     if (course.title.includes('Modern Economics')) return 'Full Course Curriculum';
-    if (course.title.includes('Algebra Pathfinder')) return 'Math Course';
     if (course.title.includes('Learning State')) return 'Beta Course';
     return 'Native Course';
   };
