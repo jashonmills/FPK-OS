@@ -41,19 +41,39 @@ const LessonTTSControls: React.FC<LessonTTSControlsProps> = ({
       return;
     }
 
-    // Extract and prepare content for reading
-    const content = extractReadableText(contentRef.current);
-    const mathContent = convertMathToSpeech(content);
-    const introText = generateIntroText(lessonTitle, lessonNumber, totalLessons);
-    const outroText = generateOutroText(lessonTitle);
-    
-    const fullContent = `${introText} ${mathContent} ${outroText}`;
+    try {
+      // Extract and prepare content for reading
+      const content = extractReadableText(contentRef.current);
+      const mathContent = convertMathToSpeech(content);
+      const introText = generateIntroText(lessonTitle, lessonNumber, totalLessons);
+      const outroText = generateOutroText(lessonTitle);
+      
+      let fullContent = `${introText} ${mathContent} ${outroText}`;
+      
+      // Limit content length to prevent stack overflow (max ~800 characters for TTS)
+      if (fullContent.length > 800) {
+        const truncatedContent = mathContent.substring(0, 500);
+        fullContent = `${introText} ${truncatedContent}... This lesson continues with more detailed content. ${outroText}`;
+      }
 
-    setIsReading(true);
-    setCurrentSection('Reading lesson content...');
-    
-    const success = speak(fullContent, { interrupt: true });
-    if (!success) {
+      console.log('🔊 Lesson TTS - Content length:', fullContent.length, 'Preview:', fullContent.substring(0, 100));
+
+      setIsReading(true);
+      setCurrentSection('Reading lesson content...');
+      
+      speak(fullContent, { interrupt: true }).then(success => {
+        if (!success) {
+          console.error('🔊 Lesson TTS failed');
+          setIsReading(false);
+          setCurrentSection('');
+        }
+      }).catch(error => {
+        console.error('🔊 Lesson TTS error:', error);
+        setIsReading(false);
+        setCurrentSection('');
+      });
+    } catch (error) {
+      console.error('🔊 Error in handleReadLesson:', error);
       setIsReading(false);
       setCurrentSection('');
     }
