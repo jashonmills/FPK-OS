@@ -21,6 +21,7 @@ export interface ChatRequest {
     dualAIMode?: boolean;
   };
   clientHistory?: ClientHistoryMessage[];
+  originalTopic?: string;
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed';

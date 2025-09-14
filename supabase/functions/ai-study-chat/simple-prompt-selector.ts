@@ -18,6 +18,8 @@ export interface SimplePromptContext {
   quizTopic?: string;
   teachingHistory?: string;
   incorrectCount?: number;
+  originalTopic?: string;
+  conversationHistory?: string;
 }
 
 export function buildSimplePrompt(promptType: PromptType, context: SimplePromptContext): string {
@@ -34,7 +36,17 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
 `;
   }
 
-  // Add minimal context based on conversation state
+  // Add original topic context if available
+  if (context.originalTopic) {
+    prompt += `## ORIGINAL LEARNING TOPIC\nThe user originally wanted to learn about: "${context.originalTopic}"\nSTAY FOCUSED on this topic throughout the conversation.\n\n`;
+  }
+
+  // Add conversation history context if available
+  if (context.conversationHistory) {
+    prompt += `## CONVERSATION SUMMARY\n${context.conversationHistory}\n\n`;
+  }
+
+  // Add minimal context based on conversation state  
   switch (promptType) {
     case 'direct_answer':
       prompt += `## CONTEXT\nUser is asking for a direct answer to: "${context.userInput || ''}"\n`;
@@ -53,6 +65,9 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       break;
     case 'evaluate_answer':
       prompt += `## CONTEXT\nUser's response: "${context.userInput || ''}"\n`;
+      if (context.originalTopic) {
+        prompt += `IMPORTANT: Keep the discussion focused on "${context.originalTopic}". If the user's response is off-topic, acknowledge it briefly and redirect back to the original topic.\n`;
+      }
       break;
     case 'initiate_quiz':
       prompt += `## CONTEXT\nUser wants a quiz on: ${context.quizTopic || 'general knowledge'}\n`;

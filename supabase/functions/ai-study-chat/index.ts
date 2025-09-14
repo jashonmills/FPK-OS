@@ -33,11 +33,15 @@ serve(async (req) => {
       contextData = {},
       chatMode = 'general',
       voiceActive = false,
-      clientHistory = []
+      clientHistory = [],
+      originalTopic
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
 
+    // Extract or detect original topic from conversation
+    const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
+    
     console.log('🎯 Gemini AI Processing (Enhanced Timing):', {
       messageLength: message?.length || 0,
       userId: userId?.substring(0, 8) + '...' || 'unknown',
@@ -47,6 +51,7 @@ serve(async (req) => {
       voiceActive,
       contextKeys: Object.keys(contextData),
       historyLength: clientHistory?.length || 0,
+      originalTopic: detectedOriginalTopic || 'none',
       hasValidRequest: !!(message && userId),
       requestParseTime: `${requestParseTime.toFixed(2)}ms`,
       totalTimeElapsed: `${(performance.now() - startTime).toFixed(2)}ms`
@@ -98,14 +103,19 @@ serve(async (req) => {
       );
     }
 
-    // Build simple prompt using Blueprint v7.0 system
+    // Build conversation history summary
+    const conversationSummary = buildConversationSummary(clientHistory);
+    
+    // Build simple prompt using Blueprint v4.2 system
     const promptContext: SimplePromptContext = {
       chatMode,
       voiceActive,
       userInput: message,
       quizTopic: contextData.quizTopic,
       teachingHistory: contextData.teachingHistory,
-      incorrectCount: contextData.incorrectCount
+      incorrectCount: contextData.incorrectCount,
+      originalTopic: detectedOriginalTopic,
+      conversationHistory: conversationSummary,
     };
 
     const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
@@ -335,24 +345,58 @@ function autoDetectPromptType(message: string, history: any[]): string {
   return 'initiate_session';
 }
 
-// Helper function to detect simple, foundational questions
 function isSimpleFoundationalQuestion(message: string): boolean {
-  // Basic math expressions (single operations)
-  if (message.match(/^\s*\d+\s*[\+\-\*\/]\s*\d+\s*$/)) {
-    return true;
-  }
-  
-  // Simple factual questions
   const simplePatterns = [
-    /^what is \d+[\+\-\*\/]\d+/,  // "what is 2+2"
-    /^what color is the sky/,      // basic facts
-    /^what is water made of/,      // fundamental science
-    /^what is the capital of/,     // basic geography
-    /^how many .+ in a/,          // basic counting/conversion
-    /^what does .+ mean$/,        // simple definition requests
+    /^\s*\d+\s*[\+\-\*\/]\s*\d+\s*$/,  // Basic math like "2+2"
+    /^what\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What is water?"
+    /^how\s+much\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "How much is 5+5?"
+    /^what\s+color\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What color is the sky?"
+    /^where\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "Where is Paris?"
   ];
   
-  return simplePatterns.some(pattern => pattern.test(message));
+  return simplePatterns.some(pattern => pattern.test(message.trim()));
+}
+
+function extractOriginalTopic(clientHistory: any[], currentMessage: string): string | null {
+  // If this is the first user message, extract topic from it
+  if (clientHistory.length === 0) {
+    return extractTopicFromMessage(currentMessage);
+  }
+  
+  // Look for the first user message to determine original topic
+  const firstUserMessage = clientHistory.find(msg => msg.role === 'user');
+  if (firstUserMessage) {
+    return extractTopicFromMessage(firstUserMessage.content);
+  }
+  
+  return null;
+}
+
+function extractTopicFromMessage(message: string): string | null {
+  // Simple topic extraction patterns
+  const topicPatterns = [
+    /(?:learn about|tell me about|explain|what (?:is|are)|how (?:does|do))\s+(.+?)(?:\?|$)/i,
+    /^(.+?)(?:\?|$)/i  // Fallback: take the whole message as topic
+  ];
+  
+  for (const pattern of topicPatterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
+
+function buildConversationSummary(clientHistory: any[]): string {
+  if (clientHistory.length === 0) return '';
+  
+  // Take last 4 messages to provide recent context
+  const recentHistory = clientHistory.slice(-4);
+  return recentHistory
+    .map(msg => `${msg.role}: ${msg.content}`)
+    .join('\n');
 }
 
 // Helper function to provide contextual responses based on user input
