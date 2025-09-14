@@ -452,3 +452,5 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
     </div>
   );
 };
+
+export default InteractiveCourseAnalyticsDashboard;

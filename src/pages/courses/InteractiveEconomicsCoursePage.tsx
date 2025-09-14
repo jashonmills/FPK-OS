@@ -12,6 +12,7 @@ import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
+import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
 
 // Import lesson components
 import { EconomicsLesson1 } from '@/components/courses/economics/EconomicsLesson1';
@@ -38,6 +39,9 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
     getLearningStats,
     saveLessonCompletion
   } = useInteractiveCourseProgress(courseId);
+  
+  // Bridge old enrollment system with new analytics
+  useInteractiveCourseEnrollmentBridge();
 
   // Scroll to top when lesson changes
   useEffect(() => {

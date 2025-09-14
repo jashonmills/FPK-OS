@@ -81,27 +81,46 @@ const Analytics = () => {
   } as CourseStats } = useQuery({
     queryKey: ['admin-course-stats'],
     queryFn: async () => {
-      const { data: courses, error: coursesError } = await supabase
-        .from('courses')
-        .select('id, status, created_at');
+      const [coursesResult, enrollmentsResult, interactiveCourseEnrollmentsResult] = await Promise.allSettled([
+        supabase.from('courses').select('id, status, created_at'),
+        supabase.from('enrollments').select('course_id, enrolled_at'),
+        supabase.from('interactive_course_enrollments').select('course_id, enrolled_at, completion_percentage')
+      ]);
 
-      const { data: enrollments, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('course_id, enrolled_at');
+      let totalCourses = 0;
+      let publishedCourses = 0;
+      let totalEnrollments = 0;
+      let completedCourses = 0;
 
-      if (coursesError || enrollmentsError) throw new Error('Failed to fetch course stats');
+      // Process regular courses
+      if (coursesResult.status === 'fulfilled' && coursesResult.value.data) {
+        totalCourses += coursesResult.value.data.length;
+        publishedCourses += coursesResult.value.data.filter(c => c.status === 'published').length;
+      }
 
-      const totalCourses = courses?.length || 0;
-      const publishedCourses = courses?.filter(c => c.status === 'published').length || 0;
-      const totalEnrollments = enrollments?.length || 0;
+      // Process regular enrollments
+      if (enrollmentsResult.status === 'fulfilled' && enrollmentsResult.value.data) {
+        totalEnrollments += enrollmentsResult.value.data.length;
+      }
+
+      // Process interactive course enrollments
+      if (interactiveCourseEnrollmentsResult.status === 'fulfilled' && interactiveCourseEnrollmentsResult.value.data) {
+        const interactiveEnrollments = interactiveCourseEnrollmentsResult.value.data;
+        totalEnrollments += interactiveEnrollments.length;
+        completedCourses += interactiveEnrollments.filter(e => (e.completion_percentage || 0) >= 100).length;
+        totalCourses += 4; // Economics, Algebra, Trigonometry, Linear Equations
+        publishedCourses += 4; // All interactive courses are published
+      }
+
       const avgEnrollmentsPerCourse = totalCourses > 0 ? Math.round(totalEnrollments / totalCourses) : 0;
+      const completionRate = totalEnrollments > 0 ? Math.round((completedCourses / totalEnrollments) * 100) : 0;
 
       return {
         totalCourses,
         publishedCourses,
         totalEnrollments,
         avgEnrollmentsPerCourse,
-        completionRate: 68, // Mock completion rate
+        completionRate,
       } as CourseStats;
     },
   });

@@ -23,7 +23,7 @@ export const useQuickStatsLive = () => {
       console.log('🔄 Fetching live quick stats...');
 
       // Fetch all stats in parallel
-      const [studySessionsResult, readingSessionsResult, chatSessionsResult, goalsResult] = await Promise.allSettled([
+      const [studySessionsResult, readingSessionsResult, chatSessionsResult, goalsResult, courseSessionsResult, courseEnrollmentsResult] = await Promise.allSettled([
         // Study sessions count
         supabase
           .from('study_sessions')
@@ -47,7 +47,20 @@ export const useQuickStatsLive = () => {
           .from('goals')
           .select('*', { count: 'exact' })
           .eq('user_id', user.id)
-          .eq('status', 'completed')
+          .eq('status', 'completed'),
+
+        // Interactive course sessions count and time
+        supabase
+          .from('interactive_course_sessions')
+          .select('duration_seconds', { count: 'exact' })
+          .eq('user_id', user.id),
+
+        // Interactive course enrollments (completed courses)
+        supabase
+          .from('interactive_course_enrollments')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
+          .gte('completion_percentage', 100)
       ]);
 
       let totalSessions = 0;
@@ -89,6 +102,17 @@ export const useQuickStatsLive = () => {
         goalsMet = goalsResult.value.count || 0;
       }
 
+      // Process interactive course sessions
+      if (courseSessionsResult.status === 'fulfilled' && courseSessionsResult.value.data) {
+        const courseSessionCount = courseSessionsResult.value.count || 0;
+        totalSessions += courseSessionCount;
+        
+        const courseSeconds = courseSessionsResult.value.data.reduce((sum, session) => 
+          sum + (session.duration_seconds || 0), 0
+        );
+        totalSecondsLearned += courseSeconds;
+      }
+
       // Calculate books read from reading progress
       const { data: readingProgress } = await supabase
         .from('reading_progress')
@@ -96,7 +120,13 @@ export const useQuickStatsLive = () => {
         .eq('user_id', user.id)
         .gte('completion_percentage', 90); // Consider 90%+ as "read"
 
-      const booksRead = readingProgress?.length || 0;
+      let booksRead = readingProgress?.length || 0;
+
+      // Add completed interactive courses to books read count
+      if (courseEnrollmentsResult.status === 'fulfilled') {
+        const completedCourses = courseEnrollmentsResult.value.count || 0;
+        booksRead += completedCourses;
+      }
 
       const stats = {
         totalSessions,

@@ -15,7 +15,11 @@ import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 import XPBreakdownCard from '@/components/analytics/XPBreakdownCard';
 
-// Dynamic imports with error handling
+// Dynamic imports with error handling  
+const InteractiveCourseAnalyticsDashboard = React.lazy(() => 
+  import('@/components/analytics/InteractiveCourseAnalyticsDashboard')
+);
+
 const LibraryReadingAnalytics = React.lazy(() => 
   import('@/components/analytics/LibraryReadingAnalytics').catch((error) => {
     console.error('Failed to load LibraryReadingAnalytics:', error);
@@ -97,10 +101,14 @@ const LearningAnalytics = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            <span className="hidden sm:inline">Courses</span>
           </TabsTrigger>
           <TabsTrigger value="reading" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
@@ -170,6 +178,18 @@ const LearningAnalytics = () => {
                 </CardContent>
               </Card>
             </div>
+          </RouteBoundary>
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-6">
+          <RouteBoundary>
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            }>
+              <InteractiveCourseAnalyticsDashboard />
+            </React.Suspense>
           </RouteBoundary>
         </TabsContent>
 
