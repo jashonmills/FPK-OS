@@ -206,15 +206,29 @@ function QuizRenderer({ items }: { items: any[] }) {
           )}
 
           {submitted && (
-            <div className="mt-3 text-sm">
-              <Badge variant={
-                // Simple answer checking - in real implementation, this would be more sophisticated
-                JSON.stringify(answers[item.id]) === JSON.stringify(item.answer_key_json)
-                  ? 'default' : 'destructive'
-              }>
-                {JSON.stringify(answers[item.id]) === JSON.stringify(item.answer_key_json) 
-                  ? 'Correct' : 'Incorrect'}
-              </Badge>
+            <div className="mt-3 p-3 rounded-lg bg-muted/50 text-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant={
+                  // Check if answers match for MCQ or if all correct answers are selected for multi-select
+                  (item.kind === 'mcq' && answers[item.id] === item.answer_key_json?.correct_answer) ||
+                  (item.kind === 'multi' && JSON.stringify((answers[item.id] || []).sort()) === JSON.stringify((item.answer_key_json?.correct_answers || []).sort())) ||
+                  (item.kind === 'numeric' && Math.abs(answers[item.id] - item.answer_key_json?.correct_value) < 0.001)
+                    ? 'default' : 'destructive'
+                }>
+                  {(item.kind === 'mcq' && answers[item.id] === item.answer_key_json?.correct_answer) ||
+                   (item.kind === 'multi' && JSON.stringify((answers[item.id] || []).sort()) === JSON.stringify((item.answer_key_json?.correct_answers || []).sort())) ||
+                   (item.kind === 'numeric' && Math.abs(answers[item.id] - item.answer_key_json?.correct_value) < 0.001)
+                    ? 'Correct' : 'Incorrect'}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {item.points} points
+                </span>
+              </div>
+              {item.answer_key_json?.explanation && (
+                <p className="text-sm text-muted-foreground">
+                  <strong>Explanation:</strong> {item.answer_key_json.explanation}
+                </p>
+              )}
             </div>
           )}
         </div>
