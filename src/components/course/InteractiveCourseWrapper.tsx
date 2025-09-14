@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnalytics';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
+import { memoryManager } from '@/utils/memoryManager';
 
 interface InteractiveCourseWrapperProps {
   courseId: string;
@@ -149,6 +150,11 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     const completedCount = completedLessons.size;
     updateCourseProgress(completedCount, totalLessons);
     onProgressUpdate?.(completedCount, totalLessons);
+
+    // Monitor memory usage in course context
+    if (memoryManager.isMemoryHigh()) {
+      console.warn('High memory usage detected in course wrapper');
+    }
   }, [completedLessons, totalLessons, updateCourseProgress, onProgressUpdate]);
 
   // Provide analytics context to children

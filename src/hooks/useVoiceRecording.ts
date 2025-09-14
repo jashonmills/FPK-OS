@@ -89,30 +89,35 @@ export const useVoiceRecording = () => {
 
         const checkSilence = () => {
           if (!analyserRef.current || !mediaRecorderRef.current || mediaRecorderRef.current.state !== 'recording') return;
-          const bufferLength = analyserRef.current.fftSize;
-          const dataArray = new Uint8Array(bufferLength);
-          analyserRef.current.getByteTimeDomainData(dataArray);
+          
+          try {
+            const bufferLength = Math.min(analyserRef.current.fftSize, 1024); // Limit buffer size
+            const dataArray = new Uint8Array(bufferLength);
+            analyserRef.current.getByteTimeDomainData(dataArray);
 
-          // Compute RMS
-          let sumSquares = 0;
-          for (let i = 0; i < bufferLength; i++) {
-            const v = (dataArray[i] - 128) / 128; // normalize to -1..1
-            sumSquares += v * v;
-          }
-          const rms = Math.sqrt(sumSquares / bufferLength);
-          const quiet = rms < 0.01; // threshold
-          const now = performance.now();
+            // Compute RMS with error handling
+            let sumSquares = 0;
+            for (let i = 0; i < bufferLength; i++) {
+              const v = (dataArray[i] - 128) / 128; // normalize to -1..1
+              sumSquares += v * v;
+            }
+            const rms = Math.sqrt(sumSquares / bufferLength);
+            const quiet = rms < 0.01; // threshold
+            const now = performance.now();
 
-          if (quiet) {
-            if (!silenceStartRef.current) {
-              silenceStartRef.current = now;
-            } else if (now - (silenceStartRef.current || 0) > 1200) {
-              // Auto stop after ~1.2s of silence
-              try { mediaRecorderRef.current.stop(); } catch (_) {}
+            if (quiet) {
+              if (!silenceStartRef.current) {
+                silenceStartRef.current = now;
+              } else if (now - (silenceStartRef.current || 0) > 1500) { // Increased threshold
+                // Auto stop after ~1.5s of silence
+                try { mediaRecorderRef.current.stop(); } catch (_) {}
+                silenceStartRef.current = null;
+              }
+            } else {
               silenceStartRef.current = null;
             }
-          } else {
-            silenceStartRef.current = null;
+          } catch (err) {
+            console.warn('Error in silence detection:', err);
           }
         };
         // Check ~6x per second
@@ -175,15 +180,36 @@ export const useVoiceRecording = () => {
           console.log('Recording duration:', recordingDuration, 'seconds');
           console.log('Audio format:', mimeType);
 
-          // Enhanced base64 conversion for larger files
+          // Enhanced base64 conversion with memory safety
           const arrayBuffer = await audioBlob.arrayBuffer();
+          
+          // Limit maximum file size to prevent crashes
+          const maxSize = 50 * 1024 * 1024; // 50MB limit
+          if (arrayBuffer.byteLength > maxSize) {
+            throw new Error('Audio file too large. Please record shorter clips.');
+          }
+          
           const uint8Array = new Uint8Array(arrayBuffer);
-          const chunkSize = 1024 * 1024; // 1MB chunks
+          const chunkSize = 512 * 1024; // Reduced to 512KB chunks for safety
           let base64Audio = '';
+          
+          // Process in smaller chunks with progress tracking
           for (let i = 0; i < uint8Array.length; i += chunkSize) {
-            const chunk = uint8Array.slice(i, i + chunkSize);
-            const chunkString = String.fromCharCode(...chunk);
-            base64Audio += btoa(chunkString);
+            const end = Math.min(i + chunkSize, uint8Array.length);
+            const chunk = uint8Array.slice(i, end);
+            
+            try {
+              const chunkString = String.fromCharCode(...chunk);
+              base64Audio += btoa(chunkString);
+            } catch (err) {
+              console.error('Base64 conversion error:', err);
+              throw new Error('Audio processing failed. File may be too large.');
+            }
+            
+            // Allow browser to breathe between chunks
+            if (i % (chunkSize * 4) === 0) {
+              await new Promise(resolve => setTimeout(resolve, 10));
+            }
           }
 
           const controller = new AbortController();

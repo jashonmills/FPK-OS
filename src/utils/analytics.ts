@@ -45,12 +45,33 @@ export class ExternalAnalytics {
   }
 
   private processEventQueue() {
-    // Process any queued events
-    while (this.eventQueue.length > 0) {
+    let processedCount = 0;
+    const maxProcessed = 50; // Limit batch size to prevent blocking
+    
+    // Process events with safety limits
+    while (this.eventQueue.length > 0 && processedCount < maxProcessed) {
       const event = this.eventQueue.shift();
       if (event) {
-        this.sendEvent(event.event_name, event.parameters);
+        try {
+          this.sendEvent(event.event_name, event.parameters);
+          processedCount++;
+        } catch (error) {
+          console.warn('Error processing queued event:', error);
+          break; // Stop processing if errors occur
+        }
       }
+      
+      // Yield to browser periodically
+      if (processedCount % 10 === 0) {
+        setTimeout(() => this.processEventQueue(), 0);
+        break;
+      }
+    }
+    
+    // Clear excessive queue to prevent memory buildup
+    if (this.eventQueue.length > 1000) {
+      console.warn('Event queue too large, clearing oldest events');
+      this.eventQueue.splice(0, this.eventQueue.length - 500);
     }
   }
 

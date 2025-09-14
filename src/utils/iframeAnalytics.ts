@@ -77,11 +77,32 @@ export class IframeAnalyticsBridge {
   }
 
   private processEventQueue() {
-    while (this.eventQueue.length > 0) {
+    let processedCount = 0;
+    const maxProcessed = 20; // Smaller batch for iframe context
+    
+    while (this.eventQueue.length > 0 && processedCount < maxProcessed) {
       const event = this.eventQueue.shift();
       if (event) {
-        this.sendToParent(event);
+        try {
+          this.sendToParent(event);
+          processedCount++;
+        } catch (error) {
+          console.warn('Error sending event to parent:', error);
+          break;
+        }
       }
+      
+      // Yield control more frequently in iframe
+      if (processedCount % 5 === 0) {
+        setTimeout(() => this.processEventQueue(), 0);
+        break;
+      }
+    }
+    
+    // Prevent memory buildup in iframe
+    if (this.eventQueue.length > 500) {
+      console.warn('Iframe event queue too large, clearing');
+      this.eventQueue.splice(0, this.eventQueue.length - 100);
     }
   }
 

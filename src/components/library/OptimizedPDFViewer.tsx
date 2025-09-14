@@ -110,26 +110,53 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
 
   // Calculate which pages should be rendered based on current page and buffer
   const getVisiblePages = useCallback(() => {
-    const start = Math.max(1, pageNumber - BUFFER_SIZE);
-    const end = Math.min(numPages, pageNumber + BUFFER_SIZE);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    const maxPages = Math.min(numPages, 100); // Limit total pages to prevent memory issues
+    const effectiveBufferSize = Math.min(BUFFER_SIZE, 5); // Limit buffer size
+    const start = Math.max(1, pageNumber - effectiveBufferSize);
+    const end = Math.min(maxPages, pageNumber + effectiveBufferSize);
+    const pageCount = end - start + 1;
+    
+    // Further limit if too many pages
+    if (pageCount > 20) {
+      const limitedEnd = Math.min(end, start + 19);
+      return Array.from({ length: limitedEnd - start + 1 }, (_, i) => start + i);
+    }
+    
+    return Array.from({ length: pageCount }, (_, i) => start + i);
   }, [pageNumber, numPages]);
 
-  // Preload pages near current page
+  // Preload pages near current page with memory limits
   const preloadPages = useCallback((centerPage: number) => {
+    const maxPreloadedPages = 15; // Limit preloaded pages
+    const effectivePreloadSize = Math.min(PRELOAD_SIZE, 3); // Reduce preload size
+    
+    // Clean up old preloaded pages if we have too many
+    if (preloadedPages.size > maxPreloadedPages) {
+      const pagesToKeep = new Set<number>();
+      const keepRange = 5;
+      for (let i = Math.max(1, centerPage - keepRange); i <= Math.min(numPages, centerPage + keepRange); i++) {
+        if (preloadedPages.has(i)) {
+          pagesToKeep.add(i);
+        }
+      }
+      setPreloadedPages(pagesToKeep);
+    }
+    
     const pagesToPreload = [];
-    for (let i = Math.max(1, centerPage - PRELOAD_SIZE); i <= Math.min(numPages, centerPage + PRELOAD_SIZE); i++) {
-      if (!preloadedPages.has(i)) {
+    for (let i = Math.max(1, centerPage - effectivePreloadSize); i <= Math.min(numPages, centerPage + effectivePreloadSize); i++) {
+      if (!preloadedPages.has(i) && pagesToPreload.length < 5) { // Limit new preloads
         pagesToPreload.push(i);
       }
     }
     
-    setPreloadedPages(prev => {
-      const newSet = new Set(prev);
-      pagesToPreload.forEach(page => newSet.add(page));
-      return newSet;
-    });
-  }, [numPages, preloadedPages]);
+    if (pagesToPreload.length > 0) {
+      setPreloadedPages(prev => {
+        const newSet = new Set(prev);
+        pagesToPreload.forEach(page => newSet.add(page));
+        return newSet;
+      });
+    }
+  }, [pageNumber, numPages, preloadedPages]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('✅ PDF loaded successfully:', { numPages, fileName });
