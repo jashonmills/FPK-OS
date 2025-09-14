@@ -255,3 +255,5 @@ export const InteractiveScienceCoursePage: React.FC = () => {
     </InteractiveCourseWrapper>
   );
 };
+
+export default InteractiveScienceCoursePage;

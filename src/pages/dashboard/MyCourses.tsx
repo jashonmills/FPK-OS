@@ -84,6 +84,18 @@ const NEURODIVERSITY_STRENGTHS_COURSE = {
   status: 'published'
 };
 
+const INTRODUCTION_TO_SCIENCE_COURSE = {
+  id: 'interactive-science',
+  title: 'Introduction to Science',
+  description: 'Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 360,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -164,6 +176,7 @@ const MyCourses = () => {
     INTERACTIVE_ALGEBRA_COURSE,
     LOGIC_CRITICAL_THINKING_COURSE,
     NEURODIVERSITY_STRENGTHS_COURSE,
+    INTRODUCTION_TO_SCIENCE_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -253,6 +266,7 @@ const MyCourses = () => {
     const isIntroductionModernEconomics = course.id === 'introduction-modern-economics';
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
     const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach';
+    const isIntroductionToScience = course.id === 'interactive-science';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -281,6 +295,7 @@ const MyCourses = () => {
       if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
       if (isNeurodiversityStrengths) return 'Foundation Course';
+      if (isIntroductionToScience) return 'Science Course';
       return 'Full Course Curriculum';
     };
 
@@ -291,6 +306,7 @@ const MyCourses = () => {
       if (isInteractiveAlgebra || isLearningStateCourse) return 'purple';
       if (isIntroductionModernEconomics) return 'blue';
       if (isLogicCriticalThinking) return 'green';
+      if (isIntroductionToScience) return 'blue';
       return 'green';
     };
 
@@ -326,6 +342,10 @@ const MyCourses = () => {
       
       if (isNeurodiversityStrengths) {
         return '/courses/neurodiversity-strengths-based-approach';
+      }
+      
+      if (isIntroductionToScience) {
+        return '/courses/interactive-science';
       }
       
       const identifier = course.slug || course.id;
