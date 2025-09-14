@@ -129,6 +129,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
           <CourseHeader 
             onBackToCourses={handleBackToCourses}
             onDashboard={handleDashboard}
+            courseTitle="Interactive Trigonometry"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -284,6 +285,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
         <CourseHeader 
           onBackToCourses={handleBackToCourses}
           onDashboard={handleDashboard}
+          title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
         />
         
         <div className="container mx-auto px-4 py-8">

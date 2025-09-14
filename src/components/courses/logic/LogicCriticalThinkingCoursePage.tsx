@@ -136,10 +136,11 @@ const LogicCriticalThinkingCoursePage = () => {
     return (
       <VoiceSettingsProvider>
         <div className="min-h-screen bg-background">
-          <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
-          />
+        <CourseHeader 
+          onBackToCourses={handleBackToCourses}
+          onDashboard={handleDashboard}
+          courseTitle="Logic and Critical Thinking"
+        />
           
           <div className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Course Header */}
@@ -292,6 +293,7 @@ const LogicCriticalThinkingCoursePage = () => {
         <CourseHeader 
           onBackToCourses={handleBackToCourses}
           onDashboard={handleDashboard}
+          title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
         />
         
         <div className="container mx-auto px-4 py-8">

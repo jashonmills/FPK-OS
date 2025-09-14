@@ -87,6 +87,7 @@ const LearningStateCourse = () => {
           <CourseHeader 
             onBackToCourses={handleBackToCourses}
             onDashboard={handleDashboard}
+            courseTitle="Learning State Course"
           />
           <StickyMediaToolbar
             isVisible={showStickyToolbar}
