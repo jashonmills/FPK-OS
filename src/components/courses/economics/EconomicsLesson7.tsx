@@ -295,11 +295,11 @@ export const EconomicsLesson7: React.FC<EconomicsLesson7Props> = ({
               <div className="space-y-3">
                 <div>
                   <p className="font-medium text-green-600 dark:text-green-400">Trade Surplus:</p>
-                  <p className="text-sm">Exports > Imports (positive balance)</p>
+                  <p className="text-sm">Exports {'>'}  Imports (positive balance)</p>
                 </div>
                 <div>
                   <p className="font-medium text-red-600 dark:text-red-400">Trade Deficit:</p>
-                  <p className="text-sm">Imports > Exports (negative balance)</p>
+                  <p className="text-sm">Imports {'>'}  Exports (negative balance)</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-600 dark:text-gray-400">Balanced Trade:</p>

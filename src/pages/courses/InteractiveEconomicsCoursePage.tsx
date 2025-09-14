@@ -164,9 +164,13 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
 
             {/* Voice and Video Controls */}
             <div className="flex justify-center gap-4">
-              <CourseOverviewTTS />
+              <CourseOverviewTTS 
+                courseTitle="Introduction to Modern Economics"
+                courseDescription="Master the fundamental principles of economics, from basic supply and demand to complex macroeconomic policies"
+                lessons={lessons}
+              />
               <CourseOverviewVideo 
-                videoId="economics-intro" 
+                videoUrl="https://example.com/economics-intro-video.mp4" 
                 title="Introduction to Modern Economics"
               />
             </div>
