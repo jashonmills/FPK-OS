@@ -21,6 +21,8 @@ export const useTextToSpeech = () => {
   const isSupported = true; // ElevenLabs is always supported
 
   const speak = useCallback(async (text: string, options: SpeechOptions = {}) => {
+    console.log('🔊 TTS SPEAK START:', { text: text.substring(0, 30), options });
+    
     if (!text.trim()) {
       console.warn('🔊 Cannot speak: empty text');
       return false;
@@ -45,24 +47,26 @@ export const useTextToSpeech = () => {
       }
 
       setIsLoading(true);
-      console.log('🔊 Generating speech with ElevenLabs for text:', text.substring(0, 50) + '...');
+      console.log('🔊 About to call ElevenLabs function...');
 
-      // Call ElevenLabs via our edge function
-      console.log('🔊 Calling supabase.functions.invoke...');
+      // Test with a simple function call first
+      console.log('🔊 Supabase client available:', !!supabase);
+      console.log('🔊 Functions available:', !!supabase.functions);
       
       const { data, error } = await supabase.functions.invoke('elevenlabs-tts', {
         body: {
-          text,
-          voiceId: options.voice || settings.selectedVoice || 'EXAVITQu4vr4xnSDxMaL', // Sarah as default
-          model: options.model || 'eleven_multilingual_v2',
-          stability: 0.5,
-          similarityBoost: 0.75,
-          style: 0.0,
-          useSpeakerBoost: true
+          text: text.substring(0, 500), // Limit text size for testing
+          voiceId: 'EXAVITQu4vr4xnSDxMaL', // Use fixed voice ID for testing
+          model: 'eleven_multilingual_v2'
         }
       });
 
-      console.log('🔊 ElevenLabs response received:', { data, error, hasData: !!data, hasError: !!error });
+      console.log('🔊 Function invoke completed:', { 
+        hasData: !!data, 
+        hasError: !!error,
+        errorMessage: error?.message,
+        dataKeys: data ? Object.keys(data) : 'no data'
+      });
 
       if (error) {
         console.error('🔊 ElevenLabs TTS error:', error);
