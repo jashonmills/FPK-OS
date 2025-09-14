@@ -90,7 +90,7 @@ class SafeTextToSpeech {
   }
 
   isAvailable(): boolean {
-    return this.isSupported && this.hasUserInteracted;
+    return this.isSupported;
   }
 }
 

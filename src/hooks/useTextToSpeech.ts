@@ -15,7 +15,7 @@ export const useTextToSpeech = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { settings } = useVoiceSettings();
-  const isSupported = safeTextToSpeech.isAvailable();
+  const isSupported = 'speechSynthesis' in window;
 
   // Monitor speechSynthesis speaking state
   useEffect(() => {
@@ -53,7 +53,7 @@ export const useTextToSpeech = () => {
       return false;
     }
 
-    if (!settings.enabled) {
+    if (!settings.enabled && settings.hasInteracted) {
       console.log('🔊 TTS is disabled in settings');
       return false;
     }
