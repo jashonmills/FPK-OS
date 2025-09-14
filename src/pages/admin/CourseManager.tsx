@@ -13,6 +13,7 @@ import { Plus, Edit2, Trash2, RefreshCw } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useQueryClient } from '@tanstack/react-query';
+import { GenerateCourseImagesButton } from '@/components/admin/GenerateCourseImagesButton';
 
 const CourseManager = () => {
   const { t } = useTranslation();
@@ -139,7 +140,7 @@ const CourseManager = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('admin.courses.title')}</h1>
           <p className="text-sm md:text-base text-gray-600">{t('admin.courses.description')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button 
             variant="outline" 
             onClick={handleRefresh}
@@ -149,6 +150,7 @@ const CourseManager = () => {
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          <GenerateCourseImagesButton />
           <Button onClick={() => setIsCreating(true)} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
             <Plus className="h-4 w-4 mr-2" />
             New Course
