@@ -10,7 +10,14 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator, Loader2, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { VisualAid } from '@/components/courses/VisualAid';
+
+// Import static visual aids
+import conceptBalanceScale from '@/assets/linear-equations/concept-balance-scale.jpg';
+import stepByStepSolution from '@/assets/linear-equations/step-by-step-solution.jpg';
+import algebraicTiles from '@/assets/linear-equations/algebraic-tiles.jpg';
+import numberLine from '@/assets/linear-equations/number-line.jpg';
+import conceptOverview from '@/assets/linear-equations/concept-overview.jpg';
+import practiceExamples from '@/assets/linear-equations/practice-examples.jpg';
 
 interface LessonBlock {
   id: string;
@@ -195,11 +202,6 @@ const InteractiveLinearEquationsCoursePage = () => {
   const renderBlock = () => {
     if (!currentBlock) return null;
 
-    // Extract key content for visual context
-    const getVisualContext = (content: string, maxLength: number = 200) => {
-      return content.replace(/\n/g, ' ').substring(0, maxLength).trim();
-    };
-
     switch (currentBlock.type) {
       case 'text':
         return (
@@ -245,22 +247,34 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Visual aids for all text blocks */}
+            {/* Static visual aids for all text blocks */}
             <div className="grid md:grid-cols-2 gap-6">
-              <VisualAid
-                visualType="concept-overview"
-                lessonId={currentLesson.id}
-                context={getVisualContext(currentBlock.content)}
-                title="Concept Visualization"
-                description="Visual overview of key concepts"
-              />
-              <VisualAid
-                visualType="diagram"
-                lessonId={currentLesson.id}
-                context={`${currentBlock.title}: ${getVisualContext(currentBlock.content, 150)}`}
-                title="Learning Diagram"
-                description="Educational diagram for this concept"
-              />
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Concept Visualization</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={conceptOverview}
+                    alt="Linear equation concepts visualization"
+                    className="w-full h-48 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Balance Scale Model</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={conceptBalanceScale}
+                    alt="Balance scale equation model"
+                    className="w-full h-48 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
@@ -308,29 +322,47 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Enhanced visual aids for example problems */}
+            {/* Static visual aids for example problems */}
             <div className="grid md:grid-cols-3 gap-4">
-              <VisualAid
-                visualType="step-by-step"
-                lessonId={currentLesson.id}
-                context={getVisualContext(currentBlock.content)}
-                title="Step-by-Step Solution"
-                description="Visual breakdown of the solution process"
-              />
-              <VisualAid
-                visualType="balance-scale"
-                lessonId={currentLesson.id}
-                context={getVisualContext(currentBlock.content)}
-                title="Balance Scale Model"
-                description="Equation equality visualization"
-              />
-              <VisualAid
-                visualType="number-line"
-                lessonId={currentLesson.id}
-                context={`Example solution: ${getVisualContext(currentBlock.content, 100)}`}
-                title="Solution on Number Line"
-                description="Graphical representation of the answer"
-              />
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Step-by-Step Solution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={stepByStepSolution}
+                    alt="Step-by-step solution process"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Balance Scale Model</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={conceptBalanceScale}
+                    alt="Equation balance visualization"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Number Line Solution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={numberLine}
+                    alt="Solution on number line"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
@@ -366,29 +398,47 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Enhanced practice-focused visual aids */}
+            {/* Static practice-focused visual aids */}
             <div className="grid md:grid-cols-3 gap-4">
-              <VisualAid
-                visualType="algebraic-tiles"
-                lessonId={currentLesson.id}
-                context={getVisualContext(currentBlock.content)}
-                title="Algebraic Tiles"
-                description="Visual representation using colored blocks"
-              />
-              <VisualAid
-                visualType="balance-scale"
-                lessonId={currentLesson.id}
-                context={getVisualContext(currentBlock.content)}
-                title="Practice Balance Scale"
-                description="Interactive equation balancing"
-              />
-              <VisualAid
-                visualType="step-by-step"
-                lessonId={currentLesson.id}
-                context={`Practice guide: ${getVisualContext(currentBlock.content, 100)}`}
-                title="Solution Method"
-                description="Step-by-step approach visualization"
-              />
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Algebraic Tiles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={algebraicTiles}
+                    alt="Algebraic tiles representation"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Practice Examples</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={practiceExamples}
+                    alt="Practice problem examples"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Solution Methods</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={stepByStepSolution}
+                    alt="Solution method visualization"
+                    className="w-full h-40 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
@@ -445,22 +495,34 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Visual aids for quiz blocks */}
+            {/* Static visual aids for quiz blocks */}
             <div className="grid md:grid-cols-2 gap-6">
-              <VisualAid
-                visualType="concept-overview"
-                lessonId={currentLesson.id}
-                context={`Quiz on: ${questions.map(q => q.question).join('; ')}`}
-                title="Quiz Concepts Review"
-                description="Visual summary of quiz topics"
-              />
-              <VisualAid
-                visualType="number-line"
-                lessonId={currentLesson.id}
-                context={`Assessment visualization: ${currentBlock.title}`}
-                title="Solution Visualization"
-                description="Graphical representation of quiz solutions"
-              />
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Concept Review</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={conceptOverview}
+                    alt="Quiz concepts review"
+                    className="w-full h-48 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Solution Visualization</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={numberLine}
+                    alt="Solution visualization"
+                    className="w-full h-48 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
