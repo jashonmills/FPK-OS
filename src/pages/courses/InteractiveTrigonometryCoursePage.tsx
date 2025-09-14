@@ -18,7 +18,7 @@ import { TrigonometryLesson7 } from '@/components/trigonometry/lessons/Trigonome
 
 const InteractiveTrigonometryCoursePage: React.FC = () => {
   const navigate = useNavigate();
-  const [currentLesson, setCurrentLesson] = useState(0);
+  const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState(new Set<number>());
   const [overallProgress, setOverallProgress] = useState(0);
 
