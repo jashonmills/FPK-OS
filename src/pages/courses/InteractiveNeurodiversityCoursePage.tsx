@@ -371,6 +371,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
               onComplete={() => handleLessonComplete(currentLesson)}
               onNext={hasNext ? handleNextLesson : undefined}
               hasNext={hasNext}
+              totalLessons={lessons.length}
             >
               <LessonComponent />
             </InteractiveLessonWrapper>

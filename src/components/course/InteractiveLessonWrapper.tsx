@@ -3,6 +3,7 @@ import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnaly
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import LessonTTSControls from '@/components/course/LessonTTSControls';
 
 interface InteractiveLessonWrapperProps {
   courseId: string;
@@ -12,6 +13,7 @@ interface InteractiveLessonWrapperProps {
   onComplete?: () => void;
   onNext?: () => void;
   hasNext?: boolean;
+  totalLessons?: number;
 }
 
 export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> = ({
@@ -21,7 +23,8 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   children,
   onComplete,
   onNext,
-  hasNext
+  hasNext,
+  totalLessons = 8
 }) => {
   const {
     startLessonAnalytics,
@@ -34,6 +37,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   const [timeSpent, setTimeSpent] = useState(0);
   const startTimeRef = useRef<Date | null>(null);
   const timerRef = useRef<NodeJS.Timeout>();
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   // Start lesson analytics on mount
   useEffect(() => {
@@ -142,8 +146,18 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         </CardContent>
       </Card>
 
+      {/* TTS Controls */}
+      <div className="mb-6">
+        <LessonTTSControls
+          lessonTitle={lessonTitle}
+          lessonNumber={lessonId}
+          totalLessons={totalLessons}
+          contentRef={lessonContentRef}
+        />
+      </div>
+
       {/* Lesson Content */}
-      <div className="interactive-lesson-content">
+      <div ref={lessonContentRef} className="interactive-lesson-content">
         {enhancedChildren}
       </div>
 
