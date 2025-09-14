@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.generate-course-visuals]
 verify_jwt = false
+
+[functions.extract-linear-equations-zip]
+verify_jwt = false
