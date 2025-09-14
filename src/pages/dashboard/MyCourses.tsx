@@ -22,7 +22,7 @@ import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
 import { useProcessLinearEquationsCourse } from '@/hooks/useLinearEquationsCourse';
 
-// Hard-coded Interactive Linear Equations Course
+// Hard-coded Interactive Courses
 const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
   id: 'interactive-linear-equations',
   title: 'Interactive Linear Equations',
@@ -30,6 +30,18 @@ const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
   thumbnail_url: null,
   difficulty_level: 'beginner',
   duration_minutes: 240,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
+const INTERACTIVE_TRIGONOMETRY_COURSE = {
+  id: 'interactive-trigonometry',
+  title: 'Interactive Trigonometry',
+  description: 'Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving.',
+  thumbnail_url: null,
+  difficulty_level: 'intermediate',
+  duration_minutes: 300,
   instructor_name: 'FPK University',
   featured: true,
   status: 'published'
@@ -91,7 +103,8 @@ const MyCourses = () => {
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
-    INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded course
+    INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded courses
+    INTERACTIVE_TRIGONOMETRY_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -176,6 +189,7 @@ const MyCourses = () => {
     const isLearningStateCourse = course.id === 'learning-state-beta';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
+    const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
 
     // Get display title for the course
     const getDisplayTitle = () => {
@@ -202,9 +216,13 @@ const MyCourses = () => {
         return 'https://course-start-kit-react.lovable.app/el-spelling';
       }
       
-      // Special case for Interactive Linear Equations
+      // Special case for Interactive courses
       if (isInteractiveLinearEquations) {
         return '/courses/interactive-linear-equations';
+      }
+      
+      if (isInteractiveTrigonometry) {
+        return '/courses/interactive-trigonometry';
       }
       
       // For other courses, use slug if available, otherwise use id
@@ -247,9 +265,9 @@ const MyCourses = () => {
                   Featured
                 </Badge>
               )}
-              {(isLearningStateCourse || isElSpellingCourse || isInteractiveLinearEquations) && (
+              {(isLearningStateCourse || isElSpellingCourse || isInteractiveLinearEquations || isInteractiveTrigonometry) && (
                 <Badge variant="default" className="fpk-gradient text-white">
-                  {isInteractiveLinearEquations ? 'Interactive' : 'Beta'}
+                  {(isInteractiveLinearEquations || isInteractiveTrigonometry) ? 'Interactive' : 'Beta'}
                 </Badge>
               )}
               <Badge variant="outline">
