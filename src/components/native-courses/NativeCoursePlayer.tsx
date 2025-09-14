@@ -18,6 +18,7 @@ import {
 } from '@/hooks/useNativeCourses';
 import { NativeLessonRenderer } from './NativeLessonRenderer';
 import { NativeCourseProgressSidebar } from './NativeCourseProgressSidebar';
+import { useUnifiedProgressTracking } from '@/hooks/useUnifiedProgressTracking';
 import { toast } from 'sonner';
 
 export default function NativeCoursePlayer() {
@@ -31,6 +32,20 @@ export default function NativeCoursePlayer() {
   const { data: lesson } = useCourseLesson(currentLessonId || '');
   const { data: enrollments } = useNativeEnrollments();
   const { updateProgress } = useNativeEnrollmentMutations();
+
+  // Unified progress tracking
+  const {
+    trackInteraction,
+    trackLessonCompletion,
+    trackCourseCompletion,
+    totalTimeSpent,
+    sessionActive
+  } = useUnifiedProgressTracking(
+    course?.id || '',
+    course?.title || '',
+    currentLessonId || undefined,
+    lesson?.title || undefined
+  );
 
   // Find current enrollment
   const enrollment = enrollments?.find(e => e.course_id === course?.id);
@@ -58,9 +73,13 @@ export default function NativeCoursePlayer() {
       
       if (resumeLesson) {
         setCurrentLessonId(resumeLesson.id);
+        trackInteraction('course_resumed', {
+          resumedLessonId: resumeLesson.id,
+          resumedLessonTitle: resumeLesson.title
+        });
       }
     }
-  }, [allLessons, enrollment, currentLessonId]);
+  }, [allLessons, enrollment, currentLessonId, trackInteraction]);
 
   const handleExit = () => {
     navigate('/dashboard/learner/courses');
@@ -77,40 +96,53 @@ export default function NativeCoursePlayer() {
     if (canGoNext) {
       const nextLesson = allLessons[currentLessonIndex + 1];
       setCurrentLessonId(nextLesson.id);
+      trackInteraction('lesson_navigation', {
+        action: 'next',
+        fromLessonId: currentLessonId,
+        toLessonId: nextLesson.id
+      });
     }
   };
 
   const handleCompleteLesson = async () => {
-    if (!enrollment || !currentLessonId) return;
-    
-    // For now, we'll track completion via progress percentage
-    // In the future, we can add a completed_lessons field to the database
-    const newProgress = Math.round(((currentLessonIndex + 1) / allLessons.length) * 100);
+    if (!enrollment || !currentLessonId || !lesson) return;
     
     try {
+      // Track lesson completion with unified system
+      await trackLessonCompletion(currentLessonId, lesson.title);
+      
+      // Update native enrollment progress
+      const newProgress = Math.round(((currentLessonIndex + 1) / allLessons.length) * 100);
+      
       await updateProgress.mutateAsync({
         enrollmentId: enrollment.id,
         progressPct: newProgress,
         lastLessonId: currentLessonId
       });
       
-      toast.success('Lesson completed!');
+      // Check if course is complete
+      if (isLastLesson) {
+        await trackCourseCompletion();
+      }
       
       // Auto-advance to next lesson if not the last
       if (!isLastLesson) {
         setTimeout(() => {
           handleNextLesson();
         }, 1000);
-      } else {
-        toast.success('Congratulations! You completed the course!');
       }
     } catch (error) {
+      console.error('Error completing lesson:', error);
       toast.error('Failed to update progress');
     }
   };
 
   const handleLessonSelect = (lessonId: string) => {
     setCurrentLessonId(lessonId);
+    trackInteraction('lesson_selected', {
+      lessonId,
+      lessonTitle: allLessons.find(l => l.id === lessonId)?.title
+    });
   };
 
   if (!course || !lesson) {
@@ -177,7 +209,9 @@ export default function NativeCoursePlayer() {
 
         {/* Lesson Content */}
         <main className="flex-1 p-6 overflow-y-auto">
-          <NativeLessonRenderer lesson={lesson as any} />
+          <div onClick={() => trackInteraction('lesson_content_interaction')}>
+            <NativeLessonRenderer lesson={lesson as any} />
+          </div>
         </main>
 
         {/* Navigation Footer */}
