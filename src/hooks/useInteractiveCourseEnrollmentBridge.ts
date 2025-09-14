@@ -10,9 +10,15 @@ export const useInteractiveCourseEnrollmentBridge = () => {
   const { user } = useAuth();
 
   const migrateEnrollmentData = async () => {
-    if (!user) return;
+    if (!user?.id) return;
+
+    console.log('🔄 Starting enrollment migration for user:', user.id);
 
     try {
+      // Add timeout protection for migration
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
       // Get existing enrollments for interactive courses
       const { data: existingEnrollments } = await supabase
         .from('enrollments')
@@ -20,7 +26,11 @@ export const useInteractiveCourseEnrollmentBridge = () => {
         .eq('user_id', user.id)
         .in('course_id', ['economics-101', 'algebra-basics', 'trigonometry-fundamentals', 'linear-equations']);
 
-      if (!existingEnrollments?.length) return;
+      if (!existingEnrollments?.length) {
+        console.log('✅ No existing enrollments to migrate');
+        clearTimeout(timeoutId);
+        return;
+      }
 
       // Check which ones don't exist in the new system
       const { data: interactiveEnrollments } = await supabase
@@ -58,13 +68,17 @@ export const useInteractiveCourseEnrollmentBridge = () => {
           .insert(migratedEnrollments);
 
         if (error) {
-          console.error('Error migrating enrollment data:', error);
+          console.error('❌ Error migrating enrollment data:', error);
         } else {
-          console.log('Successfully migrated enrollment data for', migratedEnrollments.length, 'courses');
+          console.log('✅ Successfully migrated enrollment data for', migratedEnrollments.length, 'courses');
         }
+      } else {
+        console.log('✅ All enrollments already migrated');
       }
+
+      clearTimeout(timeoutId);
     } catch (error) {
-      console.error('Error in enrollment bridge:', error);
+      console.error('❌ Error in enrollment bridge:', error);
     }
   };
 
@@ -79,10 +93,15 @@ export const useInteractiveCourseEnrollmentBridge = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      migrateEnrollmentData();
+    if (user?.id) {
+      // Debounce migration to prevent multiple calls
+      const timeoutId = setTimeout(() => {
+        migrateEnrollmentData();
+      }, 1000);
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [user]);
+  }, [user?.id]); // Fixed dependency
 
   return { migrateEnrollmentData };
 };

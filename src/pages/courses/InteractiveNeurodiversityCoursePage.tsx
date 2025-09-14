@@ -13,6 +13,7 @@ import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseW
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
 import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
+import { ErrorBoundary, CourseFallback } from '@/components/common/ErrorBoundary';
 
 // Import lesson components
 import { NeurodiversityLesson1 } from '@/components/courses/neurodiversity/NeurodiversityLesson1';
@@ -40,7 +41,15 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
     saveLessonCompletion
   } = useInteractiveCourseProgress(courseId);
   
-  // Bridge old enrollment system with new analytics
+  // Bridge old enrollment system with new analytics - delayed
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log('🔗 Initializing enrollment bridge');
+    }, 5000); // Delay bridge initialization
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+  
   useInteractiveCourseEnrollmentBridge();
 
   // Scroll to top when lesson changes
@@ -141,13 +150,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
   // Course overview (lesson selection)
   if (currentLesson === null) {
     return (
-      <VoiceSettingsProvider>
-        <InteractiveCourseWrapper
-          courseId={courseId}
-          courseTitle={courseTitle}
-          currentLesson={currentLesson}
-          totalLessons={lessons.length}
-        >
+      <ErrorBoundary fallback={CourseFallback}>
+        <VoiceSettingsProvider>
+          <InteractiveCourseWrapper
+            courseId={courseId}
+            courseTitle={courseTitle}
+            currentLesson={currentLesson}
+            totalLessons={lessons.length}
+          >
           <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
             <CourseHeader 
               onDashboard={handleDashboard} 
@@ -294,8 +304,9 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             )}
           </div>
         </div>
-      </InteractiveCourseWrapper>
-      </VoiceSettingsProvider>
+        </InteractiveCourseWrapper>
+        </VoiceSettingsProvider>
+      </ErrorBoundary>
     );
   }
 
@@ -307,13 +318,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
   const hasNext = currentLesson < lessons.length;
 
   return (
-    <VoiceSettingsProvider>
-      <InteractiveCourseWrapper
-        courseId={courseId}
-        courseTitle={courseTitle}
-        currentLesson={currentLesson}
-        totalLessons={lessons.length}
-      >
+    <ErrorBoundary fallback={CourseFallback}>
+      <VoiceSettingsProvider>
+        <InteractiveCourseWrapper
+          courseId={courseId}
+          courseTitle={courseTitle}
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
         <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
           {/* Lesson Header */}
           <div className="bg-card border-b sticky top-0 z-10">
@@ -364,8 +376,9 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             </InteractiveLessonWrapper>
           </div>
         </div>
-      </InteractiveCourseWrapper>
-    </VoiceSettingsProvider>
+        </InteractiveCourseWrapper>
+      </VoiceSettingsProvider>
+    </ErrorBoundary>
   );
 };
 

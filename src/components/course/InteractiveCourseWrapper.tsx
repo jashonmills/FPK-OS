@@ -37,10 +37,16 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const lastScrollPercentage = useRef(0);
 
-  // Auto-enroll on mount
+  // Auto-enroll on mount - debounced
   useEffect(() => {
-    enrollInCourse();
-  }, [enrollInCourse]);
+    if (courseId && courseTitle) {
+      const timeoutId = setTimeout(() => {
+        enrollInCourse();
+      }, 2000); // Delay enrollment to prevent blocking other operations
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [courseId, courseTitle]); // Fixed dependency
 
   // Start session when component mounts or lesson changes
   useEffect(() => {
@@ -52,59 +58,83 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     };
   }, [currentLesson, startCourseSession, endCourseSession]);
 
-  // Track scroll depth
+  // Track scroll depth - improved cleanup and throttling
   useEffect(() => {
-    const handleScroll = () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrolled = window.scrollY;
-        const scrollPercentage = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
-
-        // Only track significant scroll changes
-        if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 10) {
-          trackScrollDepth(scrollPercentage);
-          lastScrollPercentage.current = scrollPercentage;
+    // Delay setting up scroll listeners to prevent blocking initial render
+    const setupTimeoutId = setTimeout(() => {
+      const handleScroll = () => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
         }
-      }, 500);
-    };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+        scrollTimeoutRef.current = setTimeout(() => {
+          try {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = window.scrollY;
+            const scrollPercentage = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
+
+            // Only track significant scroll changes
+            if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 10) {
+              trackScrollDepth(scrollPercentage);
+              lastScrollPercentage.current = scrollPercentage;
+            }
+          } catch (err) {
+            console.warn('Error tracking scroll depth:', err);
+          }
+        }, 500);
+      };
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+      };
+    }, 3000); // Delay scroll listener setup
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(setupTimeoutId);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
     };
   }, [trackScrollDepth]);
 
-  // Track click interactions
+  // Track click interactions - delayed setup and improved error handling
   useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      
-      // Track meaningful interactions
-      if (target.tagName === 'BUTTON' || 
-          target.closest('button') ||
-          target.classList.contains('interactive') ||
-          target.closest('.interactive')) {
-        
-        trackInteraction('click', {
-          element: target.tagName,
-          className: target.className,
-          textContent: target.textContent?.slice(0, 50),
-          timestamp: new Date().toISOString()
-        });
-      }
-    };
+    // Delay setting up click listeners to prevent blocking initial render
+    const setupTimeoutId = setTimeout(() => {
+      const handleClick = (event: MouseEvent) => {
+        try {
+          const target = event.target as HTMLElement;
+          
+          // Track meaningful interactions
+          if (target.tagName === 'BUTTON' || 
+              target.closest('button') ||
+              target.classList.contains('interactive') ||
+              target.closest('.interactive')) {
+            
+            trackInteraction('click', {
+              element: target.tagName,
+              className: target.className,
+              textContent: target.textContent?.slice(0, 50),
+              timestamp: new Date().toISOString()
+            });
+          }
+        } catch (err) {
+          console.warn('Error tracking click interaction:', err);
+        }
+      };
 
-    document.addEventListener('click', handleClick);
-    return () => {
-      document.removeEventListener('click', handleClick);
-    };
+      document.addEventListener('click', handleClick);
+      return () => {
+        document.removeEventListener('click', handleClick);
+      };
+    }, 4000); // Delay click listener setup
+
+    return () => clearTimeout(setupTimeoutId);
   }, [trackInteraction]);
 
   // Update progress when completed lessons change

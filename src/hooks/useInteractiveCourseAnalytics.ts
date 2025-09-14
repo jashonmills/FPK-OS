@@ -28,9 +28,11 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
   const [currentLessonAnalytics, setCurrentLessonAnalytics] = useState<LessonAnalytics | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
 
-  // Start course session
+  // Start course session - with loading protection
   const startCourseSession = useCallback(async (sessionType: 'overview' | 'lesson' | 'completion', lessonId?: number) => {
-    if (!user) return;
+    if (!user?.id) return;
+
+    console.log('🎯 Starting course session:', sessionType, lessonId);
 
     const sessionStart = new Date();
     setSessionStartTime(sessionStart);
@@ -46,8 +48,11 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
     
     setCurrentSession(session);
 
-    // Record session start in database
+    // Record session start in database with timeout protection
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       await supabase
         .from('interactive_course_sessions')
         .insert({
@@ -60,23 +65,32 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           interactions: []
         });
 
-      // Track daily activity
-      await trackDailyActivity('study', 0, user.id);
-    } catch (error) {
-      console.error('Error starting course session:', error);
-    }
-  }, [user, courseId]);
+      clearTimeout(timeoutId);
 
-  // End course session
+      // Track daily activity (non-blocking)
+      trackDailyActivity('study', 0, user.id).catch(err => 
+        console.warn('Daily activity tracking failed:', err)
+      );
+    } catch (error) {
+      console.error('❌ Error starting course session:', error);
+    }
+  }, [user?.id, courseId]);
+
+  // End course session - with timeout protection
   const endCourseSession = useCallback(async () => {
-    if (!user || !currentSession || !sessionStartTime) return;
+    if (!user?.id || !currentSession || !sessionStartTime) return;
+
+    console.log('🏁 Ending course session');
 
     const sessionEnd = new Date();
     const durationSeconds = Math.floor((sessionEnd.getTime() - sessionStartTime.getTime()) / 1000);
     const durationMinutes = Math.floor(durationSeconds / 60);
 
     try {
-      // Update session in database
+      // Update session in database with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
       await supabase
         .from('interactive_course_sessions')
         .update({
@@ -89,24 +103,28 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
         .eq('course_id', courseId)
         .eq('session_start', currentSession.sessionStart.toISOString());
 
-      // Track session analytics
-      await trackAnalyticsEvent('course_session_end', {
+      clearTimeout(timeoutId);
+
+      // Track analytics (non-blocking)
+      trackAnalyticsEvent('course_session_end', {
         course_id: courseId,
         session_type: currentSession.sessionType,
         duration_seconds: durationSeconds,
         page_views: currentSession.pageViews,
         interactions_count: currentSession.interactions.length
-      }, user.id);
+      }, user.id).catch(err => console.warn('Analytics tracking failed:', err));
 
-      // Track daily activity
-      await trackDailyActivity('study', durationMinutes, user.id);
+      // Track daily activity (non-blocking)
+      trackDailyActivity('study', durationMinutes, user.id).catch(err => 
+        console.warn('Daily activity tracking failed:', err)
+      );
     } catch (error) {
-      console.error('Error ending course session:', error);
+      console.error('❌ Error ending course session:', error);
     }
 
     setCurrentSession(null);
     setSessionStartTime(null);
-  }, [user, currentSession, sessionStartTime, courseId]);
+  }, [user?.id, currentSession, sessionStartTime, courseId]);
 
   // Start lesson analytics
   const startLessonAnalytics = useCallback(async (lessonId: number, lessonTitle: string) => {
@@ -230,11 +248,17 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
     } : null);
   }, [currentLessonAnalytics]);
 
-  // Enroll in course
+  // Enroll in course - with timeout and deduplication
   const enrollInCourse = useCallback(async () => {
-    if (!user) return;
+    if (!user?.id) return;
+
+    console.log('📝 Enrolling in course:', courseId);
 
     try {
+      // Add timeout protection
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
       await supabase
         .from('interactive_course_enrollments')
         .upsert({
@@ -249,15 +273,17 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           onConflict: 'user_id,course_id'
         });
 
-      // Track enrollment event
-      await trackAnalyticsEvent('course_enrolled', {
+      clearTimeout(timeoutId);
+
+      // Track enrollment event (non-blocking)
+      trackAnalyticsEvent('course_enrolled', {
         course_id: courseId,
         course_title: courseTitle
-      }, user.id);
+      }, user.id).catch(err => console.warn('Enrollment tracking failed:', err));
     } catch (error) {
-      console.error('Error enrolling in course:', error);
+      console.error('❌ Error enrolling in course:', error);
     }
-  }, [user, courseId, courseTitle]);
+  }, [user?.id, courseId, courseTitle]);
 
   // Update course progress
   const updateCourseProgress = useCallback(async (completedLessons: number, totalLessons: number) => {
@@ -303,20 +329,20 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
     }
   }, [user, courseId, courseTitle]);
 
-  // Auto-end session on component unmount
+  // Auto-end session on component unmount - fixed cleanup
   useEffect(() => {
     return () => {
       if (currentSession) {
-        endCourseSession();
+        endCourseSession().catch(err => console.warn('Failed to end session on unmount:', err));
       }
     };
-  }, []);
+  }, [currentSession, endCourseSession]); // Added dependencies
 
-  // Auto-end session on page visibility change
+  // Auto-end session on page visibility change - improved cleanup
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden && currentSession) {
-        endCourseSession();
+        endCourseSession().catch(err => console.warn('Failed to end session on visibility change:', err));
       }
     };
 

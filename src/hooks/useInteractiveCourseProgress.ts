@@ -43,10 +43,11 @@ export const useInteractiveCourseProgress = (courseId: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load course progress data
+  // Load course progress data - fixed dependencies to prevent infinite loop
   const loadProgressData = useCallback(async () => {
-    if (!user || !courseId) return;
+    if (!user?.id || !courseId) return;
 
+    console.log('🔄 Loading course progress data for:', courseId);
     setIsLoading(true);
     setError(null);
 
@@ -90,6 +91,8 @@ export const useInteractiveCourseProgress = (courseId: string) => {
       const totalTimeHours = totalTimeSpent / 3600;
       const learningVelocity = totalTimeHours > 0 ? completedCount / totalTimeHours : 0;
 
+      console.log('✅ Course progress loaded:', { completedLessons: completedLessons.size, totalTimeSpent });
+
       setProgressData({
         enrollment: enrollment as CourseEnrollment,
         lessonProgress: (lessonData || []) as LessonProgress[],
@@ -100,15 +103,17 @@ export const useInteractiveCourseProgress = (courseId: string) => {
       });
     } catch (err) {
       setError('Failed to load course progress');
-      console.error('Error loading course progress:', err);
+      console.error('❌ Error loading course progress:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [user, courseId]);
+  }, [user?.id, courseId]); // Fixed: removed user object, only use user.id
 
-  // Save lesson completion
+  // Save lesson completion - debounced to prevent rapid calls
   const saveLessonCompletion = useCallback(async (lessonId: number, lessonTitle: string) => {
-    if (!user) return;
+    if (!user?.id) return;
+
+    console.log('💾 Saving lesson completion:', lessonId, lessonTitle);
 
     try {
       // Update or insert lesson completion
@@ -128,12 +133,14 @@ export const useInteractiveCourseProgress = (courseId: string) => {
 
       if (error) throw error;
 
-      // Reload progress data
-      await loadProgressData();
+      // Debounced reload to prevent rapid successive calls
+      setTimeout(() => {
+        loadProgressData();
+      }, 500);
     } catch (err) {
-      console.error('Error saving lesson completion:', err);
+      console.error('❌ Error saving lesson completion:', err);
     }
-  }, [user, courseId, loadProgressData]);
+  }, [user?.id, courseId, loadProgressData]);
 
   // Get lesson completion status
   const isLessonCompleted = useCallback((lessonId: number) => {
@@ -178,19 +185,31 @@ export const useInteractiveCourseProgress = (courseId: string) => {
     };
   }, [progressData]);
 
-  // Initialize data on mount
+  // Initialize data on mount - fixed infinite loop
   useEffect(() => {
-    loadProgressData();
-  }, [loadProgressData]);
+    if (user?.id && courseId) {
+      console.log('🚀 Initializing course progress for:', courseId);
+      loadProgressData();
+    }
+  }, [user?.id, courseId]); // Fixed: removed loadProgressData dependency
 
-  // Persist progress to localStorage for backup
+  // Persist progress to localStorage for backup - debounced
   useEffect(() => {
-    if (progressData.completedLessons.size > 0) {
-      const storageKey = `course-progress-${courseId}-${user?.id}`;
-      localStorage.setItem(storageKey, JSON.stringify({
-        completedLessons: Array.from(progressData.completedLessons),
-        lastUpdated: new Date().toISOString()
-      }));
+    if (progressData.completedLessons.size > 0 && user?.id) {
+      const storageKey = `course-progress-${courseId}-${user.id}`;
+      // Debounce localStorage writes to prevent performance issues
+      const timeoutId = setTimeout(() => {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({
+            completedLessons: Array.from(progressData.completedLessons),
+            lastUpdated: new Date().toISOString()
+          }));
+        } catch (err) {
+          console.warn('Failed to save to localStorage:', err);
+        }
+      }, 1000);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [progressData.completedLessons, courseId, user?.id]);
 
