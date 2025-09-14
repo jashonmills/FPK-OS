@@ -74,7 +74,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
     },
     {
       id: 4,
-      title: "The PK University Advantage",
+      title: "The FPK University Advantage",
       description: "Learn how our platform is designed specifically for your brain",
       component: NeurodiversityLesson4,
       icon: PlayCircle
@@ -197,6 +197,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
               )}
             </div>
 
+            {/* Course Introduction Video */}
+            <div className="mb-8">
+              <CourseOverviewVideo 
+                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Your_Brain,_Your_Superpower.mp4"
+                title="Your Brain, Your Superpower - Course Introduction"
+              />
+            </div>
+
             {/* Voice Controls */}
             <div className="mb-8">
               <CourseOverviewTTS 
@@ -208,9 +216,9 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
 
             {/* Course Introduction */}
             <div className="bg-card p-6 rounded-lg shadow-sm border max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Welcome to Your PK University Journey</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Welcome to Your FPK University Journey</h2>
               <p className="text-muted-foreground leading-relaxed">
-                This course is your essential first step at PK University. It's designed to help you understand what **neurodiversity** is and, more importantly, how you can use your unique brain as a powerful tool for learning. This isn't about overcoming challenges; it's about identifying your strengths and using them to thrive. We believe that your neurodivergence is an asset, and this course will show you how to leverage it across all your studies.
+                This course is your essential first step at FPK University. It's designed to help you understand what **neurodiversity** is and, more importantly, how you can use your unique brain as a powerful tool for learning. This isn't about overcoming challenges; it's about identifying your strengths and using them to thrive. We believe that your neurodivergence is an asset, and this course will show you how to leverage it across all your studies.
               </p>
             </div>
 

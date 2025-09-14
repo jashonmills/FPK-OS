@@ -46,7 +46,7 @@ export const NeurodiversityLesson4: React.FC<NeurodiversityLesson4Props> = ({
           <Monitor className="w-5 h-5 mr-2 text-green-600" />
           <span className="text-green-800 dark:text-green-200 font-semibold">UNIT 2: STRATEGIES FOR SUCCESS</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground">LESSON 2.2: The PK University Advantage</h1>
+        <h1 className="text-3xl font-bold text-foreground">LESSON 2.2: The FPK University Advantage</h1>
         <p className="text-xl text-muted-foreground">A Platform Built for Your Brain</p>
       </div>
 
@@ -61,7 +61,7 @@ export const NeurodiversityLesson4: React.FC<NeurodiversityLesson4Props> = ({
         <CardContent className="space-y-6">
           <div className="prose max-w-none dark:prose-invert">
             <p>
-              PK University was not designed with a neurotypical student in mind. It was built for you. We recognize that one-size-fits-all education doesn't work. We offer the following features to support your learning, allowing you to bypass the friction that traditional learning environments often create.
+              FPK University was not designed with a neurotypical student in mind. It was built for you. We recognize that one-size-fits-all education doesn't work. We offer the following features to support your learning, allowing you to bypass the friction that traditional learning environments often create.
             </p>
           </div>
         </CardContent>

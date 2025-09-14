@@ -194,7 +194,7 @@ export const NeurodiversityLesson7: React.FC<NeurodiversityLesson7Props> = ({
                   className="cursor-pointer hover:bg-yellow-100 dark:hover:bg-yellow-900/30 px-1 rounded"
                   onClick={() => handleConceptClick('pk_university_advantage')}
                 >
-                  PK University Advantage:
+                  FPK University Advantage:
                 </span>
               </h4>
               <p className="text-sm text-muted-foreground">

@@ -89,8 +89,8 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
     },
     {
       id: 8,
-      question: "Describe how PK University's \"flexible pacing\" feature can benefit a student with fluctuating energy levels.",
-      answer: "PK University's \"flexible pacing\" feature allows students to work at a rhythm that suits their energy levels and focus, such as using the Pomodoro Technique. This helps manage mental energy throughout the day, preventing burnout and improving sustained productivity for students whose focus fluctuates."
+      question: "Describe how FPK University's \"flexible pacing\" feature can benefit a student with fluctuating energy levels.",
+      answer: "FPK University's \"flexible pacing\" feature allows students to work at a rhythm that suits their energy levels and focus, such as using the Pomodoro Technique. This helps manage mental energy throughout the day, preventing burnout and improving sustained productivity for students whose focus fluctuates."
     },
     {
       id: 9,
@@ -220,7 +220,7 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <p className="font-medium mb-2">4.</p>
               <p className="text-sm">
-                PK University positions itself as a platform "built for your brain." Discuss how its core features (customisable interface, flexible pacing, AI study coach) embody the principles of Universal Design for Learning (UDL) and actively support neurodivergent students beyond traditional educational models.
+                FPK University positions itself as a platform "built for your brain." Discuss how its core features (customisable interface, flexible pacing, AI study coach) embody the principles of Universal Design for Learning (UDL) and actively support neurodivergent students beyond traditional educational models.
               </p>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
@@ -261,7 +261,7 @@ export const NeurodiversityLesson8: React.FC<NeurodiversityLesson8Props> = ({
         <CardContent>
           <div className="prose max-w-none dark:prose-invert">
             <p>
-              Welcome to PK University. Your arrival here is not a coincidence, but the start of a new journey built just for you. For too long, you may have been told you need to change your mind to fit the world. We believe the opposite. We believe the world needs to change to fit your mind.
+              Welcome to FPK University. Your arrival here is not a coincidence, but the start of a new journey built just for you. For too long, you may have been told you need to change your mind to fit the world. We believe the opposite. We believe the world needs to change to fit your mind.
             </p>
             <p className="mt-4">
               Throughout this course, we've talked about what makes your brain unique—your attention to detail, your ability to see patterns, your capacity for deep focus. These are not just traits; they are the keys to a different kind of success. We want you to visualize where they can take you.
