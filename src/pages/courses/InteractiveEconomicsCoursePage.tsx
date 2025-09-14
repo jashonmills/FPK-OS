@@ -173,7 +173,7 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
 
             {/* Video Overview */}
             <CourseOverviewVideo 
-              videoUrl="https://example.com/economics-intro-video.mp4" 
+              videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Economics__A_User_s_Guide.mp4" 
               title="Introduction to Modern Economics"
             />
 
