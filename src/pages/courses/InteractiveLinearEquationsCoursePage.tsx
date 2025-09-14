@@ -195,6 +195,11 @@ const InteractiveLinearEquationsCoursePage = () => {
   const renderBlock = () => {
     if (!currentBlock) return null;
 
+    // Extract key content for visual context
+    const getVisualContext = (content: string, maxLength: number = 200) => {
+      return content.replace(/\n/g, ' ').substring(0, maxLength).trim();
+    };
+
     switch (currentBlock.type) {
       case 'text':
         return (
@@ -240,16 +245,23 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Add concept overview visual for text blocks with key concepts */}
-            {currentBlock.title?.toLowerCase().includes('concept') && (
+            {/* Visual aids for all text blocks */}
+            <div className="grid md:grid-cols-2 gap-6">
               <VisualAid
                 visualType="concept-overview"
                 lessonId={currentLesson.id}
-                context={currentBlock.content.substring(0, 100)}
+                context={getVisualContext(currentBlock.content)}
                 title="Concept Visualization"
-                description="AI-generated overview of key concepts"
+                description="Visual overview of key concepts"
               />
-            )}
+              <VisualAid
+                visualType="diagram"
+                lessonId={currentLesson.id}
+                context={`${currentBlock.title}: ${getVisualContext(currentBlock.content, 150)}`}
+                title="Learning Diagram"
+                description="Educational diagram for this concept"
+              />
+            </div>
           </div>
         );
 
@@ -296,21 +308,28 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Add visual aids for example problems */}
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Enhanced visual aids for example problems */}
+            <div className="grid md:grid-cols-3 gap-4">
               <VisualAid
                 visualType="step-by-step"
                 lessonId={currentLesson.id}
-                context={currentBlock.content.split('\n')[0]}
+                context={getVisualContext(currentBlock.content)}
                 title="Step-by-Step Solution"
                 description="Visual breakdown of the solution process"
               />
               <VisualAid
                 visualType="balance-scale"
                 lessonId={currentLesson.id}
-                context={currentBlock.content.split('\n')[0]}
+                context={getVisualContext(currentBlock.content)}
                 title="Balance Scale Model"
                 description="Equation equality visualization"
+              />
+              <VisualAid
+                visualType="number-line"
+                lessonId={currentLesson.id}
+                context={`Example solution: ${getVisualContext(currentBlock.content, 100)}`}
+                title="Solution on Number Line"
+                description="Graphical representation of the answer"
               />
             </div>
           </div>
@@ -347,21 +366,28 @@ const InteractiveLinearEquationsCoursePage = () => {
               </CardContent>
             </Card>
             
-            {/* Add practice-focused visual aids */}
-            <div className="grid md:grid-cols-2 gap-6">
+            {/* Enhanced practice-focused visual aids */}
+            <div className="grid md:grid-cols-3 gap-4">
               <VisualAid
                 visualType="algebraic-tiles"
                 lessonId={currentLesson.id}
-                context={currentBlock.content.split('\n')[0]}
+                context={getVisualContext(currentBlock.content)}
                 title="Algebraic Tiles"
                 description="Visual representation using colored blocks"
               />
               <VisualAid
-                visualType="number-line"
+                visualType="balance-scale"
                 lessonId={currentLesson.id}
-                context="solution visualization"
-                title="Number Line Solution"
-                description="Graphical representation of the answer"
+                context={getVisualContext(currentBlock.content)}
+                title="Practice Balance Scale"
+                description="Interactive equation balancing"
+              />
+              <VisualAid
+                visualType="step-by-step"
+                lessonId={currentLesson.id}
+                context={`Practice guide: ${getVisualContext(currentBlock.content, 100)}`}
+                title="Solution Method"
+                description="Step-by-step approach visualization"
               />
             </div>
           </div>
@@ -372,51 +398,71 @@ const InteractiveLinearEquationsCoursePage = () => {
         const isSubmitted = quizSubmitted[currentBlock.id];
 
         return (
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                {currentBlock.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {questions.map((question, index) => (
-                <div key={question.id} className="space-y-3">
-                  <Label className="text-base font-medium">
-                    {index + 1}. {question.question}
-                  </Label>
-                  
-                  <Input
-                    type="number"
-                    placeholder="Enter your answer"
-                    value={quizAnswers[`${currentBlock.id}-${question.id}`] || ''}
-                    onChange={(e) => setQuizAnswers({
-                      ...quizAnswers,
-                      [`${currentBlock.id}-${question.id}`]: e.target.value
-                    })}
-                    disabled={isSubmitted}
-                    className={isSubmitted ? (
-                      quizAnswers[`${currentBlock.id}-${question.id}`] == question.correctAnswer
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-red-500 bg-red-50'
-                    ) : ''}
-                  />
-                  
-                  {isSubmitted && (
-                    <div className="text-sm text-muted-foreground p-3 bg-muted rounded">
-                      <strong>Explanation:</strong> {question.explanation}
-                    </div>
-                  )}
-                </div>
-              ))}
-              
-              {!isSubmitted && (
-                <Button onClick={() => handleQuizSubmit(currentBlock.id)} className="w-full">
-                  Submit Quiz
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  {currentBlock.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {questions.map((question, index) => (
+                  <div key={question.id} className="space-y-3">
+                    <Label className="text-base font-medium">
+                      {index + 1}. {question.question}
+                    </Label>
+                    
+                    <Input
+                      type="number"
+                      placeholder="Enter your answer"
+                      value={quizAnswers[`${currentBlock.id}-${question.id}`] || ''}
+                      onChange={(e) => setQuizAnswers({
+                        ...quizAnswers,
+                        [`${currentBlock.id}-${question.id}`]: e.target.value
+                      })}
+                      disabled={isSubmitted}
+                      className={isSubmitted ? (
+                        quizAnswers[`${currentBlock.id}-${question.id}`] == question.correctAnswer
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-red-500 bg-red-50'
+                      ) : ''}
+                    />
+                    
+                    {isSubmitted && (
+                      <div className="text-sm text-muted-foreground p-3 bg-muted rounded">
+                        <strong>Explanation:</strong> {question.explanation}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {!isSubmitted && (
+                  <Button onClick={() => handleQuizSubmit(currentBlock.id)} className="w-full">
+                    Submit Quiz
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Visual aids for quiz blocks */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <VisualAid
+                visualType="concept-overview"
+                lessonId={currentLesson.id}
+                context={`Quiz on: ${questions.map(q => q.question).join('; ')}`}
+                title="Quiz Concepts Review"
+                description="Visual summary of quiz topics"
+              />
+              <VisualAid
+                visualType="number-line"
+                lessonId={currentLesson.id}
+                context={`Assessment visualization: ${currentBlock.title}`}
+                title="Solution Visualization"
+                description="Graphical representation of quiz solutions"
+              />
+            </div>
+          </div>
         );
 
       default:
