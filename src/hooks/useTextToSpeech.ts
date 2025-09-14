@@ -53,7 +53,7 @@ export const useTextToSpeech = () => {
       return false;
     }
 
-    if (!settings.enabled && settings.hasInteracted) {
+    if (!settings.enabled) {
       console.log('🔊 TTS is disabled in settings');
       return false;
     }
@@ -79,7 +79,8 @@ export const useTextToSpeech = () => {
         pitch: options.pitch ?? settings.pitch, 
         volume: options.volume ?? settings.volume,
         voice: options.voice ?? selectedVoice,
-        interrupt: options.interrupt ?? true
+        interrupt: options.interrupt ?? true,
+        hasInteracted: settings.hasInteracted
       };
 
       console.log('🔊 Using browser TTS with options:', speechOptions);

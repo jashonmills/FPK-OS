@@ -9,31 +9,14 @@ interface SpeechOptions {
   volume?: number;
   voice?: SpeechSynthesisVoice;
   interrupt?: boolean;
+  hasInteracted?: boolean;
 }
 
 class SafeTextToSpeech {
   private isSupported: boolean;
-  private hasUserInteracted: boolean = false;
 
   constructor() {
     this.isSupported = 'speechSynthesis' in window;
-    
-    // Listen for user interaction to enable TTS
-    this.setupUserInteractionListener();
-  }
-
-  private setupUserInteractionListener() {
-    const enableTTS = () => {
-      this.hasUserInteracted = true;
-      // Remove listeners after first interaction
-      document.removeEventListener('click', enableTTS);
-      document.removeEventListener('touchstart', enableTTS);
-      document.removeEventListener('keydown', enableTTS);
-    };
-
-    document.addEventListener('click', enableTTS, { once: true });
-    document.addEventListener('touchstart', enableTTS, { once: true });
-    document.addEventListener('keydown', enableTTS, { once: true });
   }
 
   speak(text: string, options: SpeechOptions = {}) {
@@ -42,7 +25,7 @@ class SafeTextToSpeech {
       return false;
     }
 
-    if (!this.hasUserInteracted) {
+    if (!options.hasInteracted) {
       console.warn('Text-to-speech requires user interaction first');
       return false;
     }
