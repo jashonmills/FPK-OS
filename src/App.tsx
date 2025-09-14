@@ -163,10 +163,14 @@ const App: React.FC = () => {
   React.useEffect(() => {
     logger.performance('App component mounted');
     
-    // Cleanup performance metrics periodically
+    // Cleanup performance metrics periodically - reduced frequency
     const cleanup = setInterval(() => {
-      performanceMonitor.cleanup();
-    }, 300000); // 5 minutes
+      try {
+        performanceMonitor.cleanup();
+      } catch (err) {
+        console.warn('Performance cleanup error:', err);
+      }
+    }, 600000); // Increased to 10 minutes to reduce overhead
 
     return () => {
       clearInterval(cleanup);

@@ -39,14 +39,14 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
 
   // Auto-enroll on mount - debounced
   useEffect(() => {
-    if (courseId && courseTitle) {
-      const timeoutId = setTimeout(() => {
-        enrollInCourse();
-      }, 2000); // Delay enrollment to prevent blocking other operations
+    if (!courseId || !courseTitle) return;
 
-      return () => clearTimeout(timeoutId);
-    }
-  }, [courseId, courseTitle]); // Fixed dependency
+    const timeoutId = setTimeout(() => {
+      enrollInCourse();
+    }, 1000); // Reduced from 2000ms
+
+    return () => clearTimeout(timeoutId);
+  }, [courseId, courseTitle, enrollInCourse]);
 
   // Start session when component mounts or lesson changes
   useEffect(() => {
@@ -60,6 +60,8 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
 
   // Track scroll depth - improved cleanup and throttling
   useEffect(() => {
+    let cleanupFn: (() => void) | null = null;
+    
     // Delay setting up scroll listeners to prevent blocking initial render
     const setupTimeoutId = setTimeout(() => {
       const handleScroll = () => {
@@ -74,28 +76,29 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
             const scrollPercentage = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
 
             // Only track significant scroll changes
-            if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 10) {
+            if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 15) { // Increased threshold
               trackScrollDepth(scrollPercentage);
               lastScrollPercentage.current = scrollPercentage;
             }
           } catch (err) {
             console.warn('Error tracking scroll depth:', err);
           }
-        }, 500);
+        }, 1000); // Increased debounce time
       };
 
       window.addEventListener('scroll', handleScroll, { passive: true });
       
-      return () => {
+      cleanupFn = () => {
         window.removeEventListener('scroll', handleScroll);
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
         }
       };
-    }, 3000); // Delay scroll listener setup
+    }, 1500); // Reduced delay
 
     return () => {
       clearTimeout(setupTimeoutId);
+      if (cleanupFn) cleanupFn();
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
@@ -104,22 +107,23 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
 
   // Track click interactions - delayed setup and improved error handling
   useEffect(() => {
+    let cleanupFn: (() => void) | null = null;
+    
     // Delay setting up click listeners to prevent blocking initial render
     const setupTimeoutId = setTimeout(() => {
       const handleClick = (event: MouseEvent) => {
         try {
           const target = event.target as HTMLElement;
           
-          // Track meaningful interactions
+          // Track meaningful interactions only
           if (target.tagName === 'BUTTON' || 
               target.closest('button') ||
-              target.classList.contains('interactive') ||
-              target.closest('.interactive')) {
+              target.classList.contains('interactive')) {
             
             trackInteraction('click', {
               element: target.tagName,
-              className: target.className,
-              textContent: target.textContent?.slice(0, 50),
+              className: target.className?.slice(0, 50), // Limit className length
+              textContent: target.textContent?.slice(0, 30), // Reduced text content
               timestamp: new Date().toISOString()
             });
           }
@@ -128,13 +132,16 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
         }
       };
 
-      document.addEventListener('click', handleClick);
-      return () => {
+      document.addEventListener('click', handleClick, { passive: true });
+      cleanupFn = () => {
         document.removeEventListener('click', handleClick);
       };
-    }, 4000); // Delay click listener setup
+    }, 2000); // Reduced delay
 
-    return () => clearTimeout(setupTimeoutId);
+    return () => {
+      clearTimeout(setupTimeoutId);
+      if (cleanupFn) cleanupFn();
+    };
   }, [trackInteraction]);
 
   // Update progress when completed lessons change

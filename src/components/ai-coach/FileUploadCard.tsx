@@ -178,8 +178,8 @@ const FileUploadCard: React.FC = () => {
     }
   };
 
-  const simulateProgress = (uploadId: string, duration: number = 6000) => {
-    const steps = 40;
+  const simulateProgress = (uploadId: string, duration: number = 4000) => { // Reduced from 6000ms
+    const steps = 30; // Reduced from 40
     const interval = duration / steps;
     let currentStep = 0;
 
@@ -196,6 +196,11 @@ const FileUploadCard: React.FC = () => {
         clearInterval(progressInterval);
       }
     }, interval);
+
+    // Auto-cleanup after duration + buffer
+    setTimeout(() => {
+      clearInterval(progressInterval);
+    }, duration + 1000);
 
     return progressInterval;
   };
@@ -297,10 +302,10 @@ const FileUploadCard: React.FC = () => {
             // Start progress animation
             simulateProgress(uploadRecord.id, 7000);
 
-            // Set timeout for AI processing
-            const baseTimeout = 180000; // 3 minutes base
-            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 2.5);
-            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 480000); // Max 8 minutes
+            // Set timeout for AI processing - reduced max timeout
+            const baseTimeout = 120000; // 2 minutes base (reduced from 3)
+            const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 1.5); // Reduced multiplier
+            const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 300000); // Max 5 minutes (reduced from 8)
 
             const timeoutId = setTimeout(() => {
               console.log('AI processing timeout for upload:', uploadRecord.id);

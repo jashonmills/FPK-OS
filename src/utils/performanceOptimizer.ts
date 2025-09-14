@@ -1,132 +1,174 @@
+// Performance optimizer utilities to prevent browser crashes
 
-/**
- * Performance optimization utilities for the library components
- */
+interface TimeoutManager {
+  timeouts: Set<NodeJS.Timeout>;
+  intervals: Set<NodeJS.Timeout>;
+  cleanup: () => void;
+  setTimeout: (callback: () => void, delay: number) => NodeJS.Timeout;
+  setInterval: (callback: () => void, delay: number) => NodeJS.Timeout;
+}
 
-// Debounce utility for search and other frequent operations
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-};
+// Global timeout manager to prevent accumulation
+class GlobalTimeoutManager implements TimeoutManager {
+  public timeouts = new Set<NodeJS.Timeout>();
+  public intervals = new Set<NodeJS.Timeout>();
 
-// Throttle utility for scroll and resize events
-export const throttle = <T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): ((...args: Parameters<T>) => void) => {
-  let inThrottle: boolean;
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-};
-
-// Image lazy loading helper
-export const createIntersectionObserver = (
-  callback: IntersectionObserverCallback,
-  options?: IntersectionObserverInit
-): IntersectionObserver => {
-  const defaultOptions: IntersectionObserverInit = {
-    root: null,
-    rootMargin: '50px',
-    threshold: 0.1,
-    ...options
-  };
-  
-  return new IntersectionObserver(callback, defaultOptions);
-};
-
-// Memory cleanup helper for EPUB instances
-export const cleanupEPUBResources = (epubInstance: any) => {
-  try {
-    if (epubInstance && typeof epubInstance.destroy === 'function') {
-      epubInstance.destroy();
-    }
-  } catch (error) {
-    console.warn('EPUB cleanup warning (non-critical):', error);
-  }
-};
-
-// Request batching helper
-export class RequestBatcher {
-  private queue: Array<() => Promise<any>> = [];
-  private isProcessing = false;
-  private batchSize: number;
-  private delay: number;
-
-  constructor(batchSize = 3, delay = 100) {
-    this.batchSize = batchSize;
-    this.delay = delay;
-  }
-
-  add<T>(request: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.queue.push(async () => {
-        try {
-          const result = await request();
-          resolve(result);
-          return result;
-        } catch (error) {
-          reject(error);
-          throw error;
-        }
-      });
-      
-      this.processQueue();
-    });
-  }
-
-  private async processQueue() {
-    if (this.isProcessing || this.queue.length === 0) return;
+  setTimeout(callback: () => void, delay: number): NodeJS.Timeout {
+    // Limit maximum timeout duration to prevent memory issues
+    const maxDelay = Math.min(delay, 300000); // Max 5 minutes
     
-    this.isProcessing = true;
-    
-    while (this.queue.length > 0) {
-      const batch = this.queue.splice(0, this.batchSize);
-      
+    const id = setTimeout(() => {
       try {
-        await Promise.allSettled(batch.map(request => request()));
-      } catch (error) {
-        console.warn('Batch processing error:', error);
+        callback();
+      } catch (err) {
+        console.warn('Timeout callback error:', err);
+      } finally {
+        this.timeouts.delete(id);
       }
-      
-      if (this.queue.length > 0) {
-        await new Promise(resolve => setTimeout(resolve, this.delay));
-      }
+    }, maxDelay);
+    
+    this.timeouts.add(id);
+    
+    // Auto-cleanup if too many timeouts
+    if (this.timeouts.size > 50) {
+      console.warn('Too many active timeouts, cleaning up oldest');
+      this.cleanupOldest();
     }
     
-    this.isProcessing = false;
+    return id;
+  }
+
+  setInterval(callback: () => void, delay: number): NodeJS.Timeout {
+    // Limit minimum interval to prevent browser strain
+    const minDelay = Math.max(delay, 1000); // Min 1 second
+    
+    const id = setInterval(() => {
+      try {
+        callback();
+      } catch (err) {
+        console.warn('Interval callback error:', err);
+      }
+    }, minDelay);
+    
+    this.intervals.add(id);
+    
+    // Auto-cleanup if too many intervals
+    if (this.intervals.size > 20) {
+      console.warn('Too many active intervals, cleaning up oldest');
+      this.cleanupIntervals();
+    }
+    
+    return id;
+  }
+
+  private cleanupOldest(): void {
+    let count = 0;
+    for (const id of this.timeouts) {
+      if (count++ >= 25) break; // Clear half
+      clearTimeout(id);
+      this.timeouts.delete(id);
+    }
+  }
+
+  private cleanupIntervals(): void {
+    let count = 0;
+    for (const id of this.intervals) {
+      if (count++ >= 10) break; // Clear half
+      clearInterval(id);
+      this.intervals.delete(id);
+    }
+  }
+
+  cleanup(): void {
+    // Clear all timeouts
+    this.timeouts.forEach(id => {
+      try {
+        clearTimeout(id);
+      } catch (err) {
+        console.warn('Error clearing timeout:', err);
+      }
+    });
+    this.timeouts.clear();
+
+    // Clear all intervals
+    this.intervals.forEach(id => {
+      try {
+        clearInterval(id);
+      } catch (err) {
+        console.warn('Error clearing interval:', err);
+      }
+    });
+    this.intervals.clear();
   }
 }
 
-// Global request batcher instance
-export const globalRequestBatcher = new RequestBatcher(3, 200);
+// Export singleton instance
+export const timeoutManager = new GlobalTimeoutManager();
 
-// Performance monitoring helper
-export const measurePerformance = (name: string, fn: () => void) => {
-  const start = performance.now();
-  fn();
-  const end = performance.now();
-  console.log(`${name} took ${end - start} milliseconds`);
-};
+// Memory usage monitor
+export const memoryMonitor = {
+  checkMemoryUsage(): void {
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      const usedMB = memory.usedJSHeapSize / 1048576;
+      const limitMB = memory.jsHeapSizeLimit / 1048576;
+      
+      if (usedMB > limitMB * 0.8) {
+        console.warn('High memory usage detected:', usedMB.toFixed(2), 'MB');
+        // Trigger cleanup
+        timeoutManager.cleanup();
+        
+        // Force garbage collection if available
+        if ('gc' in window) {
+          (window as any).gc();
+        }
+      }
+    }
+  },
 
-// Resource priority helper for critical loading
-export const prioritizeResource = (url: string, priority: 'high' | 'low' = 'high') => {
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.href = url;
-  link.as = 'fetch';
-  if (priority === 'high') {
-    link.setAttribute('importance', 'high');
+  startMonitoring(): NodeJS.Timeout {
+    return timeoutManager.setInterval(() => {
+      this.checkMemoryUsage();
+    }, 60000); // Check every minute
   }
-  document.head.appendChild(link);
 };
+
+// Event listener manager to prevent accumulation
+export const eventListenerManager = {
+  listeners: new Map<string, { element: EventTarget; event: string; handler: EventListener }>(),
+  
+  addEventListener(element: EventTarget, event: string, handler: EventListener, options?: AddEventListenerOptions): string {
+    const id = `${event}_${Date.now()}_${Math.random()}`;
+    element.addEventListener(event, handler, options);
+    this.listeners.set(id, { element, event, handler });
+    
+    // Warn if too many listeners
+    if (this.listeners.size > 100) {
+      console.warn('Large number of event listeners detected:', this.listeners.size);
+    }
+    
+    return id;
+  },
+  
+  removeEventListener(id: string): void {
+    const listener = this.listeners.get(id);
+    if (listener) {
+      listener.element.removeEventListener(listener.event, listener.handler);
+      this.listeners.delete(id);
+    }
+  },
+  
+  cleanup(): void {
+    this.listeners.forEach((listener, id) => {
+      try {
+        listener.element.removeEventListener(listener.event, listener.handler);
+      } catch (err) {
+        console.warn('Error removing event listener:', err);
+      }
+    });
+    this.listeners.clear();
+  }
+};
+
+// Start memory monitoring on module load
+memoryMonitor.startMonitoring();
