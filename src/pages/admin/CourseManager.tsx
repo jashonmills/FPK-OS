@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,16 +9,31 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, RefreshCw } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CourseManager = () => {
   const { t } = useTranslation();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
-  const { courses, isLoading, error, createCourse, updateCourse, deleteCourse } = useCourses();
+  const { courses, isLoading, error, createCourse, updateCourse, deleteCourse, refetch } = useCourses();
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Force refresh courses cache on component mount to get latest slug data
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['courses'] });
+  }, [queryClient]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['courses'] });
+    await refetch();
+    setIsRefreshing(false);
+  };
 
   const [formData, setFormData] = useState({
     title: '',
@@ -124,10 +139,21 @@ const CourseManager = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('admin.courses.title')}</h1>
           <p className="text-sm md:text-base text-gray-600">{t('admin.courses.description')}</p>
         </div>
-        <Button onClick={() => setIsCreating(true)} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
-          <Plus className="h-4 w-4 mr-2" />
-          New Course
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setIsCreating(true)} className="w-full sm:w-auto min-h-[44px] touch-manipulation">
+            <Plus className="h-4 w-4 mr-2" />
+            New Course
+          </Button>
+        </div>
       </div>
 
       {isCreating && (
