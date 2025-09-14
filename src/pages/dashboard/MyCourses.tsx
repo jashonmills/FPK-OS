@@ -59,6 +59,18 @@ const INTERACTIVE_ALGEBRA_COURSE = {
   status: 'published'
 };
 
+const LOGIC_CRITICAL_THINKING_COURSE = {
+  id: 'logic-critical-thinking',
+  title: 'Logic and Critical Thinking',
+  description: 'Develop essential reasoning skills through systematic study of logic and critical thinking. Learn to analyze arguments, identify fallacies, and construct sound reasoning.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 400,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -117,6 +129,7 @@ const MyCourses = () => {
     INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded courses
     INTERACTIVE_TRIGONOMETRY_COURSE,
     INTERACTIVE_ALGEBRA_COURSE,
+    LOGIC_CRITICAL_THINKING_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -203,6 +216,7 @@ const MyCourses = () => {
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
+    const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
 
     // Get display title for the course
     const getDisplayTitle = () => {
@@ -217,6 +231,7 @@ const MyCourses = () => {
       if (isLearningStateCourse) return 'Beta Course';
       if (isElSpellingCourse) return 'Reading Course';
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
+      if (isLogicCriticalThinking) return 'Philosophy Course';
       return 'Full Course Curriculum';
     };
 
@@ -225,6 +240,7 @@ const MyCourses = () => {
       if (isInteractiveLinearEquations) return 'blue';
       if (isInteractiveTrigonometry) return 'orange';
       if (isInteractiveAlgebra || isLearningStateCourse) return 'purple';
+      if (isLogicCriticalThinking) return 'green';
       return 'green';
     };
 
@@ -248,6 +264,10 @@ const MyCourses = () => {
       
       if (isInteractiveAlgebra) {
         return '/courses/interactive-algebra';
+      }
+      
+      if (isLogicCriticalThinking) {
+        return '/courses/logic-critical-thinking';
       }
       
       const identifier = course.slug || course.id;
