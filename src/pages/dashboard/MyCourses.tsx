@@ -90,8 +90,27 @@ const MyCourses = () => {
     organizationId: userOrganization?.organization_id,
   });
   const { data: nativeEnrollments = [] } = useNativeEnrollments();
-  const { enrollInCourse, isEnrolling } = useNativeEnrollmentMutations();
+  const { enrollInCourse } = useNativeEnrollmentMutations();
   
+  // Track enrollment state per course
+  const [enrollingCourseIds, setEnrollingCourseIds] = useState<Set<string>>(new Set());
+  
+  // Handle native course enrollment with per-course state tracking
+  const handleNativeCourseEnroll = async (courseId: string) => {
+    setEnrollingCourseIds(prev => new Set([...prev, courseId]));
+    try {
+      await enrollInCourse.mutateAsync(courseId);
+    } catch (error) {
+      console.error('Failed to enroll in native course:', error);
+    } finally {
+      setEnrollingCourseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(courseId);
+        return newSet;
+      });
+    }
+  };
+
   // Organization-specific courses if user is in an organization
   const { data: orgCourses } = useOrganizationCourses(userOrganization?.organization_id || '');
   
@@ -405,8 +424,8 @@ const MyCourses = () => {
                 <NativeCourseCard 
                   key={course.id} 
                   course={course}
-                  onEnroll={() => enrollInCourse.mutate(course.id)}
-                  isEnrolling={isEnrolling}
+                  onEnroll={() => handleNativeCourseEnroll(course.id)}
+                  isEnrolling={enrollingCourseIds.has(course.id)}
                 />
               ))}
               
