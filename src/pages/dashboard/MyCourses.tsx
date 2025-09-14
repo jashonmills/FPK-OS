@@ -20,7 +20,6 @@ import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
-import { useProcessLinearEquationsCourse } from '@/hooks/useLinearEquationsCourse';
 
 // Hard-coded Interactive Courses
 const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
@@ -65,7 +64,6 @@ const MyCourses = () => {
   });
   const { data: nativeEnrollments = [] } = useNativeEnrollments();
   const { enrollInCourse, isEnrolling } = useNativeEnrollmentMutations();
-  const { mutate: processLinearCourse, isPending: isProcessingLinearCourse } = useProcessLinearEquationsCourse();
   
   // Organization-specific courses if user is in an organization
   const { data: orgCourses } = useOrganizationCourses(userOrganization?.organization_id || '');

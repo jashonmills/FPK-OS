@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { unzip } from 'https://deno.land/x/zip@v1.2.5/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,16 +40,47 @@ Deno.serve(async (req) => {
 
     // Convert blob to array buffer for zip processing
     const zipArrayBuffer = await zipData.arrayBuffer();
+    const zipUint8Array = new Uint8Array(zipArrayBuffer);
     
-    // For now, let's return the zip file info and structure
-    // We'll examine the contents in the frontend and then create the components
+    // Extract zip contents
+    console.log('Extracting zip contents...');
+    const extractedFiles = await unzip(zipUint8Array);
+    
+    // Process the extracted files to understand structure
+    const fileStructure: Record<string, any> = {};
+    const lessonComponents: Record<string, string> = {};
+    
+    for (const [filePath, fileData] of Object.entries(extractedFiles)) {
+      console.log('Processing file:', filePath);
+      
+      // Decode file content if it's text
+      if (filePath.endsWith('.jsx') || filePath.endsWith('.js') || filePath.endsWith('.tsx')) {
+        const textContent = new TextDecoder().decode(fileData);
+        lessonComponents[filePath] = textContent;
+        
+        // Store basic info about the file
+        fileStructure[filePath] = {
+          type: 'component',
+          size: fileData.length,
+          hasContent: textContent.length > 0
+        };
+      } else {
+        // For non-text files, just store metadata
+        fileStructure[filePath] = {
+          type: 'binary',
+          size: fileData.length
+        };
+      }
+    }
+
     const response = {
       success: true,
-      message: 'Zip file downloaded successfully',
+      message: 'Zip file extracted successfully',
       zipSize: zipData.size,
-      zipType: zipData.type,
-      // We need to examine the zip contents to understand the structure
-      nextSteps: 'Ready to extract and examine zip contents'
+      fileCount: Object.keys(extractedFiles).length,
+      fileStructure,
+      lessonComponents,
+      extractedFiles: Object.keys(extractedFiles)
     };
 
     console.log('Extraction process completed:', response);
