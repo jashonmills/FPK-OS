@@ -72,6 +72,18 @@ const LOGIC_CRITICAL_THINKING_COURSE = {
   status: 'published'
 };
 
+const NEURODIVERSITY_STRENGTHS_COURSE = {
+  id: 'neurodiversity-strengths-based-approach',
+  title: 'Neurodiversity: A Strengths-Based Approach',
+  description: 'Your guide to leveraging your unique brain for academic success. Discover how neurodivergence is an asset and learn to harness your cognitive superpowers.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 360,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -151,6 +163,7 @@ const MyCourses = () => {
     INTERACTIVE_TRIGONOMETRY_COURSE,
     INTERACTIVE_ALGEBRA_COURSE,
     LOGIC_CRITICAL_THINKING_COURSE,
+    NEURODIVERSITY_STRENGTHS_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -239,6 +252,7 @@ const MyCourses = () => {
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
     const isIntroductionModernEconomics = course.id === 'introduction-modern-economics';
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
+    const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -266,6 +280,7 @@ const MyCourses = () => {
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
       if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
+      if (isNeurodiversityStrengths) return 'Foundation Course';
       return 'Full Course Curriculum';
     };
 
@@ -307,6 +322,10 @@ const MyCourses = () => {
       
       if (isLogicCriticalThinking) {
         return '/courses/logic-critical-thinking';
+      }
+      
+      if (isNeurodiversityStrengths) {
+        return '/courses/neurodiversity-strengths-based-approach';
       }
       
       const identifier = course.slug || course.id;
