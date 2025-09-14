@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator, Loader2, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { VisualAid } from '@/components/courses/VisualAid';
 
 interface LessonBlock {
   id: string;
@@ -197,120 +198,173 @@ const InteractiveLinearEquationsCoursePage = () => {
     switch (currentBlock.type) {
       case 'text':
         return (
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                {currentBlock.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm max-w-none space-y-4">
-                {currentBlock.content.split('\n\n').map((paragraph, index) => (
-                  <div key={index} className="space-y-2">
-                    {paragraph.split('\n').map((line, lineIndex) => {
-                      // Handle mathematical expressions
-                      if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
-                        return (
-                          <div key={lineIndex} className="bg-muted p-3 rounded-lg font-mono text-center">
+          <div className="space-y-6">
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  {currentBlock.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none space-y-4">
+                  {currentBlock.content.split('\n\n').map((paragraph, index) => (
+                    <div key={index} className="space-y-2">
+                      {paragraph.split('\n').map((line, lineIndex) => {
+                        // Handle mathematical expressions
+                        if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
+                          return (
+                            <div key={lineIndex} className="bg-muted p-3 rounded-lg font-mono text-center">
+                              {line}
+                            </div>
+                          );
+                        }
+                        // Handle bullet points
+                        if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                          return (
+                            <li key={lineIndex} className="ml-4">
+                              {line.replace(/^[•\-]\s*/, '')}
+                            </li>
+                          );
+                        }
+                        // Regular text
+                        return line.trim() ? (
+                          <p key={lineIndex} className="mb-2 last:mb-0">
                             {line}
-                          </div>
-                        );
-                      }
-                      // Handle bullet points
-                      if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
-                        return (
-                          <li key={lineIndex} className="ml-4">
-                            {line.replace(/^[•\-]\s*/, '')}
-                          </li>
-                        );
-                      }
-                      // Regular text
-                      return line.trim() ? (
-                        <p key={lineIndex} className="mb-2 last:mb-0">
-                          {line}
-                        </p>
-                      ) : null;
-                    })}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                          </p>
+                        ) : null;
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Add concept overview visual for text blocks with key concepts */}
+            {currentBlock.title?.toLowerCase().includes('concept') && (
+              <VisualAid
+                visualType="concept-overview"
+                lessonId={currentLesson.id}
+                context={currentBlock.content.substring(0, 100)}
+                title="Concept Visualization"
+                description="AI-generated overview of key concepts"
+              />
+            )}
+          </div>
         );
 
       case 'example':
         return (
-          <Card className="w-full border-blue-200 bg-blue-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-700">
-                <Calculator className="w-5 h-5" />
-                {currentBlock.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {currentBlock.content.split('\n\n').map((section, index) => (
-                  <div key={index} className="space-y-2">
-                    {section.split('\n').map((line, lineIndex) => {
-                      // Handle mathematical expressions
-                      if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
-                        return (
-                          <div key={lineIndex} className="bg-white p-4 rounded-lg border font-mono text-center text-lg">
+          <div className="space-y-6">
+            <Card className="w-full border-blue-200 bg-blue-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-700">
+                  <Calculator className="w-5 h-5" />
+                  {currentBlock.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {currentBlock.content.split('\n\n').map((section, index) => (
+                    <div key={index} className="space-y-2">
+                      {section.split('\n').map((line, lineIndex) => {
+                        // Handle mathematical expressions
+                        if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
+                          return (
+                            <div key={lineIndex} className="bg-white p-4 rounded-lg border font-mono text-center text-lg">
+                              {line}
+                            </div>
+                          );
+                        }
+                        // Handle step indicators
+                        if (line.toLowerCase().includes('step')) {
+                          return (
+                            <h4 key={lineIndex} className="font-semibold text-blue-800 mt-3">
+                              {line}
+                            </h4>
+                          );
+                        }
+                        return line.trim() ? (
+                          <p key={lineIndex} className="text-gray-700">
                             {line}
-                          </div>
-                        );
-                      }
-                      // Handle step indicators
-                      if (line.toLowerCase().includes('step')) {
-                        return (
-                          <h4 key={lineIndex} className="font-semibold text-blue-800 mt-3">
-                            {line}
-                          </h4>
-                        );
-                      }
-                      return line.trim() ? (
-                        <p key={lineIndex} className="text-gray-700">
-                          {line}
-                        </p>
-                      ) : null;
-                    })}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                          </p>
+                        ) : null;
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Add visual aids for example problems */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <VisualAid
+                visualType="step-by-step"
+                lessonId={currentLesson.id}
+                context={currentBlock.content.split('\n')[0]}
+                title="Step-by-Step Solution"
+                description="Visual breakdown of the solution process"
+              />
+              <VisualAid
+                visualType="balance-scale"
+                lessonId={currentLesson.id}
+                context={currentBlock.content.split('\n')[0]}
+                title="Balance Scale Model"
+                description="Equation equality visualization"
+              />
+            </div>
+          </div>
         );
 
       case 'practice':
         return (
-          <Card className="w-full border-green-200 bg-green-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-700">
-                <Calculator className="w-5 h-5" />
-                {currentBlock.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {currentBlock.content.split('\n').map((line, index) => {
-                  if (line.trim()) {
-                    return (
-                      <div key={index} className="p-4 bg-white rounded-lg border border-green-200">
-                        <p className="font-medium">{line}</p>
-                        <Input 
-                          type="text" 
-                          placeholder="Your solution..." 
-                          className="mt-2"
-                        />
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="w-full border-green-200 bg-green-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-700">
+                  <Calculator className="w-5 h-5" />
+                  {currentBlock.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {currentBlock.content.split('\n').map((line, index) => {
+                    if (line.trim()) {
+                      return (
+                        <div key={index} className="p-4 bg-white rounded-lg border border-green-200">
+                          <p className="font-medium">{line}</p>
+                          <Input 
+                            type="text" 
+                            placeholder="Your solution..." 
+                            className="mt-2"
+                          />
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Add practice-focused visual aids */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <VisualAid
+                visualType="algebraic-tiles"
+                lessonId={currentLesson.id}
+                context={currentBlock.content.split('\n')[0]}
+                title="Algebraic Tiles"
+                description="Visual representation using colored blocks"
+              />
+              <VisualAid
+                visualType="number-line"
+                lessonId={currentLesson.id}
+                context="solution visualization"
+                title="Number Line Solution"
+                description="Graphical representation of the answer"
+              />
+            </div>
+          </div>
         );
 
       case 'quiz':
