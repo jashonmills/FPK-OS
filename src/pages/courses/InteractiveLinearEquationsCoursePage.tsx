@@ -10,6 +10,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ArrowLeft, ArrowRight, CheckCircle, Play, BookOpen, Calculator, Loader2, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import CourseHeader from '@/components/course/CourseHeader';
 
 // Import static visual aids
 import conceptBalanceScale from '@/assets/linear-equations/concept-balance-scale.jpg';
@@ -199,6 +200,9 @@ const InteractiveLinearEquationsCoursePage = () => {
     toast.success(`Quiz completed! Score: ${score}/${questions.length}`);
   };
 
+  const handleBackToCourses = () => navigate('/courses');
+  const handleDashboard = () => navigate('/dashboard');
+
   const renderBlock = () => {
     if (!currentBlock) return null;
 
@@ -206,9 +210,9 @@ const InteractiveLinearEquationsCoursePage = () => {
       case 'text':
         return (
           <div className="space-y-6">
-            <Card className="w-full">
+            <Card className="w-full fpk-card border-primary/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-primary">
                   <BookOpen className="w-5 h-5" />
                   {currentBlock.title}
                 </CardTitle>
@@ -221,7 +225,7 @@ const InteractiveLinearEquationsCoursePage = () => {
                         // Handle mathematical expressions
                         if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
                           return (
-                            <div key={lineIndex} className="bg-muted p-3 rounded-lg font-mono text-center">
+                            <div key={lineIndex} className="bg-primary/10 p-3 rounded-lg font-mono text-center border border-primary/20">
                               {line}
                             </div>
                           );
@@ -229,14 +233,14 @@ const InteractiveLinearEquationsCoursePage = () => {
                         // Handle bullet points
                         if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
                           return (
-                            <li key={lineIndex} className="ml-4">
+                            <li key={lineIndex} className="ml-4 text-foreground">
                               {line.replace(/^[•\-]\s*/, '')}
                             </li>
                           );
                         }
                         // Regular text
                         return line.trim() ? (
-                          <p key={lineIndex} className="mb-2 last:mb-0">
+                          <p key={lineIndex} className="mb-2 last:mb-0 text-foreground">
                             {line}
                           </p>
                         ) : null;
@@ -249,9 +253,9 @@ const InteractiveLinearEquationsCoursePage = () => {
             
             {/* Static visual aids for all text blocks */}
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Concept Visualization</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Concept Visualization</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -262,9 +266,9 @@ const InteractiveLinearEquationsCoursePage = () => {
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Balance Scale Model</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Balance Scale Model</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -282,14 +286,14 @@ const InteractiveLinearEquationsCoursePage = () => {
       case 'example':
         return (
           <div className="space-y-6">
-            <Card className="w-full border-blue-200 bg-blue-50/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-700">
+            <Card className="w-full fpk-card border-primary/30 shadow-lg">
+              <CardHeader className="bg-primary/5 rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-primary">
                   <Calculator className="w-5 h-5" />
                   {currentBlock.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="space-y-4">
                   {currentBlock.content.split('\n\n').map((section, index) => (
                     <div key={index} className="space-y-2">
@@ -297,7 +301,7 @@ const InteractiveLinearEquationsCoursePage = () => {
                         // Handle mathematical expressions
                         if (line.includes('=') && (line.includes('x') || line.includes('y'))) {
                           return (
-                            <div key={lineIndex} className="bg-white p-4 rounded-lg border font-mono text-center text-lg">
+                            <div key={lineIndex} className="bg-primary/10 p-4 rounded-lg border border-primary/20 font-mono text-center text-lg text-primary font-semibold">
                               {line}
                             </div>
                           );
@@ -305,13 +309,13 @@ const InteractiveLinearEquationsCoursePage = () => {
                         // Handle step indicators
                         if (line.toLowerCase().includes('step')) {
                           return (
-                            <h4 key={lineIndex} className="font-semibold text-blue-800 mt-3">
+                            <h4 key={lineIndex} className="font-semibold text-primary mt-3 text-lg">
                               {line}
                             </h4>
                           );
                         }
                         return line.trim() ? (
-                          <p key={lineIndex} className="text-gray-700">
+                          <p key={lineIndex} className="text-foreground">
                             {line}
                           </p>
                         ) : null;
@@ -324,9 +328,9 @@ const InteractiveLinearEquationsCoursePage = () => {
             
             {/* Static visual aids for example problems */}
             <div className="grid md:grid-cols-3 gap-4">
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Step-by-Step Solution</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Step-by-Step Solution</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -337,9 +341,9 @@ const InteractiveLinearEquationsCoursePage = () => {
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Balance Scale Model</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Balance Scale Model</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -350,9 +354,9 @@ const InteractiveLinearEquationsCoursePage = () => {
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Number Line Solution</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Number Line Solution</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -370,24 +374,24 @@ const InteractiveLinearEquationsCoursePage = () => {
       case 'practice':
         return (
           <div className="space-y-6">
-            <Card className="w-full border-green-200 bg-green-50/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-700">
+            <Card className="w-full fpk-card border-accent/30 shadow-lg">
+              <CardHeader className="bg-accent/5 rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-accent">
                   <Calculator className="w-5 h-5" />
                   {currentBlock.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="space-y-4">
                   {currentBlock.content.split('\n').map((line, index) => {
                     if (line.trim()) {
                       return (
-                        <div key={index} className="p-4 bg-white rounded-lg border border-green-200">
-                          <p className="font-medium">{line}</p>
+                        <div key={index} className="p-4 bg-accent/5 rounded-lg border border-accent/20">
+                          <p className="font-medium text-accent mb-2">{line}</p>
                           <Input 
                             type="text" 
                             placeholder="Your solution..." 
-                            className="mt-2"
+                            className="border-accent/20 focus:border-accent"
                           />
                         </div>
                       );
@@ -400,9 +404,9 @@ const InteractiveLinearEquationsCoursePage = () => {
             
             {/* Static practice-focused visual aids */}
             <div className="grid md:grid-cols-3 gap-4">
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-accent/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Algebraic Tiles</CardTitle>
+                  <CardTitle className="text-sm font-medium text-accent">Algebraic Tiles</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -413,9 +417,9 @@ const InteractiveLinearEquationsCoursePage = () => {
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-accent/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Practice Examples</CardTitle>
+                  <CardTitle className="text-sm font-medium text-accent">Practice Examples</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -426,9 +430,9 @@ const InteractiveLinearEquationsCoursePage = () => {
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-accent/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Solution Methods</CardTitle>
+                  <CardTitle className="text-sm font-medium text-accent">Solution Methods</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
@@ -449,75 +453,82 @@ const InteractiveLinearEquationsCoursePage = () => {
 
         return (
           <div className="space-y-6">
-            <Card className="w-full">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <Card className="w-full fpk-card border-primary/30 shadow-lg">
+              <CardHeader className="bg-primary/5 rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-primary">
                   <CheckCircle className="w-5 h-5" />
                   {currentBlock.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 pt-6">
                 {questions.map((question, index) => (
-                  <div key={question.id} className="space-y-3">
-                    <Label className="text-base font-medium">
-                      {index + 1}. {question.question}
-                    </Label>
+                  <div key={question.id} className="p-4 border border-primary/20 rounded-lg space-y-3 bg-primary/5">
+                    <h4 className="font-medium text-primary">Question {index + 1}: {question.question}</h4>
                     
                     <Input
                       type="number"
-                      placeholder="Enter your answer"
                       value={quizAnswers[`${currentBlock.id}-${question.id}`] || ''}
                       onChange={(e) => setQuizAnswers({
                         ...quizAnswers,
-                        [`${currentBlock.id}-${question.id}`]: e.target.value
+                        [`${currentBlock.id}-${question.id}`]: parseFloat(e.target.value) || ''
                       })}
+                      placeholder="Enter your answer"
                       disabled={isSubmitted}
-                      className={isSubmitted ? (
-                        quizAnswers[`${currentBlock.id}-${question.id}`] == question.correctAnswer
-                          ? 'border-green-500 bg-green-50'
-                          : 'border-red-500 bg-red-50'
-                      ) : ''}
+                      className="border-primary/20 focus:border-primary"
                     />
                     
                     {isSubmitted && (
-                      <div className="text-sm text-muted-foreground p-3 bg-muted rounded">
-                        <strong>Explanation:</strong> {question.explanation}
+                      <div className={`p-3 rounded-lg ${
+                        quizAnswers[`${currentBlock.id}-${question.id}`] == question.correctAnswer
+                          ? 'bg-accent/10 text-accent border border-accent/20'
+                          : 'bg-destructive/10 text-destructive border border-destructive/20'
+                      }`}>
+                        <p className="font-medium">
+                          {quizAnswers[`${currentBlock.id}-${question.id}`] == question.correctAnswer
+                            ? '✓ Correct!'
+                            : `✗ Incorrect. The correct answer is ${question.correctAnswer}`
+                          }
+                        </p>
+                        <p className="text-sm mt-1 opacity-80">{question.explanation}</p>
                       </div>
                     )}
                   </div>
                 ))}
                 
                 {!isSubmitted && (
-                  <Button onClick={() => handleQuizSubmit(currentBlock.id)} className="w-full">
+                  <Button 
+                    onClick={() => handleQuizSubmit(currentBlock.id)}
+                    className="w-full fpk-gradient text-white hover:opacity-90"
+                  >
                     Submit Quiz
                   </Button>
                 )}
               </CardContent>
             </Card>
             
-            {/* Static visual aids for quiz blocks */}
+            {/* Quiz visual aids */}
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Concept Review</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Practice Examples</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
-                    src={conceptOverview}
-                    alt="Quiz concepts review"
+                    src={practiceExamples}
+                    alt="Quiz practice examples"
                     className="w-full h-48 object-cover rounded-lg"
                     loading="lazy"
                   />
                 </CardContent>
               </Card>
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden fpk-card border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Solution Visualization</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary">Solution Strategies</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
-                    src={numberLine}
-                    alt="Solution visualization"
+                    src={stepByStepSolution}
+                    alt="Solution strategies visualization"
                     className="w-full h-48 object-cover rounded-lg"
                     loading="lazy"
                   />
@@ -532,161 +543,141 @@ const InteractiveLinearEquationsCoursePage = () => {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Loading Course Content</h2>
-          <p className="text-muted-foreground">Fetching your interactive lessons...</p>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center fpk-gradient">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-white" />
+          <p className="text-white">Loading course content...</p>
+        </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <h2 className="text-xl font-semibold mb-2 text-red-600">Error Loading Course</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>
+      <div className="min-h-screen flex items-center justify-center fpk-gradient">
+        <div className="text-center space-y-4 fpk-card p-6 rounded-lg max-w-md">
+          <p className="text-red-600">{error}</p>
+          <Button onClick={() => window.location.reload()} className="fpk-gradient text-white">
             Try Again
           </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  // No lessons loaded
-  if (!COURSE_DATA.lessons.length) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold mb-2">No Content Available</h2>
-          <p className="text-muted-foreground">Course content is not available at the moment.</p>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button variant="ghost" onClick={() => navigate('/dashboard/learner/courses')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Courses
-            </Button>
-            <Badge variant="secondary">Interactive Course</Badge>
-          </div>
-          
-          <h1 className="text-3xl font-bold mb-2">{COURSE_DATA.title}</h1>
-          <p className="text-muted-foreground mb-4">{COURSE_DATA.description}</p>
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>📚 {totalLessons} Lessons</span>
-            <span>⏱️ {COURSE_DATA.estimatedTime}</span>
-            <span>📈 {COURSE_DATA.difficulty}</span>
-          </div>
-          
-          <div className="mt-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span>Course Progress</span>
-              <span>{completedLessons.length}/{totalLessons} lessons completed</span>
+    <div className="min-h-screen bg-background">
+      <CourseHeader 
+        onBackToCourses={handleBackToCourses}
+        onDashboard={handleDashboard}
+      />
+      
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Course Progress Header */}
+        <div className="fpk-card rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold fpk-text-gradient">{COURSE_DATA.title}</h1>
+              <p className="text-muted-foreground mt-1">{COURSE_DATA.description}</p>
             </div>
-            <Progress value={progressPercentage} className="w-full" />
+            <Badge className="bg-primary/10 text-primary border-primary/20">
+              {COURSE_DATA.difficulty}
+            </Badge>
+          </div>
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+            <span className="flex items-center gap-1">
+              <BookOpen className="w-4 h-4" />
+              {totalLessons} Lessons
+            </span>
+            <span className="flex items-center gap-1">
+              <Calculator className="w-4 h-4" />
+              {COURSE_DATA.estimatedTime}
+            </span>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium">Course Progress</span>
+              <span className="text-primary font-semibold">
+                {completedLessons.length}/{totalLessons} lessons completed
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-3" />
           </div>
         </div>
 
-        {/* Lesson Navigation */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">
-            Lesson {currentLessonIndex + 1}: {currentLesson.title}
-          </h2>
-          <p className="text-muted-foreground text-sm mb-2">{currentLesson.description}</p>
-          <div className="flex items-center gap-2">
-            <Play className="w-4 h-4" />
-            <span className="text-sm">{currentLesson.estimatedTime}</span>
-            {completedLessons.includes(currentLesson.id) && (
-              <Badge variant="default" className="ml-2">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Completed
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {/* Block Content */}
-        <div className="mb-8">
-          {renderBlock()}
-        </div>
-
-        {/* Navigation Controls */}
-        <div className="flex justify-between items-center">
-          <Button 
-            variant="outline" 
-            onClick={handlePrevious}
-            disabled={!canGoPrevious}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Previous
-          </Button>
-
-          <div className="flex gap-2">
-            {isLastBlock && !completedLessons.includes(currentLesson.id) && (
-              <Button onClick={handleCompleteLesson} variant="default">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Complete Lesson
-              </Button>
-            )}
-            
-            {canGoNext && (
-              <Button onClick={handleNext}>
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Lesson List */}
-        <div className="mt-12 border-t pt-8">
-          <h3 className="text-lg font-semibold mb-4">All Lessons</h3>
-          <div className="grid gap-3">
-            {COURSE_DATA.lessons.map((lesson, index) => (
-              <div
-                key={lesson.id}
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  index === currentLessonIndex 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border hover:border-primary/50'
-                }`}
-                onClick={() => {
-                  setCurrentLessonIndex(index);
-                  setCurrentBlockIndex(0);
-                }}
+        {/* Current Lesson */}
+        <div className="fpk-card rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">{currentLesson?.title}</h2>
+              <p className="text-muted-foreground">Lesson {currentLessonIndex + 1} of {totalLessons}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrevious}
+                disabled={!canGoPrevious}
+                className="border-primary/20 hover:bg-primary/10"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">
-                      Lesson {index + 1}: {lesson.title}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">{lesson.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{lesson.estimatedTime}</span>
-                    {completedLessons.includes(lesson.id) && (
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm px-3 py-1 bg-primary/10 text-primary rounded font-medium">
+                {currentBlockIndex + 1} / {currentLesson?.blocks.length || 0}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleNext}
+                disabled={!canGoNext}
+                className="border-primary/20 hover:bg-primary/10"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Render current block */}
+          <div className="mb-6">
+            {renderBlock()}
+          </div>
+
+          {/* Navigation Footer */}
+          <div className="flex items-center justify-between pt-6 border-t border-border">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious}
+              disabled={!canGoPrevious}
+              className="flex items-center gap-2 border-primary/20 hover:bg-primary/10"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Previous
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              {isLastBlock && !completedLessons.includes(currentLesson.id) && (
+                <Button 
+                  onClick={handleCompleteLesson}
+                  className="fpk-gradient text-white hover:opacity-90"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Complete Lesson
+                </Button>
+              )}
+              
+              <Button 
+                onClick={handleNext}
+                disabled={!canGoNext}
+                className="flex items-center gap-2 fpk-gradient text-white hover:opacity-90"
+              >
+                Next
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
