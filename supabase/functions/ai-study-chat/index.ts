@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SOCRATIC_BLUEPRINT_V42, GEMINI_MODEL, MAX_TOKENS, BLUEPRINT_VERSION } from './constants.ts';
+import { corsHeaders, SOCRATIC_BLUEPRINT_V42, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 
@@ -145,9 +145,9 @@ serve(async (req) => {
     // Add timeout to Gemini API call
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      console.error('⏰ Gemini API timeout after 15 seconds');
+      console.error(`⏰ Gemini API timeout after ${TIMEOUT_MS/1000} seconds`);
       controller.abort();
-    }, 15000);
+    }, TIMEOUT_MS);
     
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
@@ -261,14 +261,20 @@ serve(async (req) => {
       clearTimeout(timeoutId);
       
       if (fetchError.name === 'AbortError') {
-        console.error('⏰ Gemini API request timed out');
+        console.error(`⏰ Gemini API request timed out after ${TIMEOUT_MS/1000} seconds`, {
+          message: message.substring(0, 100),
+          chatMode,
+          promptType: detectedPromptType,
+          totalTime: `${(performance.now() - startTime).toFixed(2)}ms`
+        });
         const timeoutResponse = getContextualResponse(message, chatMode, 'timeout');
         
         return new Response(JSON.stringify({
           response: timeoutResponse,
           source: 'timeout_fallback',
           blueprintVersion: BLUEPRINT_VERSION,
-          error: 'Request timed out after 15 seconds'
+          error: `Request timed out after ${TIMEOUT_MS/1000} seconds`,
+          retryAdvice: 'Please try rephrasing your question more concisely or try again in a moment.'
         }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
