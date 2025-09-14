@@ -2304,6 +2304,252 @@ export type Database = {
           },
         ]
       }
+      interactive_content_metrics: {
+        Row: {
+          course_id: string
+          created_at: string
+          date_calculated: string
+          id: string
+          lesson_id: number
+          metric_type: string
+          metric_value: number
+          sample_size: number | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          date_calculated?: string
+          id?: string
+          lesson_id: number
+          metric_type: string
+          metric_value: number
+          sample_size?: number | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          date_calculated?: string
+          id?: string
+          lesson_id?: number
+          metric_type?: string
+          metric_value?: number
+          sample_size?: number | null
+        }
+        Relationships: []
+      }
+      interactive_course_enrollments: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number | null
+          course_id: string
+          course_title: string
+          created_at: string
+          enrolled_at: string
+          id: string
+          last_accessed_at: string | null
+          total_time_spent_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id: string
+          course_title: string
+          created_at?: string
+          enrolled_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          total_time_spent_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          course_id?: string
+          course_title?: string
+          created_at?: string
+          enrolled_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          total_time_spent_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interactive_course_sessions: {
+        Row: {
+          course_id: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          interactions: Json | null
+          lesson_id: number | null
+          page_views: number | null
+          session_end: string | null
+          session_start: string
+          session_type: string | null
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          interactions?: Json | null
+          lesson_id?: number | null
+          page_views?: number | null
+          session_end?: string | null
+          session_start?: string
+          session_type?: string | null
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          interactions?: Json | null
+          lesson_id?: number | null
+          page_views?: number | null
+          session_end?: string | null
+          session_start?: string
+          session_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interactive_learning_paths: {
+        Row: {
+          course_id: string
+          created_at: string
+          difficulty_adjustments: Json | null
+          id: string
+          learning_velocity: number | null
+          lesson_sequence: Json
+          optimal_path: Json | null
+          preferred_session_length_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          difficulty_adjustments?: Json | null
+          id?: string
+          learning_velocity?: number | null
+          lesson_sequence: Json
+          optimal_path?: Json | null
+          preferred_session_length_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          difficulty_adjustments?: Json | null
+          id?: string
+          learning_velocity?: number | null
+          lesson_sequence?: Json
+          optimal_path?: Json | null
+          preferred_session_length_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interactive_learning_preferences: {
+        Row: {
+          created_at: string
+          difficulty_preferences: Json | null
+          engagement_patterns: Json | null
+          id: string
+          learning_style_indicators: Json | null
+          optimal_study_times: Json | null
+          preferred_learning_speed: string | null
+          preferred_session_duration_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty_preferences?: Json | null
+          engagement_patterns?: Json | null
+          id?: string
+          learning_style_indicators?: Json | null
+          optimal_study_times?: Json | null
+          preferred_learning_speed?: string | null
+          preferred_session_duration_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty_preferences?: Json | null
+          engagement_patterns?: Json | null
+          id?: string
+          learning_style_indicators?: Json | null
+          optimal_study_times?: Json | null
+          preferred_learning_speed?: string | null
+          preferred_session_duration_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interactive_lesson_analytics: {
+        Row: {
+          completed_at: string | null
+          completion_method: string | null
+          course_id: string
+          created_at: string
+          engagement_score: number | null
+          id: string
+          interactions_count: number | null
+          lesson_id: number
+          lesson_title: string
+          scroll_depth_percentage: number | null
+          started_at: string
+          time_spent_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_method?: string | null
+          course_id: string
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          interactions_count?: number | null
+          lesson_id: number
+          lesson_title: string
+          scroll_depth_percentage?: number | null
+          started_at?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_method?: string | null
+          course_id?: string
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          interactions_count?: number | null
+          lesson_id?: number
+          lesson_title?: string
+          scroll_depth_percentage?: number | null
+          started_at?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       knowledge_base_files: {
         Row: {
           created_at: string

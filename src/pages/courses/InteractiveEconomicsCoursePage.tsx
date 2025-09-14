@@ -9,6 +9,9 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
+import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
+import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
 
 // Import lesson components
 import { EconomicsLesson1 } from '@/components/courses/economics/EconomicsLesson1';
@@ -23,8 +26,18 @@ import { EconomicsLesson8 } from '@/components/courses/economics/EconomicsLesson
 const InteractiveEconomicsCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  const [completedLessons, setCompletedLessons] = useState(new Set<number>());
-  const [overallProgress, setOverallProgress] = useState(0);
+  
+  // Use analytics and progress hooks
+  const courseId = 'introduction-modern-economics';
+  const courseTitle = 'Introduction to Modern Economics';
+  const {
+    completedLessons,
+    isLessonCompleted,
+    calculateProgress,
+    getNextLesson,
+    getLearningStats,
+    saveLessonCompletion
+  } = useInteractiveCourseProgress(courseId);
 
   // Scroll to top when lesson changes
   useEffect(() => {
@@ -92,17 +105,11 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
     }
   ];
 
-  const handleLessonComplete = (lessonId: number) => {
-    setCompletedLessons(prev => {
-      const updated = new Set(prev);
-      updated.add(lessonId);
-      
-      // Calculate progress
-      const progressPercentage = (updated.size / lessons.length) * 100;
-      setOverallProgress(progressPercentage);
-      
-      return updated;
-    });
+  const handleLessonComplete = async (lessonId: number) => {
+    const lesson = lessons.find(l => l.id === lessonId);
+    if (lesson) {
+      await saveLessonCompletion(lessonId, lesson.title);
+    }
   };
 
   const handleNextLesson = () => {
@@ -120,21 +127,29 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
   };
 
   const isLessonAccessible = (lessonId: number) => {
-    return lessonId === 1 || completedLessons.has(lessonId - 1);
+    return lessonId === 1 || isLessonCompleted(lessonId - 1);
   };
 
+  const overallProgress = calculateProgress(lessons.length);
   const isAllLessonsCompleted = completedLessons.size === lessons.length;
+  const learningStats = getLearningStats();
 
   // Course overview (lesson selection)
   if (currentLesson === null) {
     return (
       <VoiceSettingsProvider>
-        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-          <CourseHeader 
-            onDashboard={handleDashboard} 
-            onBackToCourses={handleBackToCourses}
-            courseTitle="Introduction to Modern Economics"
-          />
+        <InteractiveCourseWrapper
+          courseId={courseId}
+          courseTitle={courseTitle}
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+            <CourseHeader 
+              onDashboard={handleDashboard} 
+              onBackToCourses={handleBackToCourses}
+              courseTitle="Introduction to Modern Economics"
+            />
           
           <div className="container mx-auto px-4 py-8 space-y-8">
             {/* Course Title and Description */}
@@ -171,6 +186,11 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-1 text-center">
                 {completedLessons.size} of {lessons.length} lessons completed
               </p>
+              {learningStats.totalTimeSpent > 0 && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Total time spent: {Math.floor(learningStats.totalTimeSpent / 60)}h {learningStats.totalTimeSpent % 60}m
+                </p>
+              )}
             </div>
 
             {/* Voice Controls */}
@@ -191,7 +211,7 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
             {/* Lessons Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {lessons.map((lesson) => {
-                const isCompleted = completedLessons.has(lesson.id);
+                const isCompleted = isLessonCompleted(lesson.id);
                 const isAccessible = isLessonAccessible(lesson.id);
                 const Icon = lesson.icon;
 
@@ -260,6 +280,7 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
             )}
           </div>
         </div>
+      </InteractiveCourseWrapper>
       </VoiceSettingsProvider>
     );
   }
@@ -273,51 +294,63 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
 
   return (
     <VoiceSettingsProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        {/* Lesson Header */}
-        <div className="bg-card border-b sticky top-0 z-10">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setCurrentLesson(null)}
-                  className="flex items-center"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Course Overview
-                </Button>
-                <div className="text-sm text-muted-foreground">
-                  Lesson {currentLesson} of {lessons.length}
+      <InteractiveCourseWrapper
+        courseId={courseId}
+        courseTitle={courseTitle}
+        currentLesson={currentLesson}
+        totalLessons={lessons.length}
+      >
+        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          {/* Lesson Header */}
+          <div className="bg-card border-b sticky top-0 z-10">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentLesson(null)}
+                    className="flex items-center"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Course Overview
+                  </Button>
+                  <div className="text-sm text-muted-foreground">
+                    Lesson {currentLesson} of {lessons.length}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <Progress 
+                    value={(currentLesson / lessons.length) * 100} 
+                    className="w-32 h-2"
+                  />
+                  <span className="text-sm font-medium">
+                    {Math.round((currentLesson / lessons.length) * 100)}%
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <Progress 
-                  value={(currentLesson / lessons.length) * 100} 
-                  className="w-32 h-2"
-                />
-                <span className="text-sm font-medium">
-                  {Math.round((currentLesson / lessons.length) * 100)}%
-                </span>
+              <div className="mt-2">
+                <h1 className="text-xl font-semibold">{lesson.title}</h1>
+                <p className="text-sm text-muted-foreground">{lesson.description}</p>
               </div>
             </div>
-            <div className="mt-2">
-              <h1 className="text-xl font-semibold">{lesson.title}</h1>
-              <p className="text-sm text-muted-foreground">{lesson.description}</p>
-            </div>
+          </div>
+
+          {/* Lesson Content */}
+          <div className="container mx-auto px-4 py-8">
+            <InteractiveLessonWrapper
+              courseId={courseId}
+              lessonId={currentLesson}
+              lessonTitle={lesson.title}
+              onComplete={() => handleLessonComplete(currentLesson)}
+              onNext={hasNext ? handleNextLesson : undefined}
+              hasNext={hasNext}
+            >
+              <LessonComponent />
+            </InteractiveLessonWrapper>
           </div>
         </div>
-
-        {/* Lesson Content */}
-        <div className="container mx-auto px-4 py-8">
-          <LessonComponent
-            onComplete={() => handleLessonComplete(currentLesson)}
-            onNext={hasNext ? handleNextLesson : undefined}
-            hasNext={hasNext}
-          />
-        </div>
-      </div>
+      </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
