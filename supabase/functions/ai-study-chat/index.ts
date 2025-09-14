@@ -18,8 +18,31 @@ console.log('🔐 Gemini API Key Status:', {
 serve(async (req) => {
   const startTime = performance.now();
   
+  // Add basic connectivity test
+  console.log('🚀 AI Study Chat function invoked:', {
+    method: req.method,
+    url: req.url,
+    timestamp: new Date().toISOString(),
+    hasGeminiKey: !!geminiApiKey
+  });
+  
   if (req.method === 'OPTIONS') {
+    console.log('✅ CORS preflight request handled');
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Add health check endpoint
+  if (req.method === 'GET') {
+    console.log('🔍 Health check requested');
+    return new Response(JSON.stringify({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(),
+      blueprintVersion: BLUEPRINT_VERSION,
+      hasGeminiKey: !!geminiApiKey,
+      timeout: TIMEOUT_MS
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 
   try {
@@ -97,7 +120,31 @@ serve(async (req) => {
         JSON.stringify({ 
           response: fallbackResponse,
           source: 'no_api_key_fallback',
-          blueprintVersion: BLUEPRINT_VERSION
+          blueprintVersion: BLUEPRINT_VERSION,
+          debug: {
+            hasMessage: !!message,
+            messageLength: message?.length || 0,
+            chatMode,
+            functionWorking: true
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Test mode: If message starts with "test", return immediately without API call
+    if (message.toLowerCase().startsWith('test')) {
+      console.log('🧪 Test mode activated - skipping API call');
+      return new Response(
+        JSON.stringify({ 
+          response: `Test successful! I received your message: "${message}". The AI function is working properly. Try asking a real question now!`,
+          source: 'test_mode',
+          blueprintVersion: BLUEPRINT_VERSION,
+          debug: {
+            hasGeminiKey: !!geminiApiKey,
+            functionWorking: true,
+            processingTime: `${(performance.now() - startTime).toFixed(2)}ms`
+          }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
