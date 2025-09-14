@@ -65,7 +65,7 @@ export function StyledCourseCard({
   return (
     <Card className="h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">
       {/* Styled Header */}
-      <div className={`relative h-32 ${theme.headerGradient} overflow-hidden`}>
+      <div className={`relative h-40 ${theme.headerGradient} overflow-hidden`}>
         {/* Decorative circles */}
         <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full ${theme.circleColor}`} />
         <div className={`absolute top-8 -right-8 w-12 h-12 rounded-full ${theme.circleColor}`} />
@@ -73,7 +73,7 @@ export function StyledCourseCard({
         
         {/* Header content */}
         <div className="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start mb-2">
             <Badge className={theme.badgeClass}>
               {courseType}
             </Badge>
@@ -84,7 +84,7 @@ export function StyledCourseCard({
             )}
           </div>
           
-          <div>
+          <div className="flex-1 flex items-end">
             <h3 className="text-white font-bold text-lg leading-tight">
               {title}
             </h3>
