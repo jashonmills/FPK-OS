@@ -38,24 +38,55 @@ serve(async (req) => {
     
     console.log('Zip contents:', Object.keys(zipContent.files))
     
-    // Extract lesson files
+    // Extract lesson files with improved pattern matching
     const lessons = []
     const lessonContents = {}
     
+    console.log('Analyzing zip contents for lesson files...')
+    
     for (const [filename, file] of Object.entries(zipContent.files)) {
-      if (!file.dir && (filename.includes('lesson') || filename.includes('Lesson'))) {
-        console.log(`Processing file: ${filename}`)
-        const content = await file.async('text')
+      console.log(`Checking file: ${filename}, isDir: ${file.dir}`)
+      
+      if (!file.dir) {
+        // Enhanced pattern matching for various lesson file formats
+        const lessonPatterns = [
+          /lesson[_\s-]*(\d+)/i,           // lesson1, lesson_1, lesson-1, lesson 1
+          /(\d+)[_\s-]*lesson/i,           // 1_lesson, 1-lesson, 1 lesson
+          /part[_\s-]*(\d+)/i,             // part1, part_1, part-1
+          /chapter[_\s-]*(\d+)/i,          // chapter1, chapter_1
+          /unit[_\s-]*(\d+)/i,             // unit1, unit_1
+          /section[_\s-]*(\d+)/i,          // section1, section_1
+          /^(\d+)/,                        // Files starting with numbers
+        ]
         
-        // Extract lesson number from filename
-        const lessonMatch = filename.match(/lesson[_\s]*(\d+)/i)
-        if (lessonMatch) {
-          const lessonNum = parseInt(lessonMatch[1])
-          lessonContents[lessonNum] = {
-            filename,
-            content,
-            title: `Lesson ${lessonNum}` // Will be refined from content
+        let lessonNum = null
+        let matchedPattern = null
+        
+        for (const pattern of lessonPatterns) {
+          const match = filename.match(pattern)
+          if (match) {
+            lessonNum = parseInt(match[1])
+            matchedPattern = pattern.toString()
+            break
           }
+        }
+        
+        if (lessonNum && lessonNum >= 1 && lessonNum <= 10) { // Reasonable lesson range
+          console.log(`✅ Found lesson ${lessonNum} in file: ${filename} (pattern: ${matchedPattern})`)
+          
+          try {
+            const content = await file.async('text')
+            
+            lessonContents[lessonNum] = {
+              filename,
+              content,
+              title: `Lesson ${lessonNum}` // Will be refined from content
+            }
+          } catch (error) {
+            console.error(`❌ Failed to read content from ${filename}:`, error)
+          }
+        } else {
+          console.log(`⚠️ File ${filename} doesn't match lesson patterns`)
         }
       }
     }
