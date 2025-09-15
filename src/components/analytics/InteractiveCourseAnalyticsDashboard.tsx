@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { analyticsDataSync } from '@/utils/analyticsDataSync';
 
 interface CourseAnalytics {
   courseId: string;
@@ -67,6 +68,9 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
     try {
       console.log('🔄 Loading analytics data for user:', user.id);
       
+      // Run analytics data sync to fix missing data
+      await analyticsDataSync.runCompleteSync(user.id);
+      
       // Load course-level analytics for current user from new system
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('interactive_course_enrollments')
@@ -79,17 +83,25 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
         console.log('📊 Found new enrollments:', enrollmentData?.length || 0);
       }
 
-      // Load from old enrollments table as fallback
+      // Also load reading sessions and study sessions for comprehensive analytics
+      const { data: readingSessions } = await supabase
+        .from('reading_sessions')
+        .select('*')
+        .eq('user_id', user.id);
+
+      const { data: studySessions } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('user_id', user.id);
+
+      console.log('📚 Found reading sessions:', readingSessions?.length || 0);
+      console.log('🧠 Found study sessions:', studySessions?.length || 0);
+
+      // Load from old enrollments table as fallback (ALL enrollments)
       const { data: oldEnrollmentData, error: oldEnrollmentError } = await supabase
         .from('enrollments')
         .select('course_id, enrolled_at, progress')
-        .eq('user_id', user.id)
-        .in('course_id', [
-          'introduction-modern-economics',
-          'interactive-linear-equations', 
-          'interactive-algebra',
-          'interactive-trigonometry'
-        ]);
+        .eq('user_id', user.id);
 
       if (oldEnrollmentError) {
         console.error('Error loading old enrollments:', oldEnrollmentError);
@@ -97,10 +109,21 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
         console.log('📚 Found old enrollments:', oldEnrollmentData?.length || 0);
       }
 
-      // Convert old enrollments to new format
+      // Convert old enrollments to new format with enhanced data
       const convertedEnrollments = (oldEnrollmentData || []).map(old => {
         const progress = old.progress as any;
         const completionPercentage = progress?.completion_percentage || 0;
+        
+        // Calculate time spent from study/reading sessions
+        const courseStudyTime = (studySessions || [])
+          .filter(session => session.completed_at)
+          .reduce((total, session) => total + (session.session_duration_seconds || 0), 0);
+        
+        const courseReadingTime = (readingSessions || [])
+          .reduce((total, session) => total + (session.duration_seconds || 0), 0);
+        
+        const totalTimeMinutes = Math.round((courseStudyTime + courseReadingTime) / 60);
+        
         return {
           id: `old-${old.course_id}`,
           user_id: user.id,
@@ -110,7 +133,7 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
           last_accessed_at: new Date().toISOString(),
           completion_percentage: completionPercentage,
           completed_at: completionPercentage >= 100 ? new Date().toISOString() : null,
-          total_time_spent_minutes: 0
+          total_time_spent_minutes: totalTimeMinutes
         };
       });
 
@@ -154,9 +177,14 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       'introduction-modern-economics': 'Introduction to Modern Economics',
       'interactive-linear-equations': 'Linear Equations Mastery', 
       'interactive-algebra': 'Algebra Fundamentals',
-      'interactive-trigonometry': 'Trigonometry Fundamentals'
+      'interactive-trigonometry': 'Trigonometry Fundamentals',
+      'logic-critical-thinking': 'Logic & Critical Thinking',
+      'interactive-science': 'Interactive Science',
+      'neurodiversity-strengths-based-approach': 'Neurodiversity Strengths-Based Approach',
+      'learning-state-beta': 'Learning State Beta',
+      'el-spelling-reading': 'EL Spelling & Reading'
     };
-    return titles[courseId] || courseId;
+    return titles[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   const processCourseAnalytics = (enrollments: any[], lessons: any[]): CourseAnalytics[] => {
@@ -167,12 +195,13 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       if (!courseMap.has(enrollment.course_id)) {
         courseMap.set(enrollment.course_id, {
           courseId: enrollment.course_id,
-          courseTitle: enrollment.course_title,
+          courseTitle: enrollment.course_title || getCourseTitle(enrollment.course_id),
           totalEnrollments: 0,
           completions: 0,
           totalTime: 0,
           totalLessons: 0,
-          engagementScores: []
+          engagementScores: [],
+          hasActivity: false
         });
       }
       
@@ -180,8 +209,13 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       course.totalEnrollments++;
       course.totalTime += enrollment.total_time_spent_minutes || 0;
       
-      if (enrollment.completed_at) {
+      if (enrollment.completed_at || enrollment.completion_percentage >= 100) {
         course.completions++;
+      }
+      
+      // Mark as having activity if there's any time spent or completion progress
+      if (enrollment.total_time_spent_minutes > 0 || enrollment.completion_percentage > 0) {
+        course.hasActivity = true;
       }
     });
 
@@ -190,12 +224,27 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       const course = courseMap.get(lesson.course_id);
       if (course) {
         course.engagementScores.push(lesson.engagement_score || 0);
+        course.hasActivity = true;
         
         // Count unique lessons
         const lessonSet = course.lessonSet || new Set();
         lessonSet.add(lesson.lesson_id);
         course.lessonSet = lessonSet;
         course.totalLessons = lessonSet.size;
+        
+        // Add time from lesson analytics if available
+        if (lesson.time_spent_seconds > 0) {
+          course.totalTime += Math.round(lesson.time_spent_seconds / 60);
+        }
+      }
+    });
+
+    // For courses without lesson analytics, estimate engagement and lessons
+    courseMap.forEach(course => {
+      if (!course.hasActivity && course.totalEnrollments > 0) {
+        // Estimate some basic metrics for enrolled courses without detailed analytics
+        course.totalLessons = 5; // Default lesson count
+        course.engagementScores = [25]; // Default low engagement for inactive courses
       }
     });
 
@@ -325,6 +374,26 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Interactive Course Analytics</h2>
         <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              if (user) {
+                setIsLoading(true);
+                try {
+                  await analyticsDataSync.runCompleteSync(user.id);
+                  await loadAnalyticsData(); // Reload data after sync
+                } catch (error) {
+                  console.error('Sync failed:', error);
+                } finally {
+                  setIsLoading(false);
+                }
+              }
+            }}
+            disabled={isLoading}
+          >
+            🔄 Sync Data
+          </Button>
           {(['7d', '30d', '90d'] as const).map(range => (
             <Button
               key={range}
