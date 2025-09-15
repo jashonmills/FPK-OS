@@ -59,6 +59,9 @@ export const GeometryCoursePage: React.FC = () => {
       if (lesson >= 1 && lesson <= lessons.length) {
         setCurrentLesson(lesson);
       }
+    } else {
+      // Reset to course overview when no lesson ID is present
+      setCurrentLesson(null);
     }
   }, [lessonId]);
 
