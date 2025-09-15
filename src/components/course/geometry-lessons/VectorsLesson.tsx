@@ -4,22 +4,21 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import vector geometry images
-import vectorsIntro from '@/assets/vectors-intro.png';
-import vectorOperations from '@/assets/vector-operations.png';
-import crossProduct from '@/assets/cross-product.png';
-
+// Import vector geometry images from Supabase storage
 const vectorsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png';
+const vectorsIntroImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png';
+const vectorOperationsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png';
+const crossProductImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png';
 
 export const VectorsLesson: React.FC = () => {
   const navigate = useNavigate();
 
   // Debug image paths
-  console.log('Image paths:', {
-    vectorsIntro,
-    vectorOperations, 
-    crossProduct,
-    vectorsImage
+  console.log('Storage image paths:', {
+    vectorsImage,
+    vectorsIntroImage,
+    vectorOperationsImage,
+    crossProductImage
   });
 
   return (
@@ -120,13 +119,13 @@ export const VectorsLesson: React.FC = () => {
             
             <div className="mb-6">
               <img 
-                src={vectorsIntro} 
+                src={vectorsIntroImage} 
                 alt="Vector geometric representation showing arrows with magnitude and direction" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
                 onLoad={() => console.log('Vectors intro image loaded successfully')}
                 onError={(e) => {
                   console.error('Failed to load vectors intro image:', e);
-                  console.log('Attempted to load:', vectorsIntro);
+                  console.log('Attempted to load:', vectorsIntroImage);
                 }}
               />
             </div>
@@ -331,13 +330,13 @@ export const VectorsLesson: React.FC = () => {
             
              <div className="mb-4">
                <img 
-                 src={vectorOperations} 
+                 src={vectorOperationsImage} 
                  alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
                  className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
                  onLoad={() => console.log('Vector operations image loaded successfully')}
                  onError={(e) => {
                    console.error('Failed to load vector operations image:', e);
-                   console.log('Attempted to load:', vectorOperations);
+                   console.log('Attempted to load:', vectorOperationsImage);
                  }}
                />
              </div>
@@ -491,13 +490,13 @@ export const VectorsLesson: React.FC = () => {
             
             <div className="mb-4">
               <img 
-                src={crossProduct} 
+                src={crossProductImage} 
                 alt="Cross product visualization showing perpendicular result vector and right-hand rule" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
                 onLoad={() => console.log('Cross product image loaded successfully')}
                 onError={(e) => {
                   console.error('Failed to load cross product image:', e);
-                  console.log('Attempted to load:', crossProduct);
+                  console.log('Attempted to load:', crossProductImage);
                 }}
               />
             </div>
