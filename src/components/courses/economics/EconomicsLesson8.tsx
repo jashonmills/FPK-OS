@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,7 @@ export const EconomicsLesson8: React.FC<EconomicsLesson8Props> = ({
   lessonId = 8,
   lessonTitle = "Economic Growth & Development"
 }) => {
+  const navigate = useNavigate();
   const handleComplete = () => {
     trackInteraction?.('lesson_complete_click', {
       lesson_id: lessonId,
@@ -406,7 +408,7 @@ export const EconomicsLesson8: React.FC<EconomicsLesson8Props> = ({
                     <li>✓ Economic growth and development</li>
                   </ul>
                 </div>
-                <Button onClick={() => window.location.href = '/dashboard/learner/courses'} size="lg" className="mx-auto">
+                <Button onClick={() => navigate('/dashboard/learner/courses')} size="lg" className="mx-auto">
                   Return to My Courses
                 </Button>
               </div>

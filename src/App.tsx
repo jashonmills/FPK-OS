@@ -488,7 +488,10 @@ const App: React.FC = () => {
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
           <Route path="/games" element={<LazyRoute><Games /></LazyRoute>} />
           <Route path="/contact" element={<LazyRoute><Contact /></LazyRoute>} />
-          <Route path="/courses" element={<Navigate to="/dashboard/learner/courses" replace />} />
+          <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
+          
+          {/* Legacy redirect for backwards compatibility */}
+          <Route path="/dashboard/courses" element={<Navigate to="/dashboard/learner/courses" replace />} />
           
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
