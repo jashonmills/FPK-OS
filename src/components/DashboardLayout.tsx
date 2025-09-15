@@ -23,14 +23,23 @@ const DashboardLayout: React.FC = () => {
           <OrgProvider>
             <OrgThemeProvider>
               <SidebarProvider>
-                <div className="min-h-screen flex w-full overflow-x-hidden">
+                <div 
+                  className="min-h-screen flex w-full overflow-x-hidden"
+                  style={{
+                    backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed'
+                  }}
+                >
                   <AppSidebar />
                   <div className={cn(
                     "flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300",
                     isMobile && isChatOpen && "brightness-50 pointer-events-none"
                   )}>
                     <GlobalHeader />
-                    <main className="flex-1 bg-gray-50 mobile-scroll-container">
+                    <main className="flex-1 mobile-scroll-container">
                       <div className="w-full h-full mobile-container pb-28 sm:pb-0 pr-16 sm:pr-0 py-3 sm:py-4 md:py-6 lg:py-8">
                         <ErrorBoundaryUnified resetOnPropsChange={true}>
                           <Outlet />
