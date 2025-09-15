@@ -264,7 +264,7 @@ const CoursesPage: React.FC = () => {
       }}
     >
       {/* Header - Enhanced mobile text sizes with semi-transparent background */}
-      <div className="bg-white/70 backdrop-blur-md border-b border-white/20 shadow-sm">
+      <div className="bg-white/40 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -272,7 +272,7 @@ const CoursesPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2 text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+                className="flex items-center gap-2 text-sm sm:text-base bg-white/10 hover:bg-white/20 backdrop-blur-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
@@ -284,7 +284,7 @@ const CoursesPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm border-white/30">
+            <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur-sm border-white/20">
               {courses.length} Courses Available
             </Badge>
           </div>
@@ -298,7 +298,7 @@ const CoursesPage: React.FC = () => {
             const courseImage = getCourseImage(course.id, course.title);
             
             return (
-              <Card key={course.id} className="relative flex flex-col h-full hover:shadow-xl transition-all duration-300 overflow-hidden group bg-white/80 backdrop-blur-md border-white/30 shadow-lg">
+              <Card key={course.id} className="relative flex flex-col h-full hover:shadow-xl transition-all duration-300 overflow-hidden group bg-white/40 backdrop-blur-md border-white/20 shadow-lg">
                 {/* AI Generated Image Header (same as StyledCourseCard) */}
                 <div 
                   className="relative h-36 sm:h-40 bg-cover bg-center overflow-hidden"
@@ -359,7 +359,7 @@ const CoursesPage: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-between text-base sm:text-lg lg:text-xl mb-4 hover:bg-white/30 font-medium py-3 bg-white/10 backdrop-blur-sm border border-white/20"
+                        className="w-full justify-between text-base sm:text-lg lg:text-xl mb-4 hover:bg-white/20 font-medium py-3 bg-white/5 backdrop-blur-sm border border-white/10"
                       >
                         Course Details
                         {expandedCourse === course.id ? (
@@ -369,7 +369,7 @@ const CoursesPage: React.FC = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-5 mb-6 bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                    <CollapsibleContent className="space-y-5 mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
                       <div>
                         <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3 text-slate-800">Overview</h4>
                         <p className="text-base sm:text-lg lg:text-xl text-slate-700 leading-relaxed">{course.summary}</p>
