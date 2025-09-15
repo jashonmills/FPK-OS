@@ -71,11 +71,6 @@ const LearnerHome = () => {
       {/* Beta Onboarding */}
       <BetaOnboarding autoShow={true} />
       
-      {/* Organization Banner - Shows when user has no organizations */}
-      <div className="mb-6">
-        <OrgBanner />
-      </div>
-      
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
@@ -95,6 +90,11 @@ const LearnerHome = () => {
             />
           </p>
         </div>
+      </div>
+      
+      {/* Organization Banner - Shows when user has no organizations */}
+      <div className="mb-6">
+        <OrgBanner />
       </div>
 
       {/* AI Learning Assistant */}
