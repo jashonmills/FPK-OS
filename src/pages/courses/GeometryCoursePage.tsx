@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
@@ -53,6 +53,7 @@ export const GeometryCoursePage: React.FC = () => {
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (lessonId) {
@@ -181,13 +182,19 @@ export const GeometryCoursePage: React.FC = () => {
 
               {/* Enhanced Course Information */}
               <div className="max-w-4xl mx-auto">
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion 
+                  type="single" 
+                  collapsible 
+                  className="w-full"
+                  value={accordionOpen}
+                  onValueChange={setAccordionOpen}
+                >
                   <AccordionItem value="enhanced-course-info">
                     <AccordionTrigger className="text-left text-xl font-semibold">
                       Enhanced Comprehensive Geometry Course
                     </AccordionTrigger>
-                    <AccordionContent className="prose prose-gray max-w-none text-sm">
-                      <div className="space-y-6">
+                    <AccordionContent className="prose prose-gray max-w-none text-sm relative">
+                      <div className="space-y-6 pr-12">
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Introduction</h3>
                           <p className="text-muted-foreground leading-relaxed">
@@ -261,6 +268,16 @@ export const GeometryCoursePage: React.FC = () => {
                           </p>
                         </div>
                       </div>
+                      
+                      {/* Close Button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute bottom-4 right-4 h-8 w-8 p-0 hover:bg-muted"
+                        onClick={() => setAccordionOpen(undefined)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
