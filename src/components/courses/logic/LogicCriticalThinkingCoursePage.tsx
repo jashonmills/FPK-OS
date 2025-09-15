@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
+import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { LogicLesson1_1 } from './LogicLesson1_1';
 import { LogicLesson1_2 } from './LogicLesson1_2';
 import { LogicLesson2_1 } from './LogicLesson2_1';
@@ -135,7 +137,13 @@ const LogicCriticalThinkingCoursePage = () => {
   if (currentLesson === null) {
     return (
       <VoiceSettingsProvider>
-        <div className="min-h-screen bg-background">
+        <InteractiveCourseWrapper
+          courseId="logic-critical-thinking"
+          courseTitle="Logic and Critical Thinking"
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen bg-background">
         <CourseHeader 
           onBackToCourses={handleBackToCourses}
           onDashboard={handleDashboard}
@@ -276,7 +284,8 @@ const LogicCriticalThinkingCoursePage = () => {
             </Card>
           )}
         </div>
-      </div>
+          </div>
+        </InteractiveCourseWrapper>
       </VoiceSettingsProvider>
     );
   }
@@ -289,7 +298,13 @@ const LogicCriticalThinkingCoursePage = () => {
 
   return (
     <VoiceSettingsProvider>
-      <div className="min-h-screen bg-background">
+      <InteractiveCourseWrapper
+        courseId="logic-critical-thinking"
+        courseTitle="Logic and Critical Thinking"
+        currentLesson={currentLesson}
+        totalLessons={lessons.length}
+      >
+        <div className="min-h-screen bg-background">
         <CourseHeader 
           onBackToCourses={handleBackToCourses}
           onDashboard={handleDashboard}
@@ -324,13 +339,24 @@ const LogicCriticalThinkingCoursePage = () => {
         </div>
 
         {/* Lesson Content */}
-        <LessonComponent 
+        <InteractiveLessonWrapper
+          courseId="logic-critical-thinking"
+          lessonId={currentLesson! + 1}
+          lessonTitle={currentLessonData.title}
           onComplete={() => handleLessonComplete(currentLessonData.id)}
           onNext={handleNextLesson}
           hasNext={currentLesson! < lessons.length - 1}
-        />
+          totalLessons={lessons.length}
+        >
+          <LessonComponent 
+            onComplete={() => handleLessonComplete(currentLessonData.id)}
+            onNext={handleNextLesson}
+            hasNext={currentLesson! < lessons.length - 1}
+          />
+        </InteractiveLessonWrapper>
       </div>
-    </div>
+      </div>
+      </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
 };

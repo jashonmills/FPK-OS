@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper';
-import { SpellingLessonWrapper } from '@/components/course/SpellingLessonWrapper';
+import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
+import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -138,7 +138,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   if (currentLesson === null) {
     return (
       <VoiceSettingsProvider>
-        <SpellingCourseWrapper
+        <InteractiveCourseWrapper
           courseId="empowering-learning-spelling"
           courseTitle="Empowering Learning for Spelling"
           currentLesson={currentLesson}
@@ -249,7 +249,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </SpellingCourseWrapper>
+        </InteractiveCourseWrapper>
       </VoiceSettingsProvider>
     );
   }
@@ -281,7 +281,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
   return (
     <VoiceSettingsProvider>
-      <SpellingCourseWrapper 
+      <InteractiveCourseWrapper 
         courseId="empowering-learning-spelling"
         courseTitle="Empowering Learning for Spelling"
         currentLesson={currentLesson}
@@ -340,7 +340,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
             </div>
 
             {/* Lesson Content */}
-            <SpellingLessonWrapper
+            <InteractiveLessonWrapper
               courseId="empowering-learning-spelling"
               lessonId={currentLesson}
               lessonTitle={currentLessonData.title}
@@ -350,10 +350,10 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
               totalLessons={lessons.length}
             >
               <LessonComponent />
-            </SpellingLessonWrapper>
+            </InteractiveLessonWrapper>
           </div>
         </div>
-      </SpellingCourseWrapper>
+      </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
