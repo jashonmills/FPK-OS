@@ -67,7 +67,7 @@ const LearnerHome = () => {
 
 
   return (
-    <div className="mobile-section-spacing">
+    <div className="mobile-section-spacing" style={{ marginTop: '600px' }}>
       {/* Beta Onboarding */}
       <BetaOnboarding autoShow={true} />
       
