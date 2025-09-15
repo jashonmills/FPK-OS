@@ -14,6 +14,14 @@ const vectorsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object
 export const VectorsLesson: React.FC = () => {
   const navigate = useNavigate();
 
+  // Debug image paths
+  console.log('Image paths:', {
+    vectorsIntro,
+    vectorOperations, 
+    crossProduct,
+    vectorsImage
+  });
+
   return (
     <div className="space-y-6">
       {/* Back button */}
@@ -37,6 +45,11 @@ export const VectorsLesson: React.FC = () => {
             src={vectorsImage} 
             alt="Vectors and Vector Geometry illustration" 
             className="mx-auto rounded-lg shadow-lg max-w-md w-full"
+            onLoad={() => console.log('Main vectors image loaded successfully')}
+            onError={(e) => {
+              console.error('Failed to load main vectors image:', e);
+              console.log('Attempted to load:', vectorsImage);
+            }}
           />
         </div>
       </div>
@@ -104,6 +117,19 @@ export const VectorsLesson: React.FC = () => {
             <p className="mb-4">
               A vector can be represented geometrically as a directed line segment (an arrow). The length of the arrow represents the magnitude of the vector, and the direction of the arrow represents the direction of the vector.
             </p>
+            
+            <div className="mb-6">
+              <img 
+                src={vectorsIntro} 
+                alt="Vector geometric representation showing arrows with magnitude and direction" 
+                className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+                onLoad={() => console.log('Vectors intro image loaded successfully')}
+                onError={(e) => {
+                  console.error('Failed to load vectors intro image:', e);
+                  console.log('Attempted to load:', vectorsIntro);
+                }}
+              />
+            </div>
             
             <div className="bg-muted/50 p-4 rounded-lg border-l-4 border-primary mb-4">
               <p className="text-sm font-semibold text-primary mb-2">Teaching Moment:</p>
@@ -303,13 +329,18 @@ export const VectorsLesson: React.FC = () => {
             <p className="mb-2">b) <strong>a</strong> - <strong>b</strong></p>
             <p className="mb-2">c) 2<strong>a</strong> - 3<strong>b</strong></p>
             
-            <div className="mb-4">
-              <img 
-                src={vectorOperations} 
-                alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
-                className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-              />
-            </div>
+             <div className="mb-4">
+               <img 
+                 src={vectorOperations} 
+                 alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
+                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+                 onLoad={() => console.log('Vector operations image loaded successfully')}
+                 onError={(e) => {
+                   console.error('Failed to load vector operations image:', e);
+                   console.log('Attempted to load:', vectorOperations);
+                 }}
+               />
+             </div>
             
             <h5 className="font-medium mt-4 mb-2">Solution:</h5>
             <p className="mb-2">a) <strong>a</strong> + <strong>b</strong> = (2, 3) + (4, -1) = (2 + 4, 3 + (-1)) = (6, 2)</p>
@@ -463,6 +494,11 @@ export const VectorsLesson: React.FC = () => {
                 src={crossProduct} 
                 alt="Cross product visualization showing perpendicular result vector and right-hand rule" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+                onLoad={() => console.log('Cross product image loaded successfully')}
+                onError={(e) => {
+                  console.error('Failed to load cross product image:', e);
+                  console.log('Attempted to load:', crossProduct);
+                }}
               />
             </div>
             
