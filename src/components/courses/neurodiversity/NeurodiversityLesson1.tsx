@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain, Users, BookOpen } from 'lucide-react';
+import humanBrainForestImage from '@/assets/human-brain-forest.jpg';
 
 interface NeurodiversityLesson1Props {
   onComplete?: () => void;
@@ -85,6 +86,13 @@ export const NeurodiversityLesson1: React.FC<NeurodiversityLesson1Props> = ({
           <CardTitle className="text-blue-800 dark:text-blue-200">Case Study: The Human Brain Forest</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="w-full mb-6">
+            <img 
+              src={humanBrainForestImage} 
+              alt="The Human Brain Forest - A metaphorical illustration showing different types of thinking as different trees in a diverse forest ecosystem" 
+              className="w-full max-w-2xl mx-auto rounded-lg shadow-md"
+            />
+          </div>
           <div className="prose max-w-none dark:prose-invert">
             <p>
               Imagine a team working on a new app. The lead developer is highly logical and systematic, preferring a clear, step-by-step process. The graphic designer is dyslexic and thinks in creative, non-linear ways, visualizing the entire user experience as a whole. The marketing manager has ADHD and jumps between ideas, connecting unrelated concepts to create a unique campaign. Their neurotypical manager values all of these approaches.
