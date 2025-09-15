@@ -12,7 +12,8 @@ import {
   Building2,
   Users,
   ClipboardCheck,
-  Paintbrush
+  Paintbrush,
+  Compass
 } from 'lucide-react';
 
 export type NavItem = {
@@ -29,6 +30,7 @@ export const navPersonal: NavItem[] = [
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses' },
   { label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library' },
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics' },
+  { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub' },
   { label: 'AI Study Coach', icon: React.createElement(Bot), to: '/dashboard/learner/ai-coach' },
   { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/learner/goals' },
   { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification' },
@@ -40,6 +42,7 @@ export const navOrgStudent: NavItem[] = [
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses?org=:orgId' },
   { label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library?org=:orgId' },
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics?org=:orgId' },
+  { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'AI Study Coach', icon: React.createElement(Bot), to: '/dashboard/learner/ai-coach?org=:orgId' },
   { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/learner/goals?org=:orgId' },
   { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification?org=:orgId' },
@@ -55,6 +58,7 @@ export const navOrgInstructor: NavItem[] = [
   { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/instructor/goals?org=:orgId' },
   { label: 'Notes', icon: React.createElement(Notebook), to: '/dashboard/instructor/notes?org=:orgId' },
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/instructor/analytics?org=:orgId' },
+  { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'Branding', icon: React.createElement(Paintbrush), to: '/dashboard/instructor/branding?org=:orgId' },
 ];
 
