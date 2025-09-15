@@ -184,7 +184,7 @@ const BetaOnboarding: React.FC<BetaOnboardingProps> = ({
           variant="ghost"
           size="sm"
           onClick={() => setIsOpen(true)}
-          className="text-muted-foreground"
+          className="text-foreground hover:text-primary"
         >
           <Play className="w-4 h-4 mr-2" />
           Beta Tour
