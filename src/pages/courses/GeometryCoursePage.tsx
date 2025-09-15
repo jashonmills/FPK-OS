@@ -260,7 +260,7 @@ export const GeometryCoursePage: React.FC = () => {
       >
         <div className="min-h-screen bg-background">
           <CourseHeader 
-            onBackToCourses={() => navigate('/courses/geometry')}
+            onBackToCourses={() => navigate('/dashboard/learner/courses')}
             onDashboard={handleDashboard}
             courseTitle="Geometry Fundamentals"
           />
