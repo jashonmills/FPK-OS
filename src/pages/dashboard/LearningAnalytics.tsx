@@ -16,8 +16,8 @@ import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard'
 import XPBreakdownCard from '@/components/analytics/XPBreakdownCard';
 
 // Dynamic imports with error handling  
-const InteractiveCourseAnalyticsDashboard = React.lazy(() => 
-  import('@/components/analytics/InteractiveCourseAnalyticsDashboard')
+const UserLearningProgress = React.lazy(() => 
+  import('@/components/analytics/UserLearningProgress')
 );
 
 const LibraryReadingAnalytics = React.lazy(() => 
@@ -188,7 +188,7 @@ const LearningAnalytics = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
               </div>
             }>
-              <InteractiveCourseAnalyticsDashboard />
+              <UserLearningProgress />
             </React.Suspense>
           </RouteBoundary>
         </TabsContent>

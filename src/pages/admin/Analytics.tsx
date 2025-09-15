@@ -1,11 +1,30 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { Users, BookOpen, TrendingUp, Award, Clock, Target } from 'lucide-react';
+import { Users, BookOpen, TrendingUp, Award, Clock, Target, BarChart3, MessageCircle } from 'lucide-react';
+import RouteBoundary from '@/components/RouteBoundary';
+
+// Dynamic imports for admin analytics components
+const CoursePerformanceAnalytics = React.lazy(() => 
+  import('@/components/analytics/CoursePerformanceAnalytics')
+);
+
+const AdminReadingAnalytics = React.lazy(() => 
+  import('@/components/analytics/AdminReadingAnalytics')
+);
+
+const AdminAICoachAnalytics = React.lazy(() => 
+  import('@/components/analytics/AdminAICoachAnalytics')
+);
+
+const AdminGoalsAnalytics = React.lazy(() => 
+  import('@/components/analytics/AdminGoalsAnalytics')
+);
 
 interface UserStats {
   totalUsers: number;
@@ -31,6 +50,7 @@ interface StudyStats {
 }
 
 const Analytics = () => {
+  const [activeTab, setActiveTab] = useState('overview');
   // User statistics
   const { data: userStats = {
     totalUsers: 0,
@@ -214,122 +234,201 @@ const Analytics = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold">Admin Analytics Dashboard</h1>
         <p className="text-muted-foreground">
-          Track platform performance and user engagement
+          Track platform performance and user engagement across all users
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.change}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            <span className="hidden sm:inline">Courses</span>
+          </TabsTrigger>
+          <TabsTrigger value="reading" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">Reading</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai-coach" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">AI Coach</span>
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">Goals</span>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Weekly Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weeklyActivityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="users" fill="#8884d8" name="Active Users" />
-                <Bar dataKey="sessions" fill="#82ca9d" name="Study Sessions" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <TabsContent value="overview" className="mt-6">
+          <RouteBoundary>
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {statCards.map((stat, index) => (
+                  <Card key={index}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                      <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-        {/* Enrollment Trends */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Enrollment Trends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={enrollmentTrendsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="enrollments" stroke="#8884d8" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+              {/* Charts Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Weekly Activity */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Weekly Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={weeklyActivityData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="users" fill="#8884d8" name="Active Users" />
+                        <Bar dataKey="sessions" fill="#82ca9d" name="Study Sessions" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
 
-        {/* Role Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>User Role Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={roleDistributionData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {roleDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                {/* Enrollment Trends */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Enrollment Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={enrollmentTrendsData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="enrollments" stroke="#8884d8" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
 
-        {/* Quick Insights */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Insights</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Course Completion Rate</span>
-              <Badge variant="secondary">{courseStats.completionRate}%</Badge>
+                {/* Role Distribution */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Role Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={roleDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {roleDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Quick Insights */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quick Insights</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Course Completion Rate</span>
+                      <Badge variant="secondary">{courseStats.completionRate}%</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Avg Enrollments per Course</span>
+                      <Badge variant="outline">{courseStats.avgEnrollmentsPerCourse}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Active Users</span>
+                      <Badge variant="default">{userStats.activeUsers}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Average Study Streak</span>
+                      <Badge className="fpk-gradient text-white">{studyStats.studyStreak} days</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Avg Enrollments per Course</span>
-              <Badge variant="outline">{courseStats.avgEnrollmentsPerCourse}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Active Users</span>
-              <Badge variant="default">{userStats.activeUsers}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Average Study Streak</span>
-              <Badge className="fpk-gradient text-white">{studyStats.studyStreak} days</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </RouteBoundary>
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-6">
+          <RouteBoundary>
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            }>
+              <CoursePerformanceAnalytics />
+            </React.Suspense>
+          </RouteBoundary>
+        </TabsContent>
+
+        <TabsContent value="reading" className="mt-6">
+          <RouteBoundary>
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            }>
+              <AdminReadingAnalytics />
+            </React.Suspense>
+          </RouteBoundary>
+        </TabsContent>
+
+        <TabsContent value="ai-coach" className="mt-6">
+          <RouteBoundary>
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            }>
+              <AdminAICoachAnalytics />
+            </React.Suspense>
+          </RouteBoundary>
+        </TabsContent>
+
+        <TabsContent value="goals" className="mt-6">
+          <RouteBoundary>
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            }>
+              <AdminGoalsAnalytics />
+            </React.Suspense>
+          </RouteBoundary>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
