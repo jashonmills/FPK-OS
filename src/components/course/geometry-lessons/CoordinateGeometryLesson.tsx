@@ -1,7 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lightbulb, CheckCircle, MapPin, Calculator, TrendingUp, Target } from 'lucide-react';
+import { Lightbulb, CheckCircle, MapPin, Calculator, TrendingUp, Target, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 // Import generated images
 import coordinateSystem from '@/assets/coordinate-system.png';
@@ -13,8 +15,21 @@ import conicSections from '@/assets/conic-sections.png';
 const existingCoordinateImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/coordinate_geometry.png';
 
 export const CoordinateGeometryLesson: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Back button */}
+      <Button 
+        variant="outline" 
+        onClick={() => navigate('/courses/geometry')}
+        className="mb-6"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Overview
+      </Button>
+
+      <div className="space-y-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 text-primary">Module 7: Coordinate Geometry</h1>
       </div>
@@ -902,6 +917,7 @@ export const CoordinateGeometryLesson: React.FC = () => {
           </Alert>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
