@@ -174,7 +174,7 @@ export const GeometryCoursePage: React.FC = () => {
 
               {/* Video Overview */}
               <CourseOverviewVideo 
-                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/geometry_intro_video.mp4" 
+                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Geometry__The_Shape_of_Everything.mp4" 
                 title="Geometry Fundamentals Overview"
               />
 
