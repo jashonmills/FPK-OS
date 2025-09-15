@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { uploadVectorImages } from '@/utils/uploadVectorImages';
 
 // Import vector geometry images from Supabase storage
 const vectorsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png';
@@ -12,13 +13,31 @@ const crossProductImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/o
 
 export const VectorsLesson: React.FC = () => {
   const navigate = useNavigate();
+  const [imagesUploaded, setImagesUploaded] = useState(false);
+
+  // Upload images on component mount if not already uploaded
+  useEffect(() => {
+    const uploadImages = async () => {
+      try {
+        console.log('Uploading vector images to storage...');
+        await uploadVectorImages();
+        console.log('Vector images uploaded successfully');
+        setImagesUploaded(true);
+      } catch (error) {
+        console.error('Failed to upload vector images:', error);
+      }
+    };
+
+    uploadImages();
+  }, []);
 
   // Debug image paths
   console.log('Storage image paths:', {
     vectorsImage,
     vectorsIntroImage,
     vectorOperationsImage,
-    crossProductImage
+    crossProductImage,
+    imagesUploaded
   });
 
   return (
