@@ -9,20 +9,80 @@ const AdminGoalsAnalytics = () => {
   const { data: goalsStats, isLoading } = useQuery({
     queryKey: ['admin-goals-analytics'],
     queryFn: async () => {
-      // Mock data since we don't have goals tables yet
-      // In a real implementation, you would query actual goals data
+      const { data: goals, error } = await supabase
+        .from('goals')
+        .select('*');
+
+      if (error) throw error;
+
+      const totalGoals = goals?.length || 0;
+      const completedGoals = goals?.filter(g => g.status === 'completed').length || 0;
+      const uniqueUsers = new Set(goals?.map(g => g.user_id) || []).size;
+      const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+
+      // Group by category for breakdown
+      const categoryStats = goals?.reduce((acc: Record<string, any>, goal) => {
+        const category = goal.category || 'Other';
+        if (!acc[category]) {
+          acc[category] = { category, count: 0, completed: 0 };
+        }
+        acc[category].count++;
+        if (goal.status === 'completed') {
+          acc[category].completed++;
+        }
+        return acc;
+      }, {}) || {};
+
+      const goalCategories = Object.values(categoryStats)
+        .sort((a: any, b: any) => b.count - a.count)
+        .slice(0, 5);
+
+      // Calculate user performance insights
+      const userPerformance = goals?.reduce((acc: Record<string, any>, goal) => {
+        const userId = goal.user_id;
+        if (!acc[userId]) {
+          acc[userId] = { total: 0, completed: 0 };
+        }
+        acc[userId].total++;
+        if (goal.status === 'completed') {
+          acc[userId].completed++;
+        }
+        return acc;
+      }, {}) || {};
+
+      const performanceCategories = Object.values(userPerformance).map((user: any) => {
+        const rate = user.total > 0 ? (user.completed / user.total) * 100 : 0;
+        return rate;
+      });
+
+      const highPerformers = performanceCategories.filter(rate => rate >= 75).length;
+      const atRisk = performanceCategories.filter(rate => rate >= 25 && rate < 75).length;
+      const inactive = performanceCategories.filter(rate => rate < 25).length;
+
+      // Get top goals by title frequency
+      const goalTitles = goals?.reduce((acc: Record<string, number>, goal) => {
+        const title = goal.title || 'Untitled Goal';
+        acc[title] = (acc[title] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      const topGoals = Object.entries(goalTitles)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 4)
+        .map(([title, count]) => ({ title, count }));
+
       return {
-        totalGoals: 156,
-        completedGoals: 89,
-        activeUsers: 42,
-        completionRate: 57,
-        goalCategories: [
-          { category: 'Study Time', count: 45, completed: 28 },
-          { category: 'Course Completion', count: 38, completed: 22 },
-          { category: 'Reading Hours', count: 32, completed: 18 },
-          { category: 'Exercise Sessions', count: 24, completed: 15 },
-          { category: 'Skill Development', count: 17, completed: 6 }
-        ]
+        totalGoals,
+        completedGoals,
+        activeUsers: uniqueUsers,
+        completionRate,
+        goalCategories,
+        performanceInsights: {
+          highPerformers,
+          atRisk,
+          inactive
+        },
+        topGoals
       };
     }
   });
@@ -139,21 +199,21 @@ const AdminGoalsAnalytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Completion Insights</CardTitle>
+            <CardTitle>User Performance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="font-medium">High Performers</span>
-                <span className="text-green-600 font-bold">12 users</span>
+                <span className="font-medium">High Performers (≥75%)</span>
+                <span className="text-green-600 font-bold">{goalsStats?.performanceInsights?.highPerformers || 0} users</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                <span className="font-medium">At Risk</span>
-                <span className="text-yellow-600 font-bold">8 users</span>
+                <span className="font-medium">At Risk (25-74%)</span>
+                <span className="text-yellow-600 font-bold">{goalsStats?.performanceInsights?.atRisk || 0} users</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                <span className="font-medium">Inactive</span>
-                <span className="text-red-600 font-bold">5 users</span>
+                <span className="font-medium">Low Activity (&lt;25%)</span>
+                <span className="text-red-600 font-bold">{goalsStats?.performanceInsights?.inactive || 0} users</span>
               </div>
             </div>
           </CardContent>
@@ -161,26 +221,20 @@ const AdminGoalsAnalytics = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Trending Goals</CardTitle>
+            <CardTitle>Most Popular Goals</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">📚 Complete 5 courses</span>
-                <span className="text-sm font-semibold">23 users</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">⏰ Study 30 min daily</span>
-                <span className="text-sm font-semibold">19 users</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">📖 Read 2 books/month</span>
-                <span className="text-sm font-semibold">15 users</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">🎯 90% course completion</span>
-                <span className="text-sm font-semibold">12 users</span>
-              </div>
+              {goalsStats?.topGoals?.map((goal: any, index: number) => (
+                <div key={goal.title} className="flex items-center justify-between">
+                  <span className="text-sm">{goal.title}</span>
+                  <span className="text-sm font-semibold">{goal.count} users</span>
+                </div>
+              )) || (
+                <p className="text-center text-muted-foreground py-4">
+                  No goal data available yet
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
