@@ -7,6 +7,7 @@ const HomepageNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
+    { label: 'Courses', href: '/courses' },
     { label: 'Empowering Learning', href: 'https://empoweringlearning.fpkadapt.com/', external: true },
     { label: 'Learning Portal', href: '/dashboard/learner' },
     { label: 'Games', href: 'https://fpk-games.lovable.app/', external: true },

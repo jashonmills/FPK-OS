@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, GraduationCap } from 'lucide-react';
 import { getSiteUrl } from '@/utils/siteUrl';
 import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
 import { ResetPasswordModal } from '@/components/auth/ResetPasswordModal';
@@ -161,6 +161,23 @@ const Login = () => {
       setShowSignInVideoModal(true);
     }
   }, [activeTab, signInVideo, showSignInVideoModal]);
+
+  // Check for enrollment parameter
+  const enrollCourseId = searchParams.get('enroll');
+  
+  const getCourseTitle = (courseId: string) => {
+    const courseMap = {
+      'empowering-learning-spelling': 'Empowering Learning for Spelling',
+      'logic-critical-thinking': 'Logic and Critical Thinking',
+      'interactive-science': 'Introduction to Science',
+      'interactive-algebra': 'Interactive Algebra',
+      'interactive-linear-equations': 'Interactive Linear Equations',
+      'interactive-trigonometry': 'Interactive Trigonometry',
+      'interactive-economics': 'Interactive Economics',
+      'interactive-neurodiversity': 'Interactive Neurodiversity'
+    };
+    return courseMap[courseId as keyof typeof courseMap] || 'Course';
+  };
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -332,9 +349,23 @@ const Login = () => {
             <CardTitle className="fpk-text-gradient text-2xl font-bold">
               {tString('portalTitle')}
             </CardTitle>
+            
+            {/* Enrollment Message */}
+            {enrollCourseId && (
+              <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <GraduationCap className="h-5 w-5" />
+                  <span className="font-medium">Ready to Enroll?</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sign up to enroll in <span className="font-medium text-foreground">"{getCourseTitle(enrollCourseId)}"</span> and start your learning journey today!
+                </p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full" onValueChange={setActiveTab}>
+            <Tabs defaultValue={enrollCourseId ? "signup" : "signin"} className="w-full" onValueChange={setActiveTab}>
+              {/* Default to signup tab if enrolling */}
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
                 <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>

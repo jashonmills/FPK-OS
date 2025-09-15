@@ -136,6 +136,7 @@ const Forbidden = lazy(() => import("./pages/system/Forbidden"));
 // Homepage related pages
 const Games = lazy(() => import("./pages/Games"));
 const Contact = lazy(() => import("./pages/Contact"));
+const CoursesPage = lazy(() => import("./pages/CoursesPage"));
 
 // Optimized loading component with better UX
 const PageLoader: React.FC = React.memo(() => (
@@ -193,6 +194,7 @@ const App: React.FC = () => {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
+          <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
