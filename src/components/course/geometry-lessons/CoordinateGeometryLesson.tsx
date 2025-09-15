@@ -1,134 +1,222 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, Calculator, MapPin, TrendingUp, Grid, BookOpen, Target } from 'lucide-react';
+import { Lightbulb, CheckCircle, MapPin, Calculator, TrendingUp, Target } from 'lucide-react';
+
+// Import generated images
+import coordinateSystem from '@/assets/coordinate-system.png';
+import distanceMidpoint from '@/assets/distance-midpoint.png';
+import lineEquations from '@/assets/line-equations.png';
+import conicSections from '@/assets/conic-sections.png';
+
+// Use existing storage image
+const existingCoordinateImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/coordinate_geometry.png';
 
 export const CoordinateGeometryLesson: React.FC = () => {
   return (
     <div className="space-y-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold mb-4 text-primary">Module 7: Coordinate Geometry</h1>
+      </div>
+
       {/* Introduction */}
-      <div className="text-center space-y-4">
-        <div className="flex justify-center">
-          <MapPin className="h-16 w-16 text-primary" />
-        </div>
-        <h1 className="text-3xl font-bold">Module 6: Coordinate Geometry</h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Welcome to Module 6 of our Geometry course! In this module, we will explore coordinate geometry, which combines algebra and geometry to solve problems using a coordinate system. You'll learn to represent geometric shapes algebraically and use algebraic techniques to analyze geometric properties.
-        </p>
-      </div>
-
-      {/* Hero Image */}
-      <div className="mb-8">
-        <img 
-          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/coordinate_geometry.jpg" 
-          alt="Coordinate plane showing points, lines, and shapes with grid lines and mathematical plotting"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
-        />
-      </div>
-
-      {/* Teaching Moment */}
-      <Alert>
-        <BookOpen className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Teaching Moment:</strong> Coordinate geometry, also known as analytic geometry, represents one of the most powerful unions in mathematics—the marriage of algebra and geometry. Before René Descartes and Pierre de Fermat developed coordinate systems in the 17th century, geometry and algebra were largely separate disciplines. This revolutionary approach allowed mathematicians to solve geometric problems using algebraic methods and vice versa. Today, coordinate geometry is essential in fields ranging from physics and engineering to computer graphics and GPS navigation.
-        </AlertDescription>
-      </Alert>
-
-      {/* Learning Objectives */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Target className="h-5 w-5 mr-2" />
-            Learning Objectives
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <MapPin className="h-8 w-8 text-primary" />
+            Introduction
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="mb-4">By the end of this module, you will be able to:</p>
-          <ul className="space-y-2 list-disc list-inside">
-            <li>Understand and apply the coordinate system in two dimensions</li>
-            <li>Plot points and identify coordinates in all four quadrants</li>
-            <li>Calculate the distance between points and find midpoints of line segments</li>
-            <li>Determine the equation of a line in various forms</li>
-            <li>Analyze the properties of lines, including slope and parallel/perpendicular relationships</li>
-            <li>Find the equations of circles and understand conic sections</li>
-            <li>Solve geometric problems using algebraic techniques</li>
-            <li>Apply coordinate geometry to real-world situations</li>
-          </ul>
+        <CardContent className="space-y-6">
+          <p className="text-lg leading-relaxed">
+            Welcome to Module 7 of our Geometry course! In this module, we will explore coordinate geometry, which combines algebra and geometry to solve problems using a coordinate system. We will learn how to represent geometric shapes algebraically and how to use algebraic techniques to analyze geometric properties.
+          </p>
+          
+          <Alert>
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Teaching Moment:</strong> Coordinate geometry, also known as analytic geometry, represents one of the most powerful unions in mathematics—the marriage of algebra and geometry. Before René Descartes and Pierre de Fermat developed coordinate systems in the 17th century, geometry and algebra were largely separate disciplines. Coordinate geometry bridges these fields by assigning numbers (coordinates) to points, allowing us to translate geometric problems into algebraic equations and vice versa. This breakthrough transformed mathematics and science, making it possible to analyze curves and shapes with algebraic precision. Today, coordinate geometry is essential in fields ranging from physics and engineering to computer graphics and GPS navigation. As you learn these concepts, you're following in the footsteps of mathematical pioneers who forever changed how we understand space.
+            </AlertDescription>
+          </Alert>
+
+          <div className="mb-8">
+            <img 
+              src={existingCoordinateImage}
+              alt="Coordinate geometry illustration showing coordinate plane with axes, quadrants, and plotted points"
+              className="w-full max-w-4xl mx-auto object-contain rounded-lg shadow-lg"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Learning Objectives</h3>
+            <p className="mb-4">By the end of this module, you will be able to:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                  <span>Understand and apply the coordinate system in two dimensions</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
+                  <span>Calculate the distance between points and find midpoints of line segments</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-purple-600 mt-1 flex-shrink-0" />
+                  <span>Determine the equation of a line in various forms</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-orange-600 mt-1 flex-shrink-0" />
+                  <span>Analyze the properties of lines, including slope and parallel/perpendicular relationships</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-red-600 mt-1 flex-shrink-0" />
+                  <span>Find the equations of circles, parabolas, ellipses, and hyperbolas</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-teal-600 mt-1 flex-shrink-0" />
+                  <span>Solve geometric problems using algebraic techniques</span>
+                </div>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-indigo-600 mt-1 flex-shrink-0" />
+                  <span>Apply coordinate geometry to real-world situations</span>
+                </div>
+              </Card>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       {/* Section 1: The Coordinate System */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Grid className="h-5 w-5 mr-2" />
-            Section 1: The Coordinate System
-          </CardTitle>
+          <CardTitle className="text-2xl">Section 1: The Coordinate System</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-3">The Cartesian Coordinate System</h3>
-            <p className="mb-4">
-              The <strong>Cartesian coordinate system</strong> consists of two perpendicular number lines (axes) that intersect at a point called the <strong>origin</strong>. The horizontal axis is called the <strong>x-axis</strong>, and the vertical axis is called the <strong>y-axis</strong>. The position of any point in the plane can be described by an ordered pair of numbers (x, y), called <strong>coordinates</strong>.
+            <h3 className="text-xl font-semibold mb-4 text-primary">The Cartesian Coordinate System</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The Cartesian coordinate system consists of two perpendicular number lines (axes) that intersect at a point called the origin. The horizontal axis is called the x-axis, and the vertical axis is called the y-axis. The position of any point in the plane can be described by an ordered pair of numbers (x, y).
             </p>
             
             <Alert>
-              <TrendingUp className="h-4 w-4" />
+              <Lightbulb className="h-4 w-4" />
               <AlertDescription>
-                <strong>Historical Note:</strong> The Cartesian coordinate system is named after René Descartes, who formalized this approach in his 1637 work "La Géométrie." The beauty of this system lies in its simplicity and power—by assigning coordinates to points, we create a one-to-one correspondence between geometric points and ordered pairs of numbers, allowing us to use algebraic methods to solve geometric problems.
+                <strong>Teaching Moment:</strong> The Cartesian coordinate system is named after René Descartes, who formalized this approach in his 1637 work "La Géométrie." The beauty of this system lies in its simplicity and power. By assigning coordinates to points, we create a one-to-one correspondence between geometric points and ordered pairs of numbers. This correspondence allows us to translate geometric properties into algebraic relationships. For example, the distance between points becomes a formula involving coordinates, and a line becomes an equation relating x and y values. This translation between geometry and algebra opens up new approaches to solving problems in both fields. It's worth noting that while we typically use perpendicular axes with the same scale, other coordinate systems (like polar coordinates) and non-standard scales can be useful for specific applications.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div className="mb-6">
+            <img 
+              src={coordinateSystem}
+              alt="Cartesian coordinate system showing x and y axes with four quadrants labeled and sample points plotted"
+              className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
+            />
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4 text-primary">Plotting Points</h4>
+            <p className="mb-3">To plot a point (x, y) on the coordinate plane:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Start at the origin (0, 0).</strong></li>
+              <li><strong>Move x units horizontally</strong> (right if x is positive, left if x is negative).</li>
+              <li><strong>From there, move y units vertically</strong> (up if y is positive, down if y is negative).</li>
+            </ol>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Plotting points is the foundation of coordinate geometry. When we plot points, we're creating a visual representation of numerical data. This visualization helps us identify patterns and relationships that might not be obvious from the numbers alone. For example, plotting the points (1, 1), (2, 4), (3, 9), and (4, 16) reveals a parabolic pattern, suggesting a quadratic relationship (y = x²). The ability to move between numerical and visual representations is a powerful skill in mathematics and science. It's also worth noting that the convention of putting the x-coordinate first and the y-coordinate second is arbitrary but widely adopted. Some specialized fields use different conventions, so always check the context when interpreting coordinate pairs.
               </AlertDescription>
             </Alert>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-3">Components of the Coordinate System</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="border rounded-lg p-4">
-                <h5 className="font-semibold mb-2">Key Elements</h5>
-                <ul className="space-y-1 text-sm list-disc list-inside">
-                  <li><strong>Origin (0, 0):</strong> The intersection of the x and y axes</li>
-                  <li><strong>X-axis:</strong> The horizontal number line</li>
-                  <li><strong>Y-axis:</strong> The vertical number line</li>
-                  <li><strong>Ordered pair (x, y):</strong> Coordinates of a point</li>
-                </ul>
-              </div>
-              <div className="border rounded-lg p-4">
-                <h5 className="font-semibold mb-2">Plotting Points</h5>
-                <ol className="space-y-1 text-sm list-decimal list-inside">
-                  <li>Start at the origin (0, 0)</li>
-                  <li>Move x units horizontally (right if positive, left if negative)</li>
-                  <li>Move y units vertically (up if positive, down if negative)</li>
-                  <li>Mark the point at your final position</li>
-                </ol>
-              </div>
+            <h4 className="font-semibold mb-4 text-primary">Quadrants</h4>
+            <p className="mb-4">The coordinate plane is divided into four quadrants:</p>
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <h5 className="font-semibold text-green-700 mb-2">Quadrant I</h5>
+                <p className="text-sm">Both x and y are positive (upper right)</p>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <h5 className="font-semibold text-blue-700 mb-2">Quadrant II</h5>
+                <p className="text-sm">x is negative, y is positive (upper left)</p>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+                <h5 className="font-semibold text-red-700 mb-2">Quadrant III</h5>
+                <p className="text-sm">Both x and y are negative (lower left)</p>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                <h5 className="font-semibold text-purple-700 mb-2">Quadrant IV</h5>
+                <p className="text-sm">x is positive, y is negative (lower right)</p>
+              </Card>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The quadrant system provides a quick way to identify the general location of a point based on the signs of its coordinates. This classification is useful in many applications, from graphing functions to analyzing physical systems. For example, in physics, the four quadrants of position-velocity graphs represent different states of motion: moving forward and speeding up (I), moving forward but slowing down (II), moving backward and speeding up (III), or moving backward but slowing down (IV). Points that lie exactly on an axis don't belong to any quadrant—they form the boundaries between quadrants. Understanding quadrants helps us develop spatial intuition and organize our thinking about coordinate relationships.
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-3">The Four Quadrants</h4>
-            <p className="mb-3">The coordinate axes divide the plane into four regions called quadrants:</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-green-50 rounded border border-green-200">
-                <h5 className="font-semibold text-green-700">Quadrant I</h5>
-                <p className="text-sm">x &gt; 0, y &gt; 0</p>
-                <p className="text-xs text-muted-foreground">(upper right)</p>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Working with Coordinates</h4>
+            <p className="mb-3">When solving problems involving coordinates, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Identify the given points:</strong> Note the coordinates of all relevant points</li>
+              <li><strong>Visualize the situation:</strong> Plot the points on a coordinate plane (mentally or on paper)</li>
+              <li><strong>Apply appropriate formulas:</strong> Use distance, midpoint, or other formulas as needed</li>
+              <li><strong>Interpret the results:</strong> Relate the numerical answer back to the geometric context</li>
+            </ol>
+          </div>
+
+          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <h4 className="font-semibold mb-3 text-blue-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Plot the points A(3, 4), B(-2, 1), and C(-1, -3) on a coordinate plane. Identify the quadrant in which each point lies.</strong></p>
+            
+            <div className="space-y-3 text-sm">
+              <div>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> Plot the points on a coordinate plane.</p>
+                <ul className="list-disc list-inside ml-4">
+                  <li>Point A(3, 4): Move 3 units right and 4 units up from the origin.</li>
+                  <li>Point B(-2, 1): Move 2 units left and 1 unit up from the origin.</li>
+                  <li>Point C(-1, -3): Move 1 unit left and 3 units down from the origin.</li>
+                </ul>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded border border-blue-200">
-                <h5 className="font-semibold text-blue-700">Quadrant II</h5>
-                <p className="text-sm">x &lt; 0, y &gt; 0</p>
-                <p className="text-xs text-muted-foreground">(upper left)</p>
+              
+              <div>
+                <p><strong>Step 2:</strong> Identify the quadrant for each point.</p>
+                <ul className="list-disc list-inside ml-4">
+                  <li>Point A(3, 4): Both coordinates are positive, so A is in Quadrant I.</li>
+                  <li>Point B(-2, 1): x is negative and y is positive, so B is in Quadrant II.</li>
+                  <li>Point C(-1, -3): x is negative and y is negative, so C is in Quadrant III.</li>
+                </ul>
               </div>
-              <div className="text-center p-4 bg-red-50 rounded border border-red-200">
-                <h5 className="font-semibold text-red-700">Quadrant III</h5>
-                <p className="text-sm">x &lt; 0, y &lt; 0</p>
-                <p className="text-xs text-muted-foreground">(lower left)</p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded border border-purple-200">
-                <h5 className="font-semibold text-purple-700">Quadrant IV</h5>
-                <p className="text-sm">x &gt; 0, y &lt; 0</p>
-                <p className="text-xs text-muted-foreground">(lower right)</p>
-              </div>
+              
+              <p className="font-semibold">Therefore, point A is in Quadrant I, point B is in Quadrant II, and point C is in Quadrant III.</p>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem illustrates the basic skill of plotting points and identifying quadrants. Notice how the signs of the coordinates immediately tell us which quadrant a point lies in. This connection between algebra (the signs of the coordinates) and geometry (the location in the plane) is a fundamental aspect of coordinate geometry. As you become more comfortable with the coordinate system, you'll develop the ability to visualize points and their relationships without always needing to draw them. This spatial intuition is valuable in more advanced mathematical and scientific contexts.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
@@ -136,165 +224,252 @@ export const CoordinateGeometryLesson: React.FC = () => {
       {/* Section 2: Distance and Midpoint Formulas */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Calculator className="h-5 w-5 mr-2" />
-            Section 2: Distance and Midpoint Formulas
-          </CardTitle>
+          <CardTitle className="text-2xl">Section 2: Distance and Midpoint Formulas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-3">The Distance Formula</h3>
-            <p className="mb-4">
-              The distance between two points (x₁, y₁) and (x₂, y₂) can be found using the distance formula, which is derived from the Pythagorean theorem:
+            <h3 className="text-xl font-semibold mb-4 text-primary">Distance Formula</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The distance between two points (x₁, y₁) and (x₂, y₂) is given by:
             </p>
-            <div className="bg-muted p-6 rounded-lg text-center border-2 border-blue-200">
-              <p className="text-xl font-bold mb-2">d = √[(x₂ - x₁)² + (y₂ - y₁)²]</p>
-              <p className="text-sm text-muted-foreground">where d is the distance between the two points</p>
+            <div className="text-center text-3xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              d = √[(x₂ - x₁)² + (y₂ - y₁)²]
             </div>
             
-            <Alert className="mt-4">
-              <Calculator className="h-4 w-4" />
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
               <AlertDescription>
-                <strong>Why This Works:</strong> The distance formula is a direct application of the Pythagorean theorem. If we draw a right triangle with the two points as opposite corners, the horizontal leg has length |x₂ - x₁|, the vertical leg has length |y₂ - y₁|, and the distance between the points is the length of the hypotenuse.
+                <strong>Teaching Moment:</strong> The distance formula is a direct application of the Pythagorean theorem. If we draw a right triangle with the two points as opposite corners, the distance between the points is the length of the hypotenuse. The legs of the triangle have lengths |x₂ - x₁| and |y₂ - y₁|, representing the horizontal and vertical distances between the points. Applying the Pythagorean theorem (a² + b² = c²) gives us the distance formula. This connection illustrates how coordinate geometry builds on earlier geometric principles. The distance formula is used in countless applications, from calculating the length of a path to determining how far apart objects are in physical or abstract spaces. It's also the foundation for more advanced concepts like the equation of a circle and the definition of an ellipse.
               </AlertDescription>
             </Alert>
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3">The Midpoint Formula</h3>
-            <p className="mb-4">
-              The midpoint of a line segment with endpoints (x₁, y₁) and (x₂, y₂) is the point that divides the segment into two equal parts:
+            <h3 className="text-xl font-semibold mb-4 text-primary">Midpoint Formula</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The midpoint of a line segment with endpoints (x₁, y₁) and (x₂, y₂) is given by:
             </p>
-            <div className="bg-muted p-6 rounded-lg text-center border-2 border-green-200">
-              <p className="text-xl font-bold mb-2">M = ((x₁ + x₂)/2, (y₁ + y₂)/2)</p>
-              <p className="text-sm text-muted-foreground">The midpoint is the average of the coordinates</p>
+            <div className="text-center text-3xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              M = ((x₁ + x₂)/2, (y₁ + y₂)/2)
             </div>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The midpoint formula represents the average of the coordinates of the two endpoints. This makes intuitive sense: to find a point halfway between two others, we take the average of their positions. The formula works because coordinates measure distances from the axes, and the average gives us a point that's equidistant from both endpoints. The midpoint formula is useful not only for finding the center of a line segment but also in more complex applications like finding the center of a circle given its diameter endpoints or locating the centroid of a triangle (by averaging the coordinates of the three vertices). The concept of averaging coordinates extends to finding points that divide a line segment in any ratio, not just in half.
+              </AlertDescription>
+            </Alert>
           </div>
 
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-            <h4 className="text-lg font-semibold mb-3">Worked Example</h4>
-            <p className="mb-3"><strong>Problem:</strong> Find the distance between points P(2, -3) and Q(-4, 5). Then find the midpoint of line segment PQ.</p>
+          <div className="mb-6">
+            <img 
+              src={distanceMidpoint}
+              alt="Distance and midpoint formulas visualization showing two points connected by a line segment with formulas"
+              className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
+            />
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Using Distance and Midpoint Formulas</h4>
+            <p className="mb-3">When solving problems involving distances and midpoints, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Identify the coordinates:</strong> Note the coordinates of all relevant points</li>
+              <li><strong>Choose the appropriate formula:</strong> Determine whether you need the distance or midpoint formula</li>
+              <li><strong>Substitute the values:</strong> Insert the coordinates into the formula</li>
+              <li><strong>Calculate the result:</strong> Perform the arithmetic operations</li>
+              <li><strong>Verify your answer:</strong> Check that your solution makes sense in the context of the problem</li>
+            </ol>
+          </div>
+
+          <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+            <h4 className="font-semibold mb-3 text-green-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Find the distance between the points P(2, -3) and Q(-4, 5). Then find the midpoint of the line segment PQ.</strong></p>
             
-            <div className="space-y-4">
+            <div className="space-y-3 text-sm">
               <div>
-                <p className="font-semibold">Step 1: Calculate the distance</p>
-                <div className="ml-4 space-y-1 text-sm">
-                  <p>d = √[(-4 - 2)² + (5 - (-3))²]</p>
-                  <p>d = √[(-6)² + (8)²]</p>
-                  <p>d = √[36 + 64] = √100 = 10 units</p>
-                </div>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> Identify the coordinates.</p>
+                <ul className="list-disc list-inside ml-4">
+                  <li>P(2, -3) and Q(-4, 5)</li>
+                </ul>
               </div>
               
               <div>
-                <p className="font-semibold">Step 2: Find the midpoint</p>
-                <div className="ml-4 space-y-1 text-sm">
-                  <p>M = ((2 + (-4))/2, (-3 + 5)/2)</p>
-                  <p>M = ((-2)/2, (2)/2) = (-1, 1)</p>
-                </div>
+                <p><strong>Step 2:</strong> Apply the distance formula.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>d = √[(x₂ - x₁)² + (y₂ - y₁)²]</li>
+                  <li>d = √[(-4 - 2)² + (5 - (-3))²]</li>
+                  <li>d = √[(-6)² + 8²]</li>
+                  <li>d = √[36 + 64]</li>
+                  <li>d = √100</li>
+                  <li>d = 10</li>
+                </ul>
               </div>
               
-              <p className="font-semibold text-green-700">Answer: Distance = 10 units, Midpoint = (-1, 1)</p>
+              <div>
+                <p><strong>Step 3:</strong> Apply the midpoint formula.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>M = ((x₁ + x₂)/2, (y₁ + y₂)/2)</li>
+                  <li>M = ((2 + (-4))/2, (-3 + 5)/2)</li>
+                  <li>M = (-2/2, 2/2)</li>
+                  <li>M = (-1, 1)</li>
+                </ul>
+              </div>
+              
+              <p className="font-semibold">Therefore, the distance between points P and Q is 10 units, and the midpoint of line segment PQ is (-1, 1).</p>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem demonstrates the straightforward application of the distance and midpoint formulas. Notice how we carefully substituted the coordinates, paying attention to signs. The distance formula always gives a positive result (the square root of a sum of squares), which makes sense because distance is always positive. The midpoint coordinates can be positive, negative, or zero, depending on the locations of the endpoints. In this case, the midpoint (-1, 1) lies in Quadrant II, even though one endpoint is in Quadrant IV and the other is in Quadrant II. This illustrates how the midpoint doesn't necessarily lie in the same quadrant as either endpoint.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
 
-      {/* Section 3: Lines in Coordinate Geometry */}
+      {/* Section 3: Equations of Lines */}
       <Card>
         <CardHeader>
-          <CardTitle>Section 3: Lines in Coordinate Geometry</CardTitle>
+          <CardTitle className="text-2xl">Section 3: Equations of Lines</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-3">Slope of a Line</h3>
-            <p className="mb-4">
-              The <strong>slope</strong> of a line measures how steeply it rises or falls as we move from left to right. For a line passing through points (x₁, y₁) and (x₂, y₂), the slope is:
+            <h3 className="text-xl font-semibold mb-4 text-primary">Slope of a Line</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The slope of a line passing through points (x₁, y₁) and (x₂, y₂) is given by:
             </p>
-            <div className="bg-muted p-4 rounded-lg text-center border-2 border-purple-200">
-              <p className="text-lg font-bold mb-2">m = (y₂ - y₁) / (x₂ - x₁) = Δy / Δx</p>
-              <p className="text-sm text-muted-foreground">"rise over run"</p>
+            <div className="text-center text-3xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              m = (y₂ - y₁) / (x₂ - x₁)
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              <div className="border rounded-lg p-3">
-                <h4 className="font-semibold mb-2">Types of Slope</h4>
-                <ul className="space-y-1 text-sm">
-                  <li>• <strong>Positive slope:</strong> Line rises (goes up from left to right)</li>
-                  <li>• <strong>Negative slope:</strong> Line falls (goes down from left to right)</li>
-                  <li>• <strong>Zero slope:</strong> Horizontal line</li>
-                  <li>• <strong>Undefined slope:</strong> Vertical line</li>
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The slope measures the steepness and direction of a line—it tells us how much the y-coordinate changes for a given change in the x-coordinate. A positive slope means the line rises as x increases, while a negative slope means it falls. The larger the absolute value of the slope, the steeper the line. The slope formula represents the ratio of "rise" (vertical change) to "run" (horizontal change), which is why it's often remembered as "rise over run." This concept connects to rates of change in calculus and to proportional relationships in algebra. It's worth noting that vertical lines have undefined slope (since the denominator would be zero), while horizontal lines have zero slope. These special cases remind us that the slope is fundamentally about the relationship between changes in x and changes in y.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div className="mb-6">
+            <img 
+              src={lineEquations}
+              alt="Linear equations and slope visualization showing different forms of line equations"
+              className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
+            />
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4 text-primary">Forms of Line Equations</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <h5 className="font-semibold text-blue-700 mb-3">1. Slope-Intercept Form:</h5>
+                <div className="text-center text-2xl font-bold text-blue-800 mb-3 p-3 bg-white rounded">
+                  y = mx + b
+                </div>
+                <ul className="text-sm space-y-1">
+                  <li>• <strong>m</strong> is the slope of the line</li>
+                  <li>• <strong>b</strong> is the y-intercept (the y-coordinate where the line crosses the y-axis)</li>
                 </ul>
-              </div>
-              <div className="border rounded-lg p-3">
-                <h4 className="font-semibold mb-2">Slope Relationships</h4>
-                <ul className="space-y-1 text-sm">
-                  <li>• <strong>Parallel lines:</strong> Same slope (m₁ = m₂)</li>
-                  <li>• <strong>Perpendicular lines:</strong> Slopes are negative reciprocals (m₁ × m₂ = -1)</li>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <h5 className="font-semibold text-green-700 mb-3">2. Point-Slope Form:</h5>
+                <div className="text-center text-2xl font-bold text-green-800 mb-3 p-3 bg-white rounded">
+                  y - y₁ = m(x - x₁)
+                </div>
+                <ul className="text-sm space-y-1">
+                  <li>• <strong>m</strong> is the slope of the line</li>
+                  <li>• <strong>(x₁, y₁)</strong> is a point on the line</li>
                 </ul>
-              </div>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                <h5 className="font-semibold text-purple-700 mb-3">3. Standard Form:</h5>
+                <div className="text-center text-2xl font-bold text-purple-800 mb-3 p-3 bg-white rounded">
+                  Ax + By + C = 0
+                </div>
+                <ul className="text-sm space-y-1">
+                  <li>• <strong>A</strong>, <strong>B</strong>, and <strong>C</strong> are constants</li>
+                  <li>• A and B are not both zero</li>
+                </ul>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+                <h5 className="font-semibold text-orange-700 mb-3">4. Two-Point Form:</h5>
+                <div className="text-center text-xl font-bold text-orange-800 mb-3 p-3 bg-white rounded">
+                  (y - y₁) / (y₂ - y₁) = (x - x₁) / (x₂ - x₁)
+                </div>
+                <ul className="text-sm space-y-1">
+                  <li>• <strong>(x₁, y₁)</strong> and <strong>(x₂, y₂)</strong> are two distinct points on the line</li>
+                </ul>
+              </Card>
             </div>
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3">Equations of Lines</h3>
-            <div className="grid gap-6">
-              <div className="border rounded-lg p-4 border-blue-200 bg-blue-50">
-                <h4 className="font-semibold text-blue-700 mb-2">1. Slope-Intercept Form</h4>
-                <div className="bg-white p-3 rounded text-center mb-2 font-mono text-lg">
-                  <strong>y = mx + b</strong>
-                </div>
-                <ul className="text-sm space-y-1">
-                  <li>• <strong>m</strong> is the slope of the line</li>
-                  <li>• <strong>b</strong> is the y-intercept (where line crosses y-axis)</li>
-                  <li>• Most useful for graphing and finding intercepts</li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4 border-green-200 bg-green-50">
-                <h4 className="font-semibold text-green-700 mb-2">2. Point-Slope Form</h4>
-                <div className="bg-white p-3 rounded text-center mb-2 font-mono text-lg">
-                  <strong>y - y₁ = m(x - x₁)</strong>
-                </div>
-                <ul className="text-sm space-y-1">
-                  <li>• <strong>m</strong> is the slope</li>
-                  <li>• <strong>(x₁, y₁)</strong> is a known point on the line</li>
-                  <li>• Best when you know a point and the slope</li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4 border-red-200 bg-red-50">
-                <h4 className="font-semibold text-red-700 mb-2">3. Standard Form</h4>
-                <div className="bg-white p-3 rounded text-center mb-2 font-mono text-lg">
-                  <strong>Ax + By = C</strong>
-                </div>
-                <ul className="text-sm space-y-1">
-                  <li>• <strong>A</strong>, <strong>B</strong>, and <strong>C</strong> are constants (A and B not both zero)</li>
-                  <li>• Useful for finding x and y intercepts quickly</li>
-                  <li>• Often preferred for linear systems</li>
-                </ul>
-              </div>
+            <h4 className="font-semibold mb-4 text-primary">Parallel and Perpendicular Lines</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-4 bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200">
+                <h5 className="font-semibold text-cyan-700 mb-2">Parallel Lines</h5>
+                <p className="text-sm">Two lines are parallel if and only if they have the same slope or are both vertical.</p>
+              </Card>
+              <Card className="p-4 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+                <h5 className="font-semibold text-red-700 mb-2">Perpendicular Lines</h5>
+                <p className="text-sm">Two lines are perpendicular if and only if the product of their slopes is -1, or one is vertical and the other is horizontal.</p>
+              </Card>
             </div>
           </div>
 
+          <div>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Working with Line Equations</h4>
+            <p className="mb-3">When solving problems involving line equations, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Identify what is given:</strong> Note the slope, points, or other information about the line</li>
+              <li><strong>Determine what form of the line equation is most appropriate:</strong> Choose based on the given information and what you need to find</li>
+              <li><strong>Substitute the values:</strong> Insert the known values into the appropriate formula</li>
+              <li><strong>Solve for any unknown parameters:</strong> Find the values of constants like m, b, A, B, or C</li>
+              <li><strong>Write the final equation:</strong> Express the line equation in the required form</li>
+            </ol>
+          </div>
+
           <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-            <h4 className="text-lg font-semibold mb-3">Example: Finding the Equation of a Line</h4>
-            <p className="mb-3"><strong>Problem:</strong> Find the equation of the line passing through points (1, 3) and (4, 9).</p>
+            <h4 className="font-semibold mb-3 text-yellow-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Find the equation of the line passing through the points (2, 3) and (4, 7). Express your answer in slope-intercept form.</strong></p>
             
-            <div className="space-y-3">
+            <div className="space-y-3 text-sm">
               <div>
-                <p className="font-semibold">Step 1: Find the slope</p>
-                <p className="text-sm ml-4">m = (9 - 3)/(4 - 1) = 6/3 = 2</p>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> Calculate the slope using the slope formula.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>m = (y₂ - y₁) / (x₂ - x₁)</li>
+                  <li>m = (7 - 3) / (4 - 2)</li>
+                  <li>m = 4 / 2</li>
+                  <li>m = 2</li>
+                </ul>
               </div>
               
               <div>
-                <p className="font-semibold">Step 2: Use point-slope form</p>
-                <p className="text-sm ml-4">y - 3 = 2(x - 1)</p>
-                <p className="text-sm ml-4">y - 3 = 2x - 2</p>
-                <p className="text-sm ml-4">y = 2x + 1</p>
+                <p><strong>Step 2:</strong> Use the point-slope form with one of the given points, say (2, 3).</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>y - y₁ = m(x - x₁)</li>
+                  <li>y - 3 = 2(x - 2)</li>
+                  <li>y - 3 = 2x - 4</li>
+                  <li>y = 2x - 4 + 3</li>
+                  <li>y = 2x - 1</li>
+                </ul>
               </div>
               
-              <p className="font-semibold text-green-700">Answer: y = 2x + 1</p>
+              <p className="font-semibold">Therefore, the equation of the line in slope-intercept form is y = 2x - 1.</p>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem demonstrates the process of finding a line equation from two points. We first calculated the slope using the slope formula, then used the point-slope form to find the equation. Finally, we rearranged to get the slope-intercept form. Notice that we could have used either of the given points in the point-slope form—the resulting equation would be the same. This consistency reflects the fact that a unique line passes through any two distinct points. The slope-intercept form y = 2x - 1 tells us that the line has a slope of 2 (rises 2 units for every 1 unit to the right) and crosses the y-axis at the point (0, -1). This visual interpretation helps connect the algebraic equation to the geometric reality of the line.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
@@ -302,190 +477,433 @@ export const CoordinateGeometryLesson: React.FC = () => {
       {/* Section 4: Circles in Coordinate Geometry */}
       <Card>
         <CardHeader>
-          <CardTitle>Section 4: Circles in Coordinate Geometry</CardTitle>
+          <CardTitle className="text-2xl">Section 4: Circles in Coordinate Geometry</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-3">Equation of a Circle</h3>
-            <p className="mb-4">
-              A circle is the set of all points that are a fixed distance (radius) from a center point. The standard form equation of a circle with center (h, k) and radius r is:
+            <h3 className="text-xl font-semibold mb-4 text-primary">Equation of a Circle</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The standard form of the equation of a circle with center (h, k) and radius r is:
             </p>
-            <div className="bg-muted p-6 rounded-lg text-center border-2 border-indigo-200">
-              <p className="text-xl font-bold mb-2">(x - h)² + (y - k)² = r²</p>
-              <p className="text-sm text-muted-foreground">Standard form of a circle</p>
+            <div className="text-center text-3xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              (x - h)² + (y - k)² = r²
             </div>
+            <p className="text-lg leading-relaxed mb-4">
+              If the center is at the origin (0, 0), the equation simplifies to:
+            </p>
+            <div className="text-center text-3xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              x² + y² = r²
+            </div>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The circle equation is a direct application of the distance formula. It states that a point (x, y) is on the circle if and only if its distance from the center (h, k) equals the radius r. This definition translates the geometric concept of a circle (all points equidistant from a center) into an algebraic equation. The standard form clearly shows the center and radius, making it easy to graph the circle and understand its position and size. The special case of a circle centered at the origin simplifies the equation, but the underlying principle remains the same. The circle equation is fundamental in many applications, from designing circular structures to analyzing orbital motion in physics. It also serves as the simplest example of a conic section, connecting to ellipses, parabolas, and hyperbolas.
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-3">Key Components</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="border rounded-lg p-4">
-                <h5 className="font-semibold mb-2">Reading the Equation</h5>
-                <ul className="space-y-1 text-sm">
-                  <li>• <strong>(h, k)</strong> is the center of the circle</li>
-                  <li>• <strong>r</strong> is the radius of the circle</li>
-                  <li>• If center is at origin: x² + y² = r²</li>
-                </ul>
-              </div>
-              <div className="border rounded-lg p-4">
-                <h5 className="font-semibold mb-2">General Form</h5>
-                <p className="text-sm mb-2">x² + y² + Dx + Ey + F = 0</p>
-                <p className="text-xs text-muted-foreground">Can be converted to standard form by completing the square</p>
-              </div>
+            <h4 className="font-semibold mb-4 text-primary">General Form of the Equation of a Circle</h4>
+            <p className="text-lg leading-relaxed mb-4">
+              The general form of the equation of a circle is:
+            </p>
+            <div className="text-center text-2xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              x² + y² + 2gx + 2fy + c = 0
             </div>
+            <p className="mb-4">where the center is at (-g, -f) and the radius is √(g² + f² - c).</p>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The general form is obtained by expanding the standard form and collecting like terms. To convert from general to standard form, you complete the square for both x and y terms. This process of "completing the square" is a fundamental algebraic technique that allows us to identify the center and radius from the general equation. For example, x² + y² + 6x - 4y + 9 = 0 can be rewritten as (x + 3)² + (y - 2)² = 4, revealing a circle with center (-3, 2) and radius 2. The ability to move between these forms is crucial for solving problems involving circles in coordinate geometry. The general form is often more convenient for algebraic manipulations, while the standard form provides clearer geometric insight.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Working with Circle Equations</h4>
+            <p className="mb-3">When working with equations of circles, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Identify the form of the equation:</strong> Determine if it's in standard form, general form, or needs to be converted</li>
+              <li><strong>Extract the key information:</strong> Find the center and radius from the equation</li>
+              <li><strong>Apply geometric principles:</strong> Use the center and radius to solve the problem</li>
+              <li><strong>Verify your answer:</strong> Check that your solution satisfies all conditions of the problem</li>
+            </ol>
           </div>
 
           <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-            <h4 className="text-lg font-semibold mb-3">Circle Example</h4>
-            <p className="mb-3"><strong>Problem:</strong> Write the equation of a circle with center (2, -3) and radius 5.</p>
+            <h4 className="font-semibold mb-3 text-purple-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Find the center and radius of the circle with equation x² + y² - 6x + 4y - 12 = 0.</strong></p>
             
-            <div className="space-y-2">
-              <p className="font-semibold">Solution:</p>
-              <p className="text-sm ml-4">Center: (h, k) = (2, -3), so h = 2 and k = -3</p>
-              <p className="text-sm ml-4">Radius: r = 5, so r² = 25</p>
-              <p className="text-sm ml-4">Substitute into standard form: (x - 2)² + (y - (-3))² = 25</p>
-              <p className="font-semibold text-purple-700 ml-4">Answer: (x - 2)² + (y + 3)² = 25</p>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> Rearrange to group x and y terms.</p>
+                <p className="ml-4">x² - 6x + y² + 4y - 12 = 0</p>
+              </div>
+              
+              <div>
+                <p><strong>Step 2:</strong> Complete the square for x terms.</p>
+                <p className="ml-4">(x² - 6x + 9) + y² + 4y - 12 - 9 = 0</p>
+                <p className="ml-4">(x - 3)² + y² + 4y - 21 = 0</p>
+              </div>
+              
+              <div>
+                <p><strong>Step 3:</strong> Complete the square for y terms.</p>
+                <p className="ml-4">(x - 3)² + (y² + 4y + 4) - 21 - 4 = 0</p>
+                <p className="ml-4">(x - 3)² + (y + 2)² - 25 = 0</p>
+                <p className="ml-4">(x - 3)² + (y + 2)² = 25</p>
+              </div>
+              
+              <div>
+                <p><strong>Step 4:</strong> Identify the center and radius from the standard form.</p>
+                <ul className="list-disc list-inside ml-4">
+                  <li>Center: (3, -2)</li>
+                  <li>Radius: 5</li>
+                </ul>
+              </div>
+              
+              <p className="font-semibold">Therefore, the circle has center (3, -2) and radius 5.</p>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem illustrates the technique of completing the square to convert a circle equation from general to standard form. This is a powerful method in coordinate geometry that reveals the geometric properties (center and radius) from the algebraic representation. Notice how we carefully tracked the constants during the completion of squares, ensuring that the equation remained equivalent throughout the transformations. The ability to move fluently between algebraic and geometric interpretations is a hallmark of mathematical thinking. In this case, we transformed an equation that didn't immediately reveal its geometric meaning into one that clearly describes a circle with center (3, -2) and radius 5.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
 
-      {/* Section 5: Applications and Problem Solving */}
+      {/* Section 5: Conic Sections */}
       <Card>
         <CardHeader>
-          <CardTitle>Section 5: Applications and Problem Solving</CardTitle>
+          <CardTitle className="text-2xl">Section 5: Conic Sections</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <h3 className="text-xl font-semibold mb-3">Real-World Applications</h3>
-            <p className="mb-4">Coordinate geometry has numerous practical applications:</p>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="border rounded-lg p-4 border-green-200 bg-green-50">
-                <h4 className="font-semibold text-green-700 mb-2">Navigation and GPS</h4>
-                <ul className="text-sm space-y-1">
-                  <li>• Latitude and longitude coordinates</li>
-                  <li>• Distance calculations between locations</li>
-                  <li>• Route optimization</li>
-                </ul>
+          <div className="mb-6">
+            <img 
+              src={conicSections}
+              alt="Conic sections showing circle, parabola, ellipse, and hyperbola with their equations"
+              className="w-full max-w-4xl mx-auto object-contain rounded-lg shadow-lg"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+              <h3 className="text-xl font-semibold text-blue-700 mb-4">Parabolas</h3>
+              <p className="mb-4 text-sm">A parabola is the set of all points in a plane that are equidistant from a fixed point (the focus) and a fixed line (the directrix).</p>
+              
+              <div className="space-y-3">
+                <div className="bg-white p-3 rounded border">
+                  <p className="font-semibold mb-1">Standard forms:</p>
+                  <ul className="text-sm space-y-1">
+                    <li>• y = ax² (opens upward if a > 0, downward if a < 0)</li>
+                    <li>• x = ay² (opens rightward if a > 0, leftward if a < 0)</li>
+                  </ul>
+                </div>
               </div>
               
-              <div className="border rounded-lg p-4 border-blue-200 bg-blue-50">
-                <h4 className="font-semibold text-blue-700 mb-2">Computer Graphics</h4>
-                <ul className="text-sm space-y-1">
-                  <li>• Positioning objects on screen</li>
-                  <li>• Animation paths</li>
-                  <li>• 3D modeling and rendering</li>
-                </ul>
+              <Alert className="mt-4">
+                <Lightbulb className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Teaching Moment:</strong> Parabolas are fascinating curves with numerous applications. The reflective property of parabolas—that light rays emanating from the focus reflect off the parabola in parallel lines—is used in the design of flashlights, satellite dishes, and telescope mirrors. In physics, the path of a projectile under constant gravity follows a parabolic trajectory. The standard form y = ax² represents the simplest parabola, with its vertex at the origin and its axis of symmetry along the y-axis. The coefficient a determines both the direction of opening and the "width" of the parabola—larger |a| values create narrower parabolas.
+                </AlertDescription>
+              </Alert>
+            </Card>
+
+            <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+              <h3 className="text-xl font-semibold text-green-700 mb-4">Ellipses</h3>
+              <p className="mb-4 text-sm">An ellipse is the set of all points in a plane such that the sum of the distances from any point on the ellipse to two fixed points (the foci) is constant.</p>
+              
+              <div className="space-y-3">
+                <div className="bg-white p-3 rounded border">
+                  <p className="font-semibold mb-1">Standard form:</p>
+                  <p className="text-sm">x²/a² + y²/b² = 1</p>
+                  <p className="text-xs text-muted-foreground">where a and b are the semi-major and semi-minor axes</p>
+                </div>
               </div>
               
-              <div className="border rounded-lg p-4 border-red-200 bg-red-50">
-                <h4 className="font-semibold text-red-700 mb-2">Architecture and Engineering</h4>
-                <ul className="text-sm space-y-1">
-                  <li>• Building design and blueprints</li>
-                  <li>• Structural analysis</li>
-                  <li>• Surveying and mapping</li>
-                </ul>
+              <Alert className="mt-4">
+                <Lightbulb className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Teaching Moment:</strong> Ellipses appear throughout nature and human design. Planetary orbits are elliptical, with the sun at one focus—a discovery made by Johannes Kepler that revolutionized astronomy. The "whispering gallery" effect, where sound travels unusually well between the foci of an elliptical room, is used in architectural acoustics. In the standard form x²/a² + y²/b² = 1, the values a and b determine the shape of the ellipse: if a > b, the ellipse is stretched horizontally; if b > a, it's stretched vertically; if a = b, it's a circle (a special case of an ellipse).
+                </AlertDescription>
+              </Alert>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <Card className="p-6 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+              <h3 className="text-xl font-semibold text-red-700 mb-4">Hyperbolas</h3>
+              <p className="mb-4 text-sm">A hyperbola is the set of all points in a plane such that the absolute difference of the distances from any point on the hyperbola to two fixed points (the foci) is constant.</p>
+              
+              <div className="space-y-3">
+                <div className="bg-white p-3 rounded border">
+                  <p className="font-semibold mb-1">Standard forms:</p>
+                  <ul className="text-sm space-y-1">
+                    <li>• x²/a² - y²/b² = 1 (opens left and right)</li>
+                    <li>• y²/a² - x²/b² = 1 (opens up and down)</li>
+                  </ul>
+                </div>
               </div>
               
-              <div className="border rounded-lg p-4 border-purple-200 bg-purple-50">
-                <h4 className="font-semibold text-purple-700 mb-2">Data Analysis</h4>
-                <ul className="text-sm space-y-1">
-                  <li>• Scatter plots and trend lines</li>
-                  <li>• Statistical modeling</li>
-                  <li>• Scientific research</li>
-                </ul>
-              </div>
-            </div>
+              <Alert className="mt-4">
+                <Lightbulb className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Teaching Moment:</strong> Hyperbolas have distinctive properties that make them useful in various applications. The reflective property of hyperbolas—that rays emanating from one focus reflect toward the other focus—is used in certain telescope designs. Hyperbolic navigation was a system used before GPS, based on the principle that the difference in distances from two fixed points determines a hyperbola. In the standard form x²/a² - y²/b² = 1, the hyperbola has its transverse axis along the x-axis and opens to the left and right. The asymptotes of this hyperbola are the lines y = ±(b/a)x, which the curves approach but never touch as x approaches infinity.
+                </AlertDescription>
+              </Alert>
+            </Card>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-3">Problem-Solving Strategy</h4>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li><strong>Identify what you're looking for:</strong> Distance, midpoint, slope, equation, etc.</li>
-                <li><strong>Organize given information:</strong> List coordinates, known values, and constraints</li>
-                <li><strong>Choose appropriate formulas:</strong> Select the right tool for the job</li>
-                <li><strong>Substitute carefully:</strong> Pay attention to signs and order of coordinates</li>
-                <li><strong>Simplify and solve:</strong> Use algebra to find the answer</li>
-                <li><strong>Check your answer:</strong> Does it make sense geometrically?</li>
-              </ol>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Working with Conic Sections</h4>
+            <p className="mb-3">When solving problems involving conic sections, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Identify the type of conic section:</strong> Determine if it's a parabola, ellipse, or hyperbola based on the equation or given information</li>
+              <li><strong>Convert to standard form if necessary:</strong> Rearrange the equation to match the standard form for that conic section</li>
+              <li><strong>Identify key features:</strong> Find the center, vertices, foci, or other important points</li>
+              <li><strong>Apply relevant formulas or properties:</strong> Use the specific characteristics of the conic section to solve the problem</li>
+              <li><strong>Verify your answer:</strong> Check that your solution satisfies all conditions of the problem</li>
+            </ol>
+          </div>
+
+          <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+            <h4 className="font-semibold mb-3 text-indigo-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Identify the type of conic section represented by the equation 4x² + 9y² = 36, and find its key features.</strong></p>
+            
+            <div className="space-y-3 text-sm">
+              <div>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> Rearrange the equation to standard form.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>4x² + 9y² = 36</li>
+                  <li>x²/(36/4) + y²/(36/9) = 1</li>
+                  <li>x²/9 + y²/4 = 1</li>
+                </ul>
+              </div>
+              
+              <div>
+                <p><strong>Step 2:</strong> Identify the type of conic section.</p>
+                <p className="ml-4">This is in the form x²/a² + y²/b² = 1, which represents an ellipse.</p>
+              </div>
+              
+              <div>
+                <p><strong>Step 3:</strong> Identify the key features.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>a² = 9, so a = 3</li>
+                  <li>b² = 4, so b = 2</li>
+                  <li>The semi-major axis is a = 3, and the semi-minor axis is b = 2</li>
+                  <li>The ellipse is centered at the origin (0, 0)</li>
+                  <li>The ellipse is stretched horizontally (since a > b)</li>
+                  <li>The vertices are at (±a, 0) = (±3, 0)</li>
+                  <li>The co-vertices are at (0, ±b) = (0, ±2)</li>
+                  <li>To find the foci, calculate c = √(a² - b²) = √(9 - 4) = √5</li>
+                  <li>The foci are at (±c, 0) = (±√5, 0)</li>
+                </ul>
+              </div>
+              
+              <p className="font-semibold">Therefore, the equation represents an ellipse with center (0, 0), semi-major axis 3, semi-minor axis 2, vertices at (±3, 0), co-vertices at (0, ±2), and foci at (±√5, 0).</p>
             </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem demonstrates how to analyze a conic section equation to identify its type and key features. We recognized it as an ellipse by comparing it to the standard form x²/a² + y²/b² = 1. The values of a and b tell us about the shape and size of the ellipse, while the absence of linear terms in x and y indicates that the center is at the origin. The fact that a > b means the ellipse is stretched horizontally rather than vertically. The locations of the vertices, co-vertices, and foci are determined by the values of a, b, and c. Understanding these features helps us visualize the ellipse and analyze its properties. This approach of identifying standard forms and extracting geometric meaning from algebraic expressions is central to coordinate geometry.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Section 6: Applications of Coordinate Geometry */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Section 6: Applications of Coordinate Geometry</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Finding Areas of Polygons</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              The area of a polygon can be calculated using the coordinates of its vertices. For a polygon with vertices (x₁, y₁), (x₂, y₂), ..., (xₙ, yₙ) (in order), the area is given by:
+            </p>
+            <div className="text-center text-lg font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              Area = (1/2) × |[(x₁y₂ - x₂y₁) + (x₂y₃ - x₃y₂) + ... + (xₙy₁ - x₁yₙ)]|
+            </div>
+            <p className="mb-4">This is known as the <strong>Shoelace formula</strong> or the <strong>Surveyor's formula</strong>.</p>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The Shoelace formula provides an elegant way to calculate the area of any simple polygon (one without self-intersections) using only the coordinates of its vertices. The name "Shoelace" comes from the crisscrossing pattern of multiplications that resembles lacing a shoe. This formula is particularly useful in computer graphics, geographic information systems (GIS), and surveying, where polygonal areas need to be calculated from coordinate data. The formula works by dividing the polygon into triangles and summing their signed areas, which is why we take the absolute value of the final result. This approach illustrates how coordinate geometry can simplify complex geometric calculations by translating them into systematic algebraic operations.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Determining if Points are Collinear</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              Three or more points are collinear (lie on the same straight line) if and only if the slope between any two points is the same.
+            </p>
+            <p className="mb-4">
+              For three points (x₁, y₁), (x₂, y₂), and (x₃, y₃), they are collinear if:
+            </p>
+            <div className="text-center text-lg font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              (y₂ - y₁) / (x₂ - x₁) = (y₃ - y₂) / (x₃ - x₂)
+            </div>
+            <p className="mb-4">Alternatively, three points are collinear if the area of the triangle formed by them is zero.</p>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Collinearity is a fundamental concept in geometry, and coordinate geometry provides multiple ways to test for it. The slope-based approach checks if the rate of change between consecutive points is constant, which is true only if they lie on the same line. The area-based approach uses the fact that three collinear points form a "degenerate" triangle with zero area. These methods extend to checking if multiple points lie on the same line, which is useful in pattern recognition, computer vision, and data analysis. For example, in image processing, detecting collinear points can help identify straight edges in objects. The ability to translate the geometric property of collinearity into algebraic conditions exemplifies the power of coordinate geometry in solving practical problems.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Checking if a Point Lies Inside a Polygon</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              To determine if a point lies inside a polygon, we can use the ray casting algorithm:
+            </p>
+            <ol className="list-decimal list-inside space-y-2 ml-4 mb-4">
+              <li>Draw a ray (half-line) from the point in any fixed direction.</li>
+              <li>Count the number of times the ray intersects the edges of the polygon.</li>
+              <li>If the count is odd, the point is inside the polygon; if even, it's outside.</li>
+            </ol>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> The point-in-polygon problem is fundamental in computer graphics, geographic information systems, and computational geometry. The ray casting algorithm, also known as the even-odd rule, provides an elegant solution based on a simple principle: if you start outside a region and cross its boundary an odd number of times, you end up inside; if you cross it an even number of times, you end up outside. This approach works for any simple polygon, whether convex or concave. In practice, implementations need to handle special cases, like when the ray passes exactly through a vertex or runs along an edge. Alternative methods include the winding number algorithm and barycentric coordinates for triangles. These techniques illustrate how coordinate geometry enables computers to perform spatial reasoning tasks that are intuitive for humans but need precise mathematical formulation for machines.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-3 text-primary">Problem-Solving Approach: Applying Coordinate Geometry</h4>
+            <p className="mb-3">When applying coordinate geometry to solve problems, follow these steps:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-4">
+              <li><strong>Represent the geometric situation using coordinates:</strong> Assign coordinates to relevant points, possibly using a convenient coordinate system</li>
+              <li><strong>Translate geometric properties into algebraic conditions:</strong> Express relationships like distance, collinearity, or area in terms of coordinates</li>
+              <li><strong>Apply appropriate formulas and techniques:</strong> Use the tools of coordinate geometry to analyze the situation</li>
+              <li><strong>Interpret the results geometrically:</strong> Translate the algebraic conclusions back into geometric insights</li>
+            </ol>
+          </div>
+
+          <div className="bg-teal-50 p-6 rounded-lg border border-teal-200">
+            <h4 className="font-semibold mb-3 text-teal-800">Example Problem:</h4>
+            <p className="mb-3"><strong>Find the area of the triangle with vertices A(1, 2), B(4, 3), and C(2, 5).</strong></p>
+            
+            <div className="space-y-3 text-sm">
+              <div>
+                <p><strong>Solution:</strong></p>
+                <p><strong>Step 1:</strong> We can use the Shoelace formula to find the area.</p>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>Area = (1/2) × |[(x₁y₂ - x₂y₁) + (x₂y₃ - x₃y₂) + (x₃y₁ - x₁y₃)]|</li>
+                  <li>Area = (1/2) × |[(1 × 3 - 4 × 2) + (4 × 5 - 2 × 3) + (2 × 2 - 1 × 5)]|</li>
+                  <li>Area = (1/2) × |[(3 - 8) + (20 - 6) + (4 - 5)]|</li>
+                  <li>Area = (1/2) × |[-5 + 14 - 1]|</li>
+                  <li>Area = (1/2) × |8|</li>
+                  <li>Area = 4</li>
+                </ul>
+              </div>
+              
+              <p className="font-semibold">Therefore, the area of the triangle is 4 square units.</p>
+            </div>
+            
+            <Alert className="mt-4">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> This problem demonstrates the application of the Shoelace formula to calculate the area of a triangle. While we could have used other methods (like the formula Area = (1/2) × base × height), the Shoelace formula works directly with the coordinates without requiring additional constructions. Notice how we carefully tracked the terms in the formula, making sure to match each x-coordinate with the next vertex's y-coordinate in the cyclic order. The absolute value ensures that we get a positive area regardless of the orientation of the vertices (clockwise or counterclockwise). This coordinate-based approach is particularly valuable when working with irregular polygons or when the vertices are given as coordinates rather than as distances and angles.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
 
       {/* Practice Problems */}
-      <Card className="bg-green-50 border-green-200">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-green-800 flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Calculator className="h-8 w-8 text-primary" />
             Practice Problems
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">Problem 1: Plotting Points</h4>
-              <p className="text-sm mb-2">Plot the points A(3, 4), B(-2, 1), and C(-1, -3) on a coordinate plane. Identify the quadrant in which each point lies.</p>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Solution:</strong> A(3, 4) is in Quadrant I (both coordinates positive)</p>
-                <p>B(-2, 1) is in Quadrant II (x negative, y positive)</p>
-                <p>C(-1, -3) is in Quadrant III (both coordinates negative)</p>
-              </div>
+          <div className="space-y-4">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <p className="font-semibold mb-2">1. Distance and Midpoint</p>
+              <p className="text-sm">Find the distance between the points A(3, -2) and B(-1, 5).</p>
             </div>
             
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">Problem 2: Distance and Midpoint</h4>
-              <p className="text-sm mb-2">Find the distance between points A(1, 2) and B(4, 6), and find their midpoint.</p>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Distance:</strong> d = √[(4-1)² + (6-2)²] = √[9 + 16] = √25 = 5</p>
-                <p><strong>Midpoint:</strong> M = ((1+4)/2, (2+6)/2) = (2.5, 4)</p>
-              </div>
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+              <p className="font-semibold mb-2">2. Midpoint Formula</p>
+              <p className="text-sm">Find the midpoint of the line segment with endpoints P(2, 8) and Q(-4, -6).</p>
             </div>
             
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">Problem 3: Line Equations</h4>
-              <p className="text-sm mb-2">Find the equation of the line passing through points (2, 3) and (4, 7). Express your answer in slope-intercept form.</p>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Slope:</strong> m = (7-3)/(4-2) = 4/2 = 2</p>
-                <p><strong>Using point-slope form:</strong> y - 3 = 2(x - 2)</p>
-                <p><strong>Slope-intercept form:</strong> y = 2x - 1</p>
-              </div>
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-200">
+              <p className="font-semibold mb-2">3. Line Equations</p>
+              <p className="text-sm">Find the equation of the line passing through the point (3, 4) with slope -2. Express your answer in slope-intercept form.</p>
             </div>
-
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">Problem 4: Parallel and Perpendicular Lines</h4>
-              <p className="text-sm mb-2">Determine if the lines y = 2x + 1 and y = -½x + 3 are parallel, perpendicular, or neither.</p>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Slopes:</strong> m₁ = 2, m₂ = -½</p>
-                <p><strong>Check:</strong> m₁ × m₂ = 2 × (-½) = -1</p>
-                <p><strong>Answer:</strong> Perpendicular (slopes multiply to -1)</p>
-              </div>
+            
+            <div className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
+              <p className="font-semibold mb-2">4. Collinearity</p>
+              <p className="text-sm">Determine if the points A(1, 3), B(4, 9), and C(7, 15) are collinear.</p>
             </div>
-
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">Problem 5: Circle Equation</h4>
-              <p className="text-sm mb-2">Write the equation of a circle with center (2, -3) and radius 5.</p>
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Standard form:</strong> (x - h)² + (y - k)² = r²</p>
-                <p><strong>Substitute:</strong> (x - 2)² + (y - (-3))² = 5²</p>
-                <p><strong>Answer:</strong> (x - 2)² + (y + 3)² = 25</p>
-              </div>
+            
+            <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-lg border border-red-200">
+              <p className="font-semibold mb-2">5. Circle Equations</p>
+              <p className="text-sm">Find the center and radius of the circle with equation x² + y² + 6x - 8y + 9 = 0.</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Module Summary */}
-      <Card className="border-purple-200 bg-purple-50">
+      {/* Summary */}
+      <Card>
         <CardHeader>
-          <CardTitle className="text-purple-800">Module 6 Summary</CardTitle>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Target className="h-8 w-8 text-primary" />
+            Summary
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm">
-            In this module, you've learned to work with the coordinate system to solve geometric problems algebraically. You've mastered plotting points, calculating distances and midpoints, finding equations of lines in various forms, and working with circles. You've also seen how coordinate geometry bridges the gap between algebra and geometry, enabling powerful problem-solving techniques. These skills provide the foundation for advanced topics in mathematics, including calculus, and have numerous applications in science, technology, and everyday life. In the next module, you'll explore how coordinate geometry applies to calculating areas and perimeters of complex shapes.
+          <p className="text-lg leading-relaxed mb-4">
+            In this module, we have explored coordinate geometry, which combines algebra and geometry to solve problems using a coordinate system. We have learned about the distance and midpoint formulas, equations of lines, circles, and conic sections, and various applications of coordinate geometry.
           </p>
+          
+          <Alert>
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Teaching Moment:</strong> Coordinate geometry represents one of the most powerful unifications in mathematics—the marriage of algebra and geometry. By assigning coordinates to points, we can translate geometric problems into algebraic equations and vice versa. This approach provides a systematic way to solve geometric problems and reveals connections between seemingly different mathematical concepts. The techniques we've learned in this module—from the distance formula to the equations of conic sections—have applications in fields ranging from physics and engineering to computer graphics and navigation. As you continue your mathematical journey, you'll find that coordinate geometry serves as a bridge between various branches of mathematics and provides a foundation for more advanced topics like vector calculus and differential geometry.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Next Steps */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <TrendingUp className="h-8 w-8 text-primary" />
+            Next Steps
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg leading-relaxed mb-4">
+            In the next module, we will explore vectors and vector geometry. We'll learn how vectors can be used to represent quantities with both magnitude and direction, and how vector operations can simplify many geometric problems.
+          </p>
+          
+          <Alert>
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Teaching Moment:</strong> As we transition from coordinate geometry to vector geometry, we'll build on the coordinate system we've been using but add new tools and perspectives. Vectors extend the concept of coordinates by treating ordered pairs or triples as directed quantities rather than just positions. This approach allows us to represent and analyze forces, velocities, and other directional quantities in a natural way. Vector geometry provides elegant solutions to many problems that would be cumbersome using traditional coordinate geometry. The connection between these approaches illustrates the richness of mathematics—how the same underlying reality can be viewed through different lenses, each offering unique insights and advantages.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     </div>
