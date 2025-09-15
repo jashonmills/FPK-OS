@@ -25,7 +25,7 @@ export const useTextToSpeech = () => {
       // Use browser text-to-speech
       const success = safeTextToSpeech.speak(text, {
         interrupt,
-        hasInteracted,
+        hasInteracted: true, // Force user interaction as true since they clicked the button
         rate: 1,
         pitch: 1,
         volume: 1

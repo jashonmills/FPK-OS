@@ -25,11 +25,6 @@ class SafeTextToSpeech {
       return false;
     }
 
-    if (!options.hasInteracted) {
-      console.warn('Text-to-speech requires user interaction first');
-      return false;
-    }
-
     try {
       // Stop any current speech if interrupt is requested
       if (options.interrupt && window.speechSynthesis.speaking) {
