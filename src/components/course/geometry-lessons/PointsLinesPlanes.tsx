@@ -7,12 +7,21 @@ export const PointsLinesPlanes: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center mb-8">
+      <header className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
           <Compass className="h-8 w-8 text-primary mr-3" />
           <h1 className="text-3xl font-bold">Module 1: Lines, Angles & Polygons</h1>
         </div>
         <p className="text-lg text-muted-foreground">Foundation concepts in geometry</p>
+      </header>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/angles_in_polygons.jpg"
+          alt="Lines, angles, and polygons geometric concepts with clear labels and examples" 
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       {/* Introduction */}
@@ -21,28 +30,18 @@ export const PointsLinesPlanes: React.FC = () => {
           <CardTitle className="text-2xl">Introduction</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg leading-relaxed">
+          <p className="text-lg leading-relaxed mb-4">
             Welcome to Module 1 of our Geometry course! In this module, we will explore the fundamental concepts of geometry, focusing on lines, angles, and polygons. These concepts form the foundation of geometric understanding and will be essential for all subsequent modules.
           </p>
+          
+          <Alert className="border-blue-200 bg-blue-50">
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Teaching Moment:</strong> Geometry is all around us! From the design of buildings to the patterns in nature, geometric principles govern the physical world. As you learn these concepts, try to identify them in your everyday surroundings. This connection between abstract mathematical ideas and real-world applications will deepen your understanding and appreciation of geometry.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
-
-      {/* Hero Image */}
-      <div className="mb-8">
-        <img 
-          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/angles_in_polygons.jpg"
-          alt="Lines, angles, and polygons geometric concepts with clear labels and examples" 
-          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
-        />
-      </div>
-
-      {/* Teaching Moment */}
-      <Alert className="border-blue-200 bg-blue-50">
-        <TrendingUp className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Teaching Moment:</strong> Geometry is all around us! From the design of buildings to the patterns in nature, geometric principles govern the physical world. As you learn these concepts, try to identify them in your everyday surroundings. This connection between abstract mathematical ideas and real-world applications will deepen your understanding and appreciation of geometry.
-        </AlertDescription>
-      </Alert>
 
       {/* Learning Objectives */}
       <Card>
@@ -50,6 +49,7 @@ export const PointsLinesPlanes: React.FC = () => {
           <CardTitle className="text-xl">Learning Objectives</CardTitle>
         </CardHeader>
         <CardContent>
+          <p className="text-muted-foreground mb-4">By the end of this module, you will be able to:</p>
           <div className="space-y-3">
             <div className="flex items-start space-x-2">
               <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
@@ -88,15 +88,8 @@ export const PointsLinesPlanes: React.FC = () => {
               In geometry, we often represent lines using arrows on both ends to indicate that they extend infinitely.
             </p>
             
-            <Alert className="border-amber-200 bg-amber-50 mb-4">
-              <Lightbulb className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Teaching Moment:</strong> When we draw a "line" on paper, we're actually drawing a representation of a line, not a true mathematical line. A true line would extend forever in both directions and have no width. This distinction between mathematical abstractions and their physical representations is important throughout geometry.
-              </AlertDescription>
-            </Alert>
-
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Key Properties of Lines:</h4>
+            <div className="bg-muted p-4 rounded-lg mb-4">
+              <h4 className="font-semibold mb-2">Key properties of lines:</h4>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>A line has no endpoints</li>
                 <li>A line is straight (no curves)</li>
@@ -104,6 +97,13 @@ export const PointsLinesPlanes: React.FC = () => {
                 <li>A line has no thickness</li>
               </ul>
             </div>
+
+            <Alert className="border-amber-200 bg-amber-50">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> When we draw a "line" on paper, we're actually drawing a representation of a line, not a true mathematical line. A true line would extend forever in both directions and have no width. This distinction between mathematical abstractions and their physical representations is important throughout geometry.
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
@@ -112,21 +112,21 @@ export const PointsLinesPlanes: React.FC = () => {
               A line segment is a portion of a line that has two endpoints. Unlike a line, a line segment has a definite length.
             </p>
             
-            <Alert className="border-amber-200 bg-amber-50 mb-4">
-              <Lightbulb className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Teaching Moment:</strong> To name a line segment, we use the letters of its endpoints with a line segment symbol above them. For example, a line segment with endpoints A and B is written as AB̄. This is different from how we name a line, which would be written as AB↔.
-              </AlertDescription>
-            </Alert>
-
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Key Properties of Line Segments:</h4>
+            <div className="bg-muted p-4 rounded-lg mb-4">
+              <h4 className="font-semibold mb-2">Key properties of line segments:</h4>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>A line segment has two endpoints</li>
                 <li>A line segment has a measurable length</li>
                 <li>A line segment is straight</li>
               </ul>
             </div>
+
+            <Alert className="border-amber-200 bg-amber-50">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> To name a line segment, we use the letters of its endpoints with a line segment symbol above them. For example, a line segment with endpoints A and B is written as "line segment AB". This is different from how we name a line, which would be written as "line AB".
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
@@ -135,21 +135,21 @@ export const PointsLinesPlanes: React.FC = () => {
               A ray is a portion of a line that has one endpoint and extends infinitely in one direction.
             </p>
             
-            <Alert className="border-amber-200 bg-amber-50 mb-4">
-              <Lightbulb className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Teaching Moment:</strong> Think of a ray like a beam of light from a flashlight. It starts at a specific point (the flashlight) and continues indefinitely in one direction. We name a ray using its endpoint first, followed by any other point on the ray, with a ray symbol above them.
-              </AlertDescription>
-            </Alert>
-
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Key Properties of Rays:</h4>
+            <div className="bg-muted p-4 rounded-lg mb-4">
+              <h4 className="font-semibold mb-2">Key properties of rays:</h4>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>A ray has one endpoint</li>
                 <li>A ray extends infinitely in one direction</li>
                 <li>A ray is straight</li>
               </ul>
             </div>
+
+            <Alert className="border-amber-200 bg-amber-50">
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Think of a ray like a beam of light from a flashlight. It starts at a specific point (the flashlight) and continues indefinitely in one direction. We name a ray using its endpoint first, followed by any other point on the ray, with a ray symbol above them. For example, a ray starting at point A and passing through point B is written as "ray AB".
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
@@ -157,7 +157,7 @@ export const PointsLinesPlanes: React.FC = () => {
             <p className="text-muted-foreground mb-4">When faced with a problem involving lines, line segments, or rays, follow these steps:</p>
             
             <div className="space-y-3">
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <div className="flex items-center mb-2">
                   <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2">1</span>
                   <span className="font-semibold">Identify the key elements</span>
@@ -165,7 +165,7 @@ export const PointsLinesPlanes: React.FC = () => {
                 <p className="text-sm text-muted-foreground ml-8">Look for endpoints or lack thereof.</p>
               </div>
               
-              <div className="bg-green-50 p-4 rounded-lg">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center mb-2">
                   <span className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2">2</span>
                   <span className="font-semibold">Apply the definitions</span>
@@ -177,7 +177,7 @@ export const PointsLinesPlanes: React.FC = () => {
                 </ul>
               </div>
               
-              <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
                 <div className="flex items-center mb-2">
                   <span className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-2">3</span>
                   <span className="font-semibold">Use proper notation</span>
@@ -186,24 +186,22 @@ export const PointsLinesPlanes: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+            <div className="mt-6 bg-gray-50 p-4 rounded-lg border">
               <h4 className="font-semibold mb-2">Example Problem:</h4>
               <p className="text-sm mb-2">In the figure below, identify and label all lines, line segments, and rays.</p>
-              <div className="bg-white p-3 rounded border font-mono text-sm">
-                <div className="text-center">
-                  <div>C</div>
-                  <div>|</div>
-                  <div>|</div>
-                  <div>A------B------D</div>
-                </div>
+              <div className="bg-white p-4 rounded border font-mono text-sm text-center">
+                <div>C</div>
+                <div>|</div>
+                <div>|</div>
+                <div>A——————B——————D</div>
               </div>
               <div className="mt-3 text-sm">
                 <strong>Solution:</strong>
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>ABD↔ is a line (extends infinitely in both directions)</li>
-                  <li>AB̄ is a line segment (has endpoints A and B)</li>
-                  <li>BD̄ is a line segment (has endpoints B and D)</li>
-                  <li>BC→ is a ray (has endpoint B and extends upward through C)</li>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Line ABD is a line (extends infinitely in both directions)</li>
+                  <li>Line segment AB is a line segment (has endpoints A and B)</li>
+                  <li>Line segment BD is a line segment (has endpoints B and D)</li>
+                  <li>Ray BC is a ray (has endpoint B and extends upward through C)</li>
                 </ul>
               </div>
             </div>
@@ -571,6 +569,15 @@ export const PointsLinesPlanes: React.FC = () => {
                 <strong>Teaching Moment:</strong> Many everyday objects are shaped like polygons. Stop signs are octagons, most rooms are quadrilaterals, and many sports fields are rectangles. Recognizing these shapes in the world around you helps reinforce geometric concepts.
               </AlertDescription>
             </Alert>
+
+            {/* Polygon Types Visual */}
+            <div className="mt-6">
+              <img 
+                src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/polygons.jpg" 
+                alt="Various types of polygons including triangles, quadrilaterals, pentagons, hexagons, and octagons showing their properties"
+                className="w-full h-48 object-cover rounded-lg shadow-md"
+              />
+            </div>
 
             <div className="space-y-4 mt-6">
               <h4 className="text-lg font-semibold">Special Polygons</h4>
