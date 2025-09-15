@@ -221,8 +221,8 @@ export const TransformationsLesson: React.FC = () => {
                     <p className="text-sm font-semibold mb-2">Properties:</p>
                     <ul className="space-y-1 text-sm list-disc list-inside">
                       <li>Uses a scale factor (k) from a center point</li>
-                      <li>k > 1: enlargement (bigger)</li>
-                      <li>0 < k < 1: reduction (smaller)</li>
+                      <li>k &gt; 1: enlargement (bigger)</li>
+                      <li>0 &lt; k &lt; 1: reduction (smaller)</li>
                       <li>k = 1: no change (identity)</li>
                       <li>Creates similar figures, not congruent</li>
                     </ul>

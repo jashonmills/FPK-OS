@@ -110,22 +110,22 @@ export const CoordinateGeometryLesson: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-green-50 rounded border border-green-200">
                 <h5 className="font-semibold text-green-700">Quadrant I</h5>
-                <p className="text-sm">x > 0, y > 0</p>
+                <p className="text-sm">x &gt; 0, y &gt; 0</p>
                 <p className="text-xs text-muted-foreground">(upper right)</p>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded border border-blue-200">
                 <h5 className="font-semibold text-blue-700">Quadrant II</h5>
-                <p className="text-sm">x < 0, y > 0</p>
+                <p className="text-sm">x &lt; 0, y &gt; 0</p>
                 <p className="text-xs text-muted-foreground">(upper left)</p>
               </div>
               <div className="text-center p-4 bg-red-50 rounded border border-red-200">
                 <h5 className="font-semibold text-red-700">Quadrant III</h5>
-                <p className="text-sm">x < 0, y < 0</p>
+                <p className="text-sm">x &lt; 0, y &lt; 0</p>
                 <p className="text-xs text-muted-foreground">(lower left)</p>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded border border-purple-200">
                 <h5 className="font-semibold text-purple-700">Quadrant IV</h5>
-                <p className="text-sm">x > 0, y < 0</p>
+                <p className="text-sm">x &gt; 0, y &lt; 0</p>
                 <p className="text-xs text-muted-foreground">(lower right)</p>
               </div>
             </div>
