@@ -78,73 +78,89 @@ const LearnerHome = () => {
       
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
-        <div className="flex flex-col items-center gap-2">
-          <h1 className="mobile-heading-xl mb-2 text-center">
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="mobile-heading-xl mb-2 text-center text-gray-900 font-bold drop-shadow-sm">
+              <DualLanguageText 
+                translationKey="greeting"
+                fallback={`${getGreeting()}, ${getDisplayName()}!`}
+              />
+            </h1>
+            <PageHelpTrigger onOpen={handleShowVideoManually} />
+          </div>
+          <p className="text-gray-800 mobile-text-base text-center mt-2 font-medium drop-shadow-sm">
             <DualLanguageText 
-              translationKey="greeting"
-              fallback={`${getGreeting()}, ${getDisplayName()}!`}
+              translationKey="welcomeMessage"
+              fallback="Ready to continue your learning journey today?"
             />
-          </h1>
-          <PageHelpTrigger onOpen={handleShowVideoManually} />
+          </p>
         </div>
-        <p className="text-muted-foreground mobile-text-base text-center mt-2">
-          <DualLanguageText 
-            translationKey="welcomeMessage"
-            fallback="Ready to continue your learning journey today?"
-          />
-        </p>
       </div>
 
       {/* AI Learning Assistant */}
       <section className="mb-6 sm:mb-8">
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">AI Learning Assistant</h2>
-        <div className="h-[600px]">
-          <AIStudyChatInterface
-            user={user}
-            completedSessions={completedSessions}
-            flashcards={flashcards}
-            insights={insights}
-            fixedHeight={true}
-            showHeader={true}
-            chatMode="general"
-            placeholder="Ask me anything about your studies..."
-          />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold px-3 pt-2 drop-shadow-sm">AI Learning Assistant</h2>
+          <div className="h-[600px] rounded-xl overflow-hidden">
+            <AIStudyChatInterface
+              user={user}
+              completedSessions={completedSessions}
+              flashcards={flashcards}
+              insights={insights}
+              fixedHeight={true}
+              showHeader={true}
+              chatMode="general"
+              placeholder="Ask me anything about your studies..."
+            />
+          </div>
         </div>
       </section>
 
       {/* AI Insights Section */}
       <section className="mb-6 sm:mb-8">
-        <AIInsightsSection />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <AIInsightsSection />
+        </div>
       </section>
 
       {/* Mobile-Optimized Quick Navigation */}
       <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Quick Access</h2>
-        <QuickNavigationGrid />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
+          <QuickNavigationGrid />
+        </div>
       </section>
 
       {/* Mobile-Optimized Learning Analytics */}
       <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Learning Progress</h2>
-        <LearningAnalyticsOverview />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Learning Progress</h2>
+          <LearningAnalyticsOverview />
+        </div>
       </section>
 
       {/* Mobile-Optimized Achievements Section */}
       <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Achievements & Progress</h2>
-        <GamificationOverview />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Achievements & Progress</h2>
+          <GamificationOverview />
+        </div>
       </section>
 
       {/* Mobile-Optimized Goals Section */}
       <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Current Goals</h2>
-        <GoalsOverview />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Current Goals</h2>
+          <GoalsOverview />
+        </div>
       </section>
 
       {/* Mobile-Optimized Recent Activity */}
       <section>
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Recent Activity</h2>
-        <RecentActivityFeed />
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Recent Activity</h2>
+          <RecentActivityFeed />
+        </div>
       </section>
 
       {/* Beta Feedback Section */}
