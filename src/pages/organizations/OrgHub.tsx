@@ -116,8 +116,8 @@ const OrgHub = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Organizations</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-3xl font-bold text-white">Organizations</h1>
+        <p className="text-white mt-2">
           Manage your organizations, join new ones, or create your own.
         </p>
       </div>
