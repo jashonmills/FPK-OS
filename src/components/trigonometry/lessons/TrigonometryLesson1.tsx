@@ -1,226 +1,198 @@
 import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Calculator, Triangle, RotateCcw } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
 import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
 
-interface TrigonometryLesson1Props {
-  onComplete: () => void;
-  onNext: () => void;
-  hasNext: boolean;
-  isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
-  lessonId?: number;
-  lessonTitle?: string;
-}
-
-export const TrigonometryLesson1: React.FC<TrigonometryLesson1Props> = ({ 
-  onComplete, 
-  onNext, 
-  hasNext,
-  isCompleted = false,
-  trackInteraction,
-  lessonId = 1,
-  lessonTitle = "Introduction to Trigonometry"
-}) => {
+export const TrigonometryLesson1: React.FC = () => {
   const lessonContentRef = useRef<HTMLDivElement>(null);
-
-  const handleComplete = () => {
-    trackInteraction?.('lesson_complete_click', {
-      lesson_id: lessonId,
-      lesson_title: lessonTitle,
-      action: 'complete_button_clicked'
-    });
-    onComplete();
-  };
-
-  const handleConceptClick = (concept: string) => {
-    trackInteraction?.('concept_interaction', {
-      lesson_id: lessonId,
-      concept,
-      action: 'concept_viewed'
-    });
-  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* TTS Controls */}
-      <LessonTTSControls
-        lessonTitle="Introduction to Trigonometry"
-        lessonNumber={1}
-        totalLessons={7}
-        contentRef={lessonContentRef}
-      />
-
-      {/* Lesson Introduction */}
       <Card ref={lessonContentRef}>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="h-6 w-6 text-primary" />
+            <Triangle className="h-6 w-6 text-primary" />
             <CardTitle className="text-2xl">Introduction to Trigonometry</CardTitle>
           </div>
           <p className="text-muted-foreground">
-            Welcome to the world of trigonometry! Learn the fundamental concepts and discover how triangles connect to circles.
+            Welcome to the fascinating world of trigonometry! Learn the fundamental concepts that connect geometry, algebra, and real-world applications.
           </p>
+          
+          <LessonTTSControls 
+            contentRef={lessonContentRef} 
+            lessonTitle="Introduction to Trigonometry"
+            lessonNumber={1}
+            totalLessons={7}
+          />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-8">
           {/* What is Trigonometry? */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-primary">What is Trigonometry?</h3>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <p className="text-foreground leading-relaxed">
-                <strong>Trigonometry</strong> is the branch of mathematics that deals with the relationships between 
-                the angles and sides of triangles. The word comes from Greek: "trigonon" (triangle) + "metron" (measure).
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+              <p className="text-lg mb-4">
+                <strong>Trigonometry</strong> is the branch of mathematics that studies the relationships between angles and sides in triangles. 
+                The word comes from Greek: "trigonon" (triangle) + "metron" (measure).
               </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-blue-700">Key Applications:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Architecture and Engineering</li>
+                    <li>Navigation and GPS</li>
+                    <li>Physics and Waves</li>
+                    <li>Computer Graphics</li>
+                    <li>Music and Sound</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-blue-700">Core Concepts:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Angles and their measurement</li>
+                    <li>Triangle relationships</li>
+                    <li>Trigonometric functions</li>
+                    <li>The unit circle</li>
+                    <li>Periodic patterns</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <p className="text-muted-foreground">
-              Trigonometry helps us solve problems involving:
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-              <li>Heights and distances that are difficult to measure directly</li>
-              <li>Navigation and GPS systems</li>
-              <li>Engineering and architecture</li>
-              <li>Sound and light waves</li>
-              <li>Computer graphics and animation</li>
-            </ul>
           </div>
 
           {/* Right Triangle Basics */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary">Right Triangle Basics</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <p className="text-muted-foreground">
-                  A right triangle has one 90° angle and two acute angles. The sides have special names:
-                </p>
-                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                  <li><strong>Hypotenuse:</strong> The longest side, opposite the right angle</li>
-                  <li><strong>Adjacent:</strong> The side next to the angle of interest</li>
-                  <li><strong>Opposite:</strong> The side across from the angle of interest</li>
-                </ul>
-              </div>
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <div className="text-center">
-                  <div className="text-6xl mb-2">📐</div>
-                  <p className="text-sm text-muted-foreground">
-                    Right Triangle Components
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* The Unit Circle Introduction */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary">The Unit Circle</h3>
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
+            <h3 className="text-xl font-semibold text-green-700">Right Triangle Basics</h3>
+            <div className="bg-green-50 p-6 rounded-lg">
+              <p className="mb-4">
+                Right triangles are the foundation of trigonometry. They have one 90° angle and two acute angles that sum to 90°.
+              </p>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <h4 className="font-medium">What is the Unit Circle?</h4>
-                  <p className="text-sm text-muted-foreground">
-                    The unit circle is a circle with radius 1 centered at the origin (0,0) 
-                    of a coordinate plane. It's fundamental to understanding trigonometry.
-                  </p>
-                  <div className="space-y-2">
-                    <h5 className="font-medium text-sm">Key Properties:</h5>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
-                      <li>Radius = 1</li>
-                      <li>Center at (0, 0)</li>
-                      <li>Circumference = 2π</li>
-                      <li>All points are at distance 1 from center</li>
-                    </ul>
+                  <h4 className="font-semibold text-green-700">Triangle Parts:</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">Hypotenuse</Badge>
+                      <span>The longest side (opposite the 90° angle)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">Adjacent</Badge>
+                      <span>Side next to the angle of interest</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">Opposite</Badge>
+                      <span>Side across from the angle of interest</span>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-white/50 p-4 rounded-lg text-center">
-                  <div className="text-8xl mb-2">⭕</div>
-                  <p className="text-sm text-muted-foreground">
-                    Unit Circle (r = 1)
-                  </p>
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-green-700">Key Relationships:</h4>
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Pythagorean Theorem:</strong> a² + b² = c²</p>
+                    <p><strong>Angle sum:</strong> Acute angles sum to 90°</p>
+                    <p><strong>Similarity:</strong> All right triangles with the same acute angles are similar</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Key Angles */}
+          {/* The Unit Circle */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary">Important Angles</h3>
-            <p className="text-muted-foreground">
-              Some angles appear frequently in trigonometry. Let's look at the most important ones:
-            </p>
-            <div className="grid md:grid-cols-3 gap-4">
-              <Card className="text-center">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">0° (0 radians)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Right side of circle</p>
-                  <p className="text-xs mt-1">Point: (1, 0)</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">90° (π/2 radians)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Top of circle</p>
-                  <p className="text-xs mt-1">Point: (0, 1)</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">180° (π radians)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Left side of circle</p>
-                  <p className="text-xs mt-1">Point: (-1, 0)</p>
-                </CardContent>
-              </Card>
+            <h3 className="text-xl font-semibold text-purple-700">The Unit Circle</h3>
+            <div className="bg-purple-50 p-6 rounded-lg">
+              <p className="mb-4">
+                The unit circle is a circle with radius 1 centered at the origin. It's the key to understanding trigonometric functions beyond right triangles.
+              </p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-purple-700">Circle Properties:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Radius = 1 unit</li>
+                    <li>Center at origin (0,0)</li>
+                    <li>Circumference = 2π</li>
+                    <li>Any point is (cos θ, sin θ)</li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-purple-700">Angle Measurement:</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Degrees: 0° to 360°</li>
+                    <li>Radians: 0 to 2π</li>
+                    <li>1 radian ≈ 57.3°</li>
+                    <li>π radians = 180°</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Coming Up Next */}
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold text-green-700 mb-3">Coming Up Next</h3>
-            <p className="text-muted-foreground mb-4">
-              In the next lesson, we'll dive into the three fundamental trigonometric functions: 
-              sine, cosine, and tangent, and learn the famous SOHCAHTOA mnemonic!
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
-              <li>Understanding sine, cosine, and tangent</li>
-              <li>SOHCAHTOA memory trick</li>
-              <li>Calculating trig values for common angles</li>
-              <li>Interactive practice problems</li>
-            </ul>
+          {/* Important Angles */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-orange-700">Important Angles</h3>
+            <div className="bg-orange-50 p-6 rounded-lg">
+              <p className="mb-4">
+                Certain angles appear frequently in trigonometry. Memorizing their values will save you time and build intuition.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b-2 border-orange-200">
+                      <th className="text-left p-2">Degrees</th>
+                      <th className="text-left p-2">Radians</th>
+                      <th className="text-left p-2">sin θ</th>
+                      <th className="text-left p-2">cos θ</th>
+                      <th className="text-left p-2">tan θ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="space-y-1">
+                    <tr className="border-b border-orange-100">
+                      <td className="p-2">0°</td>
+                      <td className="p-2">0</td>
+                      <td className="p-2">0</td>
+                      <td className="p-2">1</td>
+                      <td className="p-2">0</td>
+                    </tr>
+                    <tr className="border-b border-orange-100">
+                      <td className="p-2">30°</td>
+                      <td className="p-2">π/6</td>
+                      <td className="p-2">1/2</td>
+                      <td className="p-2">√3/2</td>
+                      <td className="p-2">√3/3</td>
+                    </tr>
+                    <tr className="border-b border-orange-100">
+                      <td className="p-2">45°</td>
+                      <td className="p-2">π/4</td>
+                      <td className="p-2">√2/2</td>
+                      <td className="p-2">√2/2</td>
+                      <td className="p-2">1</td>
+                    </tr>
+                    <tr className="border-b border-orange-100">
+                      <td className="p-2">60°</td>
+                      <td className="p-2">π/3</td>
+                      <td className="p-2">√3/2</td>
+                      <td className="p-2">1/2</td>
+                      <td className="p-2">√3</td>
+                    </tr>
+                    <tr className="border-b border-orange-100">
+                      <td className="p-2">90°</td>
+                      <td className="p-2">π/2</td>
+                      <td className="p-2">1</td>
+                      <td className="p-2">0</td>
+                      <td className="p-2">undefined</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Lesson Actions */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Lesson 1 of 7 • Introduction to Trigonometry
-        </div>
-        <div className="flex gap-2">
-          {!isCompleted && (
-            <Button onClick={handleComplete} className="fpk-gradient text-white">
-              Mark as Complete
-            </Button>
-          )}
-          {isCompleted && hasNext && (
-            <Button onClick={onNext} className="fpk-gradient text-white">
-              Next Lesson <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* In-Course AI Tutor Chat Bubble */}
-      <InCourseChatBubble
-        courseId="interactive-trigonometry"
-        lessonId={lessonId}
-        lessonTitle={lessonTitle}
+      <InCourseChatBubble 
         lessonContentRef={lessonContentRef}
+        lessonTitle="Introduction to Trigonometry"
       />
     </div>
   );
