@@ -15,14 +15,13 @@ export const IntroductionLesson: React.FC = () => {
         <CardContent>
           <div className="space-y-4">
             <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-              <iframe 
+              <video 
                 width="100%" 
                 height="100%" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/empowering-mp4-spelling/Module%201%20-%20Introduction%20(2).mp4" 
                 title="Welcome to Empowering Learning for Spelling - Introduction" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
+                controls
+                className="w-full h-full"
               />
             </div>
             

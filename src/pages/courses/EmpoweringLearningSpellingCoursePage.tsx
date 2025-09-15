@@ -164,7 +164,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
               {/* Video Overview */}
               <CourseOverviewVideo 
-                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/empowering-mp4-spelling/Module%201%20-%20Introduction%20(2).mp4" 
+                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/A_New_Way_to_Learn_Spelling.mp4" 
                 title="Empowering Learning for Spelling"
               />
 
