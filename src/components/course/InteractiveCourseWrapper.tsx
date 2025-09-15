@@ -135,6 +135,7 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
         <CourseAIStudyCoach 
           courseId={courseId}
           courseTitle={courseTitle}
+          className="z-40"
         />
       </div>
     </ErrorBoundary>

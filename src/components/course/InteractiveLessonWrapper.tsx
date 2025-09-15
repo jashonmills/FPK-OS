@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
-import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
 
 interface InteractiveLessonWrapperProps {
   courseId: string;
@@ -206,14 +205,6 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
           </CardContent>
         </Card>
       )}
-
-      {/* In-Course AI Tutor Chat Bubble */}
-      <InCourseChatBubble
-        courseId={courseId}
-        lessonId={lessonId}
-        lessonTitle={lessonTitle}
-        lessonContentRef={lessonContentRef}
-      />
     </div>
   );
 };
