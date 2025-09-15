@@ -16,7 +16,7 @@ import { StudentGuideGallery } from '@/components/course/StudentGuideGallery';
 
 // Import lesson components
 import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
-import { TrianglesLesson } from '@/components/course/geometry-lessons/TrianglesLesson';
+import { TriangleMicroLesson } from '@/components/micro-lessons/triangles/TriangleMicroLesson';
 import { QuadrilateralsLesson } from '@/components/course/geometry-lessons/QuadrilateralsLesson';
 import { CirclesLesson } from '@/components/course/geometry-lessons/CirclesLesson';
 
