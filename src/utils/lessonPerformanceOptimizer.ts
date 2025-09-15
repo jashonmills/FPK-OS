@@ -235,61 +235,21 @@ class LessonPerformanceOptimizer {
   }
 
   /**
-   * Initialize performance observer for lesson monitoring
+   * Initialize performance observer for lesson monitoring - SIMPLIFIED
    */
   private initializePerformanceObserver(): void {
-    if ('PerformanceObserver' in window) {
-      this.performanceObserver = new PerformanceObserver((list) => {
-        const entries = list.getEntries();
-        
-        entries.forEach(entry => {
-          if (entry.entryType === 'measure' && entry.name.startsWith('lesson-')) {
-            const lessonId = entry.name.replace('lesson-', '');
-            
-            if (entry.duration > 100) { // Slow operation
-              logger.performance(`Slow lesson operation: ${lessonId}`, {
-                operation: entry.name,
-                duration: `${entry.duration.toFixed(2)}ms`
-              });
-            }
-          }
-        });
-      });
-      
-      try {
-        this.performanceObserver.observe({ entryTypes: ['measure', 'navigation'] });
-      } catch (error) {
-        logger.warn('Failed to initialize performance observer', 'PERFORMANCE', error);
-      }
-    }
+    // Simplified performance observer to reduce overhead
+    // Previous implementation was too aggressive and causing performance issues
+    return;
   }
 
   /**
-   * Start freeze detection monitoring
+   * Start freeze detection monitoring - DISABLED for performance
    */
   private startFreezeDetection(): void {
-    let lastCheck = performance.now();
-    
-    const checkForFreezes = () => {
-      const now = performance.now();
-      const timeDelta = now - lastCheck;
-      
-      // If more than 1 second has passed since last check, UI might be frozen
-      if (timeDelta > 1000) {
-        logger.warn('UI freeze detected', 'PERFORMANCE', {
-          freezeDuration: `${timeDelta.toFixed(2)}ms`,
-          activeLessons: Array.from(this.activeLessons.keys())
-        });
-        
-        // Attempt emergency recovery
-        this.emergencyRecovery();
-      }
-      
-      lastCheck = now;
-    };
-    
-    // Check every 100ms using timeoutManager for proper cleanup
-    this.freezeDetectionTimer = timeoutManager.setInterval(checkForFreezes, 100);
+    // Disabled freeze detection as it was causing performance issues
+    // during navigation and adding unnecessary overhead
+    return;
   }
 
   /**

@@ -37,11 +37,8 @@ const OrgPageLayout = lazy(() => import("./components/organizations/OrgPageLayou
 
 // Dashboard pages - lazy loaded for optimal performance
 const LearnerHome = lazy(() => {
-  performanceMonitor.startRender('LearnerHome');
-  return import("./pages/dashboard/LearnerHome").then(module => {
-    performanceMonitor.endRender('LearnerHome');
-    return module;
-  });
+  // Simplified performance monitoring for better stability
+  return import("./pages/dashboard/LearnerHome");
 });
 
 const Library = lazy(() => import("./pages/dashboard/Library"));
@@ -167,7 +164,14 @@ const App: React.FC = () => {
     // Cleanup performance metrics periodically - reduced frequency
     const cleanup = setInterval(() => {
       try {
-        performanceMonitor.cleanup();
+        // Performance monitoring cleanup - simplified for better performance
+        try {
+          if (typeof performanceMonitor?.cleanup === 'function') {
+            performanceMonitor.cleanup();
+          }
+        } catch (error) {
+          console.warn('Performance monitor cleanup failed:', error);
+        }
       } catch (err) {
         console.warn('Performance cleanup error:', err);
       }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
@@ -35,6 +35,7 @@ interface Lesson {
   unitColor: string;
 }
 
+// Moved outside component to prevent recreation on every render
 const lessons: Lesson[] = [
   { id: 1, title: "The Scientific Method", description: "Learn the fundamental steps of scientific inquiry and how to apply them", component: ScientificMethodLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Importance of Science", description: "Discover how science shapes our understanding of the world", component: ImportanceOfScienceLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
@@ -71,40 +72,42 @@ export const InteractiveScienceCoursePage: React.FC = () => {
     }
   };
 
-  const handleNextLesson = () => {
+  // Memoize navigation handlers to prevent unnecessary re-renders
+  const handleNextLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/interactive-science/${nextLesson}`);
     }
-  };
+  }, [currentLesson, navigate]);
 
-  const handlePrevLesson = () => {
+  const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/interactive-science/${prevLesson}`);
     }
-  };
+  }, [currentLesson, navigate]);
 
-  const handleLessonSelect = (lessonId: number) => {
+  const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
     navigate(`/courses/interactive-science/${lessonId}`);
-  };
+  }, [navigate]);
 
-  const handleBackToCourses = () => {
+  const handleBackToCourses = useCallback(() => {
     navigate('/dashboard/learner/courses');
-  };
+  }, [navigate]);
 
-  const handleDashboard = () => {
+  const handleDashboard = useCallback(() => {
     navigate('/dashboard/learner');
-  };
+  }, [navigate]);
 
-  const isLessonAccessible = (lessonId: number) => {
+  // Memoize expensive calculations
+  const isLessonAccessible = useCallback((lessonId: number) => {
     return lessonId === 1 || completedLessons.includes(lessonId - 1);
-  };
+  }, [completedLessons]);
 
-  const progress = (completedLessons.length / lessons.length) * 100;
+  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
 
   // Course overview (lesson selection)
   if (currentLesson === null) {

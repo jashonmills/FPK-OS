@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
@@ -69,40 +69,42 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     }
   };
 
-  const handleNextLesson = () => {
+  // Memoize navigation handlers to prevent unnecessary re-renders
+  const handleNextLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/empowering-learning-spelling/${nextLesson}`);
     }
-  };
+  }, [currentLesson, navigate]);
 
-  const handlePrevLesson = () => {
+  const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/empowering-learning-spelling/${prevLesson}`);
     }
-  };
+  }, [currentLesson, navigate]);
 
-  const handleLessonSelect = (lessonId: number) => {
+  const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
     navigate(`/courses/empowering-learning-spelling/${lessonId}`);
-  };
+  }, [navigate]);
 
-  const handleBackToCourses = () => {
+  const handleBackToCourses = useCallback(() => {
     navigate('/dashboard/learner/courses');
-  };
+  }, [navigate]);
 
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
 
-  const isLessonAccessible = (lessonId: number) => {
+  // Memoize expensive calculations
+  const isLessonAccessible = useCallback((lessonId: number) => {
     return lessonId === 1 || completedLessons.includes(lessonId - 1);
-  };
+  }, [completedLessons]);
 
-  const progress = (completedLessons.length / lessons.length) * 100;
+  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
 
   // Course overview (lesson selection)
   if (currentLesson === null) {

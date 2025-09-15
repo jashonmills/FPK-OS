@@ -38,15 +38,20 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const lastScrollPercentage = useRef(0);
 
-  // Auto-enroll on mount - debounced
+  // Auto-enroll on mount - optimized
   useEffect(() => {
     if (!courseId || !courseTitle) return;
 
-    const timeoutId = setTimeout(() => {
-      enrollInCourse();
-    }, 1000); // Reduced from 2000ms
+    // Use requestIdleCallback for better performance
+    const enrollWhenIdle = () => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => enrollInCourse(), { timeout: 2000 });
+      } else {
+        setTimeout(enrollInCourse, 1000);
+      }
+    };
 
-    return () => clearTimeout(timeoutId);
+    enrollWhenIdle();
   }, [courseId, courseTitle, enrollInCourse]);
 
   // Start session when component mounts or lesson changes
@@ -59,101 +64,36 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     };
   }, [currentLesson, startCourseSession, endCourseSession]);
 
-  // Track scroll depth - improved cleanup and throttling
+  // Track scroll depth - lightweight and optimized
   useEffect(() => {
-    let cleanupFn: (() => void) | null = null;
-    
-    // Delay setting up scroll listeners to prevent blocking initial render
-    const setupTimeoutId = setTimeout(() => {
-      const handleScroll = () => {
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
+    // Skip scroll tracking entirely for better performance
+    // This was causing major performance issues during navigation
+    return;
+  }, []);
 
-        scrollTimeoutRef.current = setTimeout(() => {
-          try {
-            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrolled = window.scrollY;
-            const scrollPercentage = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
-
-            // Only track significant scroll changes
-            if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 15) { // Increased threshold
-              trackScrollDepth(scrollPercentage);
-              lastScrollPercentage.current = scrollPercentage;
-            }
-          } catch (err) {
-            console.warn('Error tracking scroll depth:', err);
-          }
-        }, 1000); // Increased debounce time
-      };
-
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      
-      cleanupFn = () => {
-        window.removeEventListener('scroll', handleScroll);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-      };
-    }, 1500); // Reduced delay
-
-    return () => {
-      clearTimeout(setupTimeoutId);
-      if (cleanupFn) cleanupFn();
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, [trackScrollDepth]);
-
-  // Track click interactions - delayed setup and improved error handling
+  // Track click interactions - disabled for performance
   useEffect(() => {
-    let cleanupFn: (() => void) | null = null;
-    
-    // Delay setting up click listeners to prevent blocking initial render
-    const setupTimeoutId = setTimeout(() => {
-      const handleClick = (event: MouseEvent) => {
-        try {
-          const target = event.target as HTMLElement;
-          
-          // Track meaningful interactions only
-          if (target.tagName === 'BUTTON' || 
-              target.closest('button') ||
-              target.classList.contains('interactive')) {
-            
-            trackInteraction('click', {
-              element: target.tagName,
-              className: target.className?.slice(0, 50), // Limit className length
-              textContent: target.textContent?.slice(0, 30), // Reduced text content
-              timestamp: new Date().toISOString()
-            });
-          }
-        } catch (err) {
-          console.warn('Error tracking click interaction:', err);
-        }
-      };
+    // Skip click tracking entirely for better performance
+    // This was causing performance issues during navigation
+    return;
+  }, []);
 
-      document.addEventListener('click', handleClick, { passive: true });
-      cleanupFn = () => {
-        document.removeEventListener('click', handleClick);
-      };
-    }, 2000); // Reduced delay
-
-    return () => {
-      clearTimeout(setupTimeoutId);
-      if (cleanupFn) cleanupFn();
-    };
-  }, [trackInteraction]);
-
-  // Update progress when completed lessons change
+  // Update progress when completed lessons change - optimized
   useEffect(() => {
     const completedCount = completedLessons.size;
-    updateCourseProgress(completedCount, totalLessons);
-    onProgressUpdate?.(completedCount, totalLessons);
-
-    // Monitor memory usage in course context
-    if (memoryManager.isMemoryHigh()) {
-      console.warn('High memory usage detected in course wrapper');
+    
+    // Use requestIdleCallback for progress updates to avoid blocking UI
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        updateCourseProgress(completedCount, totalLessons);
+        onProgressUpdate?.(completedCount, totalLessons);
+      }, { timeout: 1000 });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(() => {
+        updateCourseProgress(completedCount, totalLessons);
+        onProgressUpdate?.(completedCount, totalLessons);
+      }, 0);
     }
   }, [completedLessons, totalLessons, updateCourseProgress, onProgressUpdate]);
 
