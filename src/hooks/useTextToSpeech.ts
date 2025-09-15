@@ -1,118 +1,96 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
-import { safeTextToSpeech } from '@/utils/speechUtils';
+import { useState, useRef, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-interface SpeechOptions {
-  rate?: number;
-  pitch?: number;
-  volume?: number;
-  voice?: SpeechSynthesisVoice;
-  interrupt?: boolean;
-}
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { settings } = useVoiceSettings();
-  const isSupported = 'speechSynthesis' in window;
+  const [isGenerating, setIsGenerating] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Monitor speechSynthesis speaking state
-  useEffect(() => {
-    const checkSpeakingState = () => {
-      const speaking = window.speechSynthesis.speaking;
-      const paused = window.speechSynthesis.paused;
-      
-      if (speaking && !paused && !isSpeaking) {
-        setIsSpeaking(true);
-        setIsPaused(false);
-      } else if (!speaking && isSpeaking) {
-        setIsSpeaking(false);
-        setIsPaused(false);
-      } else if (speaking && paused && !isPaused) {
-        setIsPaused(true);
-      } else if (speaking && !paused && isPaused) {
-        setIsPaused(false);
-      }
-    };
+  const speak = useCallback(async (text: string, options?: { voice?: string; interrupt?: boolean }) => {
+    if (!text.trim()) return;
 
-    const interval = setInterval(checkSpeakingState, 100);
-    return () => clearInterval(interval);
-  }, [isSpeaking, isPaused]);
-
-  const speak = useCallback(async (text: string, options: SpeechOptions = {}): Promise<boolean> => {
-    console.log('🔊 Browser TTS SPEAK START:', { text: text.substring(0, 30), options });
-    
-    if (!text.trim()) {
-      console.warn('🔊 Cannot speak: empty text');
-      return false;
-    }
-
-    if (!settings.hasInteracted) {
-      console.warn('🔊 Cannot speak: user interaction required');
-      return false;
-    }
-
-    if (!settings.enabled) {
-      console.log('🔊 TTS is disabled in settings');
-      return false;
-    }
+    // Handle both string and options parameter for backward compatibility
+    const voice = typeof options === 'string' ? options : options?.voice || 'alloy';
+    const interrupt = typeof options === 'object' ? options?.interrupt : true;
 
     try {
-      // Stop any current speech if interrupt is requested
-      if (options.interrupt) {
-        stop();
+      // Stop current audio if interrupt is true (default)
+      if (interrupt && audioRef.current) {
+        audioRef.current.pause();
+        setIsSpeaking(false);
       }
 
-      setIsLoading(true);
+      setIsGenerating(true);
+      console.log('Generating speech for:', text.substring(0, 50) + '...');
 
-      // Get the selected voice
-      let selectedVoice: SpeechSynthesisVoice | undefined;
-      if (settings.selectedVoice) {
-        const voices = safeTextToSpeech.getVoices();
-        selectedVoice = voices.find(v => v.name === settings.selectedVoice);
+      // Call Supabase Edge Function for text-to-speech
+      const { data, error } = await supabase.functions.invoke('text-to-voice', {
+        body: { text, voice }
+      });
+
+      if (error) {
+        console.error('Text-to-speech error:', error);
+        throw new Error(error.message || 'Failed to generate speech');
       }
 
-      // Use voice settings or provided options
-      const speechOptions = {
-        rate: options.rate ?? settings.rate,
-        pitch: options.pitch ?? settings.pitch, 
-        volume: options.volume ?? settings.volume,
-        voice: options.voice ?? selectedVoice,
-        interrupt: options.interrupt ?? true,
-        hasInteracted: settings.hasInteracted
-      };
+      setIsGenerating(false);
 
-      console.log('🔊 Using browser TTS with options:', speechOptions);
+      if (data?.audioContent) {
+        // Create audio blob from base64
+        const binaryString = atob(data.audioContent);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
+        const audioUrl = URL.createObjectURL(audioBlob);
 
-      const success = safeTextToSpeech.speak(text, speechOptions);
-      
-      setIsLoading(false);
-      
-      if (success) {
-        setIsSpeaking(true);
-        setIsPaused(false);
-        console.log('🔊 Browser TTS speech started');
-      } else {
-        console.warn('🔊 Browser TTS failed to start');
+        // Stop current audio if playing
+        if (audioRef.current) {
+          audioRef.current.pause();
+          URL.revokeObjectURL(audioRef.current.src);
+        }
+
+        // Create and play new audio
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+          console.error('Audio playback error');
+        };
+
+        await audio.play();
+        console.log('Audio playback started');
+        return true;
       }
-
-      return success;
+      return false;
     } catch (error) {
-      console.error('🔊 Browser TTS failed:', error);
+      console.error('Text-to-speech error:', error);
+      setIsGenerating(false);
       setIsSpeaking(false);
-      setIsPaused(false);
-      setIsLoading(false);
       return false;
     }
-  }, [settings]);
+  }, []);
 
   const stop = useCallback(() => {
-    safeTextToSpeech.stop();
-    setIsSpeaking(false);
-    setIsPaused(false);
-    setIsLoading(false);
-    console.log('🔊 Browser TTS stopped');
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSpeaking(false);
+    }
   }, []);
 
   const stopSpeech = useCallback(() => {
@@ -120,30 +98,20 @@ export const useTextToSpeech = () => {
   }, [stop]);
 
   const togglePauseSpeech = useCallback(() => {
-    if (!isSpeaking) return;
-
-    if (isPaused) {
-      window.speechSynthesis.resume();
-      setIsPaused(false);
-      console.log('🔊 Browser TTS resumed');
-    } else {
-      window.speechSynthesis.pause();
-      setIsPaused(true);
-      console.log('🔊 Browser TTS paused');
+    if (audioRef.current) {
+      if (isSpeaking) {
+        audioRef.current.pause();
+        setIsSpeaking(false);
+      } else {
+        audioRef.current.play();
+        setIsSpeaking(true);
+      }
     }
-  }, [isSpeaking, isPaused]);
+  }, [isSpeaking]);
 
-  const readAIMessage = useCallback((text: string) => {
-    return speak(text, { interrupt: true });
+  const readAIMessage = useCallback(async (text: string) => {
+    return await speak(text, { interrupt: true });
   }, [speak]);
-
-  const getVoices = useCallback(() => {
-    return safeTextToSpeech.getVoices().map(voice => ({
-      id: voice.name,
-      name: `${voice.name} (${voice.lang})`,
-      gender: voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman') ? 'female' : 'male'
-    }));
-  }, []);
 
   return {
     speak,
@@ -152,9 +120,15 @@ export const useTextToSpeech = () => {
     togglePauseSpeech,
     readAIMessage,
     isSpeaking,
-    isPaused,
-    isLoading,
-    isSupported,
-    getVoices
+    isGenerating,
+    isSupported: true, // OpenAI TTS is always supported
+    getVoices: () => [
+      { id: 'alloy', name: 'Alloy', language: 'en-US' },
+      { id: 'echo', name: 'Echo', language: 'en-US' },
+      { id: 'fable', name: 'Fable', language: 'en-US' },
+      { id: 'onyx', name: 'Onyx', language: 'en-US' },
+      { id: 'nova', name: 'Nova', language: 'en-US' },
+      { id: 'shimmer', name: 'Shimmer', language: 'en-US' }
+    ]
   };
 };

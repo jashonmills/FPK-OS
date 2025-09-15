@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
   MessageCircle, 
   X, 
@@ -10,9 +12,16 @@ import {
   Maximize2, 
   GraduationCap,
   Send,
-  Bot
+  Bot,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Loader2
 } from 'lucide-react';
 import { useLessonChat } from '@/hooks/useLessonChat';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -34,6 +43,7 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [userInput, setUserInput] = useState('');
+  const [autoReadback, setAutoReadback] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -47,6 +57,21 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
     lessonTitle: courseTitle
   });
 
+  const {
+    isRecording,
+    isProcessing,
+    startRecording,
+    stopRecording,
+    cancelRecording
+  } = useVoiceRecording();
+
+  const {
+    isSpeaking,
+    isGenerating,
+    speak,
+    stop: stopSpeech
+  } = useTextToSpeech();
+
   const handleSendMessage = async () => {
     if (!userInput.trim() || isLoading) return;
     
@@ -57,6 +82,30 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
     await sendMessage(message, `Course: ${courseTitle}`);
   };
 
+  const handleVoiceRecording = async () => {
+    if (isRecording) {
+      try {
+        const transcribedText = await stopRecording();
+        if (transcribedText.trim()) {
+          setUserInput(transcribedText);
+        }
+      } catch (error) {
+        console.error('Voice recording error:', error);
+        cancelRecording();
+      }
+    } else {
+      await startRecording();
+    }
+  };
+
+  const handleToggleAudio = () => {
+    if (isSpeaking) {
+      stopSpeech();
+    } else {
+      setAutoReadback(!autoReadback);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -65,11 +114,21 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
   };
 
   // Auto-scroll to bottom when new messages arrive
-  React.useEffect(() => {
+  useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Auto-readback for assistant messages
+  useEffect(() => {
+    if (autoReadback && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && !isLoading) {
+        speak(lastMessage.content);
+      }
+    }
+  }, [messages, autoReadback, isLoading, speak]);
 
   if (!isOpen) {
     return (
@@ -93,6 +152,9 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
           <CardTitle className="text-sm font-medium">
             Course AI Tutor - {courseTitle}
           </CardTitle>
+          {(isGenerating || isSpeaking) && (
+            <Volume2 className="h-4 w-4 animate-pulse" />
+          )}
         </div>
         <div className="flex items-center space-x-1">
           <Button 
@@ -173,26 +235,88 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
           </CardContent>
 
           <div className="p-4 border-t">
+            {/* Auto-readback toggle */}
+            <div className="flex items-center justify-between mb-4 pb-2 border-b">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="auto-readback" className="text-sm">Auto-readback</Label>
+                <Switch
+                  id="auto-readback"
+                  checked={autoReadback}
+                  onCheckedChange={setAutoReadback}
+                />
+              </div>
+              {(isSpeaking || isGenerating) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={stopSpeech}
+                  className="p-1"
+                >
+                  <VolumeX className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Input area */}
             <div className="flex space-x-2">
-              <Input
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask about the course..."
-                disabled={isLoading}
-                className="flex-1"
-              />
+              <div className="flex-1 relative">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask about the course..."
+                  disabled={isLoading || isProcessing}
+                  className="pr-12"
+                />
+                <Button
+                  type="button"
+                  onClick={handleVoiceRecording}
+                  disabled={isLoading || isProcessing}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 ${
+                    isRecording 
+                      ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                      : 'bg-transparent hover:bg-muted'
+                  }`}
+                  variant={isRecording ? "default" : "ghost"}
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : isRecording ? (
+                    <MicOff className="h-3 w-3" />
+                  ) : (
+                    <Mic className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
               <Button 
                 onClick={handleSendMessage} 
-                disabled={!userInput.trim() || isLoading}
+                disabled={!userInput.trim() || isLoading || isProcessing}
                 size="sm"
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Course-level AI tutor using Socratic method to guide your learning
-            </p>
+            
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                {isRecording 
+                  ? "Recording... Click mic to stop" 
+                  : isProcessing 
+                    ? "Processing voice..." 
+                    : "Course-level AI tutor using Socratic method"
+                }
+              </p>
+              {(isRecording || isProcessing) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={cancelRecording}
+                  className="text-xs h-6 px-2"
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           </div>
         </>
       )}

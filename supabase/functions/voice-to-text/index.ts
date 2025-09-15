@@ -48,19 +48,16 @@ serve(async (req) => {
       throw new Error('No audio data provided')
     }
 
-    console.log('Processing voice transcription request...');
+    console.log('Processing audio transcription request')
 
     // Process audio in chunks
     const binaryAudio = processBase64Chunks(audio)
-    console.log(`Processed audio data: ${binaryAudio.length} bytes`);
     
     // Prepare form data
     const formData = new FormData()
     const blob = new Blob([binaryAudio], { type: 'audio/webm' })
     formData.append('file', blob, 'audio.webm')
     formData.append('model', 'whisper-1')
-    formData.append('language', 'en')
-    formData.append('response_format', 'json')
 
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -72,13 +69,13 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
+      const errorText = await response.text()
+      console.error('OpenAI API error:', response.status, errorText)
       throw new Error(`OpenAI API error: ${errorText}`)
     }
 
     const result = await response.json()
-    console.log('Transcription successful:', result.text);
+    console.log('Transcription successful:', result.text)
 
     return new Response(
       JSON.stringify({ text: result.text }),
@@ -86,12 +83,9 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Voice transcription error:', error);
+    console.error('Voice-to-text error:', error)
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        text: '' // Return empty text so UI doesn't break
-      }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
