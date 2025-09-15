@@ -14,7 +14,7 @@ import { useStudyInsights } from '@/hooks/useStudyInsights';
 import LearningAnalyticsOverview from '@/components/dashboard/LearningAnalyticsOverview';
 import GamificationOverview from '@/components/dashboard/GamificationOverview';
 import GoalsOverview from '@/components/dashboard/GoalsOverview';
-import QuickNavigationGrid from '@/components/dashboard/QuickNavigationGrid';
+import QuickAccessBar from '@/components/dashboard/QuickAccessBar';
 import RecentActivityFeed from '@/components/dashboard/RecentActivityFeed';
 import AIInsightsSection from '@/components/dashboard/AIInsightsSection';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
@@ -97,6 +97,14 @@ const LearnerHome = () => {
         <OrgBanner />
       </div>
 
+      {/* Quick Access Bar */}
+      <section className="mb-4">
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-sm mb-3 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
+          <QuickAccessBar />
+        </div>
+      </section>
+
       {/* AI Learning Assistant */}
       <section className="mb-6 sm:mb-8">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-lg">
@@ -116,13 +124,6 @@ const LearnerHome = () => {
         </div>
       </section>
 
-      {/* Mobile-Optimized Quick Navigation */}
-      <section className="mb-6 sm:mb-8">
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
-          <QuickNavigationGrid />
-        </div>
-      </section>
 
       {/* AI Insights Section */}
       <section className="mb-6 sm:mb-8">
