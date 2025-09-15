@@ -56,7 +56,7 @@ export const TrianglesLesson: React.FC = () => {
                 <CardContent>
                   <p className="text-sm mb-2">The sum of any two sides must be greater than the third side</p>
                   <p className="text-xs text-muted-foreground">This explains why you can't form a triangle with sides 2, 3, and 6</p>
-                  <p className="text-sm font-mono bg-gray-100 p-2 rounded mt-2">a + b > c</p>
+                  <p className="text-sm font-mono bg-gray-100 p-2 rounded mt-2">a + b &gt; c</p>
                 </CardContent>
               </Card>
 
