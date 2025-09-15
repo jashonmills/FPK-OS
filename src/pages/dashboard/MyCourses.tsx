@@ -364,11 +364,13 @@ const MyCourses = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center gap-2 mb-4">
-        <h1 className="text-3xl font-bold text-foreground">{t('myCourses.title')}</h1>
-        <PageHelpTrigger onOpen={handleShowVideoManually} />
+      <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <h1 className="text-3xl font-bold text-white">{t('myCourses.title')}</h1>
+          <PageHelpTrigger onOpen={handleShowVideoManually} />
+        </div>
+        <p className="text-white text-center mb-6">{t('myCourses.description')}</p>
       </div>
-      <p className="text-muted-foreground text-center mb-6">{t('myCourses.description')}</p>
 
       <FirstVisitVideoModal
         isOpen={showVideoModal}
