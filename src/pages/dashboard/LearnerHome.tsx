@@ -7,10 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
-import QuoteOfTheDayCard from '@/components/dashboard/QuoteOfTheDayCard';
-import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard';
-import APODCard from '@/components/dashboard/APODCard';
-import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
+import { AIStudyChatInterface } from '@/components/chat/AIStudyChatInterface';
+import { useStudySessions } from '@/hooks/useStudySessions';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { useStudyInsights } from '@/hooks/useStudyInsights';
 import LearningAnalyticsOverview from '@/components/dashboard/LearningAnalyticsOverview';
 import GamificationOverview from '@/components/dashboard/GamificationOverview';
 import GoalsOverview from '@/components/dashboard/GoalsOverview';
@@ -25,7 +25,11 @@ const LearnerHome = () => {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { t } = useTranslation('dashboard');
-  const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
+  
+  // AI Chat Interface data
+  const { sessions: completedSessions } = useStudySessions();
+  const { flashcards } = useFlashcards();
+  const { insights } = useStudyInsights();
 
   // Video guide storage and modal state
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('home_intro_seen');
@@ -61,13 +65,6 @@ const LearnerHome = () => {
     return t('learner');
   };
 
-  const handleAPODGalleryOpen = () => {
-    setIsAPODModalOpen(true);
-  };
-
-  const handleAPODGalleryClose = () => {
-    setIsAPODModalOpen(false);
-  };
 
   return (
     <div className="mobile-section-spacing">
@@ -98,33 +95,26 @@ const LearnerHome = () => {
         </p>
       </div>
 
-      {/* Today's Highlights - Custom Layout */}
+      {/* AI Learning Assistant */}
       <section className="mb-6 sm:mb-8">
-        <h2 className="mobile-heading-md mb-3 sm:mb-4">Today's Highlights</h2>
-        <div className="flex flex-col gap-6 lg:gap-8">
-          {/* 2-column header zone */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Left column: Quote + NASA APOD */}
-            <div className="flex flex-col flex-1 gap-6 lg:gap-8 min-h-[420px]">
-              <div className="flex-1">
-                <QuoteOfTheDayCard className="h-full" />
-              </div>
-              <div className="flex-1">
-                <APODCard onOpenGallery={handleAPODGalleryOpen} className="h-full" />
-              </div>
-            </div>
-
-            {/* Right column: Weather */}
-            <div className="flex-1 min-h-[420px]">
-              <WeatherScienceLabCard />
-            </div>
-          </div>
-
-          {/* Full-width AI Insights */}
-          <div className="w-full">
-            <AIInsightsSection />
-          </div>
+        <h2 className="mobile-heading-md mb-3 sm:mb-4">AI Learning Assistant</h2>
+        <div className="h-[600px]">
+          <AIStudyChatInterface
+            user={user}
+            completedSessions={completedSessions}
+            flashcards={flashcards}
+            insights={insights}
+            fixedHeight={true}
+            showHeader={true}
+            chatMode="general"
+            placeholder="Ask me anything about your studies..."
+          />
         </div>
+      </section>
+
+      {/* AI Insights Section */}
+      <section className="mb-6 sm:mb-8">
+        <AIInsightsSection />
       </section>
 
       {/* Mobile-Optimized Quick Navigation */}
@@ -161,12 +151,6 @@ const LearnerHome = () => {
       <section>
         <FeedbackSystem currentPage="/dashboard/learner" />
       </section>
-
-      {/* APOD Gallery Modal */}
-      <APODGalleryModal
-        isOpen={isAPODModalOpen}
-        onClose={handleAPODGalleryClose}
-      />
 
       {/* Video Guide Modal */}
       <FirstVisitVideoModal
