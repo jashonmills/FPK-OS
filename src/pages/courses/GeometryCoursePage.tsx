@@ -17,7 +17,7 @@ import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLi
 import { TrianglesLesson } from '@/components/course/geometry-lessons/TrianglesLesson';
 import { QuadrilateralsLesson } from '@/components/course/geometry-lessons/QuadrilateralsLesson';
 import { CirclesLesson } from '@/components/course/geometry-lessons/CirclesLesson';
-import { AreaPerimeterLesson } from '@/components/course/geometry-lessons/AreaPerimeterLesson';
+
 import { ThreeDShapesLesson } from '@/components/course/geometry-lessons/ThreeDShapesLesson';
 import { TransformationsLesson } from '@/components/course/geometry-lessons/TransformationsLesson';
 import { CoordinateGeometryLesson } from '@/components/course/geometry-lessons/CoordinateGeometryLesson';
@@ -41,8 +41,8 @@ const lessons: Lesson[] = [
   { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
   { id: 5, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 7, title: "Area and Perimeter", description: "Calculate area and perimeter of various shapes", component: AreaPerimeterLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 8, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
+  { id: 7, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
+  { id: 8, title: "Coming Soon", description: "Module 8 content will be available soon", component: VectorsLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
   { id: 9, title: "Vectors and Vector Geometry", description: "Master vectors, operations, and geometric applications", component: VectorsLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
   { id: 10, title: "Review and Practice", description: "Comprehensive review of all geometry concepts", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" }
 ];
