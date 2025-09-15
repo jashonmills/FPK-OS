@@ -44,6 +44,15 @@ export const QuadrilateralsLesson: React.FC = () => {
         </div>
       </header>
 
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/quadrilaterals.jpg" 
+          alt="Various types of quadrilaterals showing squares, rectangles, parallelograms, rhombuses, trapezoids, and kites with their properties and relationships"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
+      </div>
+
       <div className="space-y-8">
         {/* Section 1: Quadrilaterals */}
         <Card>
@@ -74,6 +83,19 @@ export const QuadrilateralsLesson: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-semibold mb-3">Types of Quadrilaterals</h3>
+              
+              {/* Quadrilateral Types Visual */}
+              <div className="mb-6">
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-3 text-center">Visual Guide to Quadrilaterals</h4>
+                  <img 
+                    src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/quadrilaterals.jpg" 
+                    alt="Detailed diagram showing different types of quadrilaterals: square, rectangle, rhombus, parallelogram, trapezoid, and kite with labeled properties"
+                    className="w-full max-w-2xl mx-auto h-auto rounded-lg shadow-sm"
+                  />
+                  <p className="text-xs text-blue-600 text-center mt-2">Each quadrilateral has unique properties that distinguish it from others</p>
+                </div>
+              </div>
               
               <div className="space-y-8">
                 {/* 1. Parallelogram */}
@@ -440,6 +462,15 @@ export const QuadrilateralsLesson: React.FC = () => {
               <p className="mb-4">
                 A regular polygon is a polygon with all sides equal and all angles equal.
               </p>
+              
+              {/* Regular Polygons Image */}
+              <div className="mb-6">
+                <img 
+                  src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/polygons.jpg" 
+                  alt="Examples of regular polygons including triangles, squares, pentagons, hexagons, and octagons showing their symmetrical properties"
+                  className="w-full h-48 object-cover rounded-lg shadow-md"
+                />
+              </div>
               
               <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
                 <div className="flex">
