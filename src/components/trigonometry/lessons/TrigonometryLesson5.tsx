@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
+import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
 
 interface TrigonometryLesson5Props {
   onComplete: () => void;
@@ -12,6 +13,7 @@ interface TrigonometryLesson5Props {
 
 export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({ onComplete, onNext, hasNext }) => {
   const [isCompleted, setIsCompleted] = useState(false);
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -21,7 +23,7 @@ export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({ onComp
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Lesson Introduction */}
-      <Card>
+      <Card ref={lessonContentRef}>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="h-6 w-6 text-primary" />
@@ -303,6 +305,14 @@ export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({ onComp
           )}
         </div>
       </div>
+
+      {/* In-Course AI Tutor Chat Bubble */}
+      <InCourseChatBubble
+        courseId="interactive-trigonometry"
+        lessonId={5}
+        lessonTitle="Trigonometric Identities"
+        lessonContentRef={lessonContentRef}
+      />
     </div>
   );
 };

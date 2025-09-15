@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
+import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
 
 interface TrigonometryLesson1Props {
   onComplete: () => void;
@@ -213,6 +214,14 @@ export const TrigonometryLesson1: React.FC<TrigonometryLesson1Props> = ({
           )}
         </div>
       </div>
+
+      {/* In-Course AI Tutor Chat Bubble */}
+      <InCourseChatBubble
+        courseId="interactive-trigonometry"
+        lessonId={lessonId}
+        lessonTitle={lessonTitle}
+        lessonContentRef={lessonContentRef}
+      />
     </div>
   );
 };
