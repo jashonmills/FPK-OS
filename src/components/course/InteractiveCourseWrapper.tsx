@@ -3,6 +3,7 @@ import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnaly
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
 import { timeoutManager } from '@/utils/performanceOptimizer';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { CourseAIStudyCoach } from '@/components/course/CourseAIStudyCoach';
 
 interface InteractiveCourseWrapperProps {
   courseId: string;
@@ -129,6 +130,12 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
           }
           return child;
         })}
+        
+        {/* Course-level AI Study Coach */}
+        <CourseAIStudyCoach 
+          courseId={courseId}
+          courseTitle={courseTitle}
+        />
       </div>
     </ErrorBoundary>
   );

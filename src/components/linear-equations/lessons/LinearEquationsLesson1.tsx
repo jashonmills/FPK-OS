@@ -1,34 +1,24 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowRight } from 'lucide-react';
-import LessonTTSControls from '@/components/course/LessonTTSControls';
+import { BookOpen } from 'lucide-react';
 
 interface LinearEquationsLesson1Props {
   onComplete: () => void;
   onNext: () => void;
   hasNext: boolean;
+  trackInteraction?: (event: string, details: any) => void;
 }
 
-export const LinearEquationsLesson1: React.FC<LinearEquationsLesson1Props> = ({ onComplete, onNext, hasNext }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
+export const LinearEquationsLesson1: React.FC<LinearEquationsLesson1Props> = ({ 
+  onComplete, 
+  onNext, 
+  hasNext,
+  trackInteraction 
+}) => {
   const lessonContentRef = useRef<HTMLDivElement>(null);
-
-  const handleComplete = () => {
-    setIsCompleted(true);
-    onComplete();
-  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* TTS Controls */}
-      <LessonTTSControls
-        lessonTitle="Introduction to Linear Equations"
-        lessonNumber={1}
-        totalLessons={7}
-        contentRef={lessonContentRef}
-      />
-
       {/* Lesson Introduction */}
       <Card ref={lessonContentRef}>
         <CardHeader>
@@ -159,25 +149,6 @@ export const LinearEquationsLesson1: React.FC<LinearEquationsLesson1Props> = ({ 
           </div>
         </CardContent>
       </Card>
-
-      {/* Lesson Actions */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Lesson 1 of 7 • Introduction to Linear Equations
-        </div>
-        <div className="flex gap-2">
-          {!isCompleted && (
-            <Button onClick={handleComplete} className="fpk-gradient text-white">
-              Mark as Complete
-            </Button>
-          )}
-          {isCompleted && hasNext && (
-            <Button onClick={onNext} className="fpk-gradient text-white">
-              Next Lesson <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

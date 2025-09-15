@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, Triangle, RotateCcw } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
-import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
 
 export const TrigonometryLesson1: React.FC = () => {
   const lessonContentRef = useRef<HTMLDivElement>(null);
