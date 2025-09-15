@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Zap, ArrowRight, RotateCcw } from 'lucide-react';
+import forcesMotionImage from '@/assets/forces-motion-lesson.jpg';
 
 export const ForcesAndMotionLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const ForcesAndMotionLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Forces and Motion</h1>
         <p className="text-lg text-muted-foreground">The Rules of Movement</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={forcesMotionImage} 
+          alt="Physics demonstration showing forces, motion, and Newton's laws"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

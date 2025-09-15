@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle } from 'lucide-react';
+import scientificMethodImage from '@/assets/scientific-method-lesson.jpg';
 
 export const ScientificMethodLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const ScientificMethodLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">The Scientific Method</h1>
         <p className="text-lg text-muted-foreground">Your Roadmap to Discovery</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={scientificMethodImage} 
+          alt="Scientist demonstrating the scientific method in a laboratory"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

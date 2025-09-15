@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Zap, Shield, Database } from 'lucide-react';
+import cellStructureImage from '@/assets/cell-structure-lesson.jpg';
 
 export const CellStructureLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const CellStructureLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Cell Structure and Function</h1>
         <p className="text-lg text-muted-foreground">The Building Blocks of Life</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={cellStructureImage} 
+          alt="Detailed cross-section of a eukaryotic cell showing organelles"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

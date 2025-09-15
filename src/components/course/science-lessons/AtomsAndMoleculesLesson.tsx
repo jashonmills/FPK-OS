@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Atom, Zap } from 'lucide-react';
+import atomsMoleculesImage from '@/assets/atoms-molecules-lesson.jpg';
 
 export const AtomsAndMoleculesLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const AtomsAndMoleculesLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Atoms and Molecules</h1>
         <p className="text-lg text-muted-foreground">The Building Blocks of Everything</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={atomsMoleculesImage} 
+          alt="Atomic structure showing nucleus and electron orbitals with molecular examples"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

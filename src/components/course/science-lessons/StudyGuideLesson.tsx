@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, PenTool } from 'lucide-react';
+import studyGuideImage from '@/assets/study-guide-lesson.jpg';
 
 export const StudyGuideLesson: React.FC = () => {
   return (
@@ -8,6 +9,15 @@ export const StudyGuideLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Complete Study Guide</h1>
         <p className="text-lg text-muted-foreground">Comprehensive Review Materials</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={studyGuideImage} 
+          alt="Comprehensive study guide with organized materials and reference books"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

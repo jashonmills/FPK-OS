@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, Smartphone, Globe, Heart } from 'lucide-react';
+import importanceOfScienceImage from '@/assets/importance-of-science-lesson.jpg';
 
 export const ImportanceOfScienceLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const ImportanceOfScienceLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">The Importance of Science</h1>
         <p className="text-lg text-muted-foreground">Science in Our Daily Lives</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={importanceOfScienceImage} 
+          alt="Science applications in technology, medicine, and environment"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

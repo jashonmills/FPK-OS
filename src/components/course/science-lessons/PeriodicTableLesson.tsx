@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Grid, TrendingUp } from 'lucide-react';
+import periodicTableImage from '@/assets/periodic-table-lesson.jpg';
 
 export const PeriodicTableLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const PeriodicTableLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">The Periodic Table</h1>
         <p className="text-lg text-muted-foreground">The Chemist's Map</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={periodicTableImage} 
+          alt="Colorful periodic table of elements showing all 118 elements"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

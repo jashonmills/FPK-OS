@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
+import shortAnswerQuestionsImage from '@/assets/short-answer-questions-lesson.jpg';
 
 export const ShortAnswerQuestionsLesson: React.FC = () => {
   const questions = [
@@ -31,6 +32,15 @@ export const ShortAnswerQuestionsLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Short-Answer Questions</h1>
         <p className="text-lg text-muted-foreground">Test Your Understanding</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={shortAnswerQuestionsImage} 
+          alt="Student studying science with textbooks and materials"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

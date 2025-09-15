@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Rocket, Telescope, Microscope, Cpu, Dna, Globe } from 'lucide-react';
+import furtherExplorationImage from '@/assets/further-exploration-lesson.jpg';
 
 export const FurtherExplorationLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const FurtherExplorationLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Further Exploration</h1>
         <p className="text-lg text-muted-foreground">Your Next Steps in Science</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={furtherExplorationImage} 
+          alt="Future science careers showing space exploration, medical research, and emerging technologies"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>

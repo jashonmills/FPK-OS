@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Zap, Battery, Flame, ArrowUp } from 'lucide-react';
+import energyWorkImage from '@/assets/energy-work-lesson.jpg';
 
 export const EnergyAndWorkLesson: React.FC = () => {
   return (
@@ -9,6 +10,15 @@ export const EnergyAndWorkLesson: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Energy and Work</h1>
         <p className="text-lg text-muted-foreground">The Currency of Change</p>
+      </div>
+
+      {/* Hero Image */}
+      <div className="mb-8">
+        <img 
+          src={energyWorkImage} 
+          alt="Energy transformation demonstration with roller coaster showing potential and kinetic energy"
+          className="w-full h-64 object-cover rounded-lg shadow-lg"
+        />
       </div>
 
       <Card>
