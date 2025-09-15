@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Box, Calculator } from 'lucide-react';
 
-const geometryImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/3d-geometry-complete.jpg';
-const polyhedraImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/polyhedra-platonic-solids.jpg';
-const prismsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/prisms-pyramids-volume.jpg';
-const cylindersImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cylinders-cones-spheres.jpg';
+// Import generated images
+import geometryOverview from '@/assets/3d-geometry-overview.png';
+import platonicSolids from '@/assets/platonic-solids.png';
+import prismsPyramids from '@/assets/prisms-pyramids.png';
+import curvedSolids from '@/assets/curved-solids.png';
+
+// Use existing storage image as backup
+const existingGeometryImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/3d_geometry.png';
 
 export const ThreeDShapesLesson: React.FC = () => {
   return (
@@ -37,7 +41,7 @@ export const ThreeDShapesLesson: React.FC = () => {
 
           <div className="mb-8">
             <img 
-              src={geometryImage}
+              src={geometryOverview}
               alt="Three-dimensional geometry showing various 3D shapes including cubes, pyramids, cylinders, cones, and spheres with coordinate systems"
               className="w-full max-w-4xl mx-auto object-contain rounded-lg shadow-lg"
             />
@@ -219,7 +223,7 @@ export const ThreeDShapesLesson: React.FC = () => {
 
           <div className="mb-6">
             <img 
-              src={polyhedraImage}
+              src={platonicSolids}
               alt="Various polyhedra including the five Platonic solids: tetrahedron, cube, octahedron, dodecahedron, and icosahedron"
               className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
             />
@@ -406,7 +410,7 @@ export const ThreeDShapesLesson: React.FC = () => {
         <CardContent className="space-y-6">
           <div className="mb-6">
             <img 
-              src={prismsImage}
+              src={prismsPyramids}
               alt="Various prisms and pyramids showing rectangular prisms, triangular prisms, and pyramids with volume formulas"
               className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
             />
@@ -562,7 +566,7 @@ export const ThreeDShapesLesson: React.FC = () => {
         <CardContent className="space-y-6">
           <div className="mb-6">
             <img 
-              src={cylindersImage}
+              src={curvedSolids}
               alt="Cylinders, cones, and spheres with their volume and surface area formulas"
               className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
             />
