@@ -96,6 +96,11 @@ export default {
 					'Brush Script MT', 
 					'cursive'
 				],
+				'elegant': [
+					'Playfair Display', 
+					'Georgia', 
+					'serif'
+				],
 				'system': [
 					'system-ui', 
 					'-apple-system', 
