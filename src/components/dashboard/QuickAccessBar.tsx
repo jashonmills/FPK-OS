@@ -81,7 +81,7 @@ const QuickAccessBar = () => {
             <div className={`w-6 h-6 rounded-md ${item.color} flex items-center justify-center mb-1 shadow-sm`}>
               <IconComponent className="h-3 w-3 text-white" />
             </div>
-            <span className="text-xs font-medium text-foreground/80 leading-tight">{item.title}</span>
+            <span className="text-xs font-medium text-white leading-tight">{item.title}</span>
           </Button>
         );
       })}
