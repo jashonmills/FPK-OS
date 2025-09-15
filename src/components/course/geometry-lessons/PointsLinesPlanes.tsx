@@ -15,6 +15,18 @@ export const PointsLinesPlanes: React.FC = () => {
         <p className="text-lg text-muted-foreground">Foundation concepts in geometry</p>
       </div>
 
+      {/* Introduction */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-2xl">Introduction</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg leading-relaxed">
+            Welcome to Module 1 of our Geometry course! In this module, we will explore the fundamental concepts of geometry, focusing on lines, angles, and polygons. These concepts form the foundation of geometric understanding and will be essential for all subsequent modules.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Hero Image */}
       <div className="mb-8">
         <img 
