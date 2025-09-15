@@ -123,6 +123,7 @@ const InteractiveAlgebraCoursePage = lazy(() => import("./pages/courses/Interact
 const InteractiveEconomicsCoursePage = lazy(() => import("./pages/courses/InteractiveEconomicsCoursePage"));
 const InteractiveNeurodiversityCoursePage = lazy(() => import("./pages/courses/InteractiveNeurodiversityCoursePage"));
 const InteractiveScienceCoursePage = lazy(() => import("./pages/courses/InteractiveScienceCoursePage"));
+const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningSpellingCoursePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./components/courses/logic/LogicCriticalThinkingCoursePage"));
 
 // Standalone AI Study Coach Chat
@@ -399,6 +400,18 @@ const App: React.FC = () => {
           <Route path="/courses/logic-critical-thinking" element={
             <RouteProtector>
               <LazyRoute><LogicCriticalThinkingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/empowering-learning-spelling" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/empowering-learning-spelling/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           
