@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Import vector geometry images
+import vectorsIntro from '@/assets/vectors-intro.png';
+import vectorOperations from '@/assets/vector-operations.png';
+import crossProduct from '@/assets/cross-product.png';
+
 const vectorsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png';
 
 export const VectorsLesson: React.FC = () => {
@@ -14,11 +19,14 @@ export const VectorsLesson: React.FC = () => {
       {/* Back button */}
       <Button 
         variant="outline" 
-        onClick={() => navigate('/courses/geometry')}
+        onClick={() => {
+          console.log('Navigating to /courses/geometry');
+          navigate('/courses/geometry');
+        }}
         className="mb-6"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Overview
+        Back to Course Overview
       </Button>
 
       {/* Module Header */}
@@ -295,6 +303,14 @@ export const VectorsLesson: React.FC = () => {
             <p className="mb-2">b) <strong>a</strong> - <strong>b</strong></p>
             <p className="mb-2">c) 2<strong>a</strong> - 3<strong>b</strong></p>
             
+            <div className="mb-4">
+              <img 
+                src={vectorOperations} 
+                alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
+                className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+              />
+            </div>
+            
             <h5 className="font-medium mt-4 mb-2">Solution:</h5>
             <p className="mb-2">a) <strong>a</strong> + <strong>b</strong> = (2, 3) + (4, -1) = (2 + 4, 3 + (-1)) = (6, 2)</p>
             <p className="mb-2">b) <strong>a</strong> - <strong>b</strong> = (2, 3) - (4, -1) = (2 - 4, 3 - (-1)) = (-2, 4)</p>
@@ -441,6 +457,14 @@ export const VectorsLesson: React.FC = () => {
             <p className="mb-2">a) <strong>a</strong> × <strong>b</strong></p>
             <p className="mb-2">b) The area of the parallelogram formed by <strong>a</strong> and <strong>b</strong></p>
             <p className="mb-2">c) A unit vector perpendicular to both <strong>a</strong> and <strong>b</strong></p>
+            
+            <div className="mb-4">
+              <img 
+                src={crossProduct} 
+                alt="Cross product visualization showing perpendicular result vector and right-hand rule" 
+                className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+              />
+            </div>
             
             <h5 className="font-medium mt-4 mb-2">Solution:</h5>
             <p className="mb-2"><strong>a)</strong> Calculate the cross product using the component formula.</p>

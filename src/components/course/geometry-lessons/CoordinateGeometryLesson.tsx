@@ -22,11 +22,14 @@ export const CoordinateGeometryLesson: React.FC = () => {
       {/* Back button */}
       <Button 
         variant="outline" 
-        onClick={() => navigate('/courses/geometry')}
+        onClick={() => {
+          console.log('Navigating to /courses/geometry');
+          navigate('/courses/geometry');
+        }}
         className="mb-6"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Overview
+        Back to Course Overview
       </Button>
 
       <div className="space-y-8">
