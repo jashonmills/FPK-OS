@@ -26,7 +26,7 @@ const VoiceSettingsCard: React.FC = () => {
     const voiceObject = selectedVoiceId ? voices.find(v => v.name === selectedVoiceId) : voices[0];
     
     speak(testText, { 
-      voice: voiceObject,
+      voice: voiceObject?.name || selectedVoiceId,
       interrupt: true 
     });
     

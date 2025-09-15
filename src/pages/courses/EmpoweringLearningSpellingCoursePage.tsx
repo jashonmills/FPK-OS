@@ -54,6 +54,30 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
 
+  // Load completed lessons from localStorage on mount
+  useEffect(() => {
+    const storageKey = 'spelling-course-completed-lessons';
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setCompletedLessons(parsed);
+        console.log('📖 Loaded completed spelling lessons:', parsed);
+      } catch (error) {
+        console.warn('Failed to parse stored progress:', error);
+      }
+    }
+  }, []);
+
+  // Save completed lessons to localStorage whenever it changes
+  useEffect(() => {
+    if (completedLessons.length > 0) {
+      const storageKey = 'spelling-course-completed-lessons';
+      localStorage.setItem(storageKey, JSON.stringify(completedLessons));
+      console.log('💾 Saved completed spelling lessons:', completedLessons);
+    }
+  }, [completedLessons]);
+
   useEffect(() => {
     if (lessonId) {
       const lesson = parseInt(lessonId);
@@ -99,8 +123,12 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     navigate('/dashboard/learner');
   };
 
-  // Memoize expensive calculations
+  // Memoize expensive calculations - Allow access to all lessons or sequential progression
   const isLessonAccessible = useCallback((lessonId: number) => {
+    // For debugging/testing: uncomment the next line to unlock all lessons
+    // return true;
+    
+    // Sequential progression: lesson 1 is always accessible, others need previous lesson completed
     return lessonId === 1 || completedLessons.includes(lessonId - 1);
   }, [completedLessons]);
 
@@ -180,9 +208,15 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                     <Card 
                       key={lesson.id}
                       className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
-                        !isAccessible ? 'opacity-50' : ''
+                        !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
                       } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
-                      onClick={() => isAccessible && setCurrentLesson(lesson.id)}
+                      onClick={() => {
+                        if (isAccessible) {
+                          setCurrentLesson(lesson.id);
+                        } else {
+                          console.log('📖 Lesson not accessible yet - complete previous lesson first');
+                        }
+                      }}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
