@@ -12,7 +12,7 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PDFThumbnailPreview } from '@/components/course/PDFThumbnailPreview';
+import { StudentGuideGallery } from '@/components/course/StudentGuideGallery';
 
 // Import lesson components
 import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
@@ -182,19 +182,14 @@ export const GeometryCoursePage: React.FC = () => {
               />
 
               {/* Study Materials Section */}
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-6xl mx-auto">
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Study Materials & Resources</h2>
+                  <p className="text-center text-muted-foreground mb-6">
+                    Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab.
+                  </p>
                   
-                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 justify-items-center">
-                    <PDFThumbnailPreview
-                      pdfUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Comprehensive_Geometry_Course.pdf"
-                      fileName="Comprehensive_Geometry_Course.pdf"
-                      title="Comprehensive Geometry Course"
-                      moduleReference="All Modules - Complete Study Guide"
-                      className="w-full max-w-[280px]"
-                    />
-                  </div>
+                  <StudentGuideGallery />
                 </div>
               </div>
 
