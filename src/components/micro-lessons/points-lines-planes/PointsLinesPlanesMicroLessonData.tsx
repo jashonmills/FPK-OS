@@ -173,17 +173,19 @@ export const pointsLinesPlanesMicroLessons: MicroLessonData = {
       estimatedTime: 3,
       content: (
         <PracticeScreen
-          problem="Look at the figure below and identify all the lines, line segments, and rays."
-          hint="Remember: Lines extend infinitely, segments have two endpoints, rays have one endpoint and extend infinitely."
-          solution="Line ABD: Extends infinitely in both directions | Line segment AB: Has endpoints A and B | Line segment BD: Has endpoints B and D | Ray BC: Starts at B, extends through C"
-        >
-          <div className="bg-white p-6 rounded border text-center font-mono text-lg mb-4">
-            <div>C</div>
-            <div>|</div>
-            <div>|</div>
-            <div>A————————B————————D</div>
-          </div>
-        </PracticeScreen>
+          question={{
+            id: 'lines-identification',
+            question: 'Look at the figure and identify all lines, segments, and rays:\n\n    C\n    |\n    |\nA————————B————————D',
+            correctAnswer: 'Line ABD, Segment AB, Segment BD, Ray BC',
+            hints: [
+              'Lines extend infinitely in both directions',
+              'Segments have two definite endpoints', 
+              'Rays have one endpoint and extend infinitely in one direction'
+            ],
+            explanation: 'Line ABD extends infinitely in both directions through points A, B, and D. Segment AB has definite endpoints at A and B. Segment BD has definite endpoints at B and D. Ray BC starts at point B and extends infinitely through point C.',
+            type: 'text'
+          }}
+        />
       )
     },
 
