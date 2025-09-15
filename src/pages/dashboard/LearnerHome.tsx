@@ -116,18 +116,18 @@ const LearnerHome = () => {
         </div>
       </section>
 
+      {/* Mobile-Optimized Quick Navigation */}
+      <section className="mb-6 sm:mb-8">
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
+          <QuickNavigationGrid />
+        </div>
+      </section>
+
       {/* AI Insights Section */}
       <section className="mb-6 sm:mb-8">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
           <AIInsightsSection />
-        </div>
-      </section>
-
-      {/* Mobile-Optimized Quick Navigation */}
-      <section>
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
-          <QuickNavigationGrid />
         </div>
       </section>
 
