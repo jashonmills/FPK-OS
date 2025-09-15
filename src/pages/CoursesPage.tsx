@@ -319,7 +319,7 @@ const CoursesPage: React.FC = () => {
           
           {/* Hero Content */}
           <div className="mt-8 max-w-4xl">
-            <h2 className="font-elegant text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-white font-bold leading-relaxed drop-shadow-lg bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+            <h2 className="font-elegant text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-slate-900 font-bold leading-relaxed bg-white/95 backdrop-blur-sm rounded-lg p-6 border-2 border-white/40 shadow-2xl">
               Our courses are crafted for neurodiverse learners. We spend the extra time and care to go beyond traditional methods, building structured, supportive, and engaging content. Our unique methodology ensures every learner gets the most educational impact, making your learning journey both effective and empowering.
             </h2>
           </div>
