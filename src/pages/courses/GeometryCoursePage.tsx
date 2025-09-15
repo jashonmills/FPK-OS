@@ -15,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { StudentGuideGallery } from '@/components/course/StudentGuideGallery';
 
 // Import lesson components
-import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
+import { PointsLinesPlanesMicroLesson } from '@/components/micro-lessons/points-lines-planes/PointsLinesPlanesMicroLesson';
 import { TriangleMicroLesson } from '@/components/micro-lessons/triangles/TriangleMicroLesson';
 import { QuadrilateralsLesson } from '@/components/course/geometry-lessons/QuadrilateralsLesson';
 import { CirclesLesson } from '@/components/course/geometry-lessons/CirclesLesson';
@@ -37,7 +37,7 @@ interface Lesson {
 
 // Moved outside component to prevent recreation on every render
 const lessons: Lesson[] = [
-  { id: 1, title: "Points, Lines, and Planes", description: "Learn the fundamental building blocks of geometry", component: PointsLinesPlanes, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 1, title: "Points, Lines, and Planes", description: "Learn the fundamental building blocks of geometry", component: PointsLinesPlanesMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TriangleMicroLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Quadrilaterals", description: "Study squares, rectangles, parallelograms, and more", component: QuadrilateralsLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
   { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
