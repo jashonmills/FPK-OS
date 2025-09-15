@@ -412,11 +412,11 @@ export const CoordinateGeometryLesson: React.FC = () => {
             <h4 className="font-semibold mb-4 text-primary">Parallel and Perpendicular Lines</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="p-4 bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200">
-                <h5 className="font-semibold text-cyan-700 mb-2">Parallel Lines</h5>
+                <h5 className="font-semibold text-cyan-700 mb-2">1. Parallel Lines</h5>
                 <p className="text-sm">Two lines are parallel if and only if they have the same slope or are both vertical.</p>
               </Card>
               <Card className="p-4 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
-                <h5 className="font-semibold text-red-700 mb-2">Perpendicular Lines</h5>
+                <h5 className="font-semibold text-red-700 mb-2">2. Perpendicular Lines</h5>
                 <p className="text-sm">Two lines are perpendicular if and only if the product of their slopes is -1, or one is vertical and the other is horizontal.</p>
               </Card>
             </div>
@@ -591,72 +591,68 @@ export const CoordinateGeometryLesson: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-              <h3 className="text-xl font-semibold text-blue-700 mb-4">Parabolas</h3>
-              <p className="mb-4 text-sm">A parabola is the set of all points in a plane that are equidistant from a fixed point (the focus) and a fixed line (the directrix).</p>
-              
-              <div className="space-y-3">
-                <div className="bg-white p-3 rounded border">
-                  <p className="font-semibold mb-1">Standard forms:</p>
-                  <ul className="text-sm space-y-1">
-                    <li>• y = ax² (opens upward if a &gt; 0, downward if a &lt; 0)</li>
-                    <li>• x = ay² (opens rightward if a &gt; 0, leftward if a &lt; 0)</li>
-                  </ul>
-                </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Parabolas</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              A parabola is the set of all points in a plane that are equidistant from a fixed point (the focus) and a fixed line (the directrix).
+            </p>
+            <p className="mb-4">The standard form of the equation of a parabola with vertex at the origin is:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="text-center text-lg font-bold text-primary p-3 bg-primary/5 rounded-lg border border-primary/20">
+                y = ax² (opens upward if a &gt; 0, downward if a &lt; 0)
               </div>
-              
-              <Alert className="mt-4">
-                <Lightbulb className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Teaching Moment:</strong> Parabolas are fascinating curves with numerous applications. The reflective property of parabolas—that light rays emanating from the focus reflect off the parabola in parallel lines—is used in the design of flashlights, satellite dishes, and telescope mirrors. In physics, the path of a projectile under constant gravity follows a parabolic trajectory. The standard form y = ax² represents the simplest parabola, with its vertex at the origin and its axis of symmetry along the y-axis. The coefficient a determines both the direction of opening and the "width" of the parabola—larger |a| values create narrower parabolas.
-                </AlertDescription>
-              </Alert>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-              <h3 className="text-xl font-semibold text-green-700 mb-4">Ellipses</h3>
-              <p className="mb-4 text-sm">An ellipse is the set of all points in a plane such that the sum of the distances from any point on the ellipse to two fixed points (the foci) is constant.</p>
-              
-              <div className="space-y-3">
-                <div className="bg-white p-3 rounded border">
-                  <p className="font-semibold mb-1">Standard form:</p>
-                  <p className="text-sm">x²/a² + y²/b² = 1</p>
-                  <p className="text-xs text-muted-foreground">where a and b are the semi-major and semi-minor axes</p>
-                </div>
+              <div className="text-center text-lg font-bold text-primary p-3 bg-primary/5 rounded-lg border border-primary/20">
+                x = ay² (opens rightward if a &gt; 0, leftward if a &lt; 0)
               </div>
-              
-              <Alert className="mt-4">
-                <Lightbulb className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Teaching Moment:</strong> Ellipses appear throughout nature and human design. Planetary orbits are elliptical, with the sun at one focus—a discovery made by Johannes Kepler that revolutionized astronomy. The "whispering gallery" effect, where sound travels unusually well between the foci of an elliptical room, is used in architectural acoustics. In the standard form x²/a² + y²/b² = 1, the values a and b determine the shape of the ellipse: if a &gt; b, the ellipse is stretched horizontally; if b &gt; a, it's stretched vertically; if a = b, it's a circle (a special case of an ellipse).
-                </AlertDescription>
-              </Alert>
-            </Card>
+            </div>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Parabolas are fascinating curves with numerous applications. The reflective property of parabolas—that light rays emanating from the focus reflect off the parabola in parallel lines—is used in the design of flashlights, satellite dishes, and telescope mirrors. In physics, the path of a projectile under constant gravity follows a parabolic trajectory. The standard form y = ax² represents the simplest parabola, with its vertex at the origin and its axis of symmetry along the y-axis. The coefficient a determines both the direction of opening and the "width" of the parabola—larger |a| values create narrower parabolas. More generally, a parabola with vertex at (h, k) has the form y - k = a(x - h)² or x - h = a(y - k)². Understanding parabolas in coordinate geometry provides insights into quadratic functions in algebra and into physical phenomena like projectile motion.
+              </AlertDescription>
+            </Alert>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-            <Card className="p-6 bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
-              <h3 className="text-xl font-semibold text-red-700 mb-4">Hyperbolas</h3>
-              <p className="mb-4 text-sm">A hyperbola is the set of all points in a plane such that the absolute difference of the distances from any point on the hyperbola to two fixed points (the foci) is constant.</p>
-              
-              <div className="space-y-3">
-                <div className="bg-white p-3 rounded border">
-                  <p className="font-semibold mb-1">Standard forms:</p>
-                  <ul className="text-sm space-y-1">
-                    <li>• x²/a² - y²/b² = 1 (opens left and right)</li>
-                    <li>• y²/a² - x²/b² = 1 (opens up and down)</li>
-                  </ul>
-                </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Ellipses</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              An ellipse is the set of all points in a plane such that the sum of the distances from any point on the ellipse to two fixed points (the foci) is constant.
+            </p>
+            <p className="mb-4">The standard form of the equation of an ellipse with center at the origin is:</p>
+            <div className="text-center text-2xl font-bold text-primary mb-4 p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+              x²/a² + y²/b² = 1 (where a and b are the semi-major and semi-minor axes)
+            </div>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Ellipses appear throughout nature and human design. Planetary orbits are elliptical, with the sun at one focus—a discovery made by Johannes Kepler that revolutionized astronomy. The "whispering gallery" effect, where sound travels unusually well between the foci of an elliptical room, is used in architectural acoustics. In the standard form x²/a² + y²/b² = 1, the values a and b determine the shape of the ellipse: if a &gt; b, the ellipse is stretched horizontally; if b &gt; a, it's stretched vertically; if a = b, it's a circle (a special case of an ellipse). The foci are located at (±c, 0) where c² = a² - b² (assuming a &gt; b). Understanding ellipses in coordinate geometry connects to concepts in astronomy, optics, and engineering, where elliptical shapes serve specific functional purposes.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-primary">Hyperbolas</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              A hyperbola is the set of all points in a plane such that the absolute difference of the distances from any point on the hyperbola to two fixed points (the foci) is constant.
+            </p>
+            <p className="mb-4">The standard form of the equation of a hyperbola with center at the origin is:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="text-center text-lg font-bold text-primary p-3 bg-primary/5 rounded-lg border border-primary/20">
+                x²/a² - y²/b² = 1 (opens left and right)
               </div>
-              
-              <Alert className="mt-4">
-                <Lightbulb className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Teaching Moment:</strong> Hyperbolas have distinctive properties that make them useful in various applications. The reflective property of hyperbolas—that rays emanating from one focus reflect toward the other focus—is used in certain telescope designs. Hyperbolic navigation was a system used before GPS, based on the principle that the difference in distances from two fixed points determines a hyperbola. In the standard form x²/a² - y²/b² = 1, the hyperbola has its transverse axis along the x-axis and opens to the left and right. The asymptotes of this hyperbola are the lines y = ±(b/a)x, which the curves approach but never touch as x approaches infinity.
-                </AlertDescription>
-              </Alert>
-            </Card>
+              <div className="text-center text-lg font-bold text-primary p-3 bg-primary/5 rounded-lg border border-primary/20">
+                y²/a² - x²/b² = 1 (opens up and down)
+              </div>
+            </div>
+            
+            <Alert>
+              <Lightbulb className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> Hyperbolas have distinctive properties that make them useful in various applications. The reflective property of hyperbolas—that rays emanating from one focus reflect toward the other focus—is used in certain telescope designs. Hyperbolic navigation was a system used before GPS, based on the principle that the difference in distances from two fixed points determines a hyperbola. In the standard form x²/a² - y²/b² = 1, the hyperbola has its transverse axis along the x-axis and opens to the left and right. The asymptotes of this hyperbola are the lines y = ±(b/a)x, which the curves approach but never touch as x approaches infinity. Understanding hyperbolas in coordinate geometry provides insights into rational functions in algebra and into physical phenomena like sonic booms and gravitational lensing.
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div>
