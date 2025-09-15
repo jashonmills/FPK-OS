@@ -149,7 +149,7 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
       shadow-xl z-50 flex flex-col ${
       isMinimized ? 'h-14' : 'max-h-[calc(100vh-120px)] sm:h-[500px]'
     } ${className}`}>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2 bg-primary text-primary-foreground rounded-t-lg shrink-0">
+      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2 bg-primary/60 text-foreground rounded-t-lg shrink-0">
         <div className="flex items-center space-x-2 min-w-0 flex-1">
           <Bot className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
           <CardTitle className="text-xs sm:text-sm font-medium truncate">
@@ -164,7 +164,7 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
             variant="ghost" 
             size="sm" 
             onClick={() => setIsMinimized(!isMinimized)}
-            className="h-6 w-6 sm:h-7 sm:w-7 p-0 hover:bg-primary-foreground/20"
+            className="h-6 w-6 sm:h-7 sm:w-7 p-0 hover:bg-foreground/10"
           >
             {isMinimized ? <Maximize2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <Minimize2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
           </Button>
@@ -172,7 +172,7 @@ export const CourseAIStudyCoach: React.FC<CourseAIStudyCoachProps> = ({
             variant="ghost" 
             size="sm" 
             onClick={() => setIsOpen(false)}
-            className="h-6 w-6 sm:h-7 sm:w-7 p-0 hover:bg-primary-foreground/20"
+            className="h-6 w-6 sm:h-7 sm:w-7 p-0 hover:bg-foreground/10"
           >
             <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           </Button>
