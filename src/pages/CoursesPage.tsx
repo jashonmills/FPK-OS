@@ -14,6 +14,16 @@ import {
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
+// Import course header images (same as in StyledCourseCard)
+import courseLinearEquations from '@/assets/course-linear-equations.jpg';
+import courseTrigonometry from '@/assets/course-trigonometry.jpg';
+import courseAlgebra from '@/assets/course-algebra.jpg';
+import courseLogic from '@/assets/course-logic.jpg';
+import courseEconomics from '@/assets/course-economics.jpg';
+import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
+import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
+import courseScience from '@/assets/course-science.jpg';
+
 interface Course {
   id: string;
   title: string;
@@ -26,7 +36,42 @@ interface Course {
   features: string[];
   learningOutcomes: string[];
   route?: string;
+  image?: string; // Added for course header images
 }
+
+// Map course IDs to their images (same as StyledCourseCard)
+const courseImageMap: Record<string, string> = {
+  'empowering-learning-spelling': courseSpellingReading,
+  'logic-critical-thinking': courseLogic,
+  'interactive-science': courseScience,
+  'interactive-algebra': courseAlgebra,
+  'interactive-linear-equations': courseLinearEquations,
+  'interactive-trigonometry': courseTrigonometry,
+  'interactive-economics': courseEconomics,
+  'interactive-neurodiversity': courseNeurodiversity,
+};
+
+// Fallback function for courses not in the map
+const getCourseImage = (id: string, title: string): string => {
+  // Check direct ID mapping first
+  if (courseImageMap[id]) {
+    return courseImageMap[id];
+  }
+  
+  // Fallback based on title keywords
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquations;
+  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometry;
+  if (titleLower.includes('algebra')) return courseAlgebra;
+  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
+  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
+  if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
+  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
+  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
+  
+  // Default fallback
+  return courseScience;
+};
 
 const courses: Course[] = [
   {
@@ -207,7 +252,7 @@ const CoursesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Header */}
+      {/* Header - Enhanced mobile text sizes */}
       <div className="bg-white/70 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -216,19 +261,19 @@ const CoursesPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-sm sm:text-base"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Course Catalog</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Course Catalog</h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1">
                   Discover our comprehensive learning programs designed for every learner
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-lg px-4 py-2">
+            <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2">
               {courses.length} Courses Available
             </Badge>
           </div>
@@ -238,122 +283,140 @@ const CoursesPage: React.FC = () => {
       {/* Courses Grid */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <Card key={course.id} className="relative flex flex-col h-full hover:shadow-lg transition-all duration-200">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className={getCategoryColor(course.category)}>
+          {courses.map((course) => {
+            const courseImage = getCourseImage(course.id, course.title);
+            
+            return (
+              <Card key={course.id} className="relative flex flex-col h-full hover:shadow-lg transition-all duration-200 overflow-hidden group">
+                {/* AI Generated Image Header (same as StyledCourseCard) */}
+                <div 
+                  className="relative h-40 bg-cover bg-center overflow-hidden"
+                  style={{ backgroundImage: `url(${courseImage})` }}
+                >
+                  {/* Dark overlay for text contrast */}
+                  <div className="absolute inset-0 bg-black/40" />
+                  
+                  {/* Header content */}
+                  <div className="relative z-10 p-4 sm:p-6 h-full flex flex-col justify-between">
+                    <div className="flex justify-between items-start gap-2">
+                      <Badge className={`${getCategoryColor(course.category)} text-xs sm:text-sm backdrop-blur-sm`}>
                         {course.category}
                       </Badge>
-                      <Badge className={getLevelColor(course.level)}>
+                      <Badge className={`${getLevelColor(course.level)} text-xs sm:text-sm backdrop-blur-sm`}>
                         {course.level}
                       </Badge>
                     </div>
-                    <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
-                  </div>
-                  <GraduationCap className="h-6 w-6 text-primary flex-shrink-0" />
-                </div>
-                <p className="text-sm text-muted-foreground">{course.description}</p>
-
-                {/* Course Stats */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="h-3 w-3" />
-                    <span>{course.lessons} Lessons</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{course.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    <span>{course.level}</span>
+                    
+                    <div className="flex-1 flex items-end">
+                      <CardTitle className="text-white font-bold text-lg sm:text-xl leading-tight drop-shadow-lg">
+                        {course.title}
+                      </CardTitle>
+                    </div>
                   </div>
                 </div>
-              </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col">
-                {/* Course Summary Dropdown */}
-                <Collapsible
-                  open={expandedCourse === course.id}
-                  onOpenChange={() => 
-                    setExpandedCourse(expandedCourse === course.id ? null : course.id)
-                  }
-                >
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-between text-xs mb-3"
-                    >
-                      Course Details
-                      {expandedCourse === course.id ? (
-                        <ChevronUp className="h-3 w-3" />
-                      ) : (
-                        <ChevronDown className="h-3 w-3" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-3 mb-4">
-                    <div>
-                      <h4 className="font-medium text-xs mb-1">Overview</h4>
-                      <p className="text-xs text-muted-foreground">{course.summary}</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-xs mb-1">Key Features</h4>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        {course.features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-1">
-                            <span className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></span>
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-xs mb-1">Learning Outcomes</h4>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        {course.learningOutcomes.map((outcome, index) => (
-                          <li key={index} className="flex items-center gap-1">
-                            <span className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></span>
-                            {outcome}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                <CardContent className="flex-1 flex flex-col p-4 sm:p-6">
+                  {/* Course Description */}
+                  <p className="text-sm sm:text-base text-muted-foreground mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
 
-                {/* Enroll Button */}
-                <div className="mt-auto pt-4">
-                  <Button
-                    onClick={() => handleEnroll(course.id)}
-                    className="w-full bg-primary hover:bg-primary/90"
+                  {/* Course Stats - Enhanced mobile text sizes */}
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="font-medium">{course.lessons} Lessons</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="font-medium">{course.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="font-medium">{course.level}</span>
+                    </div>
+                  </div>
+
+                  {/* Course Summary Dropdown - Enhanced mobile text */}
+                  <Collapsible
+                    open={expandedCourse === course.id}
+                    onOpenChange={() => 
+                      setExpandedCourse(expandedCourse === course.id ? null : course.id)
+                    }
                   >
-                    Enroll Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between text-sm sm:text-base mb-3 hover:bg-muted/50"
+                      >
+                        Course Details
+                        {expandedCourse === course.id ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-4 mb-4">
+                      <div>
+                        <h4 className="font-semibold text-sm sm:text-base mb-2">Overview</h4>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{course.summary}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-sm sm:text-base mb-2">Key Features</h4>
+                        <ul className="text-sm sm:text-base text-muted-foreground space-y-1.5">
+                          {course.features.map((feature, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full flex-shrink-0 mt-2"></span>
+                              <span className="leading-relaxed">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-sm sm:text-base mb-2">Learning Outcomes</h4>
+                        <ul className="text-sm sm:text-base text-muted-foreground space-y-1.5">
+                          {course.learningOutcomes.map((outcome, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full flex-shrink-0 mt-2"></span>
+                              <span className="leading-relaxed">{outcome}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Enroll Button - Enhanced mobile size */}
+                  <div className="mt-auto pt-4">
+                    <Button
+                      onClick={() => handleEnroll(course.id)}
+                      className="w-full bg-primary hover:bg-primary/90 text-sm sm:text-base py-2.5 sm:py-3 font-semibold"
+                    >
+                      Enroll Now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* Call to Action Section */}
+        {/* Call to Action Section - Enhanced mobile text */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Ready to Start Learning?</h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6 sm:p-8 max-w-4xl mx-auto">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4">Ready to Start Learning?</h2>
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
               Join thousands of learners who have transformed their education with our interactive courses. 
               Sign up today and start your learning journey with personalized progress tracking and expert guidance.
             </p>
             <Button
               size="lg"
               onClick={() => navigate('/login')}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-2.5 sm:py-3"
             >
               Create Your Account
             </Button>
