@@ -185,11 +185,20 @@ export const GeometryCoursePage: React.FC = () => {
               <div className="max-w-6xl mx-auto">
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Study Materials & Resources</h2>
-                  <p className="text-center text-muted-foreground mb-6">
-                    Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab.
-                  </p>
                   
-                  <StudentGuideGallery />
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="student-guides">
+                      <AccordionTrigger className="text-left text-lg font-semibold">
+                        Student Guides Collection (21 Resources)
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4">
+                        <p className="text-center text-muted-foreground mb-6">
+                          Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab.
+                        </p>
+                        <StudentGuideGallery />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
               </div>
 
