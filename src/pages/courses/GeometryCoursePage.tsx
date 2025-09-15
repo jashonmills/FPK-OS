@@ -38,7 +38,7 @@ interface Lesson {
 // Moved outside component to prevent recreation on every render
 const lessons: Lesson[] = [
   { id: 1, title: "Points, Lines, and Planes", description: "Learn the fundamental building blocks of geometry", component: PointsLinesPlanes, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
-  { id: 2, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TrianglesLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
+  { id: 2, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TriangleMicroLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Quadrilaterals", description: "Study squares, rectangles, parallelograms, and more", component: QuadrilateralsLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
   { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
   { id: 5, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
