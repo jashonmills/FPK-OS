@@ -96,6 +96,18 @@ const INTRODUCTION_TO_SCIENCE_COURSE = {
   status: 'published'
 };
 
+const GEOMETRY_FUNDAMENTALS_COURSE = {
+  id: 'geometry',
+  title: 'Geometry Fundamentals',
+  description: 'Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.',
+  thumbnail_url: null,
+  difficulty_level: 'beginner',
+  duration_minutes: 480,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -177,6 +189,7 @@ const MyCourses = () => {
     LOGIC_CRITICAL_THINKING_COURSE,
     NEURODIVERSITY_STRENGTHS_COURSE,
     INTRODUCTION_TO_SCIENCE_COURSE,
+    GEOMETRY_FUNDAMENTALS_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -267,6 +280,7 @@ const MyCourses = () => {
     const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
     const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach';
     const isIntroductionToScience = course.id === 'interactive-science';
+    const isGeometryFundamentals = course.id === 'geometry';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -296,6 +310,7 @@ const MyCourses = () => {
       if (isLogicCriticalThinking) return 'Philosophy Course';
       if (isNeurodiversityStrengths) return 'Foundation Course';
       if (isIntroductionToScience) return 'Science Course';
+      if (isGeometryFundamentals) return 'Math Course';
       return 'Full Course Curriculum';
     };
 
@@ -338,6 +353,10 @@ const MyCourses = () => {
       
       if (isIntroductionToScience) {
         return '/courses/interactive-science';
+      }
+      
+      if (isGeometryFundamentals) {
+        return '/courses/geometry';
       }
       
       const identifier = course.slug || course.id;

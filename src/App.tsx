@@ -120,6 +120,7 @@ const InteractiveAlgebraCoursePage = lazy(() => import("./pages/courses/Interact
 const InteractiveEconomicsCoursePage = lazy(() => import("./pages/courses/InteractiveEconomicsCoursePage"));
 const InteractiveNeurodiversityCoursePage = lazy(() => import("./pages/courses/InteractiveNeurodiversityCoursePage"));
 const InteractiveScienceCoursePage = lazy(() => import("./pages/courses/InteractiveScienceCoursePage"));
+const GeometryCoursePage = lazy(() => import("./pages/courses/GeometryCoursePage"));
 const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningSpellingCoursePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./components/courses/logic/LogicCriticalThinkingCoursePage"));
 
@@ -401,6 +402,16 @@ const App: React.FC = () => {
           <Route path="/courses/interactive-science/:lessonId" element={
             <RouteProtector>
               <LazyRoute><InteractiveScienceCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/geometry" element={
+            <RouteProtector>
+              <LazyRoute><GeometryCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/geometry/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><GeometryCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           <Route path="/courses/logic-critical-thinking" element={
