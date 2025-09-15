@@ -11,6 +11,7 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Import lesson components
 import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
@@ -177,6 +178,93 @@ export const GeometryCoursePage: React.FC = () => {
                 videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Geometry__The_Shape_of_Everything.mp4" 
                 title="Geometry Fundamentals Overview"
               />
+
+              {/* Enhanced Course Information */}
+              <div className="max-w-4xl mx-auto">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="enhanced-course-info">
+                    <AccordionTrigger className="text-left text-xl font-semibold">
+                      Enhanced Comprehensive Geometry Course
+                    </AccordionTrigger>
+                    <AccordionContent className="prose prose-gray max-w-none text-sm">
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Introduction</h3>
+                          <p className="text-muted-foreground leading-relaxed">
+                            Welcome to the Enhanced Comprehensive Geometry Course! This course has been specially designed to provide a thorough understanding of geometric concepts from basic principles to advanced topics. What makes this course unique is the inclusion of detailed teaching moments and comprehensive problem-solving instructions throughout each module.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Course Features</h3>
+                          <ul className="space-y-2 text-muted-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Enhanced Teaching Moments:</strong> Throughout each module, you'll find special "Teaching Moment" sections that provide deeper insights, historical context, real-world applications, and conceptual connections to help you truly understand the material beyond mere formulas and procedures.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Detailed Problem-Solving Approaches:</strong> Each topic includes step-by-step problem-solving frameworks that guide you through the process of tackling different types of geometric problems, building your analytical skills and confidence.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Comprehensive Examples:</strong> Worked examples demonstrate the application of concepts and problem-solving techniques, showing the thought process behind each step.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Practice Problems with Guidance:</strong> Each module includes practice problems with detailed guidance on how to approach them, including step-by-step solution paths.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Visual Resources:</strong> The course includes diagrams and visual aids to help illustrate geometric concepts and relationships.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Presentation Slides:</strong> Summary slides for each module highlight key concepts and formulas for quick reference and review.</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Course Structure</h3>
+                          <p className="text-muted-foreground mb-3">The course consists of eight modules, each building upon the previous ones to develop a comprehensive understanding of geometry:</p>
+                          <ol className="space-y-1 text-muted-foreground">
+                            <li className="flex gap-3"><span className="font-medium text-foreground">1.</span> Lines, Angles & Polygons: Fundamental concepts that form the building blocks of geometry</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">2.</span> Triangles and Triangle Properties: In-depth exploration of the most fundamental shape in geometry</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">3.</span> Quadrilaterals and Polygons: Properties and applications of four-sided and many-sided shapes</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">4.</span> Circles and Circle Properties: Understanding the perfect shape and its unique properties</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">5.</span> Transformations in Geometry: How shapes move, rotate, reflect, and resize in the plane</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">6.</span> Three-Dimensional Geometry: Extending geometric concepts into the third dimension</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">7.</span> Coordinate Geometry: Combining algebra and geometry through the coordinate system</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">8.</span> Vectors and Vector Geometry: Advanced tools for analyzing direction and magnitude in geometry</li>
+                          </ol>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">How to Use This Course</h3>
+                          <ol className="space-y-1 text-muted-foreground">
+                            <li className="flex gap-3"><span className="font-medium text-foreground">1.</span> <strong>Sequential Learning:</strong> Work through the modules in order, as each builds upon concepts from previous ones.</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">2.</span> <strong>Active Engagement:</strong> Don't just read—work through the examples and solve the practice problems.</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">3.</span> <strong>Focus on Teaching Moments:</strong> Pay special attention to the teaching moments, which provide deeper understanding and connections.</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">4.</span> <strong>Apply Problem-Solving Approaches:</strong> Practice using the structured problem-solving approaches provided for each topic.</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">5.</span> <strong>Review with Presentations:</strong> Use the presentation slides to review key concepts after studying each module.</li>
+                          </ol>
+                        </div>
+
+                        <div className="bg-muted/30 p-4 rounded-lg">
+                          <h4 className="font-semibold text-foreground mb-2">Getting Started</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Begin with the course outline to get a broad overview, then start with Module 1 and progress sequentially through the course. Take your time with each module, ensuring you understand the concepts and can solve the practice problems before moving on.
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-2 font-medium">
+                            Happy learning, and enjoy your journey through the fascinating world of geometry!
+                          </p>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
 
               {/* Lessons Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
