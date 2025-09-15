@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb, CheckCircle, Box } from 'lucide-react';
-import threeDShapesImage from '@/assets/3d-shapes-lesson.jpg';
+import threeDShapesImage from '@/assets/3d-shapes-volume.jpg';
 
 export const ThreeDShapesLesson: React.FC = () => {
   return (
@@ -14,8 +14,8 @@ export const ThreeDShapesLesson: React.FC = () => {
 
       <div className="mb-8">
         <img 
-          src={threeDShapesImage} 
-          alt="3D geometric solids including cubes, spheres, cylinders, cones, and pyramids with volume formulas"
+          src={threeDShapesImage}
+          alt="3D shapes and volume formulas showing cubes, spheres, cylinders, cones, pyramids with calculations"
           className="w-full h-64 object-cover rounded-lg shadow-lg"
         />
       </div>
