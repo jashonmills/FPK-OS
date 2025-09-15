@@ -1,29 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowRight } from 'lucide-react';
-import LessonTTSControls from '@/components/course/LessonTTSControls';
-import { InCourseChatBubble } from '@/components/course/InCourseChatBubble';
+import { BookOpen } from 'lucide-react';
 
 interface TrigonometryLesson5Props {
-  onComplete: () => void;
-  onNext: () => void;
-  hasNext: boolean;
+  onComplete?: () => void;
+  onNext?: () => void;
+  isCompleted?: boolean;
+  trackInteraction?: (type: string, details: any) => void;
 }
 
-export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({ onComplete, onNext, hasNext }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
+export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({
+  onComplete,
+  onNext,
+  isCompleted,
+  trackInteraction
+}) => {
   const lessonContentRef = useRef<HTMLDivElement>(null);
 
-  const handleComplete = () => {
-    setIsCompleted(true);
-    onComplete();
-  };
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6" ref={lessonContentRef}>
       {/* Lesson Introduction */}
-      <Card ref={lessonContentRef}>
+      <Card>
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="h-6 w-6 text-primary" />
@@ -286,33 +283,6 @@ export const TrigonometryLesson5: React.FC<TrigonometryLesson5Props> = ({ onComp
           </div>
         </CardContent>
       </Card>
-
-      {/* Lesson Actions */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Lesson 5 of 7 • Trigonometric Identities
-        </div>
-        <div className="flex gap-2">
-          {!isCompleted && (
-            <Button onClick={handleComplete} className="fpk-gradient text-white">
-              Mark as Complete
-            </Button>
-          )}
-          {isCompleted && hasNext && (
-            <Button onClick={onNext} className="fpk-gradient text-white">
-              Next Lesson <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* In-Course AI Tutor Chat Bubble */}
-      <InCourseChatBubble
-        courseId="interactive-trigonometry"
-        lessonId={5}
-        lessonTitle="Trigonometric Identities"
-        lessonContentRef={lessonContentRef}
-      />
     </div>
   );
 };

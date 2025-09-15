@@ -258,12 +258,6 @@ export const TrigonometryLesson3: React.FC = () => {
         </CardContent>
       </Card>
 
-      <InCourseChatBubble 
-        courseId="trigonometry-fundamentals"
-        lessonId={3}
-        lessonContentRef={lessonContentRef}
-        lessonTitle="Trigonometric Functions on the Unit Circle"
-      />
     </div>
   );
 };

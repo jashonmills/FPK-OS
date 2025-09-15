@@ -16,7 +16,7 @@ import PublicDomainBooksSection from '@/components/library/PublicDomainBooksSect
 import UserUploadsSection from '@/components/library/UserUploadsSection';
 import ApprovedStorageBooksSection from '@/components/library/ApprovedStorageBooksSection';
 import CommunityLibraryContent from '@/components/library/CommunityLibraryContent';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 type ViewMode = 'grid' | 'list';
 

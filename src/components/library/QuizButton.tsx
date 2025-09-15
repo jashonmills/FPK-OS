@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, BookOpen } from 'lucide-react';
 import { useCurrentReadingBooks } from '@/hooks/useCurrentReadingBooks';
 import BookQuizModal from './BookQuizModal';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface QuizButtonProps {
   bookId: string;

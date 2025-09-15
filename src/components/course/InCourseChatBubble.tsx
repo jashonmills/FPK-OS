@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { MessageCircle, Send, X, Minimize2, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { extractReadableText, extractCourseContent } from '@/utils/courseTextExtractor';
 import { useLessonChat } from '@/hooks/useLessonChat';
+import { timeoutManager } from '@/utils/performanceOptimizer';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -44,8 +45,8 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
     lessonTitle
   });
 
-  // Extract lesson content when needed
-  const extractLessonContent = (): string => {
+  // Debounced content extraction to avoid excessive DOM parsing
+  const extractLessonContent = useCallback((): string => {
     if (!lessonContentRef.current) return '';
     
     try {
@@ -57,25 +58,35 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
         .map(section => `${section.title}: ${section.content}`)
         .join('\n\n');
       
-      return structuredContent || readableText || '';
+      // Limit content to prevent memory issues
+      const content = structuredContent || readableText || '';
+      return content.slice(0, 10000); // Limit to 10k characters
     } catch (error) {
       console.error('Error extracting lesson content:', error);
       return '';
     }
-  };
+  }, [lessonContentRef]);
 
-  const handleSendMessage = async () => {
+  const debouncedExtractRef = useRef<NodeJS.Timeout>();
+
+  const handleSendMessage = useCallback(async () => {
     if (!message.trim() || isLoading) return;
 
     const userMessage = message;
     setMessage('');
 
-    // Extract current lesson content
-    const lessonContent = extractLessonContent();
+    // Clear any pending extraction
+    if (debouncedExtractRef.current) {
+      timeoutManager.timeouts.delete(debouncedExtractRef.current);
+      clearTimeout(debouncedExtractRef.current);
+    }
 
-    // Send message with lesson context
-    await sendLessonMessage(userMessage, lessonContent);
-  };
+    // Debounce content extraction by 200ms to reduce DOM queries
+    debouncedExtractRef.current = timeoutManager.setTimeout(() => {
+      const lessonContent = extractLessonContent();
+      sendLessonMessage(userMessage, lessonContent);
+    }, 200);
+  }, [message, isLoading, extractLessonContent, sendLessonMessage]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -89,12 +100,15 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when chat opens
+  // Cleanup debounced timeout on unmount
   useEffect(() => {
-    if (isOpen && !isMinimized) {
-      inputRef.current?.focus();
-    }
-  }, [isOpen, isMinimized]);
+    return () => {
+      if (debouncedExtractRef.current) {
+        timeoutManager.timeouts.delete(debouncedExtractRef.current);
+        clearTimeout(debouncedExtractRef.current);
+      }
+    };
+  }, []);
 
   if (!isOpen) {
     return (

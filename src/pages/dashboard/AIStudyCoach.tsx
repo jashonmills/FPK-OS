@@ -17,7 +17,7 @@ import LearningStatsCard from '@/components/ai-coach/LearningStatsCard';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import AICoachEngagementCard from '@/components/ai-coach/AICoachEngagementCard';
 import AICoachPerformanceCard from '@/components/ai-coach/AICoachPerformanceCard';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';

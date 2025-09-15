@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnalytics';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
-import { memoryManager } from '@/utils/memoryManager';
+import { timeoutManager } from '@/utils/performanceOptimizer';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface InteractiveCourseWrapperProps {
   courseId: string;
@@ -54,15 +55,18 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     enrollWhenIdle();
   }, [courseId, courseTitle, enrollInCourse]);
 
-  // Start session when component mounts or lesson changes
+  // Cleanup on unmount - enhanced with error handling
   useEffect(() => {
-    const sessionType = currentLesson === null ? 'overview' : 'lesson';
-    startCourseSession(sessionType, currentLesson || undefined);
-
     return () => {
-      endCourseSession();
+      try {
+        endCourseSession();
+        // Cleanup all timeouts and intervals
+        timeoutManager.cleanup();
+      } catch (err) {
+        console.warn('Error during course cleanup:', err);
+      }
     };
-  }, [currentLesson, startCourseSession, endCourseSession]);
+  }, [endCourseSession]);
 
   // Track scroll depth - lightweight and optimized
   useEffect(() => {
@@ -110,13 +114,22 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
   };
 
   return (
-    <div className="interactive-course-wrapper" data-course-id={courseId}>
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, { ...analyticsContext });
-        }
-        return child;
-      })}
-    </div>
+    <ErrorBoundary
+      onError={(error) => console.error('Course wrapper error:', error)}
+      fallback={
+        <div className="p-6 text-center">
+          <p className="text-muted-foreground">Unable to load course content. Please refresh the page.</p>
+        </div>
+      }
+    >
+      <div className="interactive-course-wrapper" data-course-id={courseId}>
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, { ...analyticsContext });
+          }
+          return child;
+        })}
+      </div>
+    </ErrorBoundary>
   );
 };

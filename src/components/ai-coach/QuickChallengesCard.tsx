@@ -8,7 +8,7 @@ import AccuracyChallenge from './challenges/AccuracyChallenge';
 import SpeedTest from './challenges/SpeedTest';
 import CustomPractice from './challenges/CustomPractice';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Challenge {
   id: string;
