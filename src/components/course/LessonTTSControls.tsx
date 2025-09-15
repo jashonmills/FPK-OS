@@ -25,13 +25,18 @@ const LessonTTSControls: React.FC<LessonTTSControlsProps> = ({
   const [isReading, setIsReading] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>('');
   const { speak, stop, isSpeaking, isSupported } = useTextToSpeech();
-  const { settings, isSupported: voiceSupported } = useVoiceSettings();
+  const { settings, updateSettings, isSupported: voiceSupported } = useVoiceSettings();
   const [showControls, setShowControls] = useState(false);
 
   const handleReadLesson = () => {
-    if (!contentRef.current || !isSupported || !settings.hasInteracted) {
+    if (!contentRef.current || !isSupported) {
       console.warn('TTS not available');
       return;
+    }
+
+    // Enable interaction on first click
+    if (!settings.hasInteracted) {
+      updateSettings({ hasInteracted: true });
     }
 
     if (isSpeaking) {
@@ -134,7 +139,6 @@ const LessonTTSControls: React.FC<LessonTTSControlsProps> = ({
             
             <Button
               onClick={handleReadLesson}
-              disabled={!settings.hasInteracted}
               variant={isSpeaking ? "destructive" : "default"}
               className={isSpeaking ? "" : "fpk-gradient text-white"}
             >
