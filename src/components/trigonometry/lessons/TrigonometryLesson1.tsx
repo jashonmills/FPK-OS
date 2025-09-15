@@ -191,6 +191,8 @@ export const TrigonometryLesson1: React.FC = () => {
       </Card>
 
       <InCourseChatBubble 
+        courseId="trigonometry-fundamentals"
+        lessonId={1}
         lessonContentRef={lessonContentRef}
         lessonTitle="Introduction to Trigonometry"
       />

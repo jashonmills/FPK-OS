@@ -259,6 +259,8 @@ export const TrigonometryLesson3: React.FC = () => {
       </Card>
 
       <InCourseChatBubble 
+        courseId="trigonometry-fundamentals"
+        lessonId={3}
         lessonContentRef={lessonContentRef}
         lessonTitle="Trigonometric Functions on the Unit Circle"
       />
