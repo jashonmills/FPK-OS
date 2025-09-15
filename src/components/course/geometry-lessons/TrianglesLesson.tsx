@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lightbulb, CheckCircle, Triangle } from 'lucide-react';
+import { CheckCircle, Triangle, TrendingUp, Calculator, Ruler, Lightbulb } from 'lucide-react';
 import trianglesImage from '@/assets/triangles-lesson.jpg';
 
 export const TrianglesLesson: React.FC = () => {

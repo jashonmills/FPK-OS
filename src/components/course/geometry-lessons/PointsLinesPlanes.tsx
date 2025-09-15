@@ -1,15 +1,21 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lightbulb, CheckCircle, Compass } from 'lucide-react';
+import { CheckCircle, Compass, TrendingUp, Ruler, Grid3X3, Lightbulb } from 'lucide-react';
 import pointsLinesImage from '@/assets/points-lines-planes-lesson.jpg';
 
 export const PointsLinesPlanes: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4">Points, Lines, and Planes</h1>
-        <p className="text-lg text-muted-foreground">The Building Blocks of Geometry</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <Compass className="h-16 w-16 text-primary" />
+        </div>
+        <h1 className="text-3xl font-bold">Module 1: Lines, Angles & Polygons</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Explore the fundamental concepts of geometry, focusing on lines, angles, and polygons. These concepts form the foundation of geometric understanding and are essential for all subsequent modules.
+        </p>
       </div>
 
       {/* Hero Image */}
@@ -21,115 +27,104 @@ export const PointsLinesPlanes: React.FC = () => {
         />
       </div>
 
+      {/* Teaching Moment */}
+      <Alert>
+        <TrendingUp className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Teaching Moment:</strong> Geometry is all around us! From the design of buildings to the patterns in nature, geometric principles govern the physical world. As you learn these concepts, try to identify them in your everyday surroundings. This connection between abstract mathematical ideas and real-world applications will deepen your understanding and appreciation of geometry.
+        </AlertDescription>
+      </Alert>
+
+      {/* Learning Objectives */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="prose max-w-none">
-            <p className="text-lg leading-relaxed mb-6">
-              Geometry starts with three basic undefined terms: <strong>points</strong>, <strong>lines</strong>, and <strong>planes</strong>. 
-              These are the fundamental building blocks from which all other geometric concepts are built. Understanding these 
-              basic elements is essential for mastering more complex geometric ideas.
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            Learning Objectives
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">By the end of this module, you will be able to:</p>
+          <ul className="space-y-2 list-disc list-inside">
+            <li>Identify and classify different types of lines and angles</li>
+            <li>Understand the properties of various polygons</li>
+            <li>Apply basic geometric principles to solve problems</li>
+            <li>Recognize geometric shapes in real-world contexts</li>
+            <li>Develop logical reasoning through geometric proofs</li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      {/* Section 1: Lines and Line Segments */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Ruler className="h-5 w-5 mr-2" />
+            Section 1: Lines and Line Segments
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-3">What is a Line?</h3>
+            <p className="mb-4">
+              A line is a straight path that extends infinitely in both directions. It has no thickness and is one-dimensional. In geometry, we often represent lines using arrows on both ends to indicate that they extend infinitely.
             </p>
-
-            <div className="flex items-center justify-center mb-8">
-              <div className="text-center p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
-                <Compass className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Geometric Foundations</h3>
-                <p className="text-gray-600">Points, Lines, and Planes form the basis of all geometry</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="border-blue-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-blue-700">Points</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    <li>• Has no size or dimension</li>
-                    <li>• Shows exact location</li>
-                    <li>• Named with capital letters</li>
-                    <li>• Example: Point A, Point B</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card className="border-green-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-green-700">Lines</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    <li>• Extends infinitely in both directions</li>
-                    <li>• Has no width or thickness</li>
-                    <li>• Contains infinite points</li>
-                    <li>• Named by two points on it</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card className="border-purple-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-purple-700">Planes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    <li>• Flat surface extending infinitely</li>
-                    <li>• Has no thickness</li>
-                    <li>• Contains infinite lines and points</li>
-                    <li>• Named by capital letters or three points</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            <h3 className="text-xl font-semibold mb-4">Related Concepts</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="border-orange-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-orange-700">Line Segments</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-2">Part of a line with two endpoints</p>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Has definite length</li>
-                    <li>• Named by its endpoints</li>
-                    <li>• Written as AB or BA</li>
-                  </ul>
-                </CardContent>
-              </Card>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Key properties of lines:</h4>
+              <ul className="space-y-1 list-disc list-inside">
+                <li>A line has no endpoints</li>
+                <li>A line is straight (no curves)</li>
+                <li>A line has infinite length</li>
+                <li>A line has no thickness</li>
+              </ul>
+            </div>
+            
+            <Alert className="mt-4">
+              <AlertDescription>
+                <strong>Teaching Moment:</strong> When we draw a "line" on paper, we're actually drawing a representation of a line, not a true mathematical line. A true line would extend forever in both directions and have no width. This distinction between mathematical abstractions and their physical representations is important throughout geometry.
+              </AlertDescription>
+            </Alert>
+          </div>
 
-              <Card className="border-red-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg text-red-700">Rays</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-2">Part of a line with one endpoint</p>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Extends infinitely in one direction</li>
-                    <li>• Has a starting point</li>
-                    <li>• Named by endpoint first, then another point</li>
-                  </ul>
-                </CardContent>
-              </Card>
+          <div>
+            <h3 className="text-xl font-semibold mb-3">Line Segments</h3>
+            <p className="mb-4">
+              A line segment is a part of a line that has two endpoints. Unlike a line, a line segment has a definite length that can be measured.
+            </p>
+            
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Properties of line segments:</h4>
+              <ul className="space-y-1 list-disc list-inside">
+                <li>Has exactly two endpoints</li>
+                <li>Has a definite, measurable length</li>
+                <li>Is the shortest distance between two points</li>
+                <li>Can be named using its endpoints (e.g., segment AB)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-3">Rays</h3>
+            <p className="mb-4">
+              A ray has one endpoint and extends infinitely in one direction. It's like half of a line.
+            </p>
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Properties of rays:</h4>
+              <ul className="space-y-1 list-disc list-inside">
+                <li>Has one endpoint (called the origin)</li>
+                <li>Extends infinitely in one direction</li>
+                <li>Named using the endpoint and another point on the ray</li>
+                <li>Used to define angles</li>
+              </ul>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Alert className="border-blue-200 bg-blue-50">
-        <Lightbulb className="h-4 w-4" />
-        <AlertDescription>
-          <h4 className="font-bold mb-2">Key Insight:</h4>
-          <p>
-            Remember: A point has position but no size, a line has length but no width, and a plane has 
-            length and width but no thickness. These are the "undefined terms" that form the foundation 
-            of all geometric definitions.
-          </p>
-        </AlertDescription>
-      </Alert>
-
-      <Card className="bg-green-50 border-green-200">
+      {/* Practice Problems */}
+      <Card>
         <CardHeader>
           <CardTitle className="text-green-800 flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
@@ -138,17 +133,24 @@ export const PointsLinesPlanes: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <h4 className="font-semibold mb-2">1. Identify the geometric terms:</h4>
-              <p className="text-sm">Look around your classroom and identify examples of points, lines, line segments, and rays.</p>
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Problem 1: Identify the Elements</h4>
+              <p>Look around your classroom and identify examples of points, lines, line segments, and rays.</p>
             </div>
-            <div>
-              <h4 className="font-semibold mb-2">2. Name the elements:</h4>
-              <p className="text-sm">Given points A, B, and C on a line, name all possible line segments and rays.</p>
+            
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Problem 2: Name the Elements</h4>
+              <p>Given points A, B, and C on a line, name all possible line segments and rays.</p>
             </div>
-            <div>
-              <h4 className="font-semibold mb-2">3. True or False:</h4>
-              <p className="text-sm">"A line segment is part of a ray" - Explain your answer.</p>
+            
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Problem 3: True or False</h4>
+              <p>"A line segment is part of a ray" - Explain your answer.</p>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Problem 4: Classification</h4>
+              <p>Classify each of the following as a point, line, line segment, or ray: corner of a desk, edge of a ruler, laser beam, horizon line.</p>
             </div>
           </div>
         </CardContent>
