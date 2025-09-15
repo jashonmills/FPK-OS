@@ -600,8 +600,8 @@ export const CoordinateGeometryLesson: React.FC = () => {
                 <div className="bg-white p-3 rounded border">
                   <p className="font-semibold mb-1">Standard forms:</p>
                   <ul className="text-sm space-y-1">
-                    <li>• y = ax² (opens upward if a > 0, downward if a < 0)</li>
-                    <li>• x = ay² (opens rightward if a > 0, leftward if a < 0)</li>
+                    <li>• y = ax² (opens upward if a &gt; 0, downward if a &lt; 0)</li>
+                    <li>• x = ay² (opens rightward if a &gt; 0, leftward if a &lt; 0)</li>
                   </ul>
                 </div>
               </div>
@@ -629,7 +629,7 @@ export const CoordinateGeometryLesson: React.FC = () => {
               <Alert className="mt-4">
                 <Lightbulb className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Teaching Moment:</strong> Ellipses appear throughout nature and human design. Planetary orbits are elliptical, with the sun at one focus—a discovery made by Johannes Kepler that revolutionized astronomy. The "whispering gallery" effect, where sound travels unusually well between the foci of an elliptical room, is used in architectural acoustics. In the standard form x²/a² + y²/b² = 1, the values a and b determine the shape of the ellipse: if a > b, the ellipse is stretched horizontally; if b > a, it's stretched vertically; if a = b, it's a circle (a special case of an ellipse).
+                  <strong>Teaching Moment:</strong> Ellipses appear throughout nature and human design. Planetary orbits are elliptical, with the sun at one focus—a discovery made by Johannes Kepler that revolutionized astronomy. The "whispering gallery" effect, where sound travels unusually well between the foci of an elliptical room, is used in architectural acoustics. In the standard form x²/a² + y²/b² = 1, the values a and b determine the shape of the ellipse: if a &gt; b, the ellipse is stretched horizontally; if b &gt; a, it's stretched vertically; if a = b, it's a circle (a special case of an ellipse).
                 </AlertDescription>
               </Alert>
             </Card>
@@ -698,7 +698,7 @@ export const CoordinateGeometryLesson: React.FC = () => {
                   <li>b² = 4, so b = 2</li>
                   <li>The semi-major axis is a = 3, and the semi-minor axis is b = 2</li>
                   <li>The ellipse is centered at the origin (0, 0)</li>
-                  <li>The ellipse is stretched horizontally (since a > b)</li>
+                  <li>The ellipse is stretched horizontally (since a &gt; b)</li>
                   <li>The vertices are at (±a, 0) = (±3, 0)</li>
                   <li>The co-vertices are at (0, ±b) = (0, ±2)</li>
                   <li>To find the foci, calculate c = √(a² - b²) = √(9 - 4) = √5</li>
@@ -712,7 +712,7 @@ export const CoordinateGeometryLesson: React.FC = () => {
             <Alert className="mt-4">
               <Lightbulb className="h-4 w-4" />
               <AlertDescription>
-                <strong>Teaching Moment:</strong> This problem demonstrates how to analyze a conic section equation to identify its type and key features. We recognized it as an ellipse by comparing it to the standard form x²/a² + y²/b² = 1. The values of a and b tell us about the shape and size of the ellipse, while the absence of linear terms in x and y indicates that the center is at the origin. The fact that a > b means the ellipse is stretched horizontally rather than vertically. The locations of the vertices, co-vertices, and foci are determined by the values of a, b, and c. Understanding these features helps us visualize the ellipse and analyze its properties. This approach of identifying standard forms and extracting geometric meaning from algebraic expressions is central to coordinate geometry.
+                <strong>Teaching Moment:</strong> This problem demonstrates how to analyze a conic section equation to identify its type and key features. We recognized it as an ellipse by comparing it to the standard form x²/a² + y²/b² = 1. The values of a and b tell us about the shape and size of the ellipse, while the absence of linear terms in x and y indicates that the center is at the origin. The fact that a &gt; b means the ellipse is stretched horizontally rather than vertically. The locations of the vertices, co-vertices, and foci are determined by the values of a, b, and c. Understanding these features helps us visualize the ellipse and analyze its properties. This approach of identifying standard forms and extracting geometric meaning from algebraic expressions is central to coordinate geometry.
               </AlertDescription>
             </Alert>
           </div>
