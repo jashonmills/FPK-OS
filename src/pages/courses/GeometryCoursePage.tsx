@@ -188,7 +188,7 @@ export const GeometryCoursePage: React.FC = () => {
                   
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="student-guides">
-                      <AccordionTrigger className="text-center text-lg font-semibold bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-4 py-3 rounded-lg text-blue-900 dark:text-blue-100">
+                      <AccordionTrigger className="flex items-center justify-center text-center text-lg font-semibold bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-4 py-3 rounded-lg text-blue-900 dark:text-blue-100">
                         Student Guides Collection (21 Resources)
                       </AccordionTrigger>
                       <AccordionContent className="pt-4">
@@ -212,7 +212,7 @@ export const GeometryCoursePage: React.FC = () => {
                   onValueChange={setAccordionOpen}
                 >
                   <AccordionItem value="enhanced-course-info">
-                    <AccordionTrigger className="text-center text-xl font-semibold bg-green-50 dark:bg-green-950/30 hover:bg-green-100 dark:hover:bg-green-900/40 px-4 py-3 rounded-lg text-green-900 dark:text-green-100">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-green-50 dark:bg-green-950/30 hover:bg-green-100 dark:hover:bg-green-900/40 px-4 py-3 rounded-lg text-green-900 dark:text-green-100">
                       Enhanced Comprehensive Geometry Course
                     </AccordionTrigger>
                     <AccordionContent className="prose prose-gray max-w-none text-sm relative">
@@ -304,7 +304,7 @@ export const GeometryCoursePage: React.FC = () => {
                   </AccordionItem>
 
                   <AccordionItem value="course-outline">
-                    <AccordionTrigger className="text-center text-xl font-semibold bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 px-4 py-3 rounded-lg text-purple-900 dark:text-purple-100">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 px-4 py-3 rounded-lg text-purple-900 dark:text-purple-100">
                       Comprehensive Geometry Course Outline
                     </AccordionTrigger>
                     <AccordionContent className="prose prose-gray max-w-none text-sm relative">
