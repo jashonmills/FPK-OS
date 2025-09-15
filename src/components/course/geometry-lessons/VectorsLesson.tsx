@@ -3,41 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { uploadVectorImages } from '@/utils/uploadVectorImages';
 
-// Import vector geometry images from Supabase storage
-const vectorsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png';
-const vectorsIntroImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png';
-const vectorOperationsImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png';
-const crossProductImage = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png';
+// Import vector geometry images from Supabase storage with cache busting
+const timestamp = Date.now();
+const vectorsImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png?t=${timestamp}`;
+const vectorsIntroImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png?t=${timestamp}`;
+const vectorOperationsImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png?t=${timestamp}`;
+const crossProductImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png?t=${timestamp}`;
 
 export const VectorsLesson: React.FC = () => {
   const navigate = useNavigate();
-  const [imagesUploaded, setImagesUploaded] = useState(false);
-
-  // Upload images on component mount if not already uploaded
-  useEffect(() => {
-    const uploadImages = async () => {
-      try {
-        console.log('Uploading vector images to storage...');
-        await uploadVectorImages();
-        console.log('Vector images uploaded successfully');
-        setImagesUploaded(true);
-      } catch (error) {
-        console.error('Failed to upload vector images:', error);
-      }
-    };
-
-    uploadImages();
-  }, []);
 
   // Debug image paths
   console.log('Storage image paths:', {
     vectorsImage,
     vectorsIntroImage,
     vectorOperationsImage,
-    crossProductImage,
-    imagesUploaded
+    crossProductImage
   });
 
   return (
@@ -141,10 +123,14 @@ export const VectorsLesson: React.FC = () => {
                 src={vectorsIntroImage} 
                 alt="Vector geometric representation showing arrows with magnitude and direction" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                onLoad={() => console.log('Vectors intro image loaded successfully')}
+                onLoad={() => console.log('✅ Vectors intro image loaded successfully from:', vectorsIntroImage)}
                 onError={(e) => {
-                  console.error('Failed to load vectors intro image:', e);
-                  console.log('Attempted to load:', vectorsIntroImage);
+                  console.error('❌ Failed to load vectors intro image from:', vectorsIntroImage);
+                  console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
+                  // Try to load without cache buster as fallback
+                  if (e.currentTarget.src.includes('?t=')) {
+                    e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png';
+                  }
                 }}
               />
             </div>
@@ -352,10 +338,13 @@ export const VectorsLesson: React.FC = () => {
                  src={vectorOperationsImage} 
                  alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
                  className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                 onLoad={() => console.log('Vector operations image loaded successfully')}
+                 onLoad={() => console.log('✅ Vector operations image loaded successfully from:', vectorOperationsImage)}
                  onError={(e) => {
-                   console.error('Failed to load vector operations image:', e);
-                   console.log('Attempted to load:', vectorOperationsImage);
+                   console.error('❌ Failed to load vector operations image from:', vectorOperationsImage);
+                   console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
+                   if (e.currentTarget.src.includes('?t=')) {
+                     e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png';
+                   }
                  }}
                />
              </div>
@@ -512,10 +501,13 @@ export const VectorsLesson: React.FC = () => {
                 src={crossProductImage} 
                 alt="Cross product visualization showing perpendicular result vector and right-hand rule" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                onLoad={() => console.log('Cross product image loaded successfully')}
+                onLoad={() => console.log('✅ Cross product image loaded successfully from:', crossProductImage)}
                 onError={(e) => {
-                  console.error('Failed to load cross product image:', e);
-                  console.log('Attempted to load:', crossProductImage);
+                  console.error('❌ Failed to load cross product image from:', crossProductImage);
+                  console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
+                  if (e.currentTarget.src.includes('?t=')) {
+                    e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png';
+                  }
                 }}
               />
             </div>
