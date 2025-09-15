@@ -12,7 +12,7 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PDFDownloadButton } from '@/components/course/PDFDownloadButton';
+import { PDFThumbnailPreview } from '@/components/course/PDFThumbnailPreview';
 
 // Import lesson components
 import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
@@ -186,59 +186,14 @@ export const GeometryCoursePage: React.FC = () => {
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Study Materials & Resources</h2>
                   
-                  <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-                    <Card className="border-2 hover:border-primary/20 transition-colors">
-                      <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <CardTitle className="text-lg font-semibold text-foreground mb-2">
-                              Comprehensive Geometry Course
-                            </CardTitle>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              Complete course materials with enhanced teaching moments, detailed problem-solving approaches, and comprehensive examples covering all 8 modules of geometry fundamentals.
-                            </p>
-                          </div>
-                          <Badge variant="secondary" className="ml-4 flex-shrink-0">
-                            PDF
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <BookOpen className="w-3 h-3" />
-                              Study Guide
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              Updated Recently
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <PDFDownloadButton
-                            pdfUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Comprehensive_Geometry_Course.pdf"
-                            fileName="Comprehensive_Geometry_Course.pdf"
-                            variant="default"
-                            size="sm"
-                            showIcon={true}
-                            showText={true}
-                            courseId="geometry"
-                            className="flex-1"
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open("https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Comprehensive_Geometry_Course.pdf", "_blank")}
-                            className="flex-1"
-                          >
-                            View Online
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 justify-items-center">
+                    <PDFThumbnailPreview
+                      pdfUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Comprehensive_Geometry_Course.pdf"
+                      fileName="Comprehensive_Geometry_Course.pdf"
+                      title="Comprehensive Geometry Course"
+                      moduleReference="All Modules - Complete Study Guide"
+                      className="w-full max-w-[280px]"
+                    />
                   </div>
                 </div>
               </div>
