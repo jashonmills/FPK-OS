@@ -93,6 +93,8 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
   const handleNextLesson = () => {
     if (currentLesson !== null && currentLesson < lessons.length - 1) {
       navigate(`/courses/interactive-algebra/lesson/${currentLesson + 2}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

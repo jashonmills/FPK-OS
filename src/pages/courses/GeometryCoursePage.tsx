@@ -76,6 +76,8 @@ export const GeometryCoursePage: React.FC = () => {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/geometry/${nextLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 
@@ -84,12 +86,16 @@ export const GeometryCoursePage: React.FC = () => {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/geometry/${prevLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
     navigate(`/courses/geometry/${lessonId}`);
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {

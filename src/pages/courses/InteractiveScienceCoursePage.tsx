@@ -78,6 +78,8 @@ export const InteractiveScienceCoursePage: React.FC = () => {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/interactive-science/${nextLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 
@@ -86,6 +88,8 @@ export const InteractiveScienceCoursePage: React.FC = () => {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/interactive-science/${prevLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 

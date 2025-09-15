@@ -119,6 +119,8 @@ const InteractiveEconomicsCoursePage: React.FC = () => {
   const handleNextLesson = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       setCurrentLesson(currentLesson + 1);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

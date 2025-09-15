@@ -99,6 +99,8 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
       navigate(`/courses/empowering-learning-spelling/${nextLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 
@@ -107,6 +109,8 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
       navigate(`/courses/empowering-learning-spelling/${prevLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
 
