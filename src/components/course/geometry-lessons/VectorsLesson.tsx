@@ -1,26 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import vector geometry images from Supabase storage with cache busting
-const timestamp = Date.now();
-const vectorsImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_geometry.png?t=${timestamp}`;
-const vectorsIntroImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png?t=${timestamp}`;
-const vectorOperationsImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png?t=${timestamp}`;
-const crossProductImage = `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png?t=${timestamp}`;
+// Import vector geometry images
+import vectorsGeometryImg from '@/assets/vectors-geometry.png';
+import vectorsIntroImg from '@/assets/vectors-intro.png';
+import vectorOperationsImg from '@/assets/vector-operations.png';
+import crossProductImg from '@/assets/cross-product.png';
 
 export const VectorsLesson: React.FC = () => {
   const navigate = useNavigate();
-
-  // Debug image paths
-  console.log('Storage image paths:', {
-    vectorsImage,
-    vectorsIntroImage,
-    vectorOperationsImage,
-    crossProductImage
-  });
 
   return (
     <div className="space-y-6">
@@ -42,14 +33,9 @@ export const VectorsLesson: React.FC = () => {
         <h1 className="text-4xl font-bold mb-6">Module 8: Vectors and Vector Geometry</h1>
         <div className="mb-6">
           <img 
-            src={vectorsImage} 
+            src={vectorsGeometryImg} 
             alt="Vectors and Vector Geometry illustration" 
             className="mx-auto rounded-lg shadow-lg max-w-md w-full"
-            onLoad={() => console.log('Main vectors image loaded successfully')}
-            onError={(e) => {
-              console.error('Failed to load main vectors image:', e);
-              console.log('Attempted to load:', vectorsImage);
-            }}
           />
         </div>
       </div>
@@ -120,18 +106,9 @@ export const VectorsLesson: React.FC = () => {
             
             <div className="mb-6">
               <img 
-                src={vectorsIntroImage} 
+                src={vectorsIntroImg} 
                 alt="Vector geometric representation showing arrows with magnitude and direction" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                onLoad={() => console.log('✅ Vectors intro image loaded successfully from:', vectorsIntroImage)}
-                onError={(e) => {
-                  console.error('❌ Failed to load vectors intro image from:', vectorsIntroImage);
-                  console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
-                  // Try to load without cache buster as fallback
-                  if (e.currentTarget.src.includes('?t=')) {
-                    e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vectors_intro.png';
-                  }
-                }}
               />
             </div>
             
@@ -335,17 +312,9 @@ export const VectorsLesson: React.FC = () => {
             
              <div className="mb-4">
                <img 
-                 src={vectorOperationsImage} 
+                 src={vectorOperationsImg} 
                  alt="Vector operations diagram showing addition, subtraction, and scalar multiplication" 
                  className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                 onLoad={() => console.log('✅ Vector operations image loaded successfully from:', vectorOperationsImage)}
-                 onError={(e) => {
-                   console.error('❌ Failed to load vector operations image from:', vectorOperationsImage);
-                   console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
-                   if (e.currentTarget.src.includes('?t=')) {
-                     e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/vector_operations.png';
-                   }
-                 }}
                />
              </div>
             
@@ -498,17 +467,9 @@ export const VectorsLesson: React.FC = () => {
             
             <div className="mb-4">
               <img 
-                src={crossProductImage} 
+                src={crossProductImg} 
                 alt="Cross product visualization showing perpendicular result vector and right-hand rule" 
                 className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
-                onLoad={() => console.log('✅ Cross product image loaded successfully from:', crossProductImage)}
-                onError={(e) => {
-                  console.error('❌ Failed to load cross product image from:', crossProductImage);
-                  console.error('Error details:', e.currentTarget.naturalWidth, e.currentTarget.naturalHeight);
-                  if (e.currentTarget.src.includes('?t=')) {
-                    e.currentTarget.src = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/cross_product.png';
-                  }
-                }}
               />
             </div>
             
