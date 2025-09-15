@@ -463,7 +463,7 @@ What specific aspect would you like to focus on?`;
   }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
-    <Card className={cn("w-full h-full flex flex-col", fixedHeight ? "h-full" : "min-h-[600px]")}>
+    <Card className={cn("w-full h-full flex flex-col bg-white/35 backdrop-blur-sm border-white/20", fixedHeight ? "h-full" : "min-h-[600px]")}>
       {showHeader && (
         <CardHeader className="flex-shrink-0 pb-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

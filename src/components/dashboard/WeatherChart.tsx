@@ -21,7 +21,7 @@ const WeatherChart: React.FC<WeatherChartProps> = ({ data, onInteract }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <div className="bg-white/35 backdrop-blur-sm p-3 border border-white/30 rounded-lg shadow-lg">
           <p className="font-semibold text-gray-900">{data.fullTime}</p>
           <p className="text-blue-600">
             🌡️ Temperature: {data.temperature}°C

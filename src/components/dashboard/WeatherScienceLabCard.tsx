@@ -111,20 +111,20 @@ const WeatherScienceLabCard: React.FC = () => {
             </div>
 
             {/* Current Conditions */}
-            <div className="bg-white/80 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold text-blue-900">
+            <div className="bg-white/35 backdrop-blur-sm rounded-lg p-3 text-center border border-white/20">
+              <div className="text-2xl font-bold text-blue-900 drop-shadow-sm">
                 {Math.round(weatherData.current.temp)}°C
               </div>
-              <div className="text-sm text-blue-700 capitalize">
+              <div className="text-sm text-blue-700 capitalize font-medium drop-shadow-sm">
                 {weatherData.current.weather[0]?.description || 'Clear sky'}
               </div>
-              <div className="text-xs text-blue-600 mt-1">
+              <div className="text-xs text-blue-600 mt-1 font-medium drop-shadow-sm">
                 Humidity: {weatherData.current.humidity}%
               </div>
             </div>
 
             {/* Weather Chart */}
-            <div className="bg-white/80 rounded-lg p-3">
+            <div className="bg-white/35 backdrop-blur-sm rounded-lg p-3 border border-white/20">
               <h4 className="text-sm font-semibold text-blue-800 mb-2">12-Hour Forecast</h4>
               <WeatherChart data={weatherData} onInteract={handleChartInteract} />
             </div>

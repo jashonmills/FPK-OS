@@ -165,7 +165,7 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                           }
                         }}
                       >
-                        <div className="relative overflow-hidden rounded-lg bg-white shadow-sm group-hover:shadow-md transition-shadow h-full flex flex-col">
+                        <div className="relative overflow-hidden rounded-lg bg-white/35 backdrop-blur-sm shadow-sm group-hover:shadow-md transition-shadow h-full flex flex-col border border-white/20">
                           {/* Image wrapper with controlled aspect ratio */}
                           <div className="visual-week__image-wrapper relative w-full overflow-hidden rounded-lg" style={{ paddingTop: '60%' }}>
                             <img
@@ -197,12 +197,12 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
                 
                 {/* Desktop Navigation Controls */}
                 <CarouselPrevious 
-                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/35 hover:bg-white/50 backdrop-blur-sm border-purple-200 text-purple-700 hover:text-purple-900"
                   onClick={handlePrevious}
                   aria-label="Previous image"
                 />
                 <CarouselNext 
-                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/90 hover:bg-white border-purple-200 text-purple-700 hover:text-purple-900"
+                  className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-white/35 hover:bg-white/50 backdrop-blur-sm border-purple-200 text-purple-700 hover:text-purple-900"
                   onClick={handleNext}
                   aria-label="Next image"
                 />
