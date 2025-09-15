@@ -168,10 +168,14 @@ export const useUnifiedProgressTracking = (
     }
   }, [user?.id, courseId, courseTitle, totalTimeSpent, trackInteraction]);
 
-  // Initialize session
+  // Initialize session - use ref to prevent infinite re-renders
+  const sessionIdRef = useRef<string | null>(null);
+  
   useEffect(() => {
-    if (user?.id && courseId) {
+    if (user?.id && courseId && !sessionIdRef.current) {
       const sessionId = `${courseId}-${lessonId || 'overview'}-${Date.now()}`;
+      sessionIdRef.current = sessionId;
+      
       const session: SessionMetrics = {
         sessionId,
         courseId,
@@ -213,7 +217,12 @@ export const useUnifiedProgressTracking = (
         saveSessionData(true);
       };
     }
-  }, [user?.id, courseId, lessonId, saveSessionData]);
+    
+    // Reset session ref when course changes  
+    return () => {
+      sessionIdRef.current = null;
+    };
+  }, [user?.id, courseId, saveSessionData]);
 
   return {
     trackInteraction,
