@@ -67,7 +67,7 @@ const QuickAccessBar = () => {
   ];
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex gap-1 justify-center overflow-x-auto pb-2 scrollbar-hide">
       {navigationItems.map((item) => {
         const IconComponent = item.icon;
         return (
@@ -76,10 +76,10 @@ const QuickAccessBar = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate(item.path)}
-            className="flex-col h-auto min-w-[64px] p-2 hover:bg-white/60 transition-all duration-200"
+            className="flex-col h-auto min-w-[56px] p-1.5 hover:bg-white/60 transition-all duration-200"
           >
-            <div className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center mb-1 shadow-sm`}>
-              <IconComponent className="h-4 w-4 text-white" />
+            <div className={`w-6 h-6 rounded-md ${item.color} flex items-center justify-center mb-1 shadow-sm`}>
+              <IconComponent className="h-3 w-3 text-white" />
             </div>
             <span className="text-xs font-medium text-foreground/80 leading-tight">{item.title}</span>
           </Button>

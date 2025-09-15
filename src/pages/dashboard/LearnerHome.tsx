@@ -100,7 +100,7 @@ const LearnerHome = () => {
       {/* Quick Access Bar */}
       <section className="mb-4">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-sm mb-3 text-gray-900 font-bold drop-shadow-sm">Quick Access</h2>
+          <h2 className="mobile-heading-sm mb-3 text-white font-bold drop-shadow-sm">Quick Access</h2>
           <QuickAccessBar />
         </div>
       </section>
@@ -108,7 +108,7 @@ const LearnerHome = () => {
       {/* AI Learning Assistant */}
       <section className="mb-6 sm:mb-8">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold px-3 pt-2 drop-shadow-sm">AI Learning Assistant</h2>
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold px-3 pt-2 drop-shadow-sm">AI Learning Assistant</h2>
           <div className="h-[600px] rounded-xl overflow-hidden">
             <AIStudyChatInterface
               user={user}
@@ -135,7 +135,7 @@ const LearnerHome = () => {
       {/* Mobile-Optimized Learning Analytics */}
       <section>
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Learning Progress</h2>
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold drop-shadow-sm">Learning Progress</h2>
           <LearningAnalyticsOverview />
         </div>
       </section>
@@ -143,7 +143,7 @@ const LearnerHome = () => {
       {/* Mobile-Optimized Achievements Section */}
       <section>
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Achievements & Progress</h2>
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold drop-shadow-sm">Achievements & Progress</h2>
           <GamificationOverview />
         </div>
       </section>
@@ -151,7 +151,7 @@ const LearnerHome = () => {
       {/* Mobile-Optimized Goals Section */}
       <section>
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Current Goals</h2>
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold drop-shadow-sm">Current Goals</h2>
           <GoalsOverview />
         </div>
       </section>
@@ -159,7 +159,7 @@ const LearnerHome = () => {
       {/* Mobile-Optimized Recent Activity */}
       <section>
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-gray-900 font-bold drop-shadow-sm">Recent Activity</h2>
+          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold drop-shadow-sm">Recent Activity</h2>
           <RecentActivityFeed />
         </div>
       </section>
