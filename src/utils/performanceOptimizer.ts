@@ -126,10 +126,9 @@ export const memoryMonitor = {
     }
   },
 
-  startMonitoring(): NodeJS.Timeout {
-    return timeoutManager.setInterval(() => {
-      this.checkMemoryUsage();
-    }, 60000); // Check every minute
+  startMonitoring(): NodeJS.Timeout | null {
+    // Disabled to prevent browser freezes
+    return null;
   }
 };
 
@@ -170,5 +169,5 @@ export const eventListenerManager = {
   }
 };
 
-// Start memory monitoring on module load
-memoryMonitor.startMonitoring();
+// Memory monitoring disabled to prevent browser freezes
+// memoryMonitor.startMonitoring();

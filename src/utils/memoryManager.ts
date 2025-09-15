@@ -107,21 +107,11 @@ class MemoryManager {
   }
 
   /**
-   * Start monitoring memory usage
+   * Start monitoring memory usage - DISABLED to prevent freezing
    */
   private startMonitoring(): void {
-    if (this.checkInterval) return;
-
-    this.checkInterval = setInterval(() => {
-      const stats = this.getMemoryStats();
-      if (!stats) return;
-
-      if (stats.usagePercentage > this.criticalThreshold) {
-        this.triggerCleanup();
-      } else if (stats.usagePercentage > this.warningThreshold) {
-        console.warn(`📊 Memory usage high: ${(stats.usagePercentage * 100).toFixed(1)}%`);
-      }
-    }, 30000); // Check every 30 seconds
+    // Disabled memory monitoring as it was causing browser freezes
+    return;
   }
 
   /**
@@ -201,14 +191,11 @@ export const safeLimits = {
   }
 };
 
-// Auto-cleanup when memory gets low
-memoryManager.onMemoryPressure(() => {
-  // Global cleanup actions
-  console.log('🧹 Running global memory cleanup');
-  
-  // Clear any global caches or large objects
-  if ('performance' in window && 'clearMarks' in performance) {
-    performance.clearMarks();
-    performance.clearMeasures();
-  }
-});
+// Auto-cleanup disabled to prevent browser freezes
+// memoryManager.onMemoryPressure(() => {
+//   console.log('🧹 Running global memory cleanup');
+//   if ('performance' in window && 'clearMarks' in performance) {
+//     performance.clearMarks();
+//     performance.clearMeasures();
+//   }
+// });
