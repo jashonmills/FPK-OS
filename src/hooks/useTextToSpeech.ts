@@ -1,76 +1,55 @@
-import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useCallback } from 'react';
+import { safeTextToSpeech } from '@/utils/speechUtils';
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const speak = useCallback(async (text: string, options?: { voice?: string; interrupt?: boolean }) => {
-    if (!text.trim()) return;
+  const speak = useCallback(async (text: string, options?: { voice?: string; interrupt?: boolean; hasInteracted?: boolean }) => {
+    if (!text.trim()) return false;
 
     // Handle both string and options parameter for backward compatibility
-    const voice = typeof options === 'string' ? options : options?.voice || 'alloy';
     const interrupt = typeof options === 'object' ? options?.interrupt : true;
+    const hasInteracted = typeof options === 'object' ? options?.hasInteracted : true;
 
     try {
-      // Stop current audio if interrupt is true (default)
-      if (interrupt && audioRef.current) {
-        audioRef.current.pause();
+      setIsGenerating(true);
+      console.log('Starting browser speech for:', text.substring(0, 50) + '...');
+
+      // Stop current speech if interrupt is requested
+      if (interrupt) {
+        safeTextToSpeech.stop();
         setIsSpeaking(false);
       }
 
-      setIsGenerating(true);
-      console.log('Generating speech for:', text.substring(0, 50) + '...');
-
-      // Call Supabase Edge Function for text-to-speech
-      const { data, error } = await supabase.functions.invoke('text-to-voice', {
-        body: { text, voice }
+      // Use browser text-to-speech
+      const success = safeTextToSpeech.speak(text, {
+        interrupt,
+        hasInteracted,
+        rate: 1,
+        pitch: 1,
+        volume: 1
       });
 
-      if (error) {
-        console.error('Text-to-speech error:', error);
-        throw new Error(error.message || 'Failed to generate speech');
-      }
-
       setIsGenerating(false);
-
-      if (data?.audioContent) {
-        // Create audio blob from base64
-        const binaryString = atob(data.audioContent);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
+      
+      if (success) {
+        setIsSpeaking(true);
         
-        const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-
-        // Stop current audio if playing
-        if (audioRef.current) {
-          audioRef.current.pause();
-          URL.revokeObjectURL(audioRef.current.src);
-        }
-
-        // Create and play new audio
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-
-        audio.onplay = () => setIsSpeaking(true);
-        audio.onended = () => {
-          setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
+        // Monitor speech synthesis events
+        const checkSpeechEnd = () => {
+          if (!window.speechSynthesis.speaking) {
+            setIsSpeaking(false);
+          } else {
+            setTimeout(checkSpeechEnd, 100);
+          }
         };
-        audio.onerror = () => {
-          setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-          console.error('Audio playback error');
-        };
-
-        await audio.play();
-        console.log('Audio playback started');
+        setTimeout(checkSpeechEnd, 100);
+        
+        console.log('Browser speech started');
         return true;
       }
+      
       return false;
     } catch (error) {
       console.error('Text-to-speech error:', error);
@@ -81,11 +60,8 @@ export const useTextToSpeech = () => {
   }, []);
 
   const stop = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsSpeaking(false);
-    }
+    safeTextToSpeech.stop();
+    setIsSpeaking(false);
   }, []);
 
   const stopSpeech = useCallback(() => {
@@ -93,19 +69,14 @@ export const useTextToSpeech = () => {
   }, [stop]);
 
   const togglePauseSpeech = useCallback(() => {
-    if (audioRef.current) {
-      if (isSpeaking) {
-        audioRef.current.pause();
-        setIsSpeaking(false);
-      } else {
-        audioRef.current.play();
-        setIsSpeaking(true);
-      }
+    if (isSpeaking) {
+      safeTextToSpeech.stop();
+      setIsSpeaking(false);
     }
   }, [isSpeaking]);
 
   const readAIMessage = useCallback(async (text: string) => {
-    return await speak(text, { interrupt: true });
+    return await speak(text, { interrupt: true, hasInteracted: true });
   }, [speak]);
 
   return {
@@ -116,14 +87,14 @@ export const useTextToSpeech = () => {
     readAIMessage,
     isSpeaking,
     isGenerating,
-    isSupported: true, // OpenAI TTS is always supported
-    getVoices: () => [
-      { id: 'alloy', name: 'Alloy', language: 'en-US' },
-      { id: 'echo', name: 'Echo', language: 'en-US' },
-      { id: 'fable', name: 'Fable', language: 'en-US' },
-      { id: 'onyx', name: 'Onyx', language: 'en-US' },
-      { id: 'nova', name: 'Nova', language: 'en-US' },
-      { id: 'shimmer', name: 'Shimmer', language: 'en-US' }
-    ]
+    isSupported: safeTextToSpeech.isAvailable(),
+    getVoices: () => {
+      const browserVoices = safeTextToSpeech.getVoices();
+      return browserVoices.map(voice => ({
+        id: voice.name,
+        name: voice.name,
+        language: voice.lang || 'en-US'
+      }));
+    }
   };
 };
