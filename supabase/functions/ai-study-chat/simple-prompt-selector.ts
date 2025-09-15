@@ -12,7 +12,8 @@ export type PromptType =
   | 'direct_teaching'
   | 'end_session'
   | 'topic_transition'
-  | 'acknowledgment';
+  | 'acknowledgment'
+  | 'course_tutor';
 
 export interface SimplePromptContext {
   chatMode: 'personal' | 'general';
@@ -23,6 +24,10 @@ export interface SimplePromptContext {
   incorrectCount?: number;
   originalTopic?: string;
   conversationHistory?: string;
+  lessonContent?: string;
+  lessonTitle?: string;
+  courseId?: string;
+  lessonId?: number;
 }
 
 export function buildSimplePrompt(promptType: PromptType, context: SimplePromptContext): string {
@@ -74,6 +79,16 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       break;
     case 'acknowledgment':
       prompt += `## CONTEXT\nUser is expressing gratitude: "${context.userInput || ''}"\nAcknowledge graciously and either continue or transition as appropriate.\n`;
+      break;
+    case 'course_tutor':
+      prompt += `## LESSON CONTEXT\n`;
+      prompt += `Lesson Title: ${context.lessonTitle || 'Current Lesson'}\n`;
+      prompt += `Course: ${context.courseId || 'Unknown Course'}\n`;
+      if (context.lessonContent) {
+        prompt += `Lesson Content:\n${context.lessonContent}\n\n`;
+      }
+      prompt += `## INSTRUCTIONS\nYou are a Socratic tutor for this specific lesson. Use ONLY the provided lesson content as your knowledge base. Guide the student through questioning rather than direct answers. If the user types "/answer", then provide a direct answer using only the lesson content.\n\n`;
+      prompt += `## USER QUERY\n"${context.userInput || ''}"\n`;
       break;
     case 'evaluate_answer':
       prompt += `## CONTEXT\nUser's response: "${context.userInput || ''}"\n`;

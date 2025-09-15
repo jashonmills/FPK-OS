@@ -57,7 +57,8 @@ serve(async (req) => {
       chatMode = 'general',
       voiceActive = false,
       clientHistory = [],
-      originalTopic
+      originalTopic,
+      lessonContext
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
@@ -163,6 +164,10 @@ serve(async (req) => {
       incorrectCount: contextData.incorrectCount,
       originalTopic: detectedOriginalTopic,
       conversationHistory: conversationSummary,
+      lessonContent: lessonContext?.lessonContent,
+      lessonTitle: lessonContext?.lessonTitle,
+      courseId: lessonContext?.courseId,
+      lessonId: lessonContext?.lessonId,
     };
 
     const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);

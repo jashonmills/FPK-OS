@@ -22,6 +22,12 @@ export interface ChatRequest {
   };
   clientHistory?: ClientHistoryMessage[];
   originalTopic?: string;
+  lessonContext?: {
+    courseId: string;
+    lessonId: number;
+    lessonTitle: string;
+    lessonContent: string;
+  };
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed';
