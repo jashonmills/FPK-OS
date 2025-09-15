@@ -42,22 +42,53 @@ serve(async (req) => {
   }
 
   try {
-    const { audio } = await req.json()
+    const { audio, mimeType } = await req.json()
     
     if (!audio) {
       throw new Error('No audio data provided')
     }
 
-    console.log('Processing audio transcription request')
+    console.log('Processing voice transcription request...')
+    console.log('Audio data length:', audio.length)
+    console.log('MIME type:', mimeType || 'not specified')
 
     // Process audio in chunks
     const binaryAudio = processBase64Chunks(audio)
+    console.log('Processed audio data:', binaryAudio.length, 'bytes')
+    
+    // Validate audio size
+    if (binaryAudio.length < 1000) {
+      throw new Error(`Audio data too small: ${binaryAudio.length} bytes. This likely indicates a recording error.`)
+    }
+    
+    // Determine file extension and type based on mimeType
+    let filename = 'audio.webm';
+    let blobType = 'audio/webm';
+    
+    if (mimeType) {
+      if (mimeType.includes('mp4')) {
+        filename = 'audio.mp4';
+        blobType = 'audio/mp4';
+      } else if (mimeType.includes('wav')) {
+        filename = 'audio.wav';
+        blobType = 'audio/wav';
+      } else if (mimeType.includes('ogg')) {
+        filename = 'audio.ogg';
+        blobType = 'audio/ogg';
+      }
+      // Default to webm for opus codec
+    }
+    
+    console.log('Using filename:', filename, 'blob type:', blobType)
     
     // Prepare form data
     const formData = new FormData()
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' })
-    formData.append('file', blob, 'audio.webm')
+    const blob = new Blob([binaryAudio], { type: blobType })
+    formData.append('file', blob, filename)
     formData.append('model', 'whisper-1')
+    formData.append('response_format', 'json')
+
+    console.log('Sending to OpenAI with blob size:', blob.size)
 
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -70,7 +101,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('OpenAI API error:', response.status, errorText)
+      console.error('OpenAI API error:', errorText)
       throw new Error(`OpenAI API error: ${errorText}`)
     }
 

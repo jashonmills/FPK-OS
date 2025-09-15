@@ -14,7 +14,7 @@ export const useVoiceRecording = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
-          sampleRate: 44100,
+          sampleRate: 16000, // Lower sample rate for better compatibility
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -22,9 +22,21 @@ export const useVoiceRecording = () => {
         } 
       });
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Check supported MIME types and use the best available
+      let mimeType = 'audio/webm;codecs=opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+          mimeType = 'audio/wav';
+        } else {
+          mimeType = ''; // Use default
+        }
+      }
+
+      console.log('Using MIME type:', mimeType);
+      
+      const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
       
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
@@ -43,15 +55,21 @@ export const useVoiceRecording = () => {
       }, 1000);
 
       mediaRecorder.ondataavailable = (event) => {
+        console.log('Data available, size:', event.data.size);
         if (event.data.size > 0) {
           chunksRef.current.push(event.data);
         }
       };
 
-      mediaRecorder.start(100); // Collect data every 100ms
+      mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event);
+      };
+
+      // Start with larger intervals to ensure we get data
+      mediaRecorder.start(1000); // Collect data every 1 second
       setIsRecording(true);
       
-      console.log('Recording started');
+      console.log('Recording started with type:', mediaRecorder.mimeType);
     } catch (error) {
       console.error('Error starting recording:', error);
       alert('Unable to access microphone. Please check permissions.');
@@ -74,19 +92,43 @@ export const useVoiceRecording = () => {
         try {
           setIsProcessing(true);
           
-          // Create audio blob
-          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          console.log('Audio blob created, size:', audioBlob.size);
+          console.log('Recording stopped, chunks collected:', chunksRef.current.length);
+          
+          // Check if we have any audio data
+          if (chunksRef.current.length === 0) {
+            throw new Error('No audio data recorded');
+          }
+          
+          // Get the recorded MIME type
+          const recordedMimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+          console.log('Recorded MIME type:', recordedMimeType);
+          
+          // Create audio blob with proper type
+          const audioBlob = new Blob(chunksRef.current, { type: recordedMimeType });
+          console.log('Audio blob created, size:', audioBlob.size, 'type:', audioBlob.type);
+
+          // Validate minimum audio size (should be at least a few KB for meaningful audio)
+          if (audioBlob.size < 1000) {
+            throw new Error(`Audio recording too short or corrupted (${audioBlob.size} bytes). Please try recording for at least 1-2 seconds.`);
+          }
 
           // Convert to base64
           const reader = new FileReader();
           reader.onload = async () => {
             try {
               const base64Audio = (reader.result as string).split(',')[1];
+              console.log('Base64 audio length:', base64Audio.length);
+              
+              if (!base64Audio || base64Audio.length < 100) {
+                throw new Error('Audio conversion failed - no valid data');
+              }
               
               // Send to Supabase Edge Function for transcription
               const { data, error } = await supabase.functions.invoke('voice-to-text', {
-                body: { audio: base64Audio }
+                body: { 
+                  audio: base64Audio,
+                  mimeType: recordedMimeType 
+                }
               });
 
               if (error) {
@@ -110,7 +152,7 @@ export const useVoiceRecording = () => {
           reader.onerror = () => {
             setIsProcessing(false);
             setRecordingDuration(0);
-            reject(new Error('Failed to process audio'));
+            reject(new Error('Failed to process audio file'));
           };
 
           reader.readAsDataURL(audioBlob);
