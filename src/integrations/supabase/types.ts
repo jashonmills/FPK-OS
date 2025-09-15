@@ -6978,6 +6978,15 @@ export type Database = {
         }
         Returns: string
       }
+      create_lesson_analytics_for_enrollment: {
+        Args: {
+          p_completion_percentage: number
+          p_course_id: string
+          p_enrolled_at: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       create_organization: {
         Args:
           | { p_name: string; p_plan?: string; p_slug: string }
