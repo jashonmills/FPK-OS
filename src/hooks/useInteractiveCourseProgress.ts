@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -185,13 +185,16 @@ export const useInteractiveCourseProgress = (courseId: string) => {
     };
   }, [progressData]);
 
-  // Initialize data on mount - fixed infinite loop
+  // Initialize data on mount - fixed infinite loop with ref
+  const loadProgressDataRef = useRef(loadProgressData);
+  loadProgressDataRef.current = loadProgressData;
+
   useEffect(() => {
     if (user?.id && courseId) {
       console.log('🚀 Initializing course progress for:', courseId);
-      loadProgressData();
+      loadProgressDataRef.current();
     }
-  }, [user?.id, courseId]); // Fixed: removed loadProgressData dependency
+  }, [user?.id, courseId]); // Stable dependencies
 
   // Persist progress to localStorage for backup - debounced
   useEffect(() => {
