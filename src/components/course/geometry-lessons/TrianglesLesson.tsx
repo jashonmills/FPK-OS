@@ -16,7 +16,7 @@ export const TrianglesLesson: React.FC = () => {
         <img 
           src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/triangle_lesson.jpg" 
           alt="Various types of triangles showing different classifications by sides and angles"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

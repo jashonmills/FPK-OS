@@ -21,7 +21,7 @@ export const PointsLinesPlanes: React.FC = () => {
         <img 
           src={pointsLinesImage}
           alt="Points, lines, and planes geometric concepts with clear labels and examples" 
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

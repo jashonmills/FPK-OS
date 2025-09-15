@@ -16,7 +16,7 @@ export const CirclesLesson: React.FC = () => {
         <img 
           src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/circle_properties.jpg" 
           alt="Circle with labeled components including radius, diameter, chord, arc, and tangent lines"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

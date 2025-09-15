@@ -16,7 +16,7 @@ export const AnglesLesson: React.FC = () => {
         <img 
           src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/angles_in_polygons.jpg" 
           alt="Various types of angles and their relationships illustrated with geometric diagrams"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

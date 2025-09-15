@@ -16,7 +16,7 @@ export const TransformationsLesson: React.FC = () => {
         <img 
           src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/transformations_types.png" 
           alt="Various geometric transformations showing translation, rotation, reflection, and dilation on a coordinate plane"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

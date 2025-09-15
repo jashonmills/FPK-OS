@@ -16,7 +16,7 @@ export const ThreeDShapesLesson: React.FC = () => {
         <img 
           src={threeDShapesImage}
           alt="3D shapes and volume formulas showing cubes, spheres, cylinders, cones, pyramids with calculations"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 

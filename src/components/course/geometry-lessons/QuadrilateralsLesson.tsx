@@ -16,7 +16,7 @@ export const QuadrilateralsLesson: React.FC = () => {
         <img 
           src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/quadrilaterals.jpg" 
           alt="Hierarchy of quadrilaterals showing relationships between squares, rectangles, parallelograms, and other four-sided shapes"
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-1/2 mx-auto object-contain rounded-lg shadow-lg"
         />
       </div>
 
