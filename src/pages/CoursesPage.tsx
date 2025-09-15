@@ -251,50 +251,61 @@ const CoursesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Header - Enhanced mobile text sizes */}
+    <div 
+      className="min-h-screen w-full"
+      style={{
+        backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        margin: 0,
+        padding: 0
+      }}
+    >
+      {/* Header - Enhanced mobile text sizes with semi-transparent background */}
       <div className="bg-white/70 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2 text-sm sm:text-base"
+                className="flex items-center gap-2 text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Button>
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Course Catalog</h1>
-                <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg">Course Catalog</h1>
+                <p className="text-sm sm:text-base text-white/90 mt-1 drop-shadow-md">
                   Discover our comprehensive learning programs designed for every learner
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2">
+            <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm border-white/30">
               {courses.length} Courses Available
             </Badge>
           </div>
         </div>
       </div>
 
-      {/* Courses Grid */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Courses Grid - Enhanced mobile spacing and semi-transparent cards */}
+      <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
           {courses.map((course) => {
             const courseImage = getCourseImage(course.id, course.title);
             
             return (
-              <Card key={course.id} className="relative flex flex-col h-full hover:shadow-lg transition-all duration-200 overflow-hidden group">
+              <Card key={course.id} className="relative flex flex-col h-full hover:shadow-xl transition-all duration-300 overflow-hidden group bg-white/80 backdrop-blur-md border-white/30 shadow-lg">
                 {/* AI Generated Image Header (same as StyledCourseCard) */}
                 <div 
-                  className="relative h-40 bg-cover bg-center overflow-hidden"
+                  className="relative h-36 sm:h-40 bg-cover bg-center overflow-hidden"
                   style={{ backgroundImage: `url(${courseImage})` }}
                 >
                   {/* Dark overlay for text contrast */}
-                  <div className="absolute inset-0 bg-black/40" />
+                  <div className="absolute inset-0 bg-black/50" />
                   
                   {/* Header content */}
                   <div className="relative z-10 p-4 sm:p-6 h-full flex flex-col justify-between">
@@ -315,14 +326,14 @@ const CoursesPage: React.FC = () => {
                   </div>
                 </div>
 
-                <CardContent className="flex-1 flex flex-col p-4 sm:p-6">
+                <CardContent className="flex-1 flex flex-col p-5 sm:p-6 lg:p-7">
                   {/* Course Description */}
-                  <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+                  <p className="text-base sm:text-lg lg:text-xl text-slate-700 mb-4 line-clamp-2 leading-relaxed">
                     {course.description}
                   </p>
 
                   {/* Course Stats - Enhanced mobile text sizes */}
-                  <div className="flex items-center justify-between text-sm sm:text-base lg:text-lg text-muted-foreground mb-4">
+                  <div className="flex items-center justify-between text-sm sm:text-base lg:text-lg text-slate-600 mb-4">
                     <div className="flex items-center gap-1.5">
                       <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                       <span className="font-medium">{course.lessons} Lessons</span>
@@ -348,7 +359,7 @@ const CoursesPage: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-between text-base sm:text-lg lg:text-xl mb-4 hover:bg-muted/50 font-medium py-3"
+                        className="w-full justify-between text-base sm:text-lg lg:text-xl mb-4 hover:bg-white/30 font-medium py-3 bg-white/10 backdrop-blur-sm border border-white/20"
                       >
                         Course Details
                         {expandedCourse === course.id ? (
@@ -358,15 +369,15 @@ const CoursesPage: React.FC = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-5 mb-6">
+                    <CollapsibleContent className="space-y-5 mb-6 bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/20">
                       <div>
-                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3">Overview</h4>
-                        <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed">{course.summary}</p>
+                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3 text-slate-800">Overview</h4>
+                        <p className="text-base sm:text-lg lg:text-xl text-slate-700 leading-relaxed">{course.summary}</p>
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3">Key Features</h4>
-                        <ul className="text-base sm:text-lg lg:text-xl text-muted-foreground space-y-2">
+                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3 text-slate-800">Key Features</h4>
+                        <ul className="text-base sm:text-lg lg:text-xl text-slate-700 space-y-2">
                           {course.features.map((feature, index) => (
                             <li key={index} className="flex items-start gap-3">
                               <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full flex-shrink-0 mt-2.5"></span>
@@ -377,8 +388,8 @@ const CoursesPage: React.FC = () => {
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3">Learning Outcomes</h4>
-                        <ul className="text-base sm:text-lg lg:text-xl text-muted-foreground space-y-2">
+                        <h4 className="font-bold text-base sm:text-lg lg:text-xl mb-3 text-slate-800">Learning Outcomes</h4>
+                        <ul className="text-base sm:text-lg lg:text-xl text-slate-700 space-y-2">
                           {course.learningOutcomes.map((outcome, index) => (
                             <li key={index} className="flex items-start gap-3">
                               <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full flex-shrink-0 mt-2.5"></span>
@@ -394,7 +405,7 @@ const CoursesPage: React.FC = () => {
                   <div className="mt-auto pt-4">
                     <Button
                       onClick={() => handleEnroll(course.id)}
-                      className="w-full bg-primary hover:bg-primary/90 text-base sm:text-lg lg:text-xl py-3 sm:py-4 font-bold"
+                      className="w-full bg-primary hover:bg-primary/90 text-base sm:text-lg lg:text-xl py-3 sm:py-4 font-bold shadow-lg backdrop-blur-sm"
                     >
                       Enroll Now
                     </Button>
@@ -405,18 +416,18 @@ const CoursesPage: React.FC = () => {
           })}
         </div>
 
-        {/* Call to Action Section - Enhanced mobile text */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6 sm:p-8 max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4">Ready to Start Learning?</h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
+        {/* Call to Action Section - Enhanced mobile text with semi-transparent styling */}
+        <div className="mt-16 text-center px-6 sm:px-8">
+          <div className="bg-white/20 backdrop-blur-md rounded-lg p-6 sm:p-8 max-w-4xl mx-auto border border-white/30 shadow-lg">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 text-white drop-shadow-lg">Ready to Start Learning?</h2>
+            <p className="text-sm sm:text-base lg:text-lg text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
               Join thousands of learners who have transformed their education with our interactive courses. 
               Sign up today and start your learning journey with personalized progress tracking and expert guidance.
             </p>
             <Button
               size="lg"
               onClick={() => navigate('/login')}
-              className="bg-primary hover:bg-primary/90 text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-2.5 sm:py-3"
+              className="bg-primary hover:bg-primary/90 text-sm sm:text-base lg:text-lg px-6 sm:px-8 py-2.5 sm:py-3 shadow-lg backdrop-blur-sm"
             >
               Create Your Account
             </Button>
