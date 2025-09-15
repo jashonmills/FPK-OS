@@ -19,12 +19,12 @@ export const VectorsLesson: React.FC = () => {
       <Button 
         variant="outline" 
         onClick={() => {
-          console.log('Navigating to /courses/geometry');
+          console.log('🔄 Back button clicked - navigating to /courses/geometry');
           navigate('/courses/geometry');
         }}
-        className="mb-6"
+        className="mb-6 flex items-center gap-2"
       >
-        <ArrowLeft className="h-4 w-4 mr-2" />
+        <ArrowLeft className="h-4 w-4" />
         Back to Course Overview
       </Button>
 
