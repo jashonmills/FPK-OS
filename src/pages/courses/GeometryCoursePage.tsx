@@ -14,7 +14,6 @@ import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 
 // Import lesson components
 import { PointsLinesPlanes } from '@/components/course/geometry-lessons/PointsLinesPlanes';
-import { AnglesLesson } from '@/components/course/geometry-lessons/AnglesLesson';
 import { TrianglesLesson } from '@/components/course/geometry-lessons/TrianglesLesson';
 import { QuadrilateralsLesson } from '@/components/course/geometry-lessons/QuadrilateralsLesson';
 import { CirclesLesson } from '@/components/course/geometry-lessons/CirclesLesson';
@@ -37,16 +36,15 @@ interface Lesson {
 // Moved outside component to prevent recreation on every render
 const lessons: Lesson[] = [
   { id: 1, title: "Points, Lines, and Planes", description: "Learn the fundamental building blocks of geometry", component: PointsLinesPlanes, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
-  { id: 2, title: "Angles and Angle Relationships", description: "Understand different types of angles and their properties", component: AnglesLesson, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
-  { id: 3, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TrianglesLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
-  { id: 4, title: "Quadrilaterals", description: "Study squares, rectangles, parallelograms, and more", component: QuadrilateralsLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
-  { id: 5, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
-  { id: 6, title: "Area and Perimeter", description: "Calculate area and perimeter of various shapes", component: AreaPerimeterLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 7, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 8, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
-  { id: 9, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
-  { id: 10, title: "Proofs and Reasoning", description: "Develop logical reasoning and geometric proof skills", component: ProofsReasoningLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
-  { id: 11, title: "Review and Practice", description: "Comprehensive review of all geometry concepts", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" }
+  { id: 2, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TrianglesLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
+  { id: 3, title: "Quadrilaterals", description: "Study squares, rectangles, parallelograms, and more", component: QuadrilateralsLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
+  { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 5, title: "Area and Perimeter", description: "Calculate area and perimeter of various shapes", component: AreaPerimeterLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
+  { id: 6, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
+  { id: 7, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
+  { id: 8, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
+  { id: 9, title: "Proofs and Reasoning", description: "Develop logical reasoning and geometric proof skills", component: ProofsReasoningLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
+  { id: 10, title: "Review and Practice", description: "Comprehensive review of all geometry concepts", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" }
 ];
 
 export const GeometryCoursePage: React.FC = () => {
