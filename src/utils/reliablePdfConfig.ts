@@ -6,21 +6,29 @@ import { pdfjs } from 'react-pdf';
  */
 export const initializeReliablePDF = (): boolean => {
   try {
-    // Use CDN worker as fallback for better reliability
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+    // Use working UNPKG CDN URL for PDF worker
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.js`;
     
     console.log('✅ Reliable PDF.js worker configured:', pdfjs.GlobalWorkerOptions.workerSrc);
     return true;
   } catch (error) {
     console.error('❌ Failed to configure PDF.js worker:', error);
-    // Try local fallback
+    // Try alternative CDN
     try {
-      pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.js';
-      console.log('✅ Using local PDF.js worker fallback');
+      pdfjs.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js';
+      console.log('✅ Using alternative CDN PDF.js worker');
       return true;
     } catch (fallbackError) {
-      console.error('❌ Local fallback also failed:', fallbackError);
-      return false;
+      console.error('❌ Alternative CDN failed, using local fallback');
+      // Final fallback - use local worker if available
+      try {
+        pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+        console.log('✅ Using local PDF.js worker fallback');
+        return true;
+      } catch (localError) {
+        console.error('❌ All fallbacks failed:', localError);
+        return false;
+      }
     }
   }
 };
