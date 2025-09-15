@@ -9,6 +9,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import CourseHeader from '@/components/course/CourseHeader';
 import { 
   useNativeCourse, 
   useCourseModules, 
@@ -176,36 +177,36 @@ export default function NativeCoursePlayer() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="border-b bg-card">
-          <div className="px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                  {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleExit}>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Exit Course
-                </Button>
-                <div>
-                  <h1 className="font-semibold text-lg">{course.title}</h1>
-                  <p className="text-sm text-muted-foreground">
-                    Lesson {currentLessonIndex + 1} of {allLessons.length}: {lesson.title}
-                  </p>
-                </div>
+        <CourseHeader 
+          onBackToCourses={handleExit}
+          onDashboard={handleExit}
+          title={course.title}
+        />
+        
+        {/* Course Info Bar */}
+        <div className="border-b bg-card px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </Button>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Lesson {currentLessonIndex + 1} of {allLessons.length}: {lesson.title}
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="text-sm text-muted-foreground">
-                  {Math.round(progressPercentage)}% Complete
-                </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="text-sm text-muted-foreground">
+                {Math.round(progressPercentage)}% Complete
               </div>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Lesson Content */}
         <main className="flex-1 p-6 overflow-y-auto">
