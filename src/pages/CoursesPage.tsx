@@ -10,9 +10,13 @@ import {
   Clock, 
   Users, 
   GraduationCap,
-  ArrowLeft
+  ArrowLeft,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 // Import course header images (same as in StyledCourseCard)
 import courseLinearEquations from '@/assets/course-linear-equations.jpg';
@@ -223,10 +227,34 @@ const courses: Course[] = [
 const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [readingCourse, setReadingCourse] = useState<string | null>(null);
+  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { settings } = useVoiceSettings();
 
   const handleEnroll = (courseId: string) => {
     // Redirect to sign up page when enrolling
     navigate('/login?enroll=' + courseId);
+  };
+
+  const handleReadCourseOverview = (course: Course) => {
+    if (readingCourse === course.id && isSpeaking) {
+      stop();
+      setReadingCourse(null);
+      return;
+    }
+
+    if (!settings.hasInteracted) {
+      console.warn('User interaction required for TTS');
+      return;
+    }
+
+    // Create comprehensive text from course overview
+    const overviewText = `Course Overview: ${course.title}. ${course.summary}. 
+    Key Features include: ${course.features.join(', ')}. 
+    Learning Outcomes: ${course.learningOutcomes.join('. ')}.`;
+
+    speak(overviewText, { interrupt: true });
+    setReadingCourse(course.id);
   };
 
   const getCategoryColor = (category: string) => {
@@ -369,7 +397,22 @@ const CoursesPage: React.FC = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-5 mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                    <CollapsibleContent className="space-y-5 mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10 relative">
+                      {/* TTS Speaker Button */}
+                      <Button
+                        onClick={() => handleReadCourseOverview(course)}
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/20 rounded-full"
+                        disabled={!settings.hasInteracted}
+                      >
+                        {readingCourse === course.id && isSpeaking ? (
+                          <VolumeX className="h-4 w-4" />
+                        ) : (
+                          <Volume2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                      
                       <div>
                         <h4 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 text-slate-800">Overview</h4>
                         <p className="text-lg sm:text-xl lg:text-2xl text-slate-700 leading-relaxed">{course.summary}</p>
