@@ -75,7 +75,7 @@ const LearnerHome = () => {
       <div className="mb-4 sm:mb-6 md:mb-8">
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
           <div className="flex flex-col items-center gap-2">
-            <h1 className="mobile-heading-xl mb-2 text-center text-gray-900 font-bold drop-shadow-sm">
+            <h1 className="mobile-heading-xl mb-2 text-center text-white font-bold drop-shadow-sm">
               <DualLanguageText 
                 translationKey="greeting"
                 fallback={`${getGreeting()}, ${getDisplayName()}!`}
@@ -83,7 +83,7 @@ const LearnerHome = () => {
             </h1>
             <PageHelpTrigger onOpen={handleShowVideoManually} />
           </div>
-          <p className="text-gray-800 mobile-text-base text-center mt-2 font-medium drop-shadow-sm">
+          <p className="text-white mobile-text-base text-center mt-2 font-medium drop-shadow-sm">
             <DualLanguageText 
               translationKey="welcomeMessage"
               fallback="Ready to continue your learning journey today?"
