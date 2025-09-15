@@ -185,7 +185,7 @@ export const GeometryCoursePage: React.FC = () => {
                 <Accordion 
                   type="single" 
                   collapsible 
-                  className="w-full"
+                  className="w-full space-y-4"
                   value={accordionOpen}
                   onValueChange={setAccordionOpen}
                 >
@@ -265,6 +265,227 @@ export const GeometryCoursePage: React.FC = () => {
                           </p>
                           <p className="text-sm text-muted-foreground mt-2 font-medium">
                             Happy learning, and enjoy your journey through the fascinating world of geometry!
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Close Button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute bottom-4 right-4 h-8 w-8 p-0 hover:bg-muted"
+                        onClick={() => setAccordionOpen(undefined)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="course-outline">
+                    <AccordionTrigger className="text-left text-xl font-semibold">
+                      Comprehensive Geometry Course Outline
+                    </AccordionTrigger>
+                    <AccordionContent className="prose prose-gray max-w-none text-sm relative">
+                      <div className="space-y-6 pr-12">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Course Overview</h3>
+                          <p className="text-muted-foreground leading-relaxed">
+                            This comprehensive geometry course covers fundamental concepts to advanced topics in geometry. The course is designed to build a strong foundation in geometric principles and develop problem-solving skills through a structured approach with enhanced teaching moments and detailed problem-solving instructions.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Module Structure</h3>
+                          <p className="text-muted-foreground mb-3">Each module includes:</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Clear learning objectives</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Detailed explanations with teaching moments</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Step-by-step problem-solving approaches</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Worked examples</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Practice problems with guidance</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Summary and connections to other topics</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Course Modules</h3>
+                          
+                          <div className="space-y-4">
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 1: Lines, Angles & Polygons</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Introduction to basic geometric concepts</li>
+                                <li>• Lines and line segments</li>
+                                <li>• Angles and their properties</li>
+                                <li>• Polygons and their classifications</li>
+                                <li>• Enhanced teaching moments on visualizing geometric concepts</li>
+                                <li>• Detailed problem-solving approaches for angle and polygon problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 2: Triangles and Triangle Properties</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Triangle classifications</li>
+                                <li>• Triangle properties and theorems</li>
+                                <li>• The Pythagorean theorem and applications</li>
+                                <li>• Triangle congruence and similarity</li>
+                                <li>• Area and perimeter calculations</li>
+                                <li>• Enhanced teaching moments on triangle applications in real-world contexts</li>
+                                <li>• Detailed problem-solving approaches for triangle-related problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 3: Quadrilaterals and Polygons</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Types of quadrilaterals and their properties</li>
+                                <li>• Area and perimeter of quadrilaterals</li>
+                                <li>• Regular polygons and their properties</li>
+                                <li>• Polygon diagonals and interior angles</li>
+                                <li>• Coordinate geometry of polygons</li>
+                                <li>• Enhanced teaching moments on polygon applications in design and architecture</li>
+                                <li>• Detailed problem-solving approaches for quadrilateral and polygon problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 4: Circles and Circle Properties</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Circle basics and terminology</li>
+                                <li>• Circle measurements (circumference, area)</li>
+                                <li>• Circle theorems and angle properties</li>
+                                <li>• Chord, tangent, and secant properties</li>
+                                <li>• Circles in coordinate geometry</li>
+                                <li>• Enhanced teaching moments on circles in nature and engineering</li>
+                                <li>• Detailed problem-solving approaches for circle-related problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 5: Transformations in Geometry</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Introduction to transformations</li>
+                                <li>• Translations, rotations, reflections, and dilations</li>
+                                <li>• Composite transformations</li>
+                                <li>• Symmetry in geometric figures</li>
+                                <li>• Enhanced teaching moments on transformations in art and design</li>
+                                <li>• Detailed problem-solving approaches for transformation problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 6: Three-Dimensional Geometry</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Introduction to 3D geometry</li>
+                                <li>• Polyhedra, including Platonic solids</li>
+                                <li>• Prisms and pyramids</li>
+                                <li>• Cylinders, cones, and spheres</li>
+                                <li>• Cross-sections and projections</li>
+                                <li>• Enhanced teaching moments on 3D geometry in architecture and engineering</li>
+                                <li>• Detailed problem-solving approaches for 3D geometry problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 7: Coordinate Geometry</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• The coordinate system</li>
+                                <li>• Distance and midpoint formulas</li>
+                                <li>• Equations of lines</li>
+                                <li>• Circles in coordinate geometry</li>
+                                <li>• Conic sections</li>
+                                <li>• Applications of coordinate geometry</li>
+                                <li>• Enhanced teaching moments on coordinate geometry in navigation and mapping</li>
+                                <li>• Detailed problem-solving approaches for coordinate geometry problems</li>
+                              </ul>
+                            </div>
+
+                            <div className="border-l-2 border-primary pl-4">
+                              <h4 className="font-semibold text-foreground mb-2">Module 8: Vectors and Vector Geometry</h4>
+                              <ul className="space-y-1 text-sm text-muted-foreground">
+                                <li>• Introduction to vectors</li>
+                                <li>• Vector operations</li>
+                                <li>• Dot product and applications</li>
+                                <li>• Cross product and applications</li>
+                                <li>• Vectors in geometry</li>
+                                <li>• Applications of vectors in physics</li>
+                                <li>• Enhanced teaching moments on vectors in physics and engineering</li>
+                                <li>• Detailed problem-solving approaches for vector problems</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Learning Resources</h3>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Detailed module content with enhanced teaching moments</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Visual aids and diagrams</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Step-by-step problem-solving instructions</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Practice problems with guidance</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Presentation slides summarizing key concepts</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Assessment Approach</h3>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Practice problems at the end of each section</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Comprehensive problems at the end of each module</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Real-world application problems</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span>Step-by-step problem-solving guidance</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-muted/30 p-4 rounded-lg">
+                          <p className="text-sm text-muted-foreground font-medium">
+                            This enhanced course is designed to provide a deep understanding of geometric concepts through clear explanations, meaningful teaching moments, and structured problem-solving approaches.
                           </p>
                         </div>
                       </div>
