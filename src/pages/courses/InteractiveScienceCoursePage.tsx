@@ -22,7 +22,6 @@ import { CellStructureMicroLesson } from '@/components/micro-lessons/science/cel
 
 // Import remaining lesson components (to be converted)
 import { GeneticsAndDNALesson } from '@/components/course/science-lessons/GeneticsAndDNALesson';
-import { GeneticsAndDNALesson } from '@/components/course/science-lessons/GeneticsAndDNALesson';
 import { AtomsAndMoleculesLesson } from '@/components/course/science-lessons/AtomsAndMoleculesLesson';
 import { PeriodicTableLesson } from '@/components/course/science-lessons/PeriodicTableLesson';
 import { ForcesAndMotionLesson } from '@/components/course/science-lessons/ForcesAndMotionLesson';
@@ -232,6 +231,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
         </InteractiveCourseWrapper>
       </VoiceSettingsProvider>
     );
