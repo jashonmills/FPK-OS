@@ -102,19 +102,20 @@ export function StyledCourseCard({
 }: StyledCourseCardProps) {
   const courseImage = getCourseImage(id, title);
   
-  // Check if this is an Empowering Learning course
-  const isEmpoweringLearningCourse = [
+  // Check if this is an Empowering Learning course or Learning State Beta
+  const isSpecialCourse = [
     'empowering-learning-handwriting',
     'empowering-learning-numeracy', 
     'empowering-learning-reading',
     'empowering-learning-spelling',
-    'el-spelling-reading'
+    'el-spelling-reading',
+    'learning-state-beta'
   ].includes(id);
   
   return (
     <Card className={`h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group ${
-      isEmpoweringLearningCourse 
-        ? 'ring-2 ring-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]' 
+      isSpecialCourse 
+        ? 'ring-2 ring-purple-400/60 shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:shadow-[0_0_40px_rgba(168,85,247,0.8)] animate-[pulse_3s_ease-in-out_infinite]' 
         : ''
     }`}>
       {/* AI Generated Image Header */}
