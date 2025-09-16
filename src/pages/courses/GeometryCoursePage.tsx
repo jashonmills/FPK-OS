@@ -21,8 +21,8 @@ import { QuadrilateralsMicroLesson } from '@/components/micro-lessons/quadrilate
 import { CirclesMicroLesson } from '@/components/micro-lessons/circles/CirclesMicroLesson';
 import { TransformationsMicroLesson } from '@/components/micro-lessons/transformations/TransformationsMicroLesson';
 import { ThreeDShapesMicroLesson } from '@/components/micro-lessons/3d-shapes/ThreeDShapesMicroLesson';
-import { CoordinateGeometryLesson } from '@/components/course/geometry-lessons/CoordinateGeometryLesson';
-import { VectorsLesson } from '@/components/course/geometry-lessons/VectorsLesson';
+import { CoordinateGeometryMicroLesson } from '@/components/micro-lessons/coordinate-geometry/CoordinateGeometryMicroLesson';
+import { VectorsMicroLesson } from '@/components/micro-lessons/vectors/VectorsMicroLesson';
 import { GeometryReviewLesson } from '@/components/course/geometry-lessons/GeometryReviewLesson';
 
 interface Lesson {
@@ -42,8 +42,8 @@ const lessons: Lesson[] = [
   { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesMicroLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
   { id: 5, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsMicroLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesMicroLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 7, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
-  { id: 8, title: "Vectors and Vector Geometry", description: "Master vectors, operations, and geometric applications", component: VectorsLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
+  { id: 7, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryMicroLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
+  { id: 8, title: "Vectors and Vector Geometry", description: "Master vectors, operations, and geometric applications", component: VectorsMicroLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
   { id: 9, title: "Coming Soon", description: "Module 9 content will be available soon", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
   { id: 10, title: "Review and Practice", description: "Comprehensive review of all geometry concepts", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" }
 ];
@@ -670,7 +670,11 @@ export const GeometryCoursePage: React.FC = () => {
               hasNext={hasNext}
               totalLessons={lessons.length}
             >
-              <LessonComponent />
+              <LessonComponent 
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+              />
             </InteractiveLessonWrapper>
           </div>
         </div>
