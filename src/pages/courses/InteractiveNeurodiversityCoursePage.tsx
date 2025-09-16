@@ -20,6 +20,8 @@ import { WhatIsNeurodiversityMicroLesson } from '@/components/micro-lessons/neur
 import { BrainSuperpowersMicroLesson } from '@/components/micro-lessons/neurodiversity/brain-superpowers/BrainSuperpowersMicroLesson';
 import { FoundationalLearningMicroLesson } from '@/components/micro-lessons/neurodiversity/foundational-learning/FoundationalLearningMicroLesson';
 import { FpkAdvantageMicroLesson } from '@/components/micro-lessons/neurodiversity/fpk-advantage/FpkAdvantageMicroLesson';
+import { ThrivingEconomicsMicroLesson } from '@/components/micro-lessons/neurodiversity/thriving-economics/ThrivingEconomicsMicroLesson';
+import { LogicCriticalThinkingMicroLesson } from '@/components/micro-lessons/neurodiversity/logic-critical-thinking/LogicCriticalThinkingMicroLesson';
 
 // Import remaining lesson components (to be converted)
 import { NeurodiversityLesson5 } from '@/components/courses/neurodiversity/NeurodiversityLesson5';
@@ -94,14 +96,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
       id: 5,
       title: "Thriving in Economics",
       description: "Apply your pattern recognition skills to economic concepts",
-      component: NeurodiversityLesson5,
+      component: ThrivingEconomicsMicroLesson,
       icon: Trophy
     },
     {
       id: 6,
       title: "Excelling in Logic & Critical Thinking",
       description: "Leverage your systematic thinking for logical reasoning",
-      component: NeurodiversityLesson6,
+      component: LogicCriticalThinkingMicroLesson,
       icon: Users
     },
     {
