@@ -25,6 +25,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
 import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
+import courseAlgebra from '@/assets/course-algebra.jpg';
+import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
+import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
+import courseLinearEquationsBg from '@/assets/course-linear-equations-bg.jpg';
+import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
+import courseEconomicsBg from '@/assets/course-economics-bg.jpg';
+import courseLogicBg from '@/assets/course-logic-bg.jpg';
+import courseScienceBg from '@/assets/course-science-bg.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -35,7 +43,7 @@ const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
   id: 'interactive-linear-equations',
   title: 'Interactive Linear Equations',
   description: 'Master solving linear equations through interactive lessons and practice problems. Learn step-by-step problem solving with immediate feedback.',
-  thumbnail_url: null,
+  thumbnail_url: courseLinearEquationsBg,
   difficulty_level: 'beginner',
   duration_minutes: 240,
   instructor_name: 'FPK University',
@@ -47,7 +55,7 @@ const INTERACTIVE_TRIGONOMETRY_COURSE = {
   id: 'interactive-trigonometry',
   title: 'Interactive Trigonometry',
   description: 'Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving.',
-  thumbnail_url: null,
+  thumbnail_url: courseTrigonometryBg,
   difficulty_level: 'intermediate',
   duration_minutes: 300,
   instructor_name: 'FPK University',
@@ -59,7 +67,7 @@ const INTERACTIVE_ALGEBRA_COURSE = {
   id: 'interactive-algebra',
   title: 'Interactive Algebra',
   description: 'Master algebra fundamentals through interactive lessons and practice problems. Learn algebraic expressions, equations, and problem-solving techniques.',
-  thumbnail_url: null,
+  thumbnail_url: courseAlgebra,
   difficulty_level: 'beginner',
   duration_minutes: 320,
   instructor_name: 'FPK University',
@@ -71,7 +79,7 @@ const LOGIC_CRITICAL_THINKING_COURSE = {
   id: 'logic-critical-thinking',
   title: 'Logic and Critical Thinking',
   description: 'Develop essential reasoning skills through systematic study of logic and critical thinking. Learn to analyze arguments, identify fallacies, and construct sound reasoning.',
-  thumbnail_url: null,
+  thumbnail_url: courseLogicBg,
   difficulty_level: 'beginner',
   duration_minutes: 400,
   instructor_name: 'FPK University',
@@ -83,7 +91,7 @@ const NEURODIVERSITY_STRENGTHS_COURSE = {
   id: 'neurodiversity-strengths-based-approach',
   title: 'Neurodiversity: A Strengths-Based Approach',
   description: 'Your guide to leveraging your unique brain for academic success. Discover how neurodivergence is an asset and learn to harness your cognitive superpowers.',
-  thumbnail_url: null,
+  thumbnail_url: courseNeurodiversityBg,
   difficulty_level: 'beginner',
   duration_minutes: 360,
   instructor_name: 'FPK University',
@@ -95,7 +103,7 @@ const INTRODUCTION_TO_SCIENCE_COURSE = {
   id: 'interactive-science',
   title: 'Introduction to Science',
   description: 'Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.',
-  thumbnail_url: null,
+  thumbnail_url: courseScienceBg,
   difficulty_level: 'beginner',
   duration_minutes: 360,
   instructor_name: 'FPK University',
@@ -234,7 +242,7 @@ const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
   is_free: true,
   price: 0,
   tags: ['Writing Skills', 'Handwriting', 'Motor Skills', 'Education'],
-  thumbnail_url: null,
+  thumbnail_url: courseHandwritingBg,
   status: 'published'
 };
 

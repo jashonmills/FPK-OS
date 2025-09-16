@@ -7,16 +7,17 @@ import { BookOpen, Clock, Play, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Import course images
-import courseLinearEquations from '@/assets/course-linear-equations.jpg';
-import courseTrigonometry from '@/assets/course-trigonometry.jpg';
+import courseLinearEquationsBg from '@/assets/course-linear-equations-bg.jpg';
+import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
 import courseAlgebra from '@/assets/course-algebra.jpg';
-import courseLogic from '@/assets/course-logic.jpg';
-import courseEconomics from '@/assets/course-economics.jpg';
+import courseLogicBg from '@/assets/course-logic-bg.jpg';
+import courseEconomicsBg from '@/assets/course-economics-bg.jpg';
 import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
-import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
-import courseScience from '@/assets/course-science.jpg';
+import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
+import courseScienceBg from '@/assets/course-science-bg.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
-import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
+import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
+import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -35,18 +36,19 @@ interface StyledCourseCardProps {
 
 // Map course IDs to their images
 const courseImageMap: Record<string, string> = {
-  'interactive-linear-equations': courseLinearEquations,
-  'interactive-trigonometry': courseTrigonometry,
+  'interactive-linear-equations': courseLinearEquationsBg,
+  'interactive-trigonometry': courseTrigonometryBg,
   'interactive-algebra': courseAlgebra,
-  'logic-critical-thinking': courseLogic,
-  'introduction-modern-economics': courseEconomics,
+  'logic-critical-thinking': courseLogicBg,
+  'introduction-modern-economics': courseEconomicsBg,
   'el-spelling-reading': courseSpellingReading,
   'empowering-learning-reading': courseSpellingReading,
   'empowering-learning-numeracy': courseSpellingReading,
-  'empowering-learning-handwriting': empoweringHandwritingBg,
-  'neurodiversity-strengths-based-approach': courseNeurodiversity,
-  'interactive-science': courseScience,
+  'empowering-learning-handwriting': courseHandwritingBg,
+  'neurodiversity-strengths-based-approach': courseNeurodiversityBg,
+  'interactive-science': courseScienceBg,
   'money-management-teens': courseMoneyManagement,
+  'geometry': geometryCourseCardBg,
 };
 
 // Fallback function for courses not in the map
@@ -58,19 +60,19 @@ const getCourseImage = (id: string, title: string): string => {
   
   // Fallback based on title keywords
   const titleLower = title.toLowerCase();
-  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquations;
-  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometry;
+  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquationsBg;
+  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometryBg;
   if (titleLower.includes('algebra')) return courseAlgebra;
-  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
-  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
+  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogicBg;
+  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomicsBg;
   if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
-  if (titleLower.includes('handwriting') || titleLower.includes('writing')) return empoweringHandwritingBg;
-  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
-  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
+  if (titleLower.includes('handwriting') || titleLower.includes('writing')) return courseHandwritingBg;
+  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversityBg;
+  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScienceBg;
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
   
   // Default fallback
-  return courseScience;
+  return courseScienceBg;
 };
 
 export function StyledCourseCard({ 
