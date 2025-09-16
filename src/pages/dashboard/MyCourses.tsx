@@ -609,7 +609,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
   };
 
   return (
-    <div className="space-y-6 pl-2 pr-4 md:pl-4 md:pr-6 lg:pl-6 lg:pr-8">
+    <div className="space-y-6 pl-2 pr-6 md:pl-4 md:pr-8 lg:pl-6 lg:pr-10">
       <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
         <div className="flex flex-col items-center gap-2 mb-4">
           <h1 className="text-3xl font-bold text-white">{t('myCourses.title')}</h1>
