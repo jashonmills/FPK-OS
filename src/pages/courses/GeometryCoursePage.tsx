@@ -14,6 +14,9 @@ import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { StudentGuideGallery } from '@/components/course/StudentGuideGallery';
 
+// Import background image
+import interactiveGeometryBg from '@/assets/interactive-geometry-fundamentals-bg.jpg';
+
 // Import lesson components
 import { PointsLinesPlanesMicroLesson } from '@/components/micro-lessons/points-lines-planes/PointsLinesPlanesMicroLesson';
 import { TriangleMicroLesson } from '@/components/micro-lessons/triangles/TriangleMicroLesson';
@@ -122,21 +125,26 @@ export const GeometryCoursePage: React.FC = () => {
       <VoiceSettingsProvider>
         <InteractiveCourseWrapper
           courseId="geometry"
-          courseTitle="Geometry Fundamentals"
+          courseTitle="Interactive Geometry Fundamentals"
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${interactiveGeometryBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
-              courseTitle="Geometry Fundamentals"
+              courseTitle="Interactive Geometry Fundamentals"
             />
           
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground">Geometry Fundamentals</h1>
+                <h1 className="text-4xl font-bold text-foreground">Interactive Geometry Fundamentals</h1>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.
                 </p>
@@ -168,17 +176,17 @@ export const GeometryCoursePage: React.FC = () => {
               {/* Voice Controls */}
               <div className="mb-8">
                 <CourseOverviewTTS 
-                  courseTitle="Geometry Fundamentals"
+                  courseTitle="Interactive Geometry Fundamentals"
                   courseDescription="Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking."
                   lessons={lessons}
                 />
               </div>
 
               {/* Video Overview */}
-              <CourseOverviewVideo 
-                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Geometry__The_Shape_of_Everything.mp4" 
-                title="Geometry Fundamentals Overview"
-              />
+                <CourseOverviewVideo 
+                  videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/Geometry__The_Shape_of_Everything.mp4" 
+                  title="Interactive Geometry Fundamentals Overview"
+                />
 
               {/* Study Materials Section */}
               <div className="max-w-6xl mx-auto">
@@ -604,15 +612,20 @@ export const GeometryCoursePage: React.FC = () => {
     <VoiceSettingsProvider>
       <InteractiveCourseWrapper 
         courseId="geometry"
-        courseTitle="Geometry Fundamentals"
+        courseTitle="Interactive Geometry Fundamentals"
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${interactiveGeometryBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
           <CourseHeader 
             onBackToCourses={() => navigate('/dashboard/learner/courses')}
             onDashboard={handleDashboard}
-            courseTitle="Geometry Fundamentals"
+            courseTitle="Interactive Geometry Fundamentals"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-6xl">

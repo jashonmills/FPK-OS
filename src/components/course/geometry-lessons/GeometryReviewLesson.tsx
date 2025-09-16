@@ -233,7 +233,7 @@ export const GeometryReviewLesson: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p className="text-sm">
-            You've completed the Geometry Fundamentals course! You now have a solid foundation in 
+            You've completed the Interactive Geometry Fundamentals course! You now have a solid foundation in 
             geometric concepts, from basic shapes and measurements to advanced coordinate geometry 
             and proof techniques. Keep practicing and applying these concepts to strengthen your 
             mathematical reasoning skills.

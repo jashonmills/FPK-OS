@@ -14,7 +14,7 @@ export const pointsLinesPlanesMicroLessons: MicroLessonData = {
     {
       id: 'intro',
       type: 'concept',
-      title: 'Welcome to Geometry Fundamentals',
+      title: 'Welcome to Interactive Geometry Fundamentals',
       estimatedTime: 3,
       content: (
         <ConceptScreen>

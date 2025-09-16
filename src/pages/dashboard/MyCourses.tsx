@@ -18,6 +18,9 @@ import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
+
+// Import course card background
+import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -98,9 +101,9 @@ const INTRODUCTION_TO_SCIENCE_COURSE = {
 
 const GEOMETRY_FUNDAMENTALS_COURSE = {
   id: 'geometry',
-  title: 'Geometry Fundamentals',
+  title: 'Interactive Geometry Fundamentals',
   description: 'Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.',
-  thumbnail_url: null,
+  thumbnail_url: geometryCourseCardBg,
   difficulty_level: 'beginner',
   duration_minutes: 480,
   instructor_name: 'FPK University',
