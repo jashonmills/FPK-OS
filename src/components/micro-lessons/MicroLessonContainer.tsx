@@ -95,7 +95,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
               <Target className="h-5 w-5" />
               {lessonData.moduleTitle}
             </CardTitle>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm text-white">
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 {formatTime(timeSpent)}
@@ -106,7 +106,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
             </div>
           </div>
           <Progress value={progress} className="h-2" />
-          <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
+          <div className="flex items-center justify-between text-sm text-white mt-2">
             <span>{Math.round(progress)}% Complete</span>
             {currentScreen.estimatedTime && (
               <span>Est. {currentScreen.estimatedTime} min</span>

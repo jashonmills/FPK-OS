@@ -145,7 +145,7 @@ export const GeometryCoursePage: React.FC = () => {
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold text-foreground">Interactive Geometry Fundamentals</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium">
                   Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.
                 </p>
                 
@@ -167,7 +167,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                  <p className="text-xs text-white mt-1 text-center font-medium">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -199,7 +199,7 @@ export const GeometryCoursePage: React.FC = () => {
                         Student Guides Collection (21 Resources)
                       </AccordionTrigger>
                       <AccordionContent className="pt-4">
-                        <p className="text-center text-muted-foreground mb-6">
+                        <p className="text-center text-white mb-6 font-medium">
                           Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab.
                         </p>
                         <StudentGuideGallery />
@@ -226,14 +226,14 @@ export const GeometryCoursePage: React.FC = () => {
                       <div className="space-y-6 pr-12">
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Introduction</h3>
-                          <p className="text-muted-foreground leading-relaxed">
+                          <p className="text-white leading-relaxed">
                             Welcome to the Enhanced Comprehensive Geometry Course! This course has been specially designed to provide a thorough understanding of geometric concepts from basic principles to advanced topics. What makes this course unique is the inclusion of detailed teaching moments and comprehensive problem-solving instructions throughout each module.
                           </p>
                         </div>
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Course Features</h3>
-                          <ul className="space-y-2 text-muted-foreground">
+                          <ul className="space-y-2 text-white">
                             <li className="flex items-start gap-2">
                               <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                               <span><strong>Enhanced Teaching Moments:</strong> Throughout each module, you'll find special "Teaching Moment" sections that provide deeper insights, historical context, real-world applications, and conceptual connections to help you truly understand the material beyond mere formulas and procedures.</span>
@@ -263,8 +263,8 @@ export const GeometryCoursePage: React.FC = () => {
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Course Structure</h3>
-                          <p className="text-muted-foreground mb-3">The course consists of eight modules, each building upon the previous ones to develop a comprehensive understanding of geometry:</p>
-                          <ol className="space-y-1 text-muted-foreground">
+                          <p className="text-white mb-3">The course consists of eight modules, each building upon the previous ones to develop a comprehensive understanding of geometry:</p>
+                          <ol className="space-y-1 text-white">
                             <li className="flex gap-3"><span className="font-medium text-foreground">1.</span> Lines, Angles & Polygons: Fundamental concepts that form the building blocks of geometry</li>
                             <li className="flex gap-3"><span className="font-medium text-foreground">2.</span> Triangles and Triangle Properties: In-depth exploration of the most fundamental shape in geometry</li>
                             <li className="flex gap-3"><span className="font-medium text-foreground">3.</span> Quadrilaterals and Polygons: Properties and applications of four-sided and many-sided shapes</li>
@@ -278,7 +278,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">How to Use This Course</h3>
-                          <ol className="space-y-1 text-muted-foreground">
+                          <ol className="space-y-1 text-white">
                             <li className="flex gap-3"><span className="font-medium text-foreground">1.</span> <strong>Sequential Learning:</strong> Work through the modules in order, as each builds upon concepts from previous ones.</li>
                             <li className="flex gap-3"><span className="font-medium text-foreground">2.</span> <strong>Active Engagement:</strong> Don't just read—work through the examples and solve the practice problems.</li>
                             <li className="flex gap-3"><span className="font-medium text-foreground">3.</span> <strong>Focus on Teaching Moments:</strong> Pay special attention to the teaching moments, which provide deeper understanding and connections.</li>
@@ -318,15 +318,15 @@ export const GeometryCoursePage: React.FC = () => {
                       <div className="space-y-6 pr-12">
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Course Overview</h3>
-                          <p className="text-muted-foreground leading-relaxed">
+                          <p className="text-white leading-relaxed">
                             This comprehensive geometry course covers fundamental concepts to advanced topics in geometry. The course is designed to build a strong foundation in geometric principles and develop problem-solving skills through a structured approach with enhanced teaching moments and detailed problem-solving instructions.
                           </p>
                         </div>
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Module Structure</h3>
-                          <p className="text-muted-foreground mb-3">Each module includes:</p>
-                          <ul className="space-y-1 text-muted-foreground">
+                          <p className="text-white mb-3">Each module includes:</p>
+                          <ul className="space-y-1 text-white">
                             <li className="flex items-start gap-2">
                               <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                               <span>Clear learning objectives</span>
@@ -360,7 +360,7 @@ export const GeometryCoursePage: React.FC = () => {
                           <div className="space-y-4">
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 1: Lines, Angles & Polygons</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Introduction to basic geometric concepts</li>
                                 <li>• Lines and line segments</li>
                                 <li>• Angles and their properties</li>
@@ -372,7 +372,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 2: Triangles and Triangle Properties</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Triangle classifications</li>
                                 <li>• Triangle properties and theorems</li>
                                 <li>• The Pythagorean theorem and applications</li>
@@ -385,7 +385,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 3: Quadrilaterals and Polygons</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Types of quadrilaterals and their properties</li>
                                 <li>• Area and perimeter of quadrilaterals</li>
                                 <li>• Regular polygons and their properties</li>
@@ -398,7 +398,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 4: Circles and Circle Properties</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Circle basics and terminology</li>
                                 <li>• Circle measurements (circumference, area)</li>
                                 <li>• Circle theorems and angle properties</li>
@@ -411,7 +411,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 5: Transformations in Geometry</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Introduction to transformations</li>
                                 <li>• Translations, rotations, reflections, and dilations</li>
                                 <li>• Composite transformations</li>
@@ -423,7 +423,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 6: Three-Dimensional Geometry</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Introduction to 3D geometry</li>
                                 <li>• Polyhedra, including Platonic solids</li>
                                 <li>• Prisms and pyramids</li>
@@ -436,7 +436,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 7: Coordinate Geometry</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• The coordinate system</li>
                                 <li>• Distance and midpoint formulas</li>
                                 <li>• Equations of lines</li>
@@ -450,7 +450,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                             <div className="border-l-2 border-primary pl-4">
                               <h4 className="font-semibold text-foreground mb-2">Module 8: Vectors and Vector Geometry</h4>
-                              <ul className="space-y-1 text-sm text-muted-foreground">
+                              <ul className="space-y-1 text-sm text-white">
                                 <li>• Introduction to vectors</li>
                                 <li>• Vector operations</li>
                                 <li>• Dot product and applications</li>
@@ -466,7 +466,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Learning Resources</h3>
-                          <ul className="space-y-1 text-muted-foreground">
+                          <ul className="space-y-1 text-white">
                             <li className="flex items-start gap-2">
                               <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                               <span>Detailed module content with enhanced teaching moments</span>
@@ -492,7 +492,7 @@ export const GeometryCoursePage: React.FC = () => {
 
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Assessment Approach</h3>
-                          <ul className="space-y-1 text-muted-foreground">
+                          <ul className="space-y-1 text-white">
                             <li className="flex items-start gap-2">
                               <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                               <span>Practice problems at the end of each section</span>
@@ -513,7 +513,7 @@ export const GeometryCoursePage: React.FC = () => {
                         </div>
 
                         <div className="bg-muted/30 p-4 rounded-lg">
-                          <p className="text-sm text-muted-foreground font-medium">
+                          <p className="text-sm text-white font-medium">
                             This enhanced course is designed to provide a deep understanding of geometric concepts through clear explanations, meaningful teaching moments, and structured problem-solving approaches.
                           </p>
                         </div>
@@ -553,7 +553,7 @@ export const GeometryCoursePage: React.FC = () => {
                             <div className={`p-2 rounded-lg ${
                               isCompleted 
                                 ? 'bg-primary text-primary-foreground' 
-                                : 'bg-muted text-muted-foreground'
+                                : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
                             }`}>
                               {isCompleted ? <Award className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
                             </div>
@@ -567,7 +567,7 @@ export const GeometryCoursePage: React.FC = () => {
                         <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-muted-foreground mb-3">{lesson.description}</p>
+                        <p className="text-sm text-white mb-3">{lesson.description}</p>
                         <Badge variant="outline" className={lesson.unitColor}>
                           {lesson.unit}
                         </Badge>
@@ -592,7 +592,7 @@ export const GeometryCoursePage: React.FC = () => {
         <Card>
           <CardContent className="p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Lesson Not Found</h2>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
             <Button onClick={() => navigate('/courses/geometry')}>
@@ -657,7 +657,7 @@ export const GeometryCoursePage: React.FC = () => {
               </Button>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-white font-medium">
                   Lesson {currentLesson} of {lessons.length}
                 </span>
               </div>

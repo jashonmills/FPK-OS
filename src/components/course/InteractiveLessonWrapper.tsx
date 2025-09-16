@@ -123,7 +123,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
               </div>
               <div>
                 <h3 className="font-semibold">Lesson {lessonId}: {lessonTitle}</h3>
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-4 text-sm text-white font-medium">
                   <span className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />
                     {formatTime(timeSpent)}
@@ -167,7 +167,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
           <CardContent className="p-6 text-center">
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Ready to Continue?</h3>
-              <p className="text-muted-foreground">
+              <p className="text-white font-medium">
                 Complete this lesson to track your progress and unlock the next lesson.
               </p>
               <Button 
@@ -191,7 +191,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
               <h3 className="text-xl font-semibold text-green-700">
                 Lesson Completed! 🎉
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-white font-medium">
                 Great job! You've mastered the concepts in this lesson.
               </p>
               <Button 
