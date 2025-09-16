@@ -29,7 +29,7 @@ export const StandardCourseAudioSection: React.FC<StandardCourseAudioSectionProp
   };
 
   return (
-    <div className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 ${className}`}>
+    <div className={`bg-white/30 backdrop-blur-sm border border-white/20 rounded-xl p-6 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="bg-white/20 rounded-full p-3">

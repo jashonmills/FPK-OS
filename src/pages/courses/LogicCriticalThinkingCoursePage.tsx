@@ -185,7 +185,7 @@ const LogicCriticalThinkingCoursePage: React.FC = () => {
                   onValueChange={setAccordionOpen}
                 >
                   <AccordionItem value="course-info">
-                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/30 hover:bg-white/40 px-4 py-3 rounded-lg text-white border border-white/20">
                       Course Overview &amp; Learning Objectives
                     </AccordionTrigger>
                     <AccordionContent className="prose prose-gray max-w-none text-sm relative">

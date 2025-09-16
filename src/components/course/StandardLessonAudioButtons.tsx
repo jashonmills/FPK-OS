@@ -32,7 +32,7 @@ export const StandardLessonAudioButtons: React.FC<StandardLessonAudioButtonsProp
   };
 
   return (
-    <div className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 ${className}`}>
+    <div className={`bg-white/30 backdrop-blur-sm border border-white/10 rounded-xl p-6 ${className}`}>
       <div className="text-center mb-4">
         <h3 className="text-white font-semibold text-lg mb-2">
           Or listen to individual lesson descriptions:

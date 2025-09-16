@@ -178,10 +178,10 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
                   onValueChange={setAccordionOpen}
                 >
                   <AccordionItem value="course-info">
-                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/30 hover:bg-white/40 px-4 py-3 rounded-lg text-white border border-white/20">
                       Course Overview &amp; Learning Objectives
                     </AccordionTrigger>
-                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                    <AccordionContent className="bg-white/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
                       <div className="space-y-6 text-white">
                         <div>
                           <h3 className="text-lg font-semibold mb-3">Why Learn Trigonometry?</h3>
