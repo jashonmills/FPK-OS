@@ -29,7 +29,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'what-is-money',
-      type: 'content',
+      type: 'concept',
       title: 'What Is Money?',
       content: `
         <div class="space-y-4">
@@ -59,7 +59,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'money-values',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding Money Values',
       content: `
         <div class="space-y-4">
@@ -95,7 +95,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'needs-vs-wants-intro',
-      type: 'content',
+      type: 'concept',
       title: 'Needs vs. Wants: The Foundation of Smart Spending',
       content: `
         <div class="space-y-4">
@@ -130,7 +130,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'needs-wants-exercise',
-      type: 'interactive',
+      type: 'practice',
       title: 'Practice: Needs vs. Wants',
       content: `
         <div class="space-y-4">
@@ -161,7 +161,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'smart-spending-decisions',
-      type: 'content',
+      type: 'concept',
       title: 'Making Smart Spending Decisions',
       content: `
         <div class="space-y-4">
@@ -207,7 +207,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'opportunity-cost',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding Opportunity Cost',
       content: `
         <div class="space-y-4">
@@ -235,7 +235,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'money-vocabulary',
-      type: 'content',
+      type: 'concept',
       title: 'Essential Money Vocabulary',
       content: `
         <div class="space-y-4">
@@ -276,7 +276,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'real-world-application',
-      type: 'interactive',
+      type: 'example',
       title: 'Real-World Application',
       content: `
         <div class="space-y-4">
@@ -310,7 +310,7 @@ const financialFoundationsData: MicroLessonData = {
     },
     {
       id: 'lesson-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Lesson Summary',
       content: `
         <div class="space-y-4">

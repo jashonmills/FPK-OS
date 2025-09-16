@@ -9,7 +9,7 @@ const bankingAccountsData: MicroLessonData = {
   screens: [
     {
       id: 'intro',
-      type: 'content',
+      type: 'concept',
       title: 'Introduction to Banking',
       content: `
         <div class="space-y-4">
@@ -30,7 +30,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'what-banks-do',
-      type: 'content',
+      type: 'concept',
       title: 'What Do Banks Do?',
       content: `
         <div class="space-y-4">
@@ -66,7 +66,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'account-types',
-      type: 'content',
+      type: 'concept',
       title: 'Types of Bank Accounts',
       content: `
         <div class="space-y-4">
@@ -126,7 +126,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'teen-account-options',
-      type: 'content',
+      type: 'concept',
       title: 'Banking Options for Teens',
       content: `
         <div class="space-y-4">
@@ -169,7 +169,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'choosing-a-bank',
-      type: 'content',
+      type: 'concept',
       title: 'How to Choose the Right Bank',
       content: `
         <div class="space-y-4">
@@ -224,7 +224,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'atm-safety',
-      type: 'content',
+      type: 'concept',
       title: 'ATM Safety and Best Practices',
       content: `
         <div class="space-y-4">
@@ -263,7 +263,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'online-banking',
-      type: 'content',
+      type: 'concept',
       title: 'Online Banking Security',
       content: `
         <div class="space-y-4">
@@ -308,7 +308,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'understanding-fees',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding and Avoiding Bank Fees',
       content: `
         <div class="space-y-4">
@@ -353,7 +353,7 @@ const bankingAccountsData: MicroLessonData = {
     },
     {
       id: 'lesson-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Banking Lesson Summary',
       content: `
         <div class="space-y-4">

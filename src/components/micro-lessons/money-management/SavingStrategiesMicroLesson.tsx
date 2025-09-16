@@ -6,10 +6,10 @@ const savingStrategiesData: MicroLessonData = {
   id: 'saving-strategies',
   moduleTitle: 'Smart Saving Strategies',
   totalScreens: 9,
-  screens: [
+        screens: [
     {
       id: 'intro',
-      type: 'content',
+      type: 'concept',
       title: 'Welcome to Smart Saving Strategies',
       content: `
         <div class="space-y-4">
@@ -31,7 +31,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'why-save',
-      type: 'content',
+      type: 'concept',
       title: 'Why Saving Matters',
       content: `
         <div class="space-y-4">
@@ -66,7 +66,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'smart-goals',
-      type: 'content',
+      type: 'concept',
       title: 'Setting SMART Savings Goals',
       content: `
         <div class="space-y-4">
@@ -123,7 +123,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'compound-interest',
-      type: 'content',
+      type: 'concept',
       title: 'The Magic of Compound Interest',
       content: `
         <div class="space-y-4">
@@ -161,7 +161,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'types-of-savings-accounts',
-      type: 'content',
+      type: 'concept',
       title: 'Types of Savings Accounts',
       content: `
         <div class="space-y-4">
@@ -246,7 +246,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'emergency-fund',
-      type: 'content',
+      type: 'concept',
       title: 'Building Your Emergency Fund',
       content: `
         <div class="space-y-4">
@@ -309,7 +309,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'savings-challenges',
-      type: 'interactive',
+      type: 'practice',
       title: 'Fun Savings Challenges',
       content: `
         <div class="space-y-4">
@@ -360,7 +360,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'automate-savings',
-      type: 'content',
+      type: 'concept',
       title: 'Automating Your Savings',
       content: `
         <div class="space-y-4">
@@ -413,7 +413,7 @@ const savingStrategiesData: MicroLessonData = {
     },
     {
       id: 'lesson-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Smart Saving Strategies Summary',
       content: `
         <div class="space-y-4">

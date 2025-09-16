@@ -6,10 +6,10 @@ const creditDebtPlanningData: MicroLessonData = {
   id: 'credit-debt-planning',
   moduleTitle: 'Credit, Debt, and Future Planning',
   totalScreens: 10,
-  screens: [
+        screens: [
     {
       id: 'intro',
-      type: 'content',
+      type: 'concept',
       title: 'Credit, Debt, and Your Financial Future',
       content: `
         <div class="space-y-4">
@@ -31,7 +31,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'understanding-credit',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding Credit and Credit Scores',
       content: `
         <div class="space-y-4">
@@ -91,7 +91,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'building-credit-teens',
-      type: 'content',
+      type: 'concept',
       title: 'Building Credit as a Teen',
       content: `
         <div class="space-y-4">
@@ -162,7 +162,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'types-of-debt',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding Different Types of Debt',
       content: `
         <div class="space-y-4">
@@ -236,7 +236,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'avoiding-debt-traps',
-      type: 'content',
+      type: 'concept',
       title: 'Avoiding Common Debt Traps',
       content: `
         <div class="space-y-4">
@@ -298,7 +298,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'college-planning',
-      type: 'content',
+      type: 'concept',
       title: 'Planning for College Expenses',
       content: `
         <div class="space-y-4">
@@ -372,7 +372,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'career-financial-planning',
-      type: 'content',
+      type: 'concept',
       title: 'Career and Financial Planning',
       content: `
         <div class="space-y-4">
@@ -454,7 +454,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'long-term-goals',
-      type: 'interactive',
+      type: 'practice',
       title: 'Setting Long-Term Financial Goals',
       content: `
         <div class="space-y-4">
@@ -531,7 +531,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'putting-it-together',
-      type: 'interactive',
+      type: 'practice',
       title: 'Your Personal Action Plan',
       content: `
         <div class="space-y-4">
@@ -623,7 +623,7 @@ const creditDebtPlanningData: MicroLessonData = {
     },
     {
       id: 'course-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Course Complete! Your Financial Journey Begins',
       content: `
         <div class="space-y-4">

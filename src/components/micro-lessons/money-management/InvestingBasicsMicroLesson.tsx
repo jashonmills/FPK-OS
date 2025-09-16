@@ -6,10 +6,10 @@ const investingBasicsData: MicroLessonData = {
   id: 'investing-basics',
   moduleTitle: 'Introduction to Investing',
   totalScreens: 8,
-  screens: [
+        screens: [
     {
       id: 'intro',
-      type: 'content',
+      type: 'concept',
       title: 'Welcome to Investing Basics',
       content: `
         <div class="space-y-4">
@@ -34,7 +34,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'what-is-investing',
-      type: 'content',
+      type: 'concept',
       title: 'What Is Investing?',
       content: `
         <div class="space-y-4">
@@ -82,7 +82,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'risk-vs-return',
-      type: 'content',
+      type: 'concept',
       title: 'Understanding Risk vs. Return',
       content: `
         <div class="space-y-4">
@@ -129,7 +129,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'investment-types',
-      type: 'content',
+      type: 'concept',
       title: 'Basic Investment Types',
       content: `
         <div class="space-y-4">
@@ -213,7 +213,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'teen-investing-options',
-      type: 'content',
+      type: 'concept',
       title: 'How Teens Can Start Investing',
       content: `
         <div class="space-y-4">
@@ -281,7 +281,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'investment-strategies',
-      type: 'content',
+      type: 'concept',
       title: 'Simple Investment Strategies for Beginners',
       content: `
         <div class="space-y-4">
@@ -343,7 +343,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'power-of-time',
-      type: 'interactive',
+      type: 'example',
       title: 'The Power of Starting Early',
       content: `
         <div class="space-y-4">
@@ -403,7 +403,7 @@ const investingBasicsData: MicroLessonData = {
     },
     {
       id: 'lesson-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Investment Basics Summary',
       content: `
         <div class="space-y-4">

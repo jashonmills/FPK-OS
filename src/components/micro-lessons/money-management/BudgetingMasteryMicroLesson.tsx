@@ -9,7 +9,7 @@ const budgetingMasteryData: MicroLessonData = {
   screens: [
     {
       id: 'intro',
-      type: 'content',
+      type: 'concept',
       title: 'Welcome to Budgeting Mastery',
       content: `
         <div class="space-y-4">
@@ -31,7 +31,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'what-is-budget',
-      type: 'content',
+      type: 'concept',
       title: 'What Is a Budget?',
       content: `
         <div class="space-y-4">
@@ -71,7 +71,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: '50-30-20-rule',
-      type: 'content',
+      type: 'concept',
       title: 'The 50/30/20 Budget Rule',
       content: `
         <div class="space-y-4">
@@ -121,7 +121,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'teen-budget-example',
-      type: 'interactive',
+      type: 'example',
       title: 'Teen Budget Example',
       content: `
         <div class="space-y-4">
@@ -171,7 +171,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'tracking-income-expenses',
-      type: 'content',
+      type: 'concept',
       title: 'Tracking Your Income and Expenses',
       content: `
         <div class="space-y-4">
@@ -228,7 +228,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'creating-your-budget',
-      type: 'interactive',
+      type: 'practice',
       title: 'Creating Your First Budget',
       content: `
         <div class="space-y-4">
@@ -292,7 +292,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'budgeting-tools',
-      type: 'content',
+      type: 'concept',
       title: 'Budgeting Apps and Tools',
       content: `
         <div class="space-y-4">
@@ -363,7 +363,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'staying-motivated',
-      type: 'content',
+      type: 'concept',
       title: 'Staying Motivated and Adjusting Your Budget',
       content: `
         <div class="space-y-4">
@@ -409,7 +409,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'common-budgeting-mistakes',
-      type: 'content',
+      type: 'concept',
       title: 'Common Budgeting Mistakes to Avoid',
       content: `
         <div class="space-y-4">
@@ -451,7 +451,7 @@ const budgetingMasteryData: MicroLessonData = {
     },
     {
       id: 'lesson-summary',
-      type: 'content',
+      type: 'summary',
       title: 'Budgeting Mastery Summary',
       content: `
         <div class="space-y-4">

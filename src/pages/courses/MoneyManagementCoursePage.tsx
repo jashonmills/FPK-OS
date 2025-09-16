@@ -303,11 +303,12 @@ const MoneyManagementCoursePage: React.FC = () => {
     <VoiceSettingsProvider>
       <InteractiveLessonWrapper
         courseId="money-management-teens"
-        courseTitle="Money Management for Teens"
-        currentLesson={currentLesson}
-        totalLessons={lessons.length}
+        lessonId={currentLesson}
         lessonTitle={lesson.title}
         onComplete={() => handleLessonComplete(currentLesson)}
+        onNext={currentLesson < lessons.length ? handleNextLesson : undefined}
+        hasNext={currentLesson < lessons.length}
+        totalLessons={lessons.length}
       >
         <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-800 to-teal-700">
           {/* Header with navigation */}
