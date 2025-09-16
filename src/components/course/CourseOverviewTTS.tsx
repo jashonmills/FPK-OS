@@ -97,14 +97,14 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Course Overview TTS */}
-      <div className="flex items-center justify-center gap-4 p-6 bg-white/95 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
+      <div className="flex items-center justify-center gap-4 p-6 bg-white/40 backdrop-blur-sm rounded-lg border border-white/30 shadow-lg">
         <div className="flex items-center gap-2">
           <Headphones className="h-5 w-5 text-primary" />
-          <span className="font-medium text-gray-800">Listen to Course Overview</span>
+          <span className="font-semibold text-white drop-shadow-lg">Listen to Course Overview</span>
         </div>
         
         {!settings.hasInteracted && (
-          <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
+          <Badge variant="outline" className="text-xs bg-white/90 text-gray-800 border-white/50 font-semibold">
             Click anywhere first
           </Badge>
         )}
@@ -142,7 +142,7 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
               size="sm"
               onClick={() => handleReadLesson(lesson)}
               disabled={!settings.hasInteracted}
-              className="text-xs bg-white/90 text-gray-800 border-white/20 hover:bg-white"
+              className="text-xs bg-white/80 text-gray-900 border-white/40 hover:bg-white/90 font-medium"
             >
               <Volume2 className="h-3 w-3 mr-1" />
               Lesson {lesson.id}
@@ -154,7 +154,7 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
       {/* Reading Status */}
       {isSpeaking && (
         <div className="text-center">
-          <Badge variant="default" className="animate-pulse bg-white/90 text-gray-800">
+          <Badge variant="default" className="animate-pulse bg-white/80 text-gray-900 font-medium">
             <Volume2 className="h-3 w-3 mr-1" />
             {isReadingOverview ? 'Reading course overview...' : 'Reading lesson...'}
           </Badge>

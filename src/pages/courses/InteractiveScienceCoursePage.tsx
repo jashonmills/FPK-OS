@@ -149,15 +149,15 @@ export const InteractiveScienceCoursePage: React.FC = () => {
                 
                 {/* Course badges */}
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/80 text-gray-900 border-white/50 font-semibold">
                     <BookOpen className="w-4 h-4 mr-2" />
                     {lessons.length} Lessons
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/80 text-gray-900 border-white/50 font-semibold">
                     <Clock className="w-4 h-4 mr-2" />
                     ~6 Hours
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/80 text-gray-900 border-white/50 font-semibold">
                     <Users className="w-4 h-4 mr-2" />
                     Beginner
                   </Badge>
@@ -165,7 +165,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                  <p className="text-xs text-white/90 mt-1 text-center font-medium drop-shadow">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -195,9 +195,9 @@ export const InteractiveScienceCoursePage: React.FC = () => {
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-white/90 backdrop-blur-sm border-white/30 ${
                         !isAccessible ? 'opacity-50' : ''
-                      } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
+                      } ${isCompleted ? 'border-primary/50 bg-white/95' : ''}`}
                       onClick={() => isAccessible && setCurrentLesson(lesson.id)}
                     >
                       <CardHeader className="pb-3">
