@@ -335,7 +335,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
         >
           <div className="min-h-screen">
             <CourseHeader 
-              onBackToCourses={handleBackToCourseOverview}
+              onBackToCourses={handleBackToCourses}
               onDashboard={handleDashboard}
               courseTitle="Empowering Learning for Spelling"
             />

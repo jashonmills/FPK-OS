@@ -339,7 +339,7 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
         }}>
           <CourseHeader 
             onDashboard={handleDashboard}
-            onBackToCourses={handleBackToCourseOverview}
+            onBackToCourses={handleBackToCourses}
             courseTitle="Interactive Linear Equations"
           />
 
