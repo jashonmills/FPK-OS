@@ -36,6 +36,7 @@ import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
 import courseEconomicsBg from '@/assets/course-economics-bg.jpg';
 import courseLogicBg from '@/assets/course-logic-bg.jpg';
 import courseScienceBg from '@/assets/course-science-bg.jpg';
+import eltBackground from '@/assets/elt-background.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -109,6 +110,18 @@ const INTRODUCTION_TO_SCIENCE_COURSE = {
   thumbnail_url: courseScienceBg,
   difficulty_level: 'beginner',
   duration_minutes: 360,
+  instructor_name: 'FPK University',
+  featured: true,
+  status: 'published'
+};
+
+const ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE = {
+  id: 'elt-empowering-learning-techniques',
+  title: 'ELT: Empowering Learning Techniques',
+  description: 'Master evidence-based learning strategies specifically designed for neurodiverse minds. Transform how you learn, study, and succeed in any academic environment.',
+  thumbnail_url: eltBackground,
+  difficulty_level: 'beginner',
+  duration_minutes: 240,
   instructor_name: 'FPK University',
   featured: true,
   status: 'published'
@@ -369,6 +382,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
   const allAvailableCourses = [
     EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
     EMPOWERING_LEARNING_STATE_COURSE, // Add the new Learning State course
+    ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
