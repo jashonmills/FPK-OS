@@ -428,6 +428,16 @@ const App: React.FC = () => {
               <LazyRoute><MoneyManagementCoursePage /></LazyRoute>
             </RouteProtector>
           } />
+          <Route path="/courses/interactive-linear-equations" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveLinearEquationsCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/interactive-linear-equations/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveLinearEquationsCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
           <Route path="/courses/logic-critical-thinking" element={
             <RouteProtector>
               <LazyRoute><LogicCriticalThinkingCoursePage /></LazyRoute>

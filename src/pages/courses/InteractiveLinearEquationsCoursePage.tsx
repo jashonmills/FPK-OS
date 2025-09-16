@@ -1,274 +1,315 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Calculator, CheckCircle, PlayCircle, Trophy, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, X, Calculator, Target, TrendingUp } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
-import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
-import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
-import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
+import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
+import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
+// Import background image
+import linearEquationsBg from '@/assets/linear-equations-background.jpg';
 
 // Import lesson components
-import { LinearEquationsLesson1 } from '@/components/linear-equations/lessons/LinearEquationsLesson1';
-import { LinearEquationsLesson2 } from '@/components/linear-equations/lessons/LinearEquationsLesson2';
-import { LinearEquationsLesson3 } from '@/components/linear-equations/lessons/LinearEquationsLesson3';
-import { LinearEquationsLesson4 } from '@/components/linear-equations/lessons/LinearEquationsLesson4';
-import { LinearEquationsLesson5 } from '@/components/linear-equations/lessons/LinearEquationsLesson5';
-import { LinearEquationsLesson6 } from '@/components/linear-equations/lessons/LinearEquationsLesson6';
-import { LinearEquationsLesson7 } from '@/components/linear-equations/lessons/LinearEquationsLesson7';
+import { LinearEquationsIntroductionMicroLesson } from '@/components/micro-lessons/linear-equations/LinearEquationsIntroductionMicroLesson';
+import { SOAPMethodMicroLesson } from '@/components/micro-lessons/linear-equations/SOAPMethodMicroLesson';
+import { MultiStepEquationsMicroLesson } from '@/components/micro-lessons/linear-equations/MultiStepEquationsMicroLesson';
+import { GraphingLinearEquationsMicroLesson } from '@/components/micro-lessons/linear-equations/GraphingLinearEquationsMicroLesson';
+import { SpecialCasesMicroLesson } from '@/components/micro-lessons/linear-equations/SpecialCasesMicroLesson';
+import { WordProblemsMicroLesson } from '@/components/micro-lessons/linear-equations/WordProblemsMicroLesson';
+import { LinearEquationsMasteryMicroLesson } from '@/components/micro-lessons/linear-equations/LinearEquationsMasteryMicroLesson';
+
+interface Lesson {
+  id: number;
+  title: string;
+  description: string;
+  component: React.ComponentType<any>;
+  unit: string;
+  unitColor: string;
+}
+
+// Moved outside component to prevent recreation on every render
+const lessons: Lesson[] = [
+  { id: 1, title: "Introduction to Linear Equations", description: "Learn what linear equations are and understand the balance concept", component: LinearEquationsIntroductionMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 2, title: "The SOAP Method", description: "Master the systematic approach to solving linear equations step-by-step", component: SOAPMethodMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 3, title: "Multi-Step Equations", description: "Tackle complex equations with distribution and combining like terms", component: MultiStepEquationsMicroLesson, unit: "Unit 2: Advanced Solving", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 4, title: "Graphing Linear Equations", description: "Visualize equations on the coordinate plane and understand slopes", component: GraphingLinearEquationsMicroLesson, unit: "Unit 2: Advanced Solving", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 5, title: "Special Cases", description: "Identify equations with no solution or infinite solutions", component: SpecialCasesMicroLesson, unit: "Unit 3: Applications", unitColor: "bg-green-100 text-green-700" },
+  { id: 6, title: "Word Problems", description: "Apply linear equation skills to solve real-world problems", component: WordProblemsMicroLesson, unit: "Unit 3: Applications", unitColor: "bg-green-100 text-green-700" },
+  { id: 7, title: "Linear Equations Mastery", description: "Complete challenging problems and celebrate your mathematical journey", component: LinearEquationsMasteryMicroLesson, unit: "Unit 3: Applications", unitColor: "bg-green-100 text-green-700" }
+];
 
 const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const navigate = useNavigate();
-  const { lesson } = useParams<{ lesson: string }>();
-  const currentLesson = lesson ? parseInt(lesson) - 1 : null;
-  const courseId = "interactive-linear-equations";
-  const courseTitle = "Interactive Linear Equations";
-  
-  const { completedLessons, saveLessonCompletion } = useInteractiveCourseProgress(courseId);
-  const { migrateEnrollmentData } = useInteractiveCourseEnrollmentBridge();
+  const { lessonId } = useParams();
+  const [currentLesson, setCurrentLesson] = useState<number | null>(null);
+  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
 
-  const lessons = [
-    {
-      id: 1,
-      title: "Introduction to Linear Equations",
-      description: "Learn what linear equations are and why they're important",
-      component: LinearEquationsLesson1,
-      icon: BookOpen
-    },
-    {
-      id: 2,
-      title: "Solving Basic Linear Equations",
-      description: "Master the SOAP method for solving linear equations",
-      component: LinearEquationsLesson2,
-      icon: Calculator
-    },
-    {
-      id: 3,
-      title: "Multi-step Linear Equations",
-      description: "Tackle equations involving distribution and combining like terms",
-      component: LinearEquationsLesson3,
-      icon: PlayCircle
-    },
-    {
-      id: 4,
-      title: "Graphing Linear Equations",
-      description: "Visualize linear equations on the coordinate plane",
-      component: LinearEquationsLesson4,
-      icon: Calculator
-    },
-    {
-      id: 5,
-      title: "Special Cases in Linear Equations",
-      description: "Handle equations with no solution or infinite solutions",
-      component: LinearEquationsLesson5,
-      icon: BookOpen
-    },
-    {
-      id: 6,
-      title: "Word Problems with Linear Equations",
-      description: "Apply linear equations to solve real-world problems",
-      component: LinearEquationsLesson6,
-      icon: Calculator
-    },
-    {
-      id: 7,
-      title: "Mastery Challenge",
-      description: "Put your linear equation skills to the test",
-      component: LinearEquationsLesson7,
-      icon: Trophy
+  useEffect(() => {
+    if (lessonId) {
+      const lesson = parseInt(lessonId);
+      if (lesson >= 1 && lesson <= lessons.length) {
+        setCurrentLesson(lesson);
+      }
+    } else {
+      // Reset to course overview when no lesson ID is present
+      setCurrentLesson(null);
     }
-  ];
+  }, [lessonId]);
 
-  const handleLessonComplete = (lessonNumber: number) => {
-    console.log(`Linear Equations lesson ${lessonNumber} completed`);
-    const lessonData = lessons.find(l => l.id === lessonNumber);
-    saveLessonCompletion(lessonNumber, lessonData?.title || `Lesson ${lessonNumber}`);
-    migrateEnrollmentData();
+  const handleLessonComplete = (lessonId: number) => {
+    if (!completedLessons.includes(lessonId)) {
+      setCompletedLessons(prev => [...prev, lessonId]);
+    }
   };
 
-  const handleNextLesson = () => {
-    if (currentLesson !== null && currentLesson < lessons.length - 1) {
-      navigate(`/courses/interactive-linear-equations/lesson/${currentLesson + 2}`);
+  // Memoize navigation handlers to prevent unnecessary re-renders
+  const handleNextLesson = useCallback(() => {
+    if (currentLesson !== null && currentLesson < lessons.length) {
+      const nextLesson = currentLesson + 1;
+      setCurrentLesson(nextLesson);
+      navigate(`/courses/interactive-linear-equations/${nextLesson}`);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [currentLesson, navigate]);
 
-  const handleBackToCourses = () => {
+  const handlePrevLesson = useCallback(() => {
+    if (currentLesson !== null && currentLesson > 1) {
+      const prevLesson = currentLesson - 1;
+      setCurrentLesson(prevLesson);
+      navigate(`/courses/interactive-linear-equations/${prevLesson}`);
+      // Scroll to top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentLesson, navigate]);
+
+  const handleLessonSelect = useCallback((lessonId: number) => {
+    setCurrentLesson(lessonId);
+    navigate(`/courses/interactive-linear-equations/${lessonId}`);
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [navigate]);
+
+  const handleBackToCourses = useCallback(() => {
     navigate('/dashboard/learner/courses');
-  };
+  }, [navigate]);
 
-  const handleDashboard = () => {
+  const handleDashboard = useCallback(() => {
     navigate('/dashboard/learner');
-  };
+  }, [navigate]);
 
-  const overallProgress = (completedLessons.size / lessons.length) * 100;
+  const handleBackToCourseOverview = useCallback(() => {
+    navigate('/courses/interactive-linear-equations');
+  }, [navigate]);
 
-  // Course overview content
+  // Memoize expensive calculations
+  const isLessonAccessible = useCallback((lessonId: number) => {
+    return lessonId === 1 || completedLessons.includes(lessonId - 1);
+  }, [completedLessons]);
+
+  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
+
+  // Course overview (lesson selection)
   if (currentLesson === null) {
     return (
-      <InteractiveCourseWrapper
-        courseId={courseId}
-        courseTitle={courseTitle}
-        currentLesson={currentLesson}
-        totalLessons={lessons.length}
-        onProgressUpdate={(completed, total) => {
-          console.log(`Course progress: ${completed}/${total}`);
-        }}
-      >
-        <div className="min-h-screen bg-background">
-          <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
-            courseTitle={courseTitle}
-          />
-          
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
-            {/* Course Header */}
-            <header className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4 text-primary">
-                Interactive Linear Equations Course
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-                Master linear equations through interactive lessons, step-by-step solutions, and practical applications. 
-                From basic solving techniques to complex word problems.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
-                <Badge variant="default" className="fpk-gradient text-white text-lg px-4 py-2">
-                  Interactive
-                </Badge>
-                <Badge variant="outline" className="text-lg px-4 py-2">
-                  7 Lessons
-                </Badge>
-                <Badge variant="outline" className="text-lg px-4 py-2">
-                  ~3 Hours
-                </Badge>
-              </div>
-              <div className="max-w-md mx-auto">
-                <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                  <span>Course Progress</span>
-                  <span>{Math.round(overallProgress)}%</span>
-                </div>
-                <Progress value={overallProgress} className="h-3" />
-              </div>
-            </header>
-
-            {/* Course Overview Video */}
-            <CourseOverviewVideo
-              videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/The_Linear_Equation_Puzzle.mp4"
-              title="The Linear Equation Puzzle"
+      <VoiceSettingsProvider>
+        <InteractiveCourseWrapper
+          courseId="interactive-linear-equations"
+          courseTitle="Interactive Linear Equations"
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${linearEquationsBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
+            <CourseHeader 
+              onDashboard={handleDashboard} 
+              onBackToCourses={handleBackToCourses}
+              courseTitle="Interactive Linear Equations"
             />
+          
+            <div className="container mx-auto px-4 py-8 space-y-8">
+              {/* Course Title and Description */}
+              <div className="text-center space-y-4">
+                <div className="flex justify-center items-center gap-3 mb-4">
+                  <Calculator className="w-12 h-12 text-blue-400" />
+                  <h1 className="text-4xl font-bold text-white drop-shadow-lg">Interactive Linear Equations</h1>
+                  <Target className="w-12 h-12 text-purple-400" />
+                </div>
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium">
+                  Master the fundamentals of linear equations through interactive lessons and step-by-step problem solving. Build a strong algebraic foundation for advanced mathematics.
+                </p>
+                
+                {/* Course badges */}
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    {lessons.length} Lessons
+                  </Badge>
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <Clock className="w-4 h-4 mr-2" />
+                    ~5 Hours
+                  </Badge>
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <Calculator className="w-4 h-4 mr-2" />
+                    Algebra Foundation
+                  </Badge>
+                </div>
 
-            {/* Lessons Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lessons.map((lesson, index) => {
-                const Icon = lesson.icon;
-                const isCompleted = completedLessons.has(lesson.id);
-                const isAccessible = index === 0 || completedLessons.has(lessons[index - 1].id);
+                <div className="max-w-md mx-auto">
+                  <Progress value={progress} className="h-2 mb-2" />
+                  <p className="text-xs text-white mt-1 text-center font-medium">
+                    {completedLessons.length} of {lessons.length} lessons completed
+                  </p>
+                </div>
+              </div>
 
-                return (
-                  <Card 
-                    key={lesson.id} 
-                    className={`cursor-pointer transition-all duration-200 ${
-                      isAccessible 
-                        ? 'hover:shadow-lg hover:-translate-y-1' 
-                        : 'opacity-50 cursor-not-allowed'
-                    } ${isCompleted ? 'ring-2 ring-green-500' : ''}`}
-                    onClick={() => {
-                      if (isAccessible) {
-                        navigate(`/courses/interactive-linear-equations/lesson/${lesson.id}`);
-                      }
-                    }}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-full ${
-                            isCompleted 
-                              ? 'bg-green-100 text-green-600' 
-                              : isAccessible 
-                                ? 'bg-primary/10 text-primary'
-                                : 'bg-gray-100 text-gray-400'
-                          }`}>
-                            {isCompleted ? <CheckCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{lesson.title}</CardTitle>
-                            <Badge variant="outline" className="mt-1">
-                              Lesson {lesson.id}
-                            </Badge>
-                          </div>
+              {/* Voice Controls */}
+              <div className="mb-8">
+                <CourseOverviewTTS 
+                  courseTitle="Interactive Linear Equations"
+                  courseDescription="Master the fundamentals of linear equations through interactive lessons and step-by-step problem solving. Build a strong algebraic foundation for advanced mathematics."
+                  lessons={lessons}
+                />
+              </div>
+
+              {/* Enhanced Course Information */}
+              <div className="max-w-4xl mx-auto">
+                <Accordion 
+                  type="single" 
+                  collapsible 
+                  className="w-full space-y-4"
+                  value={accordionOpen}
+                  onValueChange={setAccordionOpen}
+                >
+                  <AccordionItem value="course-info">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-4 py-3 rounded-lg text-blue-900 dark:text-blue-100">
+                      Course Overview & Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="prose prose-gray max-w-none text-sm relative">
+                      <div className="space-y-6 pr-12">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 text-white">Why Linear Equations Matter</h3>
+                          <p className="text-white leading-relaxed">
+                            Linear equations are the foundation of algebra and essential for success in higher mathematics, science, engineering, and many real-world applications. This course provides you with the tools and confidence to solve linear equations systematically and understand their graphical representations.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 text-white">What You'll Learn</h3>
+                          <ul className="space-y-2 text-white">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Linear Equation Fundamentals:</strong> Understanding what linear equations are and the balance concept</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>SOAP Solving Method:</strong> A systematic approach to solve any linear equation step-by-step</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Multi-Step Equations:</strong> Working with distribution, combining like terms, and complex problems</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Graphing Skills:</strong> Visualizing linear equations on coordinate planes and understanding slopes</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Special Cases:</strong> Identifying equations with no solution or infinitely many solutions</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Word Problems:</strong> Applying linear equation skills to solve real-world problems</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 text-white">Interactive Learning Features</h3>
+                          <p className="text-white mb-3">Throughout this course, you'll experience:</p>
+                          <ul className="space-y-1 text-white">
+                            <li className="flex gap-3"><span className="font-medium text-foreground">•</span> Step-by-step interactive problem solving</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">•</span> Visual representations and graphing tools</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">•</span> Practice problems with immediate feedback</li>
+                            <li className="flex gap-3"><span className="font-medium text-foreground">•</span> Real-world applications and word problems</li>
+                          </ul>
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        {lesson.description}
-                      </p>
-                      {isCompleted && (
-                        <Badge className="bg-green-600 text-white">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Completed
-                        </Badge>
-                      )}
-                      {!isAccessible && (
-                        <Badge variant="outline">
-                          Complete previous lesson to unlock
-                        </Badge>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
 
-            {/* Course Completion */}
-            {completedLessons.size === lessons.length && (
-              <Card className="mt-12 text-center bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                <CardHeader>
-                  <div className="flex justify-center mb-4">
-                    <Trophy className="h-16 w-16 text-gold-500" />
-                  </div>
-                  <CardTitle className="text-2xl text-green-700">
-                    🎉 Congratulations! Course Complete!
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg text-green-600 mb-4">
-                    You have successfully completed the Interactive Linear Equations Course!
-                  </p>
-                  <p className="text-muted-foreground mb-6">
-                    You've mastered solving linear equations, graphing, and real-world applications. 
-                    Keep practicing to maintain your skills!
-                  </p>
-                  <Button onClick={handleBackToCourses} size="lg" className="fpk-gradient text-white">
-                    Return to My Courses
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+              {/* Lessons Grid */}
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold text-white mb-8 text-center">Course Lessons</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {lessons.map((lesson) => {
+                    const isAccessible = isLessonAccessible(lesson.id);
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    
+                    return (
+                      <Card 
+                        key={lesson.id}
+                        className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm border-border ${
+                          !isAccessible ? 'opacity-50' : ''
+                        } ${isCompleted ? 'border-primary/50' : 'border-border'}`}
+                        onClick={() => isAccessible && handleLessonSelect(lesson.id)}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className={lesson.unitColor}>
+                              {lesson.unit}
+                            </Badge>
+                            {isCompleted && <Award className="w-5 h-5 text-primary" />}
+                          </div>
+                          <CardTitle className="text-lg">{lesson.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground text-sm mb-4">{lesson.description}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Lesson {lesson.id}</span>
+                            {!isAccessible && (
+                              <span className="text-xs text-muted-foreground">Complete previous lesson</span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </InteractiveCourseWrapper>
+        </InteractiveCourseWrapper>
+      </VoiceSettingsProvider>
     );
   }
 
   // Individual lesson view
-  const currentLessonData = lessons[currentLesson];
-  if (!currentLessonData?.component) {
+  const currentLessonData = lessons.find(l => l.id === currentLesson);
+  
+  if (!currentLessonData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center">
-            <h2 className="text-xl font-semibold mb-2">Lesson Not Found</h2>
-            <p className="text-muted-foreground mb-4">
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Lesson Not Found</h2>
+            <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/interactive-linear-equations')} variant="outline">
+            <Button onClick={() => navigate('/courses/interactive-linear-equations')}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -277,70 +318,48 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
     );
   }
 
+  const hasNext = currentLesson < lessons.length;
+  const hasPrev = currentLesson > 1;
+
   const LessonComponent = currentLessonData.component;
 
   return (
-    <InteractiveCourseWrapper
-      courseId={courseId}
-      courseTitle={courseTitle}
-      currentLesson={currentLesson + 1}
-      totalLessons={lessons.length}
-      onProgressUpdate={(completed, total) => {
-        console.log(`Course progress: ${completed}/${total}`);
-      }}
-    >
-      <div className="min-h-screen bg-background">
-        <CourseHeader 
-          onBackToCourses={handleBackToCourses}
-          onDashboard={handleDashboard}
-          title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
-        />
+    <VoiceSettingsProvider>
+      <InteractiveCourseWrapper 
+        courseId="interactive-linear-equations"
+        courseTitle="Interactive Linear Equations"
+        currentLesson={currentLesson}
+        totalLessons={lessons.length}
+      >
+        <div className="min-h-screen bg-background" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${linearEquationsBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
+          <CourseHeader 
+            onDashboard={handleDashboard}
+            onBackToCourses={handleBackToCourseOverview}
+            courseTitle="Interactive Linear Equations"
+          />
 
-        <div className="container mx-auto px-4 py-8">
-          {/* Lesson Header */}
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/courses/interactive-linear-equations')}
-              className="flex items-center gap-2"
+          <div className="container mx-auto px-4 py-6">
+            <InteractiveLessonWrapper
+              courseId="interactive-linear-equations"
+              lessonId={currentLesson}
+              lessonTitle={currentLessonData.title}
+              totalLessons={lessons.length}
             >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Course Overview
-            </Button>
-            
-            <div className="text-center">
-              <h1 className="text-2xl font-bold">
-                Lesson {currentLessonData.id}: {currentLessonData.title}
-              </h1>
-              <p className="text-muted-foreground">{currentLessonData.description}</p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {currentLesson + 1} of {lessons.length}
-              </span>
-              <Progress value={((currentLesson + 1) / lessons.length) * 100} className="w-20 h-2" />
-            </div>
+              <LessonComponent
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+              />
+            </InteractiveLessonWrapper>
           </div>
-
-          {/* Lesson Content */}
-          <InteractiveLessonWrapper
-            courseId={courseId}
-            lessonId={currentLesson + 1}
-            lessonTitle={currentLessonData.title}
-            onComplete={() => handleLessonComplete(currentLessonData.id)}
-            onNext={handleNextLesson}
-            hasNext={currentLesson < lessons.length - 1}
-          >
-            <LessonComponent 
-              onComplete={() => handleLessonComplete(currentLessonData.id)}
-              onNext={handleNextLesson}
-              hasNext={currentLesson < lessons.length - 1}
-            />
-          </InteractiveLessonWrapper>
         </div>
-      </div>
-    </InteractiveCourseWrapper>
+      </InteractiveCourseWrapper>
+    </VoiceSettingsProvider>
   );
 };
 
