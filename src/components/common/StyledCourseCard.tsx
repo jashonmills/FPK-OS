@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 // Import actual course background images (same as used in courses)
 import linearEquationsBg from '@/assets/linear-equations-unique-bg.jpg';
 import trigBg from '@/assets/trigonometry-background.jpg';
-import algebraBg from '@/assets/course-algebra.jpg'; // Keep unique for algebra
+import algebraBg from '@/assets/linear-equations-background.jpg'; // Match algebra course background
 import logicBg from '@/assets/logic-background.jpg';
 import economicsBg from '@/assets/economics-background.jpg';
 import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
@@ -19,7 +19,9 @@ import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
 import interactiveGeometryBg from '@/assets/interactive-geometry-fundamentals-bg.jpg';
 import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
-import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
+import learningStateBg from '@/assets/learning-state-course-bg.jpg';
+import elSpellingBg from '@/assets/el-spelling-course-bg.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -43,14 +45,16 @@ const courseImageMap: Record<string, string> = {
   'interactive-algebra': algebraBg,
   'logic-critical-thinking': logicBg,
   'introduction-modern-economics': economicsBg,
-  'el-spelling-reading': empoweringSpellingBg,
+  'el-spelling-reading': elSpellingBg,
   'empowering-learning-reading': empoweringReadingBg,
   'empowering-learning-numeracy': empoweringNumeracyBg,
   'empowering-learning-handwriting': empoweringHandwritingBg,
+  'empowering-learning-spelling': empoweringSpellingBg,
   'neurodiversity-strengths-based-approach': neurodiversityBackground,
   'interactive-science': scienceCourseBg,
   'money-management-teens': moneyManagementBg,
   'geometry': interactiveGeometryBg,
+  'learning-state-course': learningStateBg,
 };
 
 // Fallback function for courses not in the map
@@ -67,6 +71,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('algebra')) return algebraBg;
   if (titleLower.includes('logic') || titleLower.includes('critical')) return logicBg;
   if (titleLower.includes('economics') || titleLower.includes('economic')) return economicsBg;
+  if (titleLower.includes('el spelling') || titleLower.includes('el-spelling')) return elSpellingBg;
   if (titleLower.includes('spelling')) return empoweringSpellingBg;
   if (titleLower.includes('reading')) return empoweringReadingBg;
   if (titleLower.includes('numeracy')) return empoweringNumeracyBg;
@@ -75,6 +80,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return scienceCourseBg;
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return moneyManagementBg;
   if (titleLower.includes('geometry')) return interactiveGeometryBg;
+  if (titleLower.includes('learning state')) return learningStateBg;
   
   // Default fallback
   return scienceCourseBg;

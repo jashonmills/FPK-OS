@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
-import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 
 interface SpellingCourseWrapperProps {
   courseId: string;

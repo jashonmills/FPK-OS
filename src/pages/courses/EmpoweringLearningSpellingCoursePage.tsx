@@ -11,7 +11,7 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
-import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper';
 
 // Import lesson components
