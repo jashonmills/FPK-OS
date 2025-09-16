@@ -350,64 +350,64 @@ const CoursesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Courses Grid - Enhanced mobile spacing and semi-transparent cards */}
+      {/* Courses Grid - Smaller cards matching dashboard */}
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => {
             const courseImage = getCourseImage(course.id, course.title);
             
             return (
               <Card key={course.id} className="relative flex flex-col h-full hover:shadow-xl transition-all duration-300 overflow-hidden group bg-white/40 backdrop-blur-md border-white/20 shadow-lg">
-                {/* AI Generated Image Header (same as StyledCourseCard) */}
+                {/* AI Generated Image Header */}
                 <div 
-                  className="relative h-36 sm:h-40 bg-cover bg-center overflow-hidden"
+                  className="relative h-40 bg-cover bg-center overflow-hidden"
                   style={{ backgroundImage: `url(${courseImage})` }}
                 >
                   {/* Dark overlay for text contrast */}
                   <div className="absolute inset-0 bg-black/50" />
                   
                   {/* Header content */}
-                  <div className="relative z-10 p-4 sm:p-6 h-full flex flex-col justify-between">
+                  <div className="relative z-10 p-4 h-full flex flex-col justify-between">
                     <div className="flex justify-between items-start gap-2">
-                      <Badge className={`${getCategoryColor(course.category)} text-base sm:text-lg backdrop-blur-sm font-medium`}>
+                      <Badge className={`${getCategoryColor(course.category)} text-sm backdrop-blur-sm font-medium`}>
                         {course.category}
                       </Badge>
-                      <Badge className={`${getLevelColor(course.level)} text-base sm:text-lg backdrop-blur-sm font-medium`}>
+                      <Badge className={`${getLevelColor(course.level)} text-sm backdrop-blur-sm font-medium`}>
                         {course.level}
                       </Badge>
                     </div>
                     
                     <div className="flex-1 flex items-end">
-                      <CardTitle className="text-white font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight drop-shadow-lg">
+                      <CardTitle className="text-white font-bold text-lg leading-tight drop-shadow-lg">
                         {course.title}
                       </CardTitle>
                     </div>
                   </div>
                 </div>
 
-                <CardContent className="flex-1 flex flex-col p-5 sm:p-6 lg:p-7">
+                <CardContent className="flex-1 flex flex-col p-6">
                   {/* Course Description */}
-                  <p className="text-lg sm:text-xl lg:text-2xl text-slate-700 mb-4 line-clamp-2 leading-relaxed">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
                     {course.description}
                   </p>
 
-                  {/* Course Stats - Enhanced mobile text sizes */}
-                  <div className="flex items-center justify-between text-base sm:text-lg lg:text-xl text-slate-600 mb-4">
+                  {/* Course Stats */}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1.5">
-                      <BookOpen className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <BookOpen className="h-4 w-4" />
                       <span className="font-medium">{course.lessons} Lessons</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <Clock className="h-4 w-4" />
                       <span className="font-medium">{course.duration}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <GraduationCap className="h-4 w-4" />
                       <span className="font-medium">{course.level}</span>
                     </div>
                   </div>
 
-                  {/* Course Summary Dropdown - Enhanced mobile text */}
+                  {/* Course Summary Dropdown */}
                   <Collapsible
                     open={expandedCourse === course.id}
                     onOpenChange={() => 
@@ -418,17 +418,17 @@ const CoursesPage: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-between text-lg sm:text-xl lg:text-2xl mb-4 hover:bg-white/20 font-medium py-3 bg-white/5 backdrop-blur-sm border border-white/10"
+                        className="w-full justify-between text-sm mb-4 hover:bg-white/20 font-medium py-2 bg-white/5 backdrop-blur-sm border border-white/10"
                       >
                         Course Details
                         {expandedCourse === course.id ? (
-                          <ChevronUp className="h-6 w-6 sm:h-7 sm:w-7" />
+                          <ChevronUp className="h-4 w-4" />
                         ) : (
-                          <ChevronDown className="h-6 w-6 sm:h-7 sm:w-7" />
+                          <ChevronDown className="h-4 w-4" />
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-5 mb-6 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10 relative">
+                    <CollapsibleContent className="space-y-4 mb-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10 relative">
                       {/* TTS Speaker Button */}
                       <Button
                         onClick={() => handleReadCourseOverview(course)}
@@ -445,16 +445,16 @@ const CoursesPage: React.FC = () => {
                       </Button>
                       
                       <div>
-                        <h4 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 text-slate-800">Overview</h4>
-                        <p className="text-lg sm:text-xl lg:text-2xl text-slate-700 leading-relaxed">{course.summary}</p>
+                        <h4 className="font-bold text-sm mb-2 text-slate-800">Overview</h4>
+                        <p className="text-sm text-slate-700 leading-relaxed">{course.summary}</p>
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 text-slate-800">Key Features</h4>
-                        <ul className="text-lg sm:text-xl lg:text-2xl text-slate-700 space-y-2">
+                        <h4 className="font-bold text-sm mb-2 text-slate-800">Key Features</h4>
+                        <ul className="text-sm text-slate-700 space-y-1">
                           {course.features.map((feature, index) => (
-                            <li key={index} className="flex items-start gap-3">
-                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full flex-shrink-0 mt-2.5"></span>
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5"></span>
                               <span className="leading-relaxed">{feature}</span>
                             </li>
                           ))}
@@ -462,11 +462,11 @@ const CoursesPage: React.FC = () => {
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-lg sm:text-xl lg:text-2xl mb-3 text-slate-800">Learning Outcomes</h4>
-                        <ul className="text-lg sm:text-xl lg:text-2xl text-slate-700 space-y-2">
+                        <h4 className="font-bold text-sm mb-2 text-slate-800">Learning Outcomes</h4>
+                        <ul className="text-sm text-slate-700 space-y-1">
                           {course.learningOutcomes.map((outcome, index) => (
-                            <li key={index} className="flex items-start gap-3">
-                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full flex-shrink-0 mt-2.5"></span>
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5"></span>
                               <span className="leading-relaxed">{outcome}</span>
                             </li>
                           ))}
@@ -475,11 +475,11 @@ const CoursesPage: React.FC = () => {
                     </CollapsibleContent>
                   </Collapsible>
 
-                  {/* Enroll Button - Enhanced mobile size */}
+                  {/* Enroll Button */}
                   <div className="mt-auto pt-4">
                     <Button
                       onClick={() => handleEnroll(course.id)}
-                      className="w-full bg-primary hover:bg-primary/90 text-lg sm:text-xl lg:text-2xl py-3 sm:py-4 font-bold shadow-lg backdrop-blur-sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-sm py-2 font-bold shadow-lg backdrop-blur-sm"
                     >
                       Enroll Now
                     </Button>
