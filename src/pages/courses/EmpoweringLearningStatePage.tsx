@@ -139,7 +139,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
           
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Hero Section */}
-              <div className="text-center space-y-6 text-white">
+              <div className="text-center space-y-6 text-purple-900">
                 <h1 className="text-5xl md:text-6xl font-bold">Empowering Learning State</h1>
                 <p className="text-lg md:text-xl max-w-4xl mx-auto leading-relaxed">
                   Master techniques to achieve optimal learning states and create calm, focused
@@ -150,23 +150,23 @@ export const EmpoweringLearningStatePage: React.FC = () => {
                 {/* Course Stats */}
                 <div className="flex justify-center gap-6 flex-wrap mt-8">
                   <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    <span className="font-medium">{lessons.length} Lessons</span>
+                    <BookOpen className="w-5 h-5 text-purple-900" />
+                    <span className="font-medium text-purple-900">{lessons.length} Lessons</span>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    <span className="font-medium">~3 Hours</span>
+                    <Clock className="w-5 h-5 text-purple-900" />
+                    <span className="font-medium text-purple-900">~3 Hours</span>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    <span className="font-medium">All Levels</span>
+                    <Users className="w-5 h-5 text-purple-900" />
+                    <span className="font-medium text-purple-900">All Levels</span>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="max-w-2xl mx-auto">
                   <Progress value={progress} className="h-3 mb-2 bg-white/20" />
-                  <p className="text-sm text-white/80">
+                  <p className="text-sm text-purple-800">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -175,8 +175,8 @@ export const EmpoweringLearningStatePage: React.FC = () => {
               {/* Audio Overview Section */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center">
                 <div className="flex items-center justify-center gap-4 mb-6">
-                  <Headphones className="w-6 h-6 text-white" />
-                  <span className="text-white text-lg font-medium">Listen to Course Overview</span>
+                  <Headphones className="w-6 h-6 text-purple-900" />
+                  <span className="text-purple-900 text-lg font-medium">Listen to Course Overview</span>
                 </div>
                 <Button 
                   size="lg" 
@@ -189,14 +189,14 @@ export const EmpoweringLearningStatePage: React.FC = () => {
 
               {/* Individual Lesson Audio Buttons */}
               <div className="text-center mb-8">
-                <p className="text-white text-lg mb-4">Or listen to individual lesson descriptions:</p>
+                <p className="text-purple-900 text-lg mb-4">Or listen to individual lesson descriptions:</p>
                 <div className="flex flex-wrap justify-center gap-3 max-w-6xl mx-auto">
                   {lessons.map((lesson) => (
                     <Button 
                       key={lesson.id}
                       variant="outline" 
                       size="sm"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-full flex items-center gap-2"
+                      className="bg-white/10 border-white/20 text-purple-900 hover:bg-white/20 rounded-full flex items-center gap-2"
                     >
                       <Volume2 className="w-4 h-4" />
                       Lesson {lesson.id}
