@@ -23,6 +23,7 @@ import { SandTimerLesson } from '@/components/course/learning-state-lessons/Sand
 import { RaisingBookScreenLesson } from '@/components/course/learning-state-lessons/RaisingBookScreenLesson';
 import { LookingUpLesson } from '@/components/course/learning-state-lessons/LookingUpLesson';
 import { WorkingTimeLimitsLesson } from '@/components/course/learning-state-lessons/WorkingTimeLimitsLesson';
+import { UseImaginationLesson } from '@/components/course/learning-state-lessons/UseImaginationLesson';
 
 interface Lesson {
   id: number;
@@ -45,7 +46,8 @@ const lessons: Lesson[] = [
   { id: 9, title: "Sand Timer", description: "Using timers for regulation and focus", component: SandTimerLesson, unit: "Regulation Tools", unitColor: "bg-orange-100 text-orange-700" },
   { id: 10, title: "Raising Book/Screen", description: "Optimal positioning for learning materials", component: RaisingBookScreenLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 11, title: "Looking Up", description: "Visual positioning techniques", component: LookingUpLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
-  { id: 12, title: "Working Time Limits", description: "Managing focus and concentration periods", component: WorkingTimeLimitsLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" }
+  { id: 12, title: "Working Time Limits", description: "Managing focus and concentration periods", component: WorkingTimeLimitsLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+  { id: 13, title: "Use Their Imagination", description: "Developing visualization and creative thinking", component: UseImaginationLesson, unit: "Creativity Tools", unitColor: "bg-pink-100 text-pink-700" }
 ];
 
 export const EmpoweringLearningStatePage: React.FC = () => {
