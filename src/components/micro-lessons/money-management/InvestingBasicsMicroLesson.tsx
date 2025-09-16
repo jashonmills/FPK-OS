@@ -5,7 +5,7 @@ import type { MicroLessonData } from '@/components/micro-lessons/MicroLessonCont
 const investingBasicsData: MicroLessonData = {
   id: 'investing-basics',
   moduleTitle: 'Introduction to Investing',
-  totalScreens: 8,
+  totalScreens: 13,
         screens: [
     {
       id: 'intro',
@@ -434,6 +434,67 @@ const investingBasicsData: MicroLessonData = {
         </div>
       `,
       estimatedTime: 3
+    },
+    {
+      id: 'dollar-cost-averaging-deep-dive',
+      type: 'concept',
+      title: 'Dollar-Cost Averaging Mastery',
+      content: `
+        <div class="space-y-4">
+          <p>Dollar-cost averaging is one of the best strategies for teen investors. Let's master this powerful technique:</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">📊 Advanced DCA Benefits:</h3>
+            <ul class="text-sm space-y-1">
+              <li>• Removes emotion from investing decisions</li>
+              <li>• Works in both up and down markets</li>
+              <li>• Perfect for busy students with limited time</li>
+              <li>• Builds disciplined investing habits</li>
+              <li>• Reduces impact of market volatility</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💰 Setting Up Your DCA Plan:</h4>
+            <ol class="text-sm space-y-1 list-decimal list-inside">
+              <li>Choose a broad market index fund (like S&P 500)</li>
+              <li>Decide on a fixed monthly amount ($25, $50, $100)</li>
+              <li>Set up automatic transfers on the same day each month</li>
+              <li>Stick to the plan regardless of market conditions</li>
+              <li>Increase the amount when your income grows</li>
+            </ol>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'investment-risks-management',
+      type: 'concept',
+      title: 'Managing Investment Risks',
+      content: `
+        <div class="space-y-4">
+          <p>All investments carry risk, but understanding and managing these risks can help you invest more confidently:</p>
+          <div class="bg-red-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">⚠️ Types of Investment Risk:</h3>
+            <ul class="text-sm space-y-2">
+              <li>• <strong>Market Risk:</strong> Overall market declines</li>
+              <li>• <strong>Company Risk:</strong> Individual company problems</li>
+              <li>• <strong>Inflation Risk:</strong> Money losing purchasing power</li>
+              <li>• <strong>Interest Rate Risk:</strong> Changing interest rates affecting investments</li>
+            </ul>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🛡️ Risk Management Strategies:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Diversify across many investments</li>
+              <li>• Invest for the long term (10+ years)</li>
+              <li>• Don't invest money you need soon</li>
+              <li>• Keep learning and stay informed</li>
+              <li>• Never invest in what you don't understand</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
     }
   ]
 };

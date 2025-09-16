@@ -5,7 +5,7 @@ import type { MicroLessonData } from '@/components/micro-lessons/MicroLessonCont
 const financialFoundationsData: MicroLessonData = {
   id: 'financial-foundations',
   moduleTitle: 'Financial Foundations',
-  totalScreens: 10,
+  totalScreens: 16,
   screens: [
     {
       id: 'intro',
@@ -335,6 +335,247 @@ const financialFoundationsData: MicroLessonData = {
           </div>
         </div>
       ),
+      estimatedTime: 3
+    },
+    {
+      id: 'financial-psychology',
+      type: 'concept',
+      title: 'The Psychology of Money',
+      content: `
+        <div class="space-y-4">
+          <p>Understanding how your mind affects your money decisions is crucial for financial success.</p>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🧠 Common Money Mindsets:</h3>
+            <div class="space-y-3">
+              <div class="bg-red-100 p-3 rounded">
+                <h4 class="font-medium text-red-700">Scarcity Mindset</h4>
+                <p class="text-sm">"There's never enough money" - leads to hoarding or overspending</p>
+              </div>
+              <div class="bg-green-100 p-3 rounded">
+                <h4 class="font-medium text-green-700">Abundance Mindset</h4>
+                <p class="text-sm">"I can create wealth" - leads to smart investing and opportunities</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Money Decision Triggers:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• <strong>Emotional spending:</strong> Buying when stressed, sad, or excited</li>
+              <li>• <strong>Social pressure:</strong> Spending to fit in or impress others</li>
+              <li>• <strong>Instant gratification:</strong> Choosing immediate pleasure over long-term goals</li>
+              <li>• <strong>Fear of missing out:</strong> Making impulsive purchases</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'family-money-conversations',
+      type: 'practice',
+      title: 'Having Money Conversations with Family',
+      content: `
+        <div class="space-y-4">
+          <p>Learning to talk about money with family helps you understand your financial values and get support for your goals.</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🗣️ Conversation Starters:</h3>
+            <ul class="text-sm space-y-2">
+              <li>• "How did you learn about money management?"</li>
+              <li>• "What financial mistakes did you make when you were young?"</li>
+              <li>• "What's the best money advice you can give me?"</li>
+              <li>• "Can we talk about my financial goals and how to reach them?"</li>
+              <li>• "Would you help me open a savings account?"</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">📋 Topics to Discuss:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Family values about money and spending</li>
+              <li>• How to handle peer pressure around money</li>
+              <li>• Setting up allowance or payment for chores</li>
+              <li>• College savings strategies</li>
+              <li>• First job and paycheck management</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'teen-entrepreneur-basics',
+      type: 'concept',
+      title: 'Teen Entrepreneurship Basics',
+      content: `
+        <div class="space-y-4">
+          <p>Many successful entrepreneurs started as teenagers. Learn how to turn your skills and interests into income!</p>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">💡 Teen Business Ideas:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-medium mb-2">Service-Based:</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• Tutoring younger students</li>
+                  <li>• Pet sitting/dog walking</li>
+                  <li>• Lawn care/snow removal</li>
+                  <li>• Social media management</li>
+                  <li>• Photography for events</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium mb-2">Product-Based:</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• Handmade crafts/jewelry</li>
+                  <li>• Baked goods</li>
+                  <li>• Digital products (apps, designs)</li>
+                  <li>• Reselling thrift finds</li>
+                  <li>• Custom t-shirts/merchandise</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🚀 Getting Started Steps:</h4>
+            <ol class="text-sm space-y-1 list-decimal list-inside">
+              <li>Identify your skills and interests</li>
+              <li>Research your local market and competition</li>
+              <li>Start small with minimal investment</li>
+              <li>Keep detailed records of income and expenses</li>
+              <li>Learn from customers and adapt quickly</li>
+            </ol>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'money-management-apps',
+      type: 'concept',
+      title: 'Essential Money Management Apps for Teens',
+      content: `
+        <div class="space-y-4">
+          <p>Technology can be your best ally in managing money effectively. Here are the top apps for teenage money management:</p>
+          <div class="space-y-3">
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">📱 Banking & Spending:</h3>
+              <ul class="text-sm space-y-2">
+                <li>• <strong>Greenlight:</strong> Debit card for teens with parental controls</li>
+                <li>• <strong>Copper:</strong> Teen bank account with spending insights</li>
+                <li>• <strong>GoHenry:</strong> Prepaid card with spending controls</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">💰 Saving & Investing:</h3>
+              <ul class="text-sm space-y-2">
+                <li>• <strong>Acorns:</strong> Round-up spare change investing</li>
+                <li>• <strong>Qapital:</strong> Automatic savings with goals</li>
+                <li>• <strong>Stockpile:</strong> Teen-friendly stock investing</li>
+              </ul>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">📊 Budgeting & Tracking:</h3>
+              <ul class="text-sm space-y-2">
+                <li>• <strong>YNAB:</strong> Comprehensive budgeting (free for students)</li>
+                <li>• <strong>PocketGuard:</strong> Simple spending limits</li>
+                <li>• <strong>Goodbudget:</strong> Digital envelope method</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'financial-goal-setting',
+      type: 'practice',
+      title: 'Setting and Achieving Financial Goals',
+      content: `
+        <div class="space-y-4">
+          <p>Clear financial goals give you direction and motivation. Let's learn how to set goals you'll actually achieve!</p>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🎯 Types of Financial Goals:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <h4 class="font-medium text-green-700">Short-term (1-12 months)</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• New phone</li>
+                  <li>• Concert tickets</li>
+                  <li>• Emergency fund</li>
+                  <li>• Driving lessons</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium text-blue-700">Medium-term (1-5 years)</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• Car purchase</li>
+                  <li>• College expenses</li>
+                  <li>• Study abroad trip</li>
+                  <li>• Business startup</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium text-purple-700">Long-term (5+ years)</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• House down payment</li>
+                  <li>• Retirement savings</li>
+                  <li>• Financial independence</li>
+                  <li>• Dream vacation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Goal Achievement Strategy:</h4>
+            <ol class="text-sm space-y-1 list-decimal list-inside">
+              <li>Write down specific, measurable goals</li>
+              <li>Calculate exactly how much you need to save</li>
+              <li>Set a realistic timeline</li>
+              <li>Break it into monthly/weekly targets</li>
+              <li>Track progress visually (charts, apps)</li>
+              <li>Celebrate milestones along the way</li>
+            </ol>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'financial-literacy-resources',
+      type: 'concept',
+      title: 'Building Your Financial Education',
+      content: `
+        <div class="space-y-4">
+          <p>Your financial education doesn't stop here! Here are excellent resources to continue learning:</p>
+          <div class="space-y-3">
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">📚 Books for Teens:</h3>
+              <ul class="text-sm space-y-1">
+                <li>• "The Richest Man in Babylon" by George Clason</li>
+                <li>• "Rich Dad Poor Dad for Teens" by Robert Kiyosaki</li>
+                <li>• "The Total Money Makeover" by Dave Ramsey</li>
+                <li>• "Your Money or Your Life" by Vicki Robin</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🎬 YouTube Channels:</h3>
+              <ul class="text-sm space-y-1">
+                <li>• Two Cents (PBS Digital)</li>
+                <li>• Ben Felix</li>
+                <li>• The Financial Diet</li>
+                <li>• Khan Academy Personal Finance</li>
+              </ul>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🌐 Websites & Tools:</h3>
+              <ul class="text-sm space-y-1">
+                <li>• Investopedia (financial dictionary)</li>
+                <li>• JumpStart Coalition (teen financial literacy)</li>
+                <li>• Practical Money Skills by Visa</li>
+                <li>• National Endowment for Financial Education</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      `,
       estimatedTime: 3
     }
   ]

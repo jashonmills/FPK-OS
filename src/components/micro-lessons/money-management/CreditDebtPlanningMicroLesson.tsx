@@ -5,7 +5,7 @@ import type { MicroLessonData } from '@/components/micro-lessons/MicroLessonCont
 const creditDebtPlanningData: MicroLessonData = {
   id: 'credit-debt-planning',
   moduleTitle: 'Credit, Debt, and Future Planning',
-  totalScreens: 10,
+  totalScreens: 15,
         screens: [
     {
       id: 'intro',

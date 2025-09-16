@@ -5,7 +5,7 @@ import type { MicroLessonData } from '@/components/micro-lessons/MicroLessonCont
 const savingStrategiesData: MicroLessonData = {
   id: 'saving-strategies',
   moduleTitle: 'Smart Saving Strategies',
-  totalScreens: 9,
+  totalScreens: 14,
         screens: [
     {
       id: 'intro',
@@ -444,6 +444,215 @@ const savingStrategiesData: MicroLessonData = {
         </div>
       `,
       estimatedTime: 3
+    },
+    {
+      id: 'high-yield-savings-deep-dive',
+      type: 'concept',
+      title: 'Maximizing High-Yield Savings Accounts',
+      content: `
+        <div class="space-y-4">
+          <p>High-yield savings accounts can significantly boost your savings growth. Let's explore how to find and maximize them:</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🔍 What to Look For:</h3>
+            <ul class="text-sm space-y-2">
+              <li>• <strong>APY over 4%:</strong> Much higher than traditional banks (0.01%)</li>
+              <li>• <strong>No monthly fees:</strong> Fees can eat into your interest earnings</li>
+              <li>• <strong>Low minimum balance:</strong> $1 or less to start earning interest</li>
+              <li>• <strong>FDIC insured:</strong> Your money is protected up to $250,000</li>
+              <li>• <strong>Easy transfers:</strong> Quick access to your money when needed</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💰 Impact Example:</h4>
+            <div class="bg-white p-3 rounded text-sm">
+              <p class="mb-1"><strong>$1,000 saved for one year:</strong></p>
+              <ul class="space-y-1">
+                <li>• Traditional savings (0.01%): Earn $0.10</li>
+                <li>• High-yield savings (4.5%): Earn $45</li>
+                <li>• <strong>Difference: $44.90 more!</strong></li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🏦 Top Online Banks for Teens:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Marcus by Goldman Sachs</li>
+              <li>• Ally Bank</li>
+              <li>• Capital One 360</li>
+              <li>• Discover Bank</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'advanced-saving-techniques',
+      type: 'concept',
+      title: 'Advanced Saving Techniques',
+      content: `
+        <div class="space-y-4">
+          <p>Take your savings to the next level with these advanced strategies used by successful savers:</p>
+          <div class="space-y-3">
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🎯 The 1% Rule</h3>
+              <p class="text-sm mb-2">Increase your savings rate by 1% every month until you reach your target.</p>
+              <p class="text-sm">Example: Start saving 10%, next month 11%, then 12%, etc.</p>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">💸 Expense Shaving</h3>
+              <p class="text-sm mb-2">Systematically reduce expenses by small amounts across all categories.</p>
+              <ul class="text-sm space-y-1">
+                <li>• Cancel unused subscriptions</li>
+                <li>• Switch to generic brands</li>
+                <li>• Use energy-efficient habits</li>
+                <li>• Find free entertainment alternatives</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🔄 Income Replacement Strategy</h3>
+              <p class="text-sm mb-2">When you get a raise or bonus, save the extra money instead of increasing lifestyle.</p>
+              <p class="text-sm">This prevents lifestyle inflation while boosting savings significantly.</p>
+            </div>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'savings-psychology',
+      type: 'concept',
+      title: 'The Psychology of Successful Savers',
+      content: `
+        <div class="space-y-4">
+          <p>Understanding the mental side of saving helps you build lasting habits and overcome common obstacles:</p>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🧠 Saver Mindset Traits:</h3>
+            <ul class="text-sm space-y-2">
+              <li>• <strong>Future-focused:</strong> Value future benefits over immediate gratification</li>
+              <li>• <strong>Goal-oriented:</strong> Have specific targets to work toward</li>
+              <li>• <strong>Patient:</strong> Understand that wealth building takes time</li>
+              <li>• <strong>Optimistic:</strong> Believe their financial situation can improve</li>
+              <li>• <strong>Disciplined:</strong> Stick to plans even when it's difficult</li>
+            </ul>
+          </div>
+          <div class="bg-red-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🚫 Mental Traps to Avoid:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• "I don't earn enough to save" (any amount helps)</li>
+              <li>• "I'll start saving when I'm older" (time is crucial)</li>
+              <li>• "Small amounts don't matter" (they compound)</li>
+              <li>• "I deserve this purchase" (emotional spending)</li>
+            </ul>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Motivation Techniques:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Visualize your goals daily</li>
+              <li>• Celebrate small wins</li>
+              <li>• Find an accountability partner</li>
+              <li>• Track progress visually</li>
+              <li>• Remind yourself of your "why"</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'opportunity-cost-thinking',
+      type: 'concept',
+      title: 'Understanding Opportunity Cost',
+      content: `
+        <div class="space-y-4">
+          <p>Every spending decision means giving up something else. Understanding opportunity cost helps you make better financial choices:</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🤔 What is Opportunity Cost?</h3>
+            <p class="text-sm mb-2">The value of the next best alternative you give up when making a choice.</p>
+            <div class="bg-white p-3 rounded text-sm">
+              <p class="mb-1"><strong>Example:</strong> You have $100 to spend</p>
+              <ul class="space-y-1">
+                <li>• Option A: New video game</li>
+                <li>• Option B: Save and invest it</li>
+                <li>• <strong>Opportunity cost of buying the game:</strong> The future value of that $100 invested</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💰 Long-term Thinking Exercise:</h4>
+            <p class="text-sm mb-2">Before big purchases, calculate what that money could be worth if invested:</p>
+            <ul class="text-sm space-y-1">
+              <li>• $500 invested at 7% for 10 years = $983</li>
+              <li>• $500 invested at 7% for 20 years = $1,935</li>
+              <li>• $500 invested at 7% for 30 years = $3,811</li>
+            </ul>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🎯 Smart Questions to Ask:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Will this purchase matter in 5 years?</li>
+              <li>• What else could I do with this money?</li>
+              <li>• Am I buying this for the right reasons?</li>
+              <li>• How many hours did I work to earn this?</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'building-multiple-income-streams',
+      type: 'concept',
+      title: 'Building Multiple Income Streams',
+      content: `
+        <div class="space-y-4">
+          <p>Relying on one source of income is risky. Smart savers build multiple income streams to accelerate their savings goals:</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">💼 Types of Income Streams:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-medium mb-2">Active Income:</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• Part-time job</li>
+                  <li>• Freelance services</li>
+                  <li>• Tutoring</li>
+                  <li>• Odd jobs/gigs</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium mb-2">Passive Income:</h4>
+                <ul class="text-sm space-y-1">
+                  <li>• Investment dividends</li>
+                  <li>• Interest from savings</li>
+                  <li>• Selling digital products</li>
+                  <li>• Rental income (future)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🚀 Getting Started as a Teen:</h4>
+            <ol class="text-sm space-y-1 list-decimal list-inside">
+              <li>Perfect your primary income source first</li>
+              <li>Identify skills you can monetize</li>
+              <li>Start small with one additional stream</li>
+              <li>Reinvest earnings to grow each stream</li>
+              <li>Gradually add more streams over time</li>
+            </ol>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Teen-Friendly Side Hustles:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Social media management for local businesses</li>
+              <li>• Creating and selling digital art/designs</li>
+              <li>• Tutoring younger students online</li>
+              <li>• Pet sitting through apps like Rover</li>
+              <li>• Selling handmade crafts on Etsy</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
     }
   ]
 };

@@ -5,7 +5,7 @@ import type { MicroLessonData } from '@/components/micro-lessons/MicroLessonCont
 const budgetingMasteryData: MicroLessonData = {
   id: 'budgeting-mastery',
   moduleTitle: 'Budgeting Mastery',
-  totalScreens: 10,
+  totalScreens: 16,
   screens: [
     {
       id: 'intro',
@@ -478,6 +478,240 @@ const budgetingMasteryData: MicroLessonData = {
         </div>
       `,
       estimatedTime: 3
+    },
+    {
+      id: 'envelope-budgeting-method',
+      type: 'concept',
+      title: 'The Envelope Budgeting Method',
+      content: `
+        <div class="space-y-4">
+          <p>The envelope method is a simple, visual way to control spending by using physical or digital "envelopes" for each budget category.</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">📮 How It Works:</h3>
+            <ol class="text-sm space-y-2 list-decimal list-inside">
+              <li>Divide your after-tax income into budget categories</li>
+              <li>Put cash in physical envelopes (or use app "envelopes")</li>
+              <li>When an envelope is empty, you're done spending in that category</li>
+              <li>No borrowing from other envelopes during the month</li>
+            </ol>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Digital Envelope Apps:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• <strong>Goodbudget:</strong> Digital envelope system</li>
+              <li>• <strong>YNAB:</strong> "Give every dollar a job" method</li>
+              <li>• <strong>Mvelopes:</strong> Automatic envelope funding</li>
+              <li>• <strong>EveryDollar:</strong> Zero-based budgeting</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🎯 Best Categories for Envelopes:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Food/groceries • Entertainment • Clothing</li>
+              <li>• Gas • Personal care • Gifts</li>
+              <li>• Hobbies • Eating out • Miscellaneous</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'zero-based-budgeting',
+      type: 'concept',
+      title: 'Zero-Based Budgeting',
+      content: `
+        <div class="space-y-4">
+          <p>Zero-based budgeting means every dollar has a specific purpose before you spend it. Income minus expenses should equal zero!</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🧮 The Formula:</h3>
+            <div class="text-center text-lg font-bold bg-white p-3 rounded">
+              Income - Expenses - Savings = $0
+            </div>
+            <p class="text-sm mt-2">If you have money left over, assign it to a category (more savings, paying off debt, or a specific goal).</p>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">✅ Benefits:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Every dollar has a purpose</li>
+              <li>• Prevents mindless spending</li>
+              <li>• Forces you to prioritize</li>
+              <li>• Maximizes savings potential</li>
+              <li>• Creates intentional spending habits</li>
+            </ul>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">📝 Step-by-Step Process:</h4>
+            <ol class="text-sm space-y-1 list-decimal list-inside">
+              <li>List your monthly income</li>
+              <li>List all fixed expenses (rent, insurance, etc.)</li>
+              <li>Assign amounts to variable categories</li>
+              <li>Allocate remaining money to savings/goals</li>
+              <li>Adjust until income minus all assignments equals zero</li>
+            </ol>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'budgeting-for-irregular-income',
+      type: 'concept',
+      title: 'Budgeting with Irregular Income',
+      content: `
+        <div class="space-y-4">
+          <p>Many teens have irregular income from part-time jobs, gigs, or seasonal work. Here's how to budget when your income varies:</p>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">📊 Strategy #1: Use Your Lowest Month</h3>
+            <p class="text-sm mb-2">Base your budget on the lowest amount you earn in a typical month.</p>
+            <ul class="text-sm space-y-1">
+              <li>• Ensures you can always meet your budget</li>
+              <li>• Extra money in good months goes to savings</li>
+              <li>• Creates a natural emergency buffer</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">📊 Strategy #2: Percentage-Based Budgeting</h3>
+            <p class="text-sm mb-2">Instead of fixed dollar amounts, use percentages of whatever you earn.</p>
+            <div class="bg-white p-3 rounded text-sm">
+              <p><strong>Example:</strong> Earn $200 one month, $400 the next</p>
+              <ul class="space-y-1">
+                <li>• Month 1: 50% needs ($100), 30% wants ($60), 20% savings ($40)</li>
+                <li>• Month 2: 50% needs ($200), 30% wants ($120), 20% savings ($80)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Tips for Success:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Build a larger emergency fund (2-3 months expenses)</li>
+              <li>• Track income patterns to predict slow periods</li>
+              <li>• Have a list of expenses you can cut during lean months</li>
+              <li>• Consider picking up extra work during busy seasons</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'budget-review-process',
+      type: 'practice',
+      title: 'Monthly Budget Review Process',
+      content: `
+        <div class="space-y-4">
+          <p>Regular budget reviews help you stay on track and improve your financial habits. Here's your monthly checklist:</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">📋 Monthly Review Checklist:</h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="rounded">
+                Compare actual spending to budgeted amounts
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="rounded">
+                Identify categories where you overspent
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="rounded">
+                Look for categories where you underspent
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="rounded">
+                Review and update financial goals
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="rounded">
+                Adjust next month's budget based on learnings
+              </label>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🔍 Key Questions to Ask:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• What surprised me about my spending?</li>
+              <li>• Which purchases brought me the most joy/value?</li>
+              <li>• What would I do differently next month?</li>
+              <li>• Am I making progress toward my goals?</li>
+              <li>• Do any budget categories need adjustment?</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'behavioral-budgeting-tricks',
+      type: 'concept',
+      title: 'Psychological Budgeting Tricks',
+      content: `
+        <div class="space-y-4">
+          <p>Use psychology to make budgeting easier and more successful with these proven behavioral techniques:</p>
+          <div class="space-y-3">
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🧠 Trick #1: Pay Yourself First</h3>
+              <p class="text-sm">Move money to savings immediately when you get paid, before any other spending.</p>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">⏰ Trick #2: The 24-Hour Rule</h3>
+              <p class="text-sm">Wait 24 hours before making any non-essential purchase over $25.</p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">💳 Trick #3: Use Cash for Discretionary Spending</h3>
+              <p class="text-sm">Physical cash makes spending feel more "real" than card payments.</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🎯 Trick #4: Visual Progress Tracking</h3>
+              <p class="text-sm">Use charts, apps, or jars to visually see your progress toward goals.</p>
+            </div>
+            <div class="bg-orange-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🏆 Trick #5: Reward Milestones</h3>
+              <p class="text-sm">Celebrate budget successes with small, planned rewards that don't break your budget.</p>
+            </div>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'advanced-budgeting-strategies',
+      type: 'concept',
+      title: 'Advanced Budgeting Strategies',
+      content: `
+        <div class="space-y-4">
+          <p>Once you've mastered basic budgeting, these advanced strategies can help optimize your financial management:</p>
+          <div class="space-y-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2 text-blue-700">📊 Anti-Budget (Reverse Budgeting)</h3>
+              <p class="text-sm mb-2">Focus only on savings goals, spend freely on everything else</p>
+              <ul class="text-sm space-y-1">
+                <li>• Set automatic savings transfers first</li>
+                <li>• Spend remaining money however you want</li>
+                <li>• Great for disciplined savers who hate detailed tracking</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2 text-green-700">🎯 Priority-Based Budgeting</h3>
+              <p class="text-sm mb-2">Rank all expenses by importance, fund in priority order</p>
+              <ul class="text-sm space-y-1">
+                <li>• List everything you want to spend money on</li>
+                <li>• Rank from most to least important</li>
+                <li>• Fund items in order until money runs out</li>
+              </ul>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2 text-purple-700">💰 Value-Based Budgeting</h3>
+              <p class="text-sm mb-2">Align spending with your personal values and life goals</p>
+              <ul class="text-sm space-y-1">
+                <li>• Identify your top 3-5 life values</li>
+                <li>• Spend generously on things that align with values</li>
+                <li>• Cut ruthlessly on things that don't matter to you</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
     }
   ]
 };
