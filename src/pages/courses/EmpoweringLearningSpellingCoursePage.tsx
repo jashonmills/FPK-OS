@@ -60,30 +60,58 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [inProgressLessons, setInProgressLessons] = useState<number[]>([]);
+  const [currentActiveLessonId, setCurrentActiveLessonId] = useState<number>(1);
 
-  // Load completed lessons from localStorage on mount
+  // Load progress from localStorage on mount
   useEffect(() => {
-    const storageKey = 'spelling-course-completed-lessons';
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
+    const completedKey = 'spelling-course-completed-lessons';
+    const inProgressKey = 'spelling-course-in-progress-lessons';
+    const activeKey = 'spelling-course-active-lesson';
+
+    try {
+      const completedStored = localStorage.getItem(completedKey);
+      const inProgressStored = localStorage.getItem(inProgressKey);
+      const activeStored = localStorage.getItem(activeKey);
+
+      if (completedStored) {
+        const parsed = JSON.parse(completedStored);
         setCompletedLessons(parsed);
         console.log('📖 Loaded completed spelling lessons:', parsed);
-      } catch (error) {
-        console.warn('Failed to parse stored progress:', error);
       }
+
+      if (inProgressStored) {
+        const parsed = JSON.parse(inProgressStored);
+        setInProgressLessons(parsed);
+        console.log('📖 Loaded in-progress spelling lessons:', parsed);
+      }
+
+      if (activeStored) {
+        const parsed = JSON.parse(activeStored);
+        setCurrentActiveLessonId(parsed);
+        console.log('📖 Loaded active spelling lesson:', parsed);
+      }
+    } catch (error) {
+      console.warn('Failed to parse stored progress:', error);
     }
   }, []);
 
-  // Save completed lessons to localStorage whenever it changes
+  // Save progress to localStorage whenever it changes
   useEffect(() => {
-    if (completedLessons.length > 0) {
-      const storageKey = 'spelling-course-completed-lessons';
-      localStorage.setItem(storageKey, JSON.stringify(completedLessons));
-      console.log('💾 Saved completed spelling lessons:', completedLessons);
-    }
-  }, [completedLessons]);
+    const completedKey = 'spelling-course-completed-lessons';
+    const inProgressKey = 'spelling-course-in-progress-lessons';
+    const activeKey = 'spelling-course-active-lesson';
+
+    localStorage.setItem(completedKey, JSON.stringify(completedLessons));
+    localStorage.setItem(inProgressKey, JSON.stringify(inProgressLessons));
+    localStorage.setItem(activeKey, JSON.stringify(currentActiveLessonId));
+    
+    console.log('💾 Saved spelling course progress:', {
+      completed: completedLessons,
+      inProgress: inProgressLessons,
+      active: currentActiveLessonId
+    });
+  }, [completedLessons, inProgressLessons, currentActiveLessonId]);
 
   useEffect(() => {
     if (lessonId) {
@@ -94,11 +122,74 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     }
   }, [lessonId]);
 
-  const handleLessonComplete = (lessonId: number) => {
+  // Helper function to determine lesson state
+  const getLessonState = useCallback((lessonId: number): 'completed' | 'in-progress' | 'active' | 'locked' => {
+    if (completedLessons.includes(lessonId)) return 'completed';
+    if (inProgressLessons.includes(lessonId)) return 'in-progress';
+    if (lessonId === currentActiveLessonId) return 'active';
+    return 'locked';
+  }, [completedLessons, inProgressLessons, currentActiveLessonId]);
+
+  // Helper function to get visual props based on lesson state
+  const getLessonVisualProps = useCallback((lessonId: number) => {
+    const state = getLessonState(lessonId);
+    
+    switch (state) {
+      case 'completed':
+        return {
+          background: 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg border-primary/50',
+          buttonText: 'Complete',
+          disabled: false
+        };
+      case 'in-progress':
+        return {
+          background: 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg',
+          buttonText: 'Return to Course',
+          disabled: false
+        };
+      case 'active':
+        return {
+          background: 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg',
+          buttonText: 'Start Lesson',
+          disabled: false
+        };
+      case 'locked':
+      default:
+        return {
+          background: 'bg-white/10 backdrop-blur-sm border-white/20 shadow-lg opacity-50 cursor-not-allowed',
+          buttonText: 'Start Lesson',
+          disabled: true
+        };
+    }
+  }, [getLessonState]);
+
+  const handleLessonStart = useCallback((lessonId: number) => {
+    const state = getLessonState(lessonId);
+    
+    if (state === 'active' && !inProgressLessons.includes(lessonId)) {
+      setInProgressLessons(prev => [...prev, lessonId]);
+    }
+    
+    setCurrentLesson(lessonId);
+    navigate(`/courses/empowering-learning-spelling/${lessonId}`);
+  }, [getLessonState, inProgressLessons, navigate]);
+
+  const handleLessonComplete = useCallback((lessonId: number) => {
+    // Move from in-progress to completed
     if (!completedLessons.includes(lessonId)) {
       setCompletedLessons(prev => [...prev, lessonId]);
     }
-  };
+    
+    // Remove from in-progress
+    setInProgressLessons(prev => prev.filter(id => id !== lessonId));
+    
+    // Unlock next lesson if it exists
+    if (lessonId < lessons.length && currentActiveLessonId === lessonId) {
+      setCurrentActiveLessonId(lessonId + 1);
+    }
+    
+    console.log('✅ Lesson completed:', lessonId);
+  }, [completedLessons, currentActiveLessonId]);
 
   // Memoize navigation handlers to prevent unnecessary re-renders
   const handleNextLesson = useCallback(() => {
@@ -122,9 +213,14 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   }, [currentLesson, navigate]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
-    setCurrentLesson(lessonId);
-    navigate(`/courses/empowering-learning-spelling/${lessonId}`);
-  }, [navigate]);
+    const state = getLessonState(lessonId);
+    
+    if (state !== 'locked') {
+      handleLessonStart(lessonId);
+    } else {
+      console.log('📖 Lesson not accessible yet - complete previous lesson first');
+    }
+  }, [getLessonState, handleLessonStart]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');
@@ -133,21 +229,18 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
   const handleBackToCourseOverview = useCallback(() => {
     console.log('📍 Navigating back to course overview');
-    navigate('/courses/empowering-learning-spelling');
-  }, [navigate]);
+    setCurrentLesson(null);
+  }, []);
 
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
 
-  // Memoize expensive calculations - Allow access to all lessons or sequential progression
+  // Sequential progression logic - lesson is accessible if it's completed, in-progress, active, or unlocked
   const isLessonAccessible = useCallback((lessonId: number) => {
-    // For debugging/testing: uncomment the next line to unlock all lessons
-    // return true;
-    
-    // Sequential progression: lesson 1 is always accessible, others need previous lesson completed
-    return lessonId === 1 || completedLessons.includes(lessonId - 1);
-  }, [completedLessons]);
+    const state = getLessonState(lessonId);
+    return state !== 'locked';
+  }, [getLessonState]);
 
   const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
 
@@ -276,34 +369,25 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
               {/* Lessons Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {lessons.map((lesson) => {
-                  const isCompleted = completedLessons.includes(lesson.id);
+                  const lessonState = getLessonState(lesson.id);
+                  const visualProps = getLessonVisualProps(lesson.id);
                   const isAccessible = isLessonAccessible(lesson.id);
 
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl ${
-                        !isAccessible ? 'opacity-50 cursor-not-allowed bg-white/90 backdrop-blur-sm border-white/50 shadow-lg' : 
-                        isCompleted ? 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg border-primary/50' : 
-                        'bg-white/90 backdrop-blur-sm border-white/50 shadow-lg'
-                      }`}
-                      onClick={() => {
-                        if (isAccessible) {
-                          setCurrentLesson(lesson.id);
-                        } else {
-                          console.log('📖 Lesson not accessible yet - complete previous lesson first');
-                        }
-                      }}
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl ${visualProps.background}`}
+                      onClick={() => handleLessonSelect(lesson.id)}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <div className={`p-2 rounded-lg ${
-                              isCompleted 
+                              lessonState === 'completed' 
                                 ? 'bg-primary text-primary-foreground' 
                                 : 'bg-muted text-muted-foreground'
                             }`}>
-                              {isCompleted ? <Award className="w-5 h-5" /> : <PenTool className="w-5 h-5" />}
+                              {lessonState === 'completed' ? <Award className="w-5 h-5" /> : <PenTool className="w-5 h-5" />}
                             </div>
                             <div>
                               <Badge className={lesson.unitColor}>
@@ -326,13 +410,11 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (isAccessible) {
-                              setCurrentLesson(lesson.id);
-                            }
+                            handleLessonSelect(lesson.id);
                           }}
-                          disabled={!isAccessible}
+                          disabled={visualProps.disabled}
                         >
-                          {isCompleted ? 'Review Lesson' : 'Start Lesson'}
+                          {visualProps.buttonText}
                         </Button>
                       </CardContent>
                     </Card>
