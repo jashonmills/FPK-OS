@@ -256,9 +256,11 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                 return (
                   <Card 
                     key={lesson.id}
-                    className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                    className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm ${
                       !isAccessible ? 'opacity-50' : ''
-                    } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
+                    } ${isCompleted ? 'border-primary/50 bg-primary/20' : ''} ${
+                      lesson.id === 1 ? 'border-primary/70 shadow-lg' : ''
+                    }`}
                     onClick={() => isAccessible && setCurrentLesson(lesson.id)}
                   >
                     <CardHeader className="pb-3">
@@ -290,11 +292,11 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                         {lesson.description}
                       </p>
                       <Button 
-                        variant={isCompleted ? "secondary" : "default"}
-                        className="w-full"
+                        variant={isCompleted && lesson.id !== 1 ? "secondary" : "default"}
+                        className={`w-full ${lesson.id === 1 ? 'bg-primary text-primary-foreground font-semibold' : ''}`}
                         disabled={!isAccessible}
                       >
-                        {isCompleted ? "Review Lesson" : isAccessible ? "Start Lesson" : "Locked"}
+                        {lesson.id === 1 ? "Start Lesson" : isCompleted ? "Review Lesson" : isAccessible ? "Start Lesson" : "Locked"}
                       </Button>
                     </CardContent>
                   </Card>
