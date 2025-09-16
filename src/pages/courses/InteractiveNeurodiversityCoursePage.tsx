@@ -15,9 +15,11 @@ import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgre
 import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
 import { ErrorBoundary, CourseFallback } from '@/components/common/ErrorBoundary';
 
-// Import lesson components
-import { NeurodiversityLesson1 } from '@/components/courses/neurodiversity/NeurodiversityLesson1';
-import { NeurodiversityLesson2 } from '@/components/courses/neurodiversity/NeurodiversityLesson2';
+// Import micro-lesson components (converted)
+import { WhatIsNeurodiversityMicroLesson } from '@/components/micro-lessons/neurodiversity/what-is-neurodiversity/WhatIsNeurodiversityMicroLesson';
+import { BrainSuperpowersMicroLesson } from '@/components/micro-lessons/neurodiversity/brain-superpowers/BrainSuperpowersMicroLesson';
+
+// Import remaining lesson components (to be converted)
 import { NeurodiversityLesson3 } from '@/components/courses/neurodiversity/NeurodiversityLesson3';
 import { NeurodiversityLesson4 } from '@/components/courses/neurodiversity/NeurodiversityLesson4';
 import { NeurodiversityLesson5 } from '@/components/courses/neurodiversity/NeurodiversityLesson5';
@@ -64,14 +66,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
       id: 1,
       title: "What is Neurodiversity?",
       description: "Understand the fundamental concepts and paradigm shift from medical to social model",
-      component: NeurodiversityLesson1,
+      component: WhatIsNeurodiversityMicroLesson,
       icon: Brain
     },
     {
       id: 2,
       title: "Your Brain's Superpowers",
       description: "Discover how to reframe neurodiverse traits as powerful strengths",
-      component: NeurodiversityLesson2,
+      component: BrainSuperpowersMicroLesson,
       icon: Lightbulb
     },
     {
