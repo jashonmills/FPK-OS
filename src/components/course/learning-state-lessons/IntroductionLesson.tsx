@@ -1,19 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, GraduationCap } from 'lucide-react';
 import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const IntroductionLesson: React.FC = () => {
+  const [primaryVideo, setPrimaryVideo] = useState('intro');
+  const [secondaryVideo, setSecondaryVideo] = useState('techniques');
+
+  const videos = {
+    intro: {
+      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%201%20(a)%20-%20Learning%20State%20Intro.mp4",
+      title: "Getting Into The Most Effective Learning State - Introduction"
+    },
+    techniques: {
+      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%201%20(b)%20-%20Learning%20Techniques.mp4",
+      title: "Learning Techniques Overview"
+    }
+  };
+
+  const swapVideos = () => {
+    setPrimaryVideo(secondaryVideo);
+    setSecondaryVideo(primaryVideo);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Primary Video Player */}
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(a)%20-%20Learning%20State%20Intro.mp4"
+        src={videos[primaryVideo].src}
         type="video"
-        title="Getting Into The Most Effective Learning State - Introduction"
-        mediaId="learning-state-intro-video"
+        title={videos[primaryVideo].title}
+        mediaId="learning-state-intro-primary"
         courseId="empowering-learning-state"
         moduleId="1"
       />
+
+      {/* Secondary Video Player */}
+      <div className="w-full max-w-md mx-auto">
+        <div 
+          className="cursor-pointer rounded-lg overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-colors"
+          onClick={swapVideos}
+        >
+          <div className="aspect-video bg-black relative">
+            <video 
+              className="w-full h-full object-cover"
+              poster=""
+              preload="metadata"
+            >
+              <source src={videos[secondaryVideo].src} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1 text-sm font-medium">
+                Click to swap
+              </div>
+            </div>
+          </div>
+          <div className="p-2 bg-muted">
+            <p className="text-sm font-medium text-center">{videos[secondaryVideo].title}</p>
+          </div>
+        </div>
+      </div>
 
       <Card>
         <CardHeader>

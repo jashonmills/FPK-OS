@@ -8,7 +8,7 @@ export const SandTimerLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%208%20-%20Sand%20Timer.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%208%20-%20Sand%20Timer.mp4"
         type="video"
         title="Sand Timer Technique"
         mediaId="sand-timer-video"

@@ -7,7 +7,7 @@ export const WorkingTimeLimitsLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%2011%20-%20Working%20Time%20Limits.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%2011%20-%20Working%20Time%20Limits.mp4"
         type="video"
         title="Working Time Limits"
         mediaId="working-time-limits-video"

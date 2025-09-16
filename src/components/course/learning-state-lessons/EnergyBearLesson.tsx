@@ -7,7 +7,7 @@ export const EnergyBearLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%203%20-%20Your%20Energy%20Bear.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%203%20-%20Your%20Energy%20Bear.mp4"
         type="video"
         title="Your Energy Bear"
         mediaId="energy-bear-video"

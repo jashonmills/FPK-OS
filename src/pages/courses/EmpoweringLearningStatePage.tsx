@@ -120,7 +120,14 @@ export const EmpoweringLearningStatePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div className="min-h-screen" 
+               style={{
+                 backgroundImage: `url('https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-backgrounds/learning-state-course-bg.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat',
+                 backgroundAttachment: 'fixed'
+               }}>
             <CourseHeader 
               onDashboard={() => navigate('/dashboard/learner')} 
               onBackToCourses={handleBackToCourses}
@@ -128,7 +135,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
             />
           
             <div className="container mx-auto px-4 py-8 space-y-8">
-              <div className="text-center space-y-4">
+              <div className="text-center space-y-4 bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg">
                 <h1 className="text-4xl font-bold">Empowering Learning State</h1>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Master techniques to achieve optimal learning states and create calm, focused environments for effective learning.
@@ -206,7 +213,14 @@ export const EmpoweringLearningStatePage: React.FC = () => {
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen">
+        <div className="min-h-screen"
+             style={{
+               backgroundImage: `url('https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-backgrounds/learning-state-course-bg.jpg')`,
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               backgroundRepeat: 'no-repeat',
+               backgroundAttachment: 'fixed'
+             }}>
           <CourseHeader 
             onBackToCourses={() => navigate('/courses/empowering-learning-state')}
             onDashboard={() => navigate('/dashboard/learner')}
@@ -214,7 +228,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
           />
           
           <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-lg">
               <Button variant="outline" onClick={handlePrevLesson} disabled={!hasPrev}>
                 <ChevronLeft className="h-4 w-4" /> Previous
               </Button>
@@ -226,7 +240,9 @@ export const EmpoweringLearningStatePage: React.FC = () => {
               </Button>
             </div>
 
-            <LessonComponent onComplete={() => handleLessonComplete(currentLesson)} />
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
+              <LessonComponent onComplete={() => handleLessonComplete(currentLesson)} />
+            </div>
           </div>
         </div>
       </InteractiveCourseWrapper>
