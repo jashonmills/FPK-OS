@@ -315,35 +315,36 @@ const CoursesPage: React.FC = () => {
         padding: 0
       }}
     >
-      {/* Header - Enhanced mobile text sizes with semi-transparent background */}
-      <div className="bg-white/40 backdrop-blur-md border-b border-white/20 shadow-sm">
+      {/* Header - Center-aligned with semi-transparent background */}
+      <div className="bg-white/20 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
+            <div className="flex items-center gap-4 mb-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2 text-sm sm:text-base bg-white/10 hover:bg-white/20 backdrop-blur-sm"
+                className="flex items-center gap-2 text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Button>
-              <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg">Course Catalog</h1>
-                <p className="text-sm sm:text-base text-white/90 mt-1 drop-shadow-md">
-                  Discover our comprehensive learning programs designed for every learner
-                </p>
-              </div>
+              <Badge variant="secondary" className="text-base sm:text-xl px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm border-white/30">
+                {courses.length} Courses Available
+              </Badge>
             </div>
-            <Badge variant="secondary" className="text-base sm:text-xl px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur-sm border-white/20">
-              {courses.length} Courses Available
-            </Badge>
+            
+            <div className="bg-white/20 backdrop-blur-md rounded-lg p-6 border border-white/30">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg mb-2">Course Catalog</h1>
+              <p className="text-sm sm:text-base text-white/90 drop-shadow-md">
+                Discover our comprehensive learning programs designed for every learner
+              </p>
+            </div>
           </div>
           
-          {/* Hero Content */}
-          <div className="mt-8 max-w-4xl">
-            <h2 className="font-elegant text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-slate-900 font-bold leading-relaxed bg-yellow-100/60 backdrop-blur-sm rounded-lg p-6 border-2 border-yellow-200/40 shadow-2xl">
+          {/* Hero Content - Centered */}
+          <div className="mt-8 max-w-4xl mx-auto text-center">
+            <h2 className="font-elegant text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-slate-900 font-bold leading-relaxed bg-yellow-100/80 backdrop-blur-sm rounded-lg p-6 border-2 border-yellow-200/60 shadow-2xl">
               Our courses are crafted for neurodiverse learners. We spend the extra time and care to go beyond traditional methods, building structured, supportive, and engaging content. Our unique methodology ensures every learner gets the most educational impact, making your learning journey both effective and empowering.
             </h2>
           </div>
@@ -363,22 +364,22 @@ const CoursesPage: React.FC = () => {
                   className="relative h-40 bg-cover bg-center overflow-hidden"
                   style={{ backgroundImage: `url(${courseImage})` }}
                 >
-                  {/* Dark overlay for text contrast */}
-                  <div className="absolute inset-0 bg-black/50" />
+                  {/* Dark overlay for better text contrast */}
+                  <div className="absolute inset-0 bg-black/60" />
                   
                   {/* Header content */}
                   <div className="relative z-10 p-4 h-full flex flex-col justify-between">
                     <div className="flex justify-between items-start gap-2">
-                      <Badge className={`${getCategoryColor(course.category)} text-sm backdrop-blur-sm font-medium`}>
+                      <Badge className={`${getCategoryColor(course.category)} text-sm backdrop-blur-sm font-medium border border-white/20`}>
                         {course.category}
                       </Badge>
-                      <Badge className={`${getLevelColor(course.level)} text-sm backdrop-blur-sm font-medium`}>
+                      <Badge className={`${getLevelColor(course.level)} text-sm backdrop-blur-sm font-medium border border-white/20`}>
                         {course.level}
                       </Badge>
                     </div>
                     
                     <div className="flex-1 flex items-end">
-                      <CardTitle className="text-white font-bold text-lg leading-tight drop-shadow-lg">
+                      <CardTitle className="text-white font-bold text-lg leading-tight drop-shadow-2xl shadow-black/50">
                         {course.title}
                       </CardTitle>
                     </div>
