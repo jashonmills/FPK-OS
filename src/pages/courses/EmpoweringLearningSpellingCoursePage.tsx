@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, PenTool } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import empoweringSpellingBg from '@/assets/empowering-spelling-bg.jpg';
 
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/spelling-lessons/IntroductionLesson';
@@ -148,32 +149,43 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div 
+            className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+            style={{
+              backgroundImage: `url(${empoweringSpellingBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed'
+            }}
+          >
+            {/* Background overlay */}
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+            
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
               courseTitle="Empowering Learning for Spelling"
             />
           
-            <div className="container mx-auto px-4 py-8 space-y-8">
+            <div className="container mx-auto px-4 py-8 space-y-8 relative z-10">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground">Empowering Learning for Spelling</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                <h1 className="text-4xl font-bold text-white drop-shadow-lg">Empowering Learning for Spelling</h1>
+                <p className="text-xl text-white/90 max-w-3xl mx-auto drop-shadow-md">
                   Master spelling through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome spelling challenges.
                 </p>
                 
                 {/* Course badges */}
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="outline" className="text-sm px-3 py-1">
-                    <BookOpen className="w-4 h-4 mr-2" />
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
+                    <PenTool className="w-4 h-4 mr-2" />
                     {lessons.length} Lessons
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
                     <Clock className="w-4 h-4 mr-2" />
                     ~2 Hours
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
                     <Users className="w-4 h-4 mr-2" />
                     Beginner
                   </Badge>
@@ -181,7 +193,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                  <p className="text-xs text-white/80 mt-1 text-center drop-shadow-sm">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -211,9 +223,11 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
-                        !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
-                      } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl ${
+                        !isAccessible ? 'opacity-50 cursor-not-allowed bg-white/90 backdrop-blur-sm border-white/50 shadow-lg' : 
+                        isCompleted ? 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg border-primary/50' : 
+                        'bg-white/90 backdrop-blur-sm border-white/50 shadow-lg'
+                      }`}
                       onClick={() => {
                         if (isAccessible) {
                           setCurrentLesson(lesson.id);
@@ -230,7 +244,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                                 ? 'bg-primary text-primary-foreground' 
                                 : 'bg-muted text-muted-foreground'
                             }`}>
-                              {isCompleted ? <Award className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
+                              {isCompleted ? <Award className="w-5 h-5" /> : <PenTool className="w-5 h-5" />}
                             </div>
                             <div>
                               <Badge className={lesson.unitColor}>
@@ -239,13 +253,28 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
+                        <CardTitle className="text-lg mt-2 text-gray-900">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-muted-foreground mb-3">{lesson.description}</p>
-                        <Badge variant="outline" className={lesson.unitColor}>
-                          {lesson.unit}
-                        </Badge>
+                        <p className="text-sm text-gray-700 mb-4">{lesson.description}</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge variant="outline" className={lesson.unitColor}>
+                            {lesson.unit}
+                          </Badge>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isAccessible) {
+                              setCurrentLesson(lesson.id);
+                            }
+                          }}
+                          disabled={!isAccessible}
+                        >
+                          {isCompleted ? 'Review Lesson' : 'Start Lesson'}
+                        </Button>
                       </CardContent>
                     </Card>
                   );
