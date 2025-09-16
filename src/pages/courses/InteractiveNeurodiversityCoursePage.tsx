@@ -22,12 +22,10 @@ import { FoundationalLearningMicroLesson } from '@/components/micro-lessons/neur
 import { FpkAdvantageMicroLesson } from '@/components/micro-lessons/neurodiversity/fpk-advantage/FpkAdvantageMicroLesson';
 import { ThrivingEconomicsMicroLesson } from '@/components/micro-lessons/neurodiversity/thriving-economics/ThrivingEconomicsMicroLesson';
 import { LogicCriticalThinkingMicroLesson } from '@/components/micro-lessons/neurodiversity/logic-critical-thinking/LogicCriticalThinkingMicroLesson';
+import { KeyConceptsReviewMicroLesson } from '@/components/micro-lessons/neurodiversity/key-concepts-review/KeyConceptsReviewMicroLesson';
+import { QuizAssessmentMicroLesson } from '@/components/micro-lessons/neurodiversity/quiz-assessment/QuizAssessmentMicroLesson';
 
 // Import remaining lesson components (to be converted)
-import { NeurodiversityLesson5 } from '@/components/courses/neurodiversity/NeurodiversityLesson5';
-import { NeurodiversityLesson6 } from '@/components/courses/neurodiversity/NeurodiversityLesson6';
-import { NeurodiversityLesson7 } from '@/components/courses/neurodiversity/NeurodiversityLesson7';
-import { NeurodiversityLesson8 } from '@/components/courses/neurodiversity/NeurodiversityLesson8';
 
 const InteractiveNeurodiversityCoursePage: React.FC = () => {
   const navigate = useNavigate();
@@ -110,14 +108,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
       id: 7,
       title: "Key Concepts Review",
       description: "Comprehensive review of all core concepts and ideas",
-      component: NeurodiversityLesson7,
+      component: KeyConceptsReviewMicroLesson,
       icon: CheckCircle
     },
     {
       id: 8,
       title: "Quiz & Assessment",
       description: "Test your knowledge with interactive quizzes and essay questions",
-      component: NeurodiversityLesson8,
+      component: QuizAssessmentMicroLesson,
       icon: Trophy
     }
   ];
