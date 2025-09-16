@@ -220,7 +220,7 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                       key={lesson.id}
                       className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl bg-white/90 backdrop-blur-sm border-white/50 shadow-lg ${
                         !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
-                      } ${isCompleted ? 'border-primary/50 bg-primary/10' : ''}`}
+                      } ${isCompleted ? 'border-primary/50 bg-white/95' : ''}`}
                       onClick={() => {
                         if (isAccessible) {
                           setCurrentLesson(lesson.id);
