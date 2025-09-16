@@ -108,6 +108,7 @@ export function StyledCourseCard({
     'empowering-learning-numeracy', 
     'empowering-learning-reading',
     'empowering-learning-spelling',
+    'empowering-learning-australia',
     'el-spelling-reading',
     'learning-state-beta'
   ].includes(id);
