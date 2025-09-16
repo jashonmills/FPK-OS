@@ -23,6 +23,7 @@ import { ReadingStorytellingLesson } from '@/components/course/reading-lessons/R
 import { ReadingBeyondReadingLesson } from '@/components/course/reading-lessons/ReadingBeyondReadingLesson';
 import { ReadingQuizLesson } from '@/components/course/reading-lessons/ReadingQuizLesson';
 import { ReadingFinalTestLesson } from '@/components/course/reading-lessons/ReadingFinalTestLesson';
+import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 
 interface Lesson {
   id: number;
@@ -146,32 +147,40 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `url(${empoweringReadingBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
+            {/* Background overlay */}
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+            
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
               courseTitle="Empowering Learning for Reading"
             />
           
-            <div className="container mx-auto px-4 py-8 space-y-8">
+            <div className="container mx-auto px-4 py-8 space-y-8 relative z-10">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground">Empowering Learning for Reading</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                <h1 className="text-4xl font-bold text-white drop-shadow-lg">Empowering Learning for Reading</h1>
+                <p className="text-xl text-white/90 max-w-3xl mx-auto drop-shadow-md">
                   Discover a new perspective on reading that empowers learners through optimal learning states, proper positioning, and creative engagement. Build confidence and a lifelong love for reading.
                 </p>
                 
                 {/* Course badges */}
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
                     <BookOpen className="w-4 h-4 mr-2" />
                     {lessons.length} Lessons
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
                     <Clock className="w-4 h-4 mr-2" />
                     ~1.5 Hours
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="outline" className="text-sm px-3 py-1 bg-white/90 text-gray-900 border-white/50">
                     <Users className="w-4 h-4 mr-2" />
                     Beginner
                   </Badge>
@@ -179,7 +188,7 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                  <p className="text-xs text-white/80 mt-1 text-center drop-shadow-sm">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -209,9 +218,9 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl bg-white/90 backdrop-blur-sm border-white/50 shadow-lg ${
                         !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
-                      } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
+                      } ${isCompleted ? 'border-primary/50 bg-primary/10' : ''}`}
                       onClick={() => {
                         if (isAccessible) {
                           setCurrentLesson(lesson.id);
@@ -237,10 +246,10 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
+                        <CardTitle className="text-lg mt-2 text-gray-900">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-muted-foreground mb-3">{lesson.description}</p>
+                        <p className="text-sm text-gray-700 mb-3">{lesson.description}</p>
                         <Badge variant="outline" className={lesson.unitColor}>
                           {lesson.unit}
                         </Badge>
