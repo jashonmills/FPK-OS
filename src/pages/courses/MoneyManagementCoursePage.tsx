@@ -12,6 +12,9 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
+// Import background image
+import moneyManagementBg from '@/assets/money-management-background.jpg';
+
 // Import lesson components
 import { FinancialFoundationsMicroLesson } from '@/components/micro-lessons/money-management/FinancialFoundationsMicroLesson';
 import { BankingAccountsMicroLesson } from '@/components/micro-lessons/money-management/BankingAccountsMicroLesson';
@@ -117,7 +120,12 @@ const MoneyManagementCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-800 to-teal-700">
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${moneyManagementBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
@@ -310,7 +318,12 @@ const MoneyManagementCoursePage: React.FC = () => {
         hasNext={currentLesson < lessons.length}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-800 to-teal-700">
+        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${moneyManagementBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
           {/* Header with navigation */}
           <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
             <div className="container mx-auto px-4 py-4">
