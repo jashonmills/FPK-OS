@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { 
   Award, 
   Star, 
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export const GeometryCompletionLesson: React.FC = () => {
+  const navigate = useNavigate();
   const skillsGained = [
     {
       skill: "Spatial Reasoning",
@@ -66,28 +68,25 @@ export const GeometryCompletionLesson: React.FC = () => {
 
   const nextSteps = [
     {
-      title: "Advanced Geometry",
-      description: "Explore non-Euclidean geometry, topology, and advanced proofs",
-      level: "Advanced",
-      color: "bg-purple-50 text-purple-700 border-purple-200"
-    },
-    {
-      title: "Trigonometry",
-      description: "Master angles, triangles, and periodic functions",
+      title: "Interactive Algebra",
+      description: "Master algebraic expressions, equations, and functions",
       level: "Next Level",
-      color: "bg-blue-50 text-blue-700 border-blue-200"
+      color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800",
+      route: "/courses/algebra"
     },
     {
-      title: "Calculus",
-      description: "Apply geometric thinking to rates of change and areas",
+      title: "Trigonometry Fundamentals",
+      description: "Explore angles, triangles, and periodic functions",
       level: "Advanced",
-      color: "bg-green-50 text-green-700 border-green-200"
+      color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800",
+      route: "/courses/trigonometry"
     },
     {
-      title: "Applied Mathematics",
-      description: "Use geometry in engineering, physics, and computer science",
-      level: "Professional",
-      color: "bg-orange-50 text-orange-700 border-orange-200"
+      title: "Linear Equations",
+      description: "Solve systems of equations and linear relationships",
+      level: "Intermediate",
+      color: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800",
+      route: "/courses/linear-equations"
     }
   ];
 
@@ -101,15 +100,15 @@ export const GeometryCompletionLesson: React.FC = () => {
           <Award className="w-12 h-12 text-yellow-500" />
         </div>
         
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent dark:from-yellow-400 dark:via-orange-400 dark:to-red-400">
           🎉 CONGRATULATIONS! 🎉
         </h1>
         
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-3xl font-bold text-foreground dark:text-foreground">
             You've Mastered Interactive Geometry Fundamentals!
           </h2>
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground dark:text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             What an incredible achievement! You've successfully completed all 10 lessons of this comprehensive geometry course. 
             You've transformed from a geometry learner into a confident geometric problem-solver with a deep understanding 
             of shapes, space, and mathematical reasoning.
@@ -143,13 +142,13 @@ export const GeometryCompletionLesson: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          <div className="text-lg font-semibold text-foreground dark:text-foreground">
             This certifies that you have successfully completed
           </div>
-          <div className="text-2xl font-bold text-primary">
+          <div className="text-2xl font-bold text-primary dark:text-primary">
             Interactive Geometry Fundamentals
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground dark:text-muted-foreground">
             A comprehensive 10-lesson course covering points, lines, triangles, quadrilaterals, 
             circles, transformations, 3D shapes, coordinate geometry, vectors, and advanced applications
           </div>
@@ -197,7 +196,7 @@ export const GeometryCompletionLesson: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground dark:text-muted-foreground mb-6">
             Your geometric knowledge opens doors to exciting career paths and everyday problem-solving:
           </p>
           <div className="grid gap-4 md:grid-cols-2">
@@ -234,8 +233,8 @@ export const GeometryCompletionLesson: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-6">
-            You've built an incredible foundation! Here are some exciting paths to explore next:
+          <p className="text-muted-foreground dark:text-muted-foreground mb-6">
+            You've built an incredible foundation! Here are some exciting math courses to explore next:
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             {nextSteps.map((step, index) => (
@@ -247,9 +246,14 @@ export const GeometryCompletionLesson: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{step.description}</p>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Explore <ArrowRight className="w-4 h-4 ml-2" />
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-3">{step.description}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => navigate(step.route)}
+                  >
+                    Start Course <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardContent>
               </Card>
@@ -267,18 +271,18 @@ export const GeometryCompletionLesson: React.FC = () => {
             <Sparkles className="w-8 h-8 text-purple-500" />
           </div>
           
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
             Your Mathematical Adventure Continues!
           </h2>
           
           <div className="space-y-4 max-w-4xl mx-auto">
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg text-muted-foreground dark:text-muted-foreground leading-relaxed">
               Mathematics is not just about formulas and calculations—it's about seeing the world through a lens of 
               logic, beauty, and infinite possibility. You've proven that with curiosity, persistence, and the right 
               guidance, you can master even the most challenging concepts.
             </p>
             
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg text-muted-foreground dark:text-muted-foreground leading-relaxed">
               Every shape you analyze, every proof you construct, and every problem you solve adds to your growing 
               mathematical intuition. You're not just learning geometry—you're developing a way of thinking that 
               will serve you in countless situations throughout your life.
@@ -288,7 +292,7 @@ export const GeometryCompletionLesson: React.FC = () => {
               <p className="text-xl font-semibold text-primary italic">
                 "The only way to learn mathematics is to do mathematics." - Paul Halmos
               </p>
-              <p className="text-lg text-muted-foreground mt-3">
+              <p className="text-lg text-muted-foreground dark:text-muted-foreground mt-3">
                 And you've done exactly that! Keep exploring, keep questioning, and keep discovering the 
                 wonderful world of mathematics.
               </p>
@@ -297,7 +301,7 @@ export const GeometryCompletionLesson: React.FC = () => {
 
           <div className="flex items-center justify-center gap-2 pt-4">
             <Star className="w-6 h-6 text-yellow-500" />
-            <span className="text-xl font-bold text-foreground">You are a Geometry Master!</span>
+            <span className="text-xl font-bold text-foreground dark:text-foreground">You are a Geometry Master!</span>
             <Star className="w-6 h-6 text-yellow-500" />
           </div>
         </CardContent>
