@@ -30,14 +30,6 @@ const VideoPlaylistTile: React.FC<VideoPlaylistTileProps> = ({
               muted
               preload="metadata"
             />
-            
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <div className="text-white text-center">
-                <Eye className="h-8 w-8 mx-auto mb-2 opacity-80" />
-                <p className="text-sm font-medium">Click to Watch</p>
-              </div>
-            </div>
           </div>
           
           {/* Title */}
