@@ -362,6 +362,7 @@ const MyCourses = () => {
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
+    const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting';
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
@@ -406,6 +407,7 @@ const MyCourses = () => {
       if (isElSpellingCourse) return 'Reading Course';
       if (isEmpoweringLearningReading) return 'Reading Course';
       if (isEmpoweringLearningNumeracy) return 'Mathematics Course';
+      if (isEmpoweringLearningHandwriting) return 'Writing Course';
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
       if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
@@ -434,6 +436,10 @@ const MyCourses = () => {
       
       if (isEmpoweringLearningNumeracy) {
         return '/courses/empowering-learning-numeracy';
+      }
+      
+      if (isEmpoweringLearningHandwriting) {
+        return '/courses/empowering-learning-handwriting';
       }
       
       if (isInteractiveLinearEquations) {
