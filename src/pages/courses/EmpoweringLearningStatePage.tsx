@@ -55,24 +55,48 @@ export const EmpoweringLearningStatePage: React.FC = () => {
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [inProgressLessons, setInProgressLessons] = useState<number[]>([]);
+  const [currentActiveLessonId, setCurrentActiveLessonId] = useState<number>(1);
 
   useEffect(() => {
-    const storageKey = 'learning-state-completed-lessons';
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
+    const completedKey = 'learning-state-completed-lessons';
+    const inProgressKey = 'learning-state-in-progress-lessons';
+    const activeKey = 'learning-state-active-lesson';
+    
+    const storedCompleted = localStorage.getItem(completedKey);
+    const storedInProgress = localStorage.getItem(inProgressKey);
+    const storedActive = localStorage.getItem(activeKey);
+    
+    if (storedCompleted) {
       try {
-        setCompletedLessons(JSON.parse(stored));
+        setCompletedLessons(JSON.parse(storedCompleted));
       } catch (error) {
-        console.warn('Failed to parse stored progress:', error);
+        console.warn('Failed to parse stored completed lessons:', error);
+      }
+    }
+    
+    if (storedInProgress) {
+      try {
+        setInProgressLessons(JSON.parse(storedInProgress));
+      } catch (error) {
+        console.warn('Failed to parse stored in-progress lessons:', error);
+      }
+    }
+    
+    if (storedActive) {
+      try {
+        setCurrentActiveLessonId(parseInt(storedActive) || 1);
+      } catch (error) {
+        console.warn('Failed to parse stored active lesson:', error);
       }
     }
   }, []);
 
   useEffect(() => {
-    if (completedLessons.length > 0) {
-      localStorage.setItem('learning-state-completed-lessons', JSON.stringify(completedLessons));
-    }
-  }, [completedLessons]);
+    localStorage.setItem('learning-state-completed-lessons', JSON.stringify(completedLessons));
+    localStorage.setItem('learning-state-in-progress-lessons', JSON.stringify(inProgressLessons));
+    localStorage.setItem('learning-state-active-lesson', currentActiveLessonId.toString());
+  }, [completedLessons, inProgressLessons, currentActiveLessonId]);
 
   useEffect(() => {
     if (lessonId) {
@@ -86,6 +110,67 @@ export const EmpoweringLearningStatePage: React.FC = () => {
   const handleLessonComplete = (lessonId: number) => {
     if (!completedLessons.includes(lessonId)) {
       setCompletedLessons(prev => [...prev, lessonId]);
+      // Remove from in-progress when completed
+      setInProgressLessons(prev => prev.filter(id => id !== lessonId));
+      
+      // Unlock next lesson as active if it exists and isn't already completed
+      const nextLessonId = lessonId + 1;
+      if (nextLessonId <= lessons.length && !completedLessons.includes(nextLessonId)) {
+        setCurrentActiveLessonId(nextLessonId);
+      }
+    }
+  };
+
+  const handleLessonStart = (lessonId: number) => {
+    // Add to in-progress if not already there and not completed
+    if (!inProgressLessons.includes(lessonId) && !completedLessons.includes(lessonId)) {
+      setInProgressLessons(prev => [...prev, lessonId]);
+    }
+    setCurrentLesson(lessonId);
+  };
+
+  // Helper function to determine lesson state
+  const getLessonState = (lessonId: number): 'completed' | 'in-progress' | 'active' | 'locked' => {
+    if (completedLessons.includes(lessonId)) return 'completed';
+    if (inProgressLessons.includes(lessonId)) return 'in-progress';
+    if (lessonId === currentActiveLessonId) return 'active';
+    return 'locked';
+  };
+
+  // Helper function to get lesson visual props
+  const getLessonVisualProps = (lessonId: number) => {
+    const state = getLessonState(lessonId);
+    
+    switch (state) {
+      case 'completed':
+        return {
+          backgroundColor: 'bg-white/95',
+          buttonText: 'Complete',
+          showBadge: true,
+          disabled: false
+        };
+      case 'in-progress':
+        return {
+          backgroundColor: 'bg-white/95',
+          buttonText: 'Return to Course',
+          showBadge: false,
+          disabled: false
+        };
+      case 'active':
+        return {
+          backgroundColor: 'bg-white/95',
+          buttonText: 'Start Lesson',
+          showBadge: false,
+          disabled: false
+        };
+      case 'locked':
+      default:
+        return {
+          backgroundColor: 'bg-white/10',
+          buttonText: 'Start Lesson',
+          showBadge: false,
+          disabled: true
+        };
     }
   };
 
@@ -208,13 +293,15 @@ export const EmpoweringLearningStatePage: React.FC = () => {
               {/* Lesson Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {lessons.map((lesson) => {
+                  const visualProps = getLessonVisualProps(lesson.id);
                   const isCompleted = completedLessons.includes(lesson.id);
+                  
                   return (
-                    <Card key={lesson.id} className="bg-white/95 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                    <Card key={lesson.id} className={`${visualProps.backgroundColor} backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all ${!visualProps.disabled ? 'hover:scale-105' : 'opacity-75'}`}>
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between mb-2">
                           <Badge className="bg-purple-600 text-white">Lesson {lesson.id}</Badge>
-                          {isCompleted && <Award className="h-5 w-5 text-amber-500" />}
+                          {visualProps.showBadge && <Award className="h-5 w-5 text-amber-500" />}
                         </div>
                         <CardTitle className="text-lg font-bold text-gray-900">{lesson.title}</CardTitle>
                       </CardHeader>
@@ -222,10 +309,15 @@ export const EmpoweringLearningStatePage: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-4 leading-relaxed">{lesson.description}</p>
                         <Button 
                           size="sm" 
-                          className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full"
-                          onClick={() => setCurrentLesson(lesson.id)}
+                          className={`w-full rounded-full ${
+                            visualProps.buttonText === 'Complete' 
+                              ? 'bg-green-600 hover:bg-green-700 text-white' 
+                              : 'bg-purple-600 hover:bg-purple-700 text-white'
+                          }`}
+                          onClick={() => handleLessonStart(lesson.id)}
+                          disabled={visualProps.disabled}
                         >
-                          {isCompleted ? 'Review Lesson' : 'Start Lesson'}
+                          {visualProps.buttonText}
                         </Button>
                       </CardContent>
                     </Card>
