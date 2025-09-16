@@ -27,17 +27,21 @@ export const EmpoweringLearningNounsLesson: React.FC = () => {
             {/* Video Player */}
             <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <MediaPlayerDisplay
-                  type="video"
-                  src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/empowering-mp4-spelling/Module%203%20-%20Empowering%20Learning%20-%20Nouns%20(3).mp4"
-                  title="Module 3: Empowering Learning - Nouns"
-                  mediaRef={mediaRef}
-                  onPlay={handlePlay}
-                  onPause={handlePause}
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onEnterFullscreen={handleEnterFullscreen}
-                />
+                <div className="relative">
+                  <video
+                    ref={mediaRef}
+                    src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/empowering-mp4-spelling/Module%203%20-%20Empowering%20Learning%20-%20Nouns%20(3).mp4"
+                    className="w-full h-auto"
+                    controls
+                    preload="metadata"
+                    onPlay={handlePlay}
+                    onPause={handlePause}
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                  >
+                    <p>Your browser does not support the video tag. Please use a modern browser to view this content.</p>
+                  </video>
+                </div>
               </CardContent>
             </Card>
 
