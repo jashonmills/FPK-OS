@@ -24,7 +24,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   onButtonClick,
   progress 
 }) => {
-  const isBetaCourse = course.id === 'learning-state-beta';
+  const isBetaCourse = false; // Beta course removed
   const completionPercentage = progress?.completion_percentage || 0;
   const completedModules = progress?.completed_modules?.length || 0;
   const isCompleted = progress?.completed || false;

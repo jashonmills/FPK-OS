@@ -121,7 +121,6 @@ export const CoursePerformanceAnalytics: React.FC = () => {
       'logic-critical-thinking': 'Logic & Critical Thinking',
       'interactive-science': 'Interactive Science',
       'neurodiversity-strengths-based-approach': 'Neurodiversity Strengths-Based Approach',
-      'learning-state-beta': 'Learning State Beta',
       'el-spelling-reading': 'EL Spelling & Reading'
     };
     return titles[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());

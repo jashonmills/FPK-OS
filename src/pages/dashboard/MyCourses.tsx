@@ -427,10 +427,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
       if (aIsEmpowering && !bIsEmpowering) return -1;
       if (!aIsEmpowering && bIsEmpowering) return 1;
       
-      // Then Learning State course
-      if (a.id === 'learning-state-beta' && !bIsEmpowering) return -1;
-      if (b.id === 'learning-state-beta' && !aIsEmpowering) return 1;
-      
+      // Then other courses by name
       return 0;
     });
   };
@@ -474,7 +471,6 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
-    const isLearningStateCourse = course.id === 'learning-state-beta';
     const isEmpoweringLearningState = course.id === 'empowering-learning-state';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isEmpoweringLearningSpelling = course.id === 'empowering-learning-spelling';
@@ -524,7 +520,6 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
     // Get course type for styling
     const getCourseType = () => {
-      if (isLearningStateCourse) return 'Beta Course';
       if (isEmpoweringLearningState) return 'Learning Skills Course';
       if (isElSpellingCourse) return 'Reading Course';
       if (isEmpoweringLearningSpelling) return 'Spelling Course';
@@ -545,10 +540,6 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
     // Fixed course route logic
     const getCourseRoute = () => {
-      if (isLearningStateCourse) {
-        return 'https://course-start-kit-react.lovable.app/';
-      }
-      
       if (isEmpoweringLearningState) {
         return '/courses/empowering-learning-state';
       }
@@ -725,18 +716,9 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
         <TabsContent value="enrolled" className="space-y-6">
           {(filteredCourses(enrolledCourses).length > 0 || filteredNativeCourses(enrolledNativeCourses).length > 0) ? (
             <div className="space-y-8">
-              {/* Priority Courses - Learning State Beta and EL Spelling */}
+              {/* Priority Courses - EL Spelling */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                {/* Learning State Beta - Always First */}
-                {filteredCourses(enrolledCourses).find(course => course.id === 'learning-state-beta') && (
-                  <CourseCard 
-                    key="learning-state-beta" 
-                    course={filteredCourses(enrolledCourses).find(course => course.id === 'learning-state-beta')!} 
-                    isEnrolled={true} 
-                  />
-                )}
-                
-                {/* EL Spelling - Always Second */}
+                {/* EL Spelling - Always First */}
                 {filteredCourses(enrolledCourses).find(course => course.id === 'el-spelling-reading') && (
                   <CourseCard 
                     key="el-spelling-reading" 
@@ -747,7 +729,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
               </div>
 
               {/* Divider */}
-              {(filteredCourses(enrolledCourses).filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading').length > 0 || 
+              {(filteredCourses(enrolledCourses).filter(course => course.id !== 'el-spelling-reading').length > 0 ||
                 filteredNativeCourses(enrolledNativeCourses).length > 0) && (
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -775,7 +757,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
                 
                 {/* Regular Courses (excluding priority courses) */}
                 {filteredCourses(enrolledCourses)
-                  .filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading')
+                  .filter(course => course.id !== 'el-spelling-reading')
                   .map((course) => (
                     <CourseCard key={course.id} course={course} isEnrolled={true} />
                   ))}
@@ -839,15 +821,6 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                    {/* Learning State Beta Course */}
-                    {filteredCourses(availableCourses).find(course => course.id === 'learning-state-beta') && (
-                      <CourseCard 
-                        key="learning-state-beta" 
-                        course={filteredCourses(availableCourses).find(course => course.id === 'learning-state-beta')!} 
-                        isEnrolled={false} 
-                      />
-                    )}
-
                     {/* Available Native Courses */}
                     {filteredNativeCourses(availableNativeCourses).map((course) => (
                       <NativeCourseCard 
@@ -860,7 +833,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
                     
                     {/* Other Available Regular Courses */}
                     {filteredCourses(availableCourses)
-                      .filter(course => !['learning-state-beta', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'el-spelling-reading'].includes(course.id))
+                      .filter(course => !['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'el-spelling-reading'].includes(course.id))
                       .map((course) => (
                         <CourseCard key={course.id} course={course} isEnrolled={false} />
                       ))}
@@ -868,7 +841,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
                 </>
               )}
               {(filteredCourses(availableCourses).filter(course => 
-                !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id)
+                !['el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id)
               ).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) && (
                 <>
                   <div className="relative">
@@ -893,7 +866,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
                     
                     {/* Available Regular Courses (excluding priority and empowering learning courses) */}
                     {filteredCourses(availableCourses)
-                      .filter(course => !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id))
+                      .filter(course => !['el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id))
                       .map((course) => (
                         <CourseCard key={course.id} course={course} isEnrolled={false} />
                       ))}

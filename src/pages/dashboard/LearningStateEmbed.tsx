@@ -15,7 +15,7 @@ const LearningStateEmbed = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
-  const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
+  const { updateProgress, currentProgress } = useProgressTracking('empowering-learning-state');
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {

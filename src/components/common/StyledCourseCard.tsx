@@ -113,7 +113,7 @@ export function StyledCourseCard({
     '06efda03-9f0b-4c00-a064-eb65ada9fbae', // Native Empowering Learning for Spelling course
     'empowering-learning-australia',
     'el-spelling-reading',
-    'learning-state-beta'
+    
   ].includes(id);
   
   return (

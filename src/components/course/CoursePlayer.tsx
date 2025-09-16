@@ -20,8 +20,8 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
   const isMobile = useIsMobile();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { user } = useAuth();
-  const { updateProgress, currentProgress } = useProgressTracking('learning-state-beta');
-  const { trackPageView } = useAnalytics({ courseId: 'learning-state-beta' });
+  const { updateProgress, currentProgress } = useProgressTracking('empowering-learning-state');
+  const { trackPageView } = useAnalytics({ courseId: 'empowering-learning-state' });
   const { safeT, getCurrentLanguageInfo } = useLanguageConsistency({
     maintainRouteOnLanguageChange: true,
     logMissingKeys: true
@@ -32,7 +32,7 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
   // Track page view on mount
   useEffect(() => {
     trackPageView('course_player', {
-      course_id: 'learning-state-beta',
+      course_id: 'empowering-learning-state',
       is_mobile: isMobile
     });
   }, [trackPageView, isMobile]);

@@ -150,7 +150,6 @@ class AnalyticsDataSyncService {
       'logic-critical-thinking': 7,
       'interactive-science': 9,
       'neurodiversity-strengths-based-approach': 5,
-      'learning-state-beta': 4,
       'el-spelling-reading': 6
     };
     
@@ -279,7 +278,6 @@ class AnalyticsDataSyncService {
       'logic-critical-thinking': 'Logic & Critical Thinking',
       'interactive-science': 'Interactive Science',
       'neurodiversity-strengths-based-approach': 'Neurodiversity Strengths-Based Approach',
-      'learning-state-beta': 'Learning State Beta',
       'el-spelling-reading': 'EL Spelling & Reading'
     };
     return titles[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());

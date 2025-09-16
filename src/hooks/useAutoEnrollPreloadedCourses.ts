@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-const PRELOADED_COURSES = ['learning-state-beta', 'el-spelling-reading'];
+const PRELOADED_COURSES = ['el-spelling-reading'];
 
 async function ensurePreloadedCourseEnrollments(userId: string) {
   console.log('Checking preloaded course enrollments for user:', userId);
