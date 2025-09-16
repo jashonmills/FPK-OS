@@ -13,6 +13,9 @@ import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/spelling-lessons/IntroductionLesson';
@@ -208,13 +211,60 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Controls */}
+              {/* Listen to Course Overview Section */}
               <div className="mb-8">
-                <CourseOverviewTTS 
+                <StandardCourseAudioSection
                   courseTitle="Empowering Learning for Spelling"
                   courseDescription="Master spelling through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome spelling challenges."
-                  lessons={lessons}
                 />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
+              </div>
+
+              {/* Course Overview Section */}
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="course-overview">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                      Course Overview &amp; Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                      <div className="space-y-6 text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Why Learn Spelling This Way?</h3>
+                          <p className="leading-relaxed text-white/90">
+                            Traditional spelling methods often rely on rote memorization and phonetics alone. This visual approach harnesses your natural visual memory to create lasting spelling success through systematic visualization techniques.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Visual Memory Techniques:</strong> Use your natural visual abilities for spelling success</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Optimal Learning State:</strong> Create the calm, focused state needed for effective learning</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Step-by-Step Method:</strong> A systematic approach to visual spelling mastery</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Confidence Building:</strong> Overcome spelling challenges with proven techniques</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               {/* Video Overview */}

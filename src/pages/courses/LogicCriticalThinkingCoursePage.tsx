@@ -11,6 +11,8 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
 
 // Import background image
 import logicBg from '@/assets/logic-background.jpg';
@@ -160,13 +162,17 @@ const LogicCriticalThinkingCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Controls */}
+              {/* Listen to Course Overview Section */}
               <div className="mb-8">
-                <CourseOverviewTTS 
+                <StandardCourseAudioSection
                   courseTitle="Logic and Critical Thinking"
                   courseDescription="Master the art of rational thinking and logical reasoning. Develop critical thinking skills to analyze arguments, identify fallacies, and make sound decisions in academic and personal contexts."
-                  lessons={lessons}
                 />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
               </div>
 
               {/* Enhanced Course Information */}
@@ -179,7 +185,7 @@ const LogicCriticalThinkingCoursePage: React.FC = () => {
                   onValueChange={setAccordionOpen}
                 >
                   <AccordionItem value="course-info">
-                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 px-4 py-3 rounded-lg text-purple-900 dark:text-purple-100">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
                       Course Overview &amp; Learning Objectives
                     </AccordionTrigger>
                     <AccordionContent className="prose prose-gray max-w-none text-sm relative">

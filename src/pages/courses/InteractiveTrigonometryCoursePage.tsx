@@ -11,6 +11,8 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
 
 // Import background image
 import trigBg from '@/assets/trigonometry-background.jpg';
@@ -153,6 +155,69 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Listen to Course Overview Section */}
+              <div className="mb-8">
+                <StandardCourseAudioSection
+                  courseTitle="Interactive Trigonometry"
+                  courseDescription="Master trigonometric functions, the unit circle, identities, and real-world applications through interactive lessons and step-by-step problem solving."
+                />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
+              </div>
+
+              {/* Course Overview Section */}
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Accordion 
+                  type="single" 
+                  collapsible 
+                  className="w-full space-y-4"
+                  value={accordionOpen}
+                  onValueChange={setAccordionOpen}
+                >
+                  <AccordionItem value="course-info">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                      Course Overview &amp; Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                      <div className="space-y-6 text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Why Learn Trigonometry?</h3>
+                          <p className="leading-relaxed text-white/90">
+                            Trigonometry is essential for engineering, physics, computer graphics, and many other fields. It provides the mathematical foundation for understanding waves, rotations, and periodic phenomena in the real world.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Trigonometric Ratios:</strong> Sine, cosine, tangent and their applications</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Unit Circle:</strong> Reference angles and special values</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Function Graphing:</strong> Visualizing trigonometric functions and transformations</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Real-World Applications:</strong> Engineering, physics, and technology problems</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+
+              {/* Lessons Grid */}
               <div className="max-w-6xl mx-auto">
                 <h2 className="text-2xl font-bold text-white mb-8 text-center">Course Lessons</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

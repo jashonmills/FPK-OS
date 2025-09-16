@@ -12,6 +12,9 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import { NumeracyCourseWrapper } from '@/components/course/NumeracyCourseWrapper';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Import lesson components
 import { NumeracyIntroductionLesson } from '@/components/course/numeracy-lessons/NumeracyIntroductionLesson';
@@ -207,13 +210,60 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Controls */}
+              {/* Listen to Course Overview Section */}
               <div className="mb-8">
-                <CourseOverviewTTS 
+                <StandardCourseAudioSection
                   courseTitle="Empowering Learning for Numeracy"
                   courseDescription="Master mathematics through visual memory techniques and number triangles. Learn addition, subtraction, multiplication and division using proven visual learning methods."
-                  lessons={lessons}
                 />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
+              </div>
+
+              {/* Course Overview Section */}
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="course-overview">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                      Course Overview &amp; Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                      <div className="space-y-6 text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Why Learn Math This Way?</h3>
+                          <p className="leading-relaxed text-white/90">
+                            Traditional math instruction often creates anxiety and confusion. This visual approach uses number triangles and visual memory techniques to make mathematical concepts intuitive and accessible for all learning styles.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Number Triangle Technique:</strong> Visual method for understanding mathematical operations</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Visual Memory Methods:</strong> Harness your natural visual abilities for math success</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Number Relationships:</strong> Understanding how numbers work together naturally</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Mathematical Confidence:</strong> Build positive relationships with numbers and math</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               {/* Lessons Grid */}

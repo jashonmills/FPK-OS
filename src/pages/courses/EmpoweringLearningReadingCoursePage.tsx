@@ -13,6 +13,9 @@ import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 import { ReadingCourseWrapper } from '@/components/course/ReadingCourseWrapper';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Import lesson components
 import { ReadingIntroductionLesson } from '@/components/course/reading-lessons/ReadingIntroductionLesson';
@@ -201,13 +204,60 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Controls */}
+              {/* Listen to Course Overview Section */}
               <div className="mb-8">
-                <CourseOverviewTTS 
+                <StandardCourseAudioSection
                   courseTitle="Empowering Learning for Reading"
                   courseDescription="Discover a new perspective on reading that empowers learners through optimal learning states, proper positioning, and creative engagement. Build confidence and a lifelong love for reading."
-                  lessons={lessons}
                 />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
+              </div>
+
+              {/* Course Overview Section */}
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="course-overview">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                      Course Overview &amp; Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                      <div className="space-y-6 text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Why Learn Reading Through This Method?</h3>
+                          <p className="leading-relaxed text-white/90">
+                            Traditional reading instruction often creates anxiety and struggle. This course introduces a revolutionary approach that focuses on optimal learning states, proper body positioning, and creative engagement to make reading natural and enjoyable.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Optimal Learning State:</strong> Create the ideal mental and physical conditions for reading</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Proper Positioning:</strong> Body posture and emotional states that enhance comprehension</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Creative Engagement:</strong> Using storytelling and imagination to enhance reading</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Confidence Building:</strong> Developing a positive relationship with reading</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               {/* Video Overview - Will be added later when video is provided */}

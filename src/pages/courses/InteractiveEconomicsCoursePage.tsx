@@ -11,6 +11,8 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
+import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
 
 // Import background image
 import economicsBg from '@/assets/economics-background.jpg';
@@ -169,13 +171,66 @@ export const InteractiveEconomicsCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Voice Controls */}
+              {/* Listen to Course Overview Section */}
               <div className="mb-8">
-                <CourseOverviewTTS 
+                <StandardCourseAudioSection
                   courseTitle="Introduction to Modern Economics"
                   courseDescription="Master the fundamental principles of modern economics, from basic market mechanisms to complex policy analysis. Build a solid foundation in economic thinking and real-world applications."
-                  lessons={lessons}
                 />
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="mb-8">
+                <StandardLessonAudioButtons lessons={lessons} />
+              </div>
+
+              {/* Course Overview Section */}
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Accordion 
+                  type="single" 
+                  collapsible 
+                  className="w-full space-y-4"
+                  value={accordionOpen}
+                  onValueChange={setAccordionOpen}
+                >
+                  <AccordionItem value="course-info">
+                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg text-white border border-white/20">
+                      Course Overview &amp; Learning Objectives
+                    </AccordionTrigger>
+                    <AccordionContent className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+                      <div className="space-y-6 text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Why Learn Economics?</h3>
+                          <p className="leading-relaxed text-white/90">
+                            Economics affects every aspect of our lives, from personal financial decisions to global policy. Understanding economic principles helps you make better decisions and understand how markets, governments, and societies function.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Market Mechanics:</strong> Supply, demand, and price determination</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Economic Indicators:</strong> GDP, inflation, unemployment, and other key metrics</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Policy Analysis:</strong> Monetary and fiscal policy impacts</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                              <span><strong>Global Economics:</strong> International trade and economic development</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               {/* Lesson Grid */}
