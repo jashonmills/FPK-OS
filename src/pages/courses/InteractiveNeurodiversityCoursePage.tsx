@@ -18,10 +18,10 @@ import { ErrorBoundary, CourseFallback } from '@/components/common/ErrorBoundary
 // Import micro-lesson components (converted)
 import { WhatIsNeurodiversityMicroLesson } from '@/components/micro-lessons/neurodiversity/what-is-neurodiversity/WhatIsNeurodiversityMicroLesson';
 import { BrainSuperpowersMicroLesson } from '@/components/micro-lessons/neurodiversity/brain-superpowers/BrainSuperpowersMicroLesson';
+import { FoundationalLearningMicroLesson } from '@/components/micro-lessons/neurodiversity/foundational-learning/FoundationalLearningMicroLesson';
+import { FpkAdvantageMicroLesson } from '@/components/micro-lessons/neurodiversity/fpk-advantage/FpkAdvantageMicroLesson';
 
 // Import remaining lesson components (to be converted)
-import { NeurodiversityLesson3 } from '@/components/courses/neurodiversity/NeurodiversityLesson3';
-import { NeurodiversityLesson4 } from '@/components/courses/neurodiversity/NeurodiversityLesson4';
 import { NeurodiversityLesson5 } from '@/components/courses/neurodiversity/NeurodiversityLesson5';
 import { NeurodiversityLesson6 } from '@/components/courses/neurodiversity/NeurodiversityLesson6';
 import { NeurodiversityLesson7 } from '@/components/courses/neurodiversity/NeurodiversityLesson7';
@@ -80,14 +80,14 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
       id: 3,
       title: "Foundational Learning Strategies",
       description: "Build your personal operating system for effective learning",
-      component: NeurodiversityLesson3,
+      component: FoundationalLearningMicroLesson,
       icon: BookOpen
     },
     {
       id: 4,
       title: "The FPK University Advantage",
       description: "Learn how our platform is designed specifically for your brain",
-      component: NeurodiversityLesson4,
+      component: FpkAdvantageMicroLesson,
       icon: PlayCircle
     },
     {
