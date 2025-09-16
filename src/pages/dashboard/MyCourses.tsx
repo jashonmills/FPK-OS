@@ -22,6 +22,7 @@ import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 // Import course card background
 import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
+import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -129,6 +130,21 @@ const additionalCourses = [
   }
 ];
 
+const EMPOWERING_LEARNING_READING_COURSE = {
+  id: 'empowering-learning-reading',
+  title: 'Empowering Learning for Reading',
+  description: 'Master reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome reading challenges.',
+  instructor_name: 'FPK University',
+  duration_minutes: 120,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Language Arts', 'Reading', 'Visual Learning', 'Memory Techniques'],
+  thumbnail_url: courseSpellingReading,
+  status: 'published'
+};
+
 const MONEY_MANAGEMENT_COURSE = {
   id: 'money-management-teens',
   title: 'Money Management for Teens',
@@ -226,6 +242,7 @@ const MyCourses = () => {
     NEURODIVERSITY_STRENGTHS_COURSE,
     INTRODUCTION_TO_SCIENCE_COURSE,
     GEOMETRY_FUNDAMENTALS_COURSE,
+    EMPOWERING_LEARNING_READING_COURSE,
     MONEY_MANAGEMENT_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
@@ -310,6 +327,7 @@ const MyCourses = () => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
+    const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
@@ -342,6 +360,7 @@ const MyCourses = () => {
     const getCourseType = () => {
       if (isLearningStateCourse) return 'Beta Course';
       if (isElSpellingCourse) return 'Reading Course';
+      if (isEmpoweringLearningReading) return 'Reading Course';
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
       if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
@@ -362,6 +381,10 @@ const MyCourses = () => {
       
       if (isElSpellingCourse) {
         return 'https://course-start-kit-react.lovable.app/el-spelling';
+      }
+      
+      if (isEmpoweringLearningReading) {
+        return '/courses/empowering-learning-reading';
       }
       
       if (isInteractiveLinearEquations) {

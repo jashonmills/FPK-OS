@@ -40,6 +40,7 @@ const courseImageMap: Record<string, string> = {
   'logic-critical-thinking': courseLogic,
   'introduction-modern-economics': courseEconomics,
   'el-spelling-reading': courseSpellingReading,
+  'empowering-learning-reading': courseSpellingReading,
   'neurodiversity-strengths-based-approach': courseNeurodiversity,
   'interactive-science': courseScience,
   'money-management-teens': courseMoneyManagement,

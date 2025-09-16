@@ -47,6 +47,7 @@ interface Course {
 // Map course IDs to their images (same as StyledCourseCard)
 const courseImageMap: Record<string, string> = {
   'empowering-learning-spelling': courseSpellingReading,
+  'empowering-learning-reading': courseSpellingReading,
   'logic-critical-thinking': courseLogic,
   'interactive-science': courseScience,
   'interactive-algebra': courseAlgebra,
@@ -98,6 +99,24 @@ const courses: Course[] = [
       'Apply techniques to any spelling challenge'
     ],
     route: '/courses/empowering-learning-spelling'
+  },
+  {
+    id: 'empowering-learning-reading',
+    title: 'Empowering Learning for Reading',
+    description: 'Master reading through visual memory techniques and optimal learning states.',
+    summary: 'A comprehensive program designed for visual learners to overcome reading challenges using proven memory techniques and optimal learning states.',
+    duration: '~2 Hours',
+    level: 'Beginner',
+    lessons: 10,
+    category: 'Language Arts',
+    features: ['Video Instructions', 'Visual Memory Techniques', 'Interactive Exercises', 'Progress Tracking'],
+    learningOutcomes: [
+      'Master the visual reading technique',
+      'Achieve optimal learning states for comprehension',
+      'Build confidence in reading abilities',
+      'Apply techniques to any reading challenge'
+    ],
+    route: '/courses/empowering-learning-reading'
   },
   {
     id: 'logic-critical-thinking',
