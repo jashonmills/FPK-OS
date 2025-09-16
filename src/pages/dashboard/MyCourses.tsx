@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2 } from 'lucide-react';
+import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
@@ -19,6 +19,7 @@ import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Import course card background
 import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
@@ -176,6 +177,52 @@ const MONEY_MANAGEMENT_COURSE = {
   status: 'published'
 };
 
+// FPK University Games data
+const FPK_GAMES = [
+  {
+    id: 'prompt-play-palette',
+    name: 'Prompt Play Palette',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091821.jpg',
+    url: 'https://prompt-play-palette.lovable.app/'
+  },
+  {
+    id: 'addition-journey-quest',
+    name: 'Addition Journey Quest',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091850.jpg',
+    url: 'https://addition-journey-quest.lovable.app/'
+  },
+  {
+    id: 'wizard-word-battle',
+    name: 'Wizard Word Battle',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091911.jpg',
+    url: 'https://preview--wizard-word-battle.lovable.app/'
+  },
+  {
+    id: 'learn-escape-prodigy',
+    name: 'Learn Escape Prodigy',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091934.jpg',
+    url: 'https://learn-escape-prodigy.lovable.app/'
+  },
+  {
+    id: 'eco-genesis-forest-realm',
+    name: 'Eco Genesis Forest Realm',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091954.jpg',
+    url: 'https://eco-genesis-forest-realm.lovable.app/'
+  },
+  {
+    id: 'energybear-calm-game',
+    name: 'EnergyBear Calm Game',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20092021.jpg',
+    url: 'https://energybear-calm-game.lovable.app/'
+  },
+  {
+    id: 'mind-explorer-game',
+    name: 'Mind Explorer Game',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20092140.jpg',
+    url: 'https://mind-explorer-game.lovable.app/'
+  }
+];
+
 const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
   id: 'empowering-learning-handwriting',
   title: 'Empowering Learning: Handwriting',
@@ -236,6 +283,7 @@ const MyCourses = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isGamesOpen, setIsGamesOpen] = useState(false);
   
   // Video storage hook
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('mycourses_intro_seen');
@@ -640,6 +688,49 @@ const MyCourses = () => {
             </div>
           )}
         </TabsContent>
+
+        {/* FPK University Games Dropdown */}
+        <div className="space-y-4">
+          <Collapsible open={isGamesOpen} onOpenChange={setIsGamesOpen}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200"
+              >
+                <span className="text-lg font-semibold">🎮 FPK University Games</span>
+                <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGamesOpen ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {FPK_GAMES.map((game) => (
+                  <Card key={game.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 bg-white/90 backdrop-blur-sm border-white/20">
+                    <div className="relative">
+                      <img 
+                        src={game.image} 
+                        alt={game.name}
+                        className="w-full h-48 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <h3 className="text-white font-semibold text-sm truncate">{game.name}</h3>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <Button 
+                        onClick={() => window.open(game.url, '_blank')}
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium"
+                      >
+                        Play Game
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
 
         <TabsContent value="available" className="space-y-6">
           {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
