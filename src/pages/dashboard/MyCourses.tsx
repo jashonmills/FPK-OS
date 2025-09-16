@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCourses } from '@/hooks/useCourses';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
@@ -358,9 +359,19 @@ const MyCourses = () => {
     const handleEnrollment = async () => {
       if (!isEnrolled) {
         try {
+          console.log('Enrolling in course:', course.id);
           await enrollInInteractiveCourse.mutateAsync(course.id);
+          
+          // After successful enrollment, switch to My Courses tab
+          setTimeout(() => {
+            const enrolledTab = document.querySelector('[data-state="inactive"][value="enrolled"]') as HTMLElement;
+            if (enrolledTab) {
+              enrolledTab.click();
+            }
+          }, 1000);
         } catch (error) {
-          console.error('Failed to enroll:', error);
+          console.error('Failed to enroll in course:', course.id, error);
+          toast.error(`Failed to enroll in ${course.title}`);
         }
       }
     };
