@@ -1,363 +1,237 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { BookOpen, Calculator, CheckCircle, PlayCircle, Trophy, ArrowLeft, ArrowRight, TrendingUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import CourseHeader from '@/components/course/CourseHeader';
-import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
-import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
-import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import { ArrowLeft, BookOpen, Clock, Users, Trophy } from 'lucide-react';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
-import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
-import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
+import economicsBackground from '@/assets/economics-background.jpg';
 
-// Import lesson components
-import { EconomicsLesson1 } from '@/components/courses/economics/EconomicsLesson1';
-import { EconomicsLesson2 } from '@/components/courses/economics/EconomicsLesson2';
-import { EconomicsLesson3 } from '@/components/courses/economics/EconomicsLesson3';
-import { EconomicsLesson4 } from '@/components/courses/economics/EconomicsLesson4';
-import { EconomicsLesson5 } from '@/components/courses/economics/EconomicsLesson5';
-import { EconomicsLesson6 } from '@/components/courses/economics/EconomicsLesson6';
-import { EconomicsLesson7 } from '@/components/courses/economics/EconomicsLesson7';
-import { EconomicsLesson8 } from '@/components/courses/economics/EconomicsLesson8';
+// Import micro-lesson components
+import { EconomicsIntroductionMicroLesson } from '@/components/micro-lessons/economics/EconomicsIntroductionMicroLesson';
+import { EconomicsSupplyDemandMicroLesson } from '@/components/micro-lessons/economics/EconomicsSupplyDemandMicroLesson';
+import { EconomicsMarketStructuresMicroLesson } from '@/components/micro-lessons/economics/EconomicsMarketStructuresMicroLesson';
+import { EconomicsIndicatorsMicroLesson } from '@/components/micro-lessons/economics/EconomicsIndicatorsMicroLesson';
+import { EconomicsMonetaryPolicyMicroLesson } from '@/components/micro-lessons/economics/EconomicsMonetaryPolicyMicroLesson';
+import { EconomicsFiscalPolicyMicroLesson } from '@/components/micro-lessons/economics/EconomicsFiscalPolicyMicroLesson';
+import { EconomicsInternationalTradeMicroLesson } from '@/components/micro-lessons/economics/EconomicsInternationalTradeMicroLesson';
+import { EconomicsGrowthDevelopmentMicroLesson } from '@/components/micro-lessons/economics/EconomicsGrowthDevelopmentMicroLesson';
 
 const InteractiveEconomicsCoursePage: React.FC = () => {
+  const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
-  const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   
-  // Use analytics and progress hooks
   const courseId = 'introduction-modern-economics';
   const courseTitle = 'Introduction to Modern Economics';
-  const {
-    completedLessons,
-    isLessonCompleted,
-    calculateProgress,
-    getNextLesson,
-    getLearningStats,
-    saveLessonCompletion
-  } = useInteractiveCourseProgress(courseId);
-  
-  // Bridge old enrollment system with new analytics
-  useInteractiveCourseEnrollmentBridge();
-
-  // Scroll to top when lesson changes
-  useEffect(() => {
-    if (currentLesson !== null) {
-      window.scrollTo(0, 0);
-    }
-  }, [currentLesson]);
+  const { completedLessons, saveLessonCompletion } = useInteractiveCourseProgress(courseId);
 
   const lessons = [
-    {
-      id: 1,
-      title: "Introduction to Economics",
-      description: "Understand the fundamental concepts and importance of economics",
-      component: EconomicsLesson1,
-      icon: BookOpen
-    },
-    {
-      id: 2,
-      title: "Supply and Demand",
-      description: "Learn about market forces and price determination",
-      component: EconomicsLesson2,
-      icon: TrendingUp
-    },
-    {
-      id: 3,
-      title: "Market Structures",
-      description: "Explore different types of market competition",
-      component: EconomicsLesson3,
-      icon: Calculator
-    },
-    {
-      id: 4,
-      title: "Economic Indicators",
-      description: "Understand GDP, inflation, and unemployment",
-      component: EconomicsLesson4,
-      icon: PlayCircle
-    },
-    {
-      id: 5,
-      title: "Monetary Policy",
-      description: "Learn about central banking and money supply",
-      component: EconomicsLesson5,
-      icon: Trophy
-    },
-    {
-      id: 6,
-      title: "Fiscal Policy",
-      description: "Understand government spending and taxation",
-      component: EconomicsLesson6,
-      icon: BookOpen
-    },
-    {
-      id: 7,
-      title: "International Trade",
-      description: "Explore global economics and trade relationships",
-      component: EconomicsLesson7,
-      icon: TrendingUp
-    },
-    {
-      id: 8,
-      title: "Economic Growth & Development",
-      description: "Learn about long-term economic progress",
-      component: EconomicsLesson8,
-      icon: CheckCircle
-    }
+    { id: '1', title: 'Introduction to Economics', component: EconomicsIntroductionMicroLesson, unit: 1 },
+    { id: '2', title: 'Supply and Demand', component: EconomicsSupplyDemandMicroLesson, unit: 1 },
+    { id: '3', title: 'Market Structures', component: EconomicsMarketStructuresMicroLesson, unit: 1 },
+    { id: '4', title: 'Economic Indicators', component: EconomicsIndicatorsMicroLesson, unit: 2 },
+    { id: '5', title: 'Monetary Policy', component: EconomicsMonetaryPolicyMicroLesson, unit: 2 },
+    { id: '6', title: 'Fiscal Policy', component: EconomicsFiscalPolicyMicroLesson, unit: 3 },
+    { id: '7', title: 'International Trade', component: EconomicsInternationalTradeMicroLesson, unit: 3 },
+    { id: '8', title: 'Economic Growth & Development', component: EconomicsGrowthDevelopmentMicroLesson, unit: 3 }
   ];
 
-  const handleLessonComplete = async (lessonId: number) => {
-    const lesson = lessons.find(l => l.id === lessonId);
-    if (lesson) {
-      await saveLessonCompletion(lessonId, lesson.title);
+  const units = [
+    { id: 1, title: 'Economic Foundations', color: 'from-blue-500 to-purple-600', lessons: lessons.filter(l => l.unit === 1) },
+    { id: 2, title: 'Economic Measurement', color: 'from-green-500 to-teal-600', lessons: lessons.filter(l => l.unit === 2) },
+    { id: 3, title: 'Economic Policy & Growth', color: 'from-orange-500 to-red-600', lessons: lessons.filter(l => l.unit === 3) }
+  ];
+
+  const currentLesson = lessons.find(lesson => lesson.id === lessonId);
+  
+  const handleLessonComplete = async () => {
+    if (currentLesson) {
+      await saveLessonCompletion(parseInt(currentLesson.id), currentLesson.title);
     }
   };
 
   const handleNextLesson = () => {
-    if (currentLesson !== null && currentLesson < lessons.length) {
-      setCurrentLesson(currentLesson + 1);
-      // Scroll to top of the page
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const currentIndex = lessons.findIndex(lesson => lesson.id === lessonId);
+    const nextLesson = lessons[currentIndex + 1];
+    if (nextLesson) {
+      navigate(`/courses/introduction-modern-economics/${nextLesson.id}`);
     }
   };
 
-  const handleBackToCourses = () => {
-    navigate('/dashboard/learner/courses');
+  const hasNextLesson = () => {
+    const currentIndex = lessons.findIndex(lesson => lesson.id === lessonId);
+    return currentIndex < lessons.length - 1;
   };
 
-  const handleDashboard = () => {
-    navigate('/dashboard/learner');
-  };
-
-  const isLessonAccessible = (lessonId: number) => {
-    return lessonId === 1 || isLessonCompleted(lessonId - 1);
-  };
-
-  const overallProgress = calculateProgress(lessons.length);
-  const isAllLessonsCompleted = completedLessons.size === lessons.length;
-  const learningStats = getLearningStats();
-
-  // Course overview (lesson selection)
-  if (currentLesson === null) {
+  // If we have a lessonId, render the lesson
+  if (lessonId && currentLesson) {
+    const LessonComponent = currentLesson.component;
+    
     return (
-      <VoiceSettingsProvider>
-        <InteractiveCourseWrapper
-          courseId={courseId}
-          courseTitle={courseTitle}
-          currentLesson={currentLesson}
-          totalLessons={lessons.length}
-        >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-            <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
-              courseTitle="Introduction to Modern Economics"
-            />
-          
-          <div className="container mx-auto px-4 py-8 space-y-8">
-            {/* Course Title and Description */}
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl font-bold text-foreground">Introduction to Modern Economics</h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Master the fundamental principles of economics, from basic supply and demand to complex macroeconomic policies
-              </p>
-              
-              {/* Course badges */}
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Badge variant="outline" className="text-sm px-3 py-1">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  8 Lessons
-                </Badge>
-                <Badge variant="outline" className="text-sm px-3 py-1">
-                  <Trophy className="w-4 h-4 mr-2" />
-                  Interactive
-                </Badge>
-                <Badge variant="outline" className="text-sm px-3 py-1">
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Self-Paced
-                </Badge>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="max-w-2xl mx-auto">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Course Progress</span>
-                <span className="text-sm text-muted-foreground">{Math.round(overallProgress)}%</span>
-              </div>
-              <Progress value={overallProgress} className="h-3" />
-              <p className="text-xs text-muted-foreground mt-1 text-center">
-                {completedLessons.size} of {lessons.length} lessons completed
-              </p>
-              {learningStats.totalTimeSpent > 0 && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Total time spent: {Math.floor(learningStats.totalTimeSpent / 60)}h {learningStats.totalTimeSpent % 60}m
-                </p>
-              )}
-            </div>
-
-            {/* Voice Controls */}
-            <div className="mb-8">
-              <CourseOverviewTTS 
-                courseTitle="Introduction to Modern Economics"
-                courseDescription="Master the fundamental principles of economics, from basic supply and demand to complex macroeconomic policies"
-                lessons={lessons}
-              />
-            </div>
-
-            {/* Video Overview */}
-            <CourseOverviewVideo 
-              videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Economics__A_User_s_Guide.mp4" 
-              title="Introduction to Modern Economics"
-            />
-
-            {/* Lessons Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {lessons.map((lesson) => {
-                const isCompleted = isLessonCompleted(lesson.id);
-                const isAccessible = isLessonAccessible(lesson.id);
-                const Icon = lesson.icon;
-
-                return (
-                  <Card 
-                    key={lesson.id}
-                    className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg ${
-                      !isAccessible ? 'opacity-50' : ''
-                    } ${isCompleted ? 'border-primary/50 bg-primary/5' : ''}`}
-                    onClick={() => isAccessible && setCurrentLesson(lesson.id)}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg ${
-                            isCompleted 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                          </div>
-                          <div>
-                            <Badge variant="outline" className="text-xs">
-                              Lesson {lesson.id}
-                            </Badge>
-                          </div>
-                        </div>
-                        {isCompleted && (
-                          <Badge variant="default" className="text-xs">
-                            Completed
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-lg">{lesson.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {lesson.description}
-                      </p>
-                      <Button 
-                        variant={isCompleted ? "secondary" : "default"}
-                        className="w-full"
-                        disabled={!isAccessible}
-                      >
-                        {isCompleted ? "Review Lesson" : isAccessible ? "Start Lesson" : "Locked"}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            {/* Completion Message */}
-            {isAllLessonsCompleted && (
-              <div className="max-w-2xl mx-auto text-center space-y-4 p-6 bg-primary/10 rounded-lg border border-primary/20">
-                <Trophy className="w-12 h-12 text-primary mx-auto" />
-                <h3 className="text-2xl font-bold text-primary">Congratulations! 🎉</h3>
-                <p className="text-muted-foreground">
-                  You've completed all lessons in Introduction to Modern Economics. 
-                  You now have a solid foundation in economic principles!
-                </p>
-                <Button onClick={handleBackToCourses} className="mt-4">
-                  Back to My Courses
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </InteractiveCourseWrapper>
-      </VoiceSettingsProvider>
-    );
-  }
-
-  // Individual lesson view
-  const lesson = lessons.find(l => l.id === currentLesson);
-  if (!lesson) return null;
-
-  const LessonComponent = lesson.component;
-  const hasNext = currentLesson < lessons.length;
-
-  return (
-    <VoiceSettingsProvider>
       <InteractiveCourseWrapper
         courseId={courseId}
         courseTitle={courseTitle}
-        currentLesson={currentLesson}
+        currentLesson={parseInt(lessonId)}
         totalLessons={lessons.length}
       >
         <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-          {/* Lesson Header */}
-          <div className="bg-card border-b sticky top-0 z-10">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentLesson(null)}
-                    className="flex items-center"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Course Overview
-                  </Button>
-                  <div className="text-sm text-muted-foreground">
-                    Lesson {currentLesson} of {lessons.length}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Progress 
-                    value={(currentLesson / lessons.length) * 100} 
-                    className="w-32 h-2"
-                  />
-                  <span className="text-sm font-medium">
-                    {Math.round((currentLesson / lessons.length) * 100)}%
-                  </span>
-                </div>
-              </div>
-              <div className="mt-2">
-                <h1 className="text-xl font-semibold">{lesson.title}</h1>
-                <p className="text-sm text-muted-foreground">{lesson.description}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Lesson Content */}
           <div className="container mx-auto px-4 py-8">
-            <InteractiveLessonWrapper
-              courseId={courseId}
-              lessonId={currentLesson}
-              lessonTitle={lesson.title}
-              onComplete={() => handleLessonComplete(currentLesson)}
-              onNext={hasNext ? handleNextLesson : undefined}
-              hasNext={hasNext}
-            >
-              <LessonComponent />
-            </InteractiveLessonWrapper>
+            <div className="mb-6">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/courses/introduction-modern-economics')}
+                className="mb-4"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Course Overview
+              </Button>
+              <h1 className="text-3xl font-bold">{currentLesson.title}</h1>
+            </div>
+            
+            <LessonComponent
+              onComplete={handleLessonComplete}
+              onNext={hasNextLesson() ? handleNextLesson : undefined}
+              hasNext={hasNextLesson()}
+            />
           </div>
         </div>
       </InteractiveCourseWrapper>
-    </VoiceSettingsProvider>
+    );
+  }
+
+  // Course overview
+  return (
+    <InteractiveCourseWrapper
+      courseId={courseId}
+      courseTitle={courseTitle}
+      currentLesson={null}
+      totalLessons={lessons.length}
+    >
+      <div 
+        className="min-h-screen bg-cover bg-center bg-no-repeat relative"
+        style={{ backgroundImage: `url(${economicsBackground})` }}
+      >
+        <div className="absolute inset-0 bg-black/60"></div>
+        
+        <div className="relative z-10 container mx-auto px-4 py-12">
+          <div className="text-center mb-12">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/dashboard/learner/courses')}
+              className="mb-6 text-white hover:text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to My Courses
+            </Button>
+            
+            <h1 className="text-5xl font-bold text-white mb-4">
+              Introduction to Modern Economics
+            </h1>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
+              Master the fundamental principles of economics, from basic supply and demand to complex macroeconomic policies
+            </p>
+            
+            <div className="flex justify-center gap-4 flex-wrap mb-8">
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                <BookOpen className="w-4 h-4 mr-2" />
+                8 Interactive Lessons
+              </Badge>
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                <Clock className="w-4 h-4 mr-2" />
+                Self-Paced Learning
+              </Badge>
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                <Users className="w-4 h-4 mr-2" />
+                Beginner Friendly
+              </Badge>
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                <Trophy className="w-4 h-4 mr-2" />
+                Certificate Ready
+              </Badge>
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <Accordion type="single" collapsible className="mb-8">
+              <AccordionItem value="overview" className="bg-white/10 backdrop-blur-sm border-white/20 rounded-lg mb-4">
+                <AccordionTrigger className="text-white px-6 hover:no-underline">
+                  Course Overview & Learning Objectives
+                </AccordionTrigger>
+                <AccordionContent className="text-white/90 px-6 pb-6">
+                  <div className="space-y-4">
+                    <p>
+                      This comprehensive course introduces you to the fundamental concepts of modern economics. 
+                      You'll learn how markets work, understand economic indicators, and explore the policies 
+                      that shape our economic world.
+                    </p>
+                    <div>
+                      <h4 className="font-semibold mb-2">Learning Objectives:</h4>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>Understand basic economic principles like scarcity and opportunity cost</li>
+                        <li>Analyze how supply and demand determine prices in markets</li>
+                        <li>Compare different market structures and their characteristics</li>
+                        <li>Interpret key economic indicators like GDP, inflation, and unemployment</li>
+                        <li>Evaluate the effects of monetary and fiscal policies</li>
+                        <li>Examine the benefits and challenges of international trade</li>
+                        <li>Explore factors that drive economic growth and development</li>
+                      </ul>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <div className="space-y-8">
+              {units.map((unit) => (
+                <div key={unit.id} className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                  <div className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${unit.color} text-white font-semibold mb-4`}>
+                    Unit {unit.id}: {unit.title}
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    {unit.lessons.map((lesson) => {
+                      const isCompleted = completedLessons.has(parseInt(lesson.id));
+                      
+                      return (
+                        <div
+                          key={lesson.id}
+                          className={`flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer ${
+                            isCompleted ? 'ring-2 ring-green-400/50' : ''
+                          }`}
+                          onClick={() => navigate(`/courses/introduction-modern-economics/${lesson.id}`)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                              isCompleted 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-white/20 text-white'
+                            }`}>
+                              {isCompleted ? '✓' : lesson.id}
+                            </div>
+                            <div>
+                              <h3 className="text-white font-medium">{lesson.title}</h3>
+                              <p className="text-white/70 text-sm">Interactive micro-lesson with practice exercises</p>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            variant={isCompleted ? "secondary" : "default"}
+                            size="sm"
+                          >
+                            {isCompleted ? 'Review' : 'Start'}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </InteractiveCourseWrapper>
   );
 };
 
