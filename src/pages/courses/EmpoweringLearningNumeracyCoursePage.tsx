@@ -218,9 +218,11 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl bg-white/90 backdrop-blur-sm border-white/50 shadow-lg ${
-                        !isAccessible ? 'opacity-50 cursor-not-allowed' : ''
-                      } ${isCompleted ? 'border-primary/50 bg-white/95' : ''}`}
+                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl ${
+                        !isAccessible ? 'opacity-50 cursor-not-allowed bg-white/90 backdrop-blur-sm border-white/50 shadow-lg' : 
+                        isCompleted ? 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg border-primary/50' : 
+                        'bg-white/90 backdrop-blur-sm border-white/50 shadow-lg'
+                      }`}
                       onClick={() => {
                         if (isAccessible) {
                           setCurrentLesson(lesson.id);
@@ -249,10 +251,25 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
                         <CardTitle className="text-lg mt-2 text-gray-900">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-gray-700 mb-3">{lesson.description}</p>
-                        <Badge variant="outline" className={lesson.unitColor}>
-                          {lesson.unit}
-                        </Badge>
+                        <p className="text-sm text-gray-700 mb-4">{lesson.description}</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge variant="outline" className={lesson.unitColor}>
+                            {lesson.unit}
+                          </Badge>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isAccessible) {
+                              setCurrentLesson(lesson.id);
+                            }
+                          }}
+                          disabled={!isAccessible}
+                        >
+                          {isCompleted ? 'Review Lesson' : 'Start Lesson'}
+                        </Button>
                       </CardContent>
                     </Card>
                   );
