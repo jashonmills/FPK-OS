@@ -315,8 +315,8 @@ const CoursesPage: React.FC = () => {
         padding: 0
       }}
     >
-      {/* Header - Center-aligned with semi-transparent background */}
-      <div className="bg-white/20 backdrop-blur-md border-b border-white/20 shadow-sm">
+      {/* Header - No overlay, just centered content with individual transparent elements */}
+      <div className="border-b border-white/20 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <div className="flex items-center gap-4 mb-4">
@@ -387,28 +387,28 @@ const CoursesPage: React.FC = () => {
                 </div>
 
                 <CardContent className="flex-1 flex flex-col p-6">
-                  {/* Course Description */}
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
+                  {/* Course Description - Better contrast */}
+                  <p className="text-slate-800 text-sm mb-4 line-clamp-2 leading-relaxed font-medium">
                     {course.description}
                   </p>
 
-                  {/* Course Stats */}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                  {/* Course Stats - Better contrast */}
+                  <div className="flex items-center justify-between text-sm text-slate-700 mb-4 font-medium">
                     <div className="flex items-center gap-1.5">
                       <BookOpen className="h-4 w-4" />
-                      <span className="font-medium">{course.lessons} Lessons</span>
+                      <span className="font-semibold">{course.lessons} Lessons</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-4 w-4" />
-                      <span className="font-medium">{course.duration}</span>
+                      <span className="font-semibold">{course.duration}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <GraduationCap className="h-4 w-4" />
-                      <span className="font-medium">{course.level}</span>
+                      <span className="font-semibold">{course.level}</span>
                     </div>
                   </div>
 
-                  {/* Course Summary Dropdown */}
+                  {/* Course Summary Dropdown - Better contrast */}
                   <Collapsible
                     open={expandedCourse === course.id}
                     onOpenChange={() => 
@@ -419,7 +419,7 @@ const CoursesPage: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-between text-sm mb-4 hover:bg-white/20 font-medium py-2 bg-white/5 backdrop-blur-sm border border-white/10"
+                        className="w-full justify-between text-sm mb-4 hover:bg-white/30 font-semibold py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-slate-800"
                       >
                         Course Details
                         {expandedCourse === course.id ? (
@@ -429,33 +429,33 @@ const CoursesPage: React.FC = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-4 mb-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10 relative">
+                    <CollapsibleContent className="space-y-4 mb-4 bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30 relative">
                       {/* TTS Speaker Button */}
                       <Button
                         onClick={() => handleReadCourseOverview(course)}
                         variant="ghost"
                         size="sm"
-                        className="absolute top-2 right-2 p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/20 rounded-full"
+                        className="absolute top-2 right-2 p-2 bg-white/30 hover:bg-white/40 backdrop-blur-sm border border-white/30 rounded-full"
                         disabled={!settings.hasInteracted}
                       >
                         {readingCourse === course.id && isSpeaking ? (
-                          <VolumeX className="h-4 w-4" />
+                          <VolumeX className="h-4 w-4 text-slate-700" />
                         ) : (
-                          <Volume2 className="h-4 w-4" />
+                          <Volume2 className="h-4 w-4 text-slate-700" />
                         )}
                       </Button>
                       
                       <div>
-                        <h4 className="font-bold text-sm mb-2 text-slate-800">Overview</h4>
-                        <p className="text-sm text-slate-700 leading-relaxed">{course.summary}</p>
+                        <h4 className="font-bold text-sm mb-2 text-slate-900">Overview</h4>
+                        <p className="text-sm text-slate-800 leading-relaxed font-medium">{course.summary}</p>
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-sm mb-2 text-slate-800">Key Features</h4>
-                        <ul className="text-sm text-slate-700 space-y-1">
+                        <h4 className="font-bold text-sm mb-2 text-slate-900">Key Features</h4>
+                        <ul className="text-sm text-slate-800 space-y-1 font-medium">
                           {course.features.map((feature, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5"></span>
+                              <span className="w-1.5 h-1.5 bg-slate-700 rounded-full flex-shrink-0 mt-1.5"></span>
                               <span className="leading-relaxed">{feature}</span>
                             </li>
                           ))}
@@ -463,11 +463,11 @@ const CoursesPage: React.FC = () => {
                       </div>
                       
                       <div>
-                        <h4 className="font-bold text-sm mb-2 text-slate-800">Learning Outcomes</h4>
-                        <ul className="text-sm text-slate-700 space-y-1">
+                        <h4 className="font-bold text-sm mb-2 text-slate-900">Learning Outcomes</h4>
+                        <ul className="text-sm text-slate-800 space-y-1 font-medium">
                           {course.learningOutcomes.map((outcome, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0 mt-1.5"></span>
+                              <span className="w-1.5 h-1.5 bg-slate-700 rounded-full flex-shrink-0 mt-1.5"></span>
                               <span className="leading-relaxed">{outcome}</span>
                             </li>
                           ))}
@@ -480,7 +480,7 @@ const CoursesPage: React.FC = () => {
                   <div className="mt-auto pt-4">
                     <Button
                       onClick={() => handleEnroll(course.id)}
-                      className="w-full bg-primary hover:bg-primary/90 text-sm py-2 font-bold shadow-lg backdrop-blur-sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-sm py-2 font-bold shadow-lg backdrop-blur-sm text-white"
                     >
                       Enroll Now
                     </Button>
