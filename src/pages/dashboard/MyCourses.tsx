@@ -176,6 +176,21 @@ const MONEY_MANAGEMENT_COURSE = {
   status: 'published'
 };
 
+const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
+  id: 'empowering-learning-handwriting',
+  title: 'Empowering Learning: Handwriting',
+  description: 'Master handwriting techniques through systematic practice and understanding. Develop fluency, readability, and confidence in written communication.',
+  instructor_name: 'FPK University',
+  duration_minutes: 180,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Writing Skills', 'Handwriting', 'Motor Skills', 'Education'],
+  thumbnail_url: null,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -261,6 +276,7 @@ const MyCourses = () => {
     EMPOWERING_LEARNING_READING_COURSE,
     EMPOWERING_LEARNING_NUMERACY_COURSE,
     MONEY_MANAGEMENT_COURSE,
+    EMPOWERING_LEARNING_HANDWRITING_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)

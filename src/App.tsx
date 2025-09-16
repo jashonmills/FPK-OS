@@ -124,6 +124,7 @@ const GeometryCoursePage = lazy(() => import("./pages/courses/GeometryCoursePage
 const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningSpellingCoursePage"));
 const EmpoweringLearningReadingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningReadingCoursePage"));
 const EmpoweringLearningNumeracyCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningNumeracyCoursePage"));
+const EmpoweringLearningHandwritingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningHandwritingCoursePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./components/courses/logic/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
 
@@ -466,6 +467,18 @@ const App: React.FC = () => {
           <Route path="/courses/empowering-learning-numeracy/:lessonId" element={
             <RouteProtector>
               <LazyRoute><EmpoweringLearningNumeracyCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/empowering-learning-handwriting" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningHandwritingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/empowering-learning-handwriting/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningHandwritingCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           

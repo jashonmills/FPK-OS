@@ -16,6 +16,7 @@ import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
+import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -42,6 +43,7 @@ const courseImageMap: Record<string, string> = {
   'el-spelling-reading': courseSpellingReading,
   'empowering-learning-reading': courseSpellingReading,
   'empowering-learning-numeracy': courseSpellingReading,
+  'empowering-learning-handwriting': empoweringHandwritingBg,
   'neurodiversity-strengths-based-approach': courseNeurodiversity,
   'interactive-science': courseScience,
   'money-management-teens': courseMoneyManagement,
@@ -62,6 +64,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
   if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
   if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
+  if (titleLower.includes('handwriting') || titleLower.includes('writing')) return empoweringHandwritingBg;
   if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
