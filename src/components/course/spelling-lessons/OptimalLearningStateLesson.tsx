@@ -1,10 +1,21 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain, TreePine } from 'lucide-react';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const OptimalLearningStateLesson: React.FC = () => {
   return (
     <div className="space-y-6">
+      {/* Video Player */}
+      <MediaPlayer
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(b)%20-%20Learning%20Techniques.mp4"
+        type="video"
+        title="Learning Techniques - The Optimal Learning State"
+        mediaId="optimal-learning-state-video"
+        courseId="empowering-learning-spelling"
+        moduleId="lesson-2"
+      />
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
