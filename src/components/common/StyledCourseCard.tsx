@@ -113,13 +113,13 @@ export function StyledCourseCard({
   ].includes(id);
   
   return (
-    <div className={`relative ${isSpecialCourse ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}>
+    <div className="relative">
       {isSpecialCourse && (
-        <div className="absolute inset-0 rounded-lg ring-2 ring-purple-400/60 shadow-[0_0_30px_rgba(168,85,247,0.6)] pointer-events-none"></div>
+        <div className="absolute inset-0 rounded-lg ring-4 ring-purple-400/70 shadow-[0_0_50px_rgba(168,85,247,0.8)] pointer-events-none"></div>
       )}
       <Card className={`h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group relative z-10 ${
         isSpecialCourse 
-          ? 'hover:shadow-[0_0_40px_rgba(168,85,247,0.8)]' 
+          ? 'hover:shadow-[0_0_60px_rgba(168,85,247,1)]' 
           : ''
       }`}>
       {/* AI Generated Image Header */}
