@@ -32,10 +32,29 @@ import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
 const InteractiveNeurodiversityCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  const [currentMainVideo, setCurrentMainVideo] = useState({
+  // Define all available videos
+  const originalVideo = {
     url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Your_Brain,_Your_Superpower.mp4",
     title: "Your Brain, Your Superpower - Course Introduction"
-  });
+  };
+
+  const [videos, setVideos] = useState([
+    originalVideo,
+    {
+      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/module%200.v2.mp4',
+      title: 'V0: Module 0 - Introduction'
+    },
+    {
+      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/mod1.mp4',
+      title: 'V1: Module 1 - Foundations'
+    },
+    {
+      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/mod2.mp4',
+      title: 'V2: Module 2 - Applications'
+    }
+  ]);
+
+  const [currentMainVideo, setCurrentMainVideo] = useState(originalVideo);
   
   // Use analytics and progress hooks
   const courseId = 'neurodiversity-strengths-based-approach';
@@ -149,7 +168,24 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
     navigate('/dashboard/learner');
   };
 
-  const handleVideoSelect = (videoUrl: string, title: string) => {
+  const handleVideoSwap = (videoUrl: string, title: string) => {
+    // Find the video being clicked in the playlist
+    const clickedVideoIndex = videos.findIndex(v => v.url === videoUrl);
+    if (clickedVideoIndex === -1) return;
+
+    // Create new videos array with swapped positions
+    const newVideos = [...videos];
+    const currentMainIndex = videos.findIndex(v => v.url === currentMainVideo.url);
+    
+    if (currentMainIndex !== -1) {
+      // Swap the videos
+      newVideos[clickedVideoIndex] = currentMainVideo;
+      newVideos[currentMainIndex] = { url: videoUrl, title };
+      
+      setVideos(newVideos);
+    }
+    
+    // Update main video
     setCurrentMainVideo({ url: videoUrl, title });
   };
 
@@ -242,7 +278,8 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             <div className="mb-8">
               <VideoPlaylist
                 currentMainVideoUrl={currentMainVideo.url}
-                onVideoSelect={handleVideoSelect}
+                onVideoSwap={handleVideoSwap}
+                videos={videos.slice(1)} // Pass all videos except the main one
               />
             </div>
 

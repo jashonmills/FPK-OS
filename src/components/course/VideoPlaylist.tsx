@@ -3,27 +3,15 @@ import VideoPlaylistTile from './VideoPlaylistTile';
 
 interface VideoPlaylistProps {
   currentMainVideoUrl: string;
-  onVideoSelect: (videoUrl: string, title: string) => void;
+  onVideoSwap: (videoUrl: string, title: string) => void;
+  videos: Array<{ url: string; title: string }>;
 }
 
 const VideoPlaylist: React.FC<VideoPlaylistProps> = ({
   currentMainVideoUrl,
-  onVideoSelect
+  onVideoSwap,
+  videos
 }) => {
-  const videos = [
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/module%200.v2.mp4',
-      title: 'V0: Module 0 - Introduction'
-    },
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/mod1.mp4',
-      title: 'V1: Module 1 - Foundations'
-    },
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/mod2.mp4',
-      title: 'V2: Module 2 - Applications'
-    }
-  ];
 
   return (
     <div className="space-y-4">
@@ -37,7 +25,7 @@ const VideoPlaylist: React.FC<VideoPlaylistProps> = ({
             key={index}
             videoUrl={video.url}
             title={video.title}
-            onExpand={() => onVideoSelect(video.url, video.title)}
+            onWatch={() => onVideoSwap(video.url, video.title)}
             isCurrentMain={currentMainVideoUrl === video.url}
           />
         ))}
