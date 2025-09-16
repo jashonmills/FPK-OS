@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
+import spellingBackground from '@/assets/spelling-course-background.jpg';
 
 interface SpellingCourseWrapperProps {
   courseId: string;
@@ -82,7 +83,7 @@ export const SpellingCourseWrapper: React.FC<SpellingCourseWrapperProps> = ({
   return (
     <div 
       ref={wrapperRef}
-      className="spelling-course-wrapper" 
+      className="spelling-course-wrapper min-h-screen relative" 
       data-course-id={courseId}
       style={{ 
         // Optimize rendering performance
@@ -90,7 +91,22 @@ export const SpellingCourseWrapper: React.FC<SpellingCourseWrapperProps> = ({
         willChange: 'auto'
       }}
     >
-      {children}
+      {/* Full page background image */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `url(${spellingBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+      
+      {/* Content overlay */}
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 };
