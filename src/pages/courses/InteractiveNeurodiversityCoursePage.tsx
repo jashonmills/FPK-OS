@@ -9,6 +9,7 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import VideoPlaylist from '@/components/course/VideoPlaylist';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
@@ -31,6 +32,10 @@ import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
 const InteractiveNeurodiversityCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
+  const [currentMainVideo, setCurrentMainVideo] = useState({
+    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Your_Brain,_Your_Superpower.mp4",
+    title: "Your Brain, Your Superpower - Course Introduction"
+  });
   
   // Use analytics and progress hooks
   const courseId = 'neurodiversity-strengths-based-approach';
@@ -144,6 +149,10 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
     navigate('/dashboard/learner');
   };
 
+  const handleVideoSelect = (videoUrl: string, title: string) => {
+    setCurrentMainVideo({ url: videoUrl, title });
+  };
+
   const isLessonAccessible = (lessonId: number) => {
     return lessonId === 1 || isLessonCompleted(lessonId - 1);
   };
@@ -224,8 +233,16 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             {/* Course Introduction Video */}
             <div className="mb-8">
               <CourseOverviewVideo 
-                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Your_Brain,_Your_Superpower.mp4"
-                title="Your Brain, Your Superpower - Course Introduction"
+                videoUrl={currentMainVideo.url}
+                title={currentMainVideo.title}
+              />
+            </div>
+
+            {/* Video Playlist */}
+            <div className="mb-8">
+              <VideoPlaylist
+                currentMainVideoUrl={currentMainVideo.url}
+                onVideoSelect={handleVideoSelect}
               />
             </div>
 
