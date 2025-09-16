@@ -312,9 +312,18 @@ const MyCourses = () => {
       const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
-      // Learning State course should be first
-      if (a.id === 'learning-state-beta') return -1;
-      if (b.id === 'learning-state-beta') return 1;
+      // Empowering Learning courses should be first
+      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'];
+      const aIsEmpowering = empoweringLearningIds.includes(a.id);
+      const bIsEmpowering = empoweringLearningIds.includes(b.id);
+      
+      if (aIsEmpowering && !bIsEmpowering) return -1;
+      if (!aIsEmpowering && bIsEmpowering) return 1;
+      
+      // Then Learning State course
+      if (a.id === 'learning-state-beta' && !bIsEmpowering) return -1;
+      if (b.id === 'learning-state-beta' && !aIsEmpowering) return 1;
+      
       return 0;
     });
   };
