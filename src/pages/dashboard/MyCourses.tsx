@@ -652,38 +652,65 @@ const MyCourses = () => {
                 )}
               </div>
 
-              {/* Divider */}
-              {(filteredCourses(availableCourses).filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading').length > 0 || 
-                filteredNativeCourses(availableNativeCourses).length > 0) && (
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+              {/* Empowering Learning Native Courses Section */}
+              {(filteredCourses(availableCourses).some(course => 
+                ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
+              )) && (
+                <>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-3 bg-background text-muted-foreground">Empowering Learning Native Courses</span>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-3 bg-background text-muted-foreground">Other Courses</span>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Empowering Learning Courses */}
+                    {filteredCourses(availableCourses)
+                      .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id))
+                      .map((course) => (
+                        <CourseCard key={course.id} course={course} isEnrolled={false} />
+                      ))}
                   </div>
-                </div>
+                </>
               )}
 
-              {/* Other Courses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Available Native Courses */}
-                {filteredNativeCourses(availableNativeCourses).map((course) => (
-                  <NativeCourseCard 
-                    key={course.id} 
-                    course={course}
-                    onEnroll={() => handleNativeCourseEnroll(course.id)}
-                    isEnrolling={enrollingCourseIds.has(course.id)}
-                  />
-                ))}
-                
-                {/* Available Regular Courses (excluding priority courses) */}
-                {filteredCourses(availableCourses)
-                  .filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading')
-                  .map((course) => (
-                    <CourseCard key={course.id} course={course} isEnrolled={false} />
-                  ))}
-              </div>
+              {/* Specialty & Advanced Courses Section */}
+              {(filteredCourses(availableCourses).filter(course => 
+                !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
+              ).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) && (
+                <>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-3 bg-background text-muted-foreground">Specialty & Advanced Courses</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Available Native Courses */}
+                    {filteredNativeCourses(availableNativeCourses).map((course) => (
+                      <NativeCourseCard 
+                        key={course.id} 
+                        course={course}
+                        onEnroll={() => handleNativeCourseEnroll(course.id)}
+                        isEnrolling={enrollingCourseIds.has(course.id)}
+                      />
+                    ))}
+                    
+                    {/* Available Regular Courses (excluding priority and empowering learning courses) */}
+                    {filteredCourses(availableCourses)
+                      .filter(course => !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id))
+                      .map((course) => (
+                        <CourseCard key={course.id} course={course} isEnrolled={false} />
+                      ))}
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div className="text-center py-12">
