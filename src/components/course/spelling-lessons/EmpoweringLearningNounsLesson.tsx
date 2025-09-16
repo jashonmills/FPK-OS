@@ -44,22 +44,63 @@ export const EmpoweringLearningNounsLesson: React.FC = () => {
             {/* Lesson Content */}
             <Card>
               <CardContent className="pt-6">
-                <div className="prose prose-gray max-w-none space-y-4">
-                  <p>
-                    Okay before we even get started on the technique we have to get ourselves into a nice calm state which helps us learn. It's what we call The Optimal Learning State, sounds very fancy but it's not.
-                  </p>
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-center text-primary">Empowering Learning</h3>
+                  <h4 className="text-xl font-semibold text-center">STEP BY STEP</h4>
                   
-                  <p>
-                    In our experience a lot of people who struggle with spelling and learning in school are very visual. So maybe you're very good at art or coming up with stories or being very creative. Well what we are gonna show you today, uses that visual memory that you have but what we have to do is learn to control that visual memory in order to help us learn.
-                  </p>
-                  
-                  <p>
-                    So, what I'm gonna say is, if you haven't, please go back to the learning state and find one of the techniques that works best for you just to help to calm yourself down. Now, for me, the easiest one is the Big Strong Tree, so pause this video and do your Big Strong Tree or whichever one of the learning state processes helps you and then come back and press play.
-                  </p>
-                  
-                  <p>
-                    Okay now you're back. Hopefully you are feeling a bit calmer and a bit more relaxed. You're breathing nice and deeply and everything is just chilled. Right, now we're in the Optimal Learning State which gives the best chance of keeping the information in and now we're ready to move on to the simple steps. Let's move onto the next module.
-                  </p>
+                  <div className="space-y-3">
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>1.</strong> Grounding - use the tree or another technique from the Learning State programme.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>2.</strong> Ask person to visualise their dog.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>3.</strong> Check if the picture is still or moving.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>4.</strong> If it is moving stop it by using the dog or traffic lights</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>5.</strong> Ask your partner to visualise the item you want them to spell.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>6.</strong> Write the word on a Post-it.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>7.</strong> Hold the post it where they can see it best.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>8.</strong> Ask 'Can you see the letters?'</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>9.</strong> When they can, ask what colours the letters are.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>10.</strong> Ask them to spell the word.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>11.</strong> Then ask them to change the colour of the letters.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>12.</strong> Ask them to spell the word in reverse.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>13.</strong> Use the swan to find their Whiteboard.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>14.</strong> Write the word on a Post-it.</p>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p><strong>15.</strong> Repeat steps 6-11.</p>
+                    </div>
+                    <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+                      <p><strong>16.</strong> Practice for 10 minutes EVERY day for 28 days.</p>
+                    </div>
+                    <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+                      <p><strong>17.</strong> REMEMBER - it should be fun so be creative with words.</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
