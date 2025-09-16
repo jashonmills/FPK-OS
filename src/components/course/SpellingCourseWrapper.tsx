@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
-import spellingBackground from '@/assets/spelling-course-background.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
 
 interface SpellingCourseWrapperProps {
   courseId: string;
@@ -95,7 +95,7 @@ export const SpellingCourseWrapper: React.FC<SpellingCourseWrapperProps> = ({
       <div 
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: `url(${spellingBackground})`,
+          backgroundImage: `url(${empoweringSpellingBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

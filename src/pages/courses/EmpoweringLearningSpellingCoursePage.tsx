@@ -12,6 +12,7 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
+import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper';
 
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/spelling-lessons/IntroductionLesson';
@@ -314,79 +315,86 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
   return (
     <VoiceSettingsProvider>
-      <InteractiveCourseWrapper 
+      <SpellingCourseWrapper
         courseId="empowering-learning-spelling"
         courseTitle="Empowering Learning for Spelling"
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
-          <CourseHeader 
-            onBackToCourses={() => navigate('/courses/empowering-learning-spelling')}
-            onDashboard={handleDashboard}
-            courseTitle="Empowering Learning for Spelling"
-          />
-          
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
-            <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/courses/empowering-learning-spelling')}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back to Overview
-              </Button>
-              <Badge className={currentLessonData.unitColor}>
-                {currentLessonData.unit}
-              </Badge>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center mb-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevLesson}
-                disabled={!hasPrev}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous Lesson
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Lesson {currentLesson} of {lessons.length}
-                </span>
+        <InteractiveCourseWrapper 
+          courseId="empowering-learning-spelling"
+          courseTitle="Empowering Learning for Spelling"
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen">
+            <CourseHeader 
+              onBackToCourses={() => navigate('/courses/empowering-learning-spelling')}
+              onDashboard={handleDashboard}
+              courseTitle="Empowering Learning for Spelling"
+            />
+            
+            <div className="container mx-auto px-4 py-8 max-w-6xl">
+              <div className="flex items-center gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/courses/empowering-learning-spelling')}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to Overview
+                </Button>
+                <Badge className={currentLessonData.unitColor}>
+                  {currentLessonData.unit}
+                </Badge>
               </div>
 
-              <Button
-                variant="outline"
-                onClick={handleNextLesson}
-                disabled={!hasNext}
-                className="flex items-center gap-2"
-              >
-                Next Lesson
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+              {/* Navigation */}
+              <div className="flex justify-between items-center mb-6">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevLesson}
+                  disabled={!hasPrev}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous Lesson
+                </Button>
 
-            {/* Lesson Content */}
-            <InteractiveLessonWrapper
-              courseId="empowering-learning-spelling"
-              lessonId={currentLesson}
-              lessonTitle={currentLessonData.title}
-              onComplete={() => handleLessonComplete(currentLesson)}
-              onNext={hasNext ? handleNextLesson : undefined}
-              hasNext={hasNext}
-              totalLessons={lessons.length}
-            >
-              <LessonComponent />
-            </InteractiveLessonWrapper>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Lesson {currentLesson} of {lessons.length}
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handleNextLesson}
+                  disabled={!hasNext}
+                  className="flex items-center gap-2"
+                >
+                  Next Lesson
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Lesson Content */}
+              <InteractiveLessonWrapper
+                courseId="empowering-learning-spelling"
+                lessonId={currentLesson}
+                lessonTitle={currentLessonData.title}
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+                totalLessons={lessons.length}
+              >
+                <LessonComponent />
+              </InteractiveLessonWrapper>
+            </div>
           </div>
-        </div>
-      </InteractiveCourseWrapper>
+        </InteractiveCourseWrapper>
+      </SpellingCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
