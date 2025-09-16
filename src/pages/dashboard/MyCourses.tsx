@@ -619,7 +619,7 @@ const MyCourses = () => {
                     <img 
                       src={game.image} 
                       alt={game.name}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-72 md:h-80 lg:h-72 object-cover"
                     />
                   </div>
                   <CardContent className="p-4">
