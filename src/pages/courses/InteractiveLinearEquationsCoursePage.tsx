@@ -98,6 +98,7 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
+    console.log('📍 Navigating back to courses');
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 

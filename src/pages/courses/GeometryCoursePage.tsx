@@ -107,6 +107,7 @@ export const GeometryCoursePage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
+    console.log('📍 Navigating back to courses');
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
@@ -635,7 +636,10 @@ export const GeometryCoursePage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/courses/geometry')}
+                onClick={() => {
+                  console.log('🔘 Back to Overview button clicked');
+                  navigate('/courses/geometry');
+                }}
                 className="flex items-center gap-2"
               >
                 <ChevronLeft className="h-4 w-4" />

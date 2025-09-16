@@ -120,10 +120,12 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
+    console.log('📍 Navigating back to courses');
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
   const handleBackToCourseOverview = useCallback(() => {
+    console.log('📍 Navigating back to course overview');
     navigate('/courses/empowering-learning-reading');
   }, [navigate]);
 
@@ -338,7 +340,10 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleBackToCourseOverview}
+                  onClick={() => {
+                    console.log('🔘 Back to Overview button clicked');
+                    handleBackToCourseOverview();
+                  }}
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />

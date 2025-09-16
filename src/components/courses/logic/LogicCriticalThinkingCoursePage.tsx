@@ -121,6 +121,7 @@ const LogicCriticalThinkingCoursePage = () => {
   };
 
   const handleBackToCourses = () => {
+    console.log('📍 Navigating back to courses');
     navigate('/dashboard/learner/courses');
   };
 
@@ -316,7 +317,10 @@ const LogicCriticalThinkingCoursePage = () => {
         <div className="flex items-center justify-between mb-6">
           <Button 
             variant="outline" 
-            onClick={() => setCurrentLesson(null)}
+            onClick={() => {
+              console.log('🔘 Logic: Back to Course Overview button clicked');
+              setCurrentLesson(null);
+            }}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -161,6 +161,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
   };
 
   const handleBackToCourses = () => {
+    console.log('📍 Navigating back to courses');
     navigate('/dashboard/learner/courses');
   };
 
