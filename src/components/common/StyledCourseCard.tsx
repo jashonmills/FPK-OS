@@ -22,6 +22,7 @@ import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 import elSpellingBg from '@/assets/el-spelling-course-bg.jpg';
+import eltBackground from '@/assets/elt-background.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -56,6 +57,7 @@ const courseImageMap: Record<string, string> = {
   'money-management-teens': moneyManagementBg,
   'geometry': interactiveGeometryBg,
   'learning-state-course': learningStateBg,
+  'elt-empowering-learning-techniques': eltBackground,
 };
 
 // Fallback function for courses not in the map
@@ -82,6 +84,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return moneyManagementBg;
   if (titleLower.includes('geometry')) return interactiveGeometryBg;
   if (titleLower.includes('learning state')) return learningStateBg;
+  if (titleLower.includes('elt') || titleLower.includes('empowering learning techniques')) return eltBackground;
   
   // Default fallback
   return scienceCourseBg;

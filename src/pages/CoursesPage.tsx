@@ -29,6 +29,7 @@ import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
+import eltBackground from '@/assets/elt-background.jpg';
 
 interface Course {
   id: string;
@@ -59,6 +60,7 @@ const courseImageMap: Record<string, string> = {
   'interactive-economics': courseEconomics,
   'interactive-neurodiversity': courseNeurodiversity,
   'money-management-teens': courseMoneyManagement,
+  'elt-empowering-learning-techniques': eltBackground,
 };
 
 // Fallback function for courses not in the map
@@ -80,6 +82,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
+  if (titleLower.includes('elt') || titleLower.includes('empowering learning techniques')) return eltBackground;
   
   // Default fallback
   return courseScience;
@@ -303,6 +306,26 @@ const courses: Course[] = [
       'Build healthy money habits for life'
     ],
     route: '/courses/money-management-teens'
+  },
+  {
+    id: 'elt-empowering-learning-techniques',
+    title: 'ELT: Empowering Learning Techniques',
+    description: 'Master evidence-based learning strategies specifically designed for neurodiverse minds.',
+    summary: 'Transform how you learn, study, and succeed in any academic environment with personalized strategies that work WITH your brain, not against it. This comprehensive course covers neurodiversity understanding, executive functioning, study techniques, self-advocacy, and real-world applications.',
+    duration: '~4 Hours',
+    level: 'Beginner',
+    lessons: 5,
+    category: 'Learning Skills',
+    features: ['Neurodiversity Focus', 'Executive Function Training', 'Evidence-Based Methods', 'Self-Advocacy Skills', 'Personalized Strategies'],
+    learningOutcomes: [
+      'Understand your unique brain and cognitive strengths',
+      'Develop personalized executive functioning systems',
+      'Master evidence-based study techniques for better retention',
+      'Transform perceived weaknesses into competitive advantages',
+      'Build effective self-advocacy skills',
+      'Create sustainable lifelong learning habits'
+    ],
+    route: '/courses/elt-empowering-learning-techniques'
   }
 ];
 

@@ -128,6 +128,7 @@ const EmpoweringLearningHandwritingCoursePage = lazy(() => import("./pages/cours
 const EmpoweringLearningStatePage = lazy(() => import("./pages/courses/EmpoweringLearningStatePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
+const InteractiveELTCoursePage = lazy(() => import("./pages/courses/InteractiveELTCoursePage"));
 
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
@@ -522,6 +523,18 @@ const App: React.FC = () => {
           <Route path="/courses/empowering-learning-handwriting/:lessonId" element={
             <RouteProtector>
               <LazyRoute><EmpoweringLearningHandwritingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/elt-empowering-learning-techniques" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveELTCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/elt-empowering-learning-techniques/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveELTCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           
