@@ -261,8 +261,9 @@ const MyCourses = () => {
 
   const enrolledCourseIds = enrollments.map(e => e.course_id);
   
-  // Combine global and organization courses
+  // Combine global and organization courses - ensuring handwriting course is prioritized
   const allAvailableCourses = [
+    EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
@@ -276,7 +277,6 @@ const MyCourses = () => {
     EMPOWERING_LEARNING_READING_COURSE,
     EMPOWERING_LEARNING_NUMERACY_COURSE,
     MONEY_MANAGEMENT_COURSE,
-    EMPOWERING_LEARNING_HANDWRITING_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -629,6 +629,10 @@ const MyCourses = () => {
         </TabsContent>
 
         <TabsContent value="available" className="space-y-6">
+          {/* Debug indicator */}
+          <div className="bg-blue-100 border border-blue-300 rounded p-2 text-blue-800 text-sm">
+            Debug: Handwriting course should appear below (Total available: {filteredCourses(availableCourses).length + filteredNativeCourses(availableNativeCourses).length})
+          </div>
           {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
             <div className="space-y-8">
               {/* Priority Courses - Learning State Beta and EL Spelling */}
