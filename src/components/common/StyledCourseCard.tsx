@@ -6,18 +6,20 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, Clock, Play, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Import course images
-import courseLinearEquationsBg from '@/assets/course-linear-equations-bg.jpg';
-import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
-import courseAlgebra from '@/assets/course-algebra.jpg';
-import courseLogicBg from '@/assets/course-logic-bg.jpg';
-import courseEconomicsBg from '@/assets/course-economics-bg.jpg';
-import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
-import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
-import courseScienceBg from '@/assets/course-science-bg.jpg';
-import courseMoneyManagement from '@/assets/course-money-management.jpg';
-import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
-import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
+// Import actual course background images (same as used in courses)
+import linearEquationsBg from '@/assets/linear-equations-unique-bg.jpg';
+import trigBg from '@/assets/trigonometry-background.jpg';
+import algebraBg from '@/assets/course-algebra.jpg'; // Keep unique for algebra
+import logicBg from '@/assets/logic-background.jpg';
+import economicsBg from '@/assets/economics-background.jpg';
+import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
+import scienceCourseBg from '@/assets/science-course-background.jpg';
+import moneyManagementBg from '@/assets/money-management-background.jpg';
+import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
+import interactiveGeometryBg from '@/assets/interactive-geometry-fundamentals-bg.jpg';
+import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
+import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-bg-v2.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -34,21 +36,21 @@ interface StyledCourseCardProps {
   isCompleted?: boolean;
 }
 
-// Map course IDs to their images
+// Map course IDs to their images (using actual course background images)
 const courseImageMap: Record<string, string> = {
-  'interactive-linear-equations': courseLinearEquationsBg,
-  'interactive-trigonometry': courseTrigonometryBg,
-  'interactive-algebra': courseAlgebra,
-  'logic-critical-thinking': courseLogicBg,
-  'introduction-modern-economics': courseEconomicsBg,
-  'el-spelling-reading': courseSpellingReading,
-  'empowering-learning-reading': courseSpellingReading,
-  'empowering-learning-numeracy': courseSpellingReading,
-  'empowering-learning-handwriting': courseHandwritingBg,
-  'neurodiversity-strengths-based-approach': courseNeurodiversityBg,
-  'interactive-science': courseScienceBg,
-  'money-management-teens': courseMoneyManagement,
-  'geometry': geometryCourseCardBg,
+  'interactive-linear-equations': linearEquationsBg,
+  'interactive-trigonometry': trigBg,
+  'interactive-algebra': algebraBg,
+  'logic-critical-thinking': logicBg,
+  'introduction-modern-economics': economicsBg,
+  'el-spelling-reading': empoweringSpellingBg,
+  'empowering-learning-reading': empoweringReadingBg,
+  'empowering-learning-numeracy': empoweringNumeracyBg,
+  'empowering-learning-handwriting': empoweringHandwritingBg,
+  'neurodiversity-strengths-based-approach': neurodiversityBackground,
+  'interactive-science': scienceCourseBg,
+  'money-management-teens': moneyManagementBg,
+  'geometry': interactiveGeometryBg,
 };
 
 // Fallback function for courses not in the map
@@ -58,21 +60,24 @@ const getCourseImage = (id: string, title: string): string => {
     return courseImageMap[id];
   }
   
-  // Fallback based on title keywords
+  // Fallback based on title keywords (using actual course background images)
   const titleLower = title.toLowerCase();
-  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquationsBg;
-  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometryBg;
-  if (titleLower.includes('algebra')) return courseAlgebra;
-  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogicBg;
-  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomicsBg;
-  if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
-  if (titleLower.includes('handwriting') || titleLower.includes('writing')) return courseHandwritingBg;
-  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversityBg;
-  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScienceBg;
-  if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
+  if (titleLower.includes('linear') || titleLower.includes('equation')) return linearEquationsBg;
+  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return trigBg;
+  if (titleLower.includes('algebra')) return algebraBg;
+  if (titleLower.includes('logic') || titleLower.includes('critical')) return logicBg;
+  if (titleLower.includes('economics') || titleLower.includes('economic')) return economicsBg;
+  if (titleLower.includes('spelling')) return empoweringSpellingBg;
+  if (titleLower.includes('reading')) return empoweringReadingBg;
+  if (titleLower.includes('numeracy')) return empoweringNumeracyBg;
+  if (titleLower.includes('handwriting') || titleLower.includes('writing')) return empoweringHandwritingBg;
+  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return neurodiversityBackground;
+  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return scienceCourseBg;
+  if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return moneyManagementBg;
+  if (titleLower.includes('geometry')) return interactiveGeometryBg;
   
   // Default fallback
-  return courseScienceBg;
+  return scienceCourseBg;
 };
 
 export function StyledCourseCard({ 

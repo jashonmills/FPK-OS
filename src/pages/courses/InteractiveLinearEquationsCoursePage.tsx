@@ -13,7 +13,7 @@ import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Import background image
-import linearEquationsBg from '@/assets/linear-equations-background.jpg';
+import linearEquationsBg from '@/assets/linear-equations-unique-bg.jpg';
 
 // Import lesson components
 import { LinearEquationsIntroductionMicroLesson } from '@/components/micro-lessons/linear-equations/LinearEquationsIntroductionMicroLesson';
