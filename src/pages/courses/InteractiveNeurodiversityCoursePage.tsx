@@ -173,8 +173,6 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
               backgroundAttachment: 'fixed'
             }}
           >
-            {/* Overlay for better text readability */}
-            <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
@@ -352,8 +350,6 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}
         >
-          {/* Overlay for better text readability */}
-          <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
           {/* Lesson Header */}
           <div className="bg-card/95 backdrop-blur-sm border-b sticky top-0 z-20 relative">
             <div className="container mx-auto px-4 py-4">
