@@ -19,9 +19,10 @@ import scienceCourseBg from '@/assets/science-course-background.jpg';
 import { ScientificMethodMicroLesson } from '@/components/micro-lessons/science/scientific-method/ScientificMethodMicroLesson';
 import { ImportanceOfScienceMicroLesson } from '@/components/micro-lessons/science/importance-of-science/ImportanceOfScienceMicroLesson';
 import { CellStructureMicroLesson } from '@/components/micro-lessons/science/cell-structure/CellStructureMicroLesson';
+import { GeneticsDNAMicroLesson } from '@/components/micro-lessons/science/genetics-dna/GeneticsDNAMicroLesson';
+import { AtomsMoleculesMicroLesson } from '@/components/micro-lessons/science/atoms-molecules/AtomsMoleculesMicroLesson';
 
 // Import remaining lesson components (to be converted)
-import { GeneticsAndDNALesson } from '@/components/course/science-lessons/GeneticsAndDNALesson';
 import { AtomsAndMoleculesLesson } from '@/components/course/science-lessons/AtomsAndMoleculesLesson';
 import { PeriodicTableLesson } from '@/components/course/science-lessons/PeriodicTableLesson';
 import { ForcesAndMotionLesson } from '@/components/course/science-lessons/ForcesAndMotionLesson';
@@ -45,8 +46,8 @@ const lessons: Lesson[] = [
   { id: 1, title: "The Scientific Method", description: "Learn the fundamental steps of scientific inquiry and how to apply them", component: ScientificMethodMicroLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Importance of Science", description: "Discover how science shapes our understanding of the world", component: ImportanceOfScienceMicroLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
   { id: 3, title: "Cell Structure and Function", description: "Explore the basic building blocks of all living organisms", component: CellStructureMicroLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
-  { id: 4, title: "Genetics and DNA", description: "Understand heredity and the molecular basis of life", component: GeneticsAndDNALesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
-  { id: 5, title: "Atoms and Molecules", description: "Learn about the fundamental particles that make up matter", component: AtomsAndMoleculesLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
+  { id: 4, title: "Genetics and DNA", description: "Understand heredity and the molecular basis of life", component: GeneticsDNAMicroLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
+  { id: 5, title: "Atoms and Molecules", description: "Learn about the fundamental particles that make up matter", component: AtomsMoleculesMicroLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "The Periodic Table", description: "Master the organization of chemical elements", component: PeriodicTableLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
   { id: 7, title: "Forces and Motion", description: "Discover the principles that govern how objects move", component: ForcesAndMotionLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 8, title: "Energy and Work", description: "Understand different forms of energy and how work is done", component: EnergyAndWorkLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
