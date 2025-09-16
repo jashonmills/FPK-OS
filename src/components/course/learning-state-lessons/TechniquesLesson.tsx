@@ -7,7 +7,7 @@ export const TechniquesLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(b)%20-%20Learning%20Techniques.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%201%20(b)%20-%20Learning%20Techniques.mp4"
         type="video"
         title="Learning Techniques Overview"
         mediaId="learning-techniques-video"
