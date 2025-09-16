@@ -9,7 +9,7 @@ export interface MicroLessonScreen {
   id: string;
   type: 'concept' | 'practice' | 'example' | 'summary';
   title: string;
-  content: React.ReactNode;
+  content: React.ReactNode | string;
   estimatedTime?: number; // in minutes
 }
 
@@ -124,7 +124,11 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {currentScreen.content}
+          {typeof currentScreen.content === 'string' ? (
+            <div dangerouslySetInnerHTML={{ __html: currentScreen.content }} />
+          ) : (
+            currentScreen.content
+          )}
         </CardContent>
       </Card>
 
