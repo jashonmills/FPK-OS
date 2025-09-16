@@ -652,17 +652,17 @@ const MyCourses = () => {
                 )}
               </div>
 
-              {/* Empowering Learning Native Courses Section */}
-              {(filteredCourses(availableCourses).some(course => 
+              {/* Empowering Learning Courses Section */}
+              {filteredCourses(availableCourses).some(course => 
                 ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
-              )) && (
+              ) && (
                 <>
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-gray-200"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-3 bg-background text-muted-foreground">Empowering Learning Native Courses</span>
+                      <span className="px-3 bg-background text-muted-foreground">Empowering Learning Courses</span>
                     </div>
                   </div>
 
@@ -677,7 +677,7 @@ const MyCourses = () => {
                 </>
               )}
 
-              {/* Specialty & Advanced Courses Section */}
+              {/* Advanced & Specialty Courses Section */}
               {(filteredCourses(availableCourses).filter(course => 
                 !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
               ).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) && (
@@ -687,7 +687,7 @@ const MyCourses = () => {
                       <div className="w-full border-t border-gray-200"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-3 bg-background text-muted-foreground">Specialty & Advanced Courses</span>
+                      <span className="px-3 bg-background text-muted-foreground">Advanced & Specialty Courses</span>
                     </div>
                   </div>
 
