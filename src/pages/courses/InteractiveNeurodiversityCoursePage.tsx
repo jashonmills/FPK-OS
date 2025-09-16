@@ -182,22 +182,22 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
           <div className="container mx-auto px-4 py-8 space-y-8 relative z-10">
             {/* Course Title and Description */}
             <div className="text-center space-y-4">
-              <h1 className="text-4xl font-bold text-foreground">Neurodiversity: A Strengths-Based Approach</h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <h1 className="text-4xl font-bold text-foreground drop-shadow-lg bg-background/80 backdrop-blur-sm rounded-lg p-4 mx-auto inline-block">Neurodiversity: A Strengths-Based Approach</h1>
+              <p className="text-xl text-foreground max-w-3xl mx-auto bg-background/80 backdrop-blur-sm rounded-lg p-4 drop-shadow-lg">
                 Your guide to leveraging your unique brain for academic success. Discover how neurodivergence is an asset and learn to harness your cognitive superpowers.
               </p>
               
               {/* Course badges */}
               <div className="flex justify-center gap-4 flex-wrap">
-                <Badge variant="outline" className="text-sm px-3 py-1">
+                <Badge variant="outline" className="text-sm px-3 py-1 bg-background/80 backdrop-blur-sm">
                   <BookOpen className="w-4 h-4 mr-2" />
                   8 Lessons
                 </Badge>
-                <Badge variant="outline" className="text-sm px-3 py-1">
+                <Badge variant="outline" className="text-sm px-3 py-1 bg-background/80 backdrop-blur-sm">
                   <Brain className="w-4 h-4 mr-2" />
                   Strengths-Based
                 </Badge>
-                <Badge variant="outline" className="text-sm px-3 py-1">
+                <Badge variant="outline" className="text-sm px-3 py-1 bg-background/80 backdrop-blur-sm">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Self-Paced
                 </Badge>
@@ -258,9 +258,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                     key={lesson.id}
                     className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm ${
                       !isAccessible ? 'opacity-50' : ''
-                    } ${isCompleted ? 'border-primary/50 bg-primary/20' : ''} ${
-                      lesson.id === 1 ? 'border-primary/70 shadow-lg' : ''
-                    }`}
+                    } ${isCompleted ? 'border-primary/50' : ''}`}
                     onClick={() => isAccessible && setCurrentLesson(lesson.id)}
                   >
                     <CardHeader className="pb-3">
@@ -292,8 +290,8 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                         {lesson.description}
                       </p>
                       <Button 
-                        variant={isCompleted && lesson.id !== 1 ? "secondary" : "default"}
-                        className={`w-full ${lesson.id === 1 ? 'bg-primary text-primary-foreground font-semibold' : ''}`}
+                        variant={isCompleted ? "secondary" : "default"}
+                        className="w-full"
                         disabled={!isAccessible}
                       >
                         {lesson.id === 1 ? "Start Lesson" : isCompleted ? "Review Lesson" : isAccessible ? "Start Lesson" : "Locked"}
