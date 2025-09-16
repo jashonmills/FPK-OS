@@ -7,7 +7,7 @@ export const RaisingBookScreenLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%209%20-%20Raising%20Up%20Book%20Screen.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-9-Learning%20State/Module%209%20-%20Raising%20Up%20Book_Screen.mp4"
         type="video"
         title="Raising Up Book/Screen Technique"
         mediaId="raising-book-video"
