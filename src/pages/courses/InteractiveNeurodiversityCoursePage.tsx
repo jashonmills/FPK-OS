@@ -24,6 +24,7 @@ import { ThrivingEconomicsMicroLesson } from '@/components/micro-lessons/neurodi
 import { LogicCriticalThinkingMicroLesson } from '@/components/micro-lessons/neurodiversity/logic-critical-thinking/LogicCriticalThinkingMicroLesson';
 import { KeyConceptsReviewMicroLesson } from '@/components/micro-lessons/neurodiversity/key-concepts-review/KeyConceptsReviewMicroLesson';
 import { QuizAssessmentMicroLesson } from '@/components/micro-lessons/neurodiversity/quiz-assessment/QuizAssessmentMicroLesson';
+import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
 
 // Import remaining lesson components (to be converted)
 
@@ -162,14 +163,25 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             currentLesson={currentLesson}
             totalLessons={lessons.length}
           >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div 
+            className="min-h-screen relative"
+            style={{
+              backgroundImage: `url(${neurodiversityBackground})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed'
+            }}
+          >
+            {/* Overlay for better text readability */}
+            <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
               courseTitle="Neurodiversity: A Strengths-Based Approach"
             />
-          
-          <div className="container mx-auto px-4 py-8 space-y-8">
+           
+          <div className="container mx-auto px-4 py-8 space-y-8 relative z-10">
             {/* Course Title and Description */}
             <div className="text-center space-y-4">
               <h1 className="text-4xl font-bold text-foreground">Neurodiversity: A Strengths-Based Approach</h1>
@@ -330,9 +342,20 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+        <div 
+          className="min-h-screen relative"
+          style={{
+            backgroundImage: `url(${neurodiversityBackground})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
           {/* Lesson Header */}
-          <div className="bg-card border-b sticky top-0 z-10">
+          <div className="bg-card/95 backdrop-blur-sm border-b sticky top-0 z-20 relative">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -367,7 +390,7 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
           </div>
 
           {/* Lesson Content */}
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8 relative z-10">
             <InteractiveLessonWrapper
               courseId={courseId}
               lessonId={currentLesson}
