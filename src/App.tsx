@@ -123,6 +123,7 @@ const InteractiveScienceCoursePage = lazy(() => import("./pages/courses/Interact
 const GeometryCoursePage = lazy(() => import("./pages/courses/GeometryCoursePage"));
 const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningSpellingCoursePage"));
 const EmpoweringLearningReadingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningReadingCoursePage"));
+const EmpoweringLearningNumeracyCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningNumeracyCoursePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./components/courses/logic/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
 
