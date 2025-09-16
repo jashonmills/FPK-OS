@@ -79,6 +79,39 @@ export type Database = {
           },
         ]
       }
+      adaptive_learning_paths: {
+        Row: {
+          created_at: string
+          effectiveness_score: number | null
+          id: string
+          is_active: boolean | null
+          learning_profile: Json
+          path_recommendations: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          effectiveness_score?: number | null
+          id?: string
+          is_active?: boolean | null
+          learning_profile?: Json
+          path_recommendations?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          effectiveness_score?: number | null
+          id?: string
+          is_active?: boolean | null
+          learning_profile?: Json
+          path_recommendations?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_outputs: {
         Row: {
           approved_at: string | null
@@ -108,6 +141,42 @@ export type Database = {
           lesson_id?: string
           output_type?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_recommendations: {
+        Row: {
+          applied_at: string | null
+          created_at: string
+          effectiveness_rating: number | null
+          expires_at: string | null
+          id: string
+          recommendation_data: Json
+          recommendation_type: string
+          trigger_context: Json
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string
+          effectiveness_rating?: number | null
+          expires_at?: string | null
+          id?: string
+          recommendation_data?: Json
+          recommendation_type: string
+          trigger_context?: Json
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string
+          effectiveness_rating?: number | null
+          expires_at?: string | null
+          id?: string
+          recommendation_data?: Json
+          recommendation_type?: string
+          trigger_context?: Json
           user_id?: string
         }
         Relationships: []
@@ -360,6 +429,39 @@ export type Database = {
           name?: string
           rarity?: string
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      behavioral_analytics: {
+        Row: {
+          behavior_data: Json
+          behavior_type: string
+          context_metadata: Json | null
+          id: string
+          pattern_indicators: Json | null
+          session_id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          behavior_data?: Json
+          behavior_type: string
+          context_metadata?: Json | null
+          id?: string
+          pattern_indicators?: Json | null
+          session_id: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          behavior_data?: Json
+          behavior_type?: string
+          context_metadata?: Json | null
+          id?: string
+          pattern_indicators?: Json | null
+          session_id?: string
+          timestamp?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2867,6 +2969,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lesson_progress_detailed: {
+        Row: {
+          attention_metrics: Json | null
+          completion_quality: Json | null
+          course_id: string
+          created_at: string
+          difficulty_perception: number | null
+          id: string
+          interaction_count: number | null
+          last_interaction_at: string | null
+          learning_velocity: number | null
+          lesson_id: string
+          progress_percentage: number | null
+          slide_id: string | null
+          time_spent_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attention_metrics?: Json | null
+          completion_quality?: Json | null
+          course_id: string
+          created_at?: string
+          difficulty_perception?: number | null
+          id?: string
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          learning_velocity?: number | null
+          lesson_id: string
+          progress_percentage?: number | null
+          slide_id?: string | null
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attention_metrics?: Json | null
+          completion_quality?: Json | null
+          course_id?: string
+          created_at?: string
+          difficulty_perception?: number | null
+          id?: string
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          learning_velocity?: number | null
+          lesson_id?: string
+          progress_percentage?: number | null
+          slide_id?: string | null
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       lesson_scos: {
         Row: {
@@ -5598,6 +5754,57 @@ export type Database = {
           metadata?: Json | null
           name?: string
           xp_cost?: number
+        }
+        Relationships: []
+      }
+      slide_analytics: {
+        Row: {
+          attention_score: number | null
+          cognitive_load_indicator: number | null
+          completion_status: string | null
+          course_id: string
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          interaction_data: Json | null
+          lesson_id: string | null
+          metadata: Json | null
+          slide_id: string
+          slide_title: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          attention_score?: number | null
+          cognitive_load_indicator?: number | null
+          completion_status?: string | null
+          course_id: string
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          interaction_data?: Json | null
+          lesson_id?: string | null
+          metadata?: Json | null
+          slide_id: string
+          slide_title?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          attention_score?: number | null
+          cognitive_load_indicator?: number | null
+          completion_status?: string | null
+          course_id?: string
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          interaction_data?: Json | null
+          lesson_id?: string | null
+          metadata?: Json | null
+          slide_id?: string
+          slide_title?: string | null
+          timestamp?: string
+          user_id?: string
         }
         Relationships: []
       }
