@@ -206,7 +206,7 @@ const FPK_GAMES = [
   {
     id: 'eco-genesis-forest-realm',
     name: 'Eco‑Genesis: Forest Realm',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/eco-genesis-forest-realm.jpg',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/eco-genesis',
     url: 'https://eco-genesis-forest-realm.lovable.app/'
   },
   {
