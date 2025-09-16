@@ -7,7 +7,7 @@ export const BigStrongTreeLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%202%20-%20Big%20Strong%20Tree.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-2-Learning%20State/Module%202%20-%20Planting%20(Grounding).mp4"
         type="video"
         title="Big Strong Tree - Planting (Grounding)"
         mediaId="big-strong-tree-video"
