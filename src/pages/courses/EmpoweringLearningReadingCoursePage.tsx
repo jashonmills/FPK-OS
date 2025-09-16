@@ -11,6 +11,8 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
+import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
+import { ReadingCourseWrapper } from '@/components/course/ReadingCourseWrapper';
 
 // Import lesson components
 import { ReadingIntroductionLesson } from '@/components/course/reading-lessons/ReadingIntroductionLesson';
@@ -23,7 +25,6 @@ import { ReadingStorytellingLesson } from '@/components/course/reading-lessons/R
 import { ReadingBeyondReadingLesson } from '@/components/course/reading-lessons/ReadingBeyondReadingLesson';
 import { ReadingQuizLesson } from '@/components/course/reading-lessons/ReadingQuizLesson';
 import { ReadingFinalTestLesson } from '@/components/course/reading-lessons/ReadingFinalTestLesson';
-import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 
 interface Lesson {
   id: number;
@@ -309,79 +310,86 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
 
   return (
     <VoiceSettingsProvider>
-      <InteractiveCourseWrapper 
+      <ReadingCourseWrapper
         courseId="empowering-learning-reading"
         courseTitle="Empowering Learning for Reading"
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
-          <CourseHeader 
-            onBackToCourses={() => navigate('/courses/empowering-learning-reading')}
-            onDashboard={handleDashboard}
-            courseTitle="Empowering Learning for Reading"
-          />
-          
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
-            <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/courses/empowering-learning-reading')}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back to Overview
-              </Button>
-              <Badge className={currentLessonData.unitColor}>
-                {currentLessonData.unit}
-              </Badge>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center mb-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevLesson}
-                disabled={!hasPrev}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous Lesson
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Lesson {currentLesson} of {lessons.length}
-                </span>
+        <InteractiveCourseWrapper 
+          courseId="empowering-learning-reading"
+          courseTitle="Empowering Learning for Reading"
+          currentLesson={currentLesson}
+          totalLessons={lessons.length}
+        >
+          <div className="min-h-screen">
+            <CourseHeader 
+              onBackToCourses={() => navigate('/courses/empowering-learning-reading')}
+              onDashboard={handleDashboard}
+              courseTitle="Empowering Learning for Reading"
+            />
+            
+            <div className="container mx-auto px-4 py-8 max-w-6xl">
+              <div className="flex items-center gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/courses/empowering-learning-reading')}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to Overview
+                </Button>
+                <Badge className={currentLessonData.unitColor}>
+                  {currentLessonData.unit}
+                </Badge>
               </div>
 
-              <Button
-                variant="outline"
-                onClick={handleNextLesson}
-                disabled={!hasNext}
-                className="flex items-center gap-2"
-              >
-                Next Lesson
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+              {/* Navigation */}
+              <div className="flex justify-between items-center mb-6">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevLesson}
+                  disabled={!hasPrev}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous Lesson
+                </Button>
 
-            {/* Lesson Content */}
-            <InteractiveLessonWrapper
-              courseId="empowering-learning-reading"
-              lessonId={currentLesson}
-              lessonTitle={currentLessonData.title}
-              onComplete={() => handleLessonComplete(currentLesson)}
-              onNext={hasNext ? handleNextLesson : undefined}
-              hasNext={hasNext}
-              totalLessons={lessons.length}
-            >
-              <LessonComponent />
-            </InteractiveLessonWrapper>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Lesson {currentLesson} of {lessons.length}
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handleNextLesson}
+                  disabled={!hasNext}
+                  className="flex items-center gap-2"
+                >
+                  Next Lesson
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Lesson Content */}
+              <InteractiveLessonWrapper
+                courseId="empowering-learning-reading"
+                lessonId={currentLesson}
+                lessonTitle={currentLessonData.title}
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+                totalLessons={lessons.length}
+              >
+                <LessonComponent />
+              </InteractiveLessonWrapper>
+            </div>
           </div>
-        </div>
-      </InteractiveCourseWrapper>
+        </InteractiveCourseWrapper>
+      </ReadingCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
