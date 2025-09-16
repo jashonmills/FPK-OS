@@ -706,7 +706,7 @@ export const trigonometryRatiosLessonData = {
     {
       id: 'lesson-summary',
       type: 'summary',
-      title: 'SOHCAHTOA Mastered: You're Ready for Advanced Trigonometry!',
+      title: "SOHCAHTOA Mastered: You're Ready for Advanced Trigonometry!",
       content: (
         <div className="space-y-4">
           <h2 className="text-xl font-bold">🎉 Outstanding! You've Mastered the Foundation of Trigonometry</h2>

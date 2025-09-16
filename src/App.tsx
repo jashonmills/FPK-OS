@@ -383,6 +383,11 @@ const App: React.FC = () => {
               <LazyRoute><InteractiveTrigonometryCoursePage /></LazyRoute>
             </RouteProtector>
           } />
+          <Route path="/courses/interactive-trigonometry/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveTrigonometryCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
           <Route path="/courses/interactive-algebra" element={
             <RouteProtector>
               <LazyRoute><InteractiveAlgebraCoursePage /></LazyRoute>

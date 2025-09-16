@@ -178,7 +178,7 @@ export const trigonometryGraphingLessonData = {
     {
       id: 'cosine-wave-basics',
       type: 'concept',
-      title: 'The Cosine Wave: Sine's Twin',
+      title: "The Cosine Wave: Sine's Twin",
       content: (
         <div className="space-y-6">
           <h2 className="text-xl font-bold">The Cosine Wave: Sine's Twin</h2>
