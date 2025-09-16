@@ -15,6 +15,7 @@ import courseEconomics from '@/assets/course-economics.jpg';
 import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
+import courseMoneyManagement from '@/assets/course-money-management.jpg';
 
 interface StyledCourseCardProps {
   id: string;
@@ -41,6 +42,7 @@ const courseImageMap: Record<string, string> = {
   'el-spelling-reading': courseSpellingReading,
   'neurodiversity-strengths-based-approach': courseNeurodiversity,
   'interactive-science': courseScience,
+  'money-management-teens': courseMoneyManagement,
 };
 
 // Fallback function for courses not in the map
@@ -60,6 +62,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
   if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
+  if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
   
   // Default fallback
   return courseScience;

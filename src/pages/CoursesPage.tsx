@@ -27,6 +27,7 @@ import courseEconomics from '@/assets/course-economics.jpg';
 import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
+import courseMoneyManagement from '@/assets/course-money-management.jpg';
 
 interface Course {
   id: string;
@@ -53,6 +54,7 @@ const courseImageMap: Record<string, string> = {
   'interactive-trigonometry': courseTrigonometry,
   'interactive-economics': courseEconomics,
   'interactive-neurodiversity': courseNeurodiversity,
+  'money-management-teens': courseMoneyManagement,
 };
 
 // Fallback function for courses not in the map
@@ -72,6 +74,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
   if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
+  if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
   
   // Default fallback
   return courseScience;
@@ -221,6 +224,26 @@ const courses: Course[] = [
       'Support neurodiverse individuals effectively'
     ],
     route: '/courses/interactive-neurodiversity'
+  },
+  {
+    id: 'money-management-teens',
+    title: 'Money Management for Teens',
+    description: 'Learn essential financial skills including budgeting, saving, investing, and credit management.',
+    summary: 'Build a strong foundation for financial success with comprehensive lessons on personal finance, budgeting, smart saving strategies, and responsible money management designed specifically for teenagers.',
+    duration: '~6 Hours',
+    level: 'Beginner',
+    lessons: 6,
+    category: 'Life Skills',
+    features: ['Budget Planning', 'Savings Strategies', 'Investment Basics', 'Credit Education', 'Real-World Scenarios'],
+    learningOutcomes: [
+      'Create and manage personal budgets effectively',
+      'Understand different savings and investment options',
+      'Learn responsible credit and debt management',
+      'Make informed financial decisions',
+      'Develop long-term financial planning skills',
+      'Build healthy money habits for life'
+    ],
+    route: '/courses/money-management-teens'
   }
 ];
 
@@ -264,7 +287,8 @@ const CoursesPage: React.FC = () => {
       'Science': 'bg-green-100 text-green-700',
       'Mathematics': 'bg-orange-100 text-orange-700',
       'Social Studies': 'bg-indigo-100 text-indigo-700',
-      'Psychology & Education': 'bg-pink-100 text-pink-700'
+      'Psychology & Education': 'bg-pink-100 text-pink-700',
+      'Life Skills': 'bg-teal-100 text-teal-700'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700';
   };

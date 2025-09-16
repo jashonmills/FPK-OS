@@ -21,6 +21,7 @@ import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 
 // Import course card background
 import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
+import courseMoneyManagement from '@/assets/course-money-management.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
@@ -111,6 +112,38 @@ const GEOMETRY_FUNDAMENTALS_COURSE = {
   status: 'published'
 };
 
+// Additional static courses for display
+const additionalCourses = [
+  {
+    id: 'money-management-teens',
+    title: 'Money Management for Teens',
+    description: 'Learn essential financial skills including budgeting, saving, investing, and credit management. Build a strong foundation for financial success.',
+    instructor_name: 'FPK University',
+    duration_minutes: 360,
+    difficulty_level: 'beginner',
+    featured: true,
+    is_free: true,
+    price: 0,
+    tags: ['Life Skills', 'Personal Finance', 'Budgeting', 'Investing'],
+    thumbnail_url: courseMoneyManagement,
+  }
+];
+
+const MONEY_MANAGEMENT_COURSE = {
+  id: 'money-management-teens',
+  title: 'Money Management for Teens',
+  description: 'Learn essential financial skills including budgeting, saving, investing, and credit management. Build a strong foundation for financial success.',
+  instructor_name: 'FPK University',
+  duration_minutes: 360,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Life Skills', 'Personal Finance', 'Budgeting', 'Investing'],
+  thumbnail_url: courseMoneyManagement,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -193,6 +226,7 @@ const MyCourses = () => {
     NEURODIVERSITY_STRENGTHS_COURSE,
     INTRODUCTION_TO_SCIENCE_COURSE,
     GEOMETRY_FUNDAMENTALS_COURSE,
+    MONEY_MANAGEMENT_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
