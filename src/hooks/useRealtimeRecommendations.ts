@@ -15,6 +15,8 @@ interface AIRecommendation {
   confidence: number;
   expiresAt: string;
   autoApply?: boolean;
+  triggerThreshold?: number;
+  triggerDirection?: 'above' | 'below';
 }
 
 interface RecommendationTrigger {
@@ -64,7 +66,13 @@ export const useRealtimeRecommendations = () => {
         if (shouldTrigger) {
           const recommendation = await generateRecommendation(trigger, value, context);
           if (recommendation) {
-            triggeredRecommendations.push(recommendation);
+            // Add trigger information to the recommendation for later database storage
+            const recommendationWithTrigger = {
+              ...recommendation,
+              triggerThreshold: trigger.threshold,
+              triggerDirection: trigger.direction
+            };
+            triggeredRecommendations.push(recommendationWithTrigger);
           }
         }
       }
@@ -96,7 +104,8 @@ export const useRealtimeRecommendations = () => {
             trigger_context: {
               metric,
               value,
-              threshold: trigger.threshold,
+              threshold: rec.triggerThreshold,
+              direction: rec.triggerDirection,
               ...context
             },
             expires_at: rec.expiresAt
