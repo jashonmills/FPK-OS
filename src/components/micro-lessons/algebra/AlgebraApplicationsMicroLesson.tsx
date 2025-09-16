@@ -421,7 +421,7 @@ const algebraApplicationsData: MicroLessonData = {
     {
       id: 'lesson-summary',
       type: 'summary',
-      title: 'Course Completion: You're an Algebra Master!',
+      title: "Course Completion: You're an Algebra Master!",
       content: (
         <div className="space-y-4">
           <h2 className="text-xl font-bold">🎉 CONGRATULATIONS! You've completed the Interactive Algebra Course!</h2>

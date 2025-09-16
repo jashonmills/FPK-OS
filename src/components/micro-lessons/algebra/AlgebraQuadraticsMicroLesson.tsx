@@ -329,7 +329,7 @@ const algebraQuadraticsData: MicroLessonData = {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h3 className="font-semibold mb-2">Example:</h3>
             <p className="text-sm">y = 2(x - 3)² + 1 has vertex at (3, 1)</p>
-            <p className="text-sm">Opens upward because a = 2 > 0</p>
+            <p className="text-sm">Opens upward because a = 2 {'>'}; 0</p>
           </div>
         </div>
       ),
