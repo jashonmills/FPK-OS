@@ -8,7 +8,7 @@ export const LabyrinthLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%205%20-%20Labyrinth.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-5-Learning%20State/Module%205%20-%20Labyrinth.mp4"
         type="video"
         title="Labyrinths for Learning Focus"
         mediaId="labyrinth-video"

@@ -7,7 +7,7 @@ export const PhoenixBreathLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%207%20-%20Phoenix%20Flames%20Breath.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-7-%20Learning%20State/Module%207%20-%20Dragon%20Fire%20Breath.mp4"
         type="video"
         title="Phoenix Flames Breath"
         mediaId="phoenix-breath-video"
