@@ -270,57 +270,61 @@ export const InteractiveScienceCoursePage: React.FC = () => {
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
-          <CourseHeader 
-            onBackToCourses={() => navigate('/courses/interactive-science')}
-            onDashboard={handleDashboard}
-            courseTitle="Introduction to Science"
-          />
+        <div 
+          className="min-h-screen bg-cover bg-center bg-fixed"
+          style={{ backgroundImage: `url(${scienceCourseBg})` }}
+        >
+          <div className="min-h-screen bg-gradient-to-br from-black/60 to-black/40">
+            <CourseHeader 
+              onBackToCourses={handleBackToCourses}
+              onDashboard={handleDashboard}
+              courseTitle="Introduction to Science"
+            />
           
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
-            <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/courses/interactive-science')}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back to Overview
-              </Button>
+            <div className="container mx-auto px-4 py-8 max-w-6xl">
+              <div className="flex items-center gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/courses/interactive-science')}
+                  className="flex items-center gap-2 bg-white/10 text-white border-white/30 hover:bg-white/20"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to Overview
+                </Button>
               <Badge className={currentLessonData.unitColor}>
                 {currentLessonData.unit}
               </Badge>
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center mb-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevLesson}
-                disabled={!hasPrev}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous Lesson
-              </Button>
+              <div className="flex justify-between items-center mb-6">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevLesson}
+                  disabled={!hasPrev}
+                  className="flex items-center gap-2 bg-white/10 text-white border-white/30 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous Lesson
+                </Button>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Lesson {currentLesson} of {lessons.length}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/80 font-medium">
+                    Lesson {currentLesson} of {lessons.length}
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handleNextLesson}
+                  disabled={!hasNext}
+                  className="flex items-center gap-2 bg-white/10 text-white border-white/30 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next Lesson
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
-
-              <Button
-                variant="outline"
-                onClick={handleNextLesson}
-                disabled={!hasNext}
-                className="flex items-center gap-2"
-              >
-                Next Lesson
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
 
             {/* Lesson Content */}
             <InteractiveLessonWrapper
@@ -334,9 +338,10 @@ export const InteractiveScienceCoursePage: React.FC = () => {
             >
               <LessonComponent />
             </InteractiveLessonWrapper>
+            </div>
           </div>
         </div>
-      </InteractiveCourseWrapper>
+        </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
