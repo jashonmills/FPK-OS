@@ -609,7 +609,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
   };
 
   return (
-    <div className="space-y-6 px-4 md:px-6 lg:px-8">
+    <div className="space-y-6 pl-2 pr-4 md:pl-4 md:pr-6 lg:pl-6 lg:pr-8">
       <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
         <div className="flex flex-col items-center gap-2 mb-4">
           <h1 className="text-3xl font-bold text-white">{t('myCourses.title')}</h1>
@@ -703,7 +703,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
           {(filteredCourses(enrolledCourses).length > 0 || filteredNativeCourses(enrolledNativeCourses).length > 0) ? (
             <div className="space-y-8">
               {/* Priority Courses - Learning State Beta and EL Spelling */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {/* Learning State Beta - Always First */}
                 {filteredCourses(enrolledCourses).find(course => course.id === 'learning-state-beta') && (
                   <CourseCard 
@@ -737,7 +737,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
               )}
 
               {/* Other Courses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {/* Native Courses */}
                 {filteredNativeCourses(enrolledNativeCourses).map((course) => {
                   const enrollment = nativeEnrollments.find(e => e.course_id === course.id);
@@ -792,7 +792,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {/* All Empowering Learning Courses */}
                 {filteredCourses(availableCourses)
                   .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'el-spelling-reading'].includes(course.id))
@@ -815,7 +815,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                     {/* Learning State Beta Course */}
                     {filteredCourses(availableCourses).find(course => course.id === 'learning-state-beta') && (
                       <CourseCard 
