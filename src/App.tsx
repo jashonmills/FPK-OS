@@ -125,7 +125,7 @@ const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/
 const EmpoweringLearningReadingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningReadingCoursePage"));
 const EmpoweringLearningNumeracyCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningNumeracyCoursePage"));
 const EmpoweringLearningHandwritingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningHandwritingCoursePage"));
-const LogicCriticalThinkingCoursePage = lazy(() => import("./components/courses/logic/LogicCriticalThinkingCoursePage"));
+const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
 
 // Standalone AI Study Coach Chat
