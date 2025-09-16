@@ -125,6 +125,10 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
+  const handleBackToCourseOverview = useCallback(() => {
+    navigate('/courses/empowering-learning-spelling');
+  }, [navigate]);
+
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
@@ -329,7 +333,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
         >
           <div className="min-h-screen">
             <CourseHeader 
-              onBackToCourses={() => navigate('/courses/empowering-learning-spelling')}
+              onBackToCourses={handleBackToCourseOverview}
               onDashboard={handleDashboard}
               courseTitle="Empowering Learning for Spelling"
             />
@@ -339,7 +343,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/courses/empowering-learning-spelling')}
+                  onClick={handleBackToCourseOverview}
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />

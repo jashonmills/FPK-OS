@@ -126,6 +126,10 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
+  const handleBackToCourseOverview = useCallback(() => {
+    navigate('/courses/empowering-learning-numeracy');
+  }, [navigate]);
+
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
@@ -324,7 +328,7 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
         >
           <div className="min-h-screen">
             <CourseHeader 
-              onBackToCourses={() => navigate('/courses/empowering-learning-numeracy')}
+              onBackToCourses={handleBackToCourseOverview}
               onDashboard={handleDashboard}
               courseTitle="Empowering Learning for Numeracy"
             />
@@ -334,7 +338,7 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/courses/empowering-learning-numeracy')}
+                  onClick={handleBackToCourseOverview}
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />

@@ -123,6 +123,10 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
+  const handleBackToCourseOverview = useCallback(() => {
+    navigate('/courses/empowering-learning-reading');
+  }, [navigate]);
+
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
@@ -324,7 +328,7 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
         >
           <div className="min-h-screen">
             <CourseHeader 
-              onBackToCourses={() => navigate('/courses/empowering-learning-reading')}
+              onBackToCourses={handleBackToCourseOverview}
               onDashboard={handleDashboard}
               courseTitle="Empowering Learning for Reading"
             />
@@ -334,7 +338,7 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/courses/empowering-learning-reading')}
+                  onClick={handleBackToCourseOverview}
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />
