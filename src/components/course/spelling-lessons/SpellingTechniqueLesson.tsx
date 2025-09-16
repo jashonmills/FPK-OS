@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ListChecks, Eye, PenTool } from 'lucide-react';
 
 export const SpellingTechniqueLesson: React.FC = () => {
+  const mediaRef = useRef<HTMLVideoElement>(null);
+
   return (
     <div className="space-y-6">
+      {/* Video Player */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="relative">
+            <video
+              ref={mediaRef}
+              src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/empowering-mp4-spelling/Module%204%20-%20Empowering%20Learning%20-%20Non-Nouns%20(2).mp4"
+              className="w-full h-auto"
+              controls
+              preload="metadata"
+            >
+              <p>Your browser does not support the video tag. Please use a modern browser to view this content.</p>
+            </video>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
