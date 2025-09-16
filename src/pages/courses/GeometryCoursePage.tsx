@@ -18,7 +18,7 @@ import { StudentGuideGallery } from '@/components/course/StudentGuideGallery';
 import { PointsLinesPlanesMicroLesson } from '@/components/micro-lessons/points-lines-planes/PointsLinesPlanesMicroLesson';
 import { TriangleMicroLesson } from '@/components/micro-lessons/triangles/TriangleMicroLesson';
 import { QuadrilateralsMicroLesson } from '@/components/micro-lessons/quadrilaterals/QuadrilateralsMicroLesson';
-import { CirclesLesson } from '@/components/course/geometry-lessons/CirclesLesson';
+import { CirclesMicroLesson } from '@/components/micro-lessons/circles/CirclesMicroLesson';
 
 import { ThreeDShapesLesson } from '@/components/course/geometry-lessons/ThreeDShapesLesson';
 import { TransformationsLesson } from '@/components/course/geometry-lessons/TransformationsLesson';
@@ -40,7 +40,7 @@ const lessons: Lesson[] = [
   { id: 1, title: "Points, Lines, and Planes", description: "Learn the fundamental building blocks of geometry", component: PointsLinesPlanesMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "Triangles", description: "Explore triangle types, properties, and theorems", component: TriangleMicroLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Quadrilaterals", description: "Study squares, rectangles, parallelograms, and more", component: QuadrilateralsMicroLesson, unit: "Unit 2: Polygons", unitColor: "bg-green-100 text-green-700" },
-  { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 4, title: "Circles", description: "Master circle properties, parts, and calculations", component: CirclesMicroLesson, unit: "Unit 3: Circles", unitColor: "bg-purple-100 text-purple-700" },
   { id: 5, title: "Transformations", description: "Learn about reflection, rotation, translation, and scaling", component: TransformationsLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
   { id: 7, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
