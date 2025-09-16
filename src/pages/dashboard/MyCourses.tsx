@@ -145,6 +145,21 @@ const EMPOWERING_LEARNING_READING_COURSE = {
   status: 'published'
 };
 
+const EMPOWERING_LEARNING_NUMERACY_COURSE = {
+  id: 'empowering-learning-numeracy',
+  title: 'Empowering Learning for Numeracy',
+  description: 'Master mathematics through visual memory techniques and number triangles. Learn addition, subtraction, multiplication and division using proven visual learning methods.',
+  instructor_name: 'FPK University',
+  duration_minutes: 120,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Mathematics', 'Numeracy', 'Visual Learning', 'Number Triangles'],
+  thumbnail_url: courseSpellingReading,
+  status: 'published'
+};
+
 const MONEY_MANAGEMENT_COURSE = {
   id: 'money-management-teens',
   title: 'Money Management for Teens',
@@ -243,6 +258,7 @@ const MyCourses = () => {
     INTRODUCTION_TO_SCIENCE_COURSE,
     GEOMETRY_FUNDAMENTALS_COURSE,
     EMPOWERING_LEARNING_READING_COURSE,
+    EMPOWERING_LEARNING_NUMERACY_COURSE,
     MONEY_MANAGEMENT_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
@@ -328,6 +344,7 @@ const MyCourses = () => {
     const isLearningStateCourse = course.id === 'learning-state-beta';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
+    const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
     const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
     const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
     const isInteractiveAlgebra = course.id === 'interactive-algebra';
@@ -361,6 +378,7 @@ const MyCourses = () => {
       if (isLearningStateCourse) return 'Beta Course';
       if (isElSpellingCourse) return 'Reading Course';
       if (isEmpoweringLearningReading) return 'Reading Course';
+      if (isEmpoweringLearningNumeracy) return 'Mathematics Course';
       if (isInteractiveLinearEquations || isInteractiveTrigonometry || isInteractiveAlgebra) return 'Interactive Course';
       if (isIntroductionModernEconomics) return 'Interactive Course';
       if (isLogicCriticalThinking) return 'Philosophy Course';
@@ -385,6 +403,10 @@ const MyCourses = () => {
       
       if (isEmpoweringLearningReading) {
         return '/courses/empowering-learning-reading';
+      }
+      
+      if (isEmpoweringLearningNumeracy) {
+        return '/courses/empowering-learning-numeracy';
       }
       
       if (isInteractiveLinearEquations) {

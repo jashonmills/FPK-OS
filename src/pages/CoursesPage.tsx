@@ -48,6 +48,7 @@ interface Course {
 const courseImageMap: Record<string, string> = {
   'empowering-learning-spelling': courseSpellingReading,
   'empowering-learning-reading': courseSpellingReading,
+  'empowering-learning-numeracy': courseSpellingReading,
   'logic-critical-thinking': courseLogic,
   'interactive-science': courseScience,
   'interactive-algebra': courseAlgebra,
@@ -109,7 +110,7 @@ const courses: Course[] = [
     level: 'Beginner',
     lessons: 10,
     category: 'Language Arts',
-    features: ['Video Instructions', 'Visual Memory Techniques', 'Interactive Exercises', 'Progress Tracking'],
+    features: ['Video Instructions', 'Visual Memory techniques', 'Interactive Exercises', 'Progress Tracking'],
     learningOutcomes: [
       'Master the visual reading technique',
       'Achieve optimal learning states for comprehension',
@@ -117,6 +118,24 @@ const courses: Course[] = [
       'Apply techniques to any reading challenge'
     ],
     route: '/courses/empowering-learning-reading'
+  },
+  {
+    id: 'empowering-learning-numeracy',
+    title: 'Empowering Learning for Numeracy',
+    description: 'Master mathematics through visual memory techniques and number triangles.',
+    summary: 'Learn addition, subtraction, multiplication and division using number triangles and visual learning methods. A comprehensive program designed to make mathematics easier and more enjoyable.',
+    duration: '~2 Hours',
+    level: 'Beginner',
+    lessons: 12,
+    category: 'Mathematics',
+    features: ['Number Triangle Technique', 'Visual Memory Methods', 'Interactive Exercises', 'Progress Tracking'],
+    learningOutcomes: [
+      'Master the Number Triangle technique',
+      'Understand the historical origins of number shapes',
+      'Build confidence in mathematical abilities',
+      'Apply visual techniques to any math challenge'
+    ],
+    route: '/courses/empowering-learning-numeracy'
   },
   {
     id: 'logic-critical-thinking',

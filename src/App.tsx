@@ -457,6 +457,18 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
+          <Route path="/courses/empowering-learning-numeracy" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningNumeracyCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/empowering-learning-numeracy/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningNumeracyCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
           {/* Native Course Player Routes */}
           <Route path="/courses/:slug" element={
             <RouteProtector>

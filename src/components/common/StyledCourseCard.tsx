@@ -41,6 +41,7 @@ const courseImageMap: Record<string, string> = {
   'introduction-modern-economics': courseEconomics,
   'el-spelling-reading': courseSpellingReading,
   'empowering-learning-reading': courseSpellingReading,
+  'empowering-learning-numeracy': courseSpellingReading,
   'neurodiversity-strengths-based-approach': courseNeurodiversity,
   'interactive-science': courseScience,
   'money-management-teens': courseMoneyManagement,
