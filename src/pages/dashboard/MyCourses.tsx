@@ -181,44 +181,44 @@ const MONEY_MANAGEMENT_COURSE = {
 const FPK_GAMES = [
   {
     id: 'prompt-play-palette',
-    name: 'Prompt Play Palette',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091821.jpg',
+    name: 'Imagination Builder',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/imagination-builder.jpg',
     url: 'https://prompt-play-palette.lovable.app/'
   },
   {
     id: 'addition-journey-quest',
     name: 'Addition Journey Quest',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091850.jpg',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/addition-journey.jpg',
     url: 'https://addition-journey-quest.lovable.app/'
   },
   {
     id: 'wizard-word-battle',
-    name: 'Wizard Word Battle',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091911.jpg',
+    name: 'Word Wizard Dual',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/word-wizard.jpg',
     url: 'https://preview--wizard-word-battle.lovable.app/'
   },
   {
     id: 'learn-escape-prodigy',
-    name: 'Learn Escape Prodigy',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091934.jpg',
+    name: 'Learner Escape',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/learn-escape.jpg',
     url: 'https://learn-escape-prodigy.lovable.app/'
   },
   {
     id: 'eco-genesis-forest-realm',
-    name: 'Eco Genesis Forest Realm',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20091954.jpg',
+    name: 'Eco‑Genesis: Forest Realm',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/eco-genesis.jpg',
     url: 'https://eco-genesis-forest-realm.lovable.app/'
   },
   {
     id: 'energybear-calm-game',
-    name: 'EnergyBear Calm Game',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20092021.jpg',
+    name: 'EnergyBear: Calm & Focus',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/energy-bear.jpg',
     url: 'https://energybear-calm-game.lovable.app/'
   },
   {
     id: 'mind-explorer-game',
-    name: 'Mind Explorer Game',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/Screenshot%202025-09-16%20092140.jpg',
+    name: 'Emotion Detective',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/emotion-detective.jpg',
     url: 'https://mind-explorer-game.lovable.app/'
   }
 ];
