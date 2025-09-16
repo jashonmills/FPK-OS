@@ -97,14 +97,14 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Course Overview TTS */}
-      <div className="flex items-center justify-center gap-4 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border border-primary/10">
+      <div className="flex items-center justify-center gap-4 p-6 bg-white/95 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
         <div className="flex items-center gap-2">
           <Headphones className="h-5 w-5 text-primary" />
-          <span className="font-medium">Listen to Course Overview</span>
+          <span className="font-medium text-gray-800">Listen to Course Overview</span>
         </div>
         
         {!settings.hasInteracted && (
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
             Click anywhere first
           </Badge>
         )}
@@ -131,18 +131,18 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
 
       {/* Individual Lesson TTS Buttons */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-2">
+        <p className="text-sm text-white font-medium mb-2 drop-shadow">
           Or listen to individual lesson descriptions:
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           {lessons.map((lesson) => (
             <Button
               key={lesson.id}
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => handleReadLesson(lesson)}
               disabled={!settings.hasInteracted}
-              className="text-xs"
+              className="text-xs bg-white/90 text-gray-800 border-white/20 hover:bg-white"
             >
               <Volume2 className="h-3 w-3 mr-1" />
               Lesson {lesson.id}
@@ -154,7 +154,7 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
       {/* Reading Status */}
       {isSpeaking && (
         <div className="text-center">
-          <Badge variant="default" className="animate-pulse">
+          <Badge variant="default" className="animate-pulse bg-white/90 text-gray-800">
             <Volume2 className="h-3 w-3 mr-1" />
             {isReadingOverview ? 'Reading course overview...' : 'Reading lesson...'}
           </Badge>

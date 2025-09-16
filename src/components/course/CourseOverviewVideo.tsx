@@ -65,7 +65,7 @@ const CourseOverviewVideo: React.FC<CourseOverviewVideoProps> = ({
   };
 
   return (
-    <Card className="mb-8">
+    <Card className="mb-8 bg-white/95 backdrop-blur-sm border-white/20 shadow-lg">
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-full bg-primary/10 text-primary">

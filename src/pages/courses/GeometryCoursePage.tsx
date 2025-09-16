@@ -144,22 +144,22 @@ export const GeometryCoursePage: React.FC = () => {
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground">Interactive Geometry Fundamentals</h1>
+                <h1 className="text-4xl font-bold text-white drop-shadow-lg">Interactive Geometry Fundamentals</h1>
                 <p className="text-xl text-white max-w-3xl mx-auto font-medium">
                   Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.
                 </p>
                 
                 {/* Course badges */}
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <BookOpen className="w-4 h-4 mr-2" />
                     {lessons.length} Lessons
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <Clock className="w-4 h-4 mr-2" />
                     ~8 Hours
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <Users className="w-4 h-4 mr-2" />
                     Beginner to Intermediate
                   </Badge>
