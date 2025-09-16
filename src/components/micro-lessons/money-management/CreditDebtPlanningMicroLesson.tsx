@@ -700,6 +700,199 @@ const creditDebtPlanningData: MicroLessonData = {
         </div>
       `,
       estimatedTime: 4
+    },
+    {
+      id: 'debt-payoff-strategies',
+      type: 'concept',
+      title: 'Debt Payoff Strategies',
+      content: `
+        <div class="space-y-4">
+          <p>If you ever find yourself in debt, having a solid payoff strategy can save you thousands in interest and years of payments:</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">❄️ Debt Snowball Method:</h3>
+            <p class="text-sm mb-2">Pay minimums on all debts, put extra money toward smallest balance first</p>
+            <div class="bg-white p-3 rounded">
+              <h4 class="font-medium mb-1">Benefits:</h4>
+              <ul class="text-sm space-y-1">
+                <li>• Quick psychological wins</li>
+                <li>• Builds momentum and motivation</li>
+                <li>• Simplifies your debt situation faster</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">⚡ Debt Avalanche Method:</h3>
+            <p class="text-sm mb-2">Pay minimums on all debts, put extra money toward highest interest rate first</p>
+            <div class="bg-white p-3 rounded">
+              <h4 class="font-medium mb-1">Benefits:</h4>
+              <ul class="text-sm space-y-1">
+                <li>• Saves the most money in interest</li>
+                <li>• Mathematically optimal approach</li>
+                <li>• Gets you debt-free faster</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Pro Tip:</h4>
+            <p class="text-sm">Choose the method that matches your personality. Snowball for motivation, avalanche for math optimization. The best method is the one you'll stick with!</p>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'financial-independence-basics',
+      type: 'concept',
+      title: 'Financial Independence Fundamentals',
+      content: `
+        <div class="space-y-4">
+          <p>Financial independence means having enough money saved and invested that you don't need to work for basic living expenses. Here's how to start building toward this goal:</p>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🎯 The FIRE Movement:</h3>
+            <p class="text-sm mb-2"><strong>Financial Independence, Retire Early</strong></p>
+            <ul class="text-sm space-y-1">
+              <li>• Save 50-70% of income (vs. typical 10-15%)</li>
+              <li>• Invest in low-cost index funds</li>
+              <li>• Live below your means</li>
+              <li>• Plan to retire in 10-20 years vs. traditional 40</li>
+            </ul>
+          </div>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">📊 The 4% Rule:</h4>
+            <p class="text-sm mb-2">A common guideline: if you can live on 4% of your investments annually, you're financially independent.</p>
+            <div class="bg-white p-3 rounded text-sm">
+              <p><strong>Example:</strong> Need $40,000/year to live? Target: $1,000,000 invested</p>
+              <p>($1,000,000 × 4% = $40,000 annual income)</p>
+            </div>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🚀 Teen Advantage:</h4>
+            <p class="text-sm">Starting in your teens gives you decades of compound growth. Even small amounts invested now can grow into substantial wealth by traditional retirement age!</p>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'career-financial-planning',
+      type: 'concept',
+      title: 'Career and Income Planning',
+      content: `
+        <div class="space-y-4">
+          <p>Your career choices significantly impact your financial future. Let's explore how to think about income potential and career planning:</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">💼 Factors That Affect Income:</h3>
+            <ul class="text-sm space-y-2">
+              <li>• <strong>Education level:</strong> Higher education often leads to higher pay</li>
+              <li>• <strong>Industry choice:</strong> Tech, healthcare, finance tend to pay more</li>
+              <li>• <strong>Location:</strong> Major cities often have higher salaries</li>
+              <li>• <strong>Skills in demand:</strong> Learn skills employers need</li>
+              <li>• <strong>Experience:</strong> Income typically grows with experience</li>
+            </ul>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">📈 Income Growth Strategies:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Develop both hard skills (technical) and soft skills (communication)</li>
+              <li>• Build a network of professional connections</li>
+              <li>• Seek feedback and continuously improve</li>
+              <li>• Consider entrepreneurship and side businesses</li>
+              <li>• Negotiate salary increases and job offers</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">⚖️ Money vs. Fulfillment:</h4>
+            <p class="text-sm">While income matters, also consider job satisfaction, work-life balance, and personal fulfillment. The best career combines good pay with work you enjoy!</p>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
+    },
+    {
+      id: 'insurance-protection-basics',
+      type: 'concept',
+      title: 'Protecting Your Financial Future',
+      content: `
+        <div class="space-y-4">
+          <p>Insurance protects you from financial disasters. As you become financially independent, understanding basic insurance becomes crucial:</p>
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">🛡️ Essential Insurance Types:</h3>
+            <div class="space-y-2">
+              <div>
+                <h4 class="font-medium">🚗 Auto Insurance</h4>
+                <p class="text-sm">Required by law, protects against car accident costs</p>
+              </div>
+              <div>
+                <h4 class="font-medium">🏥 Health Insurance</h4>
+                <p class="text-sm">Covers medical expenses, prevents medical bankruptcy</p>
+              </div>
+              <div>
+                <h4 class="font-medium">🏠 Renters/Homeowners Insurance</h4>
+                <p class="text-sm">Protects your belongings and provides liability coverage</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">💡 Insurance Shopping Tips:</h4>
+            <ul class="text-sm space-y-1">
+              <li>• Compare quotes from multiple companies</li>
+              <li>• Consider higher deductibles to lower premiums</li>
+              <li>• Look for discounts (good student, safe driver, etc.)</li>
+              <li>• Review coverage annually</li>
+              <li>• Don't be underinsured to save money</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">🎓 For Teens:</h4>
+            <p class="text-sm">You're likely covered under parents' insurance now, but understanding these concepts prepares you for financial independence!</p>
+          </div>
+        </div>
+      `,
+      estimatedTime: 3
+    },
+    {
+      id: 'advanced-financial-planning',
+      type: 'concept',
+      title: 'Advanced Financial Planning Concepts',
+      content: `
+        <div class="space-y-4">
+          <p>As you grow older and your financial situation becomes more complex, these advanced concepts will become important:</p>
+          <div class="space-y-3">
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">📋 Estate Planning</h3>
+              <p class="text-sm mb-1">Planning for what happens to your assets after death</p>
+              <ul class="text-sm space-y-1">
+                <li>• Wills and trusts</li>
+                <li>• Beneficiary designations</li>
+                <li>• Power of attorney documents</li>
+              </ul>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">💰 Tax Planning</h3>
+              <p class="text-sm mb-1">Strategies to minimize taxes legally</p>
+              <ul class="text-sm space-y-1">
+                <li>• Tax-advantaged retirement accounts</li>
+                <li>• Tax-loss harvesting</li>
+                <li>• Strategic timing of income and deductions</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h3 class="font-semibold mb-2">🏠 Real Estate Investment</h3>
+              <p class="text-sm mb-1">Using property as an investment vehicle</p>
+              <ul class="text-sm space-y-1">
+                <li>• Rental properties for passive income</li>
+                <li>• REITs (Real Estate Investment Trusts)</li>
+                <li>• House hacking strategies</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="font-semibold mb-2">📚 Keep Learning:</h4>
+            <p class="text-sm">Financial planning is a lifelong journey. As your life changes, your financial strategies should evolve too. Stay curious and keep educating yourself!</p>
+          </div>
+        </div>
+      `,
+      estimatedTime: 4
     }
   ]
 };
