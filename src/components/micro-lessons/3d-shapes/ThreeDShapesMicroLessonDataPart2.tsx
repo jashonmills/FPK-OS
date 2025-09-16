@@ -8,7 +8,7 @@ import curvedSolids from '@/assets/curved-solids.png';
 
 export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
   {
-    id: 9,
+    id: '9',
     type: 'example',
     title: 'Prism Volume Calculation',
     content: (
@@ -44,8 +44,8 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 10,
-    type: 'teaching',
+    id: '10',
+    type: 'concept',
     title: 'Introduction to Pyramids',
     content: (
       <div className="space-y-6">
@@ -88,7 +88,7 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 4
   },
   {
-    id: 11,
+    id: '11',
     type: 'example',
     title: 'Pyramid Volume and Surface Area',
     content: (
@@ -135,19 +135,11 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 5
   },
   {
-    id: 12,
-    type: 'teaching',
+    id: '12',
+    type: 'concept',
     title: 'Curved Solids: Cylinders, Cones, and Spheres',
     content: (
       <div className="space-y-6">
-        <div className="mb-6">
-          <img 
-            src={curvedSolids}
-            alt="Cylinders, cones, and spheres with their volume and surface area formulas"
-            className="w-full max-w-3xl mx-auto object-contain rounded-lg shadow-lg"
-          />
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-blue-700 mb-3">Cylinders</h3>
@@ -202,7 +194,7 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 5
   },
   {
-    id: 13,
+    id: '13',
     type: 'example',
     title: 'Cylinder Volume Example',
     content: (
@@ -241,7 +233,7 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 14,
+    id: '14',
     type: 'practice',
     title: 'Practice: Cube Volume',
     content: (
@@ -263,7 +255,7 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 15,
+    id: '15',
     type: 'practice',
     title: 'Practice: Pyramid Volume',
     content: (
@@ -285,7 +277,7 @@ export const threeDShapesMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 16,
+    id: '16',
     type: 'practice',
     title: 'Practice: Euler\'s Formula',
     content: (

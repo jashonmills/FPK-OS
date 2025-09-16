@@ -4,10 +4,10 @@ import { FlipHorizontal, ZoomIn, Lightbulb, BookOpen, Calculator } from 'lucide-
 import { PracticeScreen } from '@/components/micro-lessons/PracticeScreen';
 
 export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
-    {
-      id: '10',
-      type: 'concept',
-      title: 'Reflections - The Flip',
+  {
+    id: '10',
+    type: 'concept',
+    title: 'Reflections - The Flip',
     content: (
       <div className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
@@ -29,7 +29,7 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
             <h3 className="text-lg font-semibold text-red-800">Teaching Moment</h3>
           </div>
           <p className="text-red-700">
-            Reflections are like mirror images. When you look in a mirror, what you see is a reflection of yourself across the plane of the mirror. In two-dimensional geometry, reflections occur across lines rather than planes. Reflections are fundamental to understanding symmetry in nature, art, and architecture.
+            Reflections are like mirror images. When you look in a mirror, what you see is a reflection of yourself across the plane of the mirror. Reflections are fundamental to understanding symmetry in nature, art, and architecture.
           </p>
         </div>
 
@@ -52,8 +52,8 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 11,
-    type: 'formula',
+    id: '11',
+    type: 'concept',
     title: 'Reflection Formulas',
     content: (
       <div className="space-y-6">
@@ -79,24 +79,14 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
             <h3 className="font-semibold mb-2">Reflection over y = -x</h3>
             <p className="font-mono">(x, y) → (-y, -x)</p>
           </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded p-4">
-            <h3 className="font-semibold mb-2">Reflection over y = k</h3>
-            <p className="font-mono">(x, y) → (x, 2k - y)</p>
-          </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded p-4">
-            <h3 className="font-semibold mb-2">Reflection over x = h</h3>
-            <p className="font-mono">(x, y) → (2h - x, y)</p>
-          </div>
         </div>
       </div>
     ),
     estimatedTime: 4
   },
   {
-    id: 12,
-    type: 'teaching',
+    id: '12',
+    type: 'concept',
     title: 'Dilations - The Scale',
     content: (
       <div className="space-y-6">
@@ -111,16 +101,6 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
             <span className="font-semibold">Definition:</span>
           </div>
           <p>A dilation is a transformation that changes the size of a figure without changing its shape. It is also known as a scaling.</p>
-        </div>
-
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Lightbulb className="h-5 w-5 text-orange-600" />
-            <h3 className="text-lg font-semibold text-orange-800">Teaching Moment</h3>
-          </div>
-          <p className="text-orange-700">
-            Dilations are like zooming in or out on a figure. When you zoom in on a map or photo, you're performing a dilation with a scale factor greater than 1. When you zoom out, the scale factor is between 0 and 1. Dilations are crucial in fields like cartography (map-making) and computer graphics.
-          </p>
         </div>
 
         <div>
@@ -145,8 +125,8 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 13,
-    type: 'formula',
+    id: '13',
+    type: 'concept',
     title: 'Dilation Formulas',
     content: (
       <div className="space-y-6">
@@ -174,7 +154,7 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 4
   },
   {
-    id: 14,
+    id: '14',
     type: 'practice',
     title: 'Practice: Translation Problem',
     content: (
@@ -196,7 +176,7 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 15,
+    id: '15',
     type: 'practice',
     title: 'Practice: Rotation Problem',
     content: (
@@ -218,7 +198,7 @@ export const transformationsMicroLessonsPartTwo: MicroLessonScreen[] = [
     estimatedTime: 3
   },
   {
-    id: 16,
+    id: '16',
     type: 'practice',
     title: 'Practice: Reflection and Dilation',
     content: (
