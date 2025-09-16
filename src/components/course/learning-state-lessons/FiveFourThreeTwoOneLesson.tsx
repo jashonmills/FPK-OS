@@ -7,7 +7,7 @@ export const FiveFourThreeTwoOneLesson: React.FC = () => {
   return (
     <div className="space-y-6">
       <MediaPlayer
-        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%204%20-%205%204%203%202%201.mp4"
+        src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-4-Learning%20State/Module%204%20-%205,%204,%203,%202,%201%20Grounding.mp4"
         type="video"
         title="5, 4, 3, 2, 1 Grounding Technique"
         mediaId="five-four-three-video"
