@@ -9,11 +9,11 @@ export const IntroductionLesson: React.FC = () => {
 
   const videos = {
     intro: {
-      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%201%20(a)%20-%20Learning%20State%20Intro.mp4",
+      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(a)%20-%20Learning%20State%20Introduction.mp4",
       title: "Getting Into The Most Effective Learning State - Introduction"
     },
     techniques: {
-      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/ep-learning-v2/Module%201%20(b)%20-%20Learning%20Techniques.mp4",
+      src: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(b)%20-%20Learning%20Techniques.mp4",
       title: "Learning Techniques Overview"
     }
   };
