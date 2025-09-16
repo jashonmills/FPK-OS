@@ -325,7 +325,7 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
           
           <CourseHeader 
-            onBackToCourses={() => navigate('/courses/empowering-learning-handwriting')}
+            onBackToCourses={handleBackToCourses}
             onDashboard={handleDashboard}
             courseTitle="Empowering Learning: Handwriting"
           />
