@@ -17,6 +17,7 @@ import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/spelling-lessons/IntroductionLesson';
 import { OptimalLearningStateLesson } from '@/components/course/spelling-lessons/OptimalLearningStateLesson';
+import { EmpoweringLearningNounsLesson } from '@/components/course/spelling-lessons/EmpoweringLearningNounsLesson';
 import { SpellingTechniqueLesson } from '@/components/course/spelling-lessons/SpellingTechniqueLesson';
 import { FinalTipsLesson } from '@/components/course/spelling-lessons/FinalTipsLesson';
 import { MindBodyConnectionLesson } from '@/components/course/spelling-lessons/MindBodyConnectionLesson';
@@ -39,15 +40,16 @@ interface Lesson {
 const lessons: Lesson[] = [
   { id: 1, title: "Introduction", description: "Welcome to the programme with Allen O'Donoghue", component: IntroductionLesson, unit: "Welcome to the Programme", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Optimal Learning State", description: "Learn to achieve the calm state needed for effective learning", component: OptimalLearningStateLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
-  { id: 3, title: "The Spelling Technique - Step by Step", description: "Master the complete visual spelling method", component: SpellingTechniqueLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
-  { id: 4, title: "Final Tips", description: "Essential tips for success with the technique", component: FinalTipsLesson, unit: "Final Tips for Success", unitColor: "bg-yellow-100 text-yellow-700" },
-  { id: 5, title: "The Power of the Optimal Learning State", description: "Understanding the mind-body connection in learning", component: MindBodyConnectionLesson, unit: "The Mind-Body Connection", unitColor: "bg-purple-100 text-purple-700" },
-  { id: 6, title: "The Power of Visualising", description: "Harness your visual memory for spelling success", component: VisualMemoryLesson, unit: "The Visual Memory System", unitColor: "bg-indigo-100 text-indigo-700" },
-  { id: 7, title: "The Swan & The Whiteboard", description: "Advanced techniques for optimal visual learning", component: AdvancedTechniquesLesson, unit: "Advanced Techniques", unitColor: "bg-red-100 text-red-700" },
-  { id: 8, title: "The Final Word", description: "Celebrating your success and next steps", component: CelebratingSuccessLesson, unit: "Celebrating Success", unitColor: "bg-orange-100 text-orange-700" },
-  { id: 9, title: "Quiz - Short Answer Questions", description: "Test your understanding with focused questions", component: QuizLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" },
-  { id: 10, title: "Essay Format Questions", description: "Explore concepts through detailed reflection", component: EssayQuestionsLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" },
-  { id: 11, title: "Glossary of Key Terms", description: "Reference guide for all important concepts", component: GlossaryLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" }
+  { id: 3, title: "Empowering Learning - Nouns", description: "Foundation concepts for visual spelling with nouns", component: EmpoweringLearningNounsLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
+  { id: 4, title: "The Spelling Technique - Step by Step", description: "Master the complete visual spelling method", component: SpellingTechniqueLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
+  { id: 5, title: "Final Tips", description: "Essential tips for success with the technique", component: FinalTipsLesson, unit: "Final Tips for Success", unitColor: "bg-yellow-100 text-yellow-700" },
+  { id: 6, title: "The Power of the Optimal Learning State", description: "Understanding the mind-body connection in learning", component: MindBodyConnectionLesson, unit: "The Mind-Body Connection", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 7, title: "The Power of Visualising", description: "Harness your visual memory for spelling success", component: VisualMemoryLesson, unit: "The Visual Memory System", unitColor: "bg-indigo-100 text-indigo-700" },
+  { id: 8, title: "The Swan & The Whiteboard", description: "Advanced techniques for optimal visual learning", component: AdvancedTechniquesLesson, unit: "Advanced Techniques", unitColor: "bg-red-100 text-red-700" },
+  { id: 9, title: "The Final Word", description: "Celebrating your success and next steps", component: CelebratingSuccessLesson, unit: "Celebrating Success", unitColor: "bg-orange-100 text-orange-700" },
+  { id: 10, title: "Quiz - Short Answer Questions", description: "Test your understanding with focused questions", component: QuizLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" },
+  { id: 11, title: "Essay Format Questions", description: "Explore concepts through detailed reflection", component: EssayQuestionsLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" },
+  { id: 12, title: "Glossary of Key Terms", description: "Reference guide for all important concepts", component: GlossaryLesson, unit: "Study Guide & Review", unitColor: "bg-gray-100 text-gray-700" }
 ];
 
 export const EmpoweringLearningSpellingCoursePage: React.FC = () => {

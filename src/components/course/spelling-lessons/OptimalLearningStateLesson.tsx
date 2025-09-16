@@ -41,6 +41,29 @@ export const OptimalLearningStateLesson: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Lesson Content */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="prose prose-gray max-w-none space-y-4">
+                  <p>
+                    Okay before we even get started on the technique we have to get ourselves into a nice calm state which helps us learn. It's what we call The Optimal Learning State, sounds very fancy but it's not.
+                  </p>
+                  
+                  <p>
+                    In our experience a lot of people who struggle with spelling and learning in school are very visual. So maybe you're very good at art or coming up with stories or being very creative. Well what we are gonna show you today, uses that visual memory that you have but what we have to do is learn to control that visual memory in order to help us learn.
+                  </p>
+                  
+                  <p>
+                    So, what I'm gonna say is, if you haven't, please go back to the learning state and find one of the techniques that works best for you just to help to calm yourself down. Now, for me, the easiest one is the Big Strong Tree, so pause this video and do your Big Strong Tree or whichever one of the learning state processes helps you and then come back and press play.
+                  </p>
+                  
+                  <p>
+                    Okay now you're back. Hopefully you are feeling a bit calmer and a bit more relaxed. You're breathing nice and deeply and everything is just chilled. Right, now we're in the Optimal Learning State which gives the best chance of keeping the information in and now we're ready to move on to the simple steps. Let's move onto the next module.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Supporting Information */}
             <Card className="bg-primary/5 border-primary/20">
               <CardHeader>
