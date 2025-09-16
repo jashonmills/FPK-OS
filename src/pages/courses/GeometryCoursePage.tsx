@@ -27,6 +27,8 @@ import { ThreeDShapesMicroLesson } from '@/components/micro-lessons/3d-shapes/Th
 import { CoordinateGeometryMicroLesson } from '@/components/micro-lessons/coordinate-geometry/CoordinateGeometryMicroLesson';
 import { VectorsMicroLesson } from '@/components/micro-lessons/vectors/VectorsMicroLesson';
 import { GeometryReviewLesson } from '@/components/course/geometry-lessons/GeometryReviewLesson';
+import { GeometryReviewAndRecap } from '@/components/course/geometry-lessons/GeometryReviewAndRecap';
+import { GeometryCompletionLesson } from '@/components/course/geometry-lessons/GeometryCompletionLesson';
 
 interface Lesson {
   id: number;
@@ -47,8 +49,8 @@ const lessons: Lesson[] = [
   { id: 6, title: "3D Shapes and Volume", description: "Explore three-dimensional geometry and volume calculations", component: ThreeDShapesMicroLesson, unit: "Unit 4: Measurements", unitColor: "bg-orange-100 text-orange-700" },
   { id: 7, title: "Coordinate Geometry", description: "Apply geometry concepts to the coordinate plane", component: CoordinateGeometryMicroLesson, unit: "Unit 5: Transformations", unitColor: "bg-red-100 text-red-700" },
   { id: 8, title: "Vectors and Vector Geometry", description: "Master vectors, operations, and geometric applications", component: VectorsMicroLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
-  { id: 9, title: "Coming Soon", description: "Module 9 content will be available soon", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" },
-  { id: 10, title: "Review and Practice", description: "Comprehensive review of all geometry concepts", component: GeometryReviewLesson, unit: "Unit 6: Advanced Concepts", unitColor: "bg-indigo-100 text-indigo-700" }
+  { id: 9, title: "Geometry Review & Recap", description: "Comprehensive recap of all 8 lessons completed", component: GeometryReviewAndRecap, unit: "Course Review", unitColor: "bg-emerald-100 text-emerald-700" },
+  { id: 10, title: "Course Completion & Celebration", description: "Celebrate your achievement and explore next steps", component: GeometryCompletionLesson, unit: "Course Completion", unitColor: "bg-amber-100 text-amber-700" }
 ];
 
 export const GeometryCoursePage: React.FC = () => {
