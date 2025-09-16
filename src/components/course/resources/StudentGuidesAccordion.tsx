@@ -6,12 +6,14 @@ interface StudentGuidesAccordionProps {
   guideCount?: number;
   description?: string;
   showGallery?: boolean;
+  courseId?: string;
 }
 
 export const StudentGuidesAccordion: React.FC<StudentGuidesAccordionProps> = ({
   guideCount = 21,
   description = "Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab.",
-  showGallery = true
+  showGallery = true,
+  courseId = 'geometry'
 }) => {
   return (
     <Accordion type="single" collapsible className="w-full">
@@ -23,7 +25,7 @@ export const StudentGuidesAccordion: React.FC<StudentGuidesAccordionProps> = ({
           <p className="text-center text-white mb-6 font-medium">
             {description}
           </p>
-          {showGallery && <StudentGuideGallery />}
+          {showGallery && <StudentGuideGallery courseId={courseId} />}
         </AccordionContent>
       </AccordionItem>
     </Accordion>

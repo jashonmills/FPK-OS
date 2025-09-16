@@ -10,121 +10,208 @@ interface StudentGuide {
   moduleReference: string;
 }
 
-const studentGuides: StudentGuide[] = [
-  {
-    name: "Screenshot 2025-09-15 155424.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155424.jpg",
-    moduleReference: "Module 1 - Lines, Angles & Polygons"
-  },
-  {
-    name: "Screenshot 2025-09-15 155443.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155443.jpg",
-    moduleReference: "Module 1 - Lines, Angles & Polygons"
-  },
-  {
-    name: "Screenshot 2025-09-15 155501.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155501.jpg",
-    moduleReference: "Module 2 - Triangles and Properties"
-  },
-  {
-    name: "Screenshot 2025-09-15 155521.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155521.jpg",
-    moduleReference: "Module 2 - Triangles and Properties"
-  },
-  {
-    name: "Screenshot 2025-09-15 155539.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155539.jpg",
-    moduleReference: "Module 3 - Quadrilaterals and Polygons"
-  },
-  {
-    name: "Screenshot 2025-09-15 155556.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155556.jpg",
-    moduleReference: "Module 3 - Quadrilaterals and Polygons"
-  },
-  {
-    name: "Screenshot 2025-09-15 155640.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155640.jpg",
-    moduleReference: "Module 3 - Quadrilaterals and Polygons"
-  },
-  {
-    name: "Screenshot 2025-09-15 155710.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155710.jpg",
-    moduleReference: "Module 4 - Circles and Circle Properties"
-  },
-  {
-    name: "Screenshot 2025-09-15 155732.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155732.jpg",
-    moduleReference: "Module 4 - Circles and Circle Properties"
-  },
-  {
-    name: "Screenshot 2025-09-15 155751.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155751.jpg",
-    moduleReference: "Module 5 - Transformations in Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160003.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160003.jpg",
-    moduleReference: "Module 5 - Transformations in Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160017.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160017.jpg",
-    moduleReference: "Module 5 - Transformations in Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160035.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160035.jpg",
-    moduleReference: "Module 6 - Three-Dimensional Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160107.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160107.jpg",
-    moduleReference: "Module 6 - Three-Dimensional Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160126.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160126.jpg",
-    moduleReference: "Module 6 - Three-Dimensional Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160146.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160146.jpg",
-    moduleReference: "Module 7 - Coordinate Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160206.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160206.jpg",
-    moduleReference: "Module 7 - Coordinate Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160224.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160224.jpg",
-    moduleReference: "Module 7 - Coordinate Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160456.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160456.jpg",
-    moduleReference: "Module 8 - Vectors and Vector Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160520.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160520.jpg",
-    moduleReference: "Module 8 - Vectors and Vector Geometry"
-  },
-  {
-    name: "Screenshot 2025-09-15 160546.jpg",
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160546.jpg",
-    moduleReference: "Module 8 - Vectors and Vector Geometry"
-  }
-];
+// Course-specific student guides
+const courseGuides: Record<string, StudentGuide[]> = {
+  'geometry': [
+    {
+      name: "Screenshot 2025-09-15 155424.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155424.jpg",
+      moduleReference: "Module 1 - Lines, Angles & Polygons"
+    },
+    {
+      name: "Screenshot 2025-09-15 155443.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155443.jpg",
+      moduleReference: "Module 1 - Lines, Angles & Polygons"
+    },
+    {
+      name: "Screenshot 2025-09-15 155501.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155501.jpg",
+      moduleReference: "Module 2 - Triangles and Properties"
+    },
+    {
+      name: "Screenshot 2025-09-15 155521.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155521.jpg",
+      moduleReference: "Module 2 - Triangles and Properties"
+    },
+    {
+      name: "Screenshot 2025-09-15 155539.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155539.jpg",
+      moduleReference: "Module 3 - Quadrilaterals and Polygons"
+    },
+    {
+      name: "Screenshot 2025-09-15 155556.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155556.jpg",
+      moduleReference: "Module 3 - Quadrilaterals and Polygons"
+    },
+    {
+      name: "Screenshot 2025-09-15 155640.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155640.jpg",
+      moduleReference: "Module 3 - Quadrilaterals and Polygons"
+    },
+    {
+      name: "Screenshot 2025-09-15 155710.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155710.jpg",
+      moduleReference: "Module 4 - Circles and Circle Properties"
+    },
+    {
+      name: "Screenshot 2025-09-15 155732.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155732.jpg",
+      moduleReference: "Module 4 - Circles and Circle Properties"
+    },
+    {
+      name: "Screenshot 2025-09-15 155751.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 155751.jpg",
+      moduleReference: "Module 5 - Transformations in Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160003.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160003.jpg",
+      moduleReference: "Module 5 - Transformations in Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160017.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160017.jpg",
+      moduleReference: "Module 5 - Transformations in Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160035.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160035.jpg",
+      moduleReference: "Module 6 - Three-Dimensional Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160107.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160107.jpg",
+      moduleReference: "Module 6 - Three-Dimensional Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160126.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160126.jpg",
+      moduleReference: "Module 6 - Three-Dimensional Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160146.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160146.jpg",
+      moduleReference: "Module 7 - Coordinate Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160206.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160206.jpg",
+      moduleReference: "Module 7 - Coordinate Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160224.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160224.jpg",
+      moduleReference: "Module 7 - Coordinate Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160456.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160456.jpg",
+      moduleReference: "Module 8 - Vectors and Vector Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160520.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160520.jpg",
+      moduleReference: "Module 8 - Vectors and Vector Geometry"
+    },
+    {
+      name: "Screenshot 2025-09-15 160546.jpg",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/enhanced-geometry/student-guides/Screenshot 2025-09-15 160546.jpg",
+      moduleReference: "Module 8 - Vectors and Vector Geometry"
+    }
+  ],
+  'elt-empowering-learning-techniques': [
+    {
+      name: "Self-Assessment Learning Styles",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/self-assessment-learning-styles.jpg",
+      moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
+    },
+    {
+      name: "Cognitive Strengths Identification Worksheet",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/cognitive-strengths-worksheet.jpg",
+      moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
+    },
+    {
+      name: "Brain Differences Reframing Guide",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/brain-differences-reframing.jpg",
+      moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
+    },
+    {
+      name: "Time Management Pomodoro Template",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/pomodoro-template.jpg",
+      moduleReference: "Module 2 - Mastering Executive Functioning Skills"
+    },
+    {
+      name: "Organization Systems Checklist",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/organization-systems-checklist.jpg",
+      moduleReference: "Module 2 - Mastering Executive Functioning Skills"
+    },
+    {
+      name: "Task Prioritization Matrix Worksheet",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/prioritization-matrix.jpg",
+      moduleReference: "Module 2 - Mastering Executive Functioning Skills"
+    },
+    {
+      name: "SQ3R Reading Method Guide",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/sq3r-method-guide.jpg",
+      moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
+    },
+    {
+      name: "Note-Taking Templates (Cornell & Mind Maps)",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/note-taking-templates.jpg",
+      moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
+    },
+    {
+      name: "Memory Enhancement Techniques Workbook",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/memory-techniques-workbook.jpg",
+      moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
+    },
+    {
+      name: "Spaced Repetition Planning Calendar",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/spaced-repetition-calendar.jpg",
+      moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
+    },
+    {
+      name: "Strength Reframing Exercise Worksheet",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/strength-reframing-worksheet.jpg",
+      moduleReference: "Module 4 - Turning Weaknesses into Strengths & Self-Advocacy"
+    },
+    {
+      name: "Self-Advocacy Scripts Template",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/self-advocacy-scripts.jpg",
+      moduleReference: "Module 4 - Turning Weaknesses into Strengths & Self-Advocacy"
+    },
+    {
+      name: "Academic Success Strategy Planner",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/academic-success-planner.jpg",
+      moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
+    },
+    {
+      name: "Workplace Skills Translation Guide",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/workplace-skills-guide.jpg",
+      moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
+    },
+    {
+      name: "Lifelong Learning Plan Template",
+      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/lifelong-learning-template.jpg",
+      moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
+    }
+  ]
+};
 
 interface StudentGuideGalleryProps {
   className?: string;
+  courseId?: string;
 }
 
-export const StudentGuideGallery: React.FC<StudentGuideGalleryProps> = ({ className }) => {
+export const StudentGuideGallery: React.FC<StudentGuideGalleryProps> = ({ 
+  className,
+  courseId = 'geometry' // Default to geometry for backward compatibility
+}) => {
   const [selectedImage, setSelectedImage] = useState<StudentGuide | null>(null);
   const [imageLoading, setImageLoading] = useState<{ [key: string]: boolean }>({});
+
+  // Get the appropriate guides for this course
+  const studentGuides = courseGuides[courseId] || courseGuides['geometry'];
 
   const handleImageClick = (guide: StudentGuide) => {
     setSelectedImage(guide);

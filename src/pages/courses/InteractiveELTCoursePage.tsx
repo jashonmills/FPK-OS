@@ -275,6 +275,7 @@ const InteractiveELTCoursePage: React.FC = () => {
             <AdditionalResourcesSection>
               <StudentGuidesAccordion 
                 guideCount={15}
+                courseId="elt-empowering-learning-techniques"
                 description="Access comprehensive student guides, worksheets, and self-assessment tools designed for neurodiverse learners."
               />
               

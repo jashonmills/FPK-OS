@@ -195,7 +195,11 @@ export const GeometryCoursePage: React.FC = () => {
 
               {/* Study Materials Section */}
               <AdditionalResourcesSection>
-                <StudentGuidesAccordion guideCount={21} />
+                <StudentGuidesAccordion 
+                  guideCount={21}
+                  courseId="geometry"
+                  description="Explore our comprehensive collection of student guides organized by module. Click any image to view in detail or open in a new tab."
+                />
               </AdditionalResourcesSection>
 
               {/* Enhanced Course Information */}
