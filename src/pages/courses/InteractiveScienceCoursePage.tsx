@@ -25,11 +25,11 @@ import { PeriodicTableMicroLesson } from '@/components/micro-lessons/science/per
 import { ForcesMotionMicroLesson } from '@/components/micro-lessons/science/forces-motion/ForcesMotionMicroLesson';
 import { EnergyWorkMicroLesson } from '@/components/micro-lessons/science/energy-work/EnergyWorkMicroLesson';
 import { ReviewSummaryMicroLesson } from '@/components/micro-lessons/science/review-summary/ReviewSummaryMicroLesson';
+import { FurtherExplorationMicroLesson } from '@/components/micro-lessons/science/further-exploration/FurtherExplorationMicroLesson';
+import { ShortAnswerQuestionsMicroLesson } from '@/components/micro-lessons/science/short-answer-questions/ShortAnswerQuestionsMicroLesson';
+import { StudyGuideMicroLesson } from '@/components/micro-lessons/science/study-guide/StudyGuideMicroLesson';
 
-// Import remaining lesson components (to be converted)
-import { FurtherExplorationLesson } from '@/components/course/science-lessons/FurtherExplorationLesson';
-import { ShortAnswerQuestionsLesson } from '@/components/course/science-lessons/ShortAnswerQuestionsLesson';
-import { StudyGuideLesson } from '@/components/course/science-lessons/StudyGuideLesson';
+// All lessons are now converted to micro-lessons!
 
 interface Lesson {
   id: number;
@@ -51,9 +51,9 @@ const lessons: Lesson[] = [
   { id: 7, title: "Forces and Motion", description: "Discover the principles that govern how objects move", component: ForcesMotionMicroLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 8, title: "Energy and Work", description: "Understand different forms of energy and how work is done", component: EnergyWorkMicroLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 9, title: "Review and Summary", description: "Consolidate your learning with comprehensive review", component: ReviewSummaryMicroLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
-  { id: 10, title: "Further Exploration", description: "Explore advanced topics and real-world applications", component: FurtherExplorationLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
-  { id: 11, title: "Short-Answer Questions", description: "Test your knowledge with focused practice questions", component: ShortAnswerQuestionsLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" },
-  { id: 12, title: "Complete Study Guide", description: "Comprehensive guide for mastering all course concepts", component: StudyGuideLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" }
+  { id: 10, title: "Further Exploration", description: "Explore advanced topics and real-world applications", component: FurtherExplorationMicroLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
+  { id: 11, title: "Short-Answer Questions", description: "Test your knowledge with focused practice questions", component: ShortAnswerQuestionsMicroLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 12, title: "Complete Study Guide", description: "Comprehensive guide for mastering all course concepts", component: StudyGuideMicroLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" }
 ];
 
 export const InteractiveScienceCoursePage: React.FC = () => {
