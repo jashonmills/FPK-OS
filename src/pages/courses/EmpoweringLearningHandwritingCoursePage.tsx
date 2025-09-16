@@ -13,7 +13,8 @@ import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
 import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
 import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AdditionalResourcesSection } from '@/components/course/resources/AdditionalResourcesSection';
+import { CourseOverviewAccordion } from '@/components/course/resources/CourseOverviewAccordion';
 
 // Import lesson components
 import { HandwritingIntroductionLesson } from '@/components/course/handwriting-lessons/HandwritingIntroductionLesson';
@@ -220,47 +221,35 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
               </div>
 
               {/* Course Overview Section */}
-              <div className="mb-8 max-w-4xl mx-auto">
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="course-overview">
-                    <AccordionTrigger className="flex items-center justify-center text-center text-xl font-semibold bg-white/30 hover:bg-white/40 px-4 py-3 rounded-lg text-white border border-white/20">
-                      Course Overview &amp; Learning Objectives
-                    </AccordionTrigger>
-                    <AccordionContent className="bg-white/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
-                      <div className="space-y-6 text-white">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3">Why Master Handwriting?</h3>
-                          <p className="leading-relaxed text-white/90">
-                            Clear, fluent handwriting is essential for effective communication and academic success. This course provides systematic techniques to develop legible, confident handwriting through proper motor skill development.
-                          </p>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3">What You'll Master</h3>
-                          <ul className="space-y-2">
-                            <li className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                              <span><strong>Proper Grip and Posture:</strong> Foundation techniques for comfortable writing</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                              <span><strong>Letter Formation:</strong> Systematic approach to forming letters correctly</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                              <span><strong>Fluency Development:</strong> Building speed while maintaining legibility</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                              <span><strong>Confidence Building:</strong> Developing pride in written work</span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
+              <AdditionalResourcesSection title="Additional Course Resources">
+                <CourseOverviewAccordion
+                  whyMasterContent={{
+                    title: "Why Master Handwriting?",
+                    description: "Clear, fluent handwriting is essential for effective communication and academic success. This course provides systematic techniques to develop legible, confident handwriting through proper motor skill development."
+                  }}
+                  whatYouMasterContent={{
+                    title: "What You'll Master",
+                    objectives: [
+                      {
+                        title: "Proper Grip and Posture",
+                        description: "Foundation techniques for comfortable writing"
+                      },
+                      {
+                        title: "Letter Formation",
+                        description: "Systematic approach to forming letters correctly"
+                      },
+                      {
+                        title: "Fluency Development",
+                        description: "Building speed while maintaining legibility"
+                      },
+                      {
+                        title: "Confidence Building", 
+                        description: "Developing pride in written work"
+                      }
+                    ]
+                  }}
+                />
+              </AdditionalResourcesSection>
 
               {/* Lessons Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">

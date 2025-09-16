@@ -177,6 +177,14 @@ export class FeatureFlagService {
         description: 'Constrain AI Coach chat to fixed height with internal scrolling to prevent page expansion',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Standardized Course Resources feature flag
+      {
+        id: 'standardizedCourseResources',
+        name: 'Standardized Course Resources Section',
+        description: 'Enable standardized additional resources sections across all course frameworks',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 
