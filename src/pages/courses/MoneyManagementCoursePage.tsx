@@ -292,95 +292,160 @@ const MoneyManagementCoursePage: React.FC = () => {
   }
 
   // Individual lesson view
-  const lesson = lessons.find(l => l.id === currentLesson);
+  const currentLessonData = lessons.find(l => l.id === currentLesson);
   
-  if (!lesson) {
+  if (!currentLessonData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Lesson not found</h2>
-          <Button onClick={() => setCurrentLesson(null)}>Back to Course Overview</Button>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Lesson Not Found</h2>
+            <p className="text-white mb-4 font-medium">
+              The requested lesson could not be found.
+            </p>
+            <Button onClick={() => navigate('/courses/money-management-teens')}>
+              Back to Course Overview
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  const LessonComponent = lesson.component;
+  const hasNext = currentLesson < lessons.length;
+  const hasPrev = currentLesson > 1;
+
+  const LessonComponent = currentLessonData.component;
 
   return (
     <VoiceSettingsProvider>
-      <InteractiveLessonWrapper
+      <InteractiveCourseWrapper 
         courseId="money-management-teens"
-        lessonId={currentLesson}
-        lessonTitle={lesson.title}
-        onComplete={() => handleLessonComplete(currentLesson)}
-        onNext={currentLesson < lessons.length ? handleNextLesson : undefined}
-        hasNext={currentLesson < lessons.length}
+        courseTitle="Money Management for Teens"
+        currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${moneyManagementBg})`,
+        <div className="min-h-screen bg-background" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${moneyManagementBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed'
         }}>
-          {/* Header with navigation */}
-          <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
+          <CourseHeader 
+            onBackToCourses={() => navigate('/dashboard/learner/courses')}
+            onDashboard={handleDashboard}
+            courseTitle="Money Management for Teens"
+          />
+          
+          <div className="container mx-auto px-4 py-8 max-w-6xl">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/courses/money-management-teens')}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Overview
+              </Button>
+              <Badge className={currentLessonData.unitColor}>
+                {currentLessonData.unit}
+              </Badge>
+            </div>
+
+            {/* Navigation */}
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                variant="outline"
+                onClick={handlePrevLesson}
+                disabled={!hasPrev}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous Lesson
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white font-medium">
+                  Lesson {currentLesson} of {lessons.length}
+                </span>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={handleNextLesson}
+                disabled={!hasNext}
+                className="flex items-center gap-2"
+              >
+                Next Lesson
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Lesson Progress Card */}
+            <Card className="mb-6 bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentLesson(null)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Exit Lesson
-                  </Button>
-                  <div className="text-sm text-muted-foreground">
-                    Lesson {currentLesson} of {lessons.length}
+                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white">
+                      Lesson {currentLesson}: {currentLessonData.title}
+                    </h3>
+                    <div className="flex items-center gap-4 text-sm text-white/80 mt-1">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        0:06
+                      </span>
+                      <span className="flex items-center gap-1">
+                        📈 Engagement: 0%
+                      </span>
+                    </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <h1 className="text-lg font-semibold text-center flex-1 mx-4">
-                  {lesson.title}
-                </h1>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePrevLesson}
-                    disabled={currentLesson === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleNextLesson}
-                    disabled={currentLesson === lessons.length}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
+            {/* Listen to Lesson */}
+            <Card className="mb-6 bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <DollarSign className="w-5 h-5 text-primary" />
+                    <span className="text-white font-medium">Listen to Lesson</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button variant="ghost" size="sm" className="text-white">
+                      ⚙️
+                    </Button>
+                    <Button className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white">
+                      ▶️ Read Lesson
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
 
-          {/* Lesson Content */}
-          <div className="container mx-auto px-4 py-8">
-            <LessonComponent
+            {/* Lesson Content */}
+            <InteractiveLessonWrapper
+              courseId="money-management-teens"
+              lessonId={currentLesson}
+              lessonTitle={currentLessonData.title}
               onComplete={() => handleLessonComplete(currentLesson)}
-              onNext={currentLesson < lessons.length ? handleNextLesson : undefined}
-              hasNext={currentLesson < lessons.length}
-            />
+              onNext={hasNext ? handleNextLesson : undefined}
+              hasNext={hasNext}
+              totalLessons={lessons.length}
+            >
+              <LessonComponent 
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+              />
+            </InteractiveLessonWrapper>
           </div>
         </div>
-      </InteractiveLessonWrapper>
+      </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
 };
