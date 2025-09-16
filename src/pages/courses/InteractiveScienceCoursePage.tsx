@@ -23,13 +23,10 @@ import { GeneticsDNAMicroLesson } from '@/components/micro-lessons/science/genet
 import { AtomsMoleculesMicroLesson } from '@/components/micro-lessons/science/atoms-molecules/AtomsMoleculesMicroLesson';
 import { PeriodicTableMicroLesson } from '@/components/micro-lessons/science/periodic-table/PeriodicTableMicroLesson';
 import { ForcesMotionMicroLesson } from '@/components/micro-lessons/science/forces-motion/ForcesMotionMicroLesson';
+import { EnergyWorkMicroLesson } from '@/components/micro-lessons/science/energy-work/EnergyWorkMicroLesson';
+import { ReviewSummaryMicroLesson } from '@/components/micro-lessons/science/review-summary/ReviewSummaryMicroLesson';
 
 // Import remaining lesson components (to be converted)
-import { AtomsAndMoleculesLesson } from '@/components/course/science-lessons/AtomsAndMoleculesLesson';
-import { PeriodicTableLesson } from '@/components/course/science-lessons/PeriodicTableLesson';
-import { ForcesAndMotionLesson } from '@/components/course/science-lessons/ForcesAndMotionLesson';
-import { EnergyAndWorkLesson } from '@/components/course/science-lessons/EnergyAndWorkLesson';
-import { ReviewAndSummaryLesson } from '@/components/course/science-lessons/ReviewAndSummaryLesson';
 import { FurtherExplorationLesson } from '@/components/course/science-lessons/FurtherExplorationLesson';
 import { ShortAnswerQuestionsLesson } from '@/components/course/science-lessons/ShortAnswerQuestionsLesson';
 import { StudyGuideLesson } from '@/components/course/science-lessons/StudyGuideLesson';
@@ -52,8 +49,8 @@ const lessons: Lesson[] = [
   { id: 5, title: "Atoms and Molecules", description: "Learn about the fundamental particles that make up matter", component: AtomsMoleculesMicroLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "The Periodic Table", description: "Master the organization of chemical elements", component: PeriodicTableMicroLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
   { id: 7, title: "Forces and Motion", description: "Discover the principles that govern how objects move", component: ForcesMotionMicroLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
-  { id: 8, title: "Energy and Work", description: "Understand different forms of energy and how work is done", component: EnergyAndWorkLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
-  { id: 9, title: "Review and Summary", description: "Consolidate your learning with comprehensive review", component: ReviewAndSummaryLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
+  { id: 8, title: "Energy and Work", description: "Understand different forms of energy and how work is done", component: EnergyWorkMicroLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
+  { id: 9, title: "Review and Summary", description: "Consolidate your learning with comprehensive review", component: ReviewSummaryMicroLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
   { id: 10, title: "Further Exploration", description: "Explore advanced topics and real-world applications", component: FurtherExplorationLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
   { id: 11, title: "Short-Answer Questions", description: "Test your knowledge with focused practice questions", component: ShortAnswerQuestionsLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" },
   { id: 12, title: "Complete Study Guide", description: "Comprehensive guide for mastering all course concepts", component: StudyGuideLesson, unit: "Unit 6: Study Guide", unitColor: "bg-purple-100 text-purple-700" }
