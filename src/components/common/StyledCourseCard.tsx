@@ -113,11 +113,15 @@ export function StyledCourseCard({
   ].includes(id);
   
   return (
-    <Card className={`h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group ${
-      isSpecialCourse 
-        ? 'ring-2 ring-purple-400/60 shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:shadow-[0_0_40px_rgba(168,85,247,0.8)] animate-[pulse_3s_ease-in-out_infinite]' 
-        : ''
-    }`}>
+    <div className={`relative ${isSpecialCourse ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}>
+      {isSpecialCourse && (
+        <div className="absolute inset-0 rounded-lg ring-2 ring-purple-400/60 shadow-[0_0_30px_rgba(168,85,247,0.6)] pointer-events-none"></div>
+      )}
+      <Card className={`h-full hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group relative z-10 ${
+        isSpecialCourse 
+          ? 'hover:shadow-[0_0_40px_rgba(168,85,247,0.8)]' 
+          : ''
+      }`}>
       {/* AI Generated Image Header */}
       <div 
         className="relative h-40 bg-cover bg-center overflow-hidden"
@@ -213,5 +217,6 @@ export function StyledCourseCard({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
