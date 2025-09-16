@@ -631,30 +631,24 @@ const MyCourses = () => {
         <TabsContent value="available" className="space-y-6">
           {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
             <div className="space-y-8">
-              {/* Empowering Learning Courses Section */}
-              {filteredCourses(availableCourses).some(course => 
-                ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id)
-              ) && (
-                <>
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-3 bg-background text-muted-foreground">Empowering Learning Courses</span>
-                    </div>
-                  </div>
+              {/* Empowering Learning Courses Section - TOP PRIORITY */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-3 bg-background text-muted-foreground">Empowering Learning Courses</span>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* All Empowering Learning Courses */}
-                    {filteredCourses(availableCourses)
-                      .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id))
-                      .map((course) => (
-                        <CourseCard key={course.id} course={course} isEnrolled={false} />
-                      ))}
-                  </div>
-                </>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* All Empowering Learning Courses */}
+                {filteredCourses(availableCourses)
+                  .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id))
+                  .map((course) => (
+                    <CourseCard key={course.id} course={course} isEnrolled={false} />
+                  ))}
+              </div>
 
               {/* Foundational & Advanced Courses Section */}
               {(filteredCourses(availableCourses).filter(course => 
