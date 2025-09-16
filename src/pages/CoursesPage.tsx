@@ -28,7 +28,7 @@ import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
-import learningStateBg from '@/assets/learning-state-bg.jpg';
+import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 
 interface Course {
   id: string;
