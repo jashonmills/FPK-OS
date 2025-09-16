@@ -225,16 +225,21 @@ export const EmpoweringLearningStatePage: React.FC = () => {
                backgroundAttachment: 'fixed'
              }}>
           <CourseHeader 
-            onBackToCourses={() => navigate('/courses/empowering-learning-state')}
+            onBackToCourses={handleBackToCourses}
             onDashboard={() => navigate('/dashboard/learner')}
             courseTitle="Empowering Learning State"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="flex justify-between items-center mb-6 bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-              <Button variant="outline" onClick={handlePrevLesson} disabled={!hasPrev}>
-                <ChevronLeft className="h-4 w-4" /> Previous
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setCurrentLesson(null)}>
+                  Back to Overview
+                </Button>
+                <Button variant="outline" onClick={handlePrevLesson} disabled={!hasPrev}>
+                  <ChevronLeft className="h-4 w-4" /> Previous
+                </Button>
+              </div>
               <span className="text-sm text-muted-foreground">
                 Lesson {currentLesson} of {lessons.length}
               </span>
