@@ -6,13 +6,13 @@ import { TrendingUp, Waves, BarChart3, Activity, Zap, Target } from 'lucide-reac
 import { MicroLessonContainer } from '@/components/micro-lessons/MicroLessonContainer';
 
 export const trigonometryGraphingLessonData = {
-  lessonId: 4,
-  title: "Graphing Trigonometric Functions",
-  description: "Learn to graph sine, cosine, and tangent functions",
+  id: 'trigonometry-graphing', 
+  moduleTitle: 'Graphing Trigonometric Functions',
+  totalScreens: 8,
   screens: [
     {
       id: 'welcome',
-      type: 'intro',
+      type: 'concept' as const,
       title: 'From Circle to Waves: Graphing Trig Functions',
       content: (
         <div className="space-y-6">
@@ -859,7 +859,7 @@ interface TrigonometryGraphingMicroLessonProps {
 const TrigonometryGraphingMicroLesson: React.FC<TrigonometryGraphingMicroLessonProps> = ({ onComplete }) => {
   return (
     <MicroLessonContainer
-      lessonData={trigonometryGraphingLessonData}
+      lessonData={trigonometryGraphingLessonData as any}
       onComplete={onComplete}
     />
   );

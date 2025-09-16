@@ -1,357 +1,278 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
+import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Calculator, CheckCircle, PlayCircle, Trophy, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, X, Calculator, Target, Brain } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
-import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
-import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
-import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
-import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
-import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-// Import lesson components
-import { TrigonometryLesson1 } from '@/components/trigonometry/lessons/TrigonometryLesson1';
-import { TrigonometryLesson2 } from '@/components/trigonometry/lessons/TrigonometryLesson2';
-import { TrigonometryLesson3 } from '@/components/trigonometry/lessons/TrigonometryLesson3';
-import { TrigonometryLesson4 } from '@/components/trigonometry/lessons/TrigonometryLesson4';
-import { TrigonometryLesson5 } from '@/components/trigonometry/lessons/TrigonometryLesson5';
-import { TrigonometryLesson6 } from '@/components/trigonometry/lessons/TrigonometryLesson6';
-import { TrigonometryLesson7 } from '@/components/trigonometry/lessons/TrigonometryLesson7';
+// Import background image
+import trigBg from '@/assets/trigonometry-background.jpg';
+
+// Import micro-lesson components
+import TrigonometryIntroductionMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryIntroductionMicroLesson';
+import TrigonometryRatiosMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryRatiosMicroLesson';
+import TrigonometryUnitCircleMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryUnitCircleMicroLesson';
+import TrigonometryGraphingMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryGraphingMicroLesson';
+import TrigonometryIdentitiesMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryIdentitiesMicroLesson';
+import TrigonometryEquationsMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryEquationsMicroLesson';
+import TrigonometryApplicationsMicroLesson from '@/components/micro-lessons/trigonometry/TrigonometryApplicationsMicroLesson';
+
+interface Lesson {
+  id: number;
+  title: string;
+  description: string;
+  component: React.ComponentType<any>;
+  unit: string;
+  unitColor: string;
+}
+
+const lessons: Lesson[] = [
+  { id: 1, title: "Introduction to Trigonometry", description: "Discover the basics of trigonometry, angles, and right triangles", component: TrigonometryIntroductionMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-green-100 text-green-700" },
+  { id: 2, title: "Trigonometric Ratios", description: "Master SOHCAHTOA and the six trigonometric functions", component: TrigonometryRatiosMicroLesson, unit: "Unit 1: Foundations", unitColor: "bg-green-100 text-green-700" },
+  { id: 3, title: "The Unit Circle", description: "Understand the unit circle and reference angles", component: TrigonometryUnitCircleMicroLesson, unit: "Unit 2: Circle", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 4, title: "Graphing Trig Functions", description: "Learn to graph sine, cosine, and tangent functions", component: TrigonometryGraphingMicroLesson, unit: "Unit 2: Circle", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 5, title: "Trigonometric Identities", description: "Explore fundamental trigonometric identities and proofs", component: TrigonometryIdentitiesMicroLesson, unit: "Unit 3: Advanced", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 6, title: "Solving Trig Equations", description: "Master techniques for solving trigonometric equations", component: TrigonometryEquationsMicroLesson, unit: "Unit 3: Advanced", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 7, title: "Real-World Applications", description: "Apply trigonometry to engineering, physics, and technology", component: TrigonometryApplicationsMicroLesson, unit: "Unit 4: Applications", unitColor: "bg-orange-100 text-orange-700" }
+];
 
 const InteractiveTrigonometryCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  
-  // Modern interactive course system
-  const courseId = "trigonometry-fundamentals";
-  const courseTitle = "Interactive Trigonometry Course";
-  
-  // Use analytics and progress hooks
-  const { completedLessons } = useInteractiveCourseProgress(courseId);
-  const { migrateEnrollmentData } = useInteractiveCourseEnrollmentBridge();
-  
-  // Migrate enrollment data on mount
-  useEffect(() => {
-    migrateEnrollmentData();
-  }, [migrateEnrollmentData]);
+  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
 
-  // Scroll to top when lesson changes
   useEffect(() => {
-    if (currentLesson !== null) {
-      window.scrollTo(0, 0);
+    if (lessonId) {
+      const lesson = parseInt(lessonId);
+      if (lesson >= 1 && lesson <= lessons.length) {
+        setCurrentLesson(lesson);
+      }
+    } else {
+      setCurrentLesson(null);
     }
-  }, [currentLesson]);
-
-  const lessons = [
-    {
-      id: 1,
-      title: "Introduction to Trigonometry",
-      description: "Learn the basics of trigonometry and the unit circle",
-      component: TrigonometryLesson1,
-      icon: BookOpen
-    },
-    {
-      id: 2,
-      title: "Sine, Cosine, and Tangent",
-      description: "Master the fundamental trigonometric functions (SOHCAHTOA)",
-      component: TrigonometryLesson2,
-      icon: Calculator
-    },
-    {
-      id: 3,
-      title: "Trigonometric Functions on the Unit Circle",
-      description: "Understand how trig functions relate to the unit circle",
-      component: TrigonometryLesson3,
-      icon: PlayCircle
-    },
-    {
-      id: 4,
-      title: "Graphing Trigonometric Functions",
-      description: "Learn to graph sine, cosine, and tangent functions",
-      component: TrigonometryLesson4,
-      icon: Calculator
-    },
-    {
-      id: 5,
-      title: "Trigonometric Identities",
-      description: "Explore and verify important trigonometric identities",
-      component: TrigonometryLesson5,
-      icon: BookOpen
-    },
-    {
-      id: 6,
-      title: "Solving Trigonometric Equations",
-      description: "Techniques for solving various trigonometric equations",
-      component: TrigonometryLesson6,
-      icon: Calculator
-    },
-    {
-      id: 7,
-      title: "Real-World Applications",
-      description: "Apply trigonometry to solve practical problems",
-      component: TrigonometryLesson7,
-      icon: Trophy
-    }
-  ];
+  }, [lessonId]);
 
   const handleLessonComplete = (lessonId: number) => {
-    console.log(`Lesson ${lessonId} completed via wrapper system`);
-  };
-
-  const handleNextLesson = () => {
-    if (currentLesson !== null && currentLesson < lessons.length - 1) {
-      setCurrentLesson(currentLesson + 1);
-      // Scroll to top of the page when navigating to next lesson
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!completedLessons.includes(lessonId)) {
+      setCompletedLessons(prev => [...prev, lessonId]);
     }
   };
 
-  const handleBackToCourses = () => {
+  const handleNextLesson = useCallback(() => {
+    if (currentLesson !== null && currentLesson < lessons.length) {
+      const nextLesson = currentLesson + 1;
+      setCurrentLesson(nextLesson);
+      navigate(`/courses/interactive-trigonometry/${nextLesson}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentLesson, navigate]);
+
+  const handleLessonSelect = useCallback((lessonId: number) => {
+    setCurrentLesson(lessonId);
+    navigate(`/courses/interactive-trigonometry/${lessonId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [navigate]);
+
+  const handleBackToCourses = useCallback(() => {
     navigate('/dashboard/learner/courses');
-  };
+  }, [navigate]);
 
-  const handleDashboard = () => {
+  const handleDashboard = useCallback(() => {
     navigate('/dashboard/learner');
-  };
+  }, [navigate]);
 
-  const getCurrentLesson = () => {
-    if (currentLesson === null) return null;
-    return lessons[currentLesson];
-  };
+  const isLessonAccessible = useCallback((lessonId: number) => {
+    return lessonId === 1 || completedLessons.includes(lessonId - 1);
+  }, [completedLessons]);
 
-  const isCurrentView = (view: 'overview' | 'lesson') => {
-    return currentLesson === null ? view === 'overview' : view === 'lesson';
-  };
+  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
 
-  // Course overview content
+  // Course overview (lesson selection)
   if (currentLesson === null) {
     return (
       <VoiceSettingsProvider>
         <InteractiveCourseWrapper
-          courseId={courseId}
-          courseTitle={courseTitle}
+          courseId="interactive-trigonometry"
+          courseTitle="Interactive Trigonometry"
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${trigBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
             <CourseHeader 
+              onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
-              onDashboard={handleDashboard}
               courseTitle="Interactive Trigonometry"
             />
-            
-            <div className="container mx-auto px-4 py-8 max-w-6xl">
-            {/* Course Header */}
-            <header className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4 text-primary">
-                Interactive Trigonometry Course
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-                Master trigonometry through interactive lessons, visual demonstrations, and practical applications. 
-                From basic SOHCAHTOA to complex real-world problem solving.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
-                <Badge variant="default" className="fpk-gradient text-white text-lg px-4 py-2">
-                  Interactive
-                </Badge>
-                <Badge variant="outline" className="text-lg px-4 py-2">
-                  7 Lessons
-                </Badge>
-                <Badge variant="outline" className="text-lg px-4 py-2">
-                  ~4 Hours
-                </Badge>
-              </div>
-              <div className="max-w-md mx-auto">
-                <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                  <span>Course Progress</span>
-                  <span>{Math.round((completedLessons.size / lessons.length) * 100)}%</span>
+          
+            <div className="container mx-auto px-4 py-8 space-y-8">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center items-center gap-3 mb-4">
+                  <Calculator className="w-12 h-12 text-purple-400" />
+                  <h1 className="text-4xl font-bold text-white drop-shadow-lg">Interactive Trigonometry</h1>
+                  <Brain className="w-12 h-12 text-purple-400" />
                 </div>
-                <Progress value={(completedLessons.size / lessons.length) * 100} className="h-3" />
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium">
+                  Master trigonometric functions, the unit circle, identities, and real-world applications through interactive lessons and step-by-step problem solving.
+                </p>
+                
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    {lessons.length} Lessons
+                  </Badge>
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <Clock className="w-4 h-4 mr-2" />
+                    ~6 Hours
+                  </Badge>
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
+                    <Target className="w-4 h-4 mr-2" />
+                    Functions & Applications
+                  </Badge>
+                </div>
+
+                <div className="max-w-md mx-auto">
+                  <Progress value={progress} className="h-2 mb-2" />
+                  <p className="text-xs text-white mt-1 text-center font-medium">
+                    {completedLessons.length} of {lessons.length} lessons completed
+                  </p>
+                </div>
               </div>
-            </header>
 
-            {/* TTS Controls */}
-            <div className="mb-8">
-              <CourseOverviewTTS
-                courseTitle="Interactive Trigonometry Course"
-                courseDescription="Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving."
-                lessons={lessons}
-              />
-            </div>
-
-            {/* Course Overview Video */}
-            <div className="mb-8">
-              <CourseOverviewVideo
-                videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/Trigonometry__The_Secret_Language_of_Waves.mp4"
-                title="The Secret Language of Waves"
-              />
-            </div>
-
-            {/* Lessons Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lessons.map((lesson, index) => {
-                const Icon = lesson.icon;
-                const isCompleted = completedLessons.has(lesson.id);
-                const isAccessible = index === 0 || completedLessons.has(lessons[index - 1].id);
-
-                return (
-                  <Card 
-                    key={lesson.id} 
-                    className={`cursor-pointer transition-all duration-200 ${
-                      isAccessible 
-                        ? 'hover:shadow-lg hover:-translate-y-1' 
-                        : 'opacity-50 cursor-not-allowed'
-                    } ${isCompleted ? 'ring-2 ring-green-500' : ''}`}
-                    onClick={() => {
-                      if (isAccessible) {
-                        setCurrentLesson(index);
-                      }
-                    }}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-full ${
-                            isCompleted 
-                              ? 'bg-green-100 text-green-600' 
-                              : isAccessible 
-                                ? 'bg-primary/10 text-primary'
-                                : 'bg-gray-100 text-gray-400'
-                          }`}>
-                            {isCompleted ? <CheckCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{lesson.title}</CardTitle>
-                            <Badge variant="outline" className="mt-1">
-                              Lesson {lesson.id}
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold text-white mb-8 text-center">Course Lessons</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {lessons.map((lesson) => {
+                    const isAccessible = isLessonAccessible(lesson.id);
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    
+                    return (
+                      <Card 
+                        key={lesson.id}
+                        className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm border-border ${
+                          !isAccessible ? 'opacity-50' : ''
+                        } ${isCompleted ? 'border-primary/50' : 'border-border'}`}
+                        onClick={() => isAccessible && handleLessonSelect(lesson.id)}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className={lesson.unitColor}>
+                              {lesson.unit}
                             </Badge>
+                            {isCompleted && <Award className="w-5 h-5 text-primary" />}
                           </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        {lesson.description}
-                      </p>
-                      {isCompleted && (
-                        <Badge className="bg-green-600 text-white">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Completed
-                        </Badge>
-                      )}
-                      {!isAccessible && (
-                        <Badge variant="outline">
-                          Complete previous lesson to unlock
-                        </Badge>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                          <CardTitle className="text-lg">{lesson.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground text-sm mb-4">{lesson.description}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Lesson {lesson.id}</span>
+                            {!isAccessible && (
+                              <span className="text-xs text-muted-foreground">Complete previous lesson</span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-
-            {/* Course Completion */}
-            {completedLessons.size === lessons.length && (
-              <Card className="mt-12 text-center bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                <CardHeader>
-                  <div className="flex justify-center mb-4">
-                    <Trophy className="h-16 w-16 text-gold-500" />
-                  </div>
-                  <CardTitle className="text-2xl text-green-700">
-                    🎉 Congratulations! Course Complete!
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg text-green-600 mb-4">
-                    You have successfully completed the Interactive Trigonometry Course!
-                  </p>
-                  <p className="text-muted-foreground mb-6">
-                    You've mastered trigonometric functions, identities, and real-world applications. 
-                    Keep practicing to maintain your skills!
-                  </p>
-                  <Button onClick={handleBackToCourses} size="lg" className="fpk-gradient text-white">
-                    Return to My Courses
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
           </div>
-        </div>
         </InteractiveCourseWrapper>
       </VoiceSettingsProvider>
     );
   }
 
   // Individual lesson view
-  const currentLessonData = getCurrentLesson();
-  if (!currentLessonData) return null;
+  const currentLessonData = lessons.find(l => l.id === currentLesson);
+  
+  if (!currentLessonData) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Lesson Not Found</h2>
+            <Button onClick={() => navigate('/courses/interactive-trigonometry')}>
+              Back to Course Overview
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
+  const hasNext = currentLesson < lessons.length;
   const LessonComponent = currentLessonData.component;
 
-  const lesson = lessons[currentLesson];
-  const hasNext = currentLesson !== null && currentLesson < lessons.length - 1;
-  
   return (
     <VoiceSettingsProvider>
       <InteractiveCourseWrapper 
-        courseId={courseId}
-        courseTitle={courseTitle}
+        courseId="interactive-trigonometry"
+        courseTitle="Interactive Trigonometry"
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${trigBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
           <CourseHeader 
+            onDashboard={handleDashboard} 
             onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
             title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
           />
-          
-          <div className="container mx-auto px-4 py-8">
-          {/* Lesson Header */}
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentLesson(null)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Course Overview
-            </Button>
-            
-            <div className="text-center">
-              <h1 className="text-2xl font-bold">
-                Lesson {currentLessonData.id}: {currentLessonData.title}
-              </h1>
-              <p className="text-muted-foreground">{currentLessonData.description}</p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {currentLesson + 1} of {lessons.length}
-              </span>
-              <Progress value={((currentLesson + 1) / lessons.length) * 100} className="w-20 h-2" />
-            </div>
-          </div>
 
-          {/* Lesson Content */}
-          <InteractiveLessonWrapper
-            courseId={courseId}
-            lessonId={currentLesson + 1}
-            lessonTitle={lesson.title}
-            onComplete={() => handleLessonComplete(currentLesson + 1)}
-            onNext={hasNext ? handleNextLesson : undefined}
-            hasNext={hasNext}
-            totalLessons={lessons.length}
-          >
-            <LessonComponent />
-          </InteractiveLessonWrapper>
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center justify-between mb-6">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/courses/interactive-trigonometry')}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Course
+              </Button>
+              
+              <div className="text-center">
+                <Badge className={currentLessonData.unitColor}>
+                  {currentLessonData.unit}
+                </Badge>
+                <h1 className="text-2xl font-bold text-white mt-2">
+                  Lesson {currentLessonData.id}: {currentLessonData.title}
+                </h1>
+              </div>
+
+              <div className="w-24" />
+            </div>
+
+            <InteractiveLessonWrapper
+              courseId="interactive-trigonometry"
+              lessonId={currentLesson}
+              lessonTitle={currentLessonData.title}
+              onComplete={() => handleLessonComplete(currentLesson!)}
+              onNext={hasNext ? handleNextLesson : undefined}
+              hasNext={hasNext}
+            >
+              <LessonComponent />
+            </InteractiveLessonWrapper>
+          </div>
         </div>
-      </div>
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );

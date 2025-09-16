@@ -6,13 +6,13 @@ import { Calculator, Target, BookOpen, AlertCircle, CheckCircle, Trophy } from '
 import { MicroLessonContainer } from '@/components/micro-lessons/MicroLessonContainer';
 
 export const trigonometryRatiosLessonData = {
-  lessonId: 2,
-  title: "Sine, Cosine, and Tangent",
-  description: "Master the fundamental trigonometric functions (SOHCAHTOA)",
+  id: 'trigonometry-ratios',
+  moduleTitle: 'Sine, Cosine, and Tangent', 
+  totalScreens: 8,
   screens: [
     {
       id: 'welcome',
-      type: 'intro',
+      type: 'concept' as const,
       title: 'The Big Three: Sin, Cos, and Tan',
       content: (
         <div className="space-y-6">
@@ -784,7 +784,7 @@ interface TrigonometryRatiosMicroLessonProps {
 const TrigonometryRatiosMicroLesson: React.FC<TrigonometryRatiosMicroLessonProps> = ({ onComplete }) => {
   return (
     <MicroLessonContainer
-      lessonData={trigonometryRatiosLessonData}
+      lessonData={trigonometryRatiosLessonData as any}
       onComplete={onComplete}
     />
   );

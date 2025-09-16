@@ -6,13 +6,13 @@ import { Circle, Target, Compass, RotateCcw, Navigation, Award } from 'lucide-re
 import { MicroLessonContainer } from '@/components/micro-lessons/MicroLessonContainer';
 
 export const trigonometryUnitCircleLessonData = {
-  lessonId: 3,
-  title: "Trigonometric Functions on the Unit Circle",
-  description: "Understand how trig functions relate to the unit circle",
+  id: 'trigonometry-unit-circle',
+  moduleTitle: 'Trigonometric Functions on the Unit Circle', 
+  totalScreens: 8,
   screens: [
     {
       id: 'welcome',
-      type: 'intro',
+      type: 'concept' as const,
       title: 'The Unit Circle: Your Trigonometry GPS',
       content: (
         <div className="space-y-6">
@@ -652,7 +652,7 @@ export const trigonometryUnitCircleLessonData = {
     {
       id: 'lesson-summary',
       type: 'summary',
-      title: 'Unit Circle Mastered: You're Ready to Graph Functions!',
+      title: "Unit Circle Mastery: You are Ready for Advanced Applications!",
       content: (
         <div className="space-y-4">
           <h2 className="text-xl font-bold">🎉 Phenomenal! You've Unlocked the Power of the Unit Circle</h2>
@@ -731,7 +731,7 @@ interface TrigonometryUnitCircleMicroLessonProps {
 const TrigonometryUnitCircleMicroLesson: React.FC<TrigonometryUnitCircleMicroLessonProps> = ({ onComplete }) => {
   return (
     <MicroLessonContainer
-      lessonData={trigonometryUnitCircleLessonData}
+      lessonData={trigonometryUnitCircleLessonData as any}
       onComplete={onComplete}
     />
   );

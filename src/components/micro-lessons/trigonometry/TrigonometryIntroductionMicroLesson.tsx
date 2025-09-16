@@ -6,13 +6,13 @@ import { Calculator, Triangle, BookOpen, Target, AlertCircle, Award } from 'luci
 import { MicroLessonContainer } from '@/components/micro-lessons/MicroLessonContainer';
 
 export const trigonometryIntroductionLessonData = {
-  lessonId: 1,
-  title: "Introduction to Trigonometry",
-  description: "Learn the basics of trigonometry and the unit circle",
+  id: 'trigonometry-introduction',
+  moduleTitle: 'Introduction to Trigonometry',
+  totalScreens: 8,
   screens: [
     {
       id: 'welcome',
-      type: 'intro',
+      type: 'concept' as const,
       title: 'Welcome to Trigonometry!',
       content: (
         <div className="space-y-6">
@@ -614,7 +614,7 @@ interface TrigonometryIntroductionMicroLessonProps {
 const TrigonometryIntroductionMicroLesson: React.FC<TrigonometryIntroductionMicroLessonProps> = ({ onComplete }) => {
   return (
     <MicroLessonContainer
-      lessonData={trigonometryIntroductionLessonData}
+      lessonData={trigonometryIntroductionLessonData as any}
       onComplete={onComplete}
     />
   );

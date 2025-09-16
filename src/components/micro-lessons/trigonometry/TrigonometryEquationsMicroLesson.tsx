@@ -383,7 +383,7 @@ const TrigonometryEquationsMicroLesson: React.FC<TrigonometryEquationsMicroLesso
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-3 text-blue-900">Problem 1: Basic Equation</h3>
                   <div className="bg-blue-50 p-3 rounded mb-3">
-                    <p className="font-mono text-center">Solve: 2cos θ + 1 = 0 for 0° ≤ θ < 360°</p>
+                    <p className="font-mono text-center">Solve: 2cos θ + 1 = 0 for 0° {"<="} θ {"<"} 360°</p>
                   </div>
                   <div className="space-y-2 text-sm">
                     <p><strong>Step 1:</strong> Isolate cos θ</p>
@@ -404,7 +404,7 @@ const TrigonometryEquationsMicroLesson: React.FC<TrigonometryEquationsMicroLesso
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-3 text-purple-900">Problem 2: Quadratic Form</h3>
                   <div className="bg-purple-50 p-3 rounded mb-3">
-                    <p className="font-mono text-center">Solve: 2sin²θ - sin θ - 1 = 0 for 0° ≤ θ < 360°</p>
+                    <p className="font-mono text-center">Solve: 2sin²θ - sin θ - 1 = 0 for 0° {"<="} θ {"<"} 360°</p>
                   </div>
                   <div className="space-y-2 text-sm">
                     <p><strong>Step 1:</strong> Factor or use substitution (let u = sin θ)</p>
@@ -426,7 +426,7 @@ const TrigonometryEquationsMicroLesson: React.FC<TrigonometryEquationsMicroLesso
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-3 text-orange-900">Problem 3: Multiple Angle</h3>
                   <div className="bg-orange-50 p-3 rounded mb-3">
-                    <p className="font-mono text-center">Solve: cos(2θ) = √3/2 for 0° ≤ θ < 180°</p>
+                    <p className="font-mono text-center">Solve: cos(2θ) = √3/2 for 0° {"<="} θ {"<"} 180°</p>
                   </div>
                   <div className="space-y-2 text-sm">
                     <p><strong>Step 1:</strong> Let u = 2θ, so cos u = √3/2</p>
@@ -448,7 +448,7 @@ const TrigonometryEquationsMicroLesson: React.FC<TrigonometryEquationsMicroLesso
       },
       {
         id: 'real-world-applications',
-        type: 'application' as const,
+        type: 'concept' as const,
         title: 'Real-World Applications',
         content: (
           <div className="space-y-6">
