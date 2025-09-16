@@ -401,7 +401,7 @@ export const InteractiveEconomicsCoursePage: React.FC = () => {
                 <div className="mb-6 flex items-center justify-between">
                   <Button
                     variant="ghost"
-                    onClick={() => navigate('/courses/introduction-modern-economics')}
+                    onClick={() => setCurrentLesson(null)}
                     className="flex items-center gap-2"
                   >
                     <ChevronLeft className="w-4 h-4" />

@@ -598,7 +598,7 @@ export const GeometryCoursePage: React.FC = () => {
             <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/geometry')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -638,7 +638,7 @@ export const GeometryCoursePage: React.FC = () => {
                 size="sm"
                 onClick={() => {
                   console.log('🔘 Back to Overview button clicked');
-                  navigate('/courses/geometry');
+                  setCurrentLesson(null);
                 }}
                 className="flex items-center gap-2"
               >

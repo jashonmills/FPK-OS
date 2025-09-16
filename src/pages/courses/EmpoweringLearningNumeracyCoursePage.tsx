@@ -351,7 +351,7 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/empowering-learning-numeracy')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>

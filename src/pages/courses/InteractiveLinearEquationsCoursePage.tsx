@@ -310,7 +310,7 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
             <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/interactive-linear-equations')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>

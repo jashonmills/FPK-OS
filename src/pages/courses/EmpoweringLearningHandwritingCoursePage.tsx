@@ -125,6 +125,11 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
     navigate('/dashboard/learner/courses');
   }, [navigate]);
 
+  const handleBackToCourseOverview = useCallback(() => {
+    console.log('📍 Navigating back to course overview');
+    navigate('/courses/empowering-learning-handwriting');
+  }, [navigate]);
+
   const handleDashboard = () => {
     navigate('/dashboard/learner');
   };
@@ -342,7 +347,7 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/empowering-learning-handwriting')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>

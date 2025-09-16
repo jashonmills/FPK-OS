@@ -293,7 +293,7 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
             <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/interactive-algebra')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -329,7 +329,7 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <Button 
                 variant="outline" 
-                onClick={() => navigate('/courses/interactive-algebra')}
+                onClick={() => setCurrentLesson(null)}
                 className="flex items-center gap-2"
               >
                 <ChevronLeft className="h-4 w-4" />

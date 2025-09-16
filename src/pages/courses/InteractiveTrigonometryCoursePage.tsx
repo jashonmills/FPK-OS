@@ -272,7 +272,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
         <Card>
           <CardContent className="p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Lesson Not Found</h2>
-            <Button onClick={() => navigate('/courses/interactive-trigonometry')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -308,7 +308,7 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <Button 
                 variant="outline" 
-                onClick={() => navigate('/courses/interactive-trigonometry')}
+                onClick={() => setCurrentLesson(null)}
                 className="flex items-center gap-2"
               >
                 <ChevronLeft className="h-4 w-4" />

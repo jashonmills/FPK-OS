@@ -300,7 +300,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/interactive-science')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -339,7 +339,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
                   size="sm"
                   onClick={() => {
                     console.log('🔘 Back to Overview button clicked');
-                    navigate('/courses/interactive-science');
+                    setCurrentLesson(null);
                   }}
                   className="flex items-center gap-2 bg-white/10 text-white border-white/30 hover:bg-white/20"
                 >

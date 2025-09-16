@@ -304,7 +304,7 @@ const MoneyManagementCoursePage: React.FC = () => {
             <p className="text-white mb-4 font-medium">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => navigate('/courses/money-management-teens')}>
+            <Button onClick={() => setCurrentLesson(null)}>
               Back to Course Overview
             </Button>
           </CardContent>
@@ -343,7 +343,7 @@ const MoneyManagementCoursePage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/courses/money-management-teens')}
+                onClick={() => setCurrentLesson(null)}
                 className="flex items-center gap-2"
               >
                 <ChevronLeft className="h-4 w-4" />
