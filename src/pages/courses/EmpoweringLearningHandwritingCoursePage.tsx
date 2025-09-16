@@ -312,14 +312,25 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
+        <div 
+          className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+          style={{
+            backgroundImage: `url(${empoweringHandwritingBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          {/* Background overlay */}
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+          
           <CourseHeader 
             onBackToCourses={() => navigate('/courses/empowering-learning-handwriting')}
             onDashboard={handleDashboard}
             courseTitle="Empowering Learning: Handwriting"
           />
           
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
             <div className="flex items-center gap-4 mb-6">
               <Button
                 variant="outline"
@@ -366,8 +377,8 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
 
             {/* Lesson Content */}
             <LessonComponent onComplete={() => handleLessonComplete(currentLesson)} />
+            </div>
           </div>
-        </div>
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
