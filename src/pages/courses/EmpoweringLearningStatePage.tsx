@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, Brain } from 'lucide-react';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, Brain, Headphones, Play, Volume2 } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
@@ -138,52 +138,91 @@ export const EmpoweringLearningStatePage: React.FC = () => {
             />
           
             <div className="container mx-auto px-4 py-8 space-y-8">
-              <div className="text-center space-y-4 bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-                <h1 className="text-4xl font-bold">Empowering Learning State</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                  Master techniques to achieve optimal learning states and create calm, focused environments for effective learning.
+              {/* Hero Section */}
+              <div className="text-center space-y-6 text-white">
+                <h1 className="text-5xl md:text-6xl font-bold">Empowering Learning State</h1>
+                <p className="text-lg md:text-xl max-w-4xl mx-auto leading-relaxed">
+                  Master techniques to achieve optimal learning states and create calm, focused
+                  <br />
+                  environments for effective learning.
                 </p>
                 
-                <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="outline" className="text-sm px-3 py-1">
-                    <Brain className="w-4 h-4 mr-2" />
-                    {lessons.length} Modules
-                  </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
-                    <Clock className="w-4 h-4 mr-2" />
-                    ~3 Hours
-                  </Badge>
-                  <Badge variant="outline" className="text-sm px-3 py-1">
-                    <Users className="w-4 h-4 mr-2" />
-                    All Levels
-                  </Badge>
+                {/* Course Stats */}
+                <div className="flex justify-center gap-6 flex-wrap mt-8">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    <span className="font-medium">{lessons.length} Lessons</span>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    <span className="font-medium">~3 Hours</span>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    <span className="font-medium">All Levels</span>
+                  </div>
                 </div>
 
-                <div className="max-w-md mx-auto">
-                  <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                {/* Progress Bar */}
+                <div className="max-w-2xl mx-auto">
+                  <Progress value={progress} className="h-3 mb-2 bg-white/20" />
+                  <p className="text-sm text-white/80">
                     {completedLessons.length} of {lessons.length} lessons completed
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto bg-white/70 backdrop-blur-sm rounded-lg p-6 shadow-lg">
+              {/* Audio Overview Section */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <Headphones className="w-6 h-6 text-white" />
+                  <span className="text-white text-lg font-medium">Listen to Course Overview</span>
+                </div>
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-full flex items-center gap-2 mx-auto"
+                >
+                  <Play className="w-5 h-5" />
+                  Play Overview
+                </Button>
+              </div>
+
+              {/* Individual Lesson Audio Buttons */}
+              <div className="text-center mb-8">
+                <p className="text-white text-lg mb-4">Or listen to individual lesson descriptions:</p>
+                <div className="flex flex-wrap justify-center gap-3 max-w-6xl mx-auto">
+                  {lessons.map((lesson) => (
+                    <Button 
+                      key={lesson.id}
+                      variant="outline" 
+                      size="sm"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-full flex items-center gap-2"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                      Lesson {lesson.id}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Lesson Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {lessons.map((lesson) => {
                   const isCompleted = completedLessons.includes(lesson.id);
                   return (
-                    <Card key={lesson.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+                    <Card key={lesson.id} className="bg-white/95 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all hover:scale-105">
                       <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <Badge className={lesson.unitColor}>Lesson {lesson.id}</Badge>
-                          {isCompleted && <Award className="h-5 w-5 text-primary" />}
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge className="bg-purple-600 text-white">Lesson {lesson.id}</Badge>
+                          {isCompleted && <Award className="h-5 w-5 text-amber-500" />}
                         </div>
-                        <CardTitle className="text-lg">{lesson.title}</CardTitle>
+                        <CardTitle className="text-lg font-bold text-gray-900">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-muted-foreground mb-4">{lesson.description}</p>
+                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">{lesson.description}</p>
                         <Button 
                           size="sm" 
-                          className="w-full"
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full"
                           onClick={() => setCurrentLesson(lesson.id)}
                         >
                           {isCompleted ? 'Review Lesson' : 'Start Lesson'}
