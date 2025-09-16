@@ -21,6 +21,8 @@ import { ImportanceOfScienceMicroLesson } from '@/components/micro-lessons/scien
 import { CellStructureMicroLesson } from '@/components/micro-lessons/science/cell-structure/CellStructureMicroLesson';
 import { GeneticsDNAMicroLesson } from '@/components/micro-lessons/science/genetics-dna/GeneticsDNAMicroLesson';
 import { AtomsMoleculesMicroLesson } from '@/components/micro-lessons/science/atoms-molecules/AtomsMoleculesMicroLesson';
+import { PeriodicTableMicroLesson } from '@/components/micro-lessons/science/periodic-table/PeriodicTableMicroLesson';
+import { ForcesMotionMicroLesson } from '@/components/micro-lessons/science/forces-motion/ForcesMotionMicroLesson';
 
 // Import remaining lesson components (to be converted)
 import { AtomsAndMoleculesLesson } from '@/components/course/science-lessons/AtomsAndMoleculesLesson';
@@ -48,8 +50,8 @@ const lessons: Lesson[] = [
   { id: 3, title: "Cell Structure and Function", description: "Explore the basic building blocks of all living organisms", component: CellStructureMicroLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
   { id: 4, title: "Genetics and DNA", description: "Understand heredity and the molecular basis of life", component: GeneticsDNAMicroLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
   { id: 5, title: "Atoms and Molecules", description: "Learn about the fundamental particles that make up matter", component: AtomsMoleculesMicroLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
-  { id: 6, title: "The Periodic Table", description: "Master the organization of chemical elements", component: PeriodicTableLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
-  { id: 7, title: "Forces and Motion", description: "Discover the principles that govern how objects move", component: ForcesAndMotionLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
+  { id: 6, title: "The Periodic Table", description: "Master the organization of chemical elements", component: PeriodicTableMicroLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
+  { id: 7, title: "Forces and Motion", description: "Discover the principles that govern how objects move", component: ForcesMotionMicroLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 8, title: "Energy and Work", description: "Understand different forms of energy and how work is done", component: EnergyAndWorkLesson, unit: "Unit 4: Physics", unitColor: "bg-yellow-100 text-yellow-700" },
   { id: 9, title: "Review and Summary", description: "Consolidate your learning with comprehensive review", component: ReviewAndSummaryLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
   { id: 10, title: "Further Exploration", description: "Explore advanced topics and real-world applications", component: FurtherExplorationLesson, unit: "Unit 5: Conclusion", unitColor: "bg-gray-100 text-gray-700" },
