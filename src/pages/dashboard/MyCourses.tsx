@@ -483,6 +483,10 @@ const MyCourses = () => {
         return '/courses/geometry';
       }
       
+      if (course.id === 'money-management-teens') {
+        return '/courses/money-management-teens';
+      }
+      
       const identifier = course.slug || course.id;
       return `/dashboard/learner/course/${identifier}`;
     };
