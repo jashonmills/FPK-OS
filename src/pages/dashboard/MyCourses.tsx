@@ -29,6 +29,7 @@ import courseAlgebra from '@/assets/course-algebra.jpg';
 import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
 import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
 import elSpellingBg from '@/assets/el-spelling-course-bg.jpg';
+import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 import courseLinearEquationsBg from '@/assets/course-linear-equations-bg.jpg';
 import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
@@ -349,9 +350,25 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
   status: 'published'
 };
 
+const EMPOWERING_LEARNING_STATE_COURSE = {
+  id: 'empowering-learning-state',
+  title: 'Empowering Learning State',
+  description: 'Master the optimal learning state through calming techniques and brain integration methods. Learn essential techniques to achieve the most effective learning state.',
+  instructor_name: 'FPK University',
+  duration_minutes: 180,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Learning Skills', 'Brain Integration', 'Focus Enhancement', 'Calming Techniques'],
+  thumbnail_url: learningStateBg,
+  status: 'published'
+};
+
   // Combine global and organization courses - ensuring handwriting course is prioritized
   const allAvailableCourses = [
     EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
+    EMPOWERING_LEARNING_STATE_COURSE, // Add the new Learning State course
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
@@ -403,7 +420,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
       // Empowering Learning courses should be first
-      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'el-spelling-reading'];
+      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'empowering-learning-state', 'el-spelling-reading'];
       const aIsEmpowering = empoweringLearningIds.includes(a.id);
       const bIsEmpowering = empoweringLearningIds.includes(b.id);
       
@@ -458,6 +475,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
+    const isEmpoweringLearningState = course.id === 'empowering-learning-state';
     const isElSpellingCourse = course.id === 'el-spelling-reading';
     const isEmpoweringLearningSpelling = course.id === 'empowering-learning-spelling';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
@@ -507,6 +525,7 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
     // Get course type for styling
     const getCourseType = () => {
       if (isLearningStateCourse) return 'Beta Course';
+      if (isEmpoweringLearningState) return 'Learning Skills Course';
       if (isElSpellingCourse) return 'Reading Course';
       if (isEmpoweringLearningSpelling) return 'Spelling Course';
       if (isEmpoweringLearningReading) return 'Reading Course';
@@ -528,6 +547,10 @@ const EMPOWERING_LEARNING_SPELLING_COURSE = {
     const getCourseRoute = () => {
       if (isLearningStateCourse) {
         return 'https://course-start-kit-react.lovable.app/';
+      }
+      
+      if (isEmpoweringLearningState) {
+        return '/courses/empowering-learning-state';
       }
       
       if (isElSpellingCourse) {
