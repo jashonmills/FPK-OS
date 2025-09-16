@@ -12,10 +12,16 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 
-// Import lesson components
-import { ScientificMethodLesson } from '@/components/course/science-lessons/ScientificMethodLesson';
-import { ImportanceOfScienceLesson } from '@/components/course/science-lessons/ImportanceOfScienceLesson';
-import { CellStructureLesson } from '@/components/course/science-lessons/CellStructureLesson';
+// Import background image
+import scienceCourseBg from '@/assets/science-course-background.jpg';
+
+// Import micro-lesson components
+import { ScientificMethodMicroLesson } from '@/components/micro-lessons/science/scientific-method/ScientificMethodMicroLesson';
+import { ImportanceOfScienceMicroLesson } from '@/components/micro-lessons/science/importance-of-science/ImportanceOfScienceMicroLesson';
+import { CellStructureMicroLesson } from '@/components/micro-lessons/science/cell-structure/CellStructureMicroLesson';
+
+// Import remaining lesson components (to be converted)
+import { GeneticsAndDNALesson } from '@/components/course/science-lessons/GeneticsAndDNALesson';
 import { GeneticsAndDNALesson } from '@/components/course/science-lessons/GeneticsAndDNALesson';
 import { AtomsAndMoleculesLesson } from '@/components/course/science-lessons/AtomsAndMoleculesLesson';
 import { PeriodicTableLesson } from '@/components/course/science-lessons/PeriodicTableLesson';
@@ -37,9 +43,9 @@ interface Lesson {
 
 // Moved outside component to prevent recreation on every render
 const lessons: Lesson[] = [
-  { id: 1, title: "The Scientific Method", description: "Learn the fundamental steps of scientific inquiry and how to apply them", component: ScientificMethodLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
-  { id: 2, title: "The Importance of Science", description: "Discover how science shapes our understanding of the world", component: ImportanceOfScienceLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
-  { id: 3, title: "Cell Structure and Function", description: "Explore the basic building blocks of all living organisms", component: CellStructureLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
+  { id: 1, title: "The Scientific Method", description: "Learn the fundamental steps of scientific inquiry and how to apply them", component: ScientificMethodMicroLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 2, title: "The Importance of Science", description: "Discover how science shapes our understanding of the world", component: ImportanceOfScienceMicroLesson, unit: "Unit 1: The Scientific Method", unitColor: "bg-blue-100 text-blue-700" },
+  { id: 3, title: "Cell Structure and Function", description: "Explore the basic building blocks of all living organisms", component: CellStructureMicroLesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
   { id: 4, title: "Genetics and DNA", description: "Understand heredity and the molecular basis of life", component: GeneticsAndDNALesson, unit: "Unit 2: Biology", unitColor: "bg-green-100 text-green-700" },
   { id: 5, title: "Atoms and Molecules", description: "Learn about the fundamental particles that make up matter", component: AtomsAndMoleculesLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
   { id: 6, title: "The Periodic Table", description: "Master the organization of chemical elements", component: PeriodicTableLesson, unit: "Unit 3: Chemistry", unitColor: "bg-red-100 text-red-700" },
@@ -119,11 +125,15 @@ export const InteractiveScienceCoursePage: React.FC = () => {
       <VoiceSettingsProvider>
         <InteractiveCourseWrapper
           courseId="interactive-science"
-          courseTitle="Introduction to Science"
+          courseTitle="Interactive Introduction to Science"
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div 
+            className="min-h-screen bg-cover bg-center bg-fixed"
+            style={{ backgroundImage: `url(${scienceCourseBg})` }}
+          >
+            <div className="min-h-screen bg-gradient-to-br from-black/60 to-black/40">
             <CourseHeader 
               onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
@@ -133,8 +143,8 @@ export const InteractiveScienceCoursePage: React.FC = () => {
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground">Introduction to Science</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <h1 className="text-4xl font-bold text-white drop-shadow-lg">Interactive Introduction to Science</h1>
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium drop-shadow">
                   Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.
                 </p>
                 
