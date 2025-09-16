@@ -599,6 +599,45 @@ const MyCourses = () => {
         </Select>
       </div>
 
+      {/* FPK University Games Dropdown */}
+      <div className="space-y-4">
+        <Collapsible open={isGamesOpen} onOpenChange={setIsGamesOpen}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200"
+            >
+              <span className="text-lg font-semibold">🎮 FPK University Games</span>
+              <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGamesOpen ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {FPK_GAMES.map((game) => (
+                <Card key={game.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 bg-white/90 backdrop-blur-sm border-white/20">
+                  <div className="relative">
+                    <img 
+                      src={game.image} 
+                      alt={game.name}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-2 text-gray-800">{game.name}</h3>
+                    <Button 
+                      onClick={() => window.open(game.url, '_blank')}
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium"
+                    >
+                      Play Game
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
       <Tabs defaultValue="enrolled" className="space-y-6">
         <TabsList>
           <TabsTrigger value="enrolled">
@@ -688,49 +727,6 @@ const MyCourses = () => {
             </div>
           )}
         </TabsContent>
-
-        {/* FPK University Games Dropdown */}
-        <div className="space-y-4">
-          <Collapsible open={isGamesOpen} onOpenChange={setIsGamesOpen}>
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200"
-              >
-                <span className="text-lg font-semibold">🎮 FPK University Games</span>
-                <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGamesOpen ? 'rotate-180' : ''}`} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {FPK_GAMES.map((game) => (
-                  <Card key={game.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 bg-white/90 backdrop-blur-sm border-white/20">
-                    <div className="relative">
-                      <img 
-                        src={game.image} 
-                        alt={game.name}
-                        className="w-full h-48 object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <h3 className="text-white font-semibold text-sm truncate">{game.name}</h3>
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <Button 
-                        onClick={() => window.open(game.url, '_blank')}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium"
-                      >
-                        Play Game
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
 
         <TabsContent value="available" className="space-y-6">
           {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
