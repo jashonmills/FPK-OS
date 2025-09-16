@@ -369,7 +369,7 @@ const MyCourses = () => {
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
       // Empowering Learning courses should be first
-      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'];
+      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'];
       const aIsEmpowering = empoweringLearningIds.includes(a.id);
       const bIsEmpowering = empoweringLearningIds.includes(b.id);
       
@@ -424,7 +424,7 @@ const MyCourses = () => {
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isLearningStateCourse = course.id === 'learning-state-beta';
-    const isElSpellingCourse = course.id === 'el-spelling-reading';
+    const isEmpoweringLearningSpelling = course.id === 'empowering-learning-spelling';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
     const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting';
@@ -460,7 +460,7 @@ const MyCourses = () => {
 
     // Get display title for the course
     const getDisplayTitle = () => {
-      if (isElSpellingCourse) {
+      if (isEmpoweringLearningSpelling) {
         return course.title.replace('& Reading', '').trim();
       }
       return course.title;
@@ -469,7 +469,7 @@ const MyCourses = () => {
     // Get course type for styling
     const getCourseType = () => {
       if (isLearningStateCourse) return 'Beta Course';
-      if (isElSpellingCourse) return 'Reading Course';
+      if (isEmpoweringLearningSpelling) return 'Spelling Course';
       if (isEmpoweringLearningReading) return 'Reading Course';
       if (isEmpoweringLearningNumeracy) return 'Mathematics Course';
       if (isEmpoweringLearningHandwriting) return 'Writing Course';
@@ -491,8 +491,8 @@ const MyCourses = () => {
         return 'https://course-start-kit-react.lovable.app/';
       }
       
-      if (isElSpellingCourse) {
-        return 'https://course-start-kit-react.lovable.app/el-spelling';
+      if (isEmpoweringLearningSpelling) {
+        return '/courses/empowering-learning-spelling';
       }
       
       if (isEmpoweringLearningReading) {
@@ -671,17 +671,17 @@ const MyCourses = () => {
                 )}
                 
                 {/* EL Spelling - Always Second */}
-                {filteredCourses(enrolledCourses).find(course => course.id === 'el-spelling-reading') && (
+                {filteredCourses(enrolledCourses).find(course => course.id === 'empowering-learning-spelling') && (
                   <CourseCard 
-                    key="el-spelling-reading" 
-                    course={filteredCourses(enrolledCourses).find(course => course.id === 'el-spelling-reading')!} 
+                    key="empowering-learning-spelling" 
+                    course={filteredCourses(enrolledCourses).find(course => course.id === 'empowering-learning-spelling')!} 
                     isEnrolled={true} 
                   />
                 )}
               </div>
 
               {/* Divider */}
-              {(filteredCourses(enrolledCourses).filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading').length > 0 || 
+              {(filteredCourses(enrolledCourses).filter(course => course.id !== 'learning-state-beta' && course.id !== 'empowering-learning-spelling').length > 0 || 
                 filteredNativeCourses(enrolledNativeCourses).length > 0) && (
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -709,7 +709,7 @@ const MyCourses = () => {
                 
                 {/* Regular Courses (excluding priority courses) */}
                 {filteredCourses(enrolledCourses)
-                  .filter(course => course.id !== 'learning-state-beta' && course.id !== 'el-spelling-reading')
+                  .filter(course => course.id !== 'learning-state-beta' && course.id !== 'empowering-learning-spelling')
                   .map((course) => (
                     <CourseCard key={course.id} course={course} isEnrolled={true} />
                   ))}
@@ -752,7 +752,7 @@ const MyCourses = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* All Empowering Learning Courses */}
                 {filteredCourses(availableCourses)
-                  .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id))
+                  .filter(course => ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id))
                   .map((course) => (
                     <CourseCard key={course.id} course={course} isEnrolled={false} />
                   ))}
@@ -760,7 +760,7 @@ const MyCourses = () => {
 
               {/* Foundational & Advanced Courses Section */}
               {(filteredCourses(availableCourses).filter(course => 
-                !['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id)
+                !['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id)
               ).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) && (
                 <>
                   <div className="relative">
@@ -794,7 +794,7 @@ const MyCourses = () => {
                     
                     {/* Other Available Regular Courses */}
                     {filteredCourses(availableCourses)
-                      .filter(course => !['learning-state-beta', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading'].includes(course.id))
+                      .filter(course => !['learning-state-beta', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling'].includes(course.id))
                       .map((course) => (
                         <CourseCard key={course.id} course={course} isEnrolled={false} />
                       ))}
@@ -802,7 +802,7 @@ const MyCourses = () => {
                 </>
               )}
               {(filteredCourses(availableCourses).filter(course => 
-                !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
+                !['learning-state-beta', 'empowering-learning-spelling', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id)
               ).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) && (
                 <>
                   <div className="relative">
@@ -827,7 +827,7 @@ const MyCourses = () => {
                     
                     {/* Available Regular Courses (excluding priority and empowering learning courses) */}
                     {filteredCourses(availableCourses)
-                      .filter(course => !['learning-state-beta', 'el-spelling-reading', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id))
+                      .filter(course => !['learning-state-beta', 'empowering-learning-spelling', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading'].includes(course.id))
                       .map((course) => (
                         <CourseCard key={course.id} course={course} isEnrolled={false} />
                       ))}
