@@ -256,9 +256,9 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                 return (
                   <Card 
                     key={lesson.id}
-                    className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm ${
+                    className={`relative transition-all duration-200 cursor-pointer hover:shadow-lg bg-card/65 backdrop-blur-sm border-border ${
                       !isAccessible ? 'opacity-50' : ''
-                    } ${isCompleted ? 'border-primary/50' : ''}`}
+                    } ${isCompleted ? 'border-primary/50' : 'border-border'}`}
                     onClick={() => isAccessible && setCurrentLesson(lesson.id)}
                   >
                     <CardHeader className="pb-3">
