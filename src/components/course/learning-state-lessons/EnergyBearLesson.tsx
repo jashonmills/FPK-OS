@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, User, TreePine } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const EnergyBearLesson: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const EnergyBearLesson: React.FC = () => {
         title="Your Energy Bear"
         mediaId="energy-bear-video"
         courseId="empowering-learning-state"
-        moduleId={4}
+        moduleId="4"
       />
 
       <Card>

@@ -12,7 +12,7 @@ export const IntroductionLesson: React.FC = () => {
         title="Getting Into The Most Effective Learning State - Introduction"
         mediaId="learning-state-intro-video"
         courseId="empowering-learning-state"
-        moduleId={1}
+        moduleId="1"
       />
 
       <Card>

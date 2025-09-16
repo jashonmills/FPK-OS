@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, ArrowUp, Brain, Target } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const RaisingBookScreenLesson: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const RaisingBookScreenLesson: React.FC = () => {
         title="Raising Up Book/Screen Technique"
         mediaId="raising-book-video"
         courseId="empowering-learning-state"
-        moduleId={10}
+        moduleId="10"
       />
 
       <Card>

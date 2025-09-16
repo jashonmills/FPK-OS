@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TreePine, Anchor, ArrowDown } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const BigStrongTreeLesson: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const BigStrongTreeLesson: React.FC = () => {
         title="Big Strong Tree - Planting (Grounding)"
         mediaId="big-strong-tree-video"
         courseId="empowering-learning-state"
-        moduleId={3}
+        moduleId="3"
       />
 
       <Card>

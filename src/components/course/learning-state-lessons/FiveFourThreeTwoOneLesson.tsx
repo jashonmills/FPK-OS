@@ -12,7 +12,7 @@ export const FiveFourThreeTwoOneLesson: React.FC = () => {
         title="5, 4, 3, 2, 1 Grounding Technique"
         mediaId="five-four-three-video"
         courseId="empowering-learning-state"
-        moduleId={5}
+        moduleId="5"
       />
 
       <Card>

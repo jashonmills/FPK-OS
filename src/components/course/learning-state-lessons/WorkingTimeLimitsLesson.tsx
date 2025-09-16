@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Smartphone, Coffee, Settings } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const WorkingTimeLimitsLesson: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const WorkingTimeLimitsLesson: React.FC = () => {
         title="Working Time Limits"
         mediaId="working-time-limits-video"
         courseId="empowering-learning-state"
-        moduleId={12}
+        moduleId="12"
       />
 
       <Card>

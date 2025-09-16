@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Timer, Pause, Lightbulb, Shield } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 import sandTimerImage from '@/assets/sand-timer-image.jpg';
 
 export const SandTimerLesson: React.FC = () => {
@@ -13,7 +13,7 @@ export const SandTimerLesson: React.FC = () => {
         title="Sand Timer Technique"
         mediaId="sand-timer-video"
         courseId="empowering-learning-state"
-        moduleId={9}
+        moduleId="9"
       />
 
       <Card>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navigation, Brain, Target } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 import labyrinthImage from '@/assets/labyrinth-image.jpg';
 
 export const LabyrinthLesson: React.FC = () => {
@@ -13,7 +13,7 @@ export const LabyrinthLesson: React.FC = () => {
         title="Labyrinths for Learning Focus"
         mediaId="labyrinth-video"
         courseId="empowering-learning-state"
-        moduleId={6}
+        moduleId="6"
       />
 
       <Card>

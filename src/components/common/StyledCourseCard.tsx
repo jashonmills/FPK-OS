@@ -50,6 +50,7 @@ const courseImageMap: Record<string, string> = {
   'empowering-learning-numeracy': empoweringNumeracyBg,
   'empowering-learning-handwriting': empoweringHandwritingBg,
   'empowering-learning-spelling': empoweringSpellingBg,
+  'empowering-learning-state': learningStateBg,
   'neurodiversity-strengths-based-approach': neurodiversityBackground,
   'interactive-science': scienceCourseBg,
   'money-management-teens': moneyManagementBg,

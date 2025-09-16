@@ -28,6 +28,7 @@ import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
 import courseScience from '@/assets/course-science.jpg';
 import courseMoneyManagement from '@/assets/course-money-management.jpg';
+import learningStateBg from '@/assets/learning-state-bg.jpg';
 
 interface Course {
   id: string;
@@ -49,6 +50,7 @@ const courseImageMap: Record<string, string> = {
   'empowering-learning-spelling': courseSpellingReading,
   'empowering-learning-reading': courseSpellingReading,
   'empowering-learning-numeracy': courseSpellingReading,
+  'empowering-learning-state': learningStateBg,
   'logic-critical-thinking': courseLogic,
   'interactive-science': courseScience,
   'interactive-algebra': courseAlgebra,
@@ -74,6 +76,7 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
   if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
   if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
+  if (titleLower.includes('learning') && titleLower.includes('state')) return learningStateBg;
   if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
   if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
   if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
@@ -83,6 +86,24 @@ const getCourseImage = (id: string, title: string): string => {
 };
 
 const courses: Course[] = [
+  {
+    id: 'empowering-learning-state',
+    title: 'Empowering Learning State',
+    description: 'Master the optimal learning state through calming techniques and brain integration methods.',
+    summary: 'Learn essential techniques to achieve the most effective learning state, including breathing exercises, grounding methods, and brain integration activities designed to enhance focus and memory retention.',
+    duration: '~3 Hours',
+    level: 'Beginner',
+    lessons: 12,
+    category: 'Learning Skills',
+    features: ['Video Instructions', 'Calming Techniques', 'Brain Integration', 'Focus Enhancement'],
+    learningOutcomes: [
+      'Master breathing and grounding techniques',
+      'Achieve optimal learning states for better retention',
+      'Apply brain integration methods for enhanced focus',
+      'Build confidence and reduce learning anxiety'
+    ],
+    route: '/courses/empowering-learning-state'
+  },
   {
     id: 'empowering-learning-spelling',
     title: 'Empowering Learning for Spelling',
@@ -321,6 +342,7 @@ const CoursesPage: React.FC = () => {
   const getCategoryColor = (category: string) => {
     const colors = {
       'Language Arts': 'bg-blue-100 text-blue-700',
+      'Learning Skills': 'bg-indigo-100 text-indigo-700',
       'Critical Thinking': 'bg-purple-100 text-purple-700',
       'Science': 'bg-green-100 text-green-700',
       'Mathematics': 'bg-orange-100 text-orange-700',

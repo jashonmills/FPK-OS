@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wind, Square, AlertCircle } from 'lucide-react';
-import { MediaPlayer } from '@/components/course/MediaPlayer';
+import MediaPlayer from '@/components/course/MediaPlayer';
 
 export const BreathingLesson: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const BreathingLesson: React.FC = () => {
         title="Box Breathing Technique"
         mediaId="box-breathing-video"
         courseId="empowering-learning-state"
-        moduleId={7}
+        moduleId="7"
       />
 
       <Card>
