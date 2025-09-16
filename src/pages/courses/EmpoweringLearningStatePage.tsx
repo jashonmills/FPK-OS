@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, Brain } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
+import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/learning-state-lessons/IntroductionLesson';
@@ -122,7 +123,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
         >
           <div className="min-h-screen" 
                style={{
-                 backgroundImage: `url('https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-backgrounds/learning-state-course-bg.jpg')`,
+                 backgroundImage: `url(${learningStateBg})`,
                  backgroundSize: 'cover',
                  backgroundPosition: 'center',
                  backgroundRepeat: 'no-repeat',
@@ -164,7 +165,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto bg-white/70 backdrop-blur-sm rounded-lg p-6 shadow-lg">
                 {lessons.map((lesson) => {
                   const isCompleted = completedLessons.includes(lesson.id);
                   return (
@@ -215,7 +216,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
       >
         <div className="min-h-screen"
              style={{
-               backgroundImage: `url('https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-backgrounds/learning-state-course-bg.jpg')`,
+               backgroundImage: `url(${learningStateBg})`,
                backgroundSize: 'cover',
                backgroundPosition: 'center',
                backgroundRepeat: 'no-repeat',
