@@ -206,7 +206,7 @@ const FPK_GAMES = [
   {
     id: 'eco-genesis-forest-realm',
     name: 'Eco‑Genesis: Forest Realm',
-    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/eco-genesis.jpg',
+    image: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/game-cards/eco-genesis-forest-realm.jpg',
     url: 'https://eco-genesis-forest-realm.lovable.app/'
   },
   {
@@ -612,7 +612,7 @@ const MyCourses = () => {
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {FPK_GAMES.map((game) => (
                 <Card key={game.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 bg-white/90 backdrop-blur-sm border-white/20">
                   <div className="relative">
