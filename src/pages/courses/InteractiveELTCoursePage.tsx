@@ -285,7 +285,6 @@ const InteractiveELTCoursePage: React.FC = () => {
                 }}
                 whatYouMasterContent={{
                   title: "What You'll Master",
-                  description: "Core skills and strategies you'll develop",
                   objectives: [
                     { title: "Self-Awareness", description: "Identify your unique learning style and cognitive strengths" },
                     { title: "Executive Systems", description: "Develop personalized executive functioning systems" },
@@ -298,9 +297,19 @@ const InteractiveELTCoursePage: React.FC = () => {
               />
               
               <EnhancedCourseInfoAccordion 
-                introduction="This comprehensive course uses cutting-edge research in neuroscience and educational psychology."
-                features={["Evidence-based techniques", "Personalized learning approaches", "Real-world applications"]}
-                modules={["Understanding Neurodiversity", "Executive Functioning", "Study Techniques", "Self-Advocacy", "Real-World Application"]}
+                introduction="This comprehensive course uses cutting-edge research in neuroscience and educational psychology to provide learning strategies that work specifically for neurodiverse minds."
+                features={[
+                  { title: "Evidence-Based Techniques", description: "All strategies are backed by current research in neuroscience and educational psychology" },
+                  { title: "Personalized Learning Approaches", description: "Adapt methods to work with your unique brain and learning style" },
+                  { title: "Real-World Applications", description: "Practical tools you can use immediately in academic and professional settings" }
+                ]}
+                modules={[
+                  { number: 1, title: "Understanding Neurodiversity", description: "Discover your unique brain and cognitive strengths" },
+                  { number: 2, title: "Executive Functioning", description: "Build organizational systems that work with your brain" },
+                  { number: 3, title: "Study Techniques", description: "Master evidence-based methods for better learning" },
+                  { number: 4, title: "Self-Advocacy", description: "Transform challenges into strengths and advocate effectively" },
+                  { number: 5, title: "Real-World Application", description: "Apply your skills for lifelong success" }
+                ]}
               />
               
               <InstructorMaterialsAccordion 
