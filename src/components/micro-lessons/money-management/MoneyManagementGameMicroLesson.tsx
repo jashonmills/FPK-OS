@@ -14,8 +14,15 @@ import {
   AlertCircle,
   Trophy,
   Clock,
-  BookOpen
+  BookOpen,
+  Calculator,
+  BarChart3,
+  Receipt,
+  Minus,
+  Plus
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { MicroLessonContainer, MicroLessonData } from '@/components/micro-lessons/MicroLessonContainer';
 import { gameReducer, initialState } from './game-state';
 import { ALL_SCENARIOS } from './game-data';
@@ -42,6 +49,8 @@ const MoneyManagementGame: React.FC<GameProps> = ({
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const [showWelcome, setShowWelcome] = useState(true);
   const [dragAmount, setDragAmount] = useState(10);
+  const [ccPaymentAmount, setCcPaymentAmount] = useState('');
+  const [debtPaymentAmount, setDebtPaymentAmount] = useState('');
 
   const {
     phase,
@@ -371,102 +380,409 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     );
   };
 
-  // Weekly Summary Screen
-  const WeeklySummaryScreen = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500" />
-            Week {week} Complete!
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">${balance.toFixed(2)}</div>
-              <div className="text-sm text-muted-foreground">Current Balance</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{score}</div>
-              <div className="text-sm text-muted-foreground">Financial Score</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">{creditScore}</div>
-              <div className="text-sm text-muted-foreground">Credit Score</div>
-            </div>
-          </div>
+  // Enhanced Weekly Summary Screen with comprehensive features
+  const WeeklySummaryScreen = () => {
+    // Calculate weekly analytics
+    const weeklyIncome = state.weekLog
+      .filter(entry => entry.amount > 0)
+      .reduce((sum, entry) => sum + entry.amount, 0);
+    
+    const discretionarySpending = state.weekLog
+      .filter(entry => entry.amount < 0 && (entry.type === 'Scenario' || entry.category === 'wants'))
+      .reduce((sum, entry) => sum + Math.abs(entry.amount), 0);
+    
+    const weeklyNetChange = state.weekLog
+      .reduce((sum, entry) => sum + (entry.amount || 0), 0);
 
-          {/* Debt Status */}
-          {(creditCardBalance > 0 || currentDebt > 0) && (
-            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="font-semibold text-red-800 mb-2">⚠️ Debt Summary</h4>
-              <div className="space-y-2 text-sm">
-                {creditCardBalance > 0 && (
-                  <div className="flex justify-between">
-                    <span>Credit Card Debt:</span>
-                    <span className="font-bold text-red-600">${creditCardBalance.toFixed(2)}</span>
-                  </div>
-                )}
-                {currentDebt > 0 && (
-                  <div className="flex justify-between">
-                    <span>Other Debt:</span>
-                    <span className="font-bold text-red-600">${currentDebt.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t pt-2">
-                  <span className="font-semibold">Total Debt:</span>
-                  <span className="font-bold text-red-700">${(creditCardBalance + currentDebt).toFixed(2)}</span>
-                </div>
-                <div className="text-xs text-red-600 mt-2">
-                  Monthly Interest Charges: ${((creditCardBalance * creditCardInterestRate / 12) + (currentDebt * debtInterestRate / 12)).toFixed(2)}
-                </div>
-              </div>
-            </div>
-          )}
+    // Debt calculator functions
+    const calculatePayoffTime = (balance: number, payment: number, apr: number) => {
+      if (payment <= 0 || balance <= 0) return { months: 0, totalInterest: 0 };
+      const monthlyRate = apr / 12;
+      const months = Math.ceil(-Math.log(1 - (balance * monthlyRate) / payment) / Math.log(1 + monthlyRate));
+      const totalPaid = payment * months;
+      const totalInterest = totalPaid - balance;
+      return { months, totalInterest };
+    };
 
-          <Separator className="my-6" />
+    const handleDebtPayment = (type: 'credit' | 'debt', amount: number) => {
+      if (amount <= 0 || amount > balance) return;
+      
+      const logEntry = {
+        type: 'Payment',
+        title: type === 'credit' ? 'Credit Card Payment' : 'Debt Payment',
+        option: `Payment of $${amount.toFixed(2)}`,
+        impact: `balance: -${amount}`,
+        feedback: `You paid $${amount.toFixed(2)} toward your ${type === 'credit' ? 'credit card' : 'debt'}.`,
+        date: new Date().toLocaleDateString(),
+        week: week,
+        month: month,
+        amount: -amount,
+        balanceAfter: balance - amount
+      };
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">This Week's Decisions</h3>
-            {state.weekLog.map((entry, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+      dispatch({ 
+        type: 'MANUAL_TRANSACTION', 
+        logEntry, 
+        newBalance: balance - amount 
+      });
+
+      // Update debt amounts
+      if (type === 'credit') {
+        dispatch({ type: 'MAKE_CHOICE', option: { impact: `creditCard: -${amount}, credit: 5` }});
+      } else {
+        dispatch({ type: 'MAKE_CHOICE', option: { impact: `debt: -${amount}, credit: 5` }});
+      }
+    };
+
+    return (
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <BarChart3 className="w-6 h-6 text-green-600" />
+              End-of-Week Recap - Week {week}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+
+        {/* Weekly Analytics Tiles */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-8 h-8 text-blue-600" />
                 <div>
-                  <div className="font-medium">{entry.title || entry.type}</div>
-                  <div className="text-sm text-muted-foreground">{entry.option || entry.note}</div>
+                  <div className="text-2xl font-bold text-blue-700">${weeklyIncome.toFixed(2)}</div>
+                  <div className="text-sm text-blue-600">Weekly Income</div>
                 </div>
-                <div className="text-right">
-                  <div className={`font-bold ${entry.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {entry.amount > 0 ? '+' : ''}${entry.amount?.toFixed(2) || '0.00'}
+              </div>
+              <p className="text-xs text-blue-500 mt-2">
+                Extra income from side hustles and opportunities
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Receipt className="w-8 h-8 text-orange-600" />
+                <div>
+                  <div className="text-2xl font-bold text-orange-700">${discretionarySpending.toFixed(2)}</div>
+                  <div className="text-sm text-orange-600">Discretionary Spending</div>
+                </div>
+              </div>
+              <p className="text-xs text-orange-500 mt-2">
+                Wants and unexpected costs from scenarios
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className={`bg-gradient-to-br ${weeklyNetChange >= 0 ? 'from-green-50 to-green-100 border-green-200' : 'from-red-50 to-red-100 border-red-200'}`}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                {weeklyNetChange >= 0 ? (
+                  <TrendingUp className="w-8 h-8 text-green-600" />
+                ) : (
+                  <TrendingDown className="w-8 h-8 text-red-600" />
+                )}
+                <div>
+                  <div className={`text-2xl font-bold ${weeklyNetChange >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    {weeklyNetChange >= 0 ? '+' : ''}${weeklyNetChange.toFixed(2)}
+                  </div>
+                  <div className={`text-sm ${weeklyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    Weekly Net Change
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+              <p className={`text-xs mt-2 ${weeklyNetChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {weeklyNetChange >= 0 ? 'You increased your wealth this week!' : 'You spent more than you earned this week'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-          <Button 
-            size="lg" 
-            className="w-full mt-6"
-            onClick={() => {
-              if (week >= 4) {
-                dispatch({ type: 'GAME_OVER', status: 'completed' });
-                trackGameInteraction('game_completed', { 
-                  finalScore: score, 
-                  finalBalance: balance,
-                  weeks: week 
-                });
-              } else {
-                dispatch({ type: 'NEXT_WEEK' });
-                trackGameInteraction('week_completed', { week, score, balance });
-              }
-            }}
-          >
-            {week >= 4 ? 'Complete Game' : `Continue to Week ${week + 1}`}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+        {/* Debt Management Section */}
+        {(creditCardBalance > 0 || currentDebt > 0) && (
+          <Card className="border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-800">
+                <AlertCircle className="w-6 h-6" />
+                Debt Management - Critical Teaching Moment
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-red-100 border border-red-300 rounded-lg p-4">
+                <h4 className="font-semibold text-red-900 mb-2">💡 Why Managing Debt Matters</h4>
+                <p className="text-sm text-red-800">
+                  Debt accumulates interest over time, meaning you pay more than what you originally borrowed. 
+                  The longer you carry debt, the more expensive it becomes. Learning to pay down debt quickly 
+                  is one of the most important financial skills you can develop.
+                </p>
+              </div>
+
+              {/* Debt Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {creditCardBalance > 0 && (
+                  <div className="bg-white p-4 rounded-lg border border-red-200">
+                    <h5 className="font-semibold text-red-800 mb-3">Credit Card Debt</h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Balance:</span>
+                        <span className="font-bold text-red-600">${creditCardBalance.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>APR:</span>
+                        <span>{(creditCardInterestRate * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Monthly Interest:</span>
+                        <span className="text-red-600">${(creditCardBalance * creditCardInterestRate / 12).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentDebt > 0 && (
+                  <div className="bg-white p-4 rounded-lg border border-red-200">
+                    <h5 className="font-semibold text-red-800 mb-3">Other Debt</h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Balance:</span>
+                        <span className="font-bold text-red-600">${currentDebt.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>APR:</span>
+                        <span>{(debtInterestRate * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Monthly Interest:</span>
+                        <span className="text-red-600">${(currentDebt * debtInterestRate / 12).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Interactive Debt Calculator */}
+              <div className="bg-white p-6 rounded-lg border border-red-200">
+                <h4 className="font-semibold text-red-800 mb-4 flex items-center gap-2">
+                  <Calculator className="w-5 h-5" />
+                  Interactive Debt Payoff Calculator
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {creditCardBalance > 0 && (
+                    <div className="space-y-4">
+                      <h5 className="font-medium">Credit Card Payment</h5>
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="cc-payment">Payment Amount</Label>
+                          <div className="flex gap-2 mt-1">
+                            <Input
+                              id="cc-payment"
+                              type="number"
+                              placeholder="0"
+                              value={ccPaymentAmount}
+                              onChange={(e) => setCcPaymentAmount(e.target.value)}
+                              max={Math.min(balance, creditCardBalance)}
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                const amount = parseFloat(ccPaymentAmount);
+                                if (amount > 0) {
+                                  handleDebtPayment('credit', amount);
+                                  setCcPaymentAmount('');
+                                }
+                              }}
+                              disabled={!ccPaymentAmount || parseFloat(ccPaymentAmount) <= 0 || parseFloat(ccPaymentAmount) > balance}
+                            >
+                              Pay
+                            </Button>
+                          </div>
+                        </div>
+                        {ccPaymentAmount && parseFloat(ccPaymentAmount) > 0 && (
+                          <div className="bg-gray-50 p-3 rounded text-sm">
+                            {(() => {
+                              const payment = parseFloat(ccPaymentAmount);
+                              const calc = calculatePayoffTime(creditCardBalance, payment, creditCardInterestRate);
+                              return (
+                                <div>
+                                  <div>Payoff time: <strong>{calc.months} months</strong></div>
+                                  <div>Total interest: <strong>${calc.totalInterest.toFixed(2)}</strong></div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentDebt > 0 && (
+                    <div className="space-y-4">
+                      <h5 className="font-medium">Other Debt Payment</h5>
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="debt-payment">Payment Amount</Label>
+                          <div className="flex gap-2 mt-1">
+                            <Input
+                              id="debt-payment"
+                              type="number"
+                              placeholder="0"
+                              value={debtPaymentAmount}
+                              onChange={(e) => setDebtPaymentAmount(e.target.value)}
+                              max={Math.min(balance, currentDebt)}
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                const amount = parseFloat(debtPaymentAmount);
+                                if (amount > 0) {
+                                  handleDebtPayment('debt', amount);
+                                  setDebtPaymentAmount('');
+                                }
+                              }}
+                              disabled={!debtPaymentAmount || parseFloat(debtPaymentAmount) <= 0 || parseFloat(debtPaymentAmount) > balance}
+                            >
+                              Pay
+                            </Button>
+                          </div>
+                        </div>
+                        {debtPaymentAmount && parseFloat(debtPaymentAmount) > 0 && (
+                          <div className="bg-gray-50 p-3 rounded text-sm">
+                            {(() => {
+                              const payment = parseFloat(debtPaymentAmount);
+                              const calc = calculatePayoffTime(currentDebt, payment, debtInterestRate);
+                              return (
+                                <div>
+                                  <div>Payoff time: <strong>{calc.months} months</strong></div>
+                                  <div>Total interest: <strong>${calc.totalInterest.toFixed(2)}</strong></div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Enhanced Financial Activity Log */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Receipt className="w-6 h-6" />
+              Financial Activity Log - Week {week}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {state.weekLog.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No transactions recorded this week.
+                </div>
+              ) : (
+                state.weekLog.map((entry, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <div className="flex-1">
+                      <div className="font-medium">{entry.title || entry.type}</div>
+                      <div className="text-sm text-muted-foreground mt-1">{entry.option || entry.note}</div>
+                      {entry.impact && entry.impact.includes('creditCard') && (
+                        <div className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                          <CreditCard className="w-3 h-3" />
+                          This purchase will accrue interest on your credit card
+                        </div>
+                      )}
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {entry.date} • Week {entry.week}
+                      </div>
+                    </div>
+                    <div className="text-right ml-4">
+                      <div className={`text-lg font-bold ${entry.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {entry.amount >= 0 ? '+' : ''}${entry.amount?.toFixed(2) || '0.00'}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Balance: ${entry.balanceAfter?.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Current Financial Status */}
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">Current Financial Status</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">${balance.toFixed(2)}</div>
+                <div className="text-sm text-muted-foreground">Current Balance</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{score}</div>
+                <div className="text-sm text-muted-foreground">Financial Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{creditScore}</div>
+                <div className="text-sm text-muted-foreground">Credit Score</div>
+              </div>
+              <div className="text-center">
+                <div className={`text-2xl font-bold ${(creditCardBalance + currentDebt) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  ${(creditCardBalance + currentDebt).toFixed(2)}
+                </div>
+                <div className="text-sm text-muted-foreground">Total Debt</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Game Loop Integration */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <h3 className="text-lg font-semibold">
+                {week >= 4 ? 'Ready for Monthly Summary?' : `Ready for Week ${week + 1}?`}
+              </h3>
+              <p className="text-muted-foreground">
+                {week >= 4 
+                  ? 'You\'ve completed all four weeks! View your monthly report to see how you did overall and reflect on your financial journey.'
+                  : 'Review your performance above, then continue to the next week when you\'re ready to face new financial challenges.'
+                }
+              </p>
+              <Button 
+                size="lg" 
+                className="w-full max-w-md mx-auto"
+                onClick={() => {
+                  if (week >= 4) {
+                    dispatch({ type: 'GAME_OVER', status: 'completed' });
+                    trackGameInteraction('game_completed', { 
+                      finalScore: score, 
+                      finalBalance: balance,
+                      weeks: week 
+                    });
+                  } else {
+                    dispatch({ type: 'NEXT_WEEK' });
+                    trackGameInteraction('week_completed', { week, score, balance });
+                  }
+                }}
+              >
+                {week >= 4 ? '📊 View Monthly Summary' : `➡️ Go to Week ${week + 1}`}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   // Game Over/Reflection Screen
   const ReflectionScreen = () => (
