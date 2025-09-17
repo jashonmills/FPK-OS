@@ -275,6 +275,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       const nextWeek = state.week + 1;
       const nextPhase = nextWeek > 4 ? 'REFLECT' : 'PLAN';
       
+      console.log('NEXT_WEEK reducer - Current week:', state.week, 'Next week:', nextWeek, 'Next phase:', nextPhase);
+      
       // Apply interest if there's debt
       let newDebt = state.currentDebt;
       let newCreditCardBalance = state.creditCardBalance;
@@ -300,6 +302,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         weekLog: [],
         scenarioIndex: 0,
         currentScenario: null,
+        weeklyScenarios: [], // Reset for new week
         currentDebt: newDebt,
         creditCardBalance: newCreditCardBalance,
         creditScore: Math.max(300, Math.min(850, newCreditScore)),

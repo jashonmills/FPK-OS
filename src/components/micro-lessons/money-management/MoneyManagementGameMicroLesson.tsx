@@ -978,10 +978,10 @@ const MoneyManagementGame: React.FC<GameProps> = ({
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <h3 className="text-lg font-semibold">
-                {week >= 4 ? 'Ready for Monthly Summary?' : `Ready for Week ${week + 1}?`}
+                {week > 4 ? 'Ready for Monthly Summary?' : `Ready for Week ${week + 1}?`}
               </h3>
               <p className="text-muted-foreground">
-                {week >= 4 
+                {week > 4 
                   ? 'You\'ve completed all four weeks! View your monthly report to see how you did overall and reflect on your financial journey.'
                   : 'Review your performance above, then continue to the next week when you\'re ready to face new financial challenges.'
                 }
@@ -990,7 +990,8 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                 size="lg" 
                 className="w-full max-w-md mx-auto"
                 onClick={() => {
-                  if (week >= 4) {
+                  console.log('WeeklySummary Button clicked - Week:', week, 'Should end game?', week > 4);
+                  if (week > 4) {
                     dispatch({ type: 'GAME_OVER', status: 'completed' });
                     trackGameInteraction('game_completed', { 
                       finalScore: score, 
@@ -1003,7 +1004,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   }
                 }}
               >
-                {week >= 4 ? '📊 View Monthly Summary' : `➡️ Go to Week ${week + 1}`}
+                {week > 4 ? '📊 View Monthly Summary' : `➡️ Go to Week ${week + 1}`}
               </Button>
             </div>
           </CardContent>
