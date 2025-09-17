@@ -4,6 +4,31 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+interface BadgeItem {
+  id: string;
+  badge_id: string;
+  name: string;
+  description: string;
+  icon: string;
+  criteria: Record<string, unknown>;
+  rarity: string;
+  xp_reward: number;
+  awarded_at?: string;
+}
+
+interface Streak {
+  id: string;
+  user_id: string;
+  streak_type: string;
+  current_count: number;
+  max_count: number;
+  best_count: number;
+  last_activity: string;
+  start_date: string;
+  last_activity_date: string;
+  created_at: string;
+}
+
 interface XPResponse {
   success: boolean;
   xp_awarded: number;
@@ -12,7 +37,7 @@ interface XPResponse {
   xp_to_next: number;
   leveled_up: boolean;
   multiplier: number;
-  new_badges: any[];
+  new_badges: BadgeItem[];
 }
 
 interface UserStats {
@@ -21,8 +46,8 @@ interface UserStats {
     level: number;
     next_level_xp: number;
   };
-  badges: any[];
-  streaks: any[];
+  badges: BadgeItem[];
+  streaks: Streak[];
 }
 
 export function useGamification() {
@@ -32,7 +57,7 @@ export function useGamification() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const awardXP = useCallback(async (eventType: string, eventValue: number, metadata?: any) => {
+  const awardXP = useCallback(async (eventType: string, eventValue: number, metadata?: Record<string, unknown>) => {
     if (!user?.id || isProcessing) return;
 
     setIsProcessing(true);
@@ -145,7 +170,7 @@ export function useGamification() {
       if (error) throw error;
 
       // Show notifications for new badges
-      data.newBadges?.forEach((badge: any) => {
+      data.newBadges?.forEach((badge: BadgeItem) => {
         toast({
           title: `🏆 Badge Unlocked!`,
           description: `${badge.icon} ${badge.name}: ${badge.description}`,

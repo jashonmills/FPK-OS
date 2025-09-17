@@ -4,16 +4,61 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface AdvancedAnalyticsData {
-  dailyActivityHeatmap: any[];
-  liveHubInteractions: any[];
-  moduleCompletionFunnel: any[];
-  notesCreationTrends: any[];
-  readingSpeedProgression: any[];
-  goalCompletionTrends: any[];
-  reminderEffectiveness: any[];
-  notificationOpenRates: any[];
-  chatTopics: any[];
-  knowledgeBaseUsage: any[];
+  dailyActivityHeatmap: Array<{
+    date: string;
+    hour: number;
+    activityCount: number;
+    duration: number;
+  }>;
+  liveHubInteractions: Array<{
+    timestamp: string;
+    interactionType: string;
+    duration: number;
+    success: boolean;
+  }>;
+  moduleCompletionFunnel: Array<{
+    moduleId: string;
+    stage: string;
+    completionRate: number;
+    dropoffRate: number;
+  }>;
+  notesCreationTrends: Array<{
+    date: string;
+    notesCreated: number;
+    averageLength: number;
+    categories: string[];
+  }>;
+  readingSpeedProgression: Array<{
+    date: string;
+    wordsPerMinute: number;
+    comprehensionScore: number;
+  }>;
+  goalCompletionTrends: Array<{
+    date: string;
+    goalsCompleted: number;
+    averageCompletionTime: number;
+  }>;
+  reminderEffectiveness: Array<{
+    reminderType: string;
+    successRate: number;
+    averageResponseTime: number;
+  }>;
+  notificationOpenRates: Array<{
+    notificationType: string;
+    openRate: number;
+    clickThroughRate: number;
+  }>;
+  chatTopics: Array<{
+    topic: string;
+    frequency: number;
+    sentiment: 'positive' | 'neutral' | 'negative';
+  }>;
+  knowledgeBaseUsage: Array<{
+    resourceId: string;
+    accessCount: number;
+    averageTimeSpent: number;
+    rating: number;
+  }>;
 }
 
 export const useAdvancedAnalytics = (category?: string) => {

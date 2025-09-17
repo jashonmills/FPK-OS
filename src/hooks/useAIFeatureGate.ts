@@ -18,7 +18,7 @@ export function useAIFeatureGate() {
     action: () => Promise<T>,
     options: {
       amount?: number;
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
       onLimitReached?: () => void;
       silentLimitCheck?: boolean;
     } = {}
@@ -94,12 +94,12 @@ export function useAIFeatureGate() {
   /**
    * Get a gate component for wrapping UI elements
    */
-  const createGatedAction = useCallback(<T extends any[]>(
+  const createGatedAction = useCallback(<T extends unknown[]>(
     featureType: AIFeatureType,
-    action: (...args: T) => Promise<any> | any,
+    action: (...args: T) => Promise<unknown> | unknown,
     options: {
       amount?: number;
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
       onLimitReached?: () => void;
     } = {}
   ) => {

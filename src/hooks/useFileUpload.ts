@@ -28,14 +28,15 @@ export function useFileUpload() {
       });
 
       return { data, error: null };
-    } catch (error: any) {
-      console.error('Upload error:', error);
+    } catch (error) {
+      const uploadError = error as Error;
+      console.error('Upload error:', uploadError);
       toast({
         title: "Upload Error",
-        description: error.message || "Failed to upload file.",
+        description: uploadError.message || "Failed to upload file.",
         variant: "destructive",
       });
-      return { data: null, error };
+      return { data: null, error: uploadError };
     } finally {
       setIsUploading(false);
     }
@@ -57,14 +58,15 @@ export function useFileUpload() {
       });
 
       return { error: null };
-    } catch (error: any) {
-      console.error('Delete error:', error);
+    } catch (error) {
+      const deleteError = error as Error;
+      console.error('Delete error:', deleteError);
       toast({
         title: "Delete Error",
-        description: error.message || "Failed to delete file.",
+        description: deleteError.message || "Failed to delete file.",
         variant: "destructive",
       });
-      return { error };
+      return { error: deleteError };
     }
   };
 

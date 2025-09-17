@@ -18,12 +18,31 @@ export interface EPUBLoadError {
   retryCount: number;
 }
 
+interface EPUBInstance {
+  ready: Promise<void>;
+  loaded: {
+    navigation: Promise<unknown>;
+  };
+  navigation: {
+    toc: Array<{
+      id: string;
+      href: string;
+      label: string;
+      subitems?: Array<{
+        id: string;
+        href: string;
+        label: string;
+      }>;
+    }>;
+  };
+}
+
 export const useEnhancedEPUBLoader = (book: PublicDomainBook) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState<EPUBLoadingProgress | null>(null);
   const [error, setError] = useState<EPUBLoadError | null>(null);
-  const [epubInstance, setEpubInstance] = useState<any>(null);
-  const [toc, setToc] = useState<any[]>([]);
+  const [epubInstance, setEpubInstance] = useState<unknown>(null);
+  const [toc, setToc] = useState<Array<{ id: string; href: string; label: string; subitems?: Array<{ id: string; href: string; label: string; }> }>>([]);
   
   const retryCountRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -64,7 +83,7 @@ export const useEnhancedEPUBLoader = (book: PublicDomainBook) => {
   }, []);
 
   const createEnhancedError = useCallback((
-    error: any,
+    error: Error | { message?: string },
     type: EPUBLoadError['type'] = 'unknown'
   ): EPUBLoadError => {
     let message = 'An unexpected error occurred';
@@ -160,9 +179,10 @@ export const useEnhancedEPUBLoader = (book: PublicDomainBook) => {
       // Load navigation with fallback
       try {
         await Promise.race([
-          newEpubInstance.loaded.navigation.then(() => {
-            setToc(newEpubInstance.navigation.toc || []);
-            console.log('📚 TOC loaded:', newEpubInstance.navigation.toc?.length || 0, 'items');
+          (newEpubInstance as EPUBInstance).loaded.navigation.then(() => {
+            const tocData = (newEpubInstance as EPUBInstance).navigation?.toc || [];
+            setToc(tocData);
+            console.log('📚 TOC loaded:', tocData.length, 'items');
           }),
           new Promise((_, reject) => 
             setTimeout(() => reject(new Error('TOC timeout')), 8000)
