@@ -14,6 +14,7 @@ interface InteractiveLessonWrapperProps {
   onNext?: () => void;
   hasNext?: boolean;
   totalLessons?: number;
+  suppressWrapperCompletion?: boolean; // Hide wrapper completion UI for micro-lessons
 }
 
 export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> = ({
@@ -24,7 +25,8 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   onComplete,
   onNext,
   hasNext,
-  totalLessons = 8
+  totalLessons = 8,
+  suppressWrapperCompletion = false
 }) => {
   const {
     startLessonAnalytics,
@@ -161,8 +163,8 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         {enhancedChildren}
       </div>
 
-      {/* Lesson Completion Footer */}
-      {!isCompleted && (
+      {/* Lesson Completion Footer - Only show for non-micro-lessons */}
+      {!suppressWrapperCompletion && !isCompleted && (
         <Card className="mt-8 border-2 border-dashed border-primary/30">
           <CardContent className="p-6 text-center">
             <div className="space-y-4">
@@ -182,8 +184,8 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         </Card>
       )}
 
-      {/* Next Lesson Button */}
-      {isCompleted && hasNext && onNext && (
+      {/* Next Lesson Button - Only show for non-micro-lessons */}
+      {!suppressWrapperCompletion && isCompleted && hasNext && onNext && (
         <Card className="mt-6 bg-primary/5 border-primary/20">
           <CardContent className="p-6 text-center">
             <div className="space-y-4">

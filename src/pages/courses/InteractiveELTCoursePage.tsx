@@ -647,6 +647,7 @@ const InteractiveELTCoursePage: React.FC = () => {
               onComplete={() => handleLessonComplete(currentLesson)}
               onNext={handleNextLesson}
               hasNext={hasNext}
+              suppressWrapperCompletion={true}
             >
               <LessonComponent
                 onComplete={() => handleLessonComplete(currentLesson)}
