@@ -20,7 +20,7 @@ interface OrgContextType {
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
-export function OrgProvider({ children }: { children: React.ReactNode }) {
+export function OrgProvider({ children, orgId }: { children: React.ReactNode; orgId?: string }) {
   const { user } = useAuth();
   const { data: organizations = [], isLoading } = useUserOrganizations();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,20 +36,30 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
   console.log('OrgProvider - Current org:', currentOrg);
   console.log('OrgProvider - Is personal mode:', activeOrgId === null);
 
-  // Initialize activeOrgId from URL params or localStorage
+  // Initialize activeOrgId from URL params, props, or localStorage
   useEffect(() => {
     const orgFromUrl = searchParams.get('org');
     const orgFromStorage = localStorage.getItem('fpk.activeOrgId');
     
+    // Priority: URL param > orgId prop > localStorage
     if (orgFromUrl) {
       setActiveOrgId(orgFromUrl);
       localStorage.setItem('fpk.activeOrgId', orgFromUrl);
+    } else if (orgId) {
+      setActiveOrgId(orgId);
+      localStorage.setItem('fpk.activeOrgId', orgId);
+      // Update URL to include org parameter for consistency
+      if (!searchParams.get('org')) {
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('org', orgId);
+        setSearchParams(newSearchParams, { replace: true });
+      }
     } else if (orgFromStorage && orgFromStorage !== 'null') {
       setActiveOrgId(orgFromStorage);
     } else {
       setActiveOrgId(null);
     }
-  }, [searchParams]);
+  }, [searchParams, orgId]);
 
   // Update currentOrg when activeOrgId or organizations change
   useEffect(() => {
@@ -59,6 +69,7 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
       console.log('Found org for activeOrgId:', org);
       setCurrentOrg(org || null);
     } else {
+      console.log('OrgContext: Clearing current org - no activeOrgId or organizations');
       setCurrentOrg(null);
     }
   }, [activeOrgId, organizations]);
