@@ -7,6 +7,14 @@ import { useReadingAnalytics } from '@/hooks/useReadingAnalytics';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 
+interface ReadingBookStats {
+  book_id: string;
+  book_title?: string;
+  book_author?: string;
+  total_time: number;
+  session_count: number;
+}
+
 interface ReadingAnalyticsCardProps {
   userId?: string;
 }
@@ -75,10 +83,10 @@ const ReadingAnalyticsCard = ({ userId }: ReadingAnalyticsCardProps) => {
       acc[session.book_id].total_time += session.duration_seconds || 0;
       acc[session.book_id].session_count += 1;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, ReadingBookStats>);
 
     const favoriteBooks = Object.values(bookStats)
-      .sort((a: any, b: any) => b.total_time - a.total_time)
+      .sort((a: ReadingBookStats, b: ReadingBookStats) => b.total_time - a.total_time)
       .slice(0, 5);
 
     return {

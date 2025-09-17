@@ -9,6 +9,18 @@ interface WeatherChartProps {
   onInteract?: () => void;
 }
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      fullTime: string;
+      temperature: number;
+      precipitation: number;
+    };
+  }>;
+  label?: string;
+}
+
 const WeatherChart: React.FC<WeatherChartProps> = ({ data, onInteract }) => {
   const chartData = data.hourly.map(hour => ({
     time: format(new Date(hour.dt * 1000), 'HH:mm'),
@@ -17,7 +29,7 @@ const WeatherChart: React.FC<WeatherChartProps> = ({ data, onInteract }) => {
     precipitation: Math.round(hour.pop * 100),
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

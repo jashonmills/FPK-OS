@@ -27,15 +27,41 @@ interface ChatMessage {
   timestamp: string;
 }
 
+interface User {
+  id: string;
+  email?: string;
+  name?: string;
+}
+
+interface SessionData {
+  id: string;
+  course_id?: string;
+  completed_at?: string;
+}
+
+interface FlashcardData {
+  id: string;
+  front_content: string;
+  back_content: string;
+  difficulty_level?: number;
+}
+
+interface InsightData {
+  type: 'performance' | 'pattern' | 'recommendation' | 'motivation';
+  title: string;
+  message: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 interface AIStudyChatInterfaceProps {
   chatMode?: 'personal' | 'general';
   showHeader?: boolean;
   placeholder?: string;
   // Dashboard-specific props
-  user?: any;
-  completedSessions?: any[];
-  flashcards?: any[];
-  insights?: any;
+  user?: User;
+  completedSessions?: SessionData[];
+  flashcards?: FlashcardData[];
+  insights?: InsightData[];
   fixedHeight?: boolean;
 }
 

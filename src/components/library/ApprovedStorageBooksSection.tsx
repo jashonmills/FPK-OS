@@ -11,8 +11,17 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { useCleanup } from '@/utils/cleanupManager';
 
+interface Book {
+  id: string;
+  title: string;
+  author?: string;
+  file_url?: string;
+  download_url?: string;
+  created_at?: string;
+}
+
 interface ApprovedStorageBooksProps {
-  books: any[];
+  books: Book[];
   isLoading?: boolean;
   error?: string | null;
   parentViewMode?: 'grid' | 'list';
@@ -54,7 +63,7 @@ const ApprovedStorageBooksSection: React.FC<ApprovedStorageBooksProps> = ({ book
     safeLocalStorage.setItem('communityLibrary-viewMode', viewMode);
   }, [viewMode]);
 
-  const handlePDFOpen = async (book: any) => {
+  const handlePDFOpen = async (book: Book) => {
     console.log('📖 Opening PDF with optimized viewer:', book.file_name);
     setValidatingPDF(book.id);
     
@@ -79,7 +88,7 @@ const ApprovedStorageBooksSection: React.FC<ApprovedStorageBooksProps> = ({ book
     }
   };
 
-  const handleDownload = async (book: any) => {
+  const handleDownload = async (book: Book) => {
     try {
       const response = await fetch(book.file_url);
       const blob = await response.blob();
@@ -117,7 +126,7 @@ const ApprovedStorageBooksSection: React.FC<ApprovedStorageBooksProps> = ({ book
     );
   }
 
-  const renderBookCard = (book: any) => (
+  const renderBookCard = (book: Book) => (
     <Card key={book.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-primary/20">
       <CardContent className="p-4">
         <div className="flex flex-col h-full">
@@ -172,7 +181,7 @@ const ApprovedStorageBooksSection: React.FC<ApprovedStorageBooksProps> = ({ book
     </Card>
   );
 
-  const renderBookList = (book: any) => (
+  const renderBookList = (book: Book) => (
     <div key={book.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
       <div className="w-10 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded flex items-center justify-center flex-shrink-0">
         <FileText className="h-5 w-5 text-primary/60" />

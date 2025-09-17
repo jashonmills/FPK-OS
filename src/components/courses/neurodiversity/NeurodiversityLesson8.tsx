@@ -7,7 +7,7 @@ import { ChevronDown, ChevronUp, Trophy, Search } from 'lucide-react';
 interface NeurodiversityLesson8Props {
   onComplete?: () => void;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, any>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

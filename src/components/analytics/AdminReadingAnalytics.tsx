@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { BookOpen, Clock, Users, TrendingUp } from 'lucide-react';
 
+interface BookStats {
+  bookId: string;
+  sessions: number;
+  totalTime: number;
+  users: Set<string>;
+  uniqueUsers?: number;
+}
+
 const AdminReadingAnalytics = () => {
   const { data: readingStats, isLoading } = useQuery({
     queryKey: ['admin-reading-analytics'],
@@ -32,9 +40,9 @@ const AdminReadingAnalytics = () => {
       }, {}) || {};
 
       const topBooks = Object.values(bookStats)
-        .sort((a: any, b: any) => b.sessions - a.sessions)
+        .sort((a: BookStats, b: BookStats) => b.sessions - a.sessions)
         .slice(0, 5)
-        .map((book: any) => ({
+        .map((book: BookStats) => ({
           ...book,
           uniqueUsers: book.users.size
         }));
@@ -130,7 +138,7 @@ const AdminReadingAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {readingStats?.topBooks?.map((book: any, index: number) => (
+            {readingStats?.topBooks?.map((book: BookStats, index: number) => (
               <div key={book.bookId} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-bold">

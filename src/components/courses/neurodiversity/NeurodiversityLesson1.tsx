@@ -7,7 +7,7 @@ import humanBrainForestImage from '@/assets/human-brain-forest.jpg';
 interface NeurodiversityLesson1Props {
   onComplete?: () => void;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, any>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

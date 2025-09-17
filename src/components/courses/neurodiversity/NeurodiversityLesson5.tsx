@@ -6,7 +6,7 @@ import { TrendingUp, Eye, Target, Search } from 'lucide-react';
 interface NeurodiversityLesson5Props {
   onComplete?: () => void;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, any>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

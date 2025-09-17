@@ -6,7 +6,7 @@ import { Settings, Calendar, Palette, MessageSquare } from 'lucide-react';
 interface NeurodiversityLesson3Props {
   onComplete?: () => void;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, any>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

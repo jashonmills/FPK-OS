@@ -6,7 +6,7 @@ import { Users, Cog, Search, GitBranch } from 'lucide-react';
 interface NeurodiversityLesson6Props {
   onComplete?: () => void;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, any>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

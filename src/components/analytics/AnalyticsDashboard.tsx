@@ -27,7 +27,7 @@ interface AnalyticsEvent {
     course_id?: string;
     module_id?: string;
     timestamp: string;
-    [key: string]: any;
+    [key: string]: string | number | boolean | undefined;
   };
 }
 

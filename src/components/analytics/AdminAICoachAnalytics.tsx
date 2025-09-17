@@ -4,6 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { MessageCircle, Users, Clock, TrendingUp } from 'lucide-react';
 
+interface ChatContext {
+  context: string;
+  count: number;
+}
+
 const AdminAICoachAnalytics = () => {
   const { data: aiStats, isLoading } = useQuery({
     queryKey: ['admin-ai-coach-analytics'],
@@ -126,7 +131,7 @@ const AdminAICoachAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {aiStats?.topContexts?.map((item: any, index: number) => (
+            {aiStats?.topContexts?.map((item: ChatContext, index: number) => (
               <div key={item.context} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-bold">

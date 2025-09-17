@@ -12,6 +12,13 @@ interface APODCardProps {
   className?: string;
 }
 
+interface APODData {
+  media_type: string;
+  thumbnail_url?: string;
+  hdurl?: string;
+  url: string;
+}
+
 const APODCard: React.FC<APODCardProps> = ({ onOpenGallery, className }) => {
   const { data: apod, isLoading, error, refetch } = useNASAAPOD();
 
@@ -20,7 +27,7 @@ const APODCard: React.FC<APODCardProps> = ({ onOpenGallery, className }) => {
     return text.substring(0, maxLength).trim() + '…';
   };
 
-  const getImageUrl = (apod: any): string => {
+  const getImageUrl = (apod: APODData): string => {
     if (apod.media_type === 'video' && apod.thumbnail_url) {
       return apod.thumbnail_url;
     }

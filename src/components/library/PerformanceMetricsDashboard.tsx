@@ -3,9 +3,27 @@ import React from 'react';
 import { Zap, TrendingUp } from 'lucide-react';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 
+interface PerformanceMetrics {
+  totalBooks: number;
+  totalReads: number;
+  averageRating: number;
+  completionRate: number;
+  prefetchedBooksCount?: number;
+}
+
+interface BrowsingAnalytics {
+  viewsByCategory: Record<string, number>;
+  popularBooks: Array<{ title: string; views: number }>;
+  userEngagement: number;
+  currentSession?: {
+    eventCount: number;
+    patterns: string[];
+  };
+}
+
 interface PerformanceMetricsDashboardProps {
-  performanceMetrics: any;
-  browsingAnalytics: any;
+  performanceMetrics: PerformanceMetrics;
+  browsingAnalytics: BrowsingAnalytics;
   prefetchSuggestions: PublicDomainBook[];
 }
 
