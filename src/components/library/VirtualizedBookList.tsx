@@ -5,6 +5,13 @@ import { searchIndexService } from '@/services/SearchIndexService';
 import SearchControls from './SearchControls';
 import BookListDisplay from './BookListDisplay';
 
+interface SearchSuggestion {
+  term: string;
+  type: 'title' | 'author' | 'subject';
+  bookCount: number;
+  books: string[];
+}
+
 interface VirtualizedBookListProps {
   books: PublicDomainBook[];
   onBookClick: (book: PublicDomainBook) => void;
@@ -69,7 +76,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
     setQuery(searchQuery);
   }, []);
 
-  const handleSuggestionSelect = useCallback((suggestion: any) => {
+  const handleSuggestionSelect = useCallback((suggestion: SearchSuggestion) => {
     console.log('💡 Suggestion selected:', suggestion);
     setQuery(suggestion.term);
   }, []);

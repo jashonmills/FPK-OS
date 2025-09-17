@@ -101,7 +101,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
               bookAuthor={book.author}
               forceLayoutRefresh={forceLayoutRefresh}
               isLoading={isLoading}
-              error={error}
+              error={error ? (typeof error === 'string' ? error : error.message || 'Unknown error') : null}
               isInitialized={isInitialized}
             />
 

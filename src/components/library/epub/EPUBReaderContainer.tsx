@@ -4,6 +4,7 @@ import { useOptimizedEPUBLoader } from '@/hooks/useOptimizedEPUBLoader';
 import { useOptimizedEPUBRendition } from '@/hooks/useOptimizedEPUBRendition';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
+import type { NavItem } from 'epubjs';
 
 interface EPUBReaderContainerProps {
   book: PublicDomainBook;
@@ -83,7 +84,7 @@ export const useEPUBReaderLogic = (book: PublicDomainBook) => {
   };
 
   // Simplified TOC click handler
-  const handleEnhancedTOCItemClick = (tocItem: any) => {
+  const handleEnhancedTOCItemClick = (tocItem: NavItem) => {
     console.log('📖 Loading chapter:', tocItem.label);
     handleTOCItemClick(tocItem);
     setShowTOC(false);

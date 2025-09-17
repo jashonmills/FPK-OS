@@ -8,7 +8,7 @@ interface EPUBReaderContentProps {
   bookAuthor: string;
   forceLayoutRefresh: () => void;
   isLoading: boolean;
-  error: any;
+  error: string | Error | null;
   isInitialized: boolean;
 }
 

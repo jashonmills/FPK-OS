@@ -3,24 +3,58 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import DOMPurify from 'isomorphic-dompurify';
 
+interface QuizOption {
+  id: string;
+  text: string;
+}
+
+interface MCQAnswerKey {
+  correct_answer: string;
+  explanation?: string;
+}
+
+interface MultiAnswerKey {
+  correct_answers: string[];
+  explanation?: string;
+}
+
+interface NumericAnswerKey {
+  correct_value: number;
+  explanation?: string;
+}
+
+interface QuizItem {
+  id: string;
+  kind: 'mcq' | 'multi' | 'numeric';
+  prompt: string;
+  options_json: QuizOption[];
+  answer_key_json: MCQAnswerKey | MultiAnswerKey | NumericAnswerKey;
+  points: number;
+  order_index: number;
+}
+
+interface BlockDataRichText {
+  html: string;
+}
+
+interface BlockDataImage {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+
+interface LessonBlock {
+  id: string;
+  type: 'rich-text' | 'image' | 'legacy-html' | 'quiz';
+  order_index: number;
+  data_json: BlockDataRichText | BlockDataImage | Record<string, unknown>;
+  quiz_items?: QuizItem[];
+}
+
 interface LessonData {
   id: string;
   title: string;
-  lesson_blocks: Array<{
-    id: string;
-    type: string;
-    order_index: number;
-    data_json: any;
-    quiz_items?: Array<{
-      id: string;
-      kind: string;
-      prompt: string;
-      options_json: any;
-      answer_key_json: any;
-      points: number;
-      order_index: number;
-    }>;
-  }>;
+  lesson_blocks: LessonBlock[];
 }
 
 interface NativeLessonRendererProps {
@@ -31,7 +65,8 @@ export function NativeLessonRenderer({ lesson }: NativeLessonRendererProps) {
   // Sort blocks by order_index
   const sortedBlocks = lesson.lesson_blocks?.sort((a, b) => a.order_index - b.order_index) || [];
 
-  const renderBlock = (block: LessonData['lesson_blocks'][0]) => {
+  const renderBlock = (block: LessonBlock) => {
+    const data = block.data_json as Record<string, any>;
     switch (block.type) {
       case 'rich-text':
         return (
@@ -40,7 +75,7 @@ export function NativeLessonRenderer({ lesson }: NativeLessonRendererProps) {
               <div 
                 className="prose prose-slate max-w-none"
                 dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(block.data_json.html || '', {
+                  __html: DOMPurify.sanitize(data.html || '', {
                     ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'img', 'div', 'span', 'table', 'tbody', 'tr', 'td', 'th'],
                     ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'style']
                   })
@@ -55,13 +90,13 @@ export function NativeLessonRenderer({ lesson }: NativeLessonRendererProps) {
           <Card key={block.id} className="mb-6">
             <CardContent className="pt-6 text-center">
               <img
-                src={block.data_json.src}
-                alt={block.data_json.alt || 'Course image'}
+                src={data.src}
+                alt={data.alt || 'Course image'}
                 className="max-w-full h-auto mx-auto rounded-lg shadow-sm"
               />
-              {block.data_json.caption && (
+              {data.caption && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  {block.data_json.caption}
+                  {data.caption}
                 </p>
               )}
             </CardContent>
@@ -69,7 +104,7 @@ export function NativeLessonRenderer({ lesson }: NativeLessonRendererProps) {
         );
 
       case 'legacy-html':
-        const proxyUrl = `/native-content/${block.data_json.packageId}/${block.data_json.src}`;
+        const proxyUrl = `/native-content/${data.packageId}/${data.src}`;
         return (
           <Card key={block.id} className="mb-6">
             <CardHeader>
@@ -128,11 +163,11 @@ export function NativeLessonRenderer({ lesson }: NativeLessonRendererProps) {
 }
 
 // Quiz renderer component
-function QuizRenderer({ items }: { items: any[] }) {
-  const [answers, setAnswers] = React.useState<{ [key: string]: any }>({});
+function QuizRenderer({ items }: { items: QuizItem[] }) {
+  const [answers, setAnswers] = React.useState<{ [key: string]: string | string[] | number }>({});
   const [submitted, setSubmitted] = React.useState(false);
 
-  const handleAnswerChange = (itemId: string, value: any) => {
+  const handleAnswerChange = (itemId: string, value: string | string[] | number) => {
     setAnswers(prev => ({ ...prev, [itemId]: value }));
   };
 
@@ -154,7 +189,7 @@ function QuizRenderer({ items }: { items: any[] }) {
 
           {item.kind === 'mcq' && (
             <div className="space-y-2">
-              {item.options_json.map((option: any) => (
+              {item.options_json.map((option: QuizOption) => (
                 <label key={option.id} className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="radio"
@@ -172,13 +207,13 @@ function QuizRenderer({ items }: { items: any[] }) {
 
           {item.kind === 'multi' && (
             <div className="space-y-2">
-              {item.options_json.map((option: any) => (
+              {item.options_json.map((option: QuizOption) => (
                 <label key={option.id} className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
                     value={option.id}
                     onChange={(e) => {
-                      const current = answers[item.id] || [];
+                      const current = (answers[item.id] as string[]) || [];
                       if (e.target.checked) {
                         handleAnswerChange(item.id, [...current, option.id]);
                       } else {
@@ -209,24 +244,50 @@ function QuizRenderer({ items }: { items: any[] }) {
             <div className="mt-3 p-3 rounded-lg bg-muted/50 text-sm">
               <div className="flex items-center space-x-2 mb-2">
                 <Badge variant={
-                  // Check if answers match for MCQ or if all correct answers are selected for multi-select
-                  (item.kind === 'mcq' && answers[item.id] === item.answer_key_json?.correct_answer) ||
-                  (item.kind === 'multi' && JSON.stringify((answers[item.id] || []).sort()) === JSON.stringify((item.answer_key_json?.correct_answers || []).sort())) ||
-                  (item.kind === 'numeric' && Math.abs(answers[item.id] - item.answer_key_json?.correct_value) < 0.001)
-                    ? 'default' : 'destructive'
+                  // Check if answers match for different quiz types
+                  (() => {
+                    const answerKey = item.answer_key_json as any;
+                    const userAnswer = answers[item.id];
+                    
+                    if (item.kind === 'mcq') {
+                      return userAnswer === answerKey?.correct_answer;
+                    } else if (item.kind === 'multi') {
+                      const userAnswers = Array.isArray(userAnswer) ? userAnswer : [];
+                      const correctAnswers = answerKey?.correct_answers || [];
+                      return JSON.stringify(userAnswers.sort()) === JSON.stringify(correctAnswers.sort());
+                    } else if (item.kind === 'numeric') {
+                      const userNum = typeof userAnswer === 'number' ? userAnswer : 0;
+                      const correctNum = answerKey?.correct_value || 0;
+                      return Math.abs(userNum - correctNum) < 0.001;
+                    }
+                    return false;
+                  })() ? 'default' : 'destructive'
                 }>
-                  {(item.kind === 'mcq' && answers[item.id] === item.answer_key_json?.correct_answer) ||
-                   (item.kind === 'multi' && JSON.stringify((answers[item.id] || []).sort()) === JSON.stringify((item.answer_key_json?.correct_answers || []).sort())) ||
-                   (item.kind === 'numeric' && Math.abs(answers[item.id] - item.answer_key_json?.correct_value) < 0.001)
-                    ? 'Correct' : 'Incorrect'}
+                  {(() => {
+                    const answerKey = item.answer_key_json as any;
+                    const userAnswer = answers[item.id];
+                    
+                    if (item.kind === 'mcq') {
+                      return userAnswer === answerKey?.correct_answer ? 'Correct' : 'Incorrect';
+                    } else if (item.kind === 'multi') {
+                      const userAnswers = Array.isArray(userAnswer) ? userAnswer : [];
+                      const correctAnswers = answerKey?.correct_answers || [];
+                      return JSON.stringify(userAnswers.sort()) === JSON.stringify(correctAnswers.sort()) ? 'Correct' : 'Incorrect';
+                    } else if (item.kind === 'numeric') {
+                      const userNum = typeof userAnswer === 'number' ? userAnswer : 0;
+                      const correctNum = answerKey?.correct_value || 0;
+                      return Math.abs(userNum - correctNum) < 0.001 ? 'Correct' : 'Incorrect';
+                    }
+                    return 'Incorrect';
+                  })()}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   {item.points} points
                 </span>
               </div>
-              {item.answer_key_json?.explanation && (
+              {(item.answer_key_json as any)?.explanation && (
                 <p className="text-sm text-muted-foreground">
-                  <strong>Explanation:</strong> {item.answer_key_json.explanation}
+                  <strong>Explanation:</strong> {(item.answer_key_json as any).explanation}
                 </p>
               )}
             </div>
