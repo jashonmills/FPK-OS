@@ -6,8 +6,10 @@ import { Progress } from '@/components/ui/progress';
 import { Target, Zap, Trophy } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useGamificationContext } from '@/contexts/GamificationContext';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const GoalXPTracker = () => {
+  const cleanup = useCleanup('goal-xp-tracker');
   const { goals = [], loading, error, refetch } = useGoals();
   const { userStats } = useGamificationContext();
   const [lastRefresh, setLastRefresh] = React.useState(Date.now());
@@ -21,11 +23,9 @@ const GoalXPTracker = () => {
 
     refresh();
     
-    // Set up periodic refresh every 30 seconds as fallback
-    const interval = setInterval(refresh, 30000);
-    
-    return () => clearInterval(interval);
-  }, [refetch]);
+    // Set up periodic refresh every 30 seconds as fallback using cleanupManager
+    cleanup.setInterval(refresh, 30000);
+  }, [refetch, cleanup]);
 
   if (loading) {
     return (

@@ -1,46 +1,38 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 /**
  * Lightweight performance hook specifically for the spelling course
  * to prevent browser freezing issues
  */
 export const useSpellingCoursePerformance = (courseId: string, lessonId?: number) => {
+  const cleanup = useCleanup('spelling-course-performance');
   const cleanupFunctions = useRef<(() => void)[]>([]);
-  const timers = useRef<Set<NodeJS.Timeout>>(new Set());
-  const intervals = useRef<Set<NodeJS.Timeout>>(new Set());
 
   // Safe timer creation with automatic cleanup
   const createTimer = useCallback((callback: () => void, delay: number) => {
-    const id = setTimeout(() => {
+    return cleanup.setTimeout(() => {
       try {
         callback();
       } catch (error) {
         console.warn('Timer callback error:', error);
-      } finally {
-        timers.current.delete(id);
       }
     }, delay);
-    
-    timers.current.add(id);
-    return id;
-  }, []);
+  }, [cleanup]);
 
   // Safe interval creation with automatic cleanup
   const createInterval = useCallback((callback: () => void, delay: number) => {
     // Minimum 2 second intervals to prevent browser strain
     const safeDelay = Math.max(delay, 2000);
     
-    const id = setInterval(() => {
+    return cleanup.setInterval(() => {
       try {
         callback();
       } catch (error) {
         console.warn('Interval callback error:', error);
       }
     }, safeDelay);
-    
-    intervals.current.add(id);
-    return id;
-  }, []);
+  }, [cleanup]);
 
   // Register cleanup function
   const registerCleanup = useCallback((cleanupFn: () => void) => {
@@ -51,30 +43,10 @@ export const useSpellingCoursePerformance = (courseId: string, lessonId?: number
   const forceCleanup = useCallback(() => {
     console.log('🧹 Cleaning up spelling course resources');
     
-    // Clear all timers
-    timers.current.forEach(id => {
-      try {
-        clearTimeout(id);
-      } catch (error) {
-        console.warn('Error clearing timer:', error);
-      }
-    });
-    timers.current.clear();
-
-    // Clear all intervals  
-    intervals.current.forEach(id => {
-      try {
-        clearInterval(id);
-      } catch (error) {
-        console.warn('Error clearing interval:', error);
-      }
-    });
-    intervals.current.clear();
-
     // Run all registered cleanup functions
-    cleanupFunctions.current.forEach(cleanup => {
+    cleanupFunctions.current.forEach(cleanupFn => {
       try {
-        cleanup();
+        cleanupFn();
       } catch (error) {
         console.warn('Error in cleanup function:', error);
       }

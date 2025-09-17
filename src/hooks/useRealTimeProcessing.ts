@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ProcessingStage } from '@/components/notes/RealTimeProcessingMeter';
 import { FileText, Download, Brain, Sparkles } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export interface ProcessingState {
   uploadId: string;
@@ -14,6 +15,7 @@ export interface ProcessingState {
 }
 
 export const useRealTimeProcessing = () => {
+  const cleanup = useCleanup('real-time-processing');
   const [processingStates, setProcessingStates] = useState<Record<string, ProcessingState>>({});
 
   const createDefaultStages = (): ProcessingStage[] => [
@@ -154,9 +156,9 @@ export const useRealTimeProcessing = () => {
     });
   }, []);
 
-  // Update elapsed time every second
+  // Update elapsed time every second using cleanupManager
   useEffect(() => {
-    const interval = setInterval(() => {
+    cleanup.setInterval(() => {
       setProcessingStates(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(uploadId => {
@@ -180,9 +182,7 @@ export const useRealTimeProcessing = () => {
         return updated;
       });
     }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [cleanup]);
 
   return {
     processingStates,

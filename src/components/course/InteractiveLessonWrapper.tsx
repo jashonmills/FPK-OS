@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import LessonTTSControls from '@/components/course/LessonTTSControls';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface InteractiveLessonWrapperProps {
   courseId: string;
@@ -28,6 +29,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   totalLessons = 8,
   suppressWrapperCompletion = false
 }) => {
+  const cleanup = useCleanup('interactive-lesson-wrapper');
   const {
     startLessonAnalytics,
     completeLessonAnalytics,
@@ -38,7 +40,6 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
   const startTimeRef = useRef<Date | null>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
   const lessonContentRef = useRef<HTMLDivElement>(null);
 
   // Start lesson analytics on mount
@@ -46,20 +47,14 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
     startLessonAnalytics(lessonId, lessonTitle);
     startTimeRef.current = new Date();
 
-    // Start timer for time tracking
-    timerRef.current = setInterval(() => {
+    // Start timer for time tracking using cleanupManager
+    cleanup.setInterval(() => {
       if (startTimeRef.current) {
         const elapsed = Math.floor((new Date().getTime() - startTimeRef.current.getTime()) / 1000);
         setTimeSpent(elapsed);
       }
     }, 1000);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [lessonId, lessonTitle, startLessonAnalytics]);
+  }, [lessonId, lessonTitle, startLessonAnalytics, cleanup]);
 
   // Handle lesson completion
   const handleComplete = async () => {

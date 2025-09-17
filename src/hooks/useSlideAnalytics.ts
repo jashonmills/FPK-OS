@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { analyticsEventBus } from '@/services/AnalyticsEventBus';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SlideView {
   slideId: string;
@@ -16,11 +17,12 @@ export const useSlideAnalytics = (
   courseId: string,
   lessonId?: string
 ) => {
+  const cleanup = useCleanup('slide-analytics');
   const { user } = useAuth();
   const [currentSlide, setCurrentSlide] = useState<SlideView | null>(null);
   const [slideHistory, setSlideHistory] = useState<SlideView[]>([]);
-  const attentionTimerRef = useRef<NodeJS.Timeout>();
-  const inactivityTimerRef = useRef<NodeJS.Timeout>();
+  const attentionTimerRef = useRef<string>();
+  const inactivityTimerRef = useRef<string>();
   const lastActivityRef = useRef<number>(Date.now());
 
   // Track slide view start
@@ -206,21 +208,21 @@ export const useSlideAnalytics = (
     // Clear current slide
     setCurrentSlide(null);
     
-    // Clear timers
-    if (attentionTimerRef.current) clearInterval(attentionTimerRef.current);
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    // Clear timers using cleanupManager
+    if (attentionTimerRef.current) cleanup.cleanup(attentionTimerRef.current);
+    if (inactivityTimerRef.current) cleanup.cleanup(inactivityTimerRef.current);
 
     console.log(`⏹️ Ended slide view: ${currentSlide.slideId} after ${duration}s`);
-  }, [currentSlide, user?.id, courseId, lessonId]);
+  }, [currentSlide, user?.id, courseId, lessonId, cleanup]);
 
   // Start attention monitoring
   const startAttentionMonitoring = useCallback(() => {
-    // Clear existing timers
-    if (attentionTimerRef.current) clearInterval(attentionTimerRef.current);
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    // Clear existing timers using cleanupManager
+    if (attentionTimerRef.current) cleanup.cleanup(attentionTimerRef.current);
+    if (inactivityTimerRef.current) cleanup.cleanup(inactivityTimerRef.current);
 
-    // Monitor attention every 5 seconds
-    attentionTimerRef.current = setInterval(() => {
+    // Monitor attention every 5 seconds using cleanupManager
+    attentionTimerRef.current = cleanup.setInterval(() => {
       const timeSinceActivity = Date.now() - lastActivityRef.current;
       
       setCurrentSlide(prev => {
@@ -248,15 +250,15 @@ export const useSlideAnalytics = (
       });
     }, 5000);
 
-    // Set inactivity timer for extended periods
-    inactivityTimerRef.current = setTimeout(() => {
+    // Set inactivity timer for extended periods using cleanupManager
+    inactivityTimerRef.current = cleanup.setTimeout(() => {
       setCurrentSlide(prev => prev ? {
         ...prev,
         attentionScore: Math.max(0, prev.attentionScore - 20), // Larger penalty for extended inactivity
         cognitiveLoad: Math.min(100, prev.cognitiveLoad + 10)
       } : null);
     }, 30000); // 30 seconds
-  }, []);
+  }, [cleanup]);
 
   // Calculate view quality based on engagement metrics
   const calculateViewQuality = (slide: SlideView, duration: number): Record<string, any> => {

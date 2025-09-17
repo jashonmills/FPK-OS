@@ -1,14 +1,16 @@
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export const useVoiceRecording = () => {
+  const cleanup = useCleanup('voice-recording');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const maxRecordingTime = 60; // seconds
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const durationIntervalRef = useRef<NodeJS.Timeout>();
+  const durationIntervalRef = useRef<string>();
 
   const startRecording = useCallback(async () => {
     try {
@@ -42,8 +44,8 @@ export const useVoiceRecording = () => {
       chunksRef.current = [];
       setRecordingDuration(0);
 
-      // Start duration timer
-      durationIntervalRef.current = setInterval(() => {
+      // Start duration timer using cleanupManager
+      durationIntervalRef.current = cleanup.setInterval(() => {
         setRecordingDuration(prev => {
           if (prev >= maxRecordingTime) {
             // Auto-stop when max time reached
@@ -74,7 +76,7 @@ export const useVoiceRecording = () => {
       console.error('Error starting recording:', error);
       alert('Unable to access microphone. Please check permissions.');
     }
-  }, [maxRecordingTime]);
+  }, [maxRecordingTime, cleanup]);
 
   const stopRecording = useCallback((): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -83,9 +85,9 @@ export const useVoiceRecording = () => {
         return;
       }
 
-      // Clear duration timer
+      // Clear duration timer using cleanupManager
       if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
+        cleanup.cleanup(durationIntervalRef.current);
       }
 
       mediaRecorderRef.current.onstop = async () => {
@@ -173,13 +175,13 @@ export const useVoiceRecording = () => {
       setIsRecording(false);
       chunksRef.current = [];
     });
-  }, [isRecording]);
+  }, [isRecording, cleanup]);
 
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
-      // Clear duration timer
+      // Clear duration timer using cleanupManager
       if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
+        cleanup.cleanup(durationIntervalRef.current);
       }
 
       mediaRecorderRef.current.stop();
@@ -189,7 +191,7 @@ export const useVoiceRecording = () => {
       chunksRef.current = [];
       console.log('Recording cancelled');
     }
-  }, [isRecording]);
+  }, [isRecording, cleanup]);
 
   const getRemainingTime = useCallback(() => {
     return Math.max(0, maxRecordingTime - recordingDuration);

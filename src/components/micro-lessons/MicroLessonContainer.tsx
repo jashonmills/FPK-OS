@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Menu, Clock, Target, Trophy } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export interface MicroLessonScreen {
   id: string;
@@ -34,6 +35,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
   onNext,
   hasNext
 }) => {
+  const cleanup = useCleanup('micro-lesson-container');
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [startTime] = useState(Date.now());
   const [timeSpent, setTimeSpent] = useState(0);
@@ -55,14 +57,12 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
     );
   }
 
-  // Update time spent every second
+  // Update time spent every second using cleanupManager
   useEffect(() => {
-    const interval = setInterval(() => {
+    cleanup.setInterval(() => {
       setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
-
-    return () => clearInterval(interval);
-  }, [startTime]);
+  }, [startTime, cleanup]);
 
   const handleNext = () => {
     if (currentScreenIndex < lessonData.screens.length - 1) {

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface FileUploadUpdateHandler {
   id: string;
@@ -18,12 +19,13 @@ interface FileUploadSubscriptionService {
 }
 
 export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
+  const cleanup = useCleanup('file-upload-subscription');
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const handlersRef = useRef<FileUploadUpdateHandler[]>([]);
   const mountedRef = useRef(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const pollingIntervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const pollingIntervalsRef = useRef<Record<string, string>>({});
 
   const subscribe = useCallback((id: string, handler: (payload: any) => void) => {
     if (!mountedRef.current) return;
@@ -64,12 +66,12 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     console.log(`🔄 Starting polling for upload: ${uploadId}`);
     
     if (pollingIntervalsRef.current[uploadId]) {
-      clearInterval(pollingIntervalsRef.current[uploadId]);
+      cleanup.cleanup(pollingIntervalsRef.current[uploadId]);
     }
 
-    const pollInterval = setInterval(async () => {
+    const intervalId = cleanup.setInterval(async () => {
       if (!mountedRef.current) {
-        clearInterval(pollingIntervalsRef.current[uploadId]);
+        cleanup.cleanup(pollingIntervalsRef.current[uploadId]);
         delete pollingIntervalsRef.current[uploadId];
         return;
       }
@@ -89,7 +91,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
         if (data && (data.processing_status === 'completed' || data.processing_status === 'failed')) {
           console.log(`✅ Polling complete for ${uploadId}: ${data.processing_status}`);
           callback(data);
-          clearInterval(pollingIntervalsRef.current[uploadId]);
+          cleanup.cleanup(pollingIntervalsRef.current[uploadId]);
           delete pollingIntervalsRef.current[uploadId];
         }
       } catch (error) {
@@ -97,25 +99,25 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       }
     }, 3000);
 
-    pollingIntervalsRef.current[uploadId] = pollInterval;
+    pollingIntervalsRef.current[uploadId] = intervalId;
 
     // Auto cleanup after 5 minutes
-    setTimeout(() => {
+    cleanup.setTimeout(() => {
       if (pollingIntervalsRef.current[uploadId]) {
         console.log(`⏰ Polling timeout for ${uploadId}`);
-        clearInterval(pollingIntervalsRef.current[uploadId]);
+        cleanup.cleanup(pollingIntervalsRef.current[uploadId]);
         delete pollingIntervalsRef.current[uploadId];
       }
     }, 300000);
-  }, []);
+  }, [cleanup]);
 
   const stopPolling = useCallback((uploadId: string) => {
     if (pollingIntervalsRef.current[uploadId]) {
       console.log(`🛑 Stopping polling for ${uploadId}`);
-      clearInterval(pollingIntervalsRef.current[uploadId]);
+      cleanup.cleanup(pollingIntervalsRef.current[uploadId]);
       delete pollingIntervalsRef.current[uploadId];
     }
-  }, []);
+  }, [cleanup]);
 
   const initializeConnection = useCallback(() => {
     // Critical validation: ensure we have valid user ID before creating channels

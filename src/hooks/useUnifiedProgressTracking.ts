@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SessionMetrics {
   sessionId: string;
@@ -19,6 +20,7 @@ export const useUnifiedProgressTracking = (
   lessonId?: string, 
   lessonTitle?: string
 ) => {
+  const cleanup = useCleanup('unified-progress-tracking');
   const { user } = useAuth();
   const [sessionMetrics, setSessionMetrics] = useState<SessionMetrics | null>(null);
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
@@ -192,8 +194,8 @@ export const useUnifiedProgressTracking = (
 
       console.log('🎯 Started tracking session:', sessionId);
 
-      // Set up periodic progress saving
-      const interval = setInterval(() => {
+      // Set up periodic progress saving using cleanupManager
+      cleanup.setInterval(() => {
         saveSessionData(false);
       }, 30000); // Save every 30 seconds
 
@@ -206,23 +208,14 @@ export const useUnifiedProgressTracking = (
       document.addEventListener('keydown', handleUserActivity);
       document.addEventListener('scroll', handleUserActivity);
 
-      // Cleanup
-      return () => {
-        clearInterval(interval);
-        document.removeEventListener('click', handleUserActivity);
-        document.removeEventListener('keydown', handleUserActivity);
-        document.removeEventListener('scroll', handleUserActivity);
-        
-        // Final session save
-        saveSessionData(true);
-      };
+      // Cleanup will be handled by cleanupManager
     }
     
     // Reset session ref when course changes  
     return () => {
       sessionIdRef.current = null;
     };
-  }, [user?.id, courseId, saveSessionData]);
+  }, [user?.id, courseId, saveSessionData, cleanup]);
 
   return {
     trackInteraction,

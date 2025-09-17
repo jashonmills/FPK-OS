@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SyncResult {
   goalId: string;
@@ -11,6 +12,7 @@ interface SyncResult {
 }
 
 export function useGoogleCalendarSync() {
+  const cleanup = useCleanup('google-calendar-sync');
   const { session } = useAuth();
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState(false);
@@ -66,12 +68,12 @@ export function useGoogleCalendarSync() {
         'width=500,height=600,scrollbars=yes,resizable=yes'
       );
 
-      // Listen for OAuth completion
-      const checkClosed = setInterval(() => {
+      // Listen for OAuth completion using cleanupManager
+      const checkClosedId = cleanup.setInterval(() => {
         if (popup?.closed) {
-          clearInterval(checkClosed);
+          cleanup.cleanup(checkClosedId);
           // Check if connection was successful
-          setTimeout(async () => {
+          cleanup.setTimeout(async () => {
             const connected = await checkConnection();
             if (connected) {
               toast({
