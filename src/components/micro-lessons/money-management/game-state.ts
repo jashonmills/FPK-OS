@@ -246,16 +246,27 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
     case 'CONTINUE_FROM_OUTCOME': {
       const nextIndex = state.scenarioIndex + 1;
-      const nextPhase = nextIndex >= state.weeklyScenarios.length ? 'WEEKLY_SUMMARY' : 'LIVE';
+      console.log('CONTINUE_FROM_OUTCOME - Current scenarioIndex:', state.scenarioIndex, 'Next index:', nextIndex, 'weeklyScenarios length:', state.weeklyScenarios.length);
       
-      return {
-        ...state,
-        scenarioIndex: nextIndex,
-        phase: nextPhase,
-        currentScenario: nextPhase === 'LIVE' ? state.weeklyScenarios[nextIndex] : null,
-        feedbackMessage: null,
-        lastChoice: null
-      };
+      if (nextIndex >= 5) {
+        // All 5 scenarios completed, go to weekly summary
+        return {
+          ...state,
+          phase: 'WEEKLY_SUMMARY',
+          feedbackMessage: null,
+          lastChoice: null
+        };
+      } else {
+        // Continue to next scenario
+        return {
+          ...state,
+          scenarioIndex: nextIndex,
+          phase: 'LIVE',
+          currentScenario: state.weeklyScenarios[nextIndex],
+          feedbackMessage: null,
+          lastChoice: null
+        };
+      }
     }
 
     case 'ADVANCE_SCENARIO': {

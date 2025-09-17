@@ -1139,7 +1139,9 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     phase, 
     week, 
     scenarioIndex: state.scenarioIndex, 
-    weeklyScenarios: state.weeklyScenarios?.length,
+    weeklyScenarios: state.weeklyScenarios?.length || 0,
+    hasScenarios: !!state.weeklyScenarios?.length,
+    currentScenario: state.currentScenario?.title || 'none',
     isGameOver 
   });
 
