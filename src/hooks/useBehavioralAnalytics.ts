@@ -2,17 +2,35 @@ import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { analyticsEventBus } from '@/services/AnalyticsEventBus';
+import type { Json } from '@/integrations/supabase/types';
 
 interface BehavioralRecord {
-  id?: string;
+  id: string;
   user_id: string;
   session_id: string;
   behavior_type: string;
-  behavior_data?: Record<string, unknown>;
-  context_metadata?: Record<string, unknown>;
-  pattern_indicators?: Record<string, unknown>;
-  timestamp?: string;
+  behavior_data: Json;
+  context_metadata: Json | null;
+  pattern_indicators: Json | null;
+  timestamp: string;
 }
+
+// Helper function to safely get number from Json
+const safeGetNumber = (value: Json | undefined, defaultValue: number = 0): number => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? defaultValue : parsed;
+  }
+  return defaultValue;
+};
+
+// Helper function to safely get string from Json
+const safeGetString = (value: Json | undefined, defaultValue: string = ''): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  return defaultValue;
+};
 
 interface BehavioralPattern {
   type: string;
@@ -48,13 +66,13 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         user_id: user.id,
         session_id: sessionId,
         behavior_type: 'attention_pattern',
-        behavior_data: behaviorData,
-        context_metadata: context,
+        behavior_data: behaviorData as Json,
+        context_metadata: context as Json,
         pattern_indicators: {
           sustainedAttention: duration > 300, // 5+ minutes
           deepFocus: level > 80,
           attentionFluctuation: Math.abs(level - focusLevel.current)
-        }
+        } as Json
       })
       .then(({ error }) => {
         if (error) console.error('Error tracking attention pattern:', error);
@@ -97,16 +115,16 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         user_id: user.id,
         session_id: sessionId,
         behavior_type: 'self_regulation',
-        behavior_data: behaviorData,
+        behavior_data: behaviorData as Json,
         context_metadata: {
           energyBefore: energyLevel.current,
           timeSinceLastBreak: Date.now() - lastActivity.current
-        },
+        } as Json,
         pattern_indicators: {
           selfAwareness: trigger === 'user_initiated',
           toolUtilization: action.includes('energy_bear') || action.includes('calming'),
           adaptiveResponse: effectiveness >= 7
-        }
+        } as Json
       })
       .then(({ error }) => {
         if (error) console.error('Error tracking self-regulation:', error);
@@ -143,16 +161,16 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         user_id: user.id,
         session_id: sessionId,
         behavior_type: 'learning_style',
-        behavior_data: behaviorData,
+        behavior_data: behaviorData as Json,
         context_metadata: {
-          preferenceProfile: preferenceProfile.current as any,
+          preferenceProfile: preferenceProfile.current,
           adaptiveAdjustments: []
-        },
+        } as Json,
         pattern_indicators: {
           strongPreference: preference > 80,
           consistentEngagement: engagement > 70,
           learningEffectiveness: (engagement + preference) / 2
-        }
+        } as Json
       })
       .then(({ error }) => {
         if (error) console.error('Error tracking learning style:', error);
@@ -167,7 +185,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
 
     const behaviorData = {
       energyLevel: level, // 0-100
-      fatigueIndicators: indicators, // typing speed, click patterns, scroll behavior
+      fatigueIndicators: indicators as Json, // typing speed, click patterns, scroll behavior
       timeOfDay: new Date().getHours(),
       sessionDuration: Date.now() - lastActivity.current
     };
@@ -179,14 +197,14 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         user_id: user.id,
         session_id: sessionId,
         behavior_type: 'energy_level',
-        behavior_data: behaviorData,
-        context_metadata: indicators as any,
+        behavior_data: behaviorData as Json,
+        context_metadata: indicators as Json,
         pattern_indicators: {
           lowEnergy: level < 30,
           optimal: level > 70,
           declining: level < energyLevel.current - 10,
           needsBreak: level < 40
-        }
+        } as Json
       })
       .then(({ error }) => {
         if (error) console.error('Error tracking energy level:', error);
@@ -247,7 +265,13 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     const attentionData = data.filter(d => d.behavior_type === 'attention_pattern');
     if (attentionData.length === 0) return 0;
     
-    const totalDuration = attentionData.reduce((sum, d) => sum + (d.behavior_data?.durationSeconds || 0), 0);
+    const totalDuration = attentionData.reduce((sum, d) => {
+      const behaviorData = d.behavior_data;
+      if (behaviorData && typeof behaviorData === 'object' && 'durationSeconds' in behaviorData) {
+        return sum + safeGetNumber(behaviorData.durationSeconds);
+      }
+      return sum;
+    }, 0);
     return totalDuration / attentionData.length;
   };
 
@@ -256,9 +280,12 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     const preferences: Record<string, number> = {};
 
     styleData.forEach(d => {
-      const contentType = d.behavior_data?.contentType;
-      const preference = d.behavior_data?.preferenceRating || 0;
-      preferences[contentType] = (preferences[contentType] || 0) + preference;
+      const behaviorData = d.behavior_data;
+      if (behaviorData && typeof behaviorData === 'object' && 'contentType' in behaviorData && 'preferenceRating' in behaviorData) {
+        const contentType = safeGetString(behaviorData.contentType);
+        const preference = safeGetNumber(behaviorData.preferenceRating);
+        preferences[contentType] = (preferences[contentType] || 0) + preference;
+      }
     });
 
     return Object.entries(preferences).sort(([,a], [,b]) => b - a)[0]?.[0] || 'unknown';
@@ -269,18 +296,21 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     const hourlyEnergy: Record<number, number[]> = {};
 
     energyData.forEach(d => {
-      const hour = new Date(d.timestamp).getHours();
-      const energy = d.behavior_data?.energyLevel || 0;
-      if (!hourlyEnergy[hour]) hourlyEnergy[hour] = [];
-      hourlyEnergy[hour].push(energy);
+      const hour = new Date(d.timestamp || Date.now()).getHours();
+      const behaviorData = d.behavior_data;
+      if (behaviorData && typeof behaviorData === 'object' && 'energyLevel' in behaviorData) {
+        const energy = safeGetNumber(behaviorData.energyLevel);
+        if (!hourlyEnergy[hour]) hourlyEnergy[hour] = [];
+        hourlyEnergy[hour].push(energy);
+      }
     });
 
     const avgHourlyEnergy = Object.entries(hourlyEnergy).map(([hour, energies]) => [
       parseInt(hour),
       energies.reduce((a, b) => a + b, 0) / energies.length
-    ]).sort(([,a], [,b]) => b - a);
+    ]).sort(([,a], [,b]) => (b as number) - (a as number));
 
-    const optimalHour = avgHourlyEnergy[0]?.[0];
+    const optimalHour = avgHourlyEnergy[0]?.[0] as number;
     if (optimalHour >= 6 && optimalHour < 12) return 'morning';
     if (optimalHour >= 12 && optimalHour < 18) return 'afternoon';
     if (optimalHour >= 18 && optimalHour < 22) return 'evening';
@@ -291,7 +321,13 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     const selfRegData = data.filter(d => d.behavior_type === 'self_regulation');
     if (selfRegData.length === 0) return 0;
 
-    const totalEffectiveness = selfRegData.reduce((sum, d) => sum + (d.behavior_data?.effectiveness || 0), 0);
+    const totalEffectiveness = selfRegData.reduce((sum, d) => {
+      const behaviorData = d.behavior_data;
+      if (behaviorData && typeof behaviorData === 'object' && 'effectiveness' in behaviorData) {
+        return sum + safeGetNumber(behaviorData.effectiveness);
+      }
+      return sum;
+    }, 0);
     return totalEffectiveness / selfRegData.length;
   };
 
@@ -299,7 +335,14 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     const energyData = data.filter(d => d.behavior_type === 'energy_level');
     if (energyData.length === 0) return {};
 
-    const energyLevels = energyData.map(d => d.behavior_data?.energyLevel || 0);
+    const energyLevels = energyData.map(d => {
+      const behaviorData = d.behavior_data;
+      if (behaviorData && typeof behaviorData === 'object' && 'energyLevel' in behaviorData) {
+        return safeGetNumber(behaviorData.energyLevel);
+      }
+      return 0;
+    });
+    
     const avgEnergy = energyLevels.reduce((a, b) => a + b, 0) / energyLevels.length;
     const variance = energyLevels.reduce((sum, level) => sum + Math.pow(level - avgEnergy, 2), 0) / energyLevels.length;
 
