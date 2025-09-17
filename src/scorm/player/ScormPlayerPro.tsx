@@ -18,6 +18,7 @@ import { ScormDebugConsole } from '@/scorm/player/ScormDebugConsole';
 import { functionsBase } from '@/lib/scorm/urls';
 import { buildLaunchUrl } from '@/lib/scorm/buildLaunchUrl';
 import ScormIframe from '@/components/scorm/ScormIframe';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface ScormPlayerProProps {
   mode?: 'preview' | 'launch' | 'review';
@@ -28,6 +29,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   mode = 'preview',
   enrollmentId 
 }) => {
+  const cleanup = useCleanup('ScormPlayerPro');
   const { packageId, scoId, enrollmentId: urlEnrollmentId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -135,11 +137,13 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
 
   // Session timer
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timerId = cleanup.setInterval(() => {
       setSessionTime(Math.floor((Date.now() - sessionStartTime.current) / 1000));
     }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    return () => {
+      cleanup.cleanup(timerId);
+    };
+  }, [cleanup]);
 
   // Format session time
   const formatTime = (seconds: number): string => {

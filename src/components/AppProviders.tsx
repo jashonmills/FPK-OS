@@ -10,6 +10,7 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
+import { BaseError } from '@/types/errors';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -24,9 +25,9 @@ const createQueryClient = () => {
       queries: {
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 10, // 10 minutes
-        retry: (failureCount, error: any) => {
+        retry: (failureCount, error: BaseError) => {
           // Don't retry on 4xx errors
-          if (error?.status >= 400 && error?.status < 500) {
+          if (error?.status && error.status >= 400 && error.status < 500) {
             return false;
           }
           return failureCount < 3;

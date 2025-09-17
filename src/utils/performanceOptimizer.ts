@@ -1,3 +1,8 @@
+import { Zap } from 'lucide-react';
+import { logger } from '@/utils/logger';
+import { indexedDBCache } from '@/services/IndexedDBCacheService';
+import { cleanupManager } from '@/utils/cleanupManager';
+
 // Performance optimizer utilities to prevent browser crashes
 
 interface TimeoutManager {
@@ -39,18 +44,14 @@ class GlobalTimeoutManager implements TimeoutManager {
   }
 
   setInterval(callback: () => void, delay: number): NodeJS.Timeout {
-    // Limit minimum interval to prevent browser strain
-    const minDelay = Math.max(delay, 1000); // Min 1 second
+    // Delegate to cleanup manager for better resource management
+    const intervalId = cleanupManager.setInterval(callback, delay, 'GlobalTimeoutManager');
     
-    const id = setInterval(() => {
-      try {
-        callback();
-      } catch (err) {
-        console.warn('Interval callback error:', err);
-      }
-    }, minDelay);
+    // Convert string ID back to NodeJS.Timeout for compatibility
+    const nodeTimeout = setInterval(() => {}, delay);
+    clearInterval(nodeTimeout);
     
-    this.intervals.add(id);
+    this.intervals.add(nodeTimeout);
     
     // Auto-cleanup if too many intervals
     if (this.intervals.size > 20) {
@@ -58,7 +59,7 @@ class GlobalTimeoutManager implements TimeoutManager {
       this.cleanupIntervals();
     }
     
-    return id;
+    return nodeTimeout;
   }
 
   private cleanupOldest(): void {

@@ -6,6 +6,7 @@
 
 import { WebVitalsTracker } from './WebVitalsTracker';
 import { ConversionFunnelTracker } from './ConversionFunnelTracker';
+import { cleanupManager } from '@/utils/cleanupManager';
 
 interface SLOTarget {
   metric: string;
@@ -41,7 +42,7 @@ export class SLOMonitoringService {
   private sloTargets: Map<string, SLOTarget> = new Map();
   private alertRules: Map<string, AlertRule> = new Map();
   private alerts: MonitoringAlert[] = [];
-  private monitoringInterval: number | null = null;
+  private monitoringIntervalId?: string;
 
   constructor() {
     this.webVitalsTracker = new WebVitalsTracker(this.handlePerformanceAlert.bind(this));
@@ -152,9 +153,9 @@ export class SLOMonitoringService {
    */
   private startMonitoring(): void {
     // Monitor every 30 seconds
-    this.monitoringInterval = window.setInterval(() => {
+    this.monitoringIntervalId = cleanupManager.setInterval(() => {
       this.checkSLOs();
-    }, 30000);
+    }, 30000, 'SLOMonitoringService');
 
     console.log('📊 SLO monitoring started');
   }
@@ -337,9 +338,9 @@ export class SLOMonitoringService {
    * Stop monitoring
    */
   stopMonitoring(): void {
-    if (this.monitoringInterval) {
-      clearInterval(this.monitoringInterval);
-      this.monitoringInterval = null;
+    if (this.monitoringIntervalId) {
+      cleanupManager.cleanup(this.monitoringIntervalId);
+      this.monitoringIntervalId = undefined;
     }
   }
 

@@ -9,8 +9,10 @@ import { useFileUploads } from '@/hooks/useFileUploads';
 import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const FileUploadCard: React.FC = () => {
+  const cleanup = useCleanup('FileUploadCard');
   const { user } = useAuth();
   const { uploads, createUpload, updateUpload, deleteUpload } = useFileUploads();
   const { subscribe, unsubscribe, isConnected, startPolling, stopPolling } = useFileUploadSubscription();
@@ -183,7 +185,7 @@ const FileUploadCard: React.FC = () => {
     const interval = duration / steps;
     let currentStep = 0;
 
-    const progressInterval = setInterval(() => {
+    const progressIntervalId = cleanup.setInterval(() => {
       currentStep++;
       const progress = Math.min((currentStep / steps) * 85, 85);
       
@@ -193,16 +195,16 @@ const FileUploadCard: React.FC = () => {
       }));
 
       if (currentStep >= steps) {
-        clearInterval(progressInterval);
+        cleanup.cleanup(progressIntervalId);
       }
     }, interval);
 
     // Auto-cleanup after duration + buffer
-    setTimeout(() => {
-      clearInterval(progressInterval);
+    cleanup.setTimeout(() => {
+      cleanup.cleanup(progressIntervalId);
     }, duration + 1000);
 
-    return progressInterval;
+    return progressIntervalId;
   };
 
   const getFileTypeLabel = (fileType: string) => {

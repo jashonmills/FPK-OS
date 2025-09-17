@@ -7,8 +7,10 @@ import { useUserUploadedBooks } from '@/hooks/useUserUploadedBooks';
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const PDFUploadComponent: React.FC = () => {
+  const cleanup = useCleanup('PDFUploadComponent');
   const { uploadPDF, isUploading } = useUserUploadedBooks();
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -31,23 +33,23 @@ const PDFUploadComponent: React.FC = () => {
     
     // Simulate upload progress
     let progress = 0;
-    const progressInterval = setInterval(() => {
+    const progressIntervalId = cleanup.setInterval(() => {
       progress += 10;
       setUploadProgress(progress);
       if (progress >= 90) {
-        clearInterval(progressInterval);
+        cleanup.cleanup(progressIntervalId);
       }
     }, 200);
 
     uploadPDF(file, {
       onSuccess: () => {
-        clearInterval(progressInterval);
+        cleanup.cleanup(progressIntervalId);
         setUploadProgress(100);
         toast.success('PDF uploaded successfully! It\'s now pending admin approval.');
-        setTimeout(() => setUploadProgress(0), 2000);
+        cleanup.setTimeout(() => setUploadProgress(0), 2000);
       },
       onError: (error) => {
-        clearInterval(progressInterval);
+        cleanup.cleanup(progressIntervalId);
         setUploadProgress(0);
         console.error('Upload error:', error);
         toast.error('Failed to upload PDF. Please try again.');

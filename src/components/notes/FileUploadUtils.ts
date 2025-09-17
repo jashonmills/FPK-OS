@@ -39,13 +39,14 @@ export const formatFileSize = (bytes: number) => {
 export const simulateProgress = (
   uploadId: string, 
   duration: number = 5000,
-  setProcessingProgress: React.Dispatch<React.SetStateAction<Record<string, number>>>
+  setProcessingProgress: React.Dispatch<React.SetStateAction<Record<string, number>>>,
+  cleanupManager: { setInterval: (callback: () => void, interval: number) => string; cleanup: (id: string) => void }
 ) => {
   const steps = 40;
   const interval = duration / steps;
   let currentStep = 0;
 
-  const progressInterval = setInterval(() => {
+  const progressIntervalId = cleanupManager.setInterval(() => {
     currentStep++;
     const progress = Math.min((currentStep / steps) * 85, 85);
     
@@ -55,9 +56,9 @@ export const simulateProgress = (
     }));
 
     if (currentStep >= steps) {
-      clearInterval(progressInterval);
+      cleanupManager.cleanup(progressIntervalId);
     }
   }, interval);
 
-  return progressInterval;
+  return progressIntervalId;
 };

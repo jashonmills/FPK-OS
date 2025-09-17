@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { analyticsEventBus, AnalyticsEvent } from './AnalyticsEventBus';
+import { cleanupManager } from '@/utils/cleanupManager';
 
 export interface LearningInsight {
   id: string;
@@ -178,31 +179,31 @@ class AIInsightsEngine {
     }
   }
 
-  private analysisInterval?: NodeJS.Timeout;
+  private analysisIntervalId?: string;
 
   private schedulePeriodicAnalysis() {
     // Clear any existing interval
-    if (this.analysisInterval) {
-      clearInterval(this.analysisInterval);
+    if (this.analysisIntervalId) {
+      cleanupManager.cleanup(this.analysisIntervalId);
     }
     
     // Run deep analysis every hour
-    this.analysisInterval = setInterval(async () => {
+    this.analysisIntervalId = cleanupManager.setInterval(async () => {
       try {
         await this.performDeepAnalysis();
       } catch (error) {
         console.error('Error in periodic analysis:', error);
       }
-    }, 60 * 60 * 1000); // 1 hour
+    }, 60 * 60 * 1000, 'AIInsightsEngine'); // 1 hour
   }
 
   /**
    * Clean up resources and stop periodic analysis
    */
   destroy() {
-    if (this.analysisInterval) {
-      clearInterval(this.analysisInterval);
-      this.analysisInterval = undefined;
+    if (this.analysisIntervalId) {
+      cleanupManager.cleanup(this.analysisIntervalId);
+      this.analysisIntervalId = undefined;
     }
   }
 

@@ -1,5 +1,6 @@
 
 import { DocumentTelemetryEvent, DocumentReaderConfig } from '@/interfaces/DocumentReader';
+import { cleanupManager } from '@/utils/cleanupManager';
 
 export class DocumentTelemetryService {
   private config: DocumentReaderConfig;
@@ -7,37 +8,37 @@ export class DocumentTelemetryService {
   private sessionId: string;
   private isOnline: boolean = navigator.onLine;
   private maxQueueSize = 100;
-  private flushInterval?: NodeJS.Timeout;
+  private flushIntervalId?: string;
 
   constructor(config: DocumentReaderConfig) {
     this.config = config;
     this.sessionId = this.generateSessionId();
     
     // Listen for online/offline events
-    window.addEventListener('online', () => {
+    cleanupManager.addEventListener(window, 'online', () => {
       this.isOnline = true;
       this.flushEventQueue();
-    });
+    }, 'DocumentTelemetryService');
     
-    window.addEventListener('offline', () => {
+    cleanupManager.addEventListener(window, 'offline', () => {
       this.isOnline = false;
-    });
+    }, 'DocumentTelemetryService');
     
     // Auto-flush queue periodically
-    this.flushInterval = setInterval(() => {
+    this.flushIntervalId = cleanupManager.setInterval(() => {
       if (this.isOnline && this.eventQueue.length > 0) {
         this.flushEventQueue();
       }
-    }, 30000); // Every 30 seconds
+    }, 30000, 'DocumentTelemetryService'); // Every 30 seconds
   }
 
   /**
    * Clean up resources and stop periodic flushing
    */
   destroy() {
-    if (this.flushInterval) {
-      clearInterval(this.flushInterval);
-      this.flushInterval = undefined;
+    if (this.flushIntervalId) {
+      cleanupManager.cleanup(this.flushIntervalId);
+      this.flushIntervalId = undefined;
     }
   }
 

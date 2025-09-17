@@ -9,8 +9,10 @@ import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, FunnelChart, Funnel, Cell } from 'recharts';
 import { Activity, AlertTriangle, TrendingUp, Users, Clock, Zap } from 'lucide-react';
 import { sloMonitoringService } from '@/services/monitoring/SLOMonitoringService';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const MonitoringDashboard: React.FC = () => {
+  const cleanup = useCleanup('MonitoringDashboard');
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [selectedTab, setSelectedTab] = useState('overview');
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -24,9 +26,9 @@ const MonitoringDashboard: React.FC = () => {
     loadDashboardData();
 
     // Auto-refresh every 30 seconds
-    let interval: number | null = null;
+    let intervalId: string | null = null;
     if (autoRefresh) {
-      interval = window.setInterval(loadDashboardData, 30000);
+      intervalId = cleanup.setInterval(loadDashboardData, 30000);
     }
 
     // Listen for real-time alerts
@@ -34,11 +36,10 @@ const MonitoringDashboard: React.FC = () => {
       loadDashboardData(); // Refresh dashboard when alert received
     };
 
-    window.addEventListener('slo-alert', handleAlert as EventListener);
+    cleanup.addEventListener(window, 'slo-alert', handleAlert as EventListener);
 
     return () => {
-      if (interval) clearInterval(interval);
-      window.removeEventListener('slo-alert', handleAlert as EventListener);
+      if (intervalId) cleanup.cleanup(intervalId);
     };
   }, [autoRefresh]);
 

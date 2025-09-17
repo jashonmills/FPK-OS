@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Zap, Timer, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SpeedTestProps {
   flashcards?: any[];
@@ -12,6 +13,7 @@ interface SpeedTestProps {
 }
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
+  const cleanup = useCleanup('SpeedTest');
   const { flashcards, isLoading, updateFlashcard } = useFlashcards();
   const { trackChallengeStart, trackChallengeComplete } = useChallengeAnalytics();
   const [currentCard, setCurrentCard] = useState(0);
@@ -82,10 +84,10 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   }, [flashcards, customCards]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let intervalId: string | null = null;
     
     if (isActive && timeLeft > 0 && !completed) {
-      interval = setInterval(() => {
+      intervalId = cleanup.setInterval(() => {
         setTimeLeft(timeLeft => timeLeft - 1);
       }, 1000);
     } else if (timeLeft === 0 && isActive) {
@@ -97,9 +99,9 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (intervalId) cleanup.cleanup(intervalId);
     };
-  }, [isActive, timeLeft, completed, answeredCards]);
+  }, [isActive, timeLeft, completed, answeredCards, cleanup]);
 
   const handleTimeUpCompletion = async () => {
     // const mode = customCards && customCards.length > 0 ? 'custom' : 'random';
