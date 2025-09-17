@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
+import { safeLocalStorage } from '@/utils/safeStorage';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -50,7 +51,10 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
-    localStorage.getItem('aistudycoach_voice_autoplay') === 'true'
+    safeLocalStorage.getItem<string>('aistudycoach_voice_autoplay', {
+      fallbackValue: 'false',
+      logErrors: false
+    }) === 'true'
   );
   
   const { speak, stop, isSpeaking } = useTextToSpeech();
@@ -263,7 +267,7 @@ What specific topic would you like to focus on?`;
   const handleAutoPlayToggle = () => {
     const newAutoPlay = !autoPlayEnabled;
     setAutoPlayEnabled(newAutoPlay);
-    localStorage.setItem('aistudycoach_voice_autoplay', newAutoPlay.toString());
+    safeLocalStorage.setItem('aistudycoach_voice_autoplay', newAutoPlay.toString());
     
     // Shorter, less intrusive toast
     toast({

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 export interface ConsentPreferences {
   essential: boolean;
@@ -37,7 +38,10 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       // First check localStorage for immediate access
-      const localConsent = localStorage.getItem('cookie-consent');
+      const localConsent = safeLocalStorage.getItem<string>('cookie-consent', {
+        fallbackValue: null,
+        logErrors: false
+      });
       if (localConsent) {
         const parsed = JSON.parse(localConsent);
         setPreferences(parsed);
@@ -72,7 +76,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
 
         setPreferences(dbPreferences);
         // Sync with localStorage
-        localStorage.setItem('cookie-consent', JSON.stringify(dbPreferences));
+        safeLocalStorage.setItem('cookie-consent', JSON.stringify(dbPreferences));
       }
     } catch (error) {
       console.error('Error loading consent preferences:', error);
@@ -83,7 +87,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
 
   const updateConsent = async (newPreferences: ConsentPreferences) => {
     setPreferences(newPreferences);
-    localStorage.setItem('cookie-consent', JSON.stringify(newPreferences));
+    safeLocalStorage.setItem('cookie-consent', JSON.stringify(newPreferences));
 
     // If user is authenticated, save to database
     if (user) {
