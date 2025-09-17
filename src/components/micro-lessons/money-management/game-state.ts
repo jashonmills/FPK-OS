@@ -54,10 +54,10 @@ export const initialState: GameState = {
   creditCardInterestRate: 0.18,
   debtInterestRate: 0.12,
   envelopes: {
-    Needs: 400,
-    Wants: 200,
-    Savings: 150,
-    Emergency: 50
+    Needs: 0,
+    Wants: 0,
+    Savings: 0,
+    Emergency: 0
   },
   creditScore: 650,
   score: 100,
@@ -259,7 +259,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         feedbackMessage: null,
         monthlyLog: [],
         weekLog: [],
-        envelopes: { Needs: 400, Wants: 200, Savings: 150, Emergency: 50 }
+        envelopes: { Needs: 0, Wants: 0, Savings: 0, Emergency: 0 }
       };
 
     case 'GAME_OVER':
