@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
+import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
+import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
+import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -63,7 +66,22 @@ export const InteractiveScienceCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+
+  // Use analytics and progress hooks
+  const courseId = 'interactive-science';
+  const courseTitle = 'Interactive Science';
+  const {
+    completedLessons,
+    isLessonCompleted,
+    calculateProgress,
+    saveLessonCompletion,
+    progressData
+  } = useInteractiveCourseProgress(courseId);
+  
+  const { enrollInCourse, isEnrolling } = useCourseEnrollment();
+  const isEnrolled = progressData?.enrollment !== null;
+  
+  useInteractiveCourseEnrollmentBridge();
 
   useEffect(() => {
     if (lessonId) {

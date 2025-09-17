@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
+import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
+import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
+import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -50,8 +53,23 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
+
+  // Use analytics and progress hooks
+  const courseId = 'interactive-algebra';
+  const courseTitle = 'Interactive Algebra';
+  const {
+    completedLessons,
+    isLessonCompleted,
+    calculateProgress,
+    saveLessonCompletion,
+    progressData
+  } = useInteractiveCourseProgress(courseId);
+  
+  const { enrollInCourse, isEnrolling } = useCourseEnrollment();
+  const isEnrolled = progressData?.enrollment !== null;
+  
+  useInteractiveCourseEnrollmentBridge();
 
   useEffect(() => {
     if (lessonId) {
@@ -64,9 +82,10 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
     }
   }, [lessonId]);
 
-  const handleLessonComplete = (lessonId: number) => {
-    if (!completedLessons.includes(lessonId)) {
-      setCompletedLessons(prev => [...prev, lessonId]);
+  const handleLessonComplete = async (lessonId: number) => {
+    const lesson = lessons.find(l => l.id === lessonId);
+    if (lesson) {
+      await saveLessonCompletion(lessonId, lesson.title);
     }
   };
 
@@ -95,10 +114,10 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
   }, [navigate]);
 
   const isLessonAccessible = useCallback((lessonId: number) => {
-    return lessonId === 1 || completedLessons.includes(lessonId - 1);
-  }, [completedLessons]);
+    return lessonId === 1 || isLessonCompleted(lessonId - 1);
+  }, [isLessonCompleted]);
 
-  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
+  const progress = useMemo(() => calculateProgress(lessons.length), [calculateProgress]);
 
   // Course overview (lesson selection)
   if (currentLesson === null) {
@@ -153,7 +172,7 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
                   <p className="text-xs text-white mt-1 text-center font-medium">
-                    {completedLessons.length} of {lessons.length} lessons completed
+                    {completedLessons.size} of {lessons.length} lessons completed
                   </p>
                 </div>
               </div>
@@ -241,7 +260,7 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {lessons.map((lesson) => {
                     const isAccessible = isLessonAccessible(lesson.id);
-                    const isCompleted = completedLessons.includes(lesson.id);
+                    const isCompleted = isLessonCompleted(lesson.id);
                     
                     return (
                       <Card 
