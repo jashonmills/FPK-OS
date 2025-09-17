@@ -7261,6 +7261,10 @@ export type Database = {
           total_duration_minutes: number
         }[]
       }
+      get_analytics_by_role: {
+        Args: { p_org_id?: string; p_scope?: string; p_time_range?: unknown }
+        Returns: Json
+      }
       get_analytics_trends: {
         Args: { date_from?: string; date_to?: string; package_id?: string }
         Returns: {
