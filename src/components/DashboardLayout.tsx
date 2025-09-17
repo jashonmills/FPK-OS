@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import GlobalHeader from '@/components/GlobalHeader';
@@ -12,10 +12,17 @@ import { OrgProvider } from '@/components/organizations/OrgContext';
 import { OrgThemeProvider } from '@/components/theme/OrgThemeProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { initializeNavigation } from '@/utils/navigation';
 
 const DashboardLayout: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  // Initialize global navigation for class components
+  useEffect(() => {
+    initializeNavigation(navigate);
+  }, [navigate]);
   return (
     <ErrorBoundaryUnified>
       <VoiceSettingsProvider>

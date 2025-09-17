@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { ErrorBoundaryProps } from '@/types/common';
 import { logger } from '@/utils/logger';
+import { safeNavigate } from '@/utils/navigation';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -53,16 +54,7 @@ class ErrorBoundaryUnified extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   private handleGoHome = () => {
-    try {
-      const navigate = (window as any).__reactRouterNavigate;
-      if (navigate) {
-        navigate('/dashboard');
-      } else {
-        window.location.href = '/dashboard';
-      }
-    } catch {
-      window.location.href = '/dashboard';
-    }
+    safeNavigate('/dashboard', { replace: true });
   };
 
   public render() {

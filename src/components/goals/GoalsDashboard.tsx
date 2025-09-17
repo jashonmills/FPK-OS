@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ export const GoalsDashboard = () => {
   
   const { goals = [], loading, error, refetch } = useGoals();
   const { t } = useDualLanguage();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
 
   // Add loading state handling
@@ -44,7 +46,7 @@ export const GoalsDashboard = () => {
         </p>
         {error.includes('Authentication') && (
           <Button 
-            onClick={() => window.location.href = '/login'}
+            onClick={() => navigate('/login')}
             className="fpk-gradient text-white"
           >
             <LogIn className="h-4 w-4 mr-2" />

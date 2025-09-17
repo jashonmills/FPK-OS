@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +14,7 @@ import { AlertCircle, LogIn, HelpCircle } from 'lucide-react';
 
 const Goals = () => {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // Video storage hook
@@ -68,7 +70,7 @@ const Goals = () => {
               Please log in to access your goals and track your learning progress.
             </p>
             <Button 
-              onClick={() => window.location.href = '/login'}
+              onClick={() => navigate('/login')}
               className="fpk-gradient text-white"
             >
               <LogIn className="h-4 w-4 mr-2" />
