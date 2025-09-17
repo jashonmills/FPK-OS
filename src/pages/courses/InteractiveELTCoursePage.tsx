@@ -322,13 +322,153 @@ const InteractiveELTCoursePage: React.FC = () => {
                     title: "Instructor Guide - ELT Teaching Methods",
                     description: "Complete guide for educators on implementing ELT strategies",
                     type: "guide",
-                    downloadUrl: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/instructor-guide.pdf"
+                    content: {
+                      sections: [
+                        {
+                          title: "Understanding Neurodiversity in the Classroom",
+                          items: [
+                            {
+                              title: "Recognizing Neurodiverse Learners",
+                              description: "Identify signs and characteristics of different learning styles and neurological differences",
+                              details: [
+                                "ADHD traits: difficulty with sustained attention, hyperactivity, impulsivity",
+                                "Dyslexia indicators: reading challenges, phonological processing difficulties",
+                                "Autism spectrum traits: sensory sensitivities, need for routine, detail-focused thinking",
+                                "Executive function challenges: organization, time management, working memory"
+                              ]
+                            },
+                            {
+                              title: "Creating an Inclusive Environment",
+                              description: "Strategies for building a classroom that supports all learners",
+                              details: [
+                                "Flexible seating arrangements and quiet zones",
+                                "Clear visual schedules and expectations",
+                                "Multiple ways to demonstrate learning",
+                                "Sensory-friendly classroom modifications"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          title: "Teaching Methodologies",
+                          items: [
+                            {
+                              title: "Multi-Sensory Learning Approaches",
+                              description: "Engage multiple senses to enhance learning retention",
+                              details: [
+                                "Visual: mind maps, diagrams, color-coding systems",
+                                "Auditory: recordings, discussions, verbal instructions",
+                                "Kinesthetic: hands-on activities, movement breaks",
+                                "Tactile: manipulatives, textured materials"
+                              ]
+                            },
+                            {
+                              title: "Scaffolding and Support Systems",
+                              description: "Provide appropriate levels of support that can be gradually removed",
+                              details: [
+                                "Break complex tasks into smaller steps",
+                                "Provide templates and graphic organizers",
+                                "Use peer support and collaborative learning",
+                                "Offer multiple check-in points during activities"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          title: "Assessment and Progress Monitoring",
+                          items: [
+                            {
+                              title: "Alternative Assessment Methods",
+                              description: "Diverse ways to measure student understanding and progress",
+                              details: [
+                                "Portfolio-based assessments",
+                                "Oral presentations instead of written tests",
+                                "Project-based demonstrations",
+                                "Self-assessment and reflection tools"
+                              ]
+                            },
+                            {
+                              title: "Accommodations and Modifications",
+                              description: "Adjustments to support neurodiverse learners without changing learning objectives",
+                              details: [
+                                "Extended time for assignments and tests",
+                                "Alternative formats for materials",
+                                "Assistive technology integration",
+                                "Quiet testing environments"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   },
                   {
                     title: "Assessment Rubrics and Tools",
                     description: "Comprehensive assessment materials for tracking student progress",
                     type: "resource",
-                    downloadUrl: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/assessment-tools.pdf"
+                    content: {
+                      rubrics: [
+                        {
+                          title: "Learning Strategy Implementation Rubric",
+                          criteria: [
+                            {
+                              criterion: "Self-Awareness",
+                              excellent: "Consistently identifies personal learning strengths and challenges; effectively articulates learning preferences",
+                              proficient: "Usually identifies learning strengths and challenges; can describe most learning preferences", 
+                              developing: "Sometimes identifies learning strengths; basic awareness of learning preferences",
+                              inadequate: "Rarely identifies learning strengths; minimal awareness of learning preferences"
+                            },
+                            {
+                              criterion: "Strategy Application",
+                              excellent: "Independently selects and applies appropriate learning strategies; adapts strategies based on context",
+                              proficient: "Usually selects appropriate strategies with minimal guidance; applies strategies consistently",
+                              developing: "Sometimes selects appropriate strategies with guidance; inconsistent application",
+                              inadequate: "Rarely selects appropriate strategies; requires significant support for application"
+                            },
+                            {
+                              criterion: "Executive Functioning",
+                              excellent: "Demonstrates strong organization and time management; effectively plans and monitors progress",
+                              proficient: "Shows good organizational skills; usually manages time effectively",
+                              developing: "Basic organizational skills; needs some support with time management",
+                              inadequate: "Poor organizational skills; requires significant support with time management"
+                            },
+                            {
+                              criterion: "Self-Advocacy",
+                              excellent: "Confidently communicates needs; proactively seeks appropriate support and accommodations",
+                              proficient: "Usually communicates needs clearly; seeks support when needed",
+                              developing: "Sometimes communicates needs; occasionally seeks support",
+                              inadequate: "Difficulty communicating needs; rarely seeks support"
+                            }
+                          ]
+                        },
+                        {
+                          title: "Academic Progress Monitoring Rubric", 
+                          criteria: [
+                            {
+                              criterion: "Information Processing",
+                              excellent: "Efficiently processes and synthesizes information from multiple sources; demonstrates deep understanding",
+                              proficient: "Processes information well; shows good understanding of material",
+                              developing: "Processes information with some support; basic understanding evident",
+                              inadequate: "Difficulty processing information; requires significant support for comprehension"
+                            },
+                            {
+                              criterion: "Study Technique Mastery",
+                              excellent: "Independently uses various study techniques effectively; adapts methods based on material type",
+                              proficient: "Uses several study techniques effectively; some adaptation of methods",
+                              developing: "Uses basic study techniques; limited adaptation",
+                              inadequate: "Relies on ineffective study methods; needs guidance to use appropriate techniques"
+                            },
+                            {
+                              criterion: "Academic Performance",
+                              excellent: "Consistently meets or exceeds academic goals; shows continuous improvement",
+                              proficient: "Usually meets academic goals; demonstrates steady progress",
+                              developing: "Sometimes meets academic goals; shows some improvement",
+                              inadequate: "Rarely meets academic goals; minimal progress evident"
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   }
                 ]}
               />
