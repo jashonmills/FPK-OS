@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Brain, CheckCircle, PlayCircle, Trophy, ArrowLeft, Users, Lightbulb, Target, GraduationCap, FileText } from 'lucide-react';
+import { BookOpen, Brain, CheckCircle, PlayCircle, Trophy, ArrowLeft, Users, Lightbulb, Target, GraduationCap, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
@@ -194,6 +194,13 @@ const InteractiveELTCoursePage: React.FC = () => {
   const handleNextLesson = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       setCurrentLesson(currentLesson + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevLesson = () => {
+    if (currentLesson !== null && currentLesson > 1) {
+      setCurrentLesson(currentLesson - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -613,6 +620,7 @@ const InteractiveELTCoursePage: React.FC = () => {
 
   const LessonComponent = lesson.component;
   const hasNext = currentLesson < lessons.length;
+  const hasPrev = currentLesson > 1;
 
   return (
     <ErrorBoundary fallback={CourseFallback}>
@@ -655,6 +663,37 @@ const InteractiveELTCoursePage: React.FC = () => {
                   {currentLesson} of {lessons.length}
                 </Badge>
               </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <Button
+                variant="outline"
+                onClick={handlePrevLesson}
+                disabled={!hasPrev}
+                className="flex items-center gap-2 bg-card/80 hover:bg-card disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous Lesson
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground font-medium">
+                  Lesson {currentLesson} of {lessons.length}
+                </span>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={handleNextLesson}
+                disabled={!hasNext}
+                className="flex items-center gap-2 bg-card/80 hover:bg-card disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next Lesson
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
