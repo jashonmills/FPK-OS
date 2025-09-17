@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -15,6 +16,7 @@ export function DataManagement() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { logDataExport, logDataAccess, logDataDeletion } = useAuditLog();
+  const navigate = useNavigate();
 
   const handleExportData = async () => {
     if (!user) return;
@@ -236,7 +238,7 @@ export function DataManagement() {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => window.location.href = '/dashboard/learner/privacy/requests'}
+                onClick={() => navigate('/dashboard/learner/privacy/requests')}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Submit Data Subject Request

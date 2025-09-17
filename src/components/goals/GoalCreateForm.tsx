@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ interface GoalCreateFormProps {
 const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
   const { createGoal, saving } = useGoals();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -106,7 +108,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
       // If it's an authentication error, redirect to login
       if (errorMessage.includes('Authentication')) {
         setTimeout(() => {
-          window.location.href = '/login';
+          navigate('/login');
         }, 2000);
       }
     }

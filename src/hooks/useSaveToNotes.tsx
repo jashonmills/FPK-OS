@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useNotes } from '@/hooks/useNotes';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -100,7 +101,7 @@ export const useSaveToNotes = () => {
               action: (
                 <ToastAction
                   altText="View flashcards"
-                  onClick={() => window.location.href = '/dashboard/learner/flashcards'}
+                  onClick={() => navigate('/dashboard/learner/flashcards')}
                 >
                   View Flashcards
                 </ToastAction>

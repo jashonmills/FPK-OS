@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ const CourseManager = () => {
   const { t } = useTranslation();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const { courses, isLoading, error, createCourse, updateCourse, deleteCourse, refetch } = useCourses();
+  const navigate = useNavigate();
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -328,7 +330,7 @@ const CourseManager = () => {
                       alert('Course slug is missing. Please edit the course and add a slug first.');
                       return;
                     }
-                    window.location.href = `/dashboard/admin/courses/${course.slug}/modules`;
+                    navigate(`/dashboard/admin/courses/${course.slug}/modules`);
                   }}
                 >
                   Manage Modules
@@ -342,7 +344,7 @@ const CourseManager = () => {
                       alert('Course slug is missing. Please edit the course and add a slug first.');
                       return;
                     }
-                    window.location.href = `/dashboard/admin/courses/${course.slug}/lessons`;
+                    navigate(`/dashboard/admin/courses/${course.slug}/lessons`);
                   }}
                 >
                   Manage Lessons
@@ -356,7 +358,7 @@ const CourseManager = () => {
                       alert('Course slug is missing. Please edit the course and add a slug first.');
                       return;
                     }
-                    window.location.href = `/dashboard/learner/course/${course.slug}`;
+                    navigate(`/dashboard/learner/course/${course.slug}`);
                   }}
                 >
                   Preview Course

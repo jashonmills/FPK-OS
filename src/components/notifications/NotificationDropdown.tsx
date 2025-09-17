@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Check, CheckCheck, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 const NotificationDropdown = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const navigate = useNavigate();
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.read_status) {
@@ -17,7 +19,12 @@ const NotificationDropdown = () => {
     }
     
     if (notification.action_url) {
-      window.location.href = notification.action_url;
+      // Check if it's an external URL or internal route
+      if (notification.action_url.startsWith('http') || notification.action_url.startsWith('//')) {
+        window.location.href = notification.action_url;
+      } else {
+        navigate(notification.action_url);
+      }
     }
   };
 
