@@ -439,6 +439,7 @@ const MoneyManagementCoursePage: React.FC = () => {
               onNext={hasNext ? handleNextLesson : undefined}
               hasNext={hasNext}
               totalLessons={lessons.length}
+              suppressWrapperCompletion={currentLesson === 7} // Suppress for game lesson
             >
               <LessonComponent 
                 onComplete={() => handleLessonComplete(currentLesson)}
