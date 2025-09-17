@@ -15,7 +15,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { OrgSettingsValidator } from '@/components/organizations/OrgSettingsValidator';
 
 const orgSettingsSchema = z.object({
   name: z.string().min(1, 'Organization name is required'),
@@ -108,8 +107,6 @@ export default function OrgSettingsPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <OrgSettingsValidator />
-      
       <div className="flex items-center gap-2">
         <Settings className="h-8 w-8" />
         <div>
