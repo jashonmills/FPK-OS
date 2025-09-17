@@ -14,6 +14,7 @@ import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseW
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
 import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
+import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { ErrorBoundary, CourseFallback } from '@/components/common/ErrorBoundary';
 import {
   AdditionalResourcesSection,
@@ -68,8 +69,13 @@ const InteractiveELTCoursePage: React.FC = () => {
     calculateProgress,
     getNextLesson,
     getLearningStats,
-    saveLessonCompletion
+    saveLessonCompletion,
+    progressData
   } = useInteractiveCourseProgress(courseId);
+  
+  // Course enrollment functionality
+  const { enrollInCourse, isEnrolling } = useCourseEnrollment();
+  const isEnrolled = progressData?.enrollment !== null;
   
   // Bridge old enrollment system with new analytics - delayed
   useEffect(() => {
@@ -126,6 +132,10 @@ const InteractiveELTCoursePage: React.FC = () => {
       icon: GraduationCap
     }
   ];
+
+  const handleEnrollInCourse = () => {
+    enrollInCourse.mutate(courseId);
+  };
 
   const handleLessonComplete = async (lessonId: number) => {
     const lesson = lessons.find(l => l.id === lessonId);
@@ -226,6 +236,20 @@ const InteractiveELTCoursePage: React.FC = () => {
                   Interactive
                 </Badge>
               </div>
+
+              {/* Enrollment Button */}
+              {!isEnrolled && (
+                <div className="flex justify-center">
+                  <Button 
+                    onClick={handleEnrollInCourse}
+                    disabled={isEnrolling}
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:from-primary-glow hover:to-primary shadow-lg"
+                  >
+                    {isEnrolling ? 'Enrolling...' : 'Enroll in Course'}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Progress Bar */}
