@@ -1,4 +1,6 @@
 
+import { safeLocalStorage } from '@/utils/safeStorage';
+
 export interface Quote {
   content: string;
   author: string;
@@ -47,23 +49,20 @@ class QuoteService {
 
   private getCachedQuote(): Quote | null {
     try {
-      const cached = localStorage.getItem(this.CACHE_KEY);
+      const cached = safeLocalStorage.getItem<string>(this.CACHE_KEY, { fallbackValue: null });
       if (!cached) return null;
 
       const parsedCache: CachedQuote = JSON.parse(cached);
       
       // Check if cache is still valid
       if (Date.now() < parsedCache.expiresAt) {
-        console.log('📜 QuoteService: Using cached quote');
         return parsedCache.quote;
       }
 
-      console.log('📜 QuoteService: Cache expired, removing');
-      localStorage.removeItem(this.CACHE_KEY);
+      safeLocalStorage.removeItem(this.CACHE_KEY);
       return null;
     } catch (error) {
-      console.error('📜 QuoteService: Error reading cache:', error);
-      localStorage.removeItem(this.CACHE_KEY);
+      safeLocalStorage.removeItem(this.CACHE_KEY);
       return null;
     }
   }
@@ -77,10 +76,9 @@ class QuoteService {
         expiresAt: now + this.CACHE_DURATION
       };
 
-      localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
-      console.log('📜 QuoteService: Quote cached until', new Date(cacheData.expiresAt));
+      safeLocalStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
     } catch (error) {
-      console.error('📜 QuoteService: Error caching quote:', error);
+      // Silently handle cache errors
     }
   }
 
@@ -109,8 +107,6 @@ class QuoteService {
   }
 
   async getQuoteOfTheDay(): Promise<Quote> {
-    console.log('📜 QuoteService: Getting quote of the day');
-
     // Check cache first
     const cachedQuote = this.getCachedQuote();
     if (cachedQuote) {
@@ -119,7 +115,6 @@ class QuoteService {
 
     // Try to fetch from API
     try {
-      console.log('📜 QuoteService: Fetching from API');
       const response = await this.fetchWithTimeout(`${this.API_BASE_URL}/random`);
       
       if (!response.ok) {
@@ -134,13 +129,10 @@ class QuoteService {
         author: data.author || 'Unknown'
       };
 
-      console.log('📜 QuoteService: Successfully fetched quote from API');
       this.setCachedQuote(quote);
       return quote;
 
     } catch (error) {
-      console.warn('📜 QuoteService: API fetch failed, using fallback:', error);
-      
       // Use fallback quote
       const fallbackQuote = this.getRandomFallbackQuote();
       
@@ -151,14 +143,13 @@ class QuoteService {
         expiresAt: Date.now() + (60 * 60 * 1000) // 1 hour
       };
       
-      localStorage.setItem(this.CACHE_KEY, JSON.stringify(shortCacheData));
+      safeLocalStorage.setItem(this.CACHE_KEY, JSON.stringify(shortCacheData));
       return fallbackQuote;
     }
   }
 
   clearCache(): void {
-    localStorage.removeItem(this.CACHE_KEY);
-    console.log('📜 QuoteService: Cache cleared');
+    safeLocalStorage.removeItem(this.CACHE_KEY);
   }
 
   isNewDay(): boolean {

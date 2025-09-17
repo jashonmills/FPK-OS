@@ -19,7 +19,12 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [reviewCards, setReviewCards] = useState<any[]>([]);
+import { ChallengeCard } from '@/types/common-interfaces';
+
+export const QuickReview = () => {
+  // ... keep existing code
+  
+  const [reviewCards, setReviewCards] = useState<ChallengeCard[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);
 

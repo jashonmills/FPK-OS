@@ -274,7 +274,12 @@ export function AppSidebar() {
     return location.pathname === url;
   };
 
-  const handleNavigation = (item: any) => {
+import { NavigationItem } from '@/types/common-interfaces';
+
+const AppSidebar = () => {
+  // ... keep existing code
+
+  const handleNavigation = (item: NavigationItem) => {
     if (item.isExternal) {
       window.location.href = item.url;
     } else {

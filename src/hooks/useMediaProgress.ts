@@ -4,6 +4,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 interface MediaProgressData {
   currentTime: number;
@@ -25,14 +27,14 @@ export const useMediaProgress = ({ mediaId, onProgressUpdate }: UseMediaProgress
     if (!mediaId) return;
     
     try {
-      const saved = localStorage.getItem(`media-progress-${mediaId}`);
+      const saved = safeLocalStorage.getItem<string>(`media-progress-${mediaId}`, { fallbackValue: null });
       if (saved) {
         const progressData = JSON.parse(saved) as MediaProgressData;
         setSavedProgress(progressData);
-        console.log(`📖 Loaded saved progress for ${mediaId}:`, progressData);
+        logger.debug(`Loaded saved progress for ${mediaId}`, 'MEDIA', progressData);
       }
     } catch (error) {
-      console.warn('Error loading media progress:', error);
+      logger.warn(`Error loading media progress for ${mediaId}`, 'MEDIA', error);
     }
   }, [mediaId]);
 
@@ -48,20 +50,20 @@ export const useMediaProgress = ({ mediaId, onProgressUpdate }: UseMediaProgress
     };
 
     try {
-      localStorage.setItem(`media-progress-${mediaId}`, JSON.stringify(progressData));
+      safeLocalStorage.setItem(`media-progress-${mediaId}`, JSON.stringify(progressData));
       setSavedProgress(progressData);
       onProgressUpdate?.(progressData);
       
       // Only log significant progress updates (every 30 seconds or completion)
       if (completed || Math.floor(currentTime) % 30 === 0) {
-        console.log(`💾 Saved progress for ${mediaId}:`, {
+        logger.debug(`Saved progress for ${mediaId}`, 'MEDIA', {
           progress: `${Math.floor((currentTime / duration) * 100)}%`,
           time: `${Math.floor(currentTime)}s / ${Math.floor(duration)}s`,
           completed
         });
       }
     } catch (error) {
-      console.warn('Error saving media progress:', error);
+      logger.warn('Error saving media progress', 'MEDIA', error);
     }
   }, [mediaId, onProgressUpdate]);
 
@@ -86,11 +88,11 @@ export const useMediaProgress = ({ mediaId, onProgressUpdate }: UseMediaProgress
     if (!mediaId) return;
     
     try {
-      localStorage.removeItem(`media-progress-${mediaId}`);
+      safeLocalStorage.removeItem(`media-progress-${mediaId}`);
       setSavedProgress(null);
-      console.log(`🗑️ Cleared progress for ${mediaId}`);
+      logger.debug(`Cleared progress for ${mediaId}`, 'MEDIA');
     } catch (error) {
-      console.warn('Error clearing media progress:', error);
+      logger.warn('Error clearing media progress', 'MEDIA', error);
     }
   }, [mediaId]);
 

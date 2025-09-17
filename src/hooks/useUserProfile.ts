@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { safeLocalStorage } from '@/utils/safeStorage';
 import type { Database } from '@/integrations/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -254,7 +255,7 @@ export const useUserProfile = () => {
       const languageCode = languageMap[profile.primary_language] || 'en';
       if (languageCode !== i18n.language) {
         i18n.changeLanguage(languageCode);
-        localStorage.setItem('fpk-language', languageCode);
+        safeLocalStorage.setItem('fpk-language', languageCode);
       }
     }
   }, [profile, i18n]);

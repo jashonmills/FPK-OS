@@ -26,7 +26,12 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const [completed, setCompleted] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [answeredCards, setAnsweredCards] = useState(0);
-  const [testCards, setTestCards] = useState<any[]>([]);
+import { ChallengeCard } from '@/types/common-interfaces';
+
+export const SpeedTest = () => {
+  // ... keep existing code
+  
+  const [testCards, setTestCards] = useState<ChallengeCard[]>([]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);

@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 interface WidgetMessage {
   id: string;
@@ -17,13 +19,13 @@ export const useWidgetChatStorage = (userId?: string) => {
     if (!userId) return;
     
     try {
-      const stored = localStorage.getItem(storageKey);
+      const stored = safeLocalStorage.getItem<string>(storageKey, { fallbackValue: null });
       if (stored) {
         const parsedMessages = JSON.parse(stored);
         setMessages(parsedMessages);
       }
     } catch (error) {
-      console.error('Error loading widget chat history:', error);
+      logger.warn('Error loading widget chat history', 'STORAGE', error);
     }
   }, [storageKey, userId]);
 
@@ -32,9 +34,9 @@ export const useWidgetChatStorage = (userId?: string) => {
     if (!userId) return;
     
     try {
-      localStorage.setItem(storageKey, JSON.stringify(messages));
+      safeLocalStorage.setItem(storageKey, JSON.stringify(messages));
     } catch (error) {
-      console.error('Error saving widget chat history:', error);
+      logger.warn('Error saving widget chat history', 'STORAGE', error);
     }
   }, [messages, storageKey, userId]);
 

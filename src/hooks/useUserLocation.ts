@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 export interface LocationData {
   latitude: number;
@@ -53,9 +55,9 @@ export const useUserLocation = () => {
       };
 
       setLocation(locationData);
-      console.log('📍 Location: Successfully obtained user location');
+      logger.debug('Successfully obtained user location', 'GEO', locationData);
     } catch (err) {
-      console.warn('📍 Location: Could not get user location:', err);
+      logger.warn('Could not get user location', 'GEO', err);
       setError('Could not access your location');
       // Use fallback location
       setLocation(fallbackLocations.new_york);
@@ -67,16 +69,16 @@ export const useUserLocation = () => {
   useEffect(() => {
     // Check if we have cached location
     try {
-      const cachedLocation = localStorage.getItem('user_location');
+      const cachedLocation = safeLocalStorage.getItem<string>('user_location', { fallbackValue: null });
       if (cachedLocation) {
         const parsed = JSON.parse(cachedLocation) as LocationData;
         setLocation(parsed);
         setIsLoading(false);
-        console.log('📍 Location: Using cached location');
+        logger.debug('Using cached location', 'GEO', parsed);
         return;
       }
     } catch (error) {
-      console.warn('📍 Location: Could not read cached location:', error);
+      logger.warn('Could not read cached location', 'GEO', error);
     }
 
     // Auto-request location on first load
@@ -87,9 +89,9 @@ export const useUserLocation = () => {
   useEffect(() => {
     if (location) {
       try {
-        localStorage.setItem('user_location', JSON.stringify(location));
+        safeLocalStorage.setItem('user_location', JSON.stringify(location));
       } catch (error) {
-        console.warn('📍 Location: Could not cache location:', error);
+        logger.warn('Could not cache location', 'GEO', error);
       }
     }
   }, [location]);
@@ -103,9 +105,9 @@ export const useUserLocation = () => {
     setLocation: (newLocation: LocationData) => {
       setLocation(newLocation);
       try {
-        localStorage.setItem('user_location', JSON.stringify(newLocation));
+        safeLocalStorage.setItem('user_location', JSON.stringify(newLocation));
       } catch (error) {
-        console.warn('📍 Location: Could not cache location:', error);
+        logger.warn('Could not cache location', 'GEO', error);
       }
     }
   };

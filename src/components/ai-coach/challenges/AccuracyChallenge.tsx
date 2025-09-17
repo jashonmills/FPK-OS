@@ -21,7 +21,12 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [completed, setCompleted] = useState(false);
-  const [challengeCards, setChallengeCards] = useState<any[]>([]);
+import { ChallengeCard } from '@/types/common-interfaces';
+
+export const AccuracyChallenge = () => {
+  // ... keep existing code
+  
+  const [challengeCards, setChallengeCards] = useState<ChallengeCard[]>([]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);

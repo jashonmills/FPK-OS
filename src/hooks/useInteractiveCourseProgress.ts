@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 interface CourseEnrollment {
   id: string;
@@ -220,7 +222,7 @@ export const useInteractiveCourseProgress = (courseId: string) => {
   useEffect(() => {
     if (error && user) {
       const storageKey = `course-progress-${courseId}-${user.id}`;
-      const stored = localStorage.getItem(storageKey);
+      const stored = safeLocalStorage.getItem<string>(storageKey, { fallbackValue: null });
       if (stored) {
         try {
           const { completedLessons } = JSON.parse(stored);
