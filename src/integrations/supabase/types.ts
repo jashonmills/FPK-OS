@@ -7304,6 +7304,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_user_subscription_status: {
+        Args: { check_user_id?: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -7413,6 +7417,10 @@ export type Database = {
       }
       user_can_access_org: {
         Args: { check_user_id: string; org_id: string }
+        Returns: boolean
+      }
+      user_can_access_org_secure: {
+        Args: { check_user_id?: string; org_id: string }
         Returns: boolean
       }
       user_exists_check: {
