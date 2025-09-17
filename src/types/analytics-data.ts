@@ -6,19 +6,29 @@ export interface EnrollmentData {
   id: string;
   user_id: string;
   course_id: string;
+  course_title: string;
   enrolled_at: string;
-  progress: number;
+  last_accessed_at: string;
+  completion_percentage: number;
   completed_at?: string;
-  last_accessed?: string;
+  total_time_spent_minutes: number;
+  progress?: number; // Optional - can be derived from completion_percentage
 }
 
 export interface LessonData {
   id: string;
   course_id: string;
-  title: string;
-  duration_minutes?: number;
+  lesson_id: number;
+  lesson_title: string;
+  time_spent_seconds: number;
+  engagement_score?: number;
   completion_rate?: number;
   average_score?: number;
+  completed_at?: string;
+  completion_method?: string;
+  created_at?: string;
+  interactions_count?: number;
+  user_id?: string;
 }
 
 export interface SessionData {

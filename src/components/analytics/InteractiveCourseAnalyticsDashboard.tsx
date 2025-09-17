@@ -18,6 +18,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { analyticsDataSync } from '@/utils/analyticsDataSync';
+import { EnrollmentData, LessonData } from '@/types/analytics-data';
 
 interface CourseAnalytics {
   courseId: string;
@@ -182,6 +183,7 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       'interactive-science': 'Interactive Science',
       'neurodiversity-strengths-based-approach': 'Neurodiversity Strengths-Based Approach',
       'el-spelling-reading': 'EL Spelling & Reading'
+    };
     return titles[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
