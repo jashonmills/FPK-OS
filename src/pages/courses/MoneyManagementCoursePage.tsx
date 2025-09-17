@@ -22,6 +22,7 @@ import { BudgetingMasteryMicroLesson } from '@/components/micro-lessons/money-ma
 import { SavingStrategiesMicroLesson } from '@/components/micro-lessons/money-management/SavingStrategiesMicroLesson';
 import { InvestingBasicsMicroLesson } from '@/components/micro-lessons/money-management/InvestingBasicsMicroLesson';
 import { CreditDebtPlanningMicroLesson } from '@/components/micro-lessons/money-management/CreditDebtPlanningMicroLesson';
+import { MoneyManagementGameMicroLesson } from '@/components/micro-lessons/money-management/MoneyManagementGameMicroLesson';
 
 interface Lesson {
   id: number;
@@ -39,7 +40,8 @@ const lessons: Lesson[] = [
   { id: 3, title: "Budgeting Mastery", description: "Create budgets, track expenses, and manage income effectively", component: BudgetingMasteryMicroLesson, unit: "Unit 2: Planning", unitColor: "bg-blue-100 text-blue-700" },
   { id: 4, title: "Smart Saving Strategies", description: "Explore savings accounts, compound interest, and goal setting", component: SavingStrategiesMicroLesson, unit: "Unit 2: Planning", unitColor: "bg-blue-100 text-blue-700" },
   { id: 5, title: "Introduction to Investing", description: "Learn basic investment concepts and long-term wealth building", component: InvestingBasicsMicroLesson, unit: "Unit 3: Growth", unitColor: "bg-purple-100 text-purple-700" },
-  { id: 6, title: "Credit, Debt, and Future Planning", description: "Understand credit scores, responsible borrowing, and financial goals", component: CreditDebtPlanningMicroLesson, unit: "Unit 3: Growth", unitColor: "bg-purple-100 text-purple-700" }
+  { id: 6, title: "Credit, Debt, and Future Planning", description: "Understand credit scores, responsible borrowing, and financial goals", component: CreditDebtPlanningMicroLesson, unit: "Unit 3: Growth", unitColor: "bg-purple-100 text-purple-700" },
+  { id: 7, title: "Financial Decision-Making Game", description: "Apply your knowledge in an interactive money management simulation", component: MoneyManagementGameMicroLesson, unit: "Unit 3: Growth", unitColor: "bg-purple-100 text-purple-700" }
 ];
 
 const MoneyManagementCoursePage: React.FC = () => {
@@ -153,7 +155,7 @@ const MoneyManagementCoursePage: React.FC = () => {
                   </Badge>
                   <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <Clock className="w-4 h-4 mr-2" />
-                    ~4 Hours
+                    ~5 Hours
                   </Badge>
                   <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <PiggyBank className="w-4 h-4 mr-2" />
