@@ -124,7 +124,13 @@ const UserManagement = () => {
                 onFiltersChange={(filters) => {
                   // Update the search and filters from the enhanced table
                   if (filters.search !== undefined) setSearchQuery(filters.search);
-                  if (filters.role !== undefined) setRoleFilter(filters.role);
+                  if (filters.role !== undefined) {
+                    // Convert role array to single value (take first role or 'all')
+                    const roleValue = Array.isArray(filters.role) 
+                      ? (filters.role.length > 0 ? filters.role[0] : 'all')
+                      : filters.role || 'all';
+                    setRoleFilter(roleValue);
+                  }
                 }}
               />
             </div>

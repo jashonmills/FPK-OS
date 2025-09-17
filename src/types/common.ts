@@ -70,14 +70,17 @@ export interface FeedbackData {
   email: string;
   category: string;
   message: string;
-  status: 'new' | 'in_progress' | 'resolved' | 'closed';
+  status: string; // Allow any status string from database
   created_at: string;
   updated_at?: string;
+  user_id?: string;
+  company?: string;
 }
 
 export interface UserFilters {
   role?: string[];
   status?: string[];
+  search?: string; // Add search property
   dateRange?: {
     start: Date;
     end: Date;
