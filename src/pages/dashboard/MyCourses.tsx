@@ -483,6 +483,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
     const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach';
     const isIntroductionToScience = course.id === 'interactive-science';
     const isGeometryFundamentals = course.id === 'geometry';
+    const isELTEmpoweringLearning = course.id === 'elt-empowering-learning-techniques';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -588,6 +589,10 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
       
       if (course.id === 'money-management-teens') {
         return '/courses/money-management-teens';
+      }
+      
+      if (isELTEmpoweringLearning) {
+        return '/courses/elt-empowering-learning-techniques';
       }
       
       const identifier = course.slug || course.id;
