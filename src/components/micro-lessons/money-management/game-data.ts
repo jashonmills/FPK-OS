@@ -33,6 +33,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Host movie night ($8 snacks)',
         impact: 'wants: -8, balance: -8, score: 10',
         feedback: "Excellent choice! You found a way to have fun without overspending. Small, smart choices like this add up to big savings over time."
+      },
+      {
+        text: 'Use credit card for fancy place ($38)',
+        impact: 'creditCard: 38, credit: -3',
+        feedback: "You used your credit card for the expensive meal. While convenient, remember that credit card debt accumulates interest. Plan to pay this off quickly to avoid fees."
       }
     ]
   },
@@ -46,6 +51,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Buy the new phone ($600)',
         impact: 'balance: -600, credit: -15',
         feedback: "This was a major impulse purchase. Buying something you don't need, especially at such a high cost, can seriously derail your financial goals and put you into debt."
+      },
+      {
+        text: 'Finance with credit card ($600)',
+        impact: 'creditCard: 600, credit: -20',
+        feedback: "You put a $600 phone on credit. This is a significant debt that will accumulate interest quickly. At 18% APR, this could cost you much more than $600 if not paid off quickly."
       },
       {
         text: 'Wait for a price drop',
@@ -112,6 +122,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "This was a discretionary expense. While a sale is tempting, it's important to remember if this purchase aligns with your overall financial plan before you buy."
       },
       {
+        text: 'Use credit card for clothes ($75)',
+        impact: 'creditCard: 75, credit: -2',
+        feedback: "You used your credit card for the sale. While you got the items, remember that credit card purchases accumulate interest if not paid off quickly."
+      },
+      {
         text: 'Walk away and don\'t buy anything',
         impact: 'savings: 25, score: 10',
         feedback: "You showed great financial discipline by walking away from a tempting sale. That money can be used for a more important financial goal, which is a great habit to build."
@@ -128,6 +143,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Buy the new console ($500)',
         impact: 'wants: -500, credit: -15',
         feedback: "This was a major impulse purchase. Buying something you don't need, especially at such a high cost, can seriously derail your financial goals. It's crucial to consider if this purchase aligns with your long-term goals."
+      },
+      {
+        text: 'Finance console with credit card ($500)',
+        impact: 'creditCard: 500, credit: -18',
+        feedback: "You put a $500 gaming console on credit. This is significant debt that will accumulate interest quickly. At 18% APR, this could cost you much more if not paid off promptly."
       },
       {
         text: 'Wait for a sale or price drop',
@@ -189,6 +209,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "You used your wants budget to go out with friends. A good budget allows you to plan for fun things like this while still staying on track."
       },
       {
+        text: 'Use credit card for dinner ($30)',
+        impact: 'creditCard: 30, credit: -1',
+        feedback: "You used your credit card for dinner with friends. While convenient, remember to pay this off quickly to avoid interest charges and maintain good credit habits."
+      },
+      {
         text: 'Suggest cooking dinner at home ($10)',
         impact: 'wants: -10, balance: -10, score: 5',
         feedback: "You found a cheaper way to have fun with your friends. This is a great example of being resourceful and sticking to your budget."
@@ -205,6 +230,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Buy the watch ($200)',
         impact: 'wants: -200, balance: -200',
         feedback: "This was a discretionary purchase. While a smartwatch is nice, it's important to consider if this purchase aligns with your bigger financial goals before buying."
+      },
+      {
+        text: 'Finance watch with credit card ($200)',
+        impact: 'creditCard: 200, credit: -8',
+        feedback: "You put the smartwatch on your credit card. This is a significant purchase that will accumulate interest if not paid off quickly. Consider if this was necessary."
       },
       {
         text: 'Wait for a sale',
@@ -259,6 +289,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Buy the tickets ($85)',
         impact: 'wants: -85, balance: -85',
         feedback: "You enjoyed the concert, but this was a significant entertainment expense. Make sure this fits within your wants budget and doesn't compromise other financial goals."
+      },
+      {
+        text: 'Use credit card for tickets ($85)',
+        impact: 'creditCard: 85, credit: -3',
+        feedback: "You used your credit card for concert tickets. While you got to see your favorite artist, remember to pay this off quickly to avoid interest charges."
       },
       {
         text: 'Skip the concert',

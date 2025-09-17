@@ -60,7 +60,9 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     month,
     currentDebt,
     creditCardBalance,
-    creditCardLimit
+    creditCardLimit,
+    creditCardInterestRate,
+    debtInterestRate
   } = state;
 
   // Track game interactions
@@ -205,10 +207,6 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                 ${(monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0)).toFixed(2)}
               </span>
             </div>
-            {/* Debug info */}
-            <div className="text-xs text-muted-foreground mt-2">
-              Debug: Total allocated: ${Object.values(envelopes).reduce((sum, val) => sum + val, 0).toFixed(2)} / ${monthlyIncome.toFixed(2)}
-            </div>
             {Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome && (
               <div className="text-sm text-yellow-600 mt-2 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
@@ -220,9 +218,6 @@ const MoneyManagementGame: React.FC<GameProps> = ({
           <Button 
             size="lg" 
             onClick={() => {
-              console.log('Button clicked!', { envelopes, monthlyIncome });
-              console.log('Total allocated:', Object.values(envelopes).reduce((sum, val) => sum + val, 0));
-              console.log('Should be disabled?', Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome);
               dispatch({ type: 'START_SCENARIOS' });
               trackGameInteraction('budget_planned', { envelopes });
             }}
@@ -263,7 +258,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
         {/* Current Balance Display */}
         <Card>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
               <div>
                 <div className="text-sm text-muted-foreground">Balance</div>
                 <div className="text-xl font-bold">${balance.toFixed(2)}</div>
@@ -280,7 +275,37 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                 <div className="text-sm text-muted-foreground">Credit Score</div>
                 <div className="text-xl font-bold">{creditScore}</div>
               </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Credit Card Debt</div>
+                <div className={`text-xl font-bold ${creditCardBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  ${creditCardBalance.toFixed(2)}
+                </div>
+                {creditCardBalance > 0 && (
+                  <div className="text-xs text-red-500">
+                    ${(creditCardBalance * (creditCardInterestRate / 12)).toFixed(2)}/mo interest
+                  </div>
+                )}
+              </div>
             </div>
+            
+            {/* Debt Warning */}
+            {(creditCardBalance > 0 || currentDebt > 0) && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2 text-red-700">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="font-semibold">Debt Alert</span>
+                </div>
+                <div className="text-sm text-red-600 mt-1">
+                  Total Debt: ${(creditCardBalance + currentDebt).toFixed(2)}
+                  {creditCardBalance > 0 && (
+                    <div>Credit Card APR: {(creditCardInterestRate * 100).toFixed(1)}% - Monthly Interest: ${(creditCardBalance * (creditCardInterestRate / 12)).toFixed(2)}</div>
+                  )}
+                  {currentDebt > 0 && (
+                    <div>Other Debt APR: {(debtInterestRate * 100).toFixed(1)}% - Monthly Interest: ${(currentDebt * (debtInterestRate / 12)).toFixed(2)}</div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -371,6 +396,34 @@ const MoneyManagementGame: React.FC<GameProps> = ({
               <div className="text-sm text-muted-foreground">Credit Score</div>
             </div>
           </div>
+
+          {/* Debt Status */}
+          {(creditCardBalance > 0 || currentDebt > 0) && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h4 className="font-semibold text-red-800 mb-2">⚠️ Debt Summary</h4>
+              <div className="space-y-2 text-sm">
+                {creditCardBalance > 0 && (
+                  <div className="flex justify-between">
+                    <span>Credit Card Debt:</span>
+                    <span className="font-bold text-red-600">${creditCardBalance.toFixed(2)}</span>
+                  </div>
+                )}
+                {currentDebt > 0 && (
+                  <div className="flex justify-between">
+                    <span>Other Debt:</span>
+                    <span className="font-bold text-red-600">${currentDebt.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-2">
+                  <span className="font-semibold">Total Debt:</span>
+                  <span className="font-bold text-red-700">${(creditCardBalance + currentDebt).toFixed(2)}</span>
+                </div>
+                <div className="text-xs text-red-600 mt-2">
+                  Monthly Interest Charges: ${((creditCardBalance * creditCardInterestRate / 12) + (currentDebt * debtInterestRate / 12)).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          )}
 
           <Separator className="my-6" />
 

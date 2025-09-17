@@ -97,12 +97,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       };
 
     case 'START_SCENARIOS': {
-      console.log('START_SCENARIOS action dispatched');
       // Select random scenarios for the week
       const shuffledScenarios = [...ALL_SCENARIOS].sort(() => 0.5 - Math.random());
       const weeklyScenarios = shuffledScenarios.slice(0, 5);
-      
-      console.log('Transitioning to LIVE phase with scenarios:', weeklyScenarios.length);
       
       return {
         ...state,
@@ -131,7 +128,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       let newWiseChoices = state.wiseChoices;
 
       // Apply the financial impact based on the option
-      if (option.impact) {
+        if (option.impact) {
         const impacts = option.impact.toLowerCase().split(',').map((s: string) => s.trim());
         
         impacts.forEach((impact: string) => {
@@ -160,6 +157,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           } else if (impact.includes('score:')) {
             const amount = parseFloat(impact.split(':')[1].replace(/[^0-9.-]/g, ''));
             newScore += amount;
+          } else if (impact.includes('creditcard:')) {
+            const amount = parseFloat(impact.split(':')[1].replace(/[^0-9.-]/g, ''));
+            newCreditCardBalance += amount;
+            newScore -= 2; // Small penalty for using credit
+          } else if (impact.includes('needs:')) {
+            const amount = parseFloat(impact.split(':')[1].replace(/[^0-9.-]/g, ''));
+            newEnvelopes.Needs += amount;
+            newBalance += amount;
+          } else if (impact.includes('debt:')) {
+            const amount = parseFloat(impact.split(':')[1].replace(/[^0-9.-]/g, ''));
+            newDebt += amount;
+            newScore -= amount > 0 ? 5 : 5; // Penalty for taking on debt
           }
         });
 
