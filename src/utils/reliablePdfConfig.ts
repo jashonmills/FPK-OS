@@ -6,17 +6,17 @@ import { pdfjs } from 'react-pdf';
  */
 export const initializeReliablePDF = (): boolean => {
   try {
-    // Use local worker first since CDNs are unreliable
-    pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+    // Use CDN worker since local file doesn't exist
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
     
-    console.log('✅ Local PDF.js worker configured:', pdfjs.GlobalWorkerOptions.workerSrc);
+    console.log('✅ PDF.js worker configured:', pdfjs.GlobalWorkerOptions.workerSrc);
     return true;
   } catch (error) {
-    console.error('❌ Failed to configure local PDF.js worker:', error);
-    // Only try CDN as fallback if local fails
+    console.error('❌ Failed to configure PDF.js worker:', error);
+    // Try mozilla CDN as fallback
     try {
       pdfjs.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js';
-      console.log('✅ Using CDN PDF.js worker fallback');
+      console.log('✅ Using Mozilla CDN PDF.js worker fallback');
       return true;
     } catch (fallbackError) {
       console.error('❌ All PDF worker options failed:', fallbackError);

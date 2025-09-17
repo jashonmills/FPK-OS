@@ -6,12 +6,17 @@ import { initializeReliablePDF, getPDFWorkerStatus } from './utils/reliablePdfCo
 
 console.log('🚀 Application starting...');
 
-// Initialize reliable PDF.js configuration
-const pdfWorkerReady = initializeReliablePDF();
-console.log('📄 PDF Worker Status:', getPDFWorkerStatus());
+// Initialize reliable PDF.js configuration with error handling
+try {
+  const pdfWorkerReady = initializeReliablePDF();
+  console.log('📄 PDF Worker Status:', getPDFWorkerStatus());
 
-if (!pdfWorkerReady) {
-  console.warn('⚠️ PDF worker initialization failed - PDF viewing may be impacted');
+  if (!pdfWorkerReady) {
+    console.warn('⚠️ PDF worker initialization failed - PDF viewing may be impacted');
+  }
+} catch (error) {
+  console.error('❌ PDF initialization error:', error);
+  console.log('📄 Continuing app startup without PDF support');
 }
 
 // Enhanced error handler for PDF-related issues
