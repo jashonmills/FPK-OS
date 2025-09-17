@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface VoiceSettings {
   enabled: boolean;
@@ -93,33 +94,32 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Load settings from localStorage on mount
   const loadSettingsFromStorage = (): Partial<VoiceSettings> => {
-    try {
-      const stored = localStorage.getItem('voiceSettings');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        console.log('🔊 Loaded voice settings from storage:', parsed);
-        return parsed;
-      }
-    } catch (error) {
-      console.warn('Failed to load voice settings from storage:', error);
+    const stored = safeLocalStorage.getItem<Partial<VoiceSettings>>('voiceSettings', {
+      fallbackValue: {},
+      logErrors: false
+    });
+    
+    if (stored && typeof stored === 'object') {
+      console.log('🔊 Loaded voice settings from storage:', stored);
+      return stored;
     }
+    
     return {};
   };
 
-  // Save settings to localStorage
+  // Save settings to localStorage (safe)
   const saveSettingsToStorage = () => {
-    try {
-      localStorage.setItem('voiceSettings', JSON.stringify({
-        enabled: settings.enabled,
-        autoRead: settings.autoRead,
-        selectedVoice: settings.selectedVoice,
-        rate: settings.rate,
-        pitch: settings.pitch,
-        volume: settings.volume
-      }));
+    const success = safeLocalStorage.setItem('voiceSettings', {
+      enabled: settings.enabled,
+      autoRead: settings.autoRead,
+      selectedVoice: settings.selectedVoice,
+      rate: settings.rate,
+      pitch: settings.pitch,
+      volume: settings.volume
+    });
+    
+    if (success) {
       console.log('🔊 Saved voice settings to storage');
-    } catch (error) {
-      console.warn('Failed to save voice settings to storage:', error);
     }
   };
 

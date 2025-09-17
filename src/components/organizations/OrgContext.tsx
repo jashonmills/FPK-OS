@@ -4,6 +4,7 @@ import { useUserOrganizations } from '@/hooks/useUserOrganization';
 import type { UserOrganizationMembership } from '@/hooks/useUserOrganization';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface OrgContextType {
   currentOrg: UserOrganizationMembership | null;
@@ -28,18 +29,21 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
 
-  // Initialize activeOrgId from URL params, props, or localStorage
+  // Initialize activeOrgId from URL params, props, or localStorage (safe)
   useEffect(() => {
     const orgFromUrl = searchParams.get('org');
-    const orgFromStorage = localStorage.getItem('fpk.activeOrgId');
+    const orgFromStorage = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
+      fallbackValue: null,
+      logErrors: false
+    });
     
     // Priority: URL param > orgId prop > localStorage
     if (orgFromUrl) {
       setActiveOrgId(orgFromUrl);
-      localStorage.setItem('fpk.activeOrgId', orgFromUrl);
+      safeLocalStorage.setItem('fpk.activeOrgId', orgFromUrl);
     } else if (orgId) {
       setActiveOrgId(orgId);
-      localStorage.setItem('fpk.activeOrgId', orgId);
+      safeLocalStorage.setItem('fpk.activeOrgId', orgId);
       // Update URL to include org parameter for consistency
       if (!searchParams.get('org')) {
         const newSearchParams = new URLSearchParams(searchParams);
@@ -67,7 +71,7 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
     setActiveOrgId(orgId);
     
     if (orgId) {
-      localStorage.setItem('fpk.activeOrgId', orgId);
+      safeLocalStorage.setItem('fpk.activeOrgId', orgId);
       
       // Find the organization to check the user's role
       const selectedOrg = organizations.find(o => o.organization_id === orgId);
@@ -85,7 +89,7 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
         }
       }
     } else {
-      localStorage.removeItem('fpk.activeOrgId');
+      safeLocalStorage.removeItem('fpk.activeOrgId');
       // Remove org param from URL
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('org');

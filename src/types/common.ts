@@ -62,3 +62,49 @@ export interface UserActivity {
   timestamp: Date;
   metadata?: Record<string, any>;
 }
+
+// Admin and feedback interfaces
+export interface FeedbackData {
+  id: string;
+  name: string;
+  email: string;
+  category: string;
+  message: string;
+  status: 'new' | 'in_progress' | 'resolved' | 'closed';
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface UserFilters {
+  role?: string[];
+  status?: string[];
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  searchQuery?: string;
+}
+
+export interface ModuleData {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  type: 'lesson' | 'quiz' | 'assessment';
+  status: 'draft' | 'published' | 'archived';
+  created_at: string;
+  updated_at?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface TestResult {
+  id: string;
+  name?: string;
+  test?: string;
+  status: 'pass' | 'fail' | 'pending' | 'passed' | 'failed' | 'testing' | 'received';
+  message: string;
+  duration?: number;
+  timestamp: Date;
+  category?: string;
+  details?: Record<string, unknown>;
+}

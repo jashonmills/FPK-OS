@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FeedbackData } from '@/types/common';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { toast } from 'sonner';
 import FeedbackMetadata from './FeedbackMetadata';
 
 interface FeedbackCardProps {
-  feedback: any;
+  feedback: FeedbackData;
   onStatusUpdate: (feedbackId: string, status: string) => void;
 }
 
@@ -17,7 +18,7 @@ interface ParsedFeedback {
   type?: string;
   rating?: number;
   userMessage?: string;
-  structuredData?: any;
+  structuredData?: Record<string, unknown>;
 }
 
 const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, onStatusUpdate }) => {

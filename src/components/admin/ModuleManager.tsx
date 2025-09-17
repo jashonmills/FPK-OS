@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ModuleData } from '@/types/common';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ const ModuleManager = () => {
   const { createModule, updateModule, deleteModule } = useModuleMutations();
   const { uploadFile, isUploading } = useFileUpload();
   
-  const [editingModule, setEditingModule] = useState<any>(null);
+  const [editingModule, setEditingModule] = useState<ModuleData | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     title: '',

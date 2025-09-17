@@ -14,6 +14,7 @@ import { Globe, Check } from 'lucide-react';
 import { supportedLanguages } from '@/i18n';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 const LanguageSwitcher = () => {
   const { i18n, tString } = useGlobalTranslation('settings');
@@ -29,8 +30,11 @@ const LanguageSwitcher = () => {
     if (profile) {
       setDualLanguageEnabled(profile.dual_language_enabled || false);
     } else {
-      // Fallback to localStorage if profile isn't loaded yet
-      const savedDualLanguage = localStorage.getItem('fpk-dual-language');
+      // Fallback to localStorage if profile isn't loaded yet (safe)
+      const savedDualLanguage = safeLocalStorage.getItem<string>('fpk-dual-language', {
+        fallbackValue: 'false',
+        logErrors: false
+      });
       if (savedDualLanguage) {
         setDualLanguageEnabled(savedDualLanguage === 'true');
       }
@@ -68,8 +72,8 @@ const LanguageSwitcher = () => {
     // Update i18n
     await i18n.changeLanguage(languageCode);
     
-    // Save to localStorage for persistence
-    localStorage.setItem('fpk-language', languageCode);
+    // Save to localStorage for persistence (safe)
+    safeLocalStorage.setItem('fpk-language', languageCode);
     
     // Update user profile if available
     if (profile) {
@@ -89,14 +93,14 @@ const LanguageSwitcher = () => {
   const handleDualLanguageToggle = async (enabled: boolean) => {
     setDualLanguageEnabled(enabled);
     
-    // Save to localStorage immediately
-    localStorage.setItem('fpk-dual-language', enabled.toString());
+    // Save to localStorage immediately (safe)
+    safeLocalStorage.setItem('fpk-dual-language', enabled.toString());
     
     // Trigger events for better component sync
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'fpk-dual-language',
       newValue: enabled.toString(),
-      oldValue: localStorage.getItem('fpk-dual-language')
+      oldValue: safeLocalStorage.getItem<string>('fpk-dual-language', { logErrors: false })
     }));
 
     window.dispatchEvent(new CustomEvent('dual-language-change', {
@@ -119,7 +123,7 @@ const LanguageSwitcher = () => {
         console.error('Failed to update dual language setting:', error);
         // Revert local state if update fails
         setDualLanguageEnabled(!enabled);
-        localStorage.setItem('fpk-dual-language', (!enabled).toString());
+        safeLocalStorage.setItem('fpk-dual-language', (!enabled).toString());
       }
     }
   };

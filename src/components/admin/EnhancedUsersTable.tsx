@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { UserFilters } from '@/types/common';
 import { Button } from '@/components/ui/button';
 import UserRowCard from './UserRowCard';
 
@@ -30,7 +31,7 @@ interface EnhancedUsersTableProps {
     totalPages: number;
   };
   onPaginationChange: (page: number, pageSize: number) => void;
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: UserFilters) => void;
 }
 
 export const EnhancedUsersTable: React.FC<EnhancedUsersTableProps> = ({
