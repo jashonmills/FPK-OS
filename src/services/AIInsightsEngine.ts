@@ -178,15 +178,32 @@ class AIInsightsEngine {
     }
   }
 
+  private analysisInterval?: NodeJS.Timeout;
+
   private schedulePeriodicAnalysis() {
+    // Clear any existing interval
+    if (this.analysisInterval) {
+      clearInterval(this.analysisInterval);
+    }
+    
     // Run deep analysis every hour
-    setInterval(async () => {
+    this.analysisInterval = setInterval(async () => {
       try {
         await this.performDeepAnalysis();
       } catch (error) {
         console.error('Error in periodic analysis:', error);
       }
     }, 60 * 60 * 1000); // 1 hour
+  }
+
+  /**
+   * Clean up resources and stop periodic analysis
+   */
+  destroy() {
+    if (this.analysisInterval) {
+      clearInterval(this.analysisInterval);
+      this.analysisInterval = undefined;
+    }
   }
 
   private async performDeepAnalysis() {

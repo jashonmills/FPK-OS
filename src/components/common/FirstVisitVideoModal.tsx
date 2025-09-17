@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import {
   Dialog,
   DialogContent,
@@ -77,7 +78,7 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
           ) : contentHtml ? (
             <div
               className="w-full"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml) }}
               onClick={handleVideoClick}
             />
           ) : null}

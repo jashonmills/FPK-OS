@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -138,7 +139,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
         </CardHeader>
         <CardContent>
           {typeof currentScreen.content === 'string' ? (
-            <div dangerouslySetInnerHTML={{ __html: currentScreen.content }} />
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentScreen.content) }} />
           ) : (
             currentScreen.content
           )}

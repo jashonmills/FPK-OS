@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -125,7 +126,7 @@ export const ModuleContent: React.FC<ModuleContentProps> = ({
         {/* Text Content */}
         {type === 'text' && content?.text && (
           <div className="prose prose-slate max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: content.text }} />
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content.text) }} />
           </div>
         )}
 

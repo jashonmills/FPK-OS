@@ -7,6 +7,7 @@ export class DocumentTelemetryService {
   private sessionId: string;
   private isOnline: boolean = navigator.onLine;
   private maxQueueSize = 100;
+  private flushInterval?: NodeJS.Timeout;
 
   constructor(config: DocumentReaderConfig) {
     this.config = config;
@@ -23,11 +24,21 @@ export class DocumentTelemetryService {
     });
     
     // Auto-flush queue periodically
-    setInterval(() => {
+    this.flushInterval = setInterval(() => {
       if (this.isOnline && this.eventQueue.length > 0) {
         this.flushEventQueue();
       }
     }, 30000); // Every 30 seconds
+  }
+
+  /**
+   * Clean up resources and stop periodic flushing
+   */
+  destroy() {
+    if (this.flushInterval) {
+      clearInterval(this.flushInterval);
+      this.flushInterval = undefined;
+    }
   }
 
   trackEvent(event: DocumentTelemetryEvent): void {
