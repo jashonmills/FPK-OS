@@ -538,13 +538,6 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          {/* Native Course Player Routes */}
-          <Route path="/courses/:slug" element={
-            <RouteProtector>
-              <LazyRoute><NativeCoursePlayer /></LazyRoute>
-            </RouteProtector>
-          } />
-          
           {/* Organization Routes - Authenticated */}
           <Route path="/org" element={
             <RouteProtector>
@@ -604,6 +597,13 @@ const App: React.FC = () => {
           <Route path="/o/:orgSlug" element={<LazyRoute><OrgLanding /></LazyRoute>} />
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
+          
+          {/* Native Course Player Routes - Must be last to avoid conflicts */}
+          <Route path="/courses/:slug" element={
+            <RouteProtector>
+              <LazyRoute><NativeCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
           <Route path="/games" element={<LazyRoute><Games /></LazyRoute>} />
           <Route path="/contact" element={<LazyRoute><Contact /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />

@@ -382,12 +382,12 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
     EMPOWERING_LEARNING_NUMERACY_COURSE,
     MONEY_MANAGEMENT_COURSE,
   ].filter((course, index, self) => 
-    // Remove duplicates by id and exclude EL Spelling course
-    course.id !== 'el-spelling-reading' && index === self.findIndex(c => c.id === course.id)
+    // Remove duplicates by id
+    index === self.findIndex(c => c.id === course.id)
   );
   
   const enrolledCourses = allAvailableCourses.filter(course => 
-    enrolledCourseIds.includes(course.id) && course.id !== 'el-spelling-reading' // Exclude EL Spelling course
+    enrolledCourseIds.includes(course.id)
   );
   const availableCourses = allAvailableCourses.filter(course => 
     !enrolledCourseIds.includes(course.id) && course.status === 'published'
