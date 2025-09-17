@@ -34,8 +34,6 @@ import { CaseStudiesMicroLesson } from '@/components/micro-lessons/elt/case-stud
 import { InstructorResourcesMicroLesson } from '@/components/micro-lessons/elt/instructor-resources/InstructorResourcesMicroLesson';
 import { AdvancedExecutiveFunctioningMicroLesson } from '@/components/micro-lessons/elt/advanced-modules/AdvancedExecutiveFunctioningMicroLesson';
 import { AdvancedStudyTechniquesMicroLesson } from '@/components/micro-lessons/elt/advanced-modules/AdvancedStudyTechniquesMicroLesson';
-import { SelfAssessmentMicroLesson } from '@/components/micro-lessons/elt/assessments/SelfAssessmentMicroLesson';
-import { InteractiveWorksheetsMicroLesson } from '@/components/micro-lessons/elt/interactive-worksheets/InteractiveWorksheetsMicroLesson';
 import eltBackground from '@/assets/elt-background.jpg';
 
 const InteractiveELTCoursePage: React.FC = () => {

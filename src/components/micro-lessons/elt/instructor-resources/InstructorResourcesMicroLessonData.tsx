@@ -3,8 +3,7 @@ import { MicroLessonData } from '../../MicroLessonContainer';
 
 export const instructorResourcesMicroLessons: MicroLessonData = {
   id: 'instructor-resources',
-  title: 'Instructor Resources & Teaching Guide',
-  description: 'Comprehensive resources for educators teaching neurodiverse learners',
+  moduleTitle: 'Instructor Resources & Teaching Guide',
   totalScreens: 16,
   screens: [
     {

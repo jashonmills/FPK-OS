@@ -3,8 +3,7 @@ import { MicroLessonData } from '../../MicroLessonContainer';
 
 export const advancedExecutiveFunctioningMicroLessons: MicroLessonData = {
   id: 'advanced-executive-functioning',
-  title: 'Advanced Executive Functioning Mastery',
-  description: 'Deep dive into executive functioning skills with practical applications',
+  moduleTitle: 'Advanced Executive Functioning Mastery',
   totalScreens: 18,
   screens: [
     {

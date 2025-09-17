@@ -3,8 +3,7 @@ import { MicroLessonData } from '../../MicroLessonContainer';
 
 export const advancedStudyTechniquesMicroLessons: MicroLessonData = {
   id: 'advanced-study-techniques',
-  title: 'Advanced Study & Information Retention',
-  description: 'Master effective study methods and information processing strategies',
+  moduleTitle: 'Advanced Study & Information Retention',
   totalScreens: 20,
   screens: [
     {
