@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import type { Json } from '@/integrations/supabase/types';
 
 interface LearningProfile {
   preferredContentTypes: string[];
@@ -9,8 +10,8 @@ interface LearningProfile {
   learningVelocity: number;
   strengths: string[];
   challenges: string[];
-  adaptations: Record<string, any>;
-  [key: string]: any; // Add index signature for Json compatibility
+  adaptations: Record<string, unknown>;
+  [key: string]: unknown; // Add index signature for Json compatibility
 }
 
 interface AdaptiveRecommendation {
@@ -18,7 +19,7 @@ interface AdaptiveRecommendation {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   title: string;
   description: string;
-  actionData: Record<string, any>;
+  actionData: Record<string, unknown>;
   expectedImpact: string;
   confidence: number;
 }
@@ -27,7 +28,11 @@ export const useAdaptiveLearning = () => {
   const { user } = useAuth();
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [recommendations, setRecommendations] = useState<AdaptiveRecommendation[]>([]);
-  const [adaptationHistory, setAdaptationHistory] = useState<any[]>([]);
+  const [adaptationHistory, setAdaptationHistory] = useState<Array<{
+    recommendation: AdaptiveRecommendation;
+    appliedAt: string;
+    effectiveness?: number;
+  }>>([]);
   const [loading, setLoading] = useState(true);
 
   // Load user's learning profile
@@ -95,7 +100,7 @@ export const useAdaptiveLearning = () => {
         .from('adaptive_learning_paths')
         .upsert({
           user_id: user.id,
-          learning_profile: profile as any,
+          learning_profile: profile as unknown as Json,
           effectiveness_score: 0, // Will be updated as user interacts
         });
 
@@ -106,8 +111,8 @@ export const useAdaptiveLearning = () => {
     }
   }, [user?.id]);
 
-  // Analyze user data to create learning profile
-  const analyzeUserData = (behavioral: any[], slides: any[], progress: any[]): LearningProfile => {
+  // Analyze user data to create learning profile  
+  const analyzeUserData = (behavioral: Record<string, unknown>[], slides: Record<string, unknown>[], progress: Record<string, unknown>[]): LearningProfile => {
     // Analyze learning style preferences
     const stylePreferences = analyzeLearningStyles(behavioral);
     
@@ -148,7 +153,7 @@ export const useAdaptiveLearning = () => {
       const recentData = await getRecentPerformanceData();
       
       // Analyze current learning state
-      const currentState = analyzeLearningState(recentData, currentContext);
+      const currentState = await analyzeLearningState(recentData, currentContext);
       
       // Generate recommendations based on profile and current state
       const newRecommendations = await generateContextualRecommendations(
@@ -169,12 +174,12 @@ export const useAdaptiveLearning = () => {
             recommendation_data: {
               title: rec.title,
               description: rec.description,
-              actionData: rec.actionData,
+              actionData: rec.actionData as unknown as Json,
               expectedImpact: rec.expectedImpact,
               confidence: rec.confidence,
               priority: rec.priority
-            },
-            trigger_context: currentContext,
+            } as Json,
+            trigger_context: currentContext as unknown as Json,
             expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
           });
       }
@@ -208,7 +213,7 @@ export const useAdaptiveLearning = () => {
         await supabase
           .from('adaptive_learning_paths')
           .update({ 
-            learning_profile: updatedProfile as any,
+            learning_profile: updatedProfile as unknown as Json,
             effectiveness_score: calculateEffectivenessScore(adaptationHistory)
           })
           .eq('user_id', user.id);
@@ -260,7 +265,7 @@ export const useAdaptiveLearning = () => {
     // Store updated profile
     await supabase
       .from('adaptive_learning_paths')
-      .update({ learning_profile: updatedProfile })
+      .update({ learning_profile: updatedProfile as unknown as Json })
       .eq('user_id', user.id);
 
     console.log('📊 Learning profile updated from performance data');
@@ -282,14 +287,17 @@ export const useAdaptiveLearning = () => {
     }
   });
 
-  const analyzeLearningStyles = (behavioral: any[]): string[] => {
+  const analyzeLearningStyles = (behavioral: Record<string, unknown>[]): string[] => {
     const styleData = behavioral.filter(d => d.behavior_type === 'learning_style');
     const preferences: Record<string, number> = {};
     
     styleData.forEach(d => {
-      const contentType = d.behavior_data?.contentType;
-      const preference = d.behavior_data?.preferenceRating || 0;
-      preferences[contentType] = (preferences[contentType] || 0) + preference;
+      const behaviorData = d.behavior_data as Record<string, unknown> | undefined;
+      const contentType = behaviorData?.contentType as string;
+      const preference = (behaviorData?.preferenceRating as number) || 0;
+      if (contentType) {
+        preferences[contentType] = (preferences[contentType] || 0) + preference;
+      }
     });
 
     return Object.entries(preferences)
@@ -298,7 +306,7 @@ export const useAdaptiveLearning = () => {
       .map(([style]) => style);
   };
 
-  const analyzeAttentionPatterns = (behavioral: any[], slides: any[]) => {
+  const analyzeAttentionPatterns = (behavioral: Record<string, unknown>[], slides: Record<string, unknown>[]) => {
     const attentionData = [
       ...behavioral.filter(d => d.behavior_type === 'attention_pattern'),
       ...slides.filter(d => d.event_type === 'view_end')
@@ -306,28 +314,34 @@ export const useAdaptiveLearning = () => {
 
     if (attentionData.length === 0) return { average: 900, variance: 0 };
 
-    const durations = attentionData.map(d => d.behavior_data?.durationSeconds || d.duration_seconds || 0);
+    const durations = attentionData.map(d => {
+      const behaviorData = d.behavior_data as Record<string, unknown> | undefined;
+      return (behaviorData?.durationSeconds as number) || (d.duration_seconds as number) || 0;
+    });
     const average = durations.reduce((a, b) => a + b, 0) / durations.length;
     const variance = durations.reduce((sum, dur) => sum + Math.pow(dur - average, 2), 0) / durations.length;
 
     return { average, variance };
   };
 
-  const analyzeLearningVelocity = (progress: any[]) => {
+  const analyzeLearningVelocity = (progress: Record<string, unknown>[]) => {
     if (progress.length === 0) return { average: 1.0 };
 
-    const velocities = progress.map(p => p.learning_velocity || 1.0);
+    const velocities = progress.map(p => (p.learning_velocity as number) || 1.0);
     const average = velocities.reduce((a, b) => a + b, 0) / velocities.length;
 
     return { average };
   };
 
-  const analyzeDifficultyPreferences = (progress: any[], slides: any[]) => {
+  const analyzeDifficultyPreferences = (progress: Record<string, unknown>[], slides: Record<string, unknown>[]) => {
     // Analyze relationship between difficulty and performance
-    const combinedData = progress.map(p => ({
-      difficulty: p.difficulty_perception || 5,
-      performance: p.completion_quality?.overallQuality || 0.5
-    }));
+    const combinedData = progress.map(p => {
+      const completionQuality = p.completion_quality as Record<string, unknown> | undefined;
+      return {
+        difficulty: (p.difficulty_perception as number) || 5,
+        performance: (completionQuality?.overallQuality as number) || 0.5
+      };
+    });
 
     if (combinedData.length === 0) return { optimal: 5 };
 
@@ -353,16 +367,17 @@ export const useAdaptiveLearning = () => {
     return { optimal: bestDifficulty };
   };
 
-  const identifyStrengthsAndChallenges = (progress: any[], behavioral: any[]) => {
+  const identifyStrengthsAndChallenges = (progress: Record<string, unknown>[], behavioral: Record<string, unknown>[]) => {
     const strengths: string[] = [];
     const challenges: string[] = [];
 
     // Analyze completion rates by content type
     const completionRates: Record<string, number[]> = {};
     progress.forEach(p => {
-      const contentType = p.metadata?.contentType || 'general';
+      const metadata = p.metadata as Record<string, unknown> | undefined;
+      const contentType = (metadata?.contentType as string) || 'general';
       if (!completionRates[contentType]) completionRates[contentType] = [];
-      completionRates[contentType].push(p.progress_percentage / 100);
+      completionRates[contentType].push(((p.progress_percentage as number) || 0) / 100);
     });
 
     Object.entries(completionRates).forEach(([contentType, rates]) => {
@@ -387,7 +402,7 @@ export const useAdaptiveLearning = () => {
     return 'long'; // 20+ minutes
   };
 
-  const getDifficultyProgression = (difficultyData: any): string => {
+  const getDifficultyProgression = (difficultyData: { optimal: number }): string => {
     return difficultyData.optimal > 7 ? 'aggressive' : difficultyData.optimal < 4 ? 'gentle' : 'gradual';
   };
 
@@ -420,15 +435,15 @@ async function getRecentPerformanceData() {
   return {};
 }
 
-async function analyzeLearningState(recentData: any, context: any) {
+async function analyzeLearningState(recentData: Record<string, unknown>, context: Record<string, unknown>) {
   // Implementation would analyze current learning state
   return {};
 }
 
 async function generateContextualRecommendations(
   profile: LearningProfile, 
-  state: any, 
-  context: any
+  state: Record<string, unknown>, 
+  context: Record<string, unknown>
 ): Promise<AdaptiveRecommendation[]> {
   // Implementation would use AI to generate personalized recommendations
   return [];
@@ -443,7 +458,7 @@ function updateProfileFromFeedback(
   return profile;
 }
 
-function calculateEffectivenessScore(history: any[]): number {
+function calculateEffectivenessScore(history: Array<{ effectiveness?: number }>): number {
   if (history.length === 0) return 0;
   
   const totalEffectiveness = history

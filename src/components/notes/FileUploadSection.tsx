@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFileUploads, FileUpload } from '@/hooks/useFileUploads';
 import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
 import { useRealTimeProcessing } from '@/hooks/useRealTimeProcessing';
-import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
+import { useFileUploadSubscription, FileUploadUpdatePayload } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
@@ -48,7 +48,7 @@ const FileUploadSection: React.FC = () => {
     const subscriptionId = subscriptionIdRef.current;
     console.log(`📡 Setting up notes file upload handler: ${subscriptionId}`);
 
-    const handleFileUploadUpdate = async (payload: FileUploadPayload) => {
+    const handleFileUploadUpdate = async (payload: FileUploadUpdatePayload) => {
       console.log('🔄 Notes file upload updated:', payload);
       
       if (payload.new.processing_status === 'completed') {
@@ -73,7 +73,7 @@ const FileUploadSection: React.FC = () => {
         });
 
         // Stop polling if it was running
-        stopPolling(payload.new.id);
+        stopPolling(payload.new.id as string);
 
         // Fetch flashcards and add to preview
         try {
@@ -137,11 +137,11 @@ const FileUploadSection: React.FC = () => {
         });
 
         // Stop polling if it was running
-        stopPolling(payload.new.id);
+        stopPolling(payload.new.id as string);
         
         toast({
           title: "❌ Processing failed",
-          description: payload.new.error_message || "Failed to generate flashcards",
+          description: payload.new.error_message as string || "Failed to generate flashcards",
           variant: "destructive"
         });
       }

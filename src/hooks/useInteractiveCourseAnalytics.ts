@@ -2,12 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { trackDailyActivity } from '@/utils/analyticsTracking';
+import type { Json } from '@/integrations/supabase/types';
+
+interface InteractionData {
+  type: string;
+  timestamp: string;
+  data: Record<string, unknown>;
+}
 
 interface InteractiveCourseSession {
   courseId: string;
   lessonId?: number;
   sessionStart: Date;
-  interactions: any[];
+  interactions: InteractionData[];
   pageViews: number;
   sessionType: 'overview' | 'lesson' | 'completion';
 }
@@ -97,7 +104,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           session_end: sessionEnd.toISOString(),
           duration_seconds: durationSeconds,
           page_views: currentSession.pageViews,
-          interactions: currentSession.interactions
+          interactions: currentSession.interactions as unknown as Json
         })
         .eq('user_id', user.id)
         .eq('course_id', courseId)
@@ -214,7 +221,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
   }, [user, currentLessonAnalytics, courseId]);
 
   // Track interaction
-  const trackInteraction = useCallback((interactionType: string, data: any) => {
+  const trackInteraction = useCallback((interactionType: string, data: Record<string, unknown>) => {
     if (!currentSession) return;
 
     const interaction = {
@@ -293,7 +300,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
     const isCompleted = completedLessons === totalLessons;
 
     try {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         completion_percentage: completionPercentage,
         last_accessed_at: new Date().toISOString()
       };
@@ -374,7 +381,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
 };
 
 // Helper function to track analytics events
-const trackAnalyticsEvent = async (eventType: string, metadata: any, userId?: string) => {
+const trackAnalyticsEvent = async (eventType: string, metadata: Record<string, unknown>, userId?: string) => {
   if (!userId) return;
 
   try {
@@ -384,7 +391,7 @@ const trackAnalyticsEvent = async (eventType: string, metadata: any, userId?: st
         user_id: userId,
         metric_name: eventType,
         value: 1,
-        metadata,
+        metadata: metadata as unknown as Json,
         timestamp: new Date().toISOString()
       });
   } catch (error) {

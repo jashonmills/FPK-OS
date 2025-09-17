@@ -120,8 +120,8 @@ export const useFlashcards = () => {
       difficulty_level?: number;
     },
     callbacks?: {
-      onSuccess?: (data: any) => void;
-      onError?: (error: any) => void;
+      onSuccess?: (data: Flashcard) => void;
+      onError?: (error: Error) => void;
     }
   ) => {
     createFlashcardMutation.mutate(flashcardData, {

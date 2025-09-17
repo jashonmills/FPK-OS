@@ -5,16 +5,31 @@ import { useAuth } from '@/hooks/useAuth';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useCleanup } from '@/utils/cleanupManager';
 
+interface FileUploadPayload {
+  new: {
+    id: string;
+    processing_status: string;
+    error_message?: string;
+    [key: string]: unknown;
+  };
+  old: Record<string, unknown>;
+}
+
+interface FileUploadUpdatePayload {
+  new: Record<string, unknown>;
+  old: Record<string, unknown>;
+}
+
 interface FileUploadUpdateHandler {
   id: string;
-  handler: (payload: any) => void;
+  handler: (payload: FileUploadUpdatePayload) => void;
 }
 
 interface FileUploadSubscriptionService {
-  subscribe: (id: string, handler: (payload: any) => void) => void;
+  subscribe: (id: string, handler: (payload: FileUploadUpdatePayload) => void) => void;
   unsubscribe: (id: string) => void;
   isConnected: boolean;
-  startPolling: (uploadId: string, callback: (upload: any) => void) => void;
+  startPolling: (uploadId: string, callback: (upload: Record<string, unknown>) => void) => void;
   stopPolling: (uploadId: string) => void;
 }
 
@@ -27,7 +42,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const pollingIntervalsRef = useRef<Record<string, string>>({});
 
-  const subscribe = useCallback((id: string, handler: (payload: any) => void) => {
+  const subscribe = useCallback((id: string, handler: (payload: FileUploadUpdatePayload) => void) => {
     if (!mountedRef.current) return;
     
     console.log(`📡 Subscribing handler: ${id}`);
@@ -60,7 +75,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     }
   }, []);
 
-  const startPolling = useCallback((uploadId: string, callback: (upload: any) => void) => {
+  const startPolling = useCallback((uploadId: string, callback: (upload: Record<string, unknown>) => void) => {
     if (!mountedRef.current) return;
     
     console.log(`🔄 Starting polling for upload: ${uploadId}`);
@@ -269,7 +284,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       if (channelRef.current) {
         cleanupConnection();
       }
-    };
+export { useFileUploadSubscription, type FileUploadUpdatePayload };
   }, [user?.id, initializeConnection, cleanupConnection]);
 
   return {
@@ -280,3 +295,6 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
     stopPolling
   };
 };
+
+export { useFileUploadSubscription };
+export type { FileUploadUpdatePayload };

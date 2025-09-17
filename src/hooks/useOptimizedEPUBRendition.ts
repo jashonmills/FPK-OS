@@ -68,7 +68,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
       });
 
       // Set up event listeners with proper error handling
-      rendition.on('locationChanged', (location: any) => {
+      rendition.on('locationChanged', (location: { start?: { cfi?: string } }) => {
         try {
           if (location?.start?.cfi) {
             setCurrentLocation(location.start.cfi);
@@ -86,7 +86,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
         setIsNavigating(false);
       });
 
-      rendition.on('relocated', (location: any) => {
+      rendition.on('relocated', (location: unknown) => {
         console.log('🔄 Page relocated');
         setIsNavigating(false);
       });
@@ -95,7 +95,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
       rendition.display().then(() => {
         console.log('✅ SINGLE rendition displayed successfully with scrolling enabled');
         isInitializedRef.current = true;
-      }).catch((error: any) => {
+      }).catch((error: Error) => {
         console.error('❌ Rendition display error:', error);
         setIsNavigating(false);
       });
@@ -114,7 +114,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
     setIsNavigating(true);
     console.log('⬅️ Navigating to previous page');
     
-    renditionRef.current.prev().catch((error: any) => {
+    renditionRef.current.prev().catch((error: Error) => {
       console.warn('Previous page navigation error:', error);
       setIsNavigating(false);
     });
@@ -126,7 +126,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
     setIsNavigating(true);
     console.log('➡️ Navigating to next page');
     
-    renditionRef.current.next().catch((error: any) => {
+    renditionRef.current.next().catch((error: Error) => {
       console.warn('Next page navigation error:', error);
       setIsNavigating(false);
     });
@@ -158,7 +158,7 @@ export const useOptimizedEPUBRendition = (book: Book | null) => {
     setIsNavigating(true);
     console.log('📖 Navigating to TOC item:', item.label);
     
-    renditionRef.current.display(item.href).catch((error: any) => {
+    renditionRef.current.display(item.href).catch((error: Error) => {
       console.warn('TOC navigation error:', error);
       setIsNavigating(false);
     });
