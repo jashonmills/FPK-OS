@@ -50,7 +50,7 @@ export const initialState: GameState = {
   currentEmergencyFund: 0,
   currentDebt: 0,
   creditCardBalance: 0,
-  creditCardLimit: 1000,
+  creditCardLimit: 500,
   creditCardInterestRate: 0.18,
   debtInterestRate: 0.12,
   envelopes: {
