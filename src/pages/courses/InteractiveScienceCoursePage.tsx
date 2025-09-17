@@ -93,8 +93,11 @@ export const InteractiveScienceCoursePage: React.FC = () => {
   }, [lessonId]);
 
   const handleLessonComplete = (lessonId: number) => {
-    if (!completedLessons.includes(lessonId)) {
-      setCompletedLessons(prev => [...prev, lessonId]);
+    if (!completedLessons.has(lessonId)) {
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (lesson) {
+        saveLessonCompletion(lessonId, lesson.title);
+      }
     }
   };
 
@@ -135,10 +138,10 @@ export const InteractiveScienceCoursePage: React.FC = () => {
 
   // Memoize expensive calculations
   const isLessonAccessible = useCallback((lessonId: number) => {
-    return lessonId === 1 || completedLessons.includes(lessonId - 1);
+    return lessonId === 1 || completedLessons.has(lessonId - 1);
   }, [completedLessons]);
 
-  const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
+  const progress = useMemo(() => (completedLessons.size / lessons.length) * 100, [completedLessons.size]);
 
   // Course overview (lesson selection)
   if (currentLesson === null) {
@@ -188,7 +191,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
                   <p className="text-xs text-white/90 mt-1 text-center font-medium drop-shadow">
-                    {completedLessons.length} of {lessons.length} lessons completed
+                    {completedLessons.size} of {lessons.length} lessons completed
                   </p>
                 </div>
               </div>
@@ -258,7 +261,7 @@ export const InteractiveScienceCoursePage: React.FC = () => {
               {/* Lessons Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {lessons.map((lesson) => {
-                  const isCompleted = completedLessons.includes(lesson.id);
+                  const isCompleted = completedLessons.has(lesson.id);
                   const isAccessible = isLessonAccessible(lesson.id);
 
                   return (
