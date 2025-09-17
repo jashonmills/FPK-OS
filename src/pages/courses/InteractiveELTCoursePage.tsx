@@ -14,6 +14,7 @@ import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgre
 import { useInteractiveCourseEnrollmentBridge } from '@/hooks/useInteractiveCourseEnrollmentBridge';
 import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { ErrorBoundary, CourseFallback } from '@/components/common/ErrorBoundary';
+import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
 import {
   AdditionalResourcesSection,
   StudentGuidesAccordion,
@@ -307,6 +308,12 @@ const InteractiveELTCoursePage: React.FC = () => {
                 lessons={lessons}
               />
             </div>
+
+            {/* Course Overview Video */}
+            <CourseOverviewVideo 
+              videoUrl="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/elt-course/Neurodiverse_Learners_Guide.mp4"
+              title="ELT Course Introduction: Empowering Neurodiverse Learners"
+            />
 
             {/* Additional Resources Section */}
             <AdditionalResourcesSection>
