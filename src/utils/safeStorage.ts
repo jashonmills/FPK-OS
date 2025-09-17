@@ -190,5 +190,26 @@ export const safeSessionStorage = {
       }
       return false;
     }
+  },
+
+  /**
+   * Clear sessionStorage with error handling
+   */
+  clear: (options: StorageOptions = {}): boolean => {
+    const { logErrors = true } = options;
+    
+    try {
+      if (typeof window === 'undefined') {
+        return false;
+      }
+      
+      window.sessionStorage.clear();
+      return true;
+    } catch (error) {
+      if (logErrors) {
+        console.warn('Failed to clear sessionStorage:', error);
+      }
+      return false;
+    }
   }
 };

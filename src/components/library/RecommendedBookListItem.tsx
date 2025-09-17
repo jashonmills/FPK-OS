@@ -1,9 +1,9 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { BookOpen, ChevronRight } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { Book, CuratedBook } from '@/types/library';
-import { BookOpen, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { safeSessionStorage } from '@/utils/safeStorage';
 
 interface RecommendedBookListItemProps {
   book: CuratedBook;
@@ -58,7 +58,7 @@ const RecommendedBookListItem: React.FC<RecommendedBookListItemProps> = ({ book,
   useEffect(() => {
     if (coverUrl && imageLoaded) {
       const cacheKey = `book-cover-${book.coverId}`;
-      sessionStorage.setItem(cacheKey, coverUrl);
+      safeSessionStorage.setItem(cacheKey, coverUrl, { logErrors: false });
     }
   }, [coverUrl, imageLoaded, book.coverId]);
 

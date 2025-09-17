@@ -14,6 +14,7 @@ import {
 import { useConsent, ConsentPreferences } from "@/hooks/useConsent";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
+import { safeLocalStorage } from "@/utils/safeStorage";
 
 export function ConsentManager() {
   const { user } = useAuth();
@@ -49,7 +50,10 @@ export function ConsentManager() {
 
   useEffect(() => {
     // Check if user has given consent
-    const hasGivenConsent = localStorage.getItem('cookie-consent');
+    const hasGivenConsent = safeLocalStorage.getItem<string>('cookie-consent', {
+      fallbackValue: null,
+      logErrors: false
+    });
     if (!hasGivenConsent && !isLoading) {
       setShowBanner(true);
     }

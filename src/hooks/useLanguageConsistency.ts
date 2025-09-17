@@ -5,7 +5,9 @@
 
 import { useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { safeSessionStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface LanguageConsistencyOptions {
   maintainRouteOnLanguageChange?: boolean;
@@ -23,6 +25,7 @@ export const useLanguageConsistency = (options: LanguageConsistencyOptions = {})
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const cleanup = useCleanup('useLanguageConsistency');
 
   // Store current route when language changes
   useEffect(() => {
@@ -34,7 +37,9 @@ export const useLanguageConsistency = (options: LanguageConsistencyOptions = {})
         const currentHash = location.hash;
         
         // Store in sessionStorage to persist across language change
-        sessionStorage.setItem('lastRoute', `${currentPath}${currentSearch}${currentHash}`);
+        safeSessionStorage.setItem('lastRoute', `${currentPath}${currentSearch}${currentHash}`, {
+          logErrors: false
+        });
       }
     };
 
@@ -47,15 +52,18 @@ export const useLanguageConsistency = (options: LanguageConsistencyOptions = {})
 
   // Restore route after language change
   useEffect(() => {
-    const savedRoute = sessionStorage.getItem('lastRoute');
+    const savedRoute = safeSessionStorage.getItem<string>('lastRoute', { 
+      fallbackValue: null, 
+      logErrors: false 
+    });
     if (savedRoute && savedRoute !== location.pathname + location.search + location.hash) {
-      // Small delay to ensure language change is complete
-      setTimeout(() => {
+      // Small delay to ensure language change is complete using cleanup manager
+      cleanup.setTimeout(() => {
         navigate(savedRoute, { replace: true });
-        sessionStorage.removeItem('lastRoute');
+        safeSessionStorage.removeItem('lastRoute', { logErrors: false });
       }, 100);
     }
-  }, [i18n.language, navigate, location]);
+  }, [i18n.language, navigate, location, cleanup]);
 
   // Enhanced translation function with fallbacks and logging
   const safeT = useCallback((key: string, fallback?: string, options?: any) => {

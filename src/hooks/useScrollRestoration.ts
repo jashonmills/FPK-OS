@@ -1,9 +1,16 @@
 import { useEffect } from 'react';
+import { safeSessionStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export function useScrollRestoration(storageKey: string) {
+  const cleanup = useCleanup('useScrollRestoration');
+  
   useEffect(() => {
     // Restore scroll position on mount
-    const savedScrollY = sessionStorage.getItem(storageKey);
+    const savedScrollY = safeSessionStorage.getItem<string>(storageKey, {
+      fallbackValue: null,
+      logErrors: false
+    });
     if (savedScrollY) {
       requestAnimationFrame(() => {
         window.scrollTo(0, parseInt(savedScrollY, 10));
@@ -12,7 +19,7 @@ export function useScrollRestoration(storageKey: string) {
 
     // Save scroll position before unmount or route change
     const saveScrollPosition = () => {
-      sessionStorage.setItem(storageKey, String(window.scrollY));
+      safeSessionStorage.setItem(storageKey, String(window.scrollY), { logErrors: false });
     };
 
     // Save on route change
@@ -20,11 +27,14 @@ export function useScrollRestoration(storageKey: string) {
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     // Save on scroll (debounced)
-    let scrollTimeout: NodeJS.Timeout;
+    let scrollTimeout: string | null = null;
     const handleScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(saveScrollPosition, 200);
+      if (scrollTimeout) {
+        cleanup.cleanup(scrollTimeout);
+      }
+      scrollTimeout = cleanup.setTimeout(saveScrollPosition, 200);
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Save on visibility change (when user switches tabs)
@@ -36,11 +46,14 @@ export function useScrollRestoration(storageKey: string) {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      saveScrollPosition();
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearTimeout(scrollTimeout);
+      if (scrollTimeout) {
+        cleanup.cleanup(scrollTimeout);
+      }
+      // Save final position
+      saveScrollPosition();
     };
-  }, [storageKey]);
+  }, [storageKey, cleanup]);
 }

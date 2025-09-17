@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface ReadingCourseWrapperProps {
   courseId: string;
@@ -24,6 +26,7 @@ export const ReadingCourseWrapper: React.FC<ReadingCourseWrapperProps> = ({
 }) => {
   const { forceCleanup, registerCleanup, isSpellingCourse } = useSpellingCoursePerformance(courseId, currentLesson);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const cleanup = useCleanup('ReadingCourseWrapper');
 
   // Check if this is the reading course
   const isReadingCourse = courseId === 'empowering-learning-reading';
@@ -51,16 +54,19 @@ export const ReadingCourseWrapper: React.FC<ReadingCourseWrapperProps> = ({
     const storageKey = `reading-progress-${courseId}`;
     
     try {
-      const stored = localStorage.getItem(storageKey);
+      const stored = safeLocalStorage.getItem<string>(storageKey, {
+        fallbackValue: '{"completed": []}',
+        logErrors: false
+      });
       const progress = stored ? JSON.parse(stored) : { completed: [] };
       
       // Very lightweight progress update
       if (currentLesson && !progress.completed.includes(currentLesson)) {
         progress.completed.push(currentLesson);
-        localStorage.setItem(storageKey, JSON.stringify(progress));
+        safeLocalStorage.setItem(storageKey, JSON.stringify(progress));
         
-        // Delayed callback to prevent blocking
-        setTimeout(() => {
+        // Delayed callback to prevent blocking using cleanup manager
+        cleanup.setTimeout(() => {
           onProgressUpdate?.(progress.completed.length, totalLessons);
         }, 100);
       }

@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Users, BookOpen, LogIn, UserPlus, Shield, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { safeSessionStorage } from '@/utils/safeStorage';
 
 interface OrganizationData {
   id: string;
@@ -98,11 +99,11 @@ export default function OrgLanding() {
 
   const handleAuthWithOrg = (mode: 'login' | 'signup') => {
     // Store org context and redirect to auth
-    sessionStorage.setItem('orgContext', JSON.stringify({
+    safeSessionStorage.setItem('orgContext', JSON.stringify({
       orgId: organization?.id,
       orgSlug: organization?.slug,
       orgName: organization?.name
-    }));
+    }), { logErrors: false });
     navigate(`/login?org=${orgSlug}`);
   };
 
