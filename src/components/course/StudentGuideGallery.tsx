@@ -4,6 +4,23 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Eye, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Import ELT guide images
+import selfAssessmentLearningStyles from '@/assets/elt-guides/self-assessment-learning-styles.jpg';
+import cognitiveStrengthsWorksheet from '@/assets/elt-guides/cognitive-strengths-worksheet.jpg';
+import brainDifferencesReframing from '@/assets/elt-guides/brain-differences-reframing.jpg';
+import pomodoroTemplate from '@/assets/elt-guides/pomodoro-template.jpg';
+import organizationSystemsChecklist from '@/assets/elt-guides/organization-systems-checklist.jpg';
+import prioritizationMatrix from '@/assets/elt-guides/prioritization-matrix.jpg';
+import sq3rMethodGuide from '@/assets/elt-guides/sq3r-method-guide.jpg';
+import noteTakingTemplates from '@/assets/elt-guides/note-taking-templates.jpg';
+import memoryTechniquesWorkbook from '@/assets/elt-guides/memory-techniques-workbook.jpg';
+import spacedRepetitionCalendar from '@/assets/elt-guides/spaced-repetition-calendar.jpg';
+import strengthReframingWorksheet from '@/assets/elt-guides/strength-reframing-worksheet.jpg';
+import selfAdvocacyScripts from '@/assets/elt-guides/self-advocacy-scripts.jpg';
+import academicSuccessPlanner from '@/assets/elt-guides/academic-success-planner.jpg';
+import workplaceSkillsGuide from '@/assets/elt-guides/workplace-skills-guide.jpg';
+import lifelongLearningTemplate from '@/assets/elt-guides/lifelong-learning-template.jpg';
+
 interface StudentGuide {
   name: string;
   url: string;
@@ -122,77 +139,77 @@ const courseGuides: Record<string, StudentGuide[]> = {
   'elt-empowering-learning-techniques': [
     {
       name: "Self-Assessment Learning Styles",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/self-assessment-learning-styles.jpg",
+      url: selfAssessmentLearningStyles,
       moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
     },
     {
       name: "Cognitive Strengths Identification Worksheet",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/cognitive-strengths-worksheet.jpg",
+      url: cognitiveStrengthsWorksheet,
       moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
     },
     {
       name: "Brain Differences Reframing Guide",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/brain-differences-reframing.jpg",
+      url: brainDifferencesReframing,
       moduleReference: "Module 1 - Understanding Neurodiversity and Your Unique Brain"
     },
     {
       name: "Time Management Pomodoro Template",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/pomodoro-template.jpg",
+      url: pomodoroTemplate,
       moduleReference: "Module 2 - Mastering Executive Functioning Skills"
     },
     {
       name: "Organization Systems Checklist",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/organization-systems-checklist.jpg",
+      url: organizationSystemsChecklist,
       moduleReference: "Module 2 - Mastering Executive Functioning Skills"
     },
     {
       name: "Task Prioritization Matrix Worksheet",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/prioritization-matrix.jpg",
+      url: prioritizationMatrix,
       moduleReference: "Module 2 - Mastering Executive Functioning Skills"
     },
     {
       name: "SQ3R Reading Method Guide",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/sq3r-method-guide.jpg",
+      url: sq3rMethodGuide,
       moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
     },
     {
       name: "Note-Taking Templates (Cornell & Mind Maps)",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/note-taking-templates.jpg",
+      url: noteTakingTemplates,
       moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
     },
     {
       name: "Memory Enhancement Techniques Workbook",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/memory-techniques-workbook.jpg",
+      url: memoryTechniquesWorkbook,
       moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
     },
     {
       name: "Spaced Repetition Planning Calendar",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/spaced-repetition-calendar.jpg",
+      url: spacedRepetitionCalendar,
       moduleReference: "Module 3 - Effective Study and Information Retention Techniques"
     },
     {
       name: "Strength Reframing Exercise Worksheet",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/strength-reframing-worksheet.jpg",
+      url: strengthReframingWorksheet,
       moduleReference: "Module 4 - Turning Weaknesses into Strengths & Self-Advocacy"
     },
     {
       name: "Self-Advocacy Scripts Template",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/self-advocacy-scripts.jpg",
+      url: selfAdvocacyScripts,
       moduleReference: "Module 4 - Turning Weaknesses into Strengths & Self-Advocacy"
     },
     {
       name: "Academic Success Strategy Planner",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/academic-success-planner.jpg",
+      url: academicSuccessPlanner,
       moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
     },
     {
       name: "Workplace Skills Translation Guide",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/workplace-skills-guide.jpg",
+      url: workplaceSkillsGuide,
       moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
     },
     {
       name: "Lifelong Learning Plan Template",
-      url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/guides/lifelong-learning-template.jpg",
+      url: lifelongLearningTemplate,
       moduleReference: "Module 5 - Real-World Application and Lifelong Learning"
     }
   ]
