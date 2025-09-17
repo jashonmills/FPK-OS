@@ -21,7 +21,6 @@ import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
-import elSpellingBg from '@/assets/el-spelling-course-bg.jpg';
 import eltBackground from '@/assets/elt-background.jpg';
 
 interface StyledCourseCardProps {
@@ -46,7 +45,6 @@ const courseImageMap: Record<string, string> = {
   'interactive-algebra': algebraBg,
   'logic-critical-thinking': logicBg,
   'introduction-modern-economics': economicsBg,
-  'el-spelling-reading': elSpellingBg,
   'empowering-learning-reading': empoweringReadingBg,
   'empowering-learning-numeracy': empoweringNumeracyBg,
   'empowering-learning-handwriting': empoweringHandwritingBg,
@@ -74,7 +72,6 @@ const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('algebra')) return algebraBg;
   if (titleLower.includes('logic') || titleLower.includes('critical')) return logicBg;
   if (titleLower.includes('economics') || titleLower.includes('economic')) return economicsBg;
-  if (titleLower.includes('el spelling') || titleLower.includes('el-spelling')) return elSpellingBg;
   if (titleLower.includes('spelling')) return empoweringSpellingBg;
   if (titleLower.includes('reading')) return empoweringReadingBg;
   if (titleLower.includes('numeracy')) return empoweringNumeracyBg;
@@ -115,8 +112,6 @@ export function StyledCourseCard({
     'empowering-learning-state',
     '06efda03-9f0b-4c00-a064-eb65ada9fbae', // Native Empowering Learning for Spelling course
     'empowering-learning-australia',
-    'el-spelling-reading',
-    
   ].includes(id);
   
   return (
