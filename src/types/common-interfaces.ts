@@ -17,22 +17,21 @@ export interface InteractionEvent {
 }
 
 export interface NavigationItem {
-  id: string;
+  id?: string;
   title: string;
-  href: string;
-  icon?: string;
+  href?: string;
+  url?: string;
+  icon?: any;
   badge?: string | number;
   children?: NavigationItem[];
+  isExternal?: boolean;
 }
 
 export interface FileUploadPayload {
-  id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress?: number;
-  fileName?: string;
-  fileSize?: number;
-  error?: string;
-  metadata?: Record<string, unknown>;
+  eventType?: string;
+  new?: any;
+  old?: any;
+  [key: string]: any;
 }
 
 export interface ChatMessage {

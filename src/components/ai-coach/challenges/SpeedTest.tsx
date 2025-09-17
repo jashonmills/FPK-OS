@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Flashcard } from '@/hooks/useFlashcards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,8 +7,6 @@ import { Zap, Timer, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 import { useCleanup } from '@/utils/cleanupManager';
-
-import { Flashcard } from '@/hooks/useFlashcards';
 
 interface SpeedTestProps {
   flashcards?: Flashcard[];
@@ -26,12 +25,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
   const [completed, setCompleted] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [answeredCards, setAnsweredCards] = useState(0);
-import { ChallengeCard } from '@/types/common-interfaces';
-
-export const SpeedTest = () => {
-  // ... keep existing code
-  
-  const [testCards, setTestCards] = useState<ChallengeCard[]>([]);
+  const [testCards, setTestCards] = useState<Flashcard[]>([]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);

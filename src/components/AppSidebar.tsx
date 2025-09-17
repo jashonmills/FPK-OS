@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { NavigationItem } from '@/types/common-interfaces';
 import {
   Sidebar,
   SidebarContent,
@@ -274,11 +275,6 @@ export function AppSidebar() {
     return location.pathname === url;
   };
 
-import { NavigationItem } from '@/types/common-interfaces';
-
-const AppSidebar = () => {
-  // ... keep existing code
-
   const handleNavigation = (item: NavigationItem) => {
     if (item.isExternal) {
       window.location.href = item.url;
@@ -527,4 +523,6 @@ const AppSidebar = () => {
       </SidebarFooter>
     </Sidebar>
   );
-}
+};
+
+export default AppSidebar;

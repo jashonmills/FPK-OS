@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { FileUploadPayload } from '@/types/common-interfaces';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -40,11 +41,6 @@ const FileUploadCard: React.FC = () => {
   const maxFileSize = 100 * 1024 * 1024; // 100MB
 
   // Define the handler function in the component scope with error handling
-import { FileUploadPayload } from '@/types/common-interfaces';
-
-export const FileUploadCard = () => {
-  // ... keep existing code
-
   const handleFileUploadUpdate = useCallback((payload: FileUploadPayload) => {
     try {
       console.log('🤖 AI Coach file upload updated:', payload);

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Flashcard } from '@/hooks/useFlashcards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
-
-import { Flashcard } from '@/hooks/useFlashcards';
 
 interface AccuracyChallengeProps {
   flashcards?: Flashcard[];
@@ -21,12 +20,7 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [completed, setCompleted] = useState(false);
-import { ChallengeCard } from '@/types/common-interfaces';
-
-export const AccuracyChallenge = () => {
-  // ... keep existing code
-  
-  const [challengeCards, setChallengeCards] = useState<ChallengeCard[]>([]);
+  const [challengeCards, setChallengeCards] = useState<Flashcard[]>([]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [hasTrackedStart, setHasTrackedStart] = useState(false);
