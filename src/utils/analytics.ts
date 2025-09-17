@@ -16,9 +16,9 @@ interface AnalyticsProvider {
 
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
     analytics?: AnalyticsProvider;
-    dataLayer?: any[];
+    dataLayer?: unknown[];
   }
 }
 

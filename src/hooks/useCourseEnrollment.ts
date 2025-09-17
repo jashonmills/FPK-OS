@@ -57,7 +57,7 @@ export function useCourseEnrollment() {
       queryClient.invalidateQueries({ queryKey: ['enrollment-progress'] });
       queryClient.invalidateQueries({ queryKey: ['enrolled-courses'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       if (error.message === 'Already enrolled in this course') {
         toast.info('You are already enrolled in this course');
       } else {
@@ -88,7 +88,7 @@ export function useCourseEnrollment() {
       queryClient.invalidateQueries({ queryKey: ['enrollment-progress'] });
       queryClient.invalidateQueries({ queryKey: ['enrolled-courses'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to unenroll: ${error.message}`);
     }
   });

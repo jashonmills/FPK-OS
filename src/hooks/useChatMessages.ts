@@ -148,7 +148,7 @@ export const useChatMessages = (sessionId: string | null) => {
       }
       
       // Prepare simple context data for Edge Function
-      const contextData: any = {};
+      const contextData: Record<string, unknown> = {};
       
       if (conversationState.promptType === 'initiate_quiz' && conversationState.currentTopic) {
         contextData.quizTopic = conversationState.currentTopic;
@@ -272,7 +272,7 @@ export const useChatMessages = (sessionId: string | null) => {
 };
 
 // Helper function to provide contextual error responses
-function getContextualErrorResponse(message: string, chatMode: string, error: any): string {
+function getContextualErrorResponse(message: string, chatMode: string, error: Error): string {
   const lowerMessage = message.toLowerCase();
   
   // Math questions - provide the answer even if AI is down

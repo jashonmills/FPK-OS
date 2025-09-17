@@ -35,7 +35,7 @@ export const useEnhancedAnalytics = ({ courseId, moduleId }: UseEnhancedAnalytic
   }, [user]);
 
   // Enhanced page tracking
-  const trackPageView = useCallback((pageName: string, properties?: Record<string, any>) => {
+  const trackPageView = useCallback((pageName: string, properties?: Record<string, unknown>) => {
     // Standard analytics
     analytics.trackPageView(pageName, {
       course_id: courseId,

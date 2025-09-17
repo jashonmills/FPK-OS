@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 export const useAnalyticsEventBus = () => {
   const { user } = useAuth();
 
-  const publishEvent = async (eventType: string, metadata: Record<string, any>, source = 'web') => {
+  const publishEvent = async (eventType: string, metadata: Record<string, unknown>, source = 'web') => {
     if (!user?.id) return;
 
     await analyticsEventBus.publish({
@@ -62,7 +62,7 @@ export const useAnalyticsPublisher = () => {
     publishEvent(EVENTS.READING_SESSION_END, { bookId, duration, ...metadata });
   };
 
-  const publishStudySessionComplete = (sessionType: string, performance: any, metadata = {}) => {
+  const publishStudySessionComplete = (sessionType: string, performance: Record<string, unknown>, metadata = {}) => {
     publishEvent(EVENTS.STUDY_SESSION_COMPLETE, { sessionType, performance, ...metadata });
   };
 

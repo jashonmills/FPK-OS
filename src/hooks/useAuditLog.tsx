@@ -5,8 +5,8 @@ export interface AuditEvent {
   action: 'create' | 'read' | 'update' | 'delete' | 'export' | 'access';
   tableName: string;
   recordId?: string;
-  oldValues?: any;
-  newValues?: any;
+  oldValues?: Record<string, unknown> | null;
+  newValues?: Record<string, unknown> | null;
   legalBasis?: string;
   purpose?: string;
 }
@@ -23,8 +23,8 @@ export function useAuditLog() {
         p_action: event.action,
         p_table_name: event.tableName,
         p_record_id: event.recordId || null,
-        p_old_values: event.oldValues || null,
-        p_new_values: event.newValues || null,
+        p_old_values: event.oldValues as any || null,
+        p_new_values: event.newValues as any || null,
         p_legal_basis: event.legalBasis || null,
         p_purpose: event.purpose || null,
       });

@@ -26,7 +26,7 @@ export const useAnalytics = ({ courseId, moduleId }: UseAnalyticsProps = {}) => 
   }, [user]);
 
   // Track page views
-  const trackPageView = useCallback((pageName: string, properties?: Record<string, any>) => {
+  const trackPageView = useCallback((pageName: string, properties?: Record<string, unknown>) => {
     analytics.trackPageView(pageName, {
       course_id: courseId,
       module_id: moduleId,

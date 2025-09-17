@@ -244,8 +244,8 @@ async function recordAuditEvent(
   action: string,
   tableName: string,
   recordId: string | null,
-  oldValues: any,
-  newValues: any,
+  oldValues: Record<string, unknown> | null,
+  newValues: Record<string, unknown> | null,
   legalBasis: string,
   purpose: string
 ) {
@@ -255,8 +255,8 @@ async function recordAuditEvent(
       p_action: action,
       p_table_name: tableName,
       p_record_id: recordId,
-      p_old_values: oldValues,
-      p_new_values: newValues,
+        p_old_values: oldValues as any,
+        p_new_values: newValues as any,
       p_legal_basis: legalBasis,
       p_purpose: purpose,
     });
@@ -292,6 +292,6 @@ function clearFunctionalCookies() {
 // Extend Window interface for gtag
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }

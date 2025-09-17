@@ -11,9 +11,16 @@ interface WorkingMemory {
 }
 
 interface EpisodicMemory {
-  sessionHistory: any[];
+  sessionHistory: SessionData[];
   learningPatterns: string[];
   successfulStrategies: string[];
+}
+
+interface SessionData {
+  timestamp: string;
+  topic: string;
+  performance: number;
+  [key: string]: unknown;
 }
 
 interface SemanticMemory {
@@ -91,13 +98,13 @@ export const useConversationMemory = (sessionId: string | null) => {
       const memoryByType = data.reduce((acc, item) => {
         acc[item.memory_type] = item.memory_data;
         return acc;
-      }, {} as Record<string, any>);
+      }, {} as Record<string, unknown>);
 
       setMemory({
-        working: memoryByType.working || memory.working,
-        episodic: memoryByType.episodic || memory.episodic,
-        semantic: memoryByType.semantic || memory.semantic,
-        procedural: memoryByType.procedural || memory.procedural
+        working: (memoryByType.working as WorkingMemory) || memory.working,
+        episodic: (memoryByType.episodic as EpisodicMemory) || memory.episodic,
+        semantic: (memoryByType.semantic as SemanticMemory) || memory.semantic,
+        procedural: (memoryByType.procedural as ProceduralMemory) || memory.procedural
       });
     } catch (error) {
       console.error('Error loading conversation memory:', error);
@@ -109,7 +116,7 @@ export const useConversationMemory = (sessionId: string | null) => {
   // Update specific memory type
   const updateMemory = async (
     memoryType: 'working' | 'episodic' | 'semantic' | 'procedural',
-    updates: Partial<any>
+    updates: Partial<WorkingMemory | EpisodicMemory | SemanticMemory | ProceduralMemory>
   ) => {
     if (!user?.id || !sessionId) return;
 
@@ -123,7 +130,7 @@ export const useConversationMemory = (sessionId: string | null) => {
           user_id: user.id,
           session_id: sessionId,
           memory_type: memoryType,
-          memory_data: updatedMemory,
+          memory_data: updatedMemory as any,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id,session_id,memory_type'
@@ -171,7 +178,7 @@ export const useConversationMemory = (sessionId: string | null) => {
     updateMemory('episodic', { successfulStrategies: strategies });
   };
 
-  const updateSessionHistory = (sessionData: any) => {
+  const updateSessionHistory = (sessionData: SessionData) => {
     const history = [...memory.episodic.sessionHistory, sessionData].slice(-20); // Keep last 20
     updateMemory('episodic', { sessionHistory: history });
   };

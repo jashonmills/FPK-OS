@@ -19,7 +19,7 @@ interface ReadingBook {
 
 export const useCurrentReadingBooks = () => {
   const { user } = useAuth();
-  const subscriptionRef = useRef<any>(null);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({

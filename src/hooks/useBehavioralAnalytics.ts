@@ -3,11 +3,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { analyticsEventBus } from '@/services/AnalyticsEventBus';
 
+interface BehavioralRecord {
+  id?: string;
+  user_id: string;
+  session_id: string;
+  behavior_type: string;
+  behavior_data?: Record<string, unknown>;
+  context_metadata?: Record<string, unknown>;
+  pattern_indicators?: Record<string, unknown>;
+  timestamp?: string;
+}
+
 interface BehavioralPattern {
   type: string;
   intensity: number;
   frequency: number;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 export const useBehavioralAnalytics = (sessionId: string) => {
@@ -16,10 +27,10 @@ export const useBehavioralAnalytics = (sessionId: string) => {
   const lastActivity = useRef<number>(Date.now());
   const energyLevel = useRef<number>(100);
   const focusLevel = useRef<number>(100);
-  const preferenceProfile = useRef<Record<string, any>>({});
+  const preferenceProfile = useRef<Record<string, unknown>>({});
 
   // Track attention patterns
-  const trackAttentionPattern = useCallback((level: number, duration: number, context: Record<string, any>) => {
+  const trackAttentionPattern = useCallback((level: number, duration: number, context: Record<string, unknown>) => {
     if (!user?.id) return;
 
     const behaviorData = {
@@ -122,7 +133,8 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     };
 
     // Update preference profile
-    preferenceProfile.current[contentType] = (preferenceProfile.current[contentType] || 0) + preference;
+    const prefKey = contentType;
+    preferenceProfile.current[prefKey] = (typeof preferenceProfile.current[prefKey] === 'number' ? preferenceProfile.current[prefKey] as number : 0) + preference;
 
     // Store in database
     supabase
@@ -133,7 +145,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         behavior_type: 'learning_style',
         behavior_data: behaviorData,
         context_metadata: {
-          preferenceProfile: preferenceProfile.current,
+          preferenceProfile: preferenceProfile.current as any,
           adaptiveAdjustments: []
         },
         pattern_indicators: {
@@ -150,7 +162,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
   }, [user?.id, sessionId]);
 
   // Track energy and fatigue levels
-  const trackEnergyLevel = useCallback((level: number, indicators: Record<string, any>) => {
+  const trackEnergyLevel = useCallback((level: number, indicators: Record<string, unknown>) => {
     if (!user?.id) return;
 
     const behaviorData = {
@@ -168,7 +180,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
         session_id: sessionId,
         behavior_type: 'energy_level',
         behavior_data: behaviorData,
-        context_metadata: indicators,
+        context_metadata: indicators as any,
         pattern_indicators: {
           lowEnergy: level < 30,
           optimal: level > 70,
@@ -231,7 +243,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
   }, [user?.id]);
 
   // Helper functions for pattern analysis
-  const calculateAverageAttentionSpan = (data: any[]): number => {
+  const calculateAverageAttentionSpan = (data: BehavioralRecord[]): number => {
     const attentionData = data.filter(d => d.behavior_type === 'attention_pattern');
     if (attentionData.length === 0) return 0;
     
@@ -239,7 +251,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     return totalDuration / attentionData.length;
   };
 
-  const detectPreferredLearningStyle = (data: any[]): string => {
+  const detectPreferredLearningStyle = (data: BehavioralRecord[]): string => {
     const styleData = data.filter(d => d.behavior_type === 'learning_style');
     const preferences: Record<string, number> = {};
 
@@ -252,7 +264,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     return Object.entries(preferences).sort(([,a], [,b]) => b - a)[0]?.[0] || 'unknown';
   };
 
-  const detectOptimalStudyTime = (data: any[]): string => {
+  const detectOptimalStudyTime = (data: BehavioralRecord[]): string => {
     const energyData = data.filter(d => d.behavior_type === 'energy_level');
     const hourlyEnergy: Record<number, number[]> = {};
 
@@ -275,7 +287,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     return 'night';
   };
 
-  const calculateSelfRegulationEffectiveness = (data: any[]): number => {
+  const calculateSelfRegulationEffectiveness = (data: BehavioralRecord[]): number => {
     const selfRegData = data.filter(d => d.behavior_type === 'self_regulation');
     if (selfRegData.length === 0) return 0;
 
@@ -283,7 +295,7 @@ export const useBehavioralAnalytics = (sessionId: string) => {
     return totalEffectiveness / selfRegData.length;
   };
 
-  const analyzeEnergyPatterns = (data: any[]): Record<string, any> => {
+  const analyzeEnergyPatterns = (data: BehavioralRecord[]): Record<string, unknown> => {
     const energyData = data.filter(d => d.behavior_type === 'energy_level');
     if (energyData.length === 0) return {};
 
