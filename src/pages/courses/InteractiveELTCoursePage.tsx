@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Brain, CheckCircle, PlayCircle, Trophy, ArrowLeft, Users, Lightbulb, Target, GraduationCap } from 'lucide-react';
+import { BookOpen, Brain, CheckCircle, PlayCircle, Trophy, ArrowLeft, Users, Lightbulb, Target, GraduationCap, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
@@ -81,27 +81,41 @@ const InteractiveELTCoursePage: React.FC = () => {
     },
     {
       id: 2,
+      title: "Self-Assessment & Learning Discovery", 
+      description: "Complete interactive assessments to understand your unique learning profile",
+      component: SelfAssessmentMicroLesson,
+      icon: CheckCircle
+    },
+    {
+      id: 3,
       title: "Mastering Executive Functioning Skills",
       description: "Build organizational systems that work with your brain, not against it",
       component: ExecutiveFunctioningMicroLesson,
       icon: Target
     },
     {
-      id: 3,
+      id: 4,
+      title: "Interactive Learning Tools & Templates",
+      description: "Master practical worksheets and planners for effective learning",
+      component: InteractiveWorksheetsMicroLesson,
+      icon: FileText
+    },
+    {
+      id: 5,
       title: "Effective Study and Information Retention Techniques",
       description: "Learn evidence-based methods tailored for neurodiverse learners",
       component: StudyTechniquesMicroLesson,
       icon: BookOpen
     },
     {
-      id: 4,
+      id: 6,
       title: "Turning Weaknesses into Strengths & Self-Advocacy",
       description: "Transform challenges into competitive advantages and advocate for your needs",
       component: StrengthsSelfAdvocacyMicroLesson,
       icon: Lightbulb
     },
     {
-      id: 5,
+      id: 7,
       title: "Real-World Application and Lifelong Learning",
       description: "Apply your new skills across all areas of life and continue growing",
       component: RealWorldApplicationMicroLesson,
