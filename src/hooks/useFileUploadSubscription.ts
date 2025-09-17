@@ -33,7 +33,7 @@ interface FileUploadSubscriptionService {
   stopPolling: (uploadId: string) => void;
 }
 
-export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
+const useFileUploadSubscription = (): FileUploadSubscriptionService => {
   const cleanup = useCleanup('file-upload-subscription');
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -284,7 +284,7 @@ export const useFileUploadSubscription = (): FileUploadSubscriptionService => {
       if (channelRef.current) {
         cleanupConnection();
       }
-export { useFileUploadSubscription, type FileUploadUpdatePayload };
+    };
   }, [user?.id, initializeConnection, cleanupConnection]);
 
   return {

@@ -54,21 +54,21 @@ const FileUploadSection: React.FC = () => {
       if (payload.new.processing_status === 'completed') {
         console.log('✅ Processing completed:', payload.new.id);
         
-        completeStage(payload.new.id, 'generation');
+        completeStage(payload.new.id as string, 'generation');
         
         // Clear timeout and progress
         setProcessingProgress(prev => {
           const newState = { ...prev };
-          delete newState[payload.new.id];
+          delete newState[payload.new.id as string];
           return newState;
         });
         
         setProcessingTimeouts(prev => {
-          if (prev[payload.new.id]) {
-            clearTimeout(prev[payload.new.id]);
+          if (prev[payload.new.id as string]) {
+            clearTimeout(prev[payload.new.id as string]);
           }
           const newState = { ...prev };
-          delete newState[payload.new.id];
+          delete newState[payload.new.id as string];
           return newState;
         });
 
@@ -118,21 +118,21 @@ const FileUploadSection: React.FC = () => {
       } else if (payload.new.processing_status === 'failed') {
         console.log('❌ Processing failed:', payload.new.id);
         
-        errorStage(payload.new.id, 'generation', payload.new.error_message || 'Processing failed');
+        errorStage(payload.new.id as string, 'generation', (payload.new.error_message as string) || 'Processing failed');
         
         // Clean up
         setProcessingProgress(prev => {
           const newState = { ...prev };
-          delete newState[payload.new.id];
+          delete newState[payload.new.id as string];
           return newState;
         });
         
         setProcessingTimeouts(prev => {
-          if (prev[payload.new.id]) {
-            clearTimeout(prev[payload.new.id]);
+          if (prev[payload.new.id as string]) {
+            clearTimeout(prev[payload.new.id as string]);
           }
           const newState = { ...prev };
-          delete newState[payload.new.id];
+          delete newState[payload.new.id as string];
           return newState;
         });
 
