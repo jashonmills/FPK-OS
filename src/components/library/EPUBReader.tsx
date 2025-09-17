@@ -128,7 +128,7 @@ const EnhancedEPUBReader: React.FC<EnhancedEPUBReaderProps> = ({ book, onClose }
         {/* Navigation Logic Component */}
         <EPUBReaderNavigation
           isLoading={isLoading}
-          error={error}
+          error={error?.message || null}
           isNavigating={isNavigating}
           isInitialized={isInitialized}
           onPrevPage={handlePrevPage}
