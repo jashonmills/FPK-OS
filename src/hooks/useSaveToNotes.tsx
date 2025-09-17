@@ -25,6 +25,7 @@ export const useSaveToNotes = () => {
   const { createNote } = useNotes();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const openDialog = () => setIsDialogOpen(true);
   const closeDialog = () => {
