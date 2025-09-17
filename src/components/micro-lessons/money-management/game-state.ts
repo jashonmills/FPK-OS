@@ -97,9 +97,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       };
 
     case 'START_SCENARIOS': {
+      console.log('START_SCENARIOS action dispatched');
       // Select random scenarios for the week
       const shuffledScenarios = [...ALL_SCENARIOS].sort(() => 0.5 - Math.random());
       const weeklyScenarios = shuffledScenarios.slice(0, 5);
+      
+      console.log('Transitioning to LIVE phase with scenarios:', weeklyScenarios.length);
       
       return {
         ...state,

@@ -205,11 +205,24 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                 ${(monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0)).toFixed(2)}
               </span>
             </div>
+            {/* Debug info */}
+            <div className="text-xs text-muted-foreground mt-2">
+              Debug: Total allocated: ${Object.values(envelopes).reduce((sum, val) => sum + val, 0).toFixed(2)} / ${monthlyIncome.toFixed(2)}
+            </div>
+            {Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome && (
+              <div className="text-sm text-yellow-600 mt-2 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                You must allocate your entire ${monthlyIncome.toFixed(2)} monthly income before starting scenarios.
+              </div>
+            )}
           </div>
 
           <Button 
             size="lg" 
             onClick={() => {
+              console.log('Button clicked!', { envelopes, monthlyIncome });
+              console.log('Total allocated:', Object.values(envelopes).reduce((sum, val) => sum + val, 0));
+              console.log('Should be disabled?', Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome);
               dispatch({ type: 'START_SCENARIOS' });
               trackGameInteraction('budget_planned', { envelopes });
             }}
