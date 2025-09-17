@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Brain, CheckCircle, PlayCircle, Trophy, ArrowLeft, Users, Lightbulb, Target, GraduationCap, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
@@ -42,6 +42,7 @@ import eltBackground from '@/assets/elt-background.jpg';
 
 const InteractiveELTCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { lessonId } = useParams<{ lessonId?: string }>();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   
   // Use analytics and progress hooks
@@ -61,6 +62,16 @@ const InteractiveELTCoursePage: React.FC = () => {
   const { enrollInCourse, isEnrolling } = useCourseEnrollment();
   const isEnrolled = progressData?.enrollment !== null;
   
+  // Handle URL parameters for lesson navigation
+  useEffect(() => {
+    if (lessonId) {
+      const lessonNumber = parseInt(lessonId, 10);
+      if (!isNaN(lessonNumber) && lessonNumber >= 1 && lessonNumber <= lessons.length) {
+        setCurrentLesson(lessonNumber);
+      }
+    }
+  }, [lessonId]);
+
   // Bridge old enrollment system with new analytics - delayed
   useEffect(() => {
     const timeoutId = setTimeout(() => {
