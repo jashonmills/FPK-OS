@@ -19,7 +19,13 @@ import {
   BarChart3,
   Receipt,
   Minus,
-  Plus
+  Plus,
+  CheckCircle,
+  XCircle,
+  ArrowRight,
+  Lightbulb,
+  TrendingDown as TrendDown,
+  TrendingUp as TrendUp
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,6 +57,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
   const [dragAmount, setDragAmount] = useState(10);
   const [ccPaymentAmount, setCcPaymentAmount] = useState('');
   const [debtPaymentAmount, setDebtPaymentAmount] = useState('');
+  const [outcomeDelayComplete, setOutcomeDelayComplete] = useState(false);
 
   const {
     phase,
@@ -358,24 +365,245 @@ const MoneyManagementGame: React.FC<GameProps> = ({
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  };
 
-        {/* Feedback Message */}
-        {feedbackMessage && (
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <p className="text-sm leading-relaxed">{feedbackMessage}</p>
+  // Enhanced Scenario Outcome Summary Screen
+  const ScenarioOutcomeSummaryScreen = () => {
+    const { lastChoice } = state;
+    if (!lastChoice) return null;
+
+    const { scenario, option, balanceChange, creditChange, debtChange, scoreChange } = lastChoice;
+    
+    // Determine if this was a positive or negative choice based on score change
+    const isPositiveOutcome = scoreChange >= 0;
+    
+    // Reset delay when component mounts
+    useEffect(() => {
+      setOutcomeDelayComplete(false);
+      const timer = setTimeout(() => {
+        setOutcomeDelayComplete(true);
+      }, 3000); // 3 second delay to force reading
+
+      return () => clearTimeout(timer);
+    }, [lastChoice]);
+
+    // Parse financial impacts for detailed breakdown
+    const getFinancialImpacts = () => {
+      const impacts = [];
+      
+      if (balanceChange !== 0) {
+        impacts.push({
+          type: 'Balance',
+          amount: balanceChange,
+          icon: balanceChange > 0 ? TrendUp : TrendDown,
+          color: balanceChange > 0 ? 'text-green-600' : 'text-red-600'
+        });
+      }
+      
+      if (creditChange !== 0) {
+        impacts.push({
+          type: 'Credit Score',
+          amount: creditChange,
+          icon: creditChange > 0 ? TrendUp : TrendDown,
+          color: creditChange > 0 ? 'text-green-600' : 'text-red-600'
+        });
+      }
+      
+      if (debtChange !== 0) {
+        impacts.push({
+          type: 'Debt',
+          amount: debtChange,
+          icon: debtChange > 0 ? TrendDown : TrendUp, // More debt is bad, less debt is good
+          color: debtChange > 0 ? 'text-red-600' : 'text-green-600'
+        });
+      }
+      
+      return impacts;
+    };
+
+    const impacts = getFinancialImpacts();
+
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header with Outcome Indicator */}
+        <Card className={`${isPositiveOutcome 
+          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+          : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200'
+        }`}>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              {isPositiveOutcome ? (
+                <CheckCircle className="w-16 h-16 text-green-600" />
+              ) : (
+                <XCircle className="w-16 h-16 text-orange-600" />
+              )}
+            </div>
+            <CardTitle className={`text-2xl ${isPositiveOutcome ? 'text-green-800' : 'text-orange-800'}`}>
+              {isPositiveOutcome ? 'Great Choice!' : 'Learning Opportunity'}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+
+        {/* Scenario Context */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-6 h-6" />
+              What You Decided
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-2">{scenario.title}</h4>
+                <p className="text-muted-foreground mb-3">{scenario.description}</p>
+                <div className="bg-card p-3 rounded border-l-4 border-primary">
+                  <span className="font-medium">Your Choice: </span>
+                  <span className="text-primary font-semibold">{option.text}</span>
+                </div>
               </div>
-              <Button 
-                className="mt-4"
-                onClick={() => dispatch({ type: 'ADVANCE_SCENARIO' })}
-              >
-                Continue
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Financial Impact Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-6 h-6" />
+              Financial Impact
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {impacts.length === 0 ? (
+                <div className="col-span-3 text-center py-8 text-muted-foreground">
+                  No immediate financial impact from this decision.
+                </div>
+              ) : (
+                impacts.map((impact, index) => (
+                  <div key={index} className="bg-muted p-4 rounded-lg text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <impact.icon className={`w-6 h-6 ${impact.color}`} />
+                      <span className="font-medium">{impact.type}</span>
+                    </div>
+                    <div className={`text-2xl font-bold ${impact.color}`}>
+                      {impact.type === 'Credit Score' ? 
+                        `${impact.amount > 0 ? '+' : ''}${impact.amount} pts` :
+                        `${impact.amount > 0 ? '+' : ''}$${Math.abs(impact.amount).toFixed(2)}`
+                      }
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Educational "Why" Statement */}
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <Lightbulb className="w-6 h-6" />
+              Why This Matters
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-white p-6 rounded-lg border border-blue-200">
+              <p className="text-blue-900 leading-relaxed text-lg">
+                {feedbackMessage}
+              </p>
+            </div>
+            
+            {/* Additional educational context based on choice type */}
+            {option.impact && option.impact.includes('creditCard') && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <CreditCard className="w-5 h-5 text-yellow-600 mt-0.5" />
+                  <div>
+                    <h5 className="font-semibold text-yellow-800 mb-1">Credit Card Education</h5>
+                    <p className="text-sm text-yellow-700">
+                      Using credit cards isn't inherently bad, but it's important to pay off balances quickly. 
+                      At 18% APR, carrying a balance costs you significantly over time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Current Financial Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-6 h-6" />
+              Current Financial Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">${balance.toFixed(2)}</div>
+                <div className="text-sm text-muted-foreground">Balance</div>
+              </div>
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{score}</div>
+                <div className="text-sm text-muted-foreground">Score</div>
+              </div>
+              <div className="bg-muted p-4 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{creditScore}</div>
+                <div className="text-sm text-muted-foreground">Credit Score</div>
+              </div>
+              <div className="bg-muted p-4 rounded-lg">
+                <div className={`text-2xl font-bold ${(currentDebt + creditCardBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  ${(currentDebt + creditCardBalance).toFixed(2)}
+                </div>
+                <div className="text-sm text-muted-foreground">Total Debt</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Delayed Continue Button */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              {!outcomeDelayComplete ? (
+                <div className="space-y-3">
+                  <div className="animate-pulse flex items-center justify-center gap-2 text-muted-foreground">
+                    <Clock className="w-5 h-5" />
+                    <span>Take a moment to review your decision...</span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded-full">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-3000 ease-linear animate-pulse"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  size="lg" 
+                  onClick={() => {
+                    dispatch({ type: 'CONTINUE_FROM_OUTCOME' });
+                    trackGameInteraction('scenario_outcome_completed', {
+                      scenario: scenario.title,
+                      choice: option.text,
+                      outcome: isPositiveOutcome ? 'positive' : 'negative'
+                    });
+                  }}
+                  className="w-full max-w-md mx-auto flex items-center gap-2"
+                >
+                  Continue to Next Scenario
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   };
@@ -876,6 +1104,10 @@ const MoneyManagementGame: React.FC<GameProps> = ({
 
   if (phase === 'LIVE') {
     return <ScenarioScreen />;
+  }
+
+  if (phase === 'SCENARIO_OUTCOME') {
+    return <ScenarioOutcomeSummaryScreen />;
   }
 
   if (phase === 'WEEKLY_SUMMARY') {

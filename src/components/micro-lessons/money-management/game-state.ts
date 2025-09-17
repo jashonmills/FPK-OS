@@ -1,7 +1,7 @@
 import { ALL_SCENARIOS } from './game-data';
 
 export interface GameState {
-  phase: 'PLAN' | 'LIVE' | 'WEEKLY_SUMMARY' | 'REFLECT';
+  phase: 'PLAN' | 'LIVE' | 'WEEKLY_SUMMARY' | 'REFLECT' | 'SCENARIO_OUTCOME';
   week: number;
   month: number;
   scenarioIndex: number;
@@ -35,6 +35,14 @@ export interface GameState {
   weekLog: any[];
   monthlyLog: any[];
   ledgerTransactions: any[];
+  lastChoice: {
+    scenario: any;
+    option: any;
+    balanceChange: number;
+    creditChange: number;
+    debtChange: number;
+    scoreChange: number;
+  } | null;
 }
 
 export const initialState: GameState = {
@@ -71,7 +79,8 @@ export const initialState: GameState = {
   isMiniGameActive: false,
   weekLog: [],
   monthlyLog: [],
-  ledgerTransactions: []
+  ledgerTransactions: [],
+  lastChoice: null
 };
 
 type GameAction = 
@@ -83,7 +92,8 @@ type GameAction =
   | { type: 'START_NEW_MONTH' }
   | { type: 'GAME_OVER'; status: string }
   | { type: 'RESET_GAME' }
-  | { type: 'MANUAL_TRANSACTION'; logEntry: any; newBalance: number };
+  | { type: 'MANUAL_TRANSACTION'; logEntry: any; newBalance: number }
+  | { type: 'CONTINUE_FROM_OUTCOME' };
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -114,6 +124,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case 'MAKE_CHOICE': {
       const { option } = action;
       const feedback = option.feedback || "Decision recorded.";
+      
+      // Store original state for calculating changes
+      const originalBalance = state.balance;
+      const originalCredit = state.creditScore;
+      const originalScore = state.score;
+      const originalDebt = state.currentDebt + state.creditCardBalance;
       
       // Parse the impact and apply it to the state
       let newBalance = state.balance;
@@ -195,8 +211,15 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         balanceAfter: newBalance
       };
 
+      // Calculate changes for outcome summary
+      const balanceChange = newBalance - originalBalance;
+      const creditChange = newCredit - originalCredit;
+      const debtChange = (newDebt + newCreditCardBalance) - originalDebt;
+      const scoreChange = newScore - originalScore;
+
       return {
         ...state,
+        phase: 'SCENARIO_OUTCOME',
         balance: Math.max(0, newBalance),
         currentSavings: Math.max(0, newCurrentSavings),
         currentEmergencyFund: Math.max(0, newCurrentEmergencyFund),
@@ -209,7 +232,29 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         wiseChoices: newWiseChoices,
         feedbackMessage: feedback,
         weekLog: [...state.weekLog, logEntry],
-        monthlyLog: [...state.monthlyLog, logEntry]
+        monthlyLog: [...state.monthlyLog, logEntry],
+        lastChoice: {
+          scenario: state.currentScenario,
+          option,
+          balanceChange,
+          creditChange,
+          debtChange,
+          scoreChange
+        }
+      };
+    }
+
+    case 'CONTINUE_FROM_OUTCOME': {
+      const nextIndex = state.scenarioIndex + 1;
+      const nextPhase = nextIndex >= state.weeklyScenarios.length ? 'WEEKLY_SUMMARY' : 'LIVE';
+      
+      return {
+        ...state,
+        scenarioIndex: nextIndex,
+        phase: nextPhase,
+        currentScenario: nextPhase === 'LIVE' ? state.weeklyScenarios[nextIndex] : null,
+        feedbackMessage: null,
+        lastChoice: null
       };
     }
 
