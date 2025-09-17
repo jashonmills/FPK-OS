@@ -127,6 +127,55 @@ const InteractiveELTCoursePage: React.FC = () => {
       description: "Apply your new skills across all areas of life and continue growing",
       component: RealWorldApplicationMicroLesson,
       icon: GraduationCap
+    },
+    {
+      id: 8,
+      title: "Case Studies & Success Stories",
+      description: "Explore real-world examples and success stories from neurodiverse learners",
+      component: CaseStudiesMicroLesson,
+      icon: Users
+    },
+    {
+      id: 9,
+      title: "Advanced Executive Functioning Mastery",
+      description: "Master advanced organizational systems and executive functioning strategies",
+      component: AdvancedExecutiveFunctioningMicroLesson,
+      icon: Trophy
+    },
+    {
+      id: 10,
+      title: "Advanced Study Techniques",
+      description: "Explore sophisticated study methods and memory enhancement techniques",
+      component: AdvancedStudyTechniquesMicroLesson,
+      icon: BookOpen
+    },
+    {
+      id: 11,
+      title: "Expanded Interactive Worksheets",
+      description: "Access comprehensive worksheets and practical tools for all learning scenarios",
+      component: ExpandedWorksheetsMicroLesson,
+      icon: FileText
+    },
+    {
+      id: 12,
+      title: "Enhanced Assessment Suite",
+      description: "Complete comprehensive assessments to track your learning progress",
+      component: EnhancedAssessmentsMicroLesson,
+      icon: CheckCircle
+    },
+    {
+      id: 13,
+      title: "Instructor Resources & Teaching Methods",
+      description: "Comprehensive resources for educators working with neurodiverse learners",
+      component: InstructorResourcesMicroLesson,
+      icon: GraduationCap
+    },
+    {
+      id: 14,
+      title: "Instructor Dashboard & Analytics",
+      description: "Advanced tools for tracking student progress and optimizing instruction",
+      component: InstructorDashboardMicroLesson,
+      icon: Trophy
     }
   ];
 
@@ -206,7 +255,7 @@ const InteractiveELTCoursePage: React.FC = () => {
               <div className="flex justify-center gap-4 flex-wrap">
                 <Badge variant="outline" className="text-sm px-3 py-1 bg-background/80 backdrop-blur-sm">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  5 Modules
+                  14 Modules
                 </Badge>
                 <Badge variant="outline" className="text-sm px-3 py-1 bg-background/80 backdrop-blur-sm">
                   <Brain className="w-4 h-4 mr-2" />
