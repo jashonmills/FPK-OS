@@ -28,6 +28,8 @@ import { ExecutiveFunctioningMicroLesson } from '@/components/micro-lessons/elt/
 import { StudyTechniquesMicroLesson } from '@/components/micro-lessons/elt/study-techniques/StudyTechniquesMicroLesson';
 import { StrengthsSelfAdvocacyMicroLesson } from '@/components/micro-lessons/elt/strengths-self-advocacy/StrengthsSelfAdvocacyMicroLesson';
 import { RealWorldApplicationMicroLesson } from '@/components/micro-lessons/elt/real-world-application/RealWorldApplicationMicroLesson';
+import { SelfAssessmentMicroLesson } from '@/components/micro-lessons/elt/assessments/SelfAssessmentMicroLesson';
+import { InteractiveWorksheetsMicroLesson } from '@/components/micro-lessons/elt/interactive-worksheets/InteractiveWorksheetsMicroLesson';
 import eltBackground from '@/assets/elt-background.jpg';
 
 const InteractiveELTCoursePage: React.FC = () => {
