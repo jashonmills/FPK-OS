@@ -43,6 +43,17 @@ const noteSchema = z.object({
 
 type NoteFormData = z.infer<typeof noteSchema>;
 
+interface FolderOption {
+  id: string;
+  name: string;
+  children?: FolderOption[];
+}
+
+interface FlattenedFolder {
+  id: string;
+  name: string;
+}
+
 interface CreateNoteDialogProps {
   children?: React.ReactNode;
 }
@@ -76,13 +87,13 @@ export default function CreateNoteDialog({ children }: CreateNoteDialogProps) {
       folder_path: data.folder_id, // Using folder_id as folder_path for now
       created_by: '', // Will be set by the hook
     };
-    createNote(noteData as any);
+    createNote(noteData);
     form.reset();
     setOpen(false);
   };
 
   // Flatten folders for dropdown
-  const flattenFolders = (folders: any[], prefix = ''): any[] => {
+  const flattenFolders = (folders: FolderOption[], prefix = ''): FlattenedFolder[] => {
     return folders.reduce((acc, folder) => {
       acc.push({ 
         id: folder.id, 

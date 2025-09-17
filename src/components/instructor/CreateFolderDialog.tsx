@@ -36,6 +36,17 @@ const folderSchema = z.object({
 
 type FolderFormData = z.infer<typeof folderSchema>;
 
+interface FolderOption {
+  id: string;
+  name: string;
+  children?: FolderOption[];
+}
+
+interface FlattenedFolder {
+  id: string;
+  name: string;
+}
+
 interface CreateFolderDialogProps {
   children?: React.ReactNode;
 }
@@ -63,7 +74,7 @@ export default function CreateFolderDialog({ children }: CreateFolderDialogProps
   };
 
   // Flatten folders for dropdown
-  const flattenFolders = (folders: any[], prefix = ''): any[] => {
+  const flattenFolders = (folders: FolderOption[], prefix = ''): FlattenedFolder[] => {
     return folders.reduce((acc, folder) => {
       acc.push({ 
         id: folder.id, 

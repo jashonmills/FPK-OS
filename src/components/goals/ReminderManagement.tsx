@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Bell, Plus, Trash2, Edit3, Clock } from 'lucide-react';
-import { useGoalReminders, type GoalReminderInsert } from '@/hooks/useGoalReminders';
+import { useGoalReminders, type GoalReminderInsert, type GoalReminder } from '@/hooks/useGoalReminders';
 import { useGoals } from '@/hooks/useGoals';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,7 +69,7 @@ const ReminderManagement = () => {
     });
   };
 
-  const startEdit = (reminder: any) => {
+  const startEdit = (reminder: GoalReminder) => {
     setEditingReminder(reminder.id);
     setFormData({
       goal_id: reminder.goal_id || undefined,
@@ -163,7 +163,7 @@ const ReminderManagement = () => {
 
                   <div>
                     <Label htmlFor="type">Reminder Type</Label>
-                    <Select value={formData.reminder_type} onValueChange={(value: any) => 
+                    <Select value={formData.reminder_type} onValueChange={(value: GoalReminderInsert['reminder_type']) => 
                       setFormData(prev => ({ ...prev, reminder_type: value }))
                     }>
                       <SelectTrigger>

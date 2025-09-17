@@ -19,6 +19,25 @@ interface AnalyticsTabProps {
   organizationId: string;
 }
 
+interface ActivityItem {
+  id: string;
+  type: string;
+  description: string;
+  student_name: string;
+  activity: string;
+  timestamp: string;
+}
+
+interface TopPerformer {
+  id: string;
+  name: string;
+  student_name: string;
+  score: number;
+  progress: number;
+  completed_goals: number;
+  progress_score: number;
+}
+
 export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
   const { data: statistics, isLoading: statsLoading } = useOrgStatistics();
   const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
@@ -40,8 +59,8 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
     goalsCompleted: statistics?.completedGoals || 0
   };
 
-  const recentActivity: any[] = [];
-  const topPerformers: any[] = [];
+  const recentActivity: ActivityItem[] = [];
+  const topPerformers: TopPerformer[] = [];
 
   return (
     <div className="space-y-6">

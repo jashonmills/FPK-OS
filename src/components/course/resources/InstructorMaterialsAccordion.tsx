@@ -32,6 +32,38 @@ interface InstructorResource {
   };
 }
 
+interface GuideSection {
+  title: string;
+  items: GuideItem[];
+}
+
+interface GuideItem {
+  title: string;
+  description: string;
+  details?: string[];
+}
+
+interface GuideContent {
+  sections?: GuideSection[];
+}
+
+interface RubricCriterion {
+  criterion: string;
+  excellent: string;
+  proficient: string;
+  developing: string;
+  inadequate: string;
+}
+
+interface Rubric {
+  title: string;
+  criteria: RubricCriterion[];
+}
+
+interface RubricsContent {
+  rubrics?: Rubric[];
+}
+
 interface InstructorMaterialsAccordionProps {
   resources: InstructorResource[];
   resourceCount?: number;
@@ -53,16 +85,16 @@ export const InstructorMaterialsAccordion: React.FC<InstructorMaterialsAccordion
 
   const displayCount = resourceCount || resources.length;
 
-  const renderGuideContent = (content: any) => (
+  const renderGuideContent = (content: GuideContent) => (
     <div className="space-y-6">
-      {content.sections?.map((section: any, sectionIndex: number) => (
+      {content.sections?.map((section: GuideSection, sectionIndex: number) => (
         <div key={sectionIndex} className="bg-slate-800/80 border border-slate-600/50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Target className="w-5 h-5 text-amber-400" />
             {section.title}
           </h4>
           <div className="space-y-4">
-            {section.items.map((item: any, itemIndex: number) => (
+            {section.items.map((item: GuideItem, itemIndex: number) => (
               <div key={itemIndex} className="bg-indigo-900/60 border border-indigo-700/40 rounded-lg p-4">
                 <h5 className="font-semibold text-white mb-2 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
@@ -87,9 +119,9 @@ export const InstructorMaterialsAccordion: React.FC<InstructorMaterialsAccordion
     </div>
   );
 
-  const renderRubricsContent = (content: any) => (
+  const renderRubricsContent = (content: RubricsContent) => (
     <div className="space-y-6">
-      {content.rubrics?.map((rubric: any, rubricIndex: number) => (
+      {content.rubrics?.map((rubric: Rubric, rubricIndex: number) => (
         <div key={rubricIndex} className="bg-emerald-800/70 border border-emerald-600/50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
@@ -107,7 +139,7 @@ export const InstructorMaterialsAccordion: React.FC<InstructorMaterialsAccordion
                 </tr>
               </thead>
               <tbody>
-                {rubric.criteria.map((criterion: any, criterionIndex: number) => (
+                {rubric.criteria.map((criterion: RubricCriterion, criterionIndex: number) => (
                   <tr key={criterionIndex} className="border-b border-white/20">
                     <td className="p-3 text-white font-medium bg-slate-800/60">{criterion.criterion}</td>
                     <td className="p-3 text-white/90 bg-green-900/20">{criterion.excellent}</td>
