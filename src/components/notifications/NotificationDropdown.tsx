@@ -9,11 +9,40 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 
+interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  read_status: boolean;
+  action_url?: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FileUploadPayload {
+  new: {
+    id: string;
+    processing_status: string;
+    [key: string]: unknown;
+  };
+}
+
+interface FlashcardData {
+  flashcards: Array<{
+    front: string;
+    back: string;
+    [key: string]: unknown;
+  }>;
+}
+
 const NotificationDropdown = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.read_status) {
       markAsRead(notification.id);
     }

@@ -145,13 +145,14 @@ export function ScormUploader({ onUploadComplete }: ScormUploaderProps) {
         onUploadComplete();
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
-      updateFileProgress(fileIndex, 0, 'error', error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      updateFileProgress(fileIndex, 0, 'error', errorMessage);
       
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload SCORM package",
+        description: errorMessage,
         variant: "destructive"
       });
     }

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useNotes } from '@/hooks/useNotes';
+import { useNotes, Note } from '@/hooks/useNotes';
 import { Plus, Edit, Trash2, Save, X, Sparkles, ChevronDown } from 'lucide-react';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import VoiceInputButton from './VoiceInputButton';
@@ -161,7 +161,7 @@ const handleEditNote = (note: NoteData) => {
   };
 
   // Render accordion note (enhanced layout with fixed overflow)
-  const renderAccordionNote = (note: any) => (
+  const renderAccordionNote = (note: Note) => (
     <AccordionItem
       key={note.id}
       value={note.id}
@@ -237,7 +237,7 @@ const handleEditNote = (note: NoteData) => {
   );
 
   // Render traditional note layout (enhanced with fixed overflow)
-  const renderTraditionalNote = (note: any) => (
+  const renderTraditionalNote = (note: Note) => (
     <div 
       key={note.id} 
       id={`note-${note.id}`}

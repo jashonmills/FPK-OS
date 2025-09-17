@@ -25,7 +25,13 @@ const FlashcardReview: React.FC<FlashcardReviewProps> = ({ onClose }) => {
 
   const currentCard = filteredCards[currentIndex];
 
-  const handleEdit = (card: any) => {
+interface Flashcard {
+  id: string;
+  front_content: string;
+  back_content: string;
+}
+
+  const handleEdit = (card: Flashcard) => {
     setEditingCard(card.id);
     setEditData({
       front_content: card.front_content,

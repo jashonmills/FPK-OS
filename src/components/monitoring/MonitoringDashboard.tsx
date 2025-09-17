@@ -11,9 +11,53 @@ import { Activity, AlertTriangle, TrendingUp, Users, Clock, Zap } from 'lucide-r
 import { sloMonitoringService } from '@/services/monitoring/SLOMonitoringService';
 import { useCleanup } from '@/utils/cleanupManager';
 
+interface WebVitalMetric {
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+}
+
+interface FunnelStep {
+  step: string;
+  count: number;
+  conversionRate: number;
+}
+
+interface MonitoringAlert {
+  id: string;
+  rule: string;
+  metric: string;
+  value: number;
+  target: number;
+  severity: 'info' | 'warning' | 'critical';
+  timestamp: number;
+  acknowledged: boolean;
+}
+
+interface FunnelMetrics {
+  totalSearches: number;
+  searchToView: number;
+  viewToDetail: number;
+  detailToRead: number;
+  readToComplete: number;
+  conversionRates: {
+    searchToRead: number;
+    searchToComplete: number;
+    viewToRead: number;
+  };
+}
+
+interface DashboardData {
+  sloStatus: Record<string, { status: 'passing' | 'failing'; value: number; target: number }>;
+  alerts: MonitoringAlert[];
+  webVitals: WebVitalMetric[];
+  conversionMetrics: FunnelMetrics;
+  funnelData: FunnelStep[];
+}
+
 const MonitoringDashboard: React.FC = () => {
   const cleanup = useCleanup('MonitoringDashboard');
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [selectedTab, setSelectedTab] = useState('overview');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
@@ -96,7 +140,7 @@ const MonitoringDashboard: React.FC = () => {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            {alerts.filter((a: any) => !a.acknowledged).length} unacknowledged alerts. 
+            {alerts.filter((a: MonitoringAlert) => !a.acknowledged).length} unacknowledged alerts. 
             Latest: {alerts[0]?.metric} exceeded threshold.
           </AlertDescription>
         </Alert>
@@ -140,7 +184,7 @@ const MonitoringDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {webVitals.slice(0, 3).map((metric: any) => (
+                  {webVitals.slice(0, 3).map((metric: WebVitalMetric) => (
                     <div key={metric.name} className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>{metric.name}</span>
@@ -184,7 +228,7 @@ const MonitoringDashboard: React.FC = () => {
 
         <TabsContent value="web-vitals" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {webVitals.map((metric: any) => (
+            {webVitals.map((metric: WebVitalMetric) => (
               <Card key={metric.name}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -217,7 +261,7 @@ const MonitoringDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {funnelData.map((step: any, index: number) => (
+                  {funnelData.map((step: FunnelStep, index: number) => (
                     <div key={step.step} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{step.step}</span>
@@ -268,7 +312,7 @@ const MonitoringDashboard: React.FC = () => {
                 {alerts.length === 0 ? (
                   <p className="text-muted-foreground">No recent alerts</p>
                 ) : (
-                  alerts.map((alert: any) => (
+                  alerts.map((alert: MonitoringAlert) => (
                     <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">

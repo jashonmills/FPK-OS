@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFileUploads } from '@/hooks/useFileUploads';
+import { useFileUploads, FileUpload } from '@/hooks/useFileUploads';
 import { useFlashcardPreview } from '@/hooks/useFlashcardPreview';
 import { useRealTimeProcessing } from '@/hooks/useRealTimeProcessing';
 import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
@@ -10,6 +10,23 @@ import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
 import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
+
+interface FileUploadPayload {
+  new: {
+    id: string;
+    processing_status: string;
+    error_message?: string;
+    [key: string]: unknown;
+  };
+}
+
+interface FlashcardData {
+  flashcards: Array<{
+    front: string;
+    back: string;
+    [key: string]: unknown;
+  }>;
+}
 
 const FileUploadSection: React.FC = () => {
   const { user } = useAuth();
@@ -31,7 +48,7 @@ const FileUploadSection: React.FC = () => {
     const subscriptionId = subscriptionIdRef.current;
     console.log(`📡 Setting up notes file upload handler: ${subscriptionId}`);
 
-    const handleFileUploadUpdate = async (payload: any) => {
+    const handleFileUploadUpdate = async (payload: FileUploadPayload) => {
       console.log('🔄 Notes file upload updated:', payload);
       
       if (payload.new.processing_status === 'completed') {
@@ -79,7 +96,7 @@ const FileUploadSection: React.FC = () => {
               description: `${payload.new.file_name} processed but couldn't retrieve flashcards.`,
             });
           } else if (data?.flashcards?.length > 0) {
-            const previewCards = data.flashcards.map((card: any, index: number) => ({
+        const previewCards = data.flashcards.map((card: FlashcardData['flashcards'][0], index: number) => ({
               front_content: card.front_content || card.front || '',
               back_content: card.back_content || card.back || '',
               title: `${payload.new.file_name} - Card ${index + 1}`,
@@ -198,7 +215,7 @@ const FileUploadSection: React.FC = () => {
       console.log('🎯 Processing response:', data);
 
       if (data?.flashcards?.length > 0) {
-        const previewCards = data.flashcards.map((card: any, index: number) => ({
+        const previewCards = data.flashcards.map((card: FlashcardData['flashcards'][0], index: number) => ({
           front_content: card.front_content || card.front || '',
           back_content: card.back_content || card.back || '',
           title: `${file.name} - Card ${index + 1}`,
@@ -438,7 +455,7 @@ const FileUploadSection: React.FC = () => {
     deleteUpload(id);
   };
 
-  const retryProcessing = async (upload: any) => {
+  const retryProcessing = async (upload: FileUpload) => {
     try {
       console.log('🔄 Retrying processing for:', upload.id);
       
@@ -469,9 +486,9 @@ const FileUploadSection: React.FC = () => {
       }));
 
       await processFileForFlashcards(
-        new File([], upload.file_name, { type: upload.file_type }),
+        new File([], upload.file_name, { type: upload.file_type || 'application/octet-stream' }),
         upload.id,
-        upload.storage_path
+        upload.storage_path || ''
       );
 
     } catch (error) {
