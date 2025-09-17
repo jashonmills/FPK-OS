@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
+import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Book } from '@/types/library';
 import { Search, Loader2, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +52,7 @@ const LibrarySearchSection: React.FC<LibrarySearchSectionProps> = ({ onBookSelec
     return filtered;
   }, [books, searchQuery, selectedSubject]);
 
-  const handleBookSelect = (publicDomainBook: any) => {
+  const handleBookSelect = (publicDomainBook: PublicDomainBook) => {
     // Convert PublicDomainBook to Book format
     const book: Book = {
       key: `/works/gutenberg-${publicDomainBook.gutenberg_id}`,

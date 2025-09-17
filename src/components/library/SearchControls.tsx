@@ -4,14 +4,27 @@ import { Button } from '@/components/ui/button';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import EnhancedSearchBar from './EnhancedSearchBar';
 
+interface SearchStats {
+  indexedBooks: number;
+  totalSearches: number;
+  popularTerms: number;
+}
+
+interface SearchSuggestion {
+  term: string;
+  type: 'title' | 'author' | 'subject';
+  bookCount: number;
+  books: string[];
+}
+
 interface SearchControlsProps {
   query: string;
   isSearching: boolean;
-  searchStats: any;
+  searchStats: SearchStats;
   hasResults: boolean;
   resultsCount: number;
   onSearch: (query: string) => void;
-  onSuggestionSelect: (suggestion: any) => void;
+  onSuggestionSelect: (suggestion: SearchSuggestion) => void;
   onClearSearch: () => void;
 }
 

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 
 interface EPUBReaderNavigationProps {
   isLoading: boolean;
-  error: any;
+  error: string | null;
   isNavigating: boolean;
   isInitialized: boolean;
   onPrevPage: () => void;

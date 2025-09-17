@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
+import { PublicDomainBook } from '@/types/publicDomainBooks';
 import BookCard from './BookCard';
 import LoadingIndicator from './LoadingIndicator';
 import EnhancedEPUBReader from './EPUBReader';
@@ -14,9 +15,9 @@ interface PublicDomainBooksSectionProps {
 const PublicDomainBooksSection = ({ viewMode = 'grid' }: PublicDomainBooksSectionProps) => {
   const { books, isLoading, refetch } = usePublicDomainBooks();
   const [loadingBookId, setLoadingBookId] = useState<string | null>(null);
-  const [selectedBook, setSelectedBook] = useState<any>(null);
+  const [selectedBook, setSelectedBook] = useState<PublicDomainBook | null>(null);
 
-  const handleReadBook = async (book: any) => {
+  const handleReadBook = async (book: PublicDomainBook) => {
     setLoadingBookId(book.id);
     try {
       // Open the EPUB reader in the same tab/modal

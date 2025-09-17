@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
+import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { Book } from '@/types/library';
 import BookCarousel from './BookCarousel';
 
@@ -14,7 +15,7 @@ const CuratedBooksSection: React.FC<CuratedBooksSectionProps> = ({ onBookSelect 
   // Select first 6 books as featured/curated picks
   const curatedBooks = books.slice(0, 6);
 
-  const handleBookSelect = (publicDomainBook: any) => {
+  const handleBookSelect = (publicDomainBook: PublicDomainBook) => {
     // Convert PublicDomainBook to Book format for the modal
     const book: Book = {
       key: `/works/gutenberg-${publicDomainBook.gutenberg_id}`,

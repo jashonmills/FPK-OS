@@ -11,11 +11,18 @@ import CommunityBooksGridView from './CommunityBooksGridView';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { useCleanup } from '@/utils/cleanupManager';
 
+interface SelectedPDF {
+  id: string;
+  title?: string;
+  file_name?: string;
+  file_url?: string;
+}
+
 type ViewMode = 'list' | 'grid';
 
 const CommunityLibraryContent: React.FC = () => {
   const { approvedUploads, isLoadingApproved } = useUserUploadedBooks();
-  const [selectedPDF, setSelectedPDF] = useState<any>(null);
+  const [selectedPDF, setSelectedPDF] = useState<SelectedPDF | null>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
   const cleanup = useCleanup('CommunityLibraryContent');
@@ -28,7 +35,7 @@ const CommunityLibraryContent: React.FC = () => {
     return (saved as ViewMode) || 'grid';
   });
 
-  const handlePDFOpen = async (book: any) => {
+  const handlePDFOpen = async (book: SelectedPDF) => {
     console.log('📖 Opening PDF with optimized viewer:', book.file_name);
     setValidatingPDF(book.id);
     

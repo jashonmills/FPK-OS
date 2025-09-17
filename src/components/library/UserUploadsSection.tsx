@@ -11,13 +11,22 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { useCleanup } from '@/utils/cleanupManager';
 
+interface SelectedBook {
+  id: string;
+  title?: string;
+  author?: string;
+  file_name?: string;
+  file_url?: string;
+  file_size?: number;
+}
+
 interface UserUploadsSectionProps {
   viewMode?: 'grid' | 'list';
 }
 
 const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: parentViewMode }) => {
   const { getAccessibilityClasses } = useAccessibility();
-  const [selectedPDF, setSelectedPDF] = useState<any>(null);
+  const [selectedPDF, setSelectedPDF] = useState<SelectedBook | null>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
   const cleanup = useCleanup('UserUploadsSection');
@@ -62,7 +71,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
     }
   }, [localViewMode, parentViewMode]);
 
-  const handlePDFOpen = async (book: any) => {
+  const handlePDFOpen = async (book: SelectedBook) => {
     console.log('📖 Opening PDF with simplified viewer:', book.file_name);
     console.log('📖 PDF URL:', book.file_url);
     
@@ -90,7 +99,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
     }
   };
 
-  const handleDownload = async (book: any) => {
+  const handleDownload = async (book: SelectedBook) => {
     try {
       const response = await fetch(book.file_url);
       const blob = await response.blob();
@@ -128,7 +137,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
     );
   }
 
-  const renderBookCard = (book: any) => (
+  const renderBookCard = (book: SelectedBook) => (
     <Card key={book.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-primary/20">
       <CardContent className="p-4">
         <div className="flex flex-col h-full">
@@ -183,7 +192,7 @@ const UserUploadsSection: React.FC<UserUploadsSectionProps> = ({ viewMode: paren
     </Card>
   );
 
-  const renderBookList = (book: any) => (
+  const renderBookList = (book: SelectedBook) => (
     <div key={book.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
       <div className="w-10 h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded flex items-center justify-center flex-shrink-0">
         <FileText className="h-5 w-5 text-primary/60" />
