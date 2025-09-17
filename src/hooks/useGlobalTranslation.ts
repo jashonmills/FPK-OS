@@ -3,6 +3,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useEffect, useState } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 export const useGlobalTranslation = (namespace: string = 'common') => {
   const { t: originalT, i18n } = useTranslation(namespace);
@@ -17,7 +18,10 @@ export const useGlobalTranslation = (namespace: string = 'common') => {
       setIsDualLanguageEnabled(profile.dual_language_enabled || false);
     } else {
       // Fallback to localStorage
-      const savedDualLanguage = localStorage.getItem('fpk-dual-language');
+      const savedDualLanguage = safeLocalStorage.getItem<string>('fpk-dual-language', {
+        fallbackValue: 'false',
+        logErrors: false
+      });
       setIsDualLanguageEnabled(savedDualLanguage === 'true');
     }
   }, [profile]);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 export interface PreviewFlashcard {
   id: string;
@@ -24,8 +25,14 @@ export const useFlashcardPreview = () => {
   // Load preview cards from localStorage on mount
   useEffect(() => {
     console.log('🔄 Loading preview cards from localStorage...');
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const recentIds = localStorage.getItem(RECENT_CARDS_KEY);
+    const stored = safeLocalStorage.getItem<string>(STORAGE_KEY, {
+      fallbackValue: null,
+      logErrors: false
+    });
+    const recentIds = safeLocalStorage.getItem<string>(RECENT_CARDS_KEY, {
+      fallbackValue: null,
+      logErrors: false
+    });
     
     if (stored) {
       try {
@@ -44,11 +51,11 @@ export const useFlashcardPreview = () => {
         
         // Clean up localStorage if we filtered out old cards
         if (validCards.length !== cards.length) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(validCards));
+          safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(validCards));
         }
       } catch (error) {
         console.error('💥 Error loading preview cards:', error);
-        localStorage.removeItem(STORAGE_KEY);
+        safeLocalStorage.removeItem(STORAGE_KEY);
       }
     }
 
@@ -57,7 +64,7 @@ export const useFlashcardPreview = () => {
         setRecentCardIds(JSON.parse(recentIds));
       } catch (error) {
         console.error('Error loading recent card IDs:', error);
-        localStorage.removeItem(RECENT_CARDS_KEY);
+        safeLocalStorage.removeItem(RECENT_CARDS_KEY);
       }
     }
   }, []);
@@ -65,12 +72,12 @@ export const useFlashcardPreview = () => {
   // Save preview cards to localStorage
   const saveToStorage = (cards: PreviewFlashcard[]) => {
     console.log('💾 Saving preview cards to localStorage:', cards);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
   };
 
   // Save recent card IDs to localStorage
   const saveRecentIds = (ids: string[]) => {
-    localStorage.setItem(RECENT_CARDS_KEY, JSON.stringify(ids));
+    safeLocalStorage.setItem(RECENT_CARDS_KEY, JSON.stringify(ids));
     setRecentCardIds(ids);
   };
 
@@ -268,7 +275,7 @@ export const useFlashcardPreview = () => {
   const clearPreviewCards = () => {
     console.log('🗑️ Clearing all preview cards');
     setPreviewCards([]);
-    localStorage.removeItem(STORAGE_KEY);
+    safeLocalStorage.removeItem(STORAGE_KEY);
   };
 
   return {

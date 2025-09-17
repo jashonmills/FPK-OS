@@ -4,6 +4,7 @@
  */
 
 import { useCallback } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface MediaAnalyticsEvent {
   event: 'play' | 'pause' | 'seek' | 'speed_change' | 'completion' | 'buffer' | 'error';
@@ -61,7 +62,10 @@ export const useMediaAnalytics = ({ mediaId, courseId, moduleId }: UseMediaAnaly
       }
 
       // Store in localStorage for offline analytics queue
-      const queue = JSON.parse(localStorage.getItem('media-analytics-queue') || '[]');
+      const queue = JSON.parse(safeLocalStorage.getItem<string>('media-analytics-queue', {
+        fallbackValue: '[]',
+        logErrors: false
+      }) || '[]');
       queue.push(analyticsEvent);
       
       // Keep only last 100 events
@@ -69,7 +73,7 @@ export const useMediaAnalytics = ({ mediaId, courseId, moduleId }: UseMediaAnaly
         queue.splice(0, queue.length - 100);
       }
       
-      localStorage.setItem('media-analytics-queue', JSON.stringify(queue));
+      safeLocalStorage.setItem('media-analytics-queue', JSON.stringify(queue));
       
     } catch (error) {
       console.warn('Error tracking analytics event:', error);

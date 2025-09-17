@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   // Get from local storage then parse stored json or return initialValue
@@ -9,11 +10,15 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       return initialValue;
     }
     
+    const item = safeLocalStorage.getItem<string>(key, {
+      fallbackValue: null,
+      logErrors: false
+    });
+    
     try {
-      const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
+      console.error(`Error parsing localStorage key "${key}":`, error);
       return initialValue;
     }
   });
@@ -21,16 +26,10 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   // Return a wrapped version of useState's setter function that persists the new value to localStorage
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      // Check if we're in a browser environment
-      if (typeof window === 'undefined') {
-        console.warn('localStorage not available in this environment');
-        return;
-      }
-      
       // Allow value to be a function so we have the same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      safeLocalStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
     }
