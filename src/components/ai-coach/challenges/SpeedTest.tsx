@@ -65,7 +65,6 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided (limit to 5 for speed test)
       setTestCards(customCards.slice(0, 5));
-      console.log('⚡ SpeedTest: Using custom cards:', Math.min(5, customCards.length));
     } else if (flashcards && flashcards.length > 0) {
       // Filter cards not reviewed in last 24 hours
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -80,7 +79,6 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
         : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
 
       setTestCards(selectedCards);
-      console.log('⚡ SpeedTest: Using filtered cards:', selectedCards.length);
     }
   }, [flashcards, customCards]);
 

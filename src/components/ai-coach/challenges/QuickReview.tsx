@@ -27,12 +27,10 @@ const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided
       setReviewCards(customCards);
-      console.log('📚 QuickReview: Using custom cards:', customCards.length);
     } else if (flashcards && flashcards.length > 0) {
       // Randomly select 3 cards when no custom cards
       const shuffled = [...flashcards].sort(() => 0.5 - Math.random());
       setReviewCards(shuffled.slice(0, 3));
-      console.log('📚 QuickReview: Using random cards:', 3);
     }
   }, [flashcards, customCards]);
 

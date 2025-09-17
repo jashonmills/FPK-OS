@@ -24,7 +24,6 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
     setIsSaving(true);
     
     try {
-      console.log('🔄 Attempting to save preview flashcards for upload:', uploadId);
       
       // Get current user first
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -33,17 +32,12 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
         throw new Error('User not authenticated');
       }
       
-      console.log('✅ User authenticated:', user.id);
-
       // Get the upload record
-      console.log('🔍 Looking for upload record:', uploadId);
       const { data: upload, error: uploadError } = await supabase
         .from('file_uploads')
         .select('*')
         .eq('id', uploadId)
         .maybeSingle();
-
-      console.log('📄 Upload query result:', { upload, uploadError });
 
       if (uploadError) {
         console.error('❌ Database error fetching upload:', uploadError);
@@ -55,10 +49,7 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
         throw new Error('Upload record not found. The file may have been deleted.');
       }
 
-      console.log('✅ Found upload record:', upload);
-
       // Call the edge function to re-process with previewMode: false
-      console.log('🚀 Calling process-file-flashcards edge function...');
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
           uploadId: upload.id,
@@ -70,15 +61,11 @@ export const SavePreviewFlashcardsButton: React.FC<SavePreviewFlashcardsButtonPr
         }
       });
 
-      console.log('📡 Edge function response:', { data, error });
-
       if (error) {
         console.error('❌ Edge function error:', error);
         throw new Error(`Edge function failed: ${error.message || 'Unknown error'}`);
       }
 
-      console.log('✅ Flashcards saved successfully:', data);
-      
       toast({
         title: "Flashcards Saved!",
         description: `Successfully saved ${data?.flashcardsGenerated || flashcardsCount} flashcards from ${fileName}. You can now use them in memory tests.`,

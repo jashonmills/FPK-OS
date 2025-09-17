@@ -31,7 +31,6 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
     if (customCards && customCards.length > 0) {
       // Use custom cards when provided (limit to 5 for accuracy challenge)
       setChallengeCards(customCards.slice(0, 5));
-      console.log('🎯 AccuracyChallenge: Using custom cards:', Math.min(5, customCards.length));
     } else if (flashcards && flashcards.length > 0) {
       // Filter cards with low accuracy (< 80%) or no review history
       const lowAccuracyCards = flashcards.filter(card => {
@@ -52,7 +51,6 @@ const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) =>
       }
 
       setChallengeCards(selectedCards);
-      console.log('🎯 AccuracyChallenge: Using filtered cards:', selectedCards.length);
     }
   }, [flashcards, customCards]);
 

@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useFileUploads } from '@/hooks/useFileUploads';
+import { useFileUploads, FileUpload } from '@/hooks/useFileUploads';
 import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 'lucide-react';
@@ -43,7 +43,6 @@ const FileUploadCard: React.FC = () => {
   // Define the handler function in the component scope with error handling
   const handleFileUploadUpdate = useCallback((payload: FileUploadPayload) => {
     try {
-      console.log('🤖 AI Coach file upload updated:', payload);
       
       if (payload.new.processing_status === 'completed') {
         // Clear timeout and progress
@@ -108,7 +107,6 @@ const FileUploadCard: React.FC = () => {
     if (!user?.id) return;
 
     const subscriptionId = subscriptionIdRef.current;
-    console.log(`📡 Setting up AI coach file upload handler: ${subscriptionId}`);
 
     try {
       subscribe(subscriptionId, handleFileUploadUpdate);
@@ -121,7 +119,6 @@ const FileUploadCard: React.FC = () => {
     }
 
     return () => {
-      console.log(`🔌 Cleaning up AI coach file upload handler: ${subscriptionId}`);
       try {
         unsubscribe(subscriptionId);
       } catch (error) {
@@ -155,7 +152,6 @@ const FileUploadCard: React.FC = () => {
     if (!user) return 0;
 
     try {
-      console.log('AI Coach processing file:', file.name);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {
@@ -172,7 +168,6 @@ const FileUploadCard: React.FC = () => {
         throw error;
       }
 
-      console.log('AI processing complete:', data);
       return data.flashcardsGenerated || 0;
 
     } catch (error) {
@@ -311,7 +306,6 @@ const FileUploadCard: React.FC = () => {
             const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 300000); // Max 5 minutes (reduced from 8)
 
             const timeoutId = setTimeout(() => {
-              console.log('AI processing timeout for upload:', uploadRecord.id);
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
@@ -341,7 +335,6 @@ const FileUploadCard: React.FC = () => {
 
             // Start polling as fallback if real-time isn't connected
             if (!isConnected || subscriptionError) {
-              console.log('🔄 Starting polling fallback for AI coach upload:', uploadRecord.id);
               startPolling(uploadRecord.id, (updatedUpload) => {
                 if (updatedUpload.processing_status === 'completed' || updatedUpload.processing_status === 'failed') {
                   handleFileUploadUpdate({ new: updatedUpload, old: uploadRecord });
@@ -438,7 +431,7 @@ const FileUploadCard: React.FC = () => {
     deleteUpload(id);
   };
 
-  const retryProcessing = async (upload: { id: string; file_name?: unknown; processing_status?: unknown; [key: string]: unknown }) => {
+  const retryProcessing = async (upload: FileUpload) => {
     try {
       updateUpload({
         id: upload.id,
@@ -468,9 +461,9 @@ const FileUploadCard: React.FC = () => {
       }));
 
       await processFileForFlashcards(
-        new File([], upload.file_name, { type: upload.file_type }),
+        new File([], upload.file_name as string, { type: upload.file_type as string }),
         upload.id,
-        upload.storage_path
+        upload.storage_path as string
       );
 
     } catch (error) {

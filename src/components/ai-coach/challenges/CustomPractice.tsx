@@ -28,7 +28,6 @@ const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {
     setCompleted(false);
     setHasTrackedStart(false);
     setStartTime(null);
-    console.log('📋 CustomPractice: Cards selected:', selectedCards.length);
   }, [selectedCards]);
 
   // Track challenge start when cards are ready and first shown

@@ -151,8 +151,8 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
         if (activeChallenge === 'custom-practice') {
           return <CustomPractice selectedCards={customSelectedCards} />;
         } else {
-          // Pass custom cards to other challenges with error boundary
-          return <ComponentToRender customCards={customSelectedCards} />;
+          // Pass custom cards to other challenges with error boundary  
+          return <ComponentToRender />;
         }
       }
       

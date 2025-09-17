@@ -22,10 +22,13 @@ import {
 import { analytics } from '@/utils/analytics';
 
 interface AnalyticsEvent {
-  id: string;
-  event_type: string;
-  timestamp: string;
-  [key: string]: unknown;
+  event_name: string;
+  parameters: {
+    course_id?: string;
+    module_id?: string;
+    timestamp: string;
+    [key: string]: any;
+  };
 }
 
 interface AnalyticsDashboardProps {
@@ -49,7 +52,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   useEffect(() => {
     const loadStoredEvents = () => {
       const events = analytics.getStoredEvents();
-      setStoredEvents(events);
+      setStoredEvents(events as AnalyticsEvent[]);
       
       // Calculate stats
       const stats = events.reduce((acc, event) => {
@@ -127,7 +130,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   };
 
   const filteredEvents = courseId 
-    ? storedEvents.filter(event => event.parameters.course_id === courseId)
+    ? storedEvents.filter(event => event.parameters?.course_id === courseId)
     : storedEvents;
 
   return (
@@ -224,23 +227,23 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredEvents.slice(-20).reverse().map((event, index) => (
                   <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <div className={`p-2 rounded ${getEventColor(event.event_name)}`}>
-                      {getEventIcon(event.event_name)}
+                    <div className={`p-2 rounded ${getEventColor(event.event_name as string)}`}>
+                      {getEventIcon(event.event_name as string)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{event.event_name}</span>
+                        <span className="font-medium">{event.event_name as string}</span>
                         <Badge variant="outline" className="text-xs">
-                          {event.parameters.course_id || 'Unknown Course'}
+                          {event.parameters?.course_id || 'Unknown Course'}
                         </Badge>
-                        {event.parameters.module_id && (
+                        {event.parameters?.module_id && (
                           <Badge variant="secondary" className="text-xs">
-                            {event.parameters.module_id}
+                            {event.parameters.module_id as string}
                           </Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(event.parameters.timestamp).toLocaleString()}
+                        {new Date(event.parameters?.timestamp || Date.now()).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -265,7 +268,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 {filteredEvents.slice(-10).reverse().map((event, index) => (
                   <details key={index} className="bg-muted/50 rounded-lg p-3">
                     <summary className="cursor-pointer font-medium">
-                      {event.event_name} - {new Date(event.parameters.timestamp).toLocaleTimeString()}
+                      {event.event_name as string} - {new Date(event.parameters?.timestamp || Date.now()).toLocaleTimeString()}
                     </summary>
                     <pre className="mt-2 text-xs bg-background p-2 rounded overflow-auto">
                       {JSON.stringify(event.parameters, null, 2)}
