@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
 import { featureFlagService } from '@/services/FeatureFlagService';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export interface AnalyticsCardProps {
   id: string;
@@ -33,18 +34,19 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
   refreshInterval,
   onRefresh
 }) => {
+  const cleanup = useCleanup('analytics-card');
+
   // Check feature flag
   if (featureFlag && !featureFlagService.isEnabled(featureFlag)) {
     return null;
   }
 
-  // Auto-refresh logic
+  // Auto-refresh logic with cleanupManager
   React.useEffect(() => {
     if (refreshInterval && onRefresh) {
-      const interval = setInterval(onRefresh, refreshInterval * 1000);
-      return () => clearInterval(interval);
+      cleanup.setInterval(onRefresh, refreshInterval * 1000);
     }
-  }, [refreshInterval, onRefresh]);
+  }, [refreshInterval, onRefresh, cleanup]);
 
   if (loading) {
     return (

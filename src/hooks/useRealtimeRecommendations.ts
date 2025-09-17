@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { analyticsEventBus } from '@/services/AnalyticsEventBus';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface AIRecommendation {
   id: string;
@@ -27,6 +28,7 @@ interface RecommendationTrigger {
 }
 
 export const useRealtimeRecommendations = () => {
+  const cleanup = useCleanup('useRealtimeRecommendations');
   const { user } = useAuth();
   const [activeRecommendations, setActiveRecommendations] = useState<AIRecommendation[]>([]);
   const [appliedRecommendations, setAppliedRecommendations] = useState<string[]>([]);
@@ -371,17 +373,15 @@ export const useRealtimeRecommendations = () => {
     }
   };
 
-  // Clean up expired recommendations
+  // Clean up expired recommendations using cleanupManager
   useEffect(() => {
-    const interval = setInterval(() => {
+    cleanup.setInterval(() => {
       const now = new Date();
       setActiveRecommendations(prev => 
         prev.filter(rec => new Date(rec.expiresAt) > now)
       );
     }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [cleanup]);
 
   // Subscribe to analytics events for metric updates
   useEffect(() => {

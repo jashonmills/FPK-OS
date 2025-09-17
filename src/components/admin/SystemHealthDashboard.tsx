@@ -61,10 +61,12 @@ const SystemHealthDashboard: React.FC = () => {
   useEffect(() => {
     runDiagnostics();
 
-    // Auto-refresh every 2 minutes if enabled
+    // Auto-refresh every 2 minutes if enabled using cleanupManager
     if (autoRefresh) {
-      const interval = setInterval(runDiagnostics, 120000);
-      return () => clearInterval(interval);
+      import('../../utils/cleanupManager').then(({ cleanupManager }) => {
+        const intervalId = cleanupManager.setInterval(runDiagnostics, 120000, 'system-health-dashboard');
+        return () => cleanupManager.cleanup(intervalId);
+      });
     }
   }, [autoRefresh]);
 

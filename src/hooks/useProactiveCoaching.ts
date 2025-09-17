@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface CoachingSuggestion {
   type: 'study_reminder' | 'improvement_tip' | 'celebration' | 'goal_check';
@@ -13,6 +14,7 @@ interface CoachingSuggestion {
 }
 
 export const useProactiveCoaching = () => {
+  const cleanup = useCleanup('useProactiveCoaching');
   const { user } = useAuth();
   const { sessions } = useStudySessions();
   const { flashcards } = useFlashcards();
@@ -95,20 +97,16 @@ export const useProactiveCoaching = () => {
       }
     };
 
-    // Check for opportunities every 30 minutes when active
-    const interval = setInterval(checkForCoachingOpportunities, 30 * 60 * 1000);
+    // Check for opportunities every 30 minutes when active using cleanupManager
+    cleanup.setInterval(checkForCoachingOpportunities, 30 * 60 * 1000);
     
     // Initial check after 5 seconds
-    const timeout = setTimeout(checkForCoachingOpportunities, 5000);
+    cleanup.setTimeout(checkForCoachingOpportunities, 5000);
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
     } catch (error) {
       console.error('Error in proactive coaching:', error);
     }
-  }, [user, sessions, flashcards, toast, lastActivityCheck]);
+  }, [user, sessions, flashcards, toast, lastActivityCheck, cleanup]);
 
   return {
     // This hook primarily works in the background

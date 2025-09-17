@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { aiInsightsEngine, LearningInsight, AnomalyAlert } from '@/services/AIInsightsEngine';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export const useAIInsights = () => {
+  const cleanup = useCleanup('useAIInsights');
   const [insights, setInsights] = useState<LearningInsight[]>([]);
   const [anomalies, setAnomalies] = useState<AnomalyAlert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,11 +27,9 @@ export const useAIInsights = () => {
     // Load initial data
     loadInsights();
 
-    // Refresh insights periodically
-    const interval = setInterval(loadInsights, 30000); // Every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
+    // Refresh insights periodically using cleanupManager
+    cleanup.setInterval(loadInsights, 30000); // Every 30 seconds
+  }, [cleanup]);
 
   const resolveAnomaly = async (anomalyId: string) => {
     try {

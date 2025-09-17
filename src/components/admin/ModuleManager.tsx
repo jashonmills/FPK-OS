@@ -102,23 +102,38 @@ const ModuleManager = () => {
     setIsCreating(false);
   };
 
-  const handleEdit = (module: any) => {
-    setEditingModule(module);
-    setFormData({
-      title: module.title || '',
-      description: module.description || '',
-      module_number: module.module_number || 1,
-      content_type: module.content_type || 'video',
-      duration_minutes: module.duration_minutes || 0,
-      is_published: module.is_published || false,
-      video_url: module.video_url || '',
-      audio_url: module.audio_url || '',
-      pdf_url: module.pdf_url || '',
-      word_url: module.word_url || '',
-      image_url: module.image_url || ''
-    });
-    setIsCreating(true);
-  };
+interface ModuleData {
+  id?: string;
+  title: string;
+  description?: string;
+  module_number: number;
+  content_type: string;
+  duration_minutes?: number;
+  is_published?: boolean;
+  video_url?: string;
+  audio_url?: string;
+  pdf_url?: string;
+  word_url?: string;
+  image_url?: string;
+}
+
+const handleEdit = (module: ModuleData) => {
+  setEditingModule(module);
+  setFormData({
+    title: module.title || '',
+    description: module.description || '',
+    module_number: module.module_number || 1,
+    content_type: module.content_type || 'video',
+    duration_minutes: module.duration_minutes || 0,
+    is_published: module.is_published || false,
+    video_url: module.video_url || '',
+    audio_url: module.audio_url || '',
+    pdf_url: module.pdf_url || '',
+    word_url: module.word_url || '',
+    image_url: module.image_url || ''
+  });
+  setIsCreating(true);
+};
 
   const handleDelete = async (moduleId: string) => {
     if (window.confirm('Are you sure you want to delete this module?')) {

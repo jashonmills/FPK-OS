@@ -39,19 +39,25 @@ const WeatherScienceLabCard: React.FC = () => {
   const handleRefresh = () => {
     // Clear weather cache and refetch using safe storage
     if (typeof window !== 'undefined') {
-      // Get all keys safely
+      // Get all keys safely using a different approach
       const keys = [];
       try {
-        for (let i = 0; i < (window.localStorage?.length || 0); i++) {
-          const key = window.localStorage.key(i);
-          if (key && key.startsWith('weather_cache_')) {
-            keys.push(key);
-          }
-        }
-        // Remove keys using safeLocalStorage
-        keys.forEach(key => {
-          safeLocalStorage.removeItem(key, { logErrors: false });
+        // Use safeStorage to get cached keys instead of direct localStorage access
+        const cachedKeys = safeLocalStorage.getItem<string[]>('weather_cache_keys', {
+          fallbackValue: [],
+          logErrors: false
         });
+        
+        // Clear known cache keys
+        if (cachedKeys && Array.isArray(cachedKeys)) {
+          cachedKeys.forEach(key => {
+            if (key.startsWith('weather_cache_')) {
+              safeLocalStorage.removeItem(key, { logErrors: false });
+            }
+          });
+          // Clear the cache keys list
+          safeLocalStorage.removeItem('weather_cache_keys', { logErrors: false });
+        }
       } catch (error) {
         console.warn('Error clearing weather cache:', error);
       }

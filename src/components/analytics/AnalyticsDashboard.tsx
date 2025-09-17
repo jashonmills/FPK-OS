@@ -78,9 +78,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
     loadStoredEvents();
     
-    // Refresh every 5 seconds
-    const interval = setInterval(loadStoredEvents, 5000);
-    return () => clearInterval(interval);
+    // Use cleanupManager for safe timer management
+    import('../../utils/cleanupManager').then(({ cleanupManager }) => {
+      const intervalId = cleanupManager.setInterval(loadStoredEvents, 5000, 'analytics-dashboard');
+      return () => cleanupManager.cleanup(intervalId);
+    });
   }, []);
 
   const clearEvents = () => {

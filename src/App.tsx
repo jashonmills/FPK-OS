@@ -165,24 +165,26 @@ const App: React.FC = () => {
   React.useEffect(() => {
     logger.performance('App component mounted');
     
-    // Cleanup performance metrics periodically - optimized frequency
-    const cleanup = setInterval(() => {
-      try {
-        if (import.meta.env.DEV && typeof performanceMonitor?.cleanup === 'function') {
-          performanceMonitor.cleanup();
+    // Use cleanupManager for safe timer management
+    import('./utils/cleanupManager').then(({ cleanupManager }) => {
+      const cleanup = cleanupManager.setInterval(() => {
+        try {
+          if (import.meta.env.DEV && typeof performanceMonitor?.cleanup === 'function') {
+            performanceMonitor.cleanup();
+          }
+        } catch (error) {
+          // Silently handle cleanup errors in production
+          if (import.meta.env.DEV) {
+            console.warn('Performance cleanup error:', error);
+          }
         }
-      } catch (error) {
-        // Silently handle cleanup errors in production
-        if (import.meta.env.DEV) {
-          console.warn('Performance cleanup error:', error);
-        }
-      }
-    }, 900000); // Increased to 15 minutes to reduce overhead
-
-    return () => {
-      clearInterval(cleanup);
-      logger.performance('App component unmounted');
-    };
+      }, 900000, 'app-performance-cleanup'); // Increased to 15 minutes to reduce overhead
+      
+      return () => {
+        cleanupManager.cleanup(cleanup);
+        logger.performance('App component unmounted');
+      };
+    });
   }, []);
 
   return (

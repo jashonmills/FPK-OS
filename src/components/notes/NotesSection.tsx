@@ -70,10 +70,17 @@ const NotesSection: React.FC<NotesSectionProps> = ({
     }
   };
 
-  const handleEditNote = (note: any) => {
-    setEditingNote(note.id);
-    setEditData({ title: note.title, content: note.content || '' });
-  };
+interface NoteData {
+  id: string;
+  title: string;
+  content?: string;
+  category?: string;
+}
+
+const handleEditNote = (note: NoteData) => {
+  setEditingNote(note.id);
+  setEditData({ title: note.title, content: note.content || '' });
+};
 
   const handleSaveEdit = () => {
     if (editingNote && editData.title.trim()) {
