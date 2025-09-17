@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
-import CourseOverviewVideo from '@/components/course/CourseOverviewVideo';
-import VideoPlaylist from '@/components/course/VideoPlaylist';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
@@ -35,30 +33,6 @@ import eltBackground from '@/assets/elt-background.jpg';
 const InteractiveELTCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
-  
-  // Define course videos
-  const originalVideo = {
-    url: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/intro-video.mp4",
-    title: "ELT Course Introduction - Learning for Every Mind"
-  };
-
-  const [videos, setVideos] = useState([
-    originalVideo,
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/module-1-intro.mp4',
-      title: 'Module 1: Understanding Your Unique Brain'
-    },
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/module-2-intro.mp4',
-      title: 'Module 2: Executive Functioning Mastery'
-    },
-    {
-      url: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/elt-course/module-3-intro.mp4',
-      title: 'Module 3: Study Techniques That Work'
-    }
-  ]);
-
-  const [currentMainVideo, setCurrentMainVideo] = useState(originalVideo);
   
   // Use analytics and progress hooks
   const courseId = 'elt-empowering-learning-techniques';
@@ -160,22 +134,6 @@ const InteractiveELTCoursePage: React.FC = () => {
     navigate('/dashboard/learner');
   };
 
-  const handleVideoSwap = (videoUrl: string, title: string) => {
-    const clickedVideoIndex = videos.findIndex(v => v.url === videoUrl);
-    if (clickedVideoIndex === -1) return;
-
-    const newVideos = [...videos];
-    const currentMainIndex = videos.findIndex(v => v.url === currentMainVideo.url);
-    
-    if (currentMainIndex !== -1) {
-      newVideos[clickedVideoIndex] = currentMainVideo;
-      newVideos[currentMainIndex] = { url: videoUrl, title };
-      setVideos(newVideos);
-    }
-    
-    setCurrentMainVideo({ url: videoUrl, title });
-  };
-
   const isLessonAccessible = (lessonId: number) => {
     return lessonId === 1 || isLessonCompleted(lessonId - 1);
   };
@@ -267,23 +225,6 @@ const InteractiveELTCoursePage: React.FC = () => {
                   Total time spent: {Math.floor(learningStats.totalTimeSpent / 60)}h {learningStats.totalTimeSpent % 60}m
                 </p>
               )}
-            </div>
-
-            {/* Course Introduction Video */}
-            <div className="mb-8">
-              <CourseOverviewVideo 
-                videoUrl={currentMainVideo.url}
-                title={currentMainVideo.title}
-              />
-            </div>
-
-            {/* Video Playlist */}
-            <div className="mb-8">
-              <VideoPlaylist
-                currentMainVideoUrl={currentMainVideo.url}
-                onVideoSwap={handleVideoSwap}
-                videos={videos.slice(1)}
-              />
             </div>
 
             {/* Voice Controls */}
