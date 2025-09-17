@@ -333,17 +333,17 @@ const MyCourses = () => {
   const enrolledCourseIds = enrollments.map(e => e.course_id);
   
 
-const EMPOWERING_LEARNING_SPELLING_COURSE = {
-  id: 'empowering-learning-spelling',
-  title: 'Empowering Learning for Spelling',
-  description: 'Master spelling through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome spelling challenges.',
+const EL_SPELLING_READING_COURSE = {
+  id: 'el-spelling-reading',
+  title: 'EL Spelling & Reading',
+  description: 'Master spelling and reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners.',
   instructor_name: 'FPK University',
   duration_minutes: 120,
   difficulty_level: 'beginner',
   featured: true,
   is_free: true,
   price: 0,
-  tags: ['Language Arts', 'Spelling', 'Visual Learning', 'Memory Techniques'],
+  tags: ['Language Arts', 'Spelling', 'Reading', 'Visual Learning', 'Memory Techniques'],
   thumbnail_url: empoweringSpellingBg,
   status: 'published'
 };
@@ -366,6 +366,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
   // Combine global and organization courses - ensuring handwriting course is prioritized
   const allAvailableCourses = [
     EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
+    EL_SPELLING_READING_COURSE, // Add the primary EL Spelling & Reading course
     EMPOWERING_LEARNING_STATE_COURSE, // Add the new Learning State course
     ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
     ...courses,
@@ -471,7 +472,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
     const isEmpoweringLearningState = course.id === 'empowering-learning-state';
-    const isEmpoweringLearningSpelling = course.id === 'empowering-learning-spelling';
+    const isEmpoweringLearningSpelling = course.id === 'el-spelling-reading';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
     const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting';
@@ -540,7 +541,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
       }
       
       if (isEmpoweringLearningSpelling) {
-        return '/courses/empowering-learning-spelling';
+        return '/courses/el-spelling-reading';
       }
       
       if (isEmpoweringLearningReading) {

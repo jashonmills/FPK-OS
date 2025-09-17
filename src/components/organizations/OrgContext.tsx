@@ -28,14 +28,6 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
 
-  // Debug logging - Enhanced for troubleshooting
-  console.log('OrgProvider - Current user:', user?.id, user?.email);
-  console.log('OrgProvider - Organizations loaded:', organizations);
-  console.log('OrgProvider - Organizations length:', organizations?.length);
-  console.log('OrgProvider - Active org ID:', activeOrgId);
-  console.log('OrgProvider - Current org:', currentOrg);
-  console.log('OrgProvider - Is personal mode:', activeOrgId === null);
-
   // Initialize activeOrgId from URL params, props, or localStorage
   useEffect(() => {
     const orgFromUrl = searchParams.get('org');
@@ -63,13 +55,10 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
 
   // Update currentOrg when activeOrgId or organizations change
   useEffect(() => {
-    console.log('Updating currentOrg - activeOrgId:', activeOrgId, 'organizations:', organizations.length);
     if (activeOrgId && organizations.length > 0) {
       const org = organizations.find(o => o.organization_id === activeOrgId);
-      console.log('Found org for activeOrgId:', org);
       setCurrentOrg(org || null);
     } else {
-      console.log('OrgContext: Clearing current org - no activeOrgId or organizations');
       setCurrentOrg(null);
     }
   }, [activeOrgId, organizations]);

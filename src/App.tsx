@@ -469,6 +469,17 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
+          <Route path="/courses/el-spelling-reading" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/el-spelling-reading/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
           <Route path="/courses/empowering-learning-spelling" element={
             <RouteProtector>
               <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
