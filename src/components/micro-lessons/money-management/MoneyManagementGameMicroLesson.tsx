@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MicroLessonContainer, MicroLessonData } from '@/components/micro-lessons/MicroLessonContainer';
 import { gameReducer, initialState } from './game-state';
 import { ALL_SCENARIOS } from './game-data';
 
@@ -1180,29 +1179,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
   return <div>Loading game... (Week: {week}, Phase: {phase})</div>;
 };
 
-// Main lesson component using MicroLessonContainer
+// Main lesson component - direct game without container wrapper
 export const MoneyManagementGameMicroLesson: React.FC<GameProps> = (props) => {
-  const lessonData: MicroLessonData = {
-    id: 'money-management-game',
-    moduleTitle: 'Financial Decision-Making Game',
-    totalScreens: 1,
-    screens: [
-      {
-        id: 'game',
-        type: 'practice',
-        title: 'Interactive Money Management Simulation',
-        content: <MoneyManagementGame {...props} />,
-        estimatedTime: 45
-      }
-    ]
-  };
-
-  return (
-    <MicroLessonContainer
-      lessonData={lessonData}
-      onComplete={props.onComplete}
-      onNext={props.onNext}
-      hasNext={props.hasNext}
-    />
-  );
+  return <MoneyManagementGame {...props} />;
 };
