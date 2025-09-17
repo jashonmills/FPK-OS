@@ -276,6 +276,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Pay from your balance ($60)',
         impact: 'balance: -60',
         feedback: "You were able to pay for the trip, but it was an unplanned expense that reduced your cash balance. An emergency fund is meant for these situations to protect your main budget."
+      },
+      {
+        text: 'Use credit card for travel ($60)',
+        impact: 'creditCard: 60, credit: -2',
+        feedback: "You used your credit card for the emergency travel. While necessary, try to pay this off quickly to avoid interest charges and maintain good financial habits."
       }
     ]
   },
@@ -319,6 +324,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "Good choice! Regular maintenance prevents bigger, more expensive problems later. This is a necessary expense that protects your investment."
       },
       {
+        text: 'Use credit card for maintenance ($75)',
+        impact: 'creditCard: 75, credit: -3',
+        feedback: "You used your credit card for necessary car maintenance. While it's important to keep your car running, try to pay this off quickly to avoid interest charges."
+      },
+      {
         text: 'Wait until next month',
         impact: 'score: -10',
         feedback: "Delaying necessary maintenance can lead to more expensive repairs later. It's better to handle these expenses promptly to avoid bigger problems."
@@ -335,6 +345,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         text: 'Order delivery ($25)',
         impact: 'wants: -25, balance: -25',
         feedback: "Convenience comes with a cost. Occasional delivery is fine, but frequent ordering can add up quickly and impact your budget."
+      },
+      {
+        text: 'Use credit card for delivery ($25)',
+        impact: 'creditCard: 25, credit: -1',
+        feedback: "You used your credit card for convenience food. While occasionally okay, frequent use of credit for non-essential purchases can add up quickly."
       },
       {
         text: 'Cook something simple at home ($8)',
@@ -360,6 +375,11 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "Excellent choice! You found a way to stay healthy without the monthly expense. Walking, running, and bodyweight exercises can be just as effective."
       },
       {
+        text: 'Use credit card for gym ($45)',
+        impact: 'creditCard: 45, credit: -2',
+        feedback: "You used your credit card for the gym membership. While investing in health is important, make sure you'll use it enough to justify the ongoing cost and interest if you carry a balance."
+      },
+      {
         text: 'Look for a cheaper alternative',
         impact: 'needs: -25, balance: -25, score: 8',
         feedback: "Smart shopping! You prioritized your health while being budget-conscious. Finding good deals on essential services is a valuable skill."
@@ -383,6 +403,16 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "Excellent choice! You saved $75 without compromising your education. Used textbooks are a smart way to reduce education costs."
       },
       {
+        text: 'Use credit card for new textbook ($120)',
+        impact: 'creditCard: 120, credit: -5',
+        feedback: "You put the expensive new textbook on credit. This is a significant expense for something you could have gotten used or borrowed. Try to pay this off quickly."
+      },
+      {
+        text: 'Use credit card for used textbook ($45)',
+        impact: 'creditCard: 45, credit: -2',
+        feedback: "You used credit for the used textbook, which was the smarter choice than new. Still, try to pay this off quickly to avoid interest charges."
+      },
+      {
         text: 'Check if the library has a copy',
         impact: 'score: 20, savings: 30',
         feedback: "Brilliant! You found a way to access the material for free. Always explore free resources before making purchases - your future self will thank you."
@@ -401,9 +431,9 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "Another monthly subscription can add up over time. Make sure you're getting good value and consider canceling other services you don't use much."
       },
       {
-        text: 'Wait and see if friends will share',
-        impact: 'score: 5',
-        feedback: "Smart thinking! Sharing subscriptions (when allowed) is a great way to enjoy content while splitting the cost."
+        text: 'Use credit card for subscription ($12)',
+        impact: 'creditCard: 12, credit: -1',
+        feedback: "You used credit for a monthly entertainment subscription. Remember that this will be a recurring charge, so make sure you can pay it off each month."
       },
       {
         text: 'Stick with current entertainment',
@@ -424,9 +454,9 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "It's wonderful to show you care, but the most meaningful gifts aren't always the most expensive. Your friend will appreciate the thought regardless of the cost."
       },
       {
-        text: 'Make something personal ($15)',
-        impact: 'wants: -15, balance: -15, score: 10',
-        feedback: "Personal, handmade gifts often mean more than expensive ones. You saved money while creating something unique and meaningful."
+        text: 'Use credit card for expensive gift ($50)',
+        impact: 'creditCard: 50, credit: -2',
+        feedback: "You used your credit card for a generous gift. While it shows you care, consider if taking on debt for gifts aligns with your financial goals."
       },
       {
         text: 'Plan a fun, free activity together',
@@ -447,9 +477,9 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "Daily coffee purchases can really add up - that's over $1,600 per year! Consider if this habit aligns with your financial goals."
       },
       {
-        text: 'Make coffee at home ($8/week)',
-        impact: 'needs: -8, balance: -8, score: 12',
-        feedback: "Great choice! You're saving over $23 per week by making coffee at home. Small changes in daily habits can lead to significant savings."
+        text: 'Use credit card for daily coffee ($31.50/week)',
+        impact: 'creditCard: 31.50, credit: -2',
+        feedback: "Using credit for daily expenses like coffee can quickly add up to significant debt. This habit could cost you much more with interest charges."
       },
       {
         text: 'Buy coffee 2-3 times per week ($15/week)',
