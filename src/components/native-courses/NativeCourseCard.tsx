@@ -18,7 +18,6 @@ export function NativeCourseCard({
 
   const getCourseType = () => {
     if (course.title.includes('Modern Economics')) return 'Full Course Curriculum';
-    if (course.title.includes('Learning State')) return 'Beta Course';
     return 'Native Course';
   };
 

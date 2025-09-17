@@ -103,7 +103,7 @@ export function StyledCourseCard({
 }: StyledCourseCardProps) {
   const courseImage = getCourseImage(id, title);
   
-  // Check if this is an Empowering Learning course or Learning State Beta
+  // Check if this is an Empowering Learning course
   const isSpecialCourse = [
     'empowering-learning-handwriting',
     'empowering-learning-numeracy', 
