@@ -273,13 +273,16 @@ const InteractiveELTCoursePage: React.FC = () => {
 
             {/* Additional Resources Section */}
             <AdditionalResourcesSection>
+              {/* StudentGuidesAccordion temporarily removed for content review */}
+              {/* 
               <StudentGuidesAccordion 
                 guideCount={15}
                 courseId="elt-empowering-learning-techniques"
                 description="Access comprehensive student guides, worksheets, and self-assessment tools designed for neurodiverse learners."
               />
+              */}
               
-              <CourseOverviewAccordion 
+              <CourseOverviewAccordion
                 whyMasterContent={{
                   title: "Why Master ELT?",
                   description: "Master these techniques to unlock your full learning potential and succeed in any academic or professional environment."
