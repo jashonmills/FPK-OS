@@ -112,7 +112,9 @@ export function useOrganizations() {
       return data;
     },
     onSuccess: (data) => {
+      // Invalidate both organization query caches
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
       toast({
         title: "Organization Created!",
         description: `${data.name} has been created successfully with ${data.plan} access.`,
@@ -151,7 +153,9 @@ export function useOrganizations() {
       return data;
     },
     onSuccess: () => {
+      // Invalidate both organization query caches
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
       toast({
         title: "Organization Updated",
         description: "Organization has been updated successfully.",
