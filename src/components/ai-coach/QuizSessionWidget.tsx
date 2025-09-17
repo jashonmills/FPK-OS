@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useQuizSession, QuizCard } from '@/hooks/useQuizSession';
 
 interface QuizSessionWidgetProps {
-  onComplete?: (results: any) => void;
+  onComplete?: (results: Record<string, unknown>) => void;
   onCancel?: () => void;
   autoStart?: boolean;
 }

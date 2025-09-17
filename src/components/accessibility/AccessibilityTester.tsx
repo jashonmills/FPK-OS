@@ -6,9 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { useOptimizedAccessibility } from '@/hooks/useOptimizedAccessibility';
 import { Check, X, Eye, Type, Palette, Brain } from 'lucide-react';
 
+interface TestResults {
+  fontLoaded: boolean;
+  cssVariablesSet: boolean;
+  contrastApplied: boolean;
+  comfortModeApplied: boolean;
+  noErrors: boolean;
+}
+
 const AccessibilityTester: React.FC = () => {
   const { fontFamily, textSize, lineSpacing, colorContrast, comfortMode, error } = useOptimizedAccessibility();
-  const [testResults, setTestResults] = useState<any>(null);
+  const [testResults, setTestResults] = useState<TestResults | null>(null);
 
   const runAccessibilityTests = () => {
     const results = {

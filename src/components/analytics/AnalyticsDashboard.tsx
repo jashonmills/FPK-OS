@@ -21,6 +21,13 @@ import {
 } from 'lucide-react';
 import { analytics } from '@/utils/analytics';
 
+interface AnalyticsEvent {
+  id: string;
+  event_type: string;
+  timestamp: string;
+  [key: string]: unknown;
+}
+
 interface AnalyticsDashboardProps {
   courseId?: string;
   moduleId?: string;
@@ -30,7 +37,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   courseId,
   moduleId
 }) => {
-  const [storedEvents, setStoredEvents] = useState<any[]>([]);
+  const [storedEvents, setStoredEvents] = useState<AnalyticsEvent[]>([]);
   const [eventStats, setEventStats] = useState({
     totalEvents: 0,
     moduleViews: 0,

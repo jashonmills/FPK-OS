@@ -17,7 +17,7 @@ interface Challenge {
   customText: string;
   icon: React.ComponentType<{ className?: string }>;
   action: () => void;
-  component: React.ComponentType<any>;
+  component: React.ComponentType;
   colorClass: string;
   hoverColorClass: string;
 }

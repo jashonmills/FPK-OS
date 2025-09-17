@@ -160,7 +160,7 @@ export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({
       onOpenChange(false);
       resetForm();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create organization. Please try again.",

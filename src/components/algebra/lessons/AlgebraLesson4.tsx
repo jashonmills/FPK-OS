@@ -8,7 +8,7 @@ interface AlgebraLesson4Props {
   onComplete: () => void;
   onNext: () => void;
   hasNext: boolean;
-  trackInteraction?: (event: string, details: any) => void;
+  trackInteraction?: (event: string, details: Record<string, unknown>) => void;
 }
 
 export const AlgebraLesson4: React.FC<AlgebraLesson4Props> = ({ 

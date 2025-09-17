@@ -99,7 +99,7 @@ export const SpellingLessonWrapper: React.FC<SpellingLessonWrapperProps> = ({
     if (!React.isValidElement(children)) return children;
     
     // Minimal props to prevent performance issues
-    return React.cloneElement(children as React.ReactElement<any>, {
+    return React.cloneElement(children as React.ReactElement<Record<string, unknown>>, {
       onComplete: handleComplete,
       onNext,
       hasNext,

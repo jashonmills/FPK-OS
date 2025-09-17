@@ -7,6 +7,12 @@ import { useUserProfile } from '@/hooks/useUserProfileForAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+interface XPBreakdownItem {
+  name: string;
+  value: number;
+  color: string;
+}
+
 interface XPBreakdownCardProps {
   userId?: string;
 }
@@ -14,7 +20,7 @@ interface XPBreakdownCardProps {
 const XPBreakdownCard: React.FC<XPBreakdownCardProps> = ({ userId }) => {
   const { profile, loading } = useUserProfile(userId);
   const { user } = useAuth();
-  const [xpBreakdown, setXpBreakdown] = React.useState<any[]>([]);
+  const [xpBreakdown, setXpBreakdown] = React.useState<XPBreakdownItem[]>([]);
   const [breakdownLoading, setBreakdownLoading] = React.useState(true);
   
   // Use provided userId or fall back to current user

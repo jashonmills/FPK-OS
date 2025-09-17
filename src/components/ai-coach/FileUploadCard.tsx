@@ -438,7 +438,7 @@ const FileUploadCard: React.FC = () => {
     deleteUpload(id);
   };
 
-  const retryProcessing = async (upload: any) => {
+  const retryProcessing = async (upload: { id: string; file_name?: unknown; processing_status?: unknown; [key: string]: unknown }) => {
     try {
       updateUpload({
         id: upload.id,

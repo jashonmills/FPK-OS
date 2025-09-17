@@ -6,7 +6,7 @@ interface AlgebraLesson1Props {
   onComplete: () => void;
   onNext: () => void;
   hasNext: boolean;
-  trackInteraction?: (event: string, details: any) => void;
+  trackInteraction?: (event: string, details: Record<string, unknown>) => void;
 }
 
 export const AlgebraLesson1: React.FC<AlgebraLesson1Props> = ({ 

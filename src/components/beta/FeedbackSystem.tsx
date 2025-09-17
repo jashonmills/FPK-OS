@@ -198,7 +198,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
           {/* Feedback Type */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Feedback Type</label>
-            <Select value={formData.type} onValueChange={(value: any) => 
+            <Select value={formData.type} onValueChange={(value: "bug" | "feature" | "general" | "urgent") => 
               setFormData(prev => ({ ...prev, type: value, category: '' }))
             }>
               <SelectTrigger>

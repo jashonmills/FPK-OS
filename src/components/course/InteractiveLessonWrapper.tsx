@@ -54,7 +54,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         setTimeSpent(elapsed);
       }
     }, 1000);
-  }, [lessonId, lessonTitle, startLessonAnalytics, cleanup]);
+  }, [lessonId, lessonTitle]);
 
   // Handle lesson completion
   const handleComplete = async () => {
@@ -87,7 +87,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   // Enhanced children with analytics context
   const enhancedChildren = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child as React.ReactElement<any>, {
+      return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
         onComplete: handleComplete,
         onNext,
         hasNext,

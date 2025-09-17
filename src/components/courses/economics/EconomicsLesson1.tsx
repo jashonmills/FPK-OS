@@ -9,7 +9,7 @@ interface EconomicsLesson1Props {
   onNext?: () => void;
   hasNext?: boolean;
   isCompleted?: boolean;
-  trackInteraction?: (type: string, data: any) => void;
+  trackInteraction?: (type: string, data: Record<string, unknown>) => void;
   lessonId?: number;
   lessonTitle?: string;
 }

@@ -38,10 +38,11 @@ export function EmailVerificationGate({
         title: 'Verification email sent',
         description: 'Please check your inbox for the verification link.',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: 'Error sending verification email',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -69,10 +70,11 @@ export function EmailVerificationGate({
           variant: 'destructive',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: 'Error checking verification',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
