@@ -99,16 +99,12 @@ const ScormStudioPage = lazy(() => import("./pages/ScormStudioPage"));
 import ScormUploadPage from "./pages/ScormUploadPage";
 const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormAssignments = lazy(() => import("./pages/scorm/ScormAssignments"));
-const ScormPlayer = lazy(() => {
-  console.log('🎮 Loading ScormPlayer component...');
-  return import("./pages/scorm/ScormPlayer").then(module => {
-    console.log('✅ ScormPlayer component loaded successfully');
-    return module;
-  }).catch(error => {
+const ScormPlayer = lazy(() =>
+  import("./pages/scorm/ScormPlayer").catch(error => {
     console.error('❌ Failed to load ScormPlayer component:', error);
     throw error;
-  });
-});
+  })
+);
 
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
@@ -169,21 +165,19 @@ const App: React.FC = () => {
   React.useEffect(() => {
     logger.performance('App component mounted');
     
-    // Cleanup performance metrics periodically - reduced frequency
+    // Cleanup performance metrics periodically - optimized frequency
     const cleanup = setInterval(() => {
       try {
-        // Performance monitoring cleanup - simplified for better performance
-        try {
-          if (typeof performanceMonitor?.cleanup === 'function') {
-            performanceMonitor.cleanup();
-          }
-        } catch (error) {
-          console.warn('Performance monitor cleanup failed:', error);
+        if (import.meta.env.DEV && typeof performanceMonitor?.cleanup === 'function') {
+          performanceMonitor.cleanup();
         }
-      } catch (err) {
-        console.warn('Performance cleanup error:', err);
+      } catch (error) {
+        // Silently handle cleanup errors in production
+        if (import.meta.env.DEV) {
+          console.warn('Performance cleanup error:', error);
+        }
       }
-    }, 600000); // Increased to 10 minutes to reduce overhead
+    }, 900000); // Increased to 15 minutes to reduce overhead
 
     return () => {
       clearInterval(cleanup);

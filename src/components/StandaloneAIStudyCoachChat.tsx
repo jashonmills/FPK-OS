@@ -136,18 +136,6 @@ What would you like to learn about today?`
         timestamp: m.timestamp
       }));
       
-      console.log('🎯 Sending AI Study Chat request (Enhanced):', {
-        messageLength: messageText.length,
-        promptType: analyzedState.promptType,
-        sessionId: sessionId.substring(0, 8) + '...',
-        historyLength: clientHistory.length,
-        conversationState: {
-          isInQuiz: analyzedState.isInQuiz,
-          currentTopic: analyzedState.currentTopic,
-          incorrectCount: analyzedState.incorrectAnswersCount
-        }
-      });
-
       // Call AI function with enhanced context
       const { data, error } = await withTimeout(
         supabase.functions.invoke('ai-study-chat', {
@@ -166,25 +154,12 @@ What would you like to learn about today?`
       );
       
       if (error) {
-        console.error('❌ AI Study Chat API error:', {
-          error: error.message,
-          details: error,
-          promptType: analyzedState.promptType,
-          messageText: messageText.substring(0, 50) + '...'
-        });
         throw error;
       }
 
       if (!data?.response) {
-        console.warn('⚠️ AI Study Chat: No response data received');
         throw new Error('No response received from AI');
       }
-
-      console.log('✅ AI Study Chat response received:', {
-        source: data.source,
-        blueprintVersion: data.blueprintVersion,
-        promptType: data.metadata?.promptType
-      });
 
       const aiResponse = {
         role: 'assistant' as const,

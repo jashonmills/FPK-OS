@@ -48,8 +48,8 @@ class PerformanceMonitor {
         this.metrics.push(metric);
         this.renderTimes.delete(componentName);
 
-        // Log slow renders
-        if (renderTime > 100) {
+        // Log slow renders only in development
+        if (renderTime > 200) { // Increased threshold to reduce noise
           logger.performance(`Slow render detected: ${componentName} took ${renderTime.toFixed(2)}ms`, {
             componentName,
             renderTime,
@@ -151,12 +151,14 @@ export function usePerformanceTracking(name: string) {
   }, []);
 
   const endTracking = React.useCallback((metadata?: any) => {
-    if (startTime.current) {
+    if (startTime.current && import.meta.env.DEV) { // Only log in dev
       const duration = performance.now() - startTime.current;
-      logger.performance(`Custom metric: ${name}`, {
-        duration: `${duration.toFixed(2)}ms`,
-        metadata
-      });
+      if (duration > 100) { // Only log slow operations
+        logger.performance(`Custom metric: ${name}`, {
+          duration: `${duration.toFixed(2)}ms`,
+          metadata
+        });
+      }
       startTime.current = undefined;
     }
   }, [name]);

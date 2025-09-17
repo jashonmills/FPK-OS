@@ -110,12 +110,12 @@ const UserManagement = () => {
                 users={data.users}
                 isLoading={isLoading}
                 onAssignRole={(userId, role) => {
-                  // TODO: Implement role assignment
-                  console.log('Assign role:', userId, role);
+                  // Feature coming soon: Role assignment
+                  // Will connect to role management API
                 }}
                 onRemoveRole={(userId, role) => {
-                  // TODO: Implement role removal
-                  console.log('Remove role:', userId, role);
+                  // Feature coming soon: Role removal  
+                  // Will connect to role management API
                 }}
                 isAssigning={false}
                 isRemoving={false}

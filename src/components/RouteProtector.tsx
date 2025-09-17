@@ -23,19 +23,8 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     // Wait for auth to complete before making any navigation decisions
     if (authLoading) return;
 
-    console.log('🔐 RouteProtector check:', {
-      user: !!user,
-      authLoading,
-      subscriptionLoading,
-      hasAccess,
-      currentPath,
-      isDashboardRoute,
-      hasNavigated
-    });
-
     // Force redirect if stuck in loading state without auth
     if (isDashboardRoute && !user && !authLoading) {
-      console.log('🔒 No auth detected - forcing redirect to login');
       setHasNavigated(true);
       navigate('/login', { replace: true });
       return;
@@ -46,7 +35,6 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
     // PRIORITY 1: Redirect authenticated users away from login page immediately
     if (user && currentPath === '/login') {
-      console.log('🔄 Authenticated user on login page - immediate redirect to dashboard');
       setHasNavigated(true);
       navigate('/dashboard/learner', { replace: true });
       return;
@@ -54,7 +42,6 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
     // PRIORITY 2: If not authenticated and trying to access dashboard, redirect to login
     if (isDashboardRoute && !user) {
-      console.log('🔒 No auth - redirecting to login');
       setHasNavigated(true);
       navigate('/login', { replace: true });
       return;
@@ -62,13 +49,11 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
     // PRIORITY 3: Allow dashboard access for authenticated users, handle subscription later
     if (isDashboardRoute && user && subscriptionLoading) {
-      console.log('🔄 Authenticated user accessing dashboard - allowing while subscription loads');
       return; // Let them access dashboard, subscription gate will handle restrictions
     }
 
     // PRIORITY 4: Handle subscription requirements only after user is in dashboard
     if (isDashboardRoute && user && !subscriptionLoading && !hasAccess) {
-      console.log('🔒 No subscription access - redirecting to choose-plan');
       setHasNavigated(true);
       navigate('/choose-plan', { replace: true });
       return;
@@ -76,7 +61,6 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
     // PRIORITY 5: Redirect authenticated users with access away from plan page
     if (user && !subscriptionLoading && hasAccess && currentPath === '/choose-plan') {
-      console.log('🔄 Authenticated user with access on plan page - redirecting to dashboard');
       setHasNavigated(true);
       navigate('/dashboard/learner', { replace: true });
       return;

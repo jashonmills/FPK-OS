@@ -205,8 +205,8 @@ const LessonManager = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
-                                  // TODO: Implement lesson preview
-                                  console.log('Preview lesson:', lesson.id);
+                                  // Feature coming soon: Lesson preview
+                                  // Navigate to lesson preview when implemented
                                 }}
                               >
                                 <Eye className="h-4 w-4" />
@@ -215,8 +215,8 @@ const LessonManager = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
-                                  // TODO: Implement lesson editing
-                                  console.log('Edit lesson:', lesson.id);
+                                  // Feature coming soon: Lesson editing
+                                  // Open lesson edit modal when implemented
                                 }}
                               >
                                 <Edit2 className="h-4 w-4" />

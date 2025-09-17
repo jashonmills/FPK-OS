@@ -7,7 +7,6 @@ import ActiveLearningGoals from '@/components/goals/ActiveLearningGoals';
 import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
 import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
 import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
-import GoalDebugOverlay from '@/components/goals/GoalDebugOverlay';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
@@ -18,7 +17,6 @@ import { Button } from '@/components/ui/button';
 
 const Gamification = () => {
   const { getAccessibilityClasses } = useAccessibility();
-  const [showDebug, setShowDebug] = React.useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // Video storage hook
@@ -98,12 +96,6 @@ const Gamification = () => {
           <GamificationDashboard />
         </TabsContent>
       </Tabs>
-
-      {/* Debug overlay for development */}
-      <GoalDebugOverlay
-        show={showDebug}
-        onToggle={() => setShowDebug(!showDebug)}
-      />
     </div>
   );
 };

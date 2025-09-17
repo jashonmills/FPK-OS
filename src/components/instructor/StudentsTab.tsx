@@ -63,14 +63,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const activeStudents = students.filter(s => s.status === 'active');
   const pendingInvitations = invitations?.filter(i => i.status === 'pending') || [];
 
-  // Debug logging
-  console.log('StudentsTab Debug:', {
-    totalMembers: members?.length || 0,
-    allMembers: members,
-    students: students.length,
-    activeStudents: activeStudents.length,
-    pendingInvitations: pendingInvitations.length
-  });
+  // Removed excessive debug logging for performance
 
   const filteredStudents = students.filter(student => {
     const name = student.profiles?.display_name || student.profiles?.full_name || 'Unknown';

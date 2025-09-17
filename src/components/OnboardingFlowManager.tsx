@@ -32,15 +32,7 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       lastValidRoute.current = currentPath;
     }
     
-    // Log but don't spam
-    if (currentStep !== 'loading') {
-      console.log('🚀 OnboardingFlowManager:', {
-        currentStep,
-        currentPath,
-        shouldShowBetaOnboarding,
-        navigationLock
-      });
-    }
+    // Removed excessive logging for performance
 
     // Check route types
     const isDashboardRoute = currentPath.startsWith('/dashboard');
@@ -65,7 +57,6 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       case 'unauthenticated':
         // Only redirect if trying to access protected routes
         if (isProtectedRoute) {
-          console.log('🔒 Redirecting unauthenticated user from protected route:', currentPath);
           performNavigation('unauthenticated');
         }
         break;
@@ -73,7 +64,6 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       case 'choose-plan':
         // Only redirect if trying to access dashboard
         if (isDashboardRoute) {
-          console.log('🔒 Redirecting to plan selection from dashboard:', currentPath);
           performNavigation('choose-plan');
         }
         break;
@@ -81,7 +71,6 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       case 'dashboard':
         // Only redirect from auth/plan pages, restore intended route if possible
         if (currentPath === '/login' || currentPath === '/choose-plan') {
-          console.log('🔄 Navigating to dashboard from auth page:', currentPath);
           const targetRoute = lastValidRoute.current && lastValidRoute.current.startsWith('/dashboard') 
             ? lastValidRoute.current 
             : '/dashboard/learner';
