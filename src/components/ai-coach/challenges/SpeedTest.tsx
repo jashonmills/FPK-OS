@@ -7,9 +7,11 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 import { useCleanup } from '@/utils/cleanupManager';
 
+import { Flashcard } from '@/hooks/useFlashcards';
+
 interface SpeedTestProps {
-  flashcards?: any[];
-  customCards?: any[];
+  flashcards?: Flashcard[];
+  customCards?: Flashcard[];
 }
 
 const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {

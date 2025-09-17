@@ -5,6 +5,15 @@ import { AnalyticsCard } from './AnalyticsCard';
 import { TrendingUp } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useStudySessions } from '@/hooks/useStudySessions';
+import { SessionData, ChartDataPoint } from '@/types/analytics-data';
+
+export interface ExtendedChartDataPoint extends ChartDataPoint {
+  week?: string;
+  totalSessions?: number;
+  totalAccuracy?: number;
+  accuracy?: number;
+  color?: string;
+}
 
 const StudyPerformanceCard: React.FC = () => {
   const { sessions, isLoading } = useStudySessions();
@@ -14,7 +23,7 @@ const StudyPerformanceCard: React.FC = () => {
     if (!sessions || sessions.length === 0) return [];
 
     // Group sessions by week and calculate average accuracy
-    const weeklyData = sessions.reduce((acc: any[], session) => {
+    const weeklyData = sessions.reduce((acc: ExtendedChartDataPoint[], session) => {
       const date = new Date(session.created_at);
       const weekStart = new Date(date.setDate(date.getDate() - date.getDay()));
       const weekKey = weekStart.toISOString().split('T')[0];
@@ -31,6 +40,8 @@ const StudyPerformanceCard: React.FC = () => {
         existingWeek.accuracy = Math.round(existingWeek.totalAccuracy / existingWeek.totalSessions);
       } else {
         acc.push({
+          name: weekKey,
+          value: accuracy,
           week: weekKey,
           date: weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
           accuracy: accuracy,

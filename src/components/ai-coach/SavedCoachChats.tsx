@@ -26,7 +26,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface SavedCoachChatsProps {
+  onToggleHistory?: () => void;
   onLoadChat?: (chatId: string, messages: any[]) => void;
+  onNewChat?: () => void;
   className?: string;
 }
 

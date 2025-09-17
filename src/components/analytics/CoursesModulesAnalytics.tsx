@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen } from 'lucide-react';
+import { EnrollmentData } from '@/types/analytics-data';
 
 interface CoursesModulesAnalyticsProps {
-  enrollments?: any[];
+  enrollments?: EnrollmentData[];
 }
 
 const CoursesModulesAnalytics: React.FC<CoursesModulesAnalyticsProps> = ({ enrollments }) => {
@@ -36,7 +37,7 @@ const CoursesModulesAnalytics: React.FC<CoursesModulesAnalyticsProps> = ({ enrol
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {enrollments.slice(0, 6).map((enrollment, index) => {
-        const progress = enrollment.progress?.completion_percentage || 0;
+        const progress = enrollment.progress || 0;
         return (
           <Card key={enrollment.course_id || index} className="p-4">
             <CardHeader>

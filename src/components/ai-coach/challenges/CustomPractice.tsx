@@ -6,8 +6,10 @@ import { CheckSquare, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
+import { Flashcard } from '@/hooks/useFlashcards';
+
 interface CustomPracticeProps {
-  selectedCards: any[];
+  selectedCards: Flashcard[];
 }
 
 const CustomPractice: React.FC<CustomPracticeProps> = ({ selectedCards }) => {

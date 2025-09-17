@@ -182,11 +182,10 @@ export const InteractiveCourseAnalyticsDashboard: React.FC = () => {
       'interactive-science': 'Interactive Science',
       'neurodiversity-strengths-based-approach': 'Neurodiversity Strengths-Based Approach',
       'el-spelling-reading': 'EL Spelling & Reading'
-    };
     return titles[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const processCourseAnalytics = (enrollments: any[], lessons: any[]): CourseAnalytics[] => {
+  const processCourseAnalytics = (enrollments: EnrollmentData[], lessons: LessonData[]): CourseAnalytics[] => {
     const courseMap = new Map<string, any>();
 
     // Process enrollments

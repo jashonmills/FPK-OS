@@ -6,9 +6,11 @@ import { BookOpen, ArrowRight, Check } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
+import { Flashcard } from '@/hooks/useFlashcards';
+
 interface QuickReviewProps {
-  flashcards?: any[];
-  customCards?: any[];
+  flashcards?: Flashcard[];
+  customCards?: Flashcard[];
 }
 
 const QuickReview: React.FC<QuickReviewProps> = ({ customCards }) => {

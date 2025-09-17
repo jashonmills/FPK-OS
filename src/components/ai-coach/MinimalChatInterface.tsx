@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Brain, User, Bot } from 'lucide-react';
 
+import { Flashcard } from '@/hooks/useFlashcards';
+import { ChatSession, UserProfile, UserInsights } from '@/types/ai-coach';
+
 interface MinimalChatInterfaceProps {
-  user: any;
-  completedSessions: any[];
-  flashcards: any[];
-  insights: any;
+  user: UserProfile;
+  completedSessions: ChatSession[];
+  flashcards: Flashcard[];
+  insights: UserInsights;
   fixedHeight?: boolean;
 }
 

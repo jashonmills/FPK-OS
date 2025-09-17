@@ -6,9 +6,11 @@ import { Target, Check, X } from 'lucide-react';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useChallengeAnalytics } from '@/hooks/useChallengeAnalytics';
 
+import { Flashcard } from '@/hooks/useFlashcards';
+
 interface AccuracyChallengeProps {
-  flashcards?: any[];
-  customCards?: any[];
+  flashcards?: Flashcard[];
+  customCards?: Flashcard[];
 }
 
 const AccuracyChallenge: React.FC<AccuracyChallengeProps> = ({ customCards }) => {

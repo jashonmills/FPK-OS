@@ -3,11 +3,12 @@ import React, { useMemo } from 'react';
 import { ResponsiveContainer, BarChart, LineChart, AreaChart, PieChart, ScatterChart, Bar, Line, Area, Pie, Cell, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { ChartDefinition } from '@/config/chartDefinitions';
+import { ChartDataPoint } from '@/types/analytics-data';
 
 interface DeclarativeChartProps {
   definition: ChartDefinition;
-  data: any[];
-  filters?: Record<string, any>;
+  data: ChartDataPoint[];
+  filters?: Record<string, unknown>;
   className?: string;
 }
 
@@ -151,7 +152,7 @@ export const DeclarativeChart: React.FC<DeclarativeChartProps> = ({
               nameKey="name"
             >
               {filteredData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color || definition.config.series[0]?.color} />
+                <Cell key={`cell-${index}`} fill={(entry as any).color || definition.config.series[0]?.color} />
               ))}
             </Pie>
             <ChartTooltip content={<ChartTooltipContent />} />
