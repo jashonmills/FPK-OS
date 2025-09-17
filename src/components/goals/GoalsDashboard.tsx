@@ -14,8 +14,6 @@ import ReadingProgressWidget from './ReadingProgressWidget';
 import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoundary';
 
 export const GoalsDashboard = () => {
-  console.log('🎯 GoalsDashboard rendering');
-  
   const { goals = [], loading, error, refetch } = useGoals();
   const { t } = useDualLanguage();
   const navigate = useNavigate();

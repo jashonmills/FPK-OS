@@ -9,7 +9,7 @@ export class GA4Setup {
   private measurementId: string;
   private isInitialized = false;
 
-  constructor(measurementId: string = 'G-XXXXXXXXXX') {
+  constructor(measurementId: string = 'G-DISABLED') { // Analytics disabled until configured
     this.measurementId = measurementId;
   }
 
@@ -17,7 +17,8 @@ export class GA4Setup {
    * Initialize Google Analytics 4
    */
   public initialize(): void {
-    if (this.isInitialized || typeof window === 'undefined') {
+    // Skip initialization if analytics is disabled
+    if (this.measurementId === 'G-DISABLED' || this.isInitialized || typeof window === 'undefined') {
       return;
     }
 
@@ -232,16 +233,20 @@ const getGA4MeasurementId = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     
+    // Production environments - configure actual analytics when needed
     if (hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
-      return 'G-XXXXXXXXXX'; // Replace with actual measurement ID
+      return process.env.GA4_MEASUREMENT_ID || 'G-DISABLED'; // Disabled until configured
     }
     
+    // Development environment - disable analytics to avoid noise
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'G-XXXXXXXXXX'; // Use test measurement ID for development
+      return 'G-DISABLED'; // Disabled in development
     }
+    
+    return 'G-DISABLED'; // Disabled by default until properly configured
   }
   
-  return 'G-XXXXXXXXXX'; // Default measurement ID
+  return 'G-DISABLED';
 };
 
 // Global GA4 instance

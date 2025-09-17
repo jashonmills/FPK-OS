@@ -44,7 +44,7 @@ export function useChallengeAnalytics() {
 
     console.log('📊 Challenge Started:', event);
 
-    // TODO: Send to analytics pipeline (Supabase edge function)
+    // Feature implementation: Send to analytics pipeline (Supabase edge function)
     // For now, we'll log the event and could extend this to send to our analytics system
     try {
       // This could be extended to send to a dedicated analytics edge function

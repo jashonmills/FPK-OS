@@ -1,8 +1,8 @@
 import React from 'react';
-import { ConceptScreen, TeachingMoment, ConceptSection } from '../../../micro-lessons/ConceptScreen';
-import { ExampleScreen, StepList } from '../../../micro-lessons/ExampleScreen';
-import { PracticeScreen } from '../../../micro-lessons/PracticeScreen';
-import { MicroLessonData, MicroLessonScreen } from '../../../micro-lessons/MicroLessonContainer';
+import { ConceptScreen, TeachingMoment, ConceptSection } from '@/components/micro-lessons/ConceptScreen';
+import { ExampleScreen, StepList } from '@/components/micro-lessons/ExampleScreen';
+import { PracticeScreen } from '@/components/micro-lessons/PracticeScreen';
+import { MicroLessonData, MicroLessonScreen } from '@/components/micro-lessons/MicroLessonContainer';
 import { CheckCircle, Lightbulb, Atom, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';

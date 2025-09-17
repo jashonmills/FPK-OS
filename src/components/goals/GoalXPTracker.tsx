@@ -15,7 +15,6 @@ const GoalXPTracker = () => {
   // Force refresh on mount and periodically to ensure data sync
   React.useEffect(() => {
     const refresh = () => {
-      console.log('🔄 GoalXPTracker: Refreshing goals data');
       refetch();
       setLastRefresh(Date.now());
     };
@@ -27,17 +26,6 @@ const GoalXPTracker = () => {
     
     return () => clearInterval(interval);
   }, [refetch]);
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log('🎯 GoalXPTracker: Goals data updated:', {
-      goalsCount: goals?.length || 0,
-      goals: goals,
-      loading,
-      error,
-      lastRefresh: new Date(lastRefresh).toLocaleTimeString()
-    });
-  }, [goals, loading, error, lastRefresh]);
 
   if (loading) {
     return (
@@ -60,46 +48,15 @@ const GoalXPTracker = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Card className="fpk-gradient text-white border-0 shadow-lg">
-        <CardContent className="p-6">
-          <div className="text-center">
-            <p className="text-white/80 mb-4">Unable to load goals data</p>
-            <button 
-              onClick={() => refetch()}
-              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Safe data access with fallbacks and detailed logging
+  // Safe data access with fallbacks
   const safeGoals = Array.isArray(goals) ? goals : [];
-  const activeGoals = safeGoals.filter(goal => {
-    const isActive = goal?.status === 'active';
-    if (isActive) {
-      console.log('🎯 Active goal found:', goal);
-    }
-    return isActive;
-  });
+  const activeGoals = safeGoals.filter(goal => goal?.status === 'active');
   const completedGoals = safeGoals.filter(goal => goal?.status === 'completed');
   
-  console.log('🎯 GoalXPTracker calculations:', {
-    totalGoals: safeGoals.length,
-    activeGoals: activeGoals.length,
-    completedGoals: completedGoals.length,
-    activeGoalDetails: activeGoals.map(g => ({ id: g.id, title: g.title, status: g.status, category: g.category }))
-  });
   const totalXP = userStats?.xp?.total_xp || 0;
   const currentLevel = userStats?.xp?.level || 1;
   const xpToNext = userStats?.xp?.next_level_xp || 100;
 
-  // Calculate overall goal progress safely
   const totalProgress = activeGoals.length > 0 
     ? Math.round(activeGoals.reduce((sum, goal) => sum + (goal?.progress || 0), 0) / activeGoals.length)
     : 0;

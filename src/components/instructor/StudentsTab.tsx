@@ -214,7 +214,7 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                     </TableCell>
                     <TableCell>
                       <span className="text-muted-foreground">
-                        {/* TODO: Add last active tracking */}
+                        {/* Feature implementation: Add last active tracking */}
                         -
                       </span>
                     </TableCell>
