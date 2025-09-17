@@ -25,6 +25,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
+interface SecurityIncidentSystems {
+  systems?: string[];
+  components?: string[];
+  [key: string]: unknown;
+}
+
+interface SecurityIncidentDataTypes {
+  phi?: boolean;
+  personal_data?: boolean;
+  financial?: boolean;
+  [key: string]: unknown;
+}
+
 interface SecurityIncident {
   id: string;
   incident_type: string;
@@ -34,7 +47,7 @@ interface SecurityIncident {
   detection_timestamp: string;
   affected_users_count: number;
   regulatory_reporting_required: boolean;
-  notifications_sent: any;
+  notifications_sent: SecurityIncidentSystems | null;
 }
 
 interface IncidentAction {
@@ -90,15 +103,15 @@ export function SecurityIncidentManager() {
       incident_type: string;
       description: string;
       severity_level: string;
-      affected_systems?: any;
-      data_types_affected?: any;
+      affected_systems?: SecurityIncidentSystems;
+      data_types_affected?: SecurityIncidentDataTypes;
     }) => {
       const { data, error } = await supabase.rpc('detect_security_incident', {
         p_incident_type: incidentData.incident_type,
         p_description: incidentData.description,
         p_severity_level: incidentData.severity_level,
-        p_affected_systems: incidentData.affected_systems,
-        p_data_types_affected: incidentData.data_types_affected,
+        p_affected_systems: incidentData.affected_systems || null,
+        p_data_types_affected: incidentData.data_types_affected || null,
       });
       
       if (error) throw error;

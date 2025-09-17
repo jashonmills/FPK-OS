@@ -25,9 +25,16 @@ import { useSavedCoachChats } from '@/hooks/useSavedCoachChats';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
+interface ChatMessage {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant' | 'system';
+  timestamp: string;
+}
+
 interface SavedCoachChatsProps {
   onToggleHistory?: () => void;
-  onLoadChat?: (chatId: string, messages: any[]) => void;
+  onLoadChat?: (chatId: string, messages: ChatMessage[]) => void;
   onNewChat?: () => void;
   className?: string;
 }
@@ -54,7 +61,7 @@ export const SavedCoachChats: React.FC<SavedCoachChatsProps> = ({
     chat.preview?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleStartEdit = (chat: any) => {
+  const handleStartEdit = (chat: { id: string; title: string }) => {
     setEditingChatId(chat.id);
     setEditTitle(chat.title);
   };

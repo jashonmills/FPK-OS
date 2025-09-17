@@ -10,20 +10,22 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, Save, X } from 'lucide-react';
 
+interface ThresholdData {
+  id?: string;
+  metric_name: string;
+  upper_threshold: number;
+  lower_threshold: number;
+  time_window: string;
+  status: string;
+  risk_level: string;
+  user_segment?: string;
+  description?: string;
+}
+
 interface ThresholdConfigEditorProps {
-  threshold?: {
-    id?: string;
-    metric_name: string;
-    upper_threshold: number;
-    lower_threshold: number;
-    time_window: string;
-    status: string;
-    risk_level: string;
-    user_segment?: string;
-    description?: string;
-  };
+  threshold?: ThresholdData;
   userSegments: Array<{ id: string; name: string }>;
-  onSave: (threshold: any) => void;
+  onSave: (threshold: ThresholdData) => void;
   onCancel: () => void;
 }
 
@@ -54,7 +56,7 @@ const ThresholdConfigEditor: React.FC<ThresholdConfigEditorProps> = ({
     });
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -5,6 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Play, FileText, Headphones, Image, Download } from 'lucide-react';
 
+interface ModuleMetadata {
+  video_url?: string;
+  audio_url?: string;
+  pdf_url?: string;
+  word_url?: string;
+  image_url?: string;
+  embed_url?: string;
+  [key: string]: unknown;
+}
+
 interface ModuleViewerProps {
   module: {
     id: string;
@@ -16,7 +26,7 @@ interface ModuleViewerProps {
     pdf_url?: string;
     word_url?: string;
     image_url?: string;
-    metadata?: any;
+    metadata?: ModuleMetadata;
   };
 }
 

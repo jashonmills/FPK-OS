@@ -5,6 +5,22 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { Target, TrendingUp, Users, Award } from 'lucide-react';
 
+interface GoalCategoryStats {
+  category: string;
+  count: number;
+  completed: number;
+}
+
+interface UserPerformance {
+  total: number;
+  completed: number;
+}
+
+interface TopGoal {
+  title: string;
+  count: number;
+}
+
 const AdminGoalsAnalytics = () => {
   const { data: goalsStats, isLoading } = useQuery({
     queryKey: ['admin-goals-analytics'],
@@ -20,8 +36,19 @@ const AdminGoalsAnalytics = () => {
       const uniqueUsers = new Set(goals?.map(g => g.user_id) || []).size;
       const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
+interface GoalCategoryStats {
+  category: string;
+  count: number;
+  completed: number;
+}
+
+interface UserPerformance {
+  total: number;
+  completed: number;
+}
+
       // Group by category for breakdown
-      const categoryStats = goals?.reduce((acc: Record<string, any>, goal) => {
+      const categoryStats = goals?.reduce((acc: Record<string, GoalCategoryStats>, goal) => {
         const category = goal.category || 'Other';
         if (!acc[category]) {
           acc[category] = { category, count: 0, completed: 0 };
@@ -34,11 +61,11 @@ const AdminGoalsAnalytics = () => {
       }, {}) || {};
 
       const goalCategories = Object.values(categoryStats)
-        .sort((a: any, b: any) => b.count - a.count)
+        .sort((a: GoalCategoryStats, b: GoalCategoryStats) => b.count - a.count)
         .slice(0, 5);
 
       // Calculate user performance insights
-      const userPerformance = goals?.reduce((acc: Record<string, any>, goal) => {
+      const userPerformance = goals?.reduce((acc: Record<string, UserPerformance>, goal) => {
         const userId = goal.user_id;
         if (!acc[userId]) {
           acc[userId] = { total: 0, completed: 0 };
@@ -50,7 +77,7 @@ const AdminGoalsAnalytics = () => {
         return acc;
       }, {}) || {};
 
-      const performanceCategories = Object.values(userPerformance).map((user: any) => {
+      const performanceCategories = Object.values(userPerformance).map((user: UserPerformance) => {
         const rate = user.total > 0 ? (user.completed / user.total) * 100 : 0;
         return rate;
       });
@@ -168,7 +195,7 @@ const AdminGoalsAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {goalsStats?.goalCategories?.map((category: any) => {
+            {goalsStats?.goalCategories?.map((category: GoalCategoryStats) => {
               const completionPercentage = Math.round((category.completed / category.count) * 100);
               return (
                 <div key={category.category}>
@@ -225,7 +252,7 @@ const AdminGoalsAnalytics = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {goalsStats?.topGoals?.map((goal: any, index: number) => (
+              {goalsStats?.topGoals?.map((goal: TopGoal, index: number) => (
                 <div key={goal.title} className="flex items-center justify-between">
                   <span className="text-sm">{goal.title}</span>
                   <span className="text-sm font-semibold">{goal.count} users</span>
