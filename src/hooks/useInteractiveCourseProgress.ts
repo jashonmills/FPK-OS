@@ -127,7 +127,7 @@ export const useInteractiveCourseProgress = (courseId: string) => {
           completed_at: new Date().toISOString(),
           started_at: new Date().toISOString() // Will be overridden if record exists
         }, {
-          onConflict: 'user_id,course_id,lesson_id,started_at',
+          onConflict: 'user_id,course_id,lesson_id',
           ignoreDuplicates: false
         });
 
