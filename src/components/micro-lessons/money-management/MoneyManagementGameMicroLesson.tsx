@@ -380,12 +380,17 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     
     // Reset delay when component mounts
     useEffect(() => {
+      console.log('🎯 ScenarioOutcome mounted, starting 3-second timer');
       setOutcomeDelayComplete(false);
       const timer = setTimeout(() => {
+        console.log('🎯 Timer complete - showing Continue button');
         setOutcomeDelayComplete(true);
       }, 3000); // 3 second delay to force reading
 
-      return () => clearTimeout(timer);
+      return () => {
+        console.log('🎯 Timer cleanup');
+        clearTimeout(timer);
+      };
     }, [lastChoice]);
 
     // Parse financial impacts for detailed breakdown
@@ -582,23 +587,32 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                       style={{ width: '100%' }}
                     />
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    Timer state: {outcomeDelayComplete ? 'Complete' : 'Waiting...'}
+                  </div>
                 </div>
               ) : (
-                <Button 
-                  size="lg" 
-                  onClick={() => {
-                    dispatch({ type: 'CONTINUE_FROM_OUTCOME' });
-                    trackGameInteraction('scenario_outcome_completed', {
-                      scenario: scenario.title,
-                      choice: option.text,
-                      outcome: isPositiveOutcome ? 'positive' : 'negative'
-                    });
-                  }}
-                  className="w-full max-w-md mx-auto flex items-center gap-2"
-                >
-                  Continue to Next Scenario
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    size="lg" 
+                    onClick={() => {
+                      console.log('🎯 Continue button clicked!');
+                      dispatch({ type: 'CONTINUE_FROM_OUTCOME' });
+                      trackGameInteraction('scenario_outcome_completed', {
+                        scenario: scenario.title,
+                        choice: option.text,
+                        outcome: isPositiveOutcome ? 'positive' : 'negative'
+                      });
+                    }}
+                    className="w-full max-w-md mx-auto flex items-center gap-2"
+                  >
+                    Continue to Next Scenario
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                  <div className="text-xs text-green-600">
+                    ✅ Timer complete - showing continue button
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
