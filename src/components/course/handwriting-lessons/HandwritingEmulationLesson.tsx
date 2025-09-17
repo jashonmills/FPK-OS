@@ -2,8 +2,9 @@ import React from 'react';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Copy, Eye } from 'lucide-react';
+import { LessonProps } from '@/types/course';
 
-export const HandwritingEmulationLesson: React.FC<any> = ({ onComplete }) => {
+export const HandwritingEmulationLesson: React.FC<LessonProps> = ({ onComplete }) => {
   return (
     <InteractiveLessonWrapper
       courseId="empowering-learning-handwriting"

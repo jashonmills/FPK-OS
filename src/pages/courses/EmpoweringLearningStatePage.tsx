@@ -25,16 +25,9 @@ import { LookingUpLesson } from '@/components/course/learning-state-lessons/Look
 import { WorkingTimeLimitsLesson } from '@/components/course/learning-state-lessons/WorkingTimeLimitsLesson';
 import { UseImaginationLesson } from '@/components/course/learning-state-lessons/UseImaginationLesson';
 
-interface Lesson {
-  id: number;
-  title: string;
-  description: string;
-  component: React.ComponentType<any>;
-  unit: string;
-  unitColor: string;
-}
+import { CourseLesson } from '@/types/course';
 
-const lessons: Lesson[] = [
+const lessons: CourseLesson[] = [
   { id: 1, title: "Introduction", description: "Getting Into The Most Effective Learning State", component: IntroductionLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "Learning Techniques", description: "Overview of techniques for optimal learning", component: TechniquesLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
   { id: 3, title: "Big Strong Tree", description: "Planting and grounding technique", component: BigStrongTreeLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },

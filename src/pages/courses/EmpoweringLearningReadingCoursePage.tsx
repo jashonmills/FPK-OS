@@ -29,16 +29,9 @@ import { ReadingBeyondReadingLesson } from '@/components/course/reading-lessons/
 import { ReadingQuizLesson } from '@/components/course/reading-lessons/ReadingQuizLesson';
 import { ReadingFinalTestLesson } from '@/components/course/reading-lessons/ReadingFinalTestLesson';
 
-interface Lesson {
-  id: number;
-  title: string;
-  description: string;
-  component: React.ComponentType<any>;
-  unit: string;
-  unitColor: string;
-}
+import { CourseLesson } from '@/types/course';
 
-const lessons: Lesson[] = [
+const lessons: CourseLesson[] = [
   { id: 1, title: "Introduction", description: "A new perspective on learning to read", component: ReadingIntroductionLesson, unit: "Welcome to the Programme", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Optimal Learning State", description: "Calm your nervous system for effective reading", component: ReadingOptimalLearningStateLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "The Reading Technique", description: "Proper positioning and emotional state for reading", component: ReadingTechniqueLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },

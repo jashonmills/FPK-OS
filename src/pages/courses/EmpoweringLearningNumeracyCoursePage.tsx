@@ -30,16 +30,9 @@ import { NumeracyBeyondLesson } from '@/components/course/numeracy-lessons/Numer
 import { NumeracyQuizLesson } from '@/components/course/numeracy-lessons/NumeracyQuizLesson';
 import { NumeracyFinalTestLesson } from '@/components/course/numeracy-lessons/NumeracyFinalTestLesson';
 
-interface Lesson {
-  id: number;
-  title: string;
-  description: string;
-  component: React.ComponentType<any>;
-  unit: string;
-  unitColor: string;
-}
+import { CourseLesson } from '@/types/course';
 
-const lessons: Lesson[] = [
+const lessons: CourseLesson[] = [
   { id: 1, title: "Introduction", description: "A new perspective on learning mathematics", component: NumeracyIntroductionLesson, unit: "Welcome to the Programme", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Optimal Learning State", description: "Calm your nervous system for effective learning", component: NumeracyOptimalLearningStateLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Why Numbers Are Shaped The Way They Are", description: "Understanding number symbols and their visual meaning", component: NumeracyNumberShapesLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },

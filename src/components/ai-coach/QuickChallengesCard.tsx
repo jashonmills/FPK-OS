@@ -9,12 +9,13 @@ import SpeedTest from './challenges/SpeedTest';
 import CustomPractice from './challenges/CustomPractice';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Flashcard } from '@/hooks/useFlashcards';
 
 interface Challenge {
   id: string;
   text: string;
   customText: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   action: () => void;
   component: React.ComponentType<any>;
   colorClass: string;
@@ -28,7 +29,7 @@ interface QuickChallengesCardProps {
 const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges }) => {
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
-  const [customSelectedCards, setCustomSelectedCards] = useState<any[]>([]);
+  const [customSelectedCards, setCustomSelectedCards] = useState<Flashcard[]>([]);
   const [isCustomModeActive, setIsCustomModeActive] = useState(false);
   const [componentError, setComponentError] = useState<string | null>(null);
 
@@ -78,7 +79,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
 
   const activeChallengData = enhancedChallenges.find(c => c.id === activeChallenge);
 
-  const handleCustomPracticeStart = (selectedFlashcards: any[]) => {
+  const handleCustomPracticeStart = (selectedFlashcards: Flashcard[]) => {
     try {
       // Validate flashcards data
       if (!Array.isArray(selectedFlashcards)) {

@@ -3,15 +3,16 @@ import { useState, useEffect } from 'react';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
+import { AnalyticsCard, AnalyticsCardProps } from '@/types/analytics';
 
 export interface AnalyticsCardConfig {
   id: string;
   title: string;
-  component: React.ComponentType<any>;
+  component: React.ComponentType<AnalyticsCardProps>;
   featureFlag?: string;
   order: number;
   enabled: boolean;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
 }
 
 export const useAnalyticsCards = () => {

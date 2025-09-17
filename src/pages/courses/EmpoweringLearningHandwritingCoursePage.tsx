@@ -28,16 +28,9 @@ import { HandwritingBeyondLesson } from '@/components/course/handwriting-lessons
 import { HandwritingQuizLesson } from '@/components/course/handwriting-lessons/HandwritingQuizLesson';
 import { HandwritingFinalTestLesson } from '@/components/course/handwriting-lessons/HandwritingFinalTestLesson';
 
-interface Lesson {
-  id: number;
-  title: string;
-  description: string;
-  component: React.ComponentType<any>;
-  unit: string;
-  unitColor: string;
-}
+import { CourseLesson } from '@/types/course';
 
-const lessons: Lesson[] = [
+const lessons: CourseLesson[] = [
   { id: 1, title: "Introduction", description: "Welcome to handwriting mastery and your learning journey", component: HandwritingIntroductionLesson, unit: "Getting Started", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Optimal Learning State", description: "Prepare your mind and body for effective handwriting practice", component: HandwritingOptimalLearningStateLesson, unit: "Foundation Skills", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Core Handwriting Techniques", description: "Master essential grip, posture, and letter formation principles", component: HandwritingTechniqueLesson, unit: "Foundation Skills", unitColor: "bg-green-100 text-green-700" },

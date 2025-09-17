@@ -31,16 +31,9 @@ import { QuizLesson } from '@/components/course/spelling-lessons/QuizLesson';
 import { EssayQuestionsLesson } from '@/components/course/spelling-lessons/EssayQuestionsLesson';
 import { GlossaryLesson } from '@/components/course/spelling-lessons/GlossaryLesson';
 
-interface Lesson {
-  id: number;
-  title: string;
-  description: string;
-  component: React.ComponentType<any>;
-  unit: string;
-  unitColor: string;
-}
+import { CourseLesson } from '@/types/course';
 
-const lessons: Lesson[] = [
+const lessons: CourseLesson[] = [
   { id: 1, title: "Introduction", description: "Welcome to the programme with Allen O'Donoghue", component: IntroductionLesson, unit: "Welcome to the Programme", unitColor: "bg-blue-100 text-blue-700" },
   { id: 2, title: "The Optimal Learning State", description: "Learn to achieve the calm state needed for effective learning", component: OptimalLearningStateLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
   { id: 3, title: "Empowering Learning - Nouns", description: "Foundation concepts for visual spelling with nouns", component: EmpoweringLearningNounsLesson, unit: "The Learning Process", unitColor: "bg-green-100 text-green-700" },
