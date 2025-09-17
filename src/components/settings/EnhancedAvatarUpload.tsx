@@ -77,10 +77,10 @@ const EnhancedAvatarUpload: React.FC<EnhancedAvatarUploadProps> = ({
         title: "Avatar updated",
         description: "Your profile picture has been updated successfully.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to upload avatar.",
+        description: error instanceof Error ? error.message : "Failed to upload avatar.",
         variant: "destructive",
       });
     } finally {

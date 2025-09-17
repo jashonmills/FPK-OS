@@ -5,9 +5,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle, Lightbulb, Target, BookOpen, ChevronRight, AlertCircle } from 'lucide-react';
 
+interface InteractionDetails {
+  lessonId?: string;
+  action?: string;
+  element?: string;
+  value?: string | number;
+  timestamp?: number;
+  [key: string]: unknown;
+}
+
 interface TrigonometryEquationsMicroLessonProps {
   onComplete?: () => void;
-  trackInteraction?: (action: string, details: any) => void;
+  trackInteraction?: (action: string, details: InteractionDetails) => void;
 }
 
 const TrigonometryEquationsMicroLesson: React.FC<TrigonometryEquationsMicroLessonProps> = ({

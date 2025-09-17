@@ -15,7 +15,7 @@ interface LanguageSettingsProps {
   timeFormat: string;
   dateFormat: string;
   timezone: string;
-  onChange: (key: string, value: any) => void;
+  onChange: (key: string, value: string | number | boolean) => void;
 }
 
 const LANGUAGES = [

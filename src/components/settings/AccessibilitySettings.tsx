@@ -18,7 +18,7 @@ interface AccessibilitySettingsProps {
   colorContrast: string;
   comfortMode: string;
   speechToTextEnabled: boolean;
-  onChange: (key: string, value: any) => void;
+  onChange: (key: string, value: string | number | boolean) => void;
 }
 
 const AccessibilitySettings: React.FC<AccessibilitySettingsProps> = ({

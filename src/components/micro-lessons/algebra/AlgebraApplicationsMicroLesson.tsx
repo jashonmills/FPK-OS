@@ -461,11 +461,20 @@ const algebraApplicationsData: MicroLessonData = {
   ]
 };
 
+interface InteractionDetails {
+  lessonId?: string;
+  action?: string;
+  element?: string;
+  value?: string | number;
+  timestamp?: number;
+  [key: string]: unknown;
+}
+
 interface AlgebraApplicationsMicroLessonProps {
   onComplete?: () => void;
   onNext?: () => void;
   hasNext?: boolean;
-  trackInteraction?: (event: string, details: any) => void;
+  trackInteraction?: (event: string, details: InteractionDetails) => void;
 }
 
 export const AlgebraApplicationsMicroLesson: React.FC<AlgebraApplicationsMicroLessonProps> = ({

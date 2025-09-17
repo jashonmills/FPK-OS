@@ -2,11 +2,20 @@ import React, { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator } from 'lucide-react';
 
+interface InteractionDetails {
+  lessonId?: string;
+  action?: string;
+  element?: string;
+  value?: string | number;
+  timestamp?: number;
+  [key: string]: unknown;
+}
+
 interface LinearEquationsLesson2Props {
   onComplete: () => void;
   onNext: () => void;
   hasNext: boolean;
-  trackInteraction?: (event: string, details: any) => void;
+  trackInteraction?: (event: string, details: InteractionDetails) => void;
 }
 
 export const LinearEquationsLesson2: React.FC<LinearEquationsLesson2Props> = ({ 

@@ -19,7 +19,7 @@ interface ProfileSectionProps {
     learning_styles: string[];
   };
   userEmail: string;
-  onFormChange: (key: string, value: any) => void;
+  onFormChange: (key: string, value: string | number | boolean | string[]) => void;
 }
 
 const ProfileSection: React.FC<ProfileSectionProps> = ({

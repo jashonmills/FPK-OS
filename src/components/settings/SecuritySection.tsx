@@ -13,7 +13,7 @@ interface SecuritySectionProps {
   formData: {
     two_factor_enabled: boolean;
   };
-  onFormChange: (key: string, value: any) => void;
+  onFormChange: (key: string, value: string | number | boolean) => void;
   onPasswordChange: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 

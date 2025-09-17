@@ -21,7 +21,7 @@ interface NotificationSectionProps {
       module_nudges: boolean;
     };
   };
-  onFormChange: (key: string, value: any) => void;
+  onFormChange: (key: string, value: string | number | boolean) => void;
   onEmailNotificationChange: (key: string, value: boolean) => void;
   onAppReminderChange: (key: string, value: boolean) => void;
 }
