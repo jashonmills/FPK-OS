@@ -82,7 +82,7 @@ const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
-const OrganizationSettings = lazy(() => import("./pages/instructor/OrganizationSettings"));
+const OrgSettings = lazy(() => import("./pages/dashboard/org/settings"));
 const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
@@ -241,7 +241,7 @@ const App: React.FC = () => {
             {/* Instructor Routes */}
             <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
             <Route path="instructor/students/:studentId/progress" element={<LazyRoute><StudentProgress /></LazyRoute>} />
-            <Route path="instructor/organization" element={<LazyRoute><OrganizationSettings /></LazyRoute>} />
+            <Route path="instructor/organization" element={<LazyRoute><OrgSettings /></LazyRoute>} />
             <Route path="instructor/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path="instructor/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
             <Route path="instructor/assignments" element={<LazyRoute><AssignmentsManagement /></LazyRoute>} />
@@ -592,6 +592,7 @@ const App: React.FC = () => {
           }>
             <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
+            <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />
           </Route>
           
           {/* Forbidden Page */}
