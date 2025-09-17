@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -110,8 +111,8 @@ export function SecurityIncidentManager() {
         p_incident_type: incidentData.incident_type,
         p_description: incidentData.description,
         p_severity_level: incidentData.severity_level,
-        p_affected_systems: incidentData.affected_systems || null,
-        p_data_types_affected: incidentData.data_types_affected || null,
+        p_affected_systems: (incidentData.affected_systems || null) as Json,
+        p_data_types_affected: (incidentData.data_types_affected || null) as Json,
       });
       
       if (error) throw error;
