@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator } from 'lucide-react';
 import { getExtractedLessonContent, parseContentForDisplay, extractTitleFromContent } from '@/utils/algebraContentParser';
@@ -49,7 +50,7 @@ export const AlgebraLesson3: React.FC<AlgebraLesson3Props> = ({
           {lessonContent ? (
             <div 
               className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: lessonContent }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lessonContent) }}
             />
           ) : (
             <div className="space-y-4">
