@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Menu, Clock, Target } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, Clock, Target, Trophy } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export interface MicroLessonScreen {
@@ -39,7 +39,20 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   const currentScreen = lessonData.screens[currentScreenIndex];
-  const progress = ((currentScreenIndex + 1) / lessonData.totalScreens) * 100;
+  const progress = ((currentScreenIndex + 1) / lessonData.screens.length) * 100;
+
+  // Safety check - ensure currentScreen exists
+  if (!currentScreen) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
+          <CardContent className="p-6 text-center">
+            <p className="text-red-700">Unable to load course content. Please refresh the page.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Update time spent every second
   useEffect(() => {
@@ -51,7 +64,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
   }, [startTime]);
 
   const handleNext = () => {
-    if (currentScreenIndex < lessonData.totalScreens - 1) {
+    if (currentScreenIndex < lessonData.screens.length - 1) {
       setCurrentScreenIndex(currentScreenIndex + 1);
     } else if (!isCompleted) {
       setIsCompleted(true);
@@ -101,7 +114,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
                 {formatTime(timeSpent)}
               </div>
               <div className="text-sm">
-                Screen {currentScreenIndex + 1} of {lessonData.totalScreens}
+                Screen {currentScreenIndex + 1} of {lessonData.screens.length}
               </div>
             </div>
           </div>
@@ -162,7 +175,7 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
               ))}
             </div>
 
-            {currentScreenIndex < lessonData.totalScreens - 1 ? (
+            {currentScreenIndex < lessonData.screens.length - 1 ? (
               <Button
                 onClick={handleNext}
                 className="flex items-center gap-2"
@@ -184,24 +197,35 @@ export const MicroLessonContainer: React.FC<MicroLessonContainerProps> = ({
         </CardContent>
       </Card>
 
-      {/* Completion Message */}
+      {/* Completion Message with Celebration */}
       {isCompleted && (
-        <Alert className="border-green-200 bg-green-50">
-          <Target className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">
-            <div className="flex items-center justify-between">
-              <span>
-                <strong>Lesson Complete!</strong> You've mastered all the concepts in this lesson.
-                Total time: {formatTime(timeSpent)}
-              </span>
+        <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <CardContent className="p-8 text-center">
+            <div className="space-y-6">
+              <div className="animate-bounce">
+                <Trophy className="h-16 w-16 text-yellow-500 mx-auto" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold text-green-700">🎉 Lesson Completed! 🎉</h3>
+                <p className="text-green-600 font-medium">
+                  <strong>Amazing work!</strong> You've mastered all the concepts in this lesson.
+                </p>
+                <p className="text-sm text-green-600">
+                  Total time: {formatTime(timeSpent)}
+                </p>
+              </div>
               {hasNext && onNext && (
-                <Button onClick={onNext} size="sm" className="ml-4">
+                <Button 
+                  onClick={onNext} 
+                  size="lg" 
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
+                >
                   Continue to Next Lesson
                 </Button>
               )}
             </div>
-          </AlertDescription>
-        </Alert>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
