@@ -11,6 +11,14 @@ interface SyncResult {
   error?: string;
 }
 
+interface Goal {
+  id: string;
+  title: string;
+  target_date?: string | null;
+  description?: string;
+  [key: string]: unknown;
+}
+
 export function useGoogleCalendarSync() {
   const cleanup = useCleanup('google-calendar-sync');
   const { session } = useAuth();
@@ -86,11 +94,12 @@ export function useGoogleCalendarSync() {
         }
       }, 1000);
 
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to connect Google Calendar";
       console.error('Error connecting Google Calendar:', error);
       toast({
         title: "Connection Failed",
-        description: error.message || "Failed to connect Google Calendar",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsConnecting(false);
@@ -115,17 +124,18 @@ export function useGoogleCalendarSync() {
         title: "Disconnected",
         description: "Google Calendar has been disconnected",
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to disconnect Google Calendar";
       console.error('Error disconnecting Google Calendar:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to disconnect Google Calendar",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   }, [session?.access_token, toast]);
 
-  const syncGoals = useCallback(async (goals: any[]) => {
+  const syncGoals = useCallback(async (goals: Goal[]) => {
     if (!session?.access_token) return;
 
     setIsSyncing(true);
@@ -159,11 +169,12 @@ export function useGoogleCalendarSync() {
       }
 
       return results;
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to sync goals to Google Calendar";
       console.error('Error syncing goals:', error);
       toast({
         title: "Sync Failed",
-        description: error.message || "Failed to sync goals to Google Calendar",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

@@ -38,8 +38,8 @@ export const useLessonPerformance = (lessonId: string, isActive: boolean = true)
   }, [lessonId, isActive]);
 
   // Performance-optimized event handlers
-  const createOptimizedHandler = useCallback((handler: Function) => {
-    return (...args: any[]) => {
+  const createOptimizedHandler = useCallback(<T extends unknown[]>(handler: (...args: T) => unknown) => {
+    return (...args: T) => {
       trackActivity();
       return handler(...args);
     };

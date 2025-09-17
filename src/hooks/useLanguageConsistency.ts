@@ -66,7 +66,7 @@ export const useLanguageConsistency = (options: LanguageConsistencyOptions = {})
   }, [i18n.language, navigate, location, cleanup]);
 
   // Enhanced translation function with fallbacks and logging
-  const safeT = useCallback((key: string, fallback?: string, options?: any) => {
+  const safeT = useCallback((key: string, fallback?: string, options?: Record<string, unknown>) => {
     try {
       const translation = t(key, options);
       

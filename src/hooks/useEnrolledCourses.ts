@@ -14,12 +14,20 @@ export interface Course {
   updated_at: string | null;
 }
 
+export interface EnrollmentProgress {
+  completed_lessons?: number;
+  total_lessons?: number;
+  completion_percentage?: number;
+  last_accessed?: string;
+  [key: string]: unknown;
+}
+
 export interface EnrollmentWithCourse {
   id: string;
   user_id: string;
   course_id: string;
   enrolled_at: string | null;
-  progress: any;
+  progress: EnrollmentProgress | null;
   courses: Course;
 }
 
@@ -82,8 +90,8 @@ export function useEnrolledCourses() {
 
         // Extract courses from the enrollment data and ensure they have the correct structure
         const enrolledCourses = data
-          .filter((enrollment: any) => enrollment.courses) // Filter out any enrollments without course data
-          .map((enrollment: any) => enrollment.courses)
+          .filter((enrollment): enrollment is typeof enrollment & { courses: Course } => enrollment.courses !== null) // Filter out any enrollments without course data
+          .map((enrollment) => enrollment.courses)
           .sort((a: Course, b: Course) => {
             // Sort featured courses first
             if (a.featured && !b.featured) return -1;

@@ -31,14 +31,13 @@ export function useAdminOrganizations() {
         throw error;
       }
 
-      // Transform data to match our interface
-      return data.map((org: any) => ({
+      // Transform data to match our interface  
+      return data.map((org): Organization => ({
         id: org.id,
         name: org.name,
         description: org.description || undefined,
         owner_id: org.owner_id,
-        owner_name: org.owner_id, // Will show owner ID for now
-        plan: org.plan,
+        plan: org.plan as any, // Type assertion for database enum
         seat_cap: org.seat_cap,
         seats_used: org.seats_used || 0,
         instructors_used: org.instructors_used || 0,
@@ -51,7 +50,7 @@ export function useAdminOrganizations() {
         suspended_at: org.suspended_at,
         suspended_by: org.suspended_by,
         suspended_reason: org.suspended_reason,
-        status: org.status || 'active',
+        status: (org.status as 'active' | 'suspended' | 'deleted') || 'active',
         created_by: org.created_by,
         created_at: org.created_at,
         updated_at: org.updated_at,
