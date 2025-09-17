@@ -56,21 +56,21 @@ export const InstructorMaterialsAccordion: React.FC<InstructorMaterialsAccordion
   const renderGuideContent = (content: any) => (
     <div className="space-y-6">
       {content.sections?.map((section: any, sectionIndex: number) => (
-        <div key={sectionIndex} className="bg-white/5 rounded-lg p-4">
+        <div key={sectionIndex} className="bg-slate-800/80 border border-slate-600/50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Target className="w-5 h-5 text-amber-400" />
             {section.title}
           </h4>
           <div className="space-y-4">
             {section.items.map((item: any, itemIndex: number) => (
-              <div key={itemIndex} className="bg-white/5 rounded-lg p-4">
+              <div key={itemIndex} className="bg-indigo-900/60 border border-indigo-700/40 rounded-lg p-4">
                 <h5 className="font-semibold text-white mb-2 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
                   {item.title}
                 </h5>
-                <p className="text-white/80 mb-3">{item.description}</p>
+                <p className="text-white/90 mb-3">{item.description}</p>
                 {item.details && (
-                  <ul className="space-y-1 text-sm text-white/70">
+                  <ul className="space-y-1 text-sm text-white/80 bg-slate-900/40 rounded p-3">
                     {item.details.map((detail: string, detailIndex: number) => (
                       <li key={detailIndex} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></span>
@@ -90,30 +90,30 @@ export const InstructorMaterialsAccordion: React.FC<InstructorMaterialsAccordion
   const renderRubricsContent = (content: any) => (
     <div className="space-y-6">
       {content.rubrics?.map((rubric: any, rubricIndex: number) => (
-        <div key={rubricIndex} className="bg-white/5 rounded-lg p-4">
+        <div key={rubricIndex} className="bg-emerald-800/70 border border-emerald-600/50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
             {rubric.title}
           </h4>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto bg-slate-900/60 rounded-lg p-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left p-3 text-white font-semibold">Criteria</th>
-                  <th className="text-left p-3 text-green-300 font-semibold">Excellent (4)</th>
-                  <th className="text-left p-3 text-blue-300 font-semibold">Proficient (3)</th>
-                  <th className="text-left p-3 text-yellow-300 font-semibold">Developing (2)</th>
-                  <th className="text-left p-3 text-red-300 font-semibold">Inadequate (1)</th>
+                <tr className="border-b border-white/30">
+                  <th className="text-left p-3 text-white font-semibold bg-slate-800/80 rounded-tl">Criteria</th>
+                  <th className="text-left p-3 text-green-300 font-semibold bg-green-900/40">Excellent (4)</th>
+                  <th className="text-left p-3 text-blue-300 font-semibold bg-blue-900/40">Proficient (3)</th>
+                  <th className="text-left p-3 text-yellow-300 font-semibold bg-yellow-900/40">Developing (2)</th>
+                  <th className="text-left p-3 text-red-300 font-semibold bg-red-900/40 rounded-tr">Inadequate (1)</th>
                 </tr>
               </thead>
               <tbody>
                 {rubric.criteria.map((criterion: any, criterionIndex: number) => (
-                  <tr key={criterionIndex} className="border-b border-white/10">
-                    <td className="p-3 text-white font-medium">{criterion.criterion}</td>
-                    <td className="p-3 text-white/80">{criterion.excellent}</td>
-                    <td className="p-3 text-white/80">{criterion.proficient}</td>
-                    <td className="p-3 text-white/80">{criterion.developing}</td>
-                    <td className="p-3 text-white/80">{criterion.inadequate}</td>
+                  <tr key={criterionIndex} className="border-b border-white/20">
+                    <td className="p-3 text-white font-medium bg-slate-800/60">{criterion.criterion}</td>
+                    <td className="p-3 text-white/90 bg-green-900/20">{criterion.excellent}</td>
+                    <td className="p-3 text-white/90 bg-blue-900/20">{criterion.proficient}</td>
+                    <td className="p-3 text-white/90 bg-yellow-900/20">{criterion.developing}</td>
+                    <td className="p-3 text-white/90 bg-red-900/20">{criterion.inadequate}</td>
                   </tr>
                 ))}
               </tbody>
