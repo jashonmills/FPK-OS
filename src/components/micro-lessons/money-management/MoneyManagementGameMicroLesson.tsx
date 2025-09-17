@@ -1012,91 +1012,135 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     );
   };
 
-  // Game Over/Reflection Screen
-  const ReflectionScreen = () => (
-    <div className="max-w-4xl mx-auto space-y-6 text-center">
-      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-        <CardHeader>
-          <div className="flex justify-center mb-4">
-            <Trophy className="w-20 h-20 text-yellow-500" />
-          </div>
-          <CardTitle className="text-3xl">Game Complete!</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-xl text-muted-foreground">
-            Congratulations! You've completed the Money Management Game and gained practical experience with real-world financial decisions.
-          </p>
+  // Game Over/Reflection Screen (only shows after 4 complete weeks)
+  const ReflectionScreen = () => {
+    // Only show reflection if we've truly completed all 4 weeks
+    const isActuallyComplete = week > 4 || (week === 4 && phase === 'REFLECT' && isGameOver);
+    
+    if (!isActuallyComplete) {
+      // If we're here incorrectly, redirect back to appropriate phase
+      console.log('ReflectionScreen called prematurely - redirecting. Week:', week, 'Phase:', phase, 'GameOver:', isGameOver);
+      
+      // Determine correct phase based on current state
+      if (week <= 4 && state.scenarioIndex < state.weeklyScenarios.length) {
+        // Should be in LIVE phase for more scenarios
+        return <ScenarioScreen />;
+      } else if (week <= 4) {
+        // Should be in WEEKLY_SUMMARY 
+        return <WeeklySummaryScreen />;
+      }
+    }
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-card rounded-lg border">
-              <div className="text-2xl font-bold text-green-600">${balance.toFixed(2)}</div>
-              <div className="text-sm text-muted-foreground">Final Balance</div>
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 text-center">
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <Trophy className="w-20 h-20 text-yellow-500" />
             </div>
-            <div className="p-4 bg-card rounded-lg border">
-              <div className="text-2xl font-bold text-blue-600">{score}</div>
-              <div className="text-sm text-muted-foreground">Financial Wisdom Score</div>
+            <CardTitle className="text-3xl">4-Week Game Complete!</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-xl text-muted-foreground">
+              Congratulations! You've completed all 4 weeks of the Money Management Game and gained practical experience with real-world financial decisions.
+            </p>
+
+            <div className="bg-card p-4 rounded-lg border">
+              <h4 className="font-semibold mb-2">Game Summary</h4>
+              <div className="text-sm text-muted-foreground">
+                Completed {week > 4 ? 4 : week} weeks • {Math.max(0, (week - 1) * 5 + state.scenarioIndex)} scenarios faced
+              </div>
             </div>
-            <div className="p-4 bg-card rounded-lg border">
-              <div className="text-2xl font-bold text-purple-600">{creditScore}</div>
-              <div className="text-sm text-muted-foreground">Credit Score</div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-4 bg-card rounded-lg border">
+                <div className="text-2xl font-bold text-green-600">${balance.toFixed(2)}</div>
+                <div className="text-sm text-muted-foreground">Final Balance</div>
+              </div>
+              <div className="p-4 bg-card rounded-lg border">
+                <div className="text-2xl font-bold text-blue-600">{score}</div>
+                <div className="text-sm text-muted-foreground">Financial Wisdom Score</div>
+              </div>
+              <div className="p-4 bg-card rounded-lg border">
+                <div className="text-2xl font-bold text-purple-600">{creditScore}</div>
+                <div className="text-sm text-muted-foreground">Credit Score</div>
+              </div>
             </div>
-          </div>
 
-          <div className="bg-card p-6 rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4">Key Takeaways</h3>
-            <ul className="text-left space-y-2 text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                <span>Smart budgeting helps you make informed financial decisions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                <span>Emergency funds protect you from unexpected expenses</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                <span>Every financial choice has long-term consequences</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
-                <span>Building good credit habits early pays off over time</span>
-              </li>
-            </ul>
-          </div>
+            <div className="bg-card p-6 rounded-lg border">
+              <h3 className="text-lg font-semibold mb-4">Key Takeaways</h3>
+              <ul className="text-left space-y-2 text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                  <span>Smart budgeting helps you make informed financial decisions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                  <span>Emergency funds protect you from unexpected expenses</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                  <span>Every financial choice has long-term consequences</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
+                  <span>Building good credit habits early pays off over time</span>
+                </li>
+              </ul>
+            </div>
 
-          <Button 
-            size="lg" 
-            onClick={() => {
-              onComplete?.();
-              trackGameInteraction('lesson_completed', { 
-                finalScore: score, 
-                finalBalance: balance 
-              });
-            }}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Complete Lesson
-          </Button>
-
-          {hasNext && (
+            {/* Only call onComplete if we've actually finished all 4 weeks */}
             <Button 
               size="lg" 
-              variant="outline" 
-              onClick={onNext}
-              className="ml-4"
+              onClick={() => {
+                // Double check we're actually complete before calling onComplete
+                if (week > 4 || (week === 4 && isGameOver)) {
+                  onComplete?.();
+                  trackGameInteraction('lesson_completed', { 
+                    finalScore: score, 
+                    finalBalance: balance,
+                    weeksCompleted: week > 4 ? 4 : week
+                  });
+                } else {
+                  console.warn('Attempted to complete lesson prematurely');
+                  // Force back to correct state
+                  dispatch({ type: 'NEXT_WEEK' });
+                }
+              }}
+              className="bg-primary hover:bg-primary/90"
             >
-              Continue to Next Lesson
+              Complete Lesson
             </Button>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
 
-  // Main render logic
+            {hasNext && (
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={onNext}
+                className="ml-4"
+              >
+                Continue to Next Lesson
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  // Main render logic with debugging
   if (showWelcome) {
     return <WelcomeScreen />;
   }
+
+  // Debug logging to understand game state
+  console.log('Game render state:', { 
+    phase, 
+    week, 
+    scenarioIndex: state.scenarioIndex, 
+    weeklyScenarios: state.weeklyScenarios?.length,
+    isGameOver 
+  });
 
   if (phase === 'PLAN') {
     return <BudgetPlanningScreen />;
@@ -1114,11 +1158,23 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     return <WeeklySummaryScreen />;
   }
 
-  if (phase === 'REFLECT' || isGameOver) {
+  // Only go to reflection screen if we've actually completed 4 weeks
+  if (phase === 'REFLECT' && (week > 4 || isGameOver)) {
     return <ReflectionScreen />;
   }
 
-  return <div>Loading...</div>;
+  // If we somehow get into an invalid state, reset to appropriate phase
+  if (phase === 'REFLECT' && week <= 4) {
+    console.warn('Invalid state: REFLECT phase with week <= 4. Redirecting to appropriate phase.');
+    // Force back to correct phase
+    if (state.scenarioIndex < state.weeklyScenarios.length) {
+      return <ScenarioScreen />;
+    } else {
+      return <WeeklySummaryScreen />;
+    }
+  }
+
+  return <div>Loading game... (Week: {week}, Phase: {phase})</div>;
 };
 
 // Main lesson component using MicroLessonContainer
