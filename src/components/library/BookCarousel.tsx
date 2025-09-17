@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { BookOpen } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface BookItem {
   id: string | number;
@@ -40,13 +41,16 @@ const BookCarousel: React.FC<BookCarouselProps> = ({
   
   // View mode state with localStorage persistence - defaulting to carousel
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const saved = localStorage.getItem(`${sectionId}-viewMode`);
+    const saved = safeLocalStorage.getItem<string>(`${sectionId}-viewMode`, {
+      fallbackValue: 'carousel',
+      logErrors: false
+    });
     return (saved as ViewMode) || 'carousel'; // Explicitly defaulting to carousel
   });
 
   // Persist view mode changes to localStorage
   useEffect(() => {
-    localStorage.setItem(`${sectionId}-viewMode`, viewMode);
+    safeLocalStorage.setItem(`${sectionId}-viewMode`, viewMode);
   }, [viewMode, sectionId]);
 
   if (isLoading) {

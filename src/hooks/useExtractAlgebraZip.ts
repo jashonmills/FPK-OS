@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 export const useExtractAlgebraZip = () => {
   return useMutation({
@@ -24,7 +25,7 @@ export const useExtractAlgebraZip = () => {
       
       // Store extracted lesson content in localStorage for the components to access
       if (data.lessons) {
-        localStorage.setItem('algebra-lessons-content', JSON.stringify(data.lessons));
+        safeLocalStorage.setItem('algebra-lessons-content', JSON.stringify(data.lessons));
       }
       
       return data;

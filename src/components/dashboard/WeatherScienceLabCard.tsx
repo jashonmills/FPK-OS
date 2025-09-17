@@ -10,6 +10,7 @@ import { useViewportAnalytics } from '@/hooks/useViewportAnalytics';
 import { format } from 'date-fns';
 import WeatherChart from './WeatherChart';
 import WeatherMiniLesson from './WeatherMiniLesson';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 const WeatherScienceLabCard: React.FC = () => {
   const { location, isLoading: locationLoading, error: locationError, requestLocation } = useUserLocation();
@@ -36,14 +37,24 @@ const WeatherScienceLabCard: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    // Clear weather cache and refetch
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.startsWith('weather_cache_')) {
-          localStorage.removeItem(key);
+    // Clear weather cache and refetch using safe storage
+    if (typeof window !== 'undefined') {
+      // Get all keys safely
+      const keys = [];
+      try {
+        for (let i = 0; i < (window.localStorage?.length || 0); i++) {
+          const key = window.localStorage.key(i);
+          if (key && key.startsWith('weather_cache_')) {
+            keys.push(key);
+          }
         }
-      });
+        // Remove keys using safeLocalStorage
+        keys.forEach(key => {
+          safeLocalStorage.removeItem(key, { logErrors: false });
+        });
+      } catch (error) {
+        console.warn('Error clearing weather cache:', error);
+      }
     }
     refetch();
     trackClick('refresh');

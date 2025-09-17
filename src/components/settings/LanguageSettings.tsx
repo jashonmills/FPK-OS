@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Globe, Clock, Calendar } from 'lucide-react';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface LanguageSettingsProps {
   primaryLanguage: string;
@@ -128,13 +129,13 @@ const LanguageSettings: React.FC<LanguageSettingsProps> = ({
     onChange('dual_language_enabled', enabled);
     
     // Update localStorage immediately for sync
-    localStorage.setItem('fpk-dual-language', enabled.toString());
+    safeLocalStorage.setItem('fpk-dual-language', enabled.toString());
     
     // Dispatch events for component sync
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'fpk-dual-language',
       newValue: enabled.toString(),
-      oldValue: localStorage.getItem('fpk-dual-language')
+      oldValue: safeLocalStorage.getItem<string>('fpk-dual-language', { logErrors: false })
     }));
 
     window.dispatchEvent(new CustomEvent('dual-language-change', {

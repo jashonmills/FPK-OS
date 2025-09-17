@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock } from 'lucide-react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface SpellingLessonWrapperProps {
   courseId: string;
@@ -71,7 +72,7 @@ export const SpellingLessonWrapper: React.FC<SpellingLessonWrapperProps> = ({
     // Simple localStorage tracking instead of heavy database operations
     try {
       const storageKey = `spelling-lesson-${courseId}-${lessonId}`;
-      localStorage.setItem(storageKey, JSON.stringify({
+      safeLocalStorage.setItem(storageKey, JSON.stringify({
         completed: true,
         timeSpent,
         completedAt: new Date().toISOString()

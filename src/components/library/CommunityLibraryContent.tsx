@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import OptimizedPDFViewer from './OptimizedPDFViewer';
 import CommunityBooksListView from './CommunityBooksListView';
 import CommunityBooksGridView from './CommunityBooksGridView';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 type ViewMode = 'list' | 'grid';
 
@@ -16,9 +18,13 @@ const CommunityLibraryContent: React.FC = () => {
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
+  const cleanup = useCleanup('CommunityLibraryContent');
 
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const saved = localStorage.getItem('communityLibrary-viewMode');
+    const saved = safeLocalStorage.getItem<string>('communityLibrary-viewMode', {
+      fallbackValue: 'grid',
+      logErrors: false
+    });
     return (saved as ViewMode) || 'grid';
   });
 
@@ -27,7 +33,9 @@ const CommunityLibraryContent: React.FC = () => {
     setValidatingPDF(book.id);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => {
+        cleanup.setTimeout(() => resolve(undefined), 300);
+      });
       setSelectedPDF(book);
     } catch (error) {
       toast({
@@ -81,7 +89,7 @@ const CommunityLibraryContent: React.FC = () => {
                 onValueChange={(value) => {
                   if (value) {
                     setViewMode(value as ViewMode);
-                    localStorage.setItem('communityLibrary-viewMode', value);
+                    safeLocalStorage.setItem('communityLibrary-viewMode', value);
                   }
                 }}
                 className="border rounded-md"

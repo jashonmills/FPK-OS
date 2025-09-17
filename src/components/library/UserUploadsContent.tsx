@@ -8,6 +8,8 @@ import SimplifiedPDFViewer from './SimplifiedPDFViewer';
 import UserUploadsListView from './UserUploadsListView';
 import UserUploadsGridView from './UserUploadsGridView';
 import PDFUploadComponent from './PDFUploadComponent';
+import { safeLocalStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 type ViewMode = 'list' | 'grid';
 
@@ -16,9 +18,13 @@ const UserUploadsContent: React.FC = () => {
   const [selectedPDF, setSelectedPDF] = useState<any>(null);
   const [validatingPDF, setValidatingPDF] = useState<string | null>(null);
   const { toast } = useToast();
+  const cleanup = useCleanup('UserUploadsContent');
 
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const saved = localStorage.getItem('userUploads-viewMode');
+    const saved = safeLocalStorage.getItem<string>('userUploads-viewMode', {
+      fallbackValue: 'grid',
+      logErrors: false
+    });
     return (saved as ViewMode) || 'grid';
   });
 
@@ -29,7 +35,9 @@ const UserUploadsContent: React.FC = () => {
     setValidatingPDF(book.id);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => {
+        cleanup.setTimeout(() => resolve(undefined), 300);
+      });
       setSelectedPDF(book);
       
       toast({
@@ -90,7 +98,7 @@ const UserUploadsContent: React.FC = () => {
                 onValueChange={(value) => {
                   if (value) {
                     setViewMode(value as ViewMode);
-                    localStorage.setItem('userUploads-viewMode', value);
+                    safeLocalStorage.setItem('userUploads-viewMode', value);
                   }
                 }}
                 className="border rounded-md"
