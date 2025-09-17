@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Send, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 
 interface SendBetaUpdateProps {
   trigger?: React.ReactNode;
@@ -29,7 +30,7 @@ const SendBetaUpdate: React.FC<SendBetaUpdateProps> = ({ trigger }) => {
 
     setIsLoading(true);
     try {
-      console.log('Sending beta update:', formData);
+      logger.info('Sending beta update', 'ADMIN', { formData });
       
       const { data, error } = await supabase.functions.invoke('broadcast-beta-update', {
         body: formData
@@ -37,7 +38,7 @@ const SendBetaUpdate: React.FC<SendBetaUpdateProps> = ({ trigger }) => {
 
       if (error) throw error;
 
-      console.log('Update sent successfully:', data);
+      logger.info('Update sent successfully', 'ADMIN', { data });
       toast.success(`Update sent to ${data.users_notified} beta users!`);
       
       setFormData({ title: '', message: '', type: 'info' });

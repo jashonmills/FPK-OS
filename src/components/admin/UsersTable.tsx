@@ -9,6 +9,7 @@ import { Plus, X, BarChart3 } from 'lucide-react';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { logger } from '@/utils/logger';
 
 interface UsersTableProps {
   users: User[];
@@ -32,7 +33,7 @@ export function UsersTable({ users, onAssignRole, onRemoveRole, isAssigning, isR
   const tableClasses = getAccessibilityClasses('container');
   const textClasses = getAccessibilityClasses('text');
   
-  console.log('📊 UsersTable: Applied accessibility classes:', { tableClasses, textClasses });
+  logger.accessibility('UsersTable: Applied accessibility classes', { tableClasses, textClasses });
 
   // Mobile card layout
   if (isMobile) {

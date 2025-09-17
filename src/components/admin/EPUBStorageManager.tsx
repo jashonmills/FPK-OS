@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { RefreshCw, Download, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
+import { logger } from '@/utils/logger';
 
 interface DownloadResult {
   bookId: string;
@@ -49,7 +50,7 @@ const EPUBStorageManager: React.FC = () => {
     setResults([]);
 
     try {
-      console.log('🚀 Starting bulk EPUB download for', booksToDownload.length, 'books');
+      logger.info('Starting bulk EPUB download', 'EPUB', { bookCount: booksToDownload.length });
 
       const { data, error } = await supabase.functions.invoke('epub-ingestion', {
         body: {
@@ -64,7 +65,7 @@ const EPUBStorageManager: React.FC = () => {
         throw error;
       }
 
-      console.log('✅ Bulk download response:', data);
+      logger.info('Bulk download response received', 'EPUB', { data });
       setResults(data.results || []);
       setProgress(100);
 

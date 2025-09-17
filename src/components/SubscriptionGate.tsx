@@ -4,6 +4,7 @@ import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Lock } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface SubscriptionGateProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export function SubscriptionGate({ children, allowedPaths = [] }: SubscriptionGa
         !location.pathname.startsWith('/subscription')) {
       // Debounce navigation to prevent conflicts
       const timer = setTimeout(() => {
-        console.log('🔄 SubscriptionGate: Redirecting to choose-plan from', location.pathname);
+        logger.info('SubscriptionGate: Redirecting to choose-plan', 'SUBSCRIPTION', { from: location.pathname });
         navigate('/choose-plan');
       }, 100);
       return () => clearTimeout(timer);

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Upload, CheckCircle } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 const PopulateApprovedBooks: React.FC = () => {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -16,7 +17,7 @@ const PopulateApprovedBooks: React.FC = () => {
     setPopulatedCount(0);
 
     try {
-      console.log('📚 Starting to populate approved books from storage...');
+      logger.info('Starting to populate approved books from storage', 'ADMIN');
 
       // Get all files from the library-book-pdf bucket
       const { data: files, error: listError } = await supabase.storage
@@ -31,7 +32,7 @@ const PopulateApprovedBooks: React.FC = () => {
         throw listError;
       }
 
-      console.log(`📂 Found ${files?.length || 0} files in storage`);
+      logger.info('Found files in storage', 'ADMIN', { fileCount: files?.length || 0 });
 
       if (!files || files.length === 0) {
         toast({
@@ -47,7 +48,7 @@ const PopulateApprovedBooks: React.FC = () => {
         file.name.toLowerCase().endsWith('.pdf') && file.metadata
       );
 
-      console.log(`📄 Found ${pdfFiles.length} PDF files`);
+      logger.info('Found PDF files', 'ADMIN', { pdfCount: pdfFiles.length });
 
       let successCount = 0;
       const adminUserId = (await supabase.auth.getUser()).data.user?.id;
@@ -67,7 +68,7 @@ const PopulateApprovedBooks: React.FC = () => {
             .single();
 
           if (existingBook) {
-            console.log(`📖 Book ${file.name} already exists in database, skipping...`);
+            logger.info('Book already exists in database, skipping', 'ADMIN', { fileName: file.name });
             continue;
           }
 
@@ -89,7 +90,7 @@ const PopulateApprovedBooks: React.FC = () => {
           } else {
             successCount++;
             setPopulatedCount(successCount);
-            console.log(`✅ Added ${file.name} to approved books`);
+            logger.info('Added book to approved books', 'ADMIN', { fileName: file.name });
           }
         } catch (fileError) {
           console.error(`Error processing file ${file.name}:`, fileError);
@@ -101,7 +102,7 @@ const PopulateApprovedBooks: React.FC = () => {
         description: `Added ${successCount} books to the approved community collection.`,
       });
 
-      console.log(`🎉 Successfully populated ${successCount} approved books`);
+      logger.info('Successfully populated approved books', 'ADMIN', { successCount });
 
     } catch (error) {
       console.error('Error populating books:', error);

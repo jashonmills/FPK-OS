@@ -7,6 +7,7 @@ import { MessageSquare, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-reac
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import FeedbackSystem from '@/components/beta/FeedbackSystem';
+import { logger } from '@/utils/logger';
 
 interface TestFeedbackSystemProps {
   trigger?: React.ReactNode;
@@ -32,7 +33,7 @@ const TestFeedbackSystem: React.FC<TestFeedbackSystemProps> = ({ trigger }) => {
           filter: 'category=like.beta_%'
         },
         (payload) => {
-          console.log('Real-time test feedback:', payload);
+          logger.info('Real-time test feedback received', 'FEEDBACK', { payload });
           setTestResults(prev => [...prev, {
             id: payload.new.id,
             category: payload.new.category,

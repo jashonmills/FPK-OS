@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 import {
   Dialog,
   DialogContent,
@@ -87,7 +88,7 @@ export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      console.log('Creating organization with data:', data);
+      logger.info('Creating organization', 'ADMIN', { data });
       
       const selectedTier = subscriptionTiers.find(t => t.id === data.subscriptionTier);
       if (!selectedTier) throw new Error('Invalid subscription tier');

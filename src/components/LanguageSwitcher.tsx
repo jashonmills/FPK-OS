@@ -15,6 +15,7 @@ import { supportedLanguages } from '@/i18n';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 const LanguageSwitcher = () => {
   const { i18n, tString } = useGlobalTranslation('settings');
@@ -67,7 +68,7 @@ const LanguageSwitcher = () => {
   }, []);
 
   const handleLanguageChange = async (languageCode: string) => {
-    console.log('Changing language to:', languageCode);
+    logger.info('Changing language to:', 'LANGUAGE', { languageCode });
     
     // Update i18n
     await i18n.changeLanguage(languageCode);
