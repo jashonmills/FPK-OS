@@ -15,6 +15,8 @@ interface Book {
   id: string;
   title: string;
   author?: string;
+  file_name?: string;
+  file_size?: number;
   file_url?: string;
   download_url?: string;
   created_at?: string;
