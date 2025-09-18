@@ -16,6 +16,9 @@ export interface OrgCourse {
   updated_at: string;
   enrollments_count?: number;
   completion_rate?: number;
+  thumbnail_url?: string;
+  duration_minutes?: number;
+  status?: string;
 }
 
 export function useOrgCourses() {

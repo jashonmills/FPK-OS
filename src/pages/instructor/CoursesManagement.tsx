@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useCourses } from '@/hooks/useCourses';
+import { useOrgCourses } from '@/hooks/useOrgCourses';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,9 +16,7 @@ import {
 export default function CoursesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { courses, isLoading } = useCourses({ 
-    organizationId: currentOrg?.organization_id 
-  });
+  const { courses, isLoading } = useOrgCourses();
 
   if (!currentOrg) {
     return (
@@ -38,7 +36,7 @@ export default function CoursesManagement() {
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const publishedCourses = filteredCourses.filter(c => c.status === 'published');
+  const publishedCourses = filteredCourses.filter(c => c.published);
   const totalEnrollments = filteredCourses.reduce((sum, c) => sum + (c.enrollments_count || 0), 0);
   const avgCompletion = filteredCourses.length > 0 
     ? filteredCourses.reduce((sum, c) => sum + (c.completion_rate || 0), 0) / filteredCourses.length 
@@ -154,7 +152,7 @@ export default function CoursesManagement() {
                     <DropdownMenuItem>Edit Course</DropdownMenuItem>
                     <DropdownMenuItem>View Analytics</DropdownMenuItem>
                     <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    {course.status === 'draft' ? (
+                    {!course.published ? (
                       <DropdownMenuItem>Publish</DropdownMenuItem>
                     ) : (
                       <DropdownMenuItem>Unpublish</DropdownMenuItem>
@@ -172,8 +170,8 @@ export default function CoursesManagement() {
             <OrgCardContent className="pt-0">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
-                    {course.status}
+                  <Badge variant={course.published ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
+                    {course.published ? 'Published' : 'Draft'}
                   </Badge>
                   <div className="flex items-center text-sm text-white/70">
                     <Clock className="w-3 h-3 mr-1" />
