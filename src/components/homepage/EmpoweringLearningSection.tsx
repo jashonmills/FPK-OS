@@ -1,5 +1,4 @@
 import React from 'react';
-import oliveImage from '@/assets/olive-hickmott.png';
 const EmpoweringLearningSection = () => {
   return <section className="py-20 px-6 w-full">
       <div className="w-full max-w-none mx-auto">
