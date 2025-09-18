@@ -40,7 +40,7 @@ export const useAIInbox = (options: AIInsightsOptions = {}) => {
         }
 
         return {
-          data: inboxData || [],
+          data: (inboxData || []) as AIInboxCard[],
           next_cursor: null
         };
       } catch (error) {
