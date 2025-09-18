@@ -138,6 +138,11 @@ export default function StudentsPage() {
   const students = members.filter(member => member.role === 'student');
   const instructors = members.filter(member => member.role === 'instructor');
   
+  // Debug logging
+  console.log('StudentsPage render - showInviteDialog state:', showInviteDialog);
+  console.log('StudentsPage render - canManageMembers:', canManageMembers);
+  console.log('StudentsPage render - userRole:', userRole);
+  
   const filteredStudents = students.filter(student => 
     student.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.profiles?.email?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -170,7 +175,10 @@ export default function StudentsPage() {
         {canManageMembers && (
           <Button 
             className="flex items-center gap-2"
-            onClick={() => setShowInviteDialog(true)}
+            onClick={() => {
+              console.log('Invite button clicked - setting showInviteDialog to true');
+              setShowInviteDialog(true);
+            }}
           >
             <UserPlus className="h-4 w-4" />
             Invite Students
@@ -247,7 +255,10 @@ export default function StudentsPage() {
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
-                <Button onClick={() => setShowInviteDialog(true)}>
+                <Button onClick={() => {
+                  console.log('Invite button (empty state) clicked - setting showInviteDialog to true');
+                  setShowInviteDialog(true);
+                }}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invite Students
                 </Button>
@@ -406,7 +417,10 @@ export default function StudentsPage() {
       {/* Invite Dialog */}
       <EnhancedInviteDialog 
         open={showInviteDialog}
-        onOpenChange={setShowInviteDialog}
+        onOpenChange={(open) => {
+          console.log('EnhancedInviteDialog onOpenChange called with:', open);
+          setShowInviteDialog(open);
+        }}
         organizationId={orgId}
       />
     </div>
