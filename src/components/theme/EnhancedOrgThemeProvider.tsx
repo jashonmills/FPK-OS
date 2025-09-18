@@ -21,8 +21,11 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       root.style.removeProperty('--org-tile-bg');
       root.style.removeProperty('--org-tile-border');
       root.style.removeProperty('--org-tile-text');
+      console.log('🎨 EnhancedOrgThemeProvider: Reset to default theme');
       return;
     }
+
+    console.log('🎨 EnhancedOrgThemeProvider: Applying theme', branding.theme_accent);
 
     // Apply organization theme using existing theme_accent (already in HSL format)
     root.style.setProperty('--accent', branding.theme_accent);
@@ -38,6 +41,12 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
     root.style.setProperty('--org-tile-bg', branding.theme_accent);
     root.style.setProperty('--org-tile-border', branding.theme_accent);
     root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
+
+    console.log('🎨 EnhancedOrgThemeProvider: Set CSS variables', {
+      '--org-tile-bg': branding.theme_accent,
+      '--org-tile-border': branding.theme_accent,
+      '--org-tile-text': contrast === '#ffffff' ? '255 255 255' : '15 23 42'
+    });
 
     // Cleanup on unmount
     return () => {
