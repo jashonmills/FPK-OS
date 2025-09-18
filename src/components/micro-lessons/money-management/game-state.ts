@@ -93,7 +93,8 @@ type GameAction =
   | { type: 'GAME_OVER'; status: string }
   | { type: 'RESET_GAME' }
   | { type: 'MANUAL_TRANSACTION'; logEntry: any; newBalance: number }
-  | { type: 'CONTINUE_FROM_OUTCOME' };
+  | { type: 'CONTINUE_FROM_OUTCOME' }
+  | { type: 'GO_TO_SCENARIO'; payload: { scenarioIndex: number; scenario: any } };
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -349,6 +350,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         ...state,
         balance: action.newBalance,
         ledgerTransactions: [...state.ledgerTransactions, action.logEntry]
+      };
+
+    case 'GO_TO_SCENARIO':
+      return {
+        ...state,
+        phase: 'LIVE',
+        scenarioIndex: action.payload.scenarioIndex,
+        currentScenario: action.payload.scenario,
+        feedbackMessage: null,
+        lastChoice: null
       };
 
     default:

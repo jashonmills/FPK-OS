@@ -378,19 +378,9 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     // Determine if this was a positive or negative choice based on score change
     const isPositiveOutcome = scoreChange >= 0;
     
-    // Reset delay when component mounts
+    // Reset delay when component mounts - REMOVED TIMER
     useEffect(() => {
-      console.log('🎯 ScenarioOutcome mounted, starting 3-second timer');
-      setOutcomeDelayComplete(false);
-      const timer = setTimeout(() => {
-        console.log('🎯 Timer complete - showing Continue button');
-        setOutcomeDelayComplete(true);
-      }, 3000); // 3 second delay to force reading
-
-      return () => {
-        console.log('🎯 Timer cleanup');
-        clearTimeout(timer);
-      };
+      console.log('🎯 ScenarioOutcome mounted - no timer, buttons always active');
     }, [lastChoice]);
 
     // Parse financial impacts for detailed breakdown
@@ -571,49 +561,51 @@ const MoneyManagementGame: React.FC<GameProps> = ({
           </CardContent>
         </Card>
 
-        {/* Delayed Continue Button */}
+        {/* Navigation Buttons */}
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              {!outcomeDelayComplete ? (
-                <div className="space-y-3">
-                  <div className="animate-pulse flex items-center justify-center gap-2 text-muted-foreground">
-                    <Clock className="w-5 h-5" />
-                    <span>Take a moment to review your decision...</span>
-                  </div>
-                  <div className="w-full bg-muted h-2 rounded-full">
-                    <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-3000 ease-linear animate-pulse"
-                      style={{ width: '100%' }}
-                    />
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Timer state: {outcomeDelayComplete ? 'Complete' : 'Waiting...'}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Button 
-                    size="lg" 
-                    onClick={() => {
-                      console.log('🎯 Continue button clicked!');
-                      dispatch({ type: 'CONTINUE_FROM_OUTCOME' });
-                      trackGameInteraction('scenario_outcome_completed', {
-                        scenario: scenario.title,
-                        choice: option.text,
-                        outcome: isPositiveOutcome ? 'positive' : 'negative'
-                      });
-                    }}
-                    className="w-full max-w-md mx-auto flex items-center gap-2"
-                  >
-                    Continue to Next Scenario
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                  <div className="text-xs text-green-600">
-                    ✅ Timer complete - showing continue button
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center justify-between gap-4">
+              {/* Previous Scenario Button */}
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => {
+                  if (state.scenarioIndex > 0) {
+                    // Go back to previous scenario
+                    const prevIndex = state.scenarioIndex - 1;
+                    dispatch({ 
+                      type: 'GO_TO_SCENARIO', 
+                      payload: { 
+                        scenarioIndex: prevIndex,
+                        scenario: state.weeklyScenarios[prevIndex]
+                      }
+                    });
+                  }
+                }}
+                disabled={state.scenarioIndex === 0}
+                className="flex items-center gap-2"
+              >
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                Previous Scenario
+              </Button>
+
+              {/* Next Scenario Button */}
+              <Button 
+                size="lg" 
+                onClick={() => {
+                  console.log('🎯 Continue button clicked!');
+                  dispatch({ type: 'CONTINUE_FROM_OUTCOME' });
+                  trackGameInteraction('scenario_outcome_completed', {
+                    scenario: scenario.title,
+                    choice: option.text,
+                    outcome: isPositiveOutcome ? 'positive' : 'negative'
+                  });
+                }}
+                className="flex items-center gap-2"
+              >
+                Continue to Next Scenario
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
