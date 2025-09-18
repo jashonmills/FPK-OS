@@ -152,7 +152,7 @@ const FileUploadSection: React.FC = () => {
     subscribe(subscriptionId, handleFileUploadUpdate);
 
     // If real-time connection fails, show warning and ensure polling fallback
-    const connectionCheckTimer = setTimeout(() => {
+    const connectionCheckTimer = cleanup.setTimeout(() => {
       if (!isConnected) {
         console.log('⚠️ Real-time connection not established, relying on polling fallback');
         toast({

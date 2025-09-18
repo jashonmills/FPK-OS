@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useCleanup } from '@/utils/cleanupManager';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -23,6 +24,7 @@ import { useUnifiedProgressTracking } from '@/hooks/useUnifiedProgressTracking';
 import { toast } from 'sonner';
 
 export default function NativeCoursePlayer() {
+  const cleanup = useCleanup('NativeCoursePlayer');
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
@@ -128,7 +130,7 @@ export default function NativeCoursePlayer() {
       
       // Auto-advance to next lesson if not the last
       if (!isLastLesson) {
-        setTimeout(() => {
+        cleanup.setTimeout(() => {
           handleNextLesson();
         }, 1000);
       }

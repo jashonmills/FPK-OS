@@ -91,10 +91,9 @@ const LearningStateEmbed = () => {
 
     const iframe = iframeRef.current;
     if (iframe) {
-      iframe.addEventListener('load', handleIframeLoad);
-      return () => iframe.removeEventListener('load', handleIframeLoad);
+      cleanup.addEventListener(iframe, 'load', handleIframeLoad);
     }
-  }, [user?.id, currentProgress]);
+  }, [user?.id, currentProgress, cleanup]);
 
   const handleBackToCourses = () => {
     navigate('/dashboard/learner/my-courses');

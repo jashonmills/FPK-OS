@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useCleanup } from "@/utils/cleanupManager"
 import {
   Tooltip,
   TooltipContent,
@@ -65,6 +66,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    const cleanup = useCleanup('SidebarProvider');
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -106,9 +108,8 @@ const SidebarProvider = React.forwardRef<
         }
       }
 
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [toggleSidebar])
+      cleanup.addEventListener(window, "keydown", handleKeyDown);
+    }, [toggleSidebar, cleanup])
 
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.

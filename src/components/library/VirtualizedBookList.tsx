@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 import { PublicDomainBook } from '@/types/publicDomainBooks';
 import { searchIndexService } from '@/services/SearchIndexService';
 import SearchControls from './SearchControls';
@@ -23,6 +24,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
   onBookClick,
   isLoading
 }) => {
+  const cleanup = useCleanup('VirtualizedBookList');
   const [query, setQuery] = useState('');
   const [displayBooks, setDisplayBooks] = useState<PublicDomainBook[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -52,7 +54,7 @@ const VirtualizedBookList: React.FC<VirtualizedBookListProps> = ({
         console.log(`🔍 Performing instant search for: "${query}"`);
         
         // Use a small delay to show the searching state
-        setTimeout(() => {
+        cleanup.setTimeout(() => {
           const results = searchIndexService.instantSearch(query);
           console.log(`✅ Found ${results.length} results for "${query}"`);
           setDisplayBooks(results);

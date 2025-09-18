@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useCleanup } from '@/utils/cleanupManager';
 
 type Props = {
   launchUrl: string;       // absolute URL from scorm-content-proxy?pkg=...&path=...
@@ -6,6 +7,7 @@ type Props = {
 };
 
 const ScormIframe: React.FC<Props> = ({ launchUrl, onLoaded }) => {
+  const cleanup = useCleanup('ScormIframe');
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -33,14 +35,11 @@ const ScormIframe: React.FC<Props> = ({ launchUrl, onLoaded }) => {
     };
     
     const el = iframeRef.current;
-    el?.addEventListener("load", handleLoad);
-    el?.addEventListener("error", handleError);
-    
-    return () => {
-      el?.removeEventListener("load", handleLoad);
-      el?.removeEventListener("error", handleError);
-    };
-  }, [launchUrl, onLoaded]);
+    if (el) {
+      cleanup.addEventListener(el, "load", handleLoad);
+      cleanup.addEventListener(el, "error", handleError);
+    }
+  }, [launchUrl, onLoaded, cleanup]);
 
   return (
     <iframe

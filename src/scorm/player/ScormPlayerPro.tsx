@@ -327,12 +327,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
             }
           };
 
-          window.addEventListener('message', messageHandler);
-          
-          // Cleanup
-          return () => {
-            window.removeEventListener('message', messageHandler);
-          };
+          cleanup.addEventListener(window, 'message', messageHandler);
         }
 
         addDebugLog('info', 'player', `${scormVersion} API initialized successfully`);

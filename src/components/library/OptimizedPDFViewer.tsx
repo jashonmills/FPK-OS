@@ -83,7 +83,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   // Set up loading timeout
   useEffect(() => {
     if (isLoading) {
-      loadingTimeoutRef.current = setTimeout(() => {
+      const timeoutId = cleanup.setTimeout(() => {
         console.warn('⏰ PDF loading timeout reached');
         setIsTimedOut(true);
         setError('PDF loading timed out. The file might be too large or there may be a network issue.');
@@ -252,7 +252,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
     preloadPages(newPage);
     
     // Scroll page into view
-    setTimeout(() => {
+    cleanup.setTimeout(() => {
       const pageElement = pageRefs.current[newPage];
       if (pageElement) {
         pageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface EPUBReaderContentProps {
   readerRef: React.RefObject<HTMLDivElement>;
@@ -22,16 +23,16 @@ export const EPUBReaderContent: React.FC<EPUBReaderContentProps> = ({
   error,
   isInitialized
 }) => {
+  const cleanup = useCleanup('EPUBReaderContent');
+  
   // Layout refresh when needed
   React.useEffect(() => {
     if (!isLoading && !error && !isNavigating && isInitialized) {
-      const timer = setTimeout(() => {
+      cleanup.setTimeout(() => {
         forceLayoutRefresh();
       }, 100);
-      
-      return () => clearTimeout(timer);
     }
-  }, [isLoading, error, isNavigating, forceLayoutRefresh, isInitialized]);
+  }, [isLoading, error, isNavigating, forceLayoutRefresh, isInitialized, cleanup]);
 
   return (
     <div className="flex-1 relative overflow-hidden">
