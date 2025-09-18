@@ -31,10 +31,11 @@ import {
   Mail,
   Calendar,
   BookOpen,
-  Target
+  Target,
+  Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { EnhancedInviteDialog } from '@/components/org/EnhancedInviteDialog';
+import { PortalModal } from '@/components/org/PortalModal';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -223,9 +224,16 @@ export default function StudentsPage() {
             placeholder="Search students..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-transparent border-white/20 text-white placeholder:text-white/60"
           />
         </div>
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2 bg-transparent border-white/20 text-white hover:bg-white/10"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </Button>
       </div>
 
       {/* Students List */}
@@ -284,11 +292,11 @@ export default function StudentsPage() {
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="bg-transparent hover:bg-white/10">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent className="bg-card dark:bg-card border border-border z-50">
                         <DropdownMenuItem onClick={() => setSelectedStudent(student)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Progress
@@ -357,7 +365,7 @@ export default function StudentsPage() {
                       <span className="text-sm font-medium">Introduction to Programming</span>
                       <Badge variant="secondary">85%</Badge>
                     </div>
-                    <div className="w-full bg-background rounded-full h-2">
+                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
                       <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
                     </div>
                   </div>
@@ -366,7 +374,7 @@ export default function StudentsPage() {
                       <span className="text-sm font-medium">Web Development Basics</span>
                       <Badge variant="default">100%</Badge>
                     </div>
-                    <div className="w-full bg-background rounded-full h-2">
+                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
                       <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
                     </div>
                   </div>
@@ -403,10 +411,11 @@ export default function StudentsPage() {
         </SheetContent>
       </Sheet>
 
-      {/* Invite Dialog */}
-      <EnhancedInviteDialog 
+      {/* Invite Modal */}
+      <PortalModal 
         open={showInviteDialog}
         onOpenChange={setShowInviteDialog}
+        organizationId={orgId}
       />
     </div>
   );

@@ -21,11 +21,12 @@ import { assertOrg } from '@/lib/org/context';
 interface EnhancedInviteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  organizationId: string;
 }
 
-export function EnhancedInviteDialog({ open, onOpenChange }: EnhancedInviteDialogProps) {
+export function EnhancedInviteDialog({ open, onOpenChange, organizationId }: EnhancedInviteDialogProps) {
   const { toast } = useToast();
-  const orgId = assertOrg();
+  const orgId = organizationId;
   const emailInviteMutation = useEmailInvitation();
   const { createInvite, generateInviteUrl, isCreating } = useOrgInvites();
   

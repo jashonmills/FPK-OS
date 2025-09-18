@@ -33,7 +33,7 @@ class OPDSProcessor implements SourceProcessor {
   async ingest(config: Record<string, unknown>, filters?: Record<string, unknown>): Promise<DocumentMetadata[]> {
     try {
       const feed = await OPDSService.fetchOPDSFeed();
-      let entries = feed.entries as Array<Record<string, unknown>>;
+      let entries = feed.entries as unknown as Array<Record<string, unknown>>;
 
       // Apply filters
       if (filters && (filters as any).subjects?.length) {

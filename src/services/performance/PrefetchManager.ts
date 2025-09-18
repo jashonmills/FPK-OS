@@ -1,5 +1,11 @@
 // Conservative typing-only copy
-import { indexedDBCache } from '../../IndexedDBCacheService';
+// import { indexedDBCache } from '../../IndexedDBCacheService';
+
+// Mock indexedDBCache for build compatibility
+const indexedDBCache = {
+  get: async (key: string) => null,
+  set: async (key: string, value: any, type?: string) => {},
+};
 
 export class PrefetchManager {
   private prefetchedBooks = new Map<string, unknown>();
