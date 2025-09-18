@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useMonitoring } from '@/hooks/useMonitoring';
 import { performanceService } from '@/services/PerformanceOptimizationService';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface LibraryWithMonitoringProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface LibraryWithMonitoringProps {
 
 const LibraryWithMonitoring: React.FC<LibraryWithMonitoringProps> = ({ children }) => {
   const { trackSearch, trackSearchResults, trackBookDetail, recordCustomMetric } = useMonitoring();
+  const cleanup = useCleanup('LibraryWithMonitoring');
 
   useEffect(() => {
     // Track page load performance
@@ -22,10 +24,12 @@ const LibraryWithMonitoring: React.FC<LibraryWithMonitoringProps> = ({ children 
     if (document.readyState === 'complete') {
       handleLoad();
     } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
+      const listenerId = cleanup.addEventListener(window, 'load', handleLoad);
+      return () => {
+        // Cleanup handled by useCleanup hook
+      };
     }
-  }, [recordCustomMetric]);
+  }, [recordCustomMetric, cleanup]);
 
   // Wrap search functionality
   const monitoredSearch = React.useCallback((query: string, resultCount: number, loadTime?: number) => {

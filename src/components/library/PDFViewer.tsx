@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Home, RefreshCw, AlertTr
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { reinitializeWorker, getWorkerInfo } from '@/utils/pdfWorkerConfig';
+import { useCleanup } from '@/utils/cleanupManager';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -22,6 +23,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const cleanup = useCleanup('PDFViewer');
 
   // Memoize the options to avoid react-pdf warnings
   const pdfOptions = React.useMemo(() => ({
@@ -122,9 +124,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [pageNumber, numPages, onClose]);
+    const listenerId = cleanup.addEventListener(document, 'keydown', handleKeyPress);
+    return () => {
+      // Cleanup handled by useCleanup hook
+    };
+  }, [pageNumber, numPages, onClose, cleanup]);
 
   if (error) {
     return (

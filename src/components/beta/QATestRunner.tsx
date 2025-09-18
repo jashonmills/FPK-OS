@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CheckCircle, XCircle, Clock, Play, ChevronDown, AlertTriangle, Monitor, Smartphone, Tablet } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface TestCase {
   id: string;
@@ -196,6 +197,7 @@ const QATestRunner: React.FC = () => {
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const cleanup = useCleanup('QATestRunner');
 
   useEffect(() => {
     // Initialize test results
@@ -225,7 +227,9 @@ const QATestRunner: React.FC = () => {
     setTestResults(resetResults);
     
     // Wait for state to settle
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise(resolve => {
+      cleanup.setTimeout(() => resolve(undefined), 200);
+    });
     
     const automatedTests = QA_TEST_CASES.filter(test => test.automated);
     console.log('Filtered automated tests:', automatedTests.map(t => t.name));
@@ -241,7 +245,9 @@ const QATestRunner: React.FC = () => {
       }));
 
       // Small delay to let UI update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => {
+        cleanup.setTimeout(() => resolve(undefined), 100);
+      });
 
       try {
         const startTime = performance.now();
@@ -249,7 +255,7 @@ const QATestRunner: React.FC = () => {
         // Add timeout to prevent hanging tests
         const testPromise = test.testFunction?.() || Promise.resolve(false);
         const timeoutPromise = new Promise<boolean>((_, reject) => {
-          setTimeout(() => reject(new Error('Test timeout after 5 seconds')), 5000);
+          cleanup.setTimeout(() => reject(new Error('Test timeout after 5 seconds')), 5000);
         });
         
         const passed = await Promise.race([testPromise, timeoutPromise]);
@@ -288,7 +294,9 @@ const QATestRunner: React.FC = () => {
       }
 
       // Wait between tests
-      await new Promise(resolve => setTimeout(resolve, 250));
+      await new Promise(resolve => {
+        cleanup.setTimeout(() => resolve(undefined), 250);
+      });
     }
 
     console.log('🏁 QA Test Runner completed');

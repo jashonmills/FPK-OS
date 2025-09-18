@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MessageSquare, Loader2 } from 'lucide-react';
 import { useAIFeatureGate } from '@/hooks/useAIFeatureGate';
 import { UsageGate } from '@/components/usage/UsageGate';
+import { useCleanup } from '@/utils/cleanupManager';
 
 /**
  * Example component showing how to integrate usage-based pricing
@@ -15,11 +16,14 @@ export function AIFeatureExample() {
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { executeWithGate, checkFeatureAccess } = useAIFeatureGate();
+  const cleanup = useCleanup('AIFeatureExample');
 
   // Example AI function that would consume credits
   const simulateAIChat = async (userMessage: string): Promise<string> => {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => {
+      cleanup.setTimeout(() => resolve(undefined), 1000);
+    });
     
     // Simulate AI response
     return `AI Response to: "${userMessage}". This is a simulated response that would consume 1 AI chat credit.`;

@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import FeedbackSystem from '@/components/beta/FeedbackSystem';
 import { logger } from '@/utils/logger';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface TestFeedbackSystemProps {
   trigger?: React.ReactNode;
@@ -17,6 +18,7 @@ const TestFeedbackSystem: React.FC<TestFeedbackSystemProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const cleanup = useCleanup('TestFeedbackSystem');
 
   // Real-time listener for test feedback
   useEffect(() => {
@@ -74,7 +76,9 @@ const TestFeedbackSystem: React.FC<TestFeedbackSystemProps> = ({ trigger }) => {
       ];
 
       for (const feedback of testFeedbacks) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+        await new Promise(resolve => {
+          cleanup.setTimeout(() => resolve(undefined), 1000); // Simulate delay
+        });
         
         setTestResults(prev => [...prev, {
           id: `test-${feedback.type}`,

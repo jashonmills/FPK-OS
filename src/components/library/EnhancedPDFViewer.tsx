@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { pdfWorkerManager } from '@/utils/enhancedPdfWorkerConfig';
 import { EnhancedPDFLoader, PDFLoadingProgress } from '@/utils/enhancedPdfUtils';
 import UnifiedLoadingProgress from './UnifiedLoadingProgress';
+import { useCleanup } from '@/utils/cleanupManager';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -23,6 +24,7 @@ const EnhancedPDFViewer: React.FC<EnhancedPDFViewerProps> = ({ fileUrl, fileName
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
   const [isValidating, setIsValidating] = useState<boolean>(true);
+  const cleanup = useCleanup('EnhancedPDFViewer');
   const [validationProgress, setValidationProgress] = useState<PDFLoadingProgress | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [processedUrl, setProcessedUrl] = useState<string>('');
@@ -129,10 +131,12 @@ const EnhancedPDFViewer: React.FC<EnhancedPDFViewerProps> = ({ fileUrl, fileName
     };
 
     if (!isValidating && !validationError) {
-      document.addEventListener('keydown', handleKeyPress);
-      return () => document.removeEventListener('keydown', handleKeyPress);
+      const listenerId = cleanup.addEventListener(document, 'keydown', handleKeyPress);
+      return () => {
+        // Cleanup handled by useCleanup hook
+      };
     }
-  }, [pageNumber, numPages, onClose, isValidating, validationError]);
+  }, [pageNumber, numPages, onClose, isValidating, validationError, cleanup]);
 
   // Show validation/loading state
   if (isValidating || validationError) {

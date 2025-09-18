@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useOpenLibrarySearch } from '@/hooks/useOpenLibrarySearch';
 import { useAddPublicDomainBook } from '@/hooks/useAddPublicDomainBook';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface OpenLibraryBook {
   key: string;
@@ -22,13 +23,14 @@ const OpenLibrarySearchBar: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
   const { toast } = useToast();
+  const cleanup = useCleanup('OpenLibrarySearchBar');
 
   const { searchBooks, isLoading, books } = useOpenLibrarySearch();
   const { addBook, isAdding } = useAddPublicDomainBook();
 
   // Debounced search effect
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = cleanup.setTimeout(() => {
       if (query.trim() && query.length > 2) {
         searchBooks(query);
         setIsOpen(true);
@@ -38,8 +40,10 @@ const OpenLibrarySearchBar: React.FC = () => {
       }
     }, 300);
 
-    return () => clearTimeout(timer);
-  }, [query, searchBooks]);
+    return () => {
+      // Cleanup handled by useCleanup hook
+    };
+  }, [query, searchBooks, cleanup]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -111,9 +115,11 @@ const OpenLibrarySearchBar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleClickOutside]);
+    const listenerId = cleanup.addEventListener(document, 'mousedown', handleClickOutside);
+    return () => {
+      // Cleanup handled by useCleanup hook
+    };
+  }, [handleClickOutside, cleanup]);
 
   return (
     <div className="relative w-full max-w-2xl mx-auto mb-6">

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, BookOpen, Loader2, RotateCcw } from 'lucide-react';
 import { WeatherData } from '@/services/WeatherService';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface WeatherMiniLessonProps {
   weatherData: WeatherData;
@@ -18,6 +19,7 @@ const WeatherMiniLesson: React.FC<WeatherMiniLessonProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [lesson, setLesson] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const cleanup = useCleanup('WeatherMiniLesson');
 
   const generateLesson = async () => {
     if (onGenerate) {
@@ -37,7 +39,9 @@ const WeatherMiniLesson: React.FC<WeatherMiniLessonProps> = ({
       );
 
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+      await new Promise(resolve => {
+        cleanup.setTimeout(() => resolve(undefined), 1500 + Math.random() * 1000);
+      });
 
       // Weather-specific content variations
       const weatherFacts = {

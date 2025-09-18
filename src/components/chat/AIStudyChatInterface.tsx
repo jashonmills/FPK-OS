@@ -74,7 +74,7 @@ const withProgressiveTimeout = <T,>(
   return new Promise((resolve, reject) => {
     let progressTimer: NodeJS.Timeout;
     
-    // Show "Still thinking..." after 8 seconds
+    // Show "Still thinking..." after 8 seconds  
     const progressTimeout = window.setTimeout(() => {
       onProgress("Still thinking... This might take a moment.");
     }, 8000);
