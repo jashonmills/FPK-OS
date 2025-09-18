@@ -9,14 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
-import { 
   Sheet,
   SheetContent,
   SheetDescription,
@@ -176,20 +168,13 @@ export default function StudentsPage() {
         </div>
         
         {canManageMembers && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Invite Students
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <EnhancedInviteDialog 
-                open={true}
-                onOpenChange={() => {}}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setShowInviteDialog(true)}
+          >
+            <UserPlus className="h-4 w-4" />
+            Invite Students
+          </Button>
         )}
       </div>
 
@@ -262,18 +247,10 @@ export default function StudentsPage() {
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Invite Students
-                    </Button>
-                  </DialogTrigger>
-                  <EnhancedInviteDialog 
-                    open={true}
-                    onOpenChange={() => {}}
-                  />
-                </Dialog>
+                <Button onClick={() => setShowInviteDialog(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Invite Students
+                </Button>
               )}
             </div>
           ) : (
@@ -425,6 +402,12 @@ export default function StudentsPage() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Invite Dialog */}
+      <EnhancedInviteDialog 
+        open={showInviteDialog}
+        onOpenChange={setShowInviteDialog}
+      />
     </div>
   );
 }
