@@ -69,7 +69,7 @@ export function OrgNavigation() {
       href: `/org/${currentOrg.organization_id}/branding`,
       label: 'Branding',
       icon: Palette,
-      roles: ['owner'],
+      roles: ['owner', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/settings`,
