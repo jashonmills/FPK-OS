@@ -6,7 +6,7 @@ export interface ManifestResource {
   href: string;
   scormType?: string;
   adlcpScormType?: string;
-  metadata?: any;
+  metadata?: unknown;
 }
 
 export interface ManifestItem {
@@ -22,7 +22,7 @@ export interface ManifestItem {
   completionThreshold?: number;
   timeLimitAction?: string;
   dataFromLMS?: string;
-  sequencing?: any;
+  sequencing?: unknown;
 }
 
 export interface ManifestOrganization {
@@ -30,8 +30,8 @@ export interface ManifestOrganization {
   title: string;
   structure?: string;
   items: ManifestItem[];
-  objectives?: any[];
-  sequencing?: any;
+  objectives?: unknown[];
+  sequencing?: unknown;
 }
 
 export interface ParsedManifest {
@@ -85,7 +85,7 @@ export class ScormManifestParser {
   public parseManifest(xmlContent: string): ParsedManifest {
     try {
       const parsedXml = this.xmlParser.parse(xmlContent);
-      const manifest = parsedXml.manifest || parsedXml['imscp:manifest'];
+      const manifest = (parsedXml as Record<string, unknown>).manifest || (parsedXml as Record<string, unknown>)['imscp:manifest'];
 
       if (!manifest) {
         throw new Error('No manifest element found in XML');
@@ -96,15 +96,16 @@ export class ScormManifestParser {
       const version = this.extractVersion(manifest, standard);
 
       // Extract basic manifest info
-      const identifier = manifest['@identifier'] || 'unknown';
+      const m = manifest as Record<string, unknown>;
+      const identifier = (m['@identifier'] as string) || 'unknown';
       const title = this.extractTitle(manifest) || 'Untitled Package';
       const description = this.extractDescription(manifest);
 
       // Parse organizations
-      const organizations = this.parseOrganizations(manifest.organizations, standard);
+      const organizations = this.parseOrganizations(m.organizations, standard);
       
       // Parse resources
-      const resources = this.parseResources(manifest.resources);
+      const resources = this.parseResources(m.resources);
       
       // Extract SCOs by matching items with resources
       const scos = this.extractScos(organizations, resources, standard);
@@ -122,27 +123,33 @@ export class ScormManifestParser {
         resources,
         scos,
         metadata,
-        defaultOrganization: manifest.organizations?.['@default'] || organizations[0]?.identifier,
-        schemaLocation: manifest['@schemaLocation'] || manifest['@xsi:schemaLocation'],
+        defaultOrganization: (m.organizations as any)?.['@default'] || organizations[0]?.identifier,
+        schemaLocation: (m['@schemaLocation'] as string) || (m['@xsi:schemaLocation'] as string),
         validation
       };
-    } catch (error) {
-      console.error('Manifest parsing error:', error);
-      throw new Error(`Failed to parse manifest: ${error.message}`);
+    } catch (error: unknown) {
+      // Narrow error safely
+      const msg = (error && typeof error === 'object' && 'message' in error) ? String((error as any).message) : String(error);
+      console.error('Manifest parsing error:', msg);
+      throw new Error(`Failed to parse manifest: ${msg}`);
     }
   }
 
-  private detectStandard(manifest: any): 'SCORM 1.2' | 'SCORM 2004' {
+  private detectStandard(manifest: unknown): 'SCORM 1.2' | 'SCORM 2004' {
+    if (!manifest || typeof manifest !== 'object') return 'SCORM 1.2';
+    const m = manifest as Record<string, unknown>;
     // Check namespaces and schema locations
-    const xmlNamespaces = Object.keys(manifest).filter(key => key.startsWith('@xmlns'));
-    const schemaLocation = manifest['@schemaLocation'] || manifest['@xsi:schemaLocation'] || '';
+    const xmlNamespaces = Object.keys(m).filter(key => key.startsWith('@xmlns'));
+    const schemaLocation = (m['@schemaLocation'] as string) || (m['@xsi:schemaLocation'] as string) || '';
 
     // SCORM 2004 indicators
-    if (xmlNamespaces.some(ns => manifest[ns]?.includes('imsss')) ||
-        schemaLocation.includes('imsss') ||
-        schemaLocation.includes('2004') ||
-        manifest.organizations?.organization?.sequencing ||
-        manifest.resources?.resource?.some((r: any) => r['@adlcp:scormType'])) {
+    if (
+      xmlNamespaces.some(ns => typeof m[ns] === 'string' && String(m[ns]).includes('imsss')) ||
+      schemaLocation.includes('imsss') ||
+      schemaLocation.includes('2004') ||
+      ((m.organizations as any)?.organization?.sequencing) ||
+      ((m.resources as any)?.resource && Array.isArray((m.resources as any).resource) && ((m.resources as any).resource as any[]).some(r => (r as any)['@adlcp:scormType']))
+    ) {
       return 'SCORM 2004';
     }
 
@@ -150,20 +157,22 @@ export class ScormManifestParser {
     return 'SCORM 1.2';
   }
 
-  private extractVersion(manifest: any, standard: 'SCORM 1.2' | 'SCORM 2004'): string {
+  private extractVersion(manifest: unknown, standard: 'SCORM 1.2' | 'SCORM 2004'): string {
+    const m = manifest as Record<string, unknown>;
     if (standard === 'SCORM 2004') {
-      const schemaLocation = manifest['@schemaLocation'] || manifest['@xsi:schemaLocation'] || '';
+      const schemaLocation = (m['@schemaLocation'] as string) || (m['@xsi:schemaLocation'] as string) || '';
       if (schemaLocation.includes('2004_4th')) return '2004 4th Edition';
       if (schemaLocation.includes('2004_3rd')) return '2004 3rd Edition';
       if (schemaLocation.includes('2004')) return '2004';
     }
     
-    return manifest['@version'] || (standard === 'SCORM 1.2' ? '1.2' : '2004');
+    return (m['@version'] as string) || (standard === 'SCORM 1.2' ? '1.2' : '2004');
   }
 
-  private extractTitle(manifest: any): string {
+  private extractTitle(manifest: unknown): string {
     // Try multiple paths for title
-    const metadata = manifest.metadata;
+    const m = manifest as Record<string, any>;
+    const metadata = m.metadata;
     if (metadata?.lom?.general?.title) {
       const title = metadata.lom.general.title;
       return title.langstring?.["#text"] || title.langstring || title["#text"] || title;
@@ -174,7 +183,7 @@ export class ScormManifestParser {
     }
 
     // Fallback to organization title
-    const orgs = manifest.organizations?.organization;
+    const orgs = (m.organizations as any)?.organization;
     if (orgs) {
       const firstOrg = Array.isArray(orgs) ? orgs[0] : orgs;
       return firstOrg?.title?.["#text"] || firstOrg?.title || firstOrg?.["@title"];
@@ -183,8 +192,9 @@ export class ScormManifestParser {
     return 'Untitled SCORM Package';
   }
 
-  private extractDescription(manifest: any): string | undefined {
-    const metadata = manifest.metadata;
+  private extractDescription(manifest: unknown): string | undefined {
+    const m = manifest as Record<string, any>;
+    const metadata = m.metadata;
     if (metadata?.lom?.general?.description) {
       const desc = metadata.lom.general.description;
       return desc.langstring?.["#text"] || desc.langstring || desc["#text"] || desc;
@@ -197,14 +207,15 @@ export class ScormManifestParser {
     return undefined;
   }
 
-  private extractMetadata(manifest: any): any {
-    return manifest.metadata || {};
+  private extractMetadata(manifest: unknown): unknown {
+    const m = manifest as Record<string, unknown>;
+    return m.metadata || {};
   }
 
-  private parseOrganizations(organizationsNode: any, standard: 'SCORM 1.2' | 'SCORM 2004'): ManifestOrganization[] {
+  private parseOrganizations(organizationsNode: unknown, standard: 'SCORM 1.2' | 'SCORM 2004'): ManifestOrganization[] {
     if (!organizationsNode) return [];
 
-    const orgs = organizationsNode.organization;
+    const orgs = (organizationsNode as any).organization;
     if (!orgs) return [];
 
     const orgArray = Array.isArray(orgs) ? orgs : [orgs];
@@ -219,7 +230,7 @@ export class ScormManifestParser {
     }));
   }
 
-  private parseItems(itemsNode: any, standard: 'SCORM 1.2' | 'SCORM 2004', level = 0): ManifestItem[] {
+  private parseItems(itemsNode: unknown, standard: 'SCORM 1.2' | 'SCORM 2004', level = 0): ManifestItem[] {
     if (!itemsNode) return [];
 
     const items = Array.isArray(itemsNode) ? itemsNode : [itemsNode];
@@ -240,10 +251,10 @@ export class ScormManifestParser {
     }));
   }
 
-  private parseResources(resourcesNode: any): ManifestResource[] {
-    if (!resourcesNode?.resource) return [];
+  private parseResources(resourcesNode: unknown): ManifestResource[] {
+    if (!(resourcesNode as any)?.resource) return [];
 
-    const resources = Array.isArray(resourcesNode.resource) ? resourcesNode.resource : [resourcesNode.resource];
+    const resources = Array.isArray((resourcesNode as any).resource) ? (resourcesNode as any).resource : [(resourcesNode as any).resource];
     
     return resources.map((resource: any) => ({
       identifier: resource['@identifier'] || '',

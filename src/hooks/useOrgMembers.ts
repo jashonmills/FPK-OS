@@ -29,7 +29,7 @@ export const useOrgMembers = (searchQuery?: string, roleFilter?: string) => {
     queryFn: async () => {
       if (!currentOrg?.organization_id) return [];
       
-      let query = supabase
+      const query = supabase
         .from('org_members')
         .select(`
           *,

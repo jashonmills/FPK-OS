@@ -74,7 +74,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
       });
 
       // If fewer than 5 cards available, use any cards
-      let selectedCards = availableCards.length >= 5 
+      const selectedCards = availableCards.length >= 5 
         ? availableCards.sort(() => 0.5 - Math.random()).slice(0, 5)
         : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
 
@@ -206,7 +206,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
         return new Date(card.last_reviewed_at) < oneDayAgo;
       });
 
-      let selectedCards = availableCards.length >= 5 
+      const selectedCards = availableCards.length >= 5 
         ? availableCards.sort(() => 0.5 - Math.random()).slice(0, 5)
         : flashcards.sort(() => 0.5 - Math.random()).slice(0, 5);
 

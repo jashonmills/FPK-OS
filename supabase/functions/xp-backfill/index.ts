@@ -58,16 +58,21 @@ serve(async (req) => {
     const { action, dry_run = false, user_id = null } = await req.json()
 
     switch (action) {
-      case 'backfill_xp':
+      case 'backfill_xp': {
         return await backfillUserXP(supabaseClient, user_id || user.id, dry_run)
-      case 'backfill_all_users':
+      }
+      case 'backfill_all_users': {
         return await backfillAllUsers(supabaseClient, dry_run)
-      case 'rollback_backfill':
+      }
+      case 'rollback_backfill': {
         return await rollbackBackfill(supabaseClient, user_id || user.id)
-      case 'get_backfill_report':
+      }
+      case 'get_backfill_report': {
         return await getBackfillReport(supabaseClient, user_id || user.id)
-      default:
+      }
+      default: {
         return new Response('Invalid action', { status: 400, headers: corsHeaders })
+      }
     }
   } catch (error) {
     console.error('XP Backfill Error:', error)
@@ -406,16 +411,18 @@ async function checkAndAwardRetroactiveBadges(supabaseClient: any, userId: strin
     let earned = false
 
     switch (criteria.type) {
-      case 'flashcard_created':
+      case 'flashcard_created': {
         earned = activities.flashcards.length >= criteria.count
         break
+      }
 
-      case 'study_streak':
+      case 'study_streak': {
         // This would need more complex calculation based on study session dates
         // For now, skip streak badges in backfill
         break
+      }
 
-      case 'module_completed':
+      case 'module_completed': {
         // Get module completions from enrollments
         const { data: completions } = await supabaseClient
           .from('enrollments')
@@ -425,12 +432,14 @@ async function checkAndAwardRetroactiveBadges(supabaseClient: any, userId: strin
         const moduleCount = completions?.filter((e: any) => e.progress?.completed === true).length || 0
         earned = moduleCount >= criteria.count
         break
+      }
 
-      case 'reading_time':
+      case 'reading_time': {
         const totalHours = activities.reading_sessions
           .reduce((sum, session) => sum + (session.duration_seconds || 0), 0) / 3600
         earned = totalHours >= criteria.hours
         break
+      }
     }
 
     if (earned) {

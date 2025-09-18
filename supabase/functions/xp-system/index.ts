@@ -100,11 +100,13 @@ async function awardXP(supabaseClient: any, userId: string, payload: XPEvent) {
   if (eventError) throw eventError
 
   // Get or create user XP record
-  let { data: userXP, error: fetchError } = await supabaseClient
+  const fetchRes = await supabaseClient
     .from('user_xp')
     .select('*')
     .eq('user_id', userId)
     .single()
+  let userXP = fetchRes.data
+  const fetchError = fetchRes.error
 
   if (fetchError && fetchError.code === 'PGRST116') {
     // Create new user XP record
@@ -203,7 +205,7 @@ async function checkAndAwardBadges(supabaseClient: any, userId: string) {
     .select('badge_id')
     .eq('user_id', userId)
 
-  const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badge_id) || [])
+  const earnedBadgeIds = new Set((userBadges?.map((ub: any) => ub.badge_id) || []))
   const newBadges = []
 
   for (const badge of allBadges || []) {
@@ -213,15 +215,16 @@ async function checkAndAwardBadges(supabaseClient: any, userId: string) {
     let earned = false
 
     switch (criteria.type) {
-      case 'flashcard_created':
+      case 'flashcard_created': {
         const { count: flashcardCount } = await supabaseClient
           .from('flashcards')
           .select('id', { count: 'exact' })
           .eq('user_id', userId)
         earned = flashcardCount >= criteria.count
         break
+      }
 
-      case 'study_streak':
+      case 'study_streak': {
         const { data: studyStreak } = await supabaseClient
           .from('streaks')
           .select('current_count')
@@ -230,8 +233,9 @@ async function checkAndAwardBadges(supabaseClient: any, userId: string) {
           .single()
         earned = (studyStreak?.current_count || 0) >= criteria.count
         break
+      }
 
-      case 'module_completed':
+      case 'module_completed': {
         const { count: moduleCount } = await supabaseClient
           .from('enrollments')
           .select('progress', { count: 'exact' })
@@ -239,16 +243,18 @@ async function checkAndAwardBadges(supabaseClient: any, userId: string) {
           .contains('progress', { completed: true })
         earned = moduleCount >= criteria.count
         break
+      }
 
-      case 'reading_time':
+      case 'reading_time': {
         const { data: readingSessions } = await supabaseClient
           .from('reading_sessions')
           .select('duration_seconds')
           .eq('user_id', userId)
         const totalHours = (readingSessions || [])
-          .reduce((sum, session) => sum + (session.duration_seconds || 0), 0) / 3600
+          .reduce((sum: number, session: any) => sum + (session.duration_seconds || 0), 0) / 3600
         earned = totalHours >= criteria.hours
         break
+      }
     }
 
     if (earned) {
@@ -277,7 +283,7 @@ async function checkAndAwardBadges(supabaseClient: any, userId: string) {
 async function updateStreak(supabaseClient: any, userId: string, streakType: string) {
   const today = new Date().toISOString().split('T')[0]
   
-  let { data: streak, error } = await supabaseClient
+  const { data: streak, error } = await supabaseClient
     .from('streaks')
     .select('*')
     .eq('user_id', userId)

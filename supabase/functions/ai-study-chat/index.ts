@@ -1,3 +1,6 @@
+// Packaged copy for review/apply: supabase/functions/ai-study-chat/index.ts
+// This file is the post-fix (current) content. Apply script will copy this over the repo file.
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, SOCRATIC_BLUEPRINT_V42, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
@@ -397,7 +400,7 @@ serve(async (req) => {
       promptType,
       messageLength: message?.length || 0
     });
-    
+
     // Provide contextual error response
     const errorResponse = getContextualResponse(message, chatMode || 'general', 'system_error');
     
@@ -517,7 +520,7 @@ function isGratitudeExpression(message: string): boolean {
     'good'
   ];
   
-  // Only consider it gratitude if it's a short message focused on appreciation
+  // Only consider it gratitude if it\'s a short message focused on appreciation
   if (message.length > 50) return false;
   
   return gratitudePatterns.some(pattern => message.includes(pattern));
@@ -525,7 +528,7 @@ function isGratitudeExpression(message: string): boolean {
 
 function isSimpleFoundationalQuestion(message: string): boolean {
   const simplePatterns = [
-    /^\s*\d+\s*[\+\-\*\/]\s*\d+\s*$/,  // Basic math like "2+2"
+  /^\s*\d+\s*[+\-*/]\s*\d+\s*$/,  // Basic math like "2+2"
     /^what\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What is water?"
     /^how\s+much\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "How much is 5+5?"
     /^what\s+color\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What color is the sky?"
@@ -589,8 +592,8 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
   const lowerMessage = message.toLowerCase();
   
   // Math questions
-  if (lowerMessage.match(/\d+\s*[\+\-\*\/]\s*\d+/) || lowerMessage.includes('what') && (lowerMessage.includes('+') || lowerMessage.includes('-') || lowerMessage.includes('*') || lowerMessage.includes('/'))) {
-    const mathMatch = message.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+  if (lowerMessage.match(/\d+\s*[+\-*/]\s*\d+/) || lowerMessage.includes('what') && (lowerMessage.includes('+') || lowerMessage.includes('-') || lowerMessage.includes('*') || lowerMessage.includes('/'))) {
+    const mathMatch = message.match(/(\d+)\s*([+\-*/])\s*(\d+)/);
     if (mathMatch) {
       const [, num1, op, num2] = mathMatch;
       const a = parseInt(num1), b = parseInt(num2);
@@ -609,7 +612,7 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
       }
     }
   }
-  
+
   // Cloud/weather topics
   if (lowerMessage.includes('cloud') || lowerMessage.includes('weather') || lowerMessage.includes('sky')) {
     if (chatMode === 'personal') {
@@ -618,46 +621,3 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
       return "Clouds are fascinating! ☁️ Rather than explaining everything at once, let's explore together. What have you observed about clouds that makes you curious?";
     }
   }
-  
-  // Science topics
-  if (lowerMessage.includes('science') || lowerMessage.includes('physics') || lowerMessage.includes('chemistry') || lowerMessage.includes('biology')) {
-    if (chatMode === 'personal') {
-      return "Science is everywhere around us! 🔬 What specific observation or question has sparked your curiosity? Let's explore it through questioning and discovery.";
-    } else {
-      return "Science offers so many fascinating areas to explore! What specific phenomenon or question interests you? I'd like to guide you to discover the answer yourself.";
-    }
-  }
-  
-  // Generic greetings or simple questions
-  if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('help')) {
-    if (chatMode === 'personal') {
-      return "Hello! I'm your AI learning coach using the Socratic method! 🎓 Instead of giving direct answers, I'll guide you to discover knowledge through thoughtful questions. What topic has sparked your curiosity today?";
-    } else {
-      return "Hello! I'm here to help you learn through guided questioning. Rather than just providing answers, I'll help you think through problems step by step. What would you like to explore?";
-    }
-  }
-  
-  // Error-specific responses
-  if (errorType === 'api_error') {
-    if (chatMode === 'personal') {
-      return `I'm having a temporary connection issue, but let's use this as a learning opportunity! 🤔 About "${message}" - what do you already know or think about this topic? What questions does it raise for you?`;
-    } else {
-      return `I'm experiencing a technical issue, but I can still guide your learning about "${message}"! What aspect of this topic would you like to explore first through questioning?`;
-    }
-  }
-  
-  if (errorType === 'timeout') {
-    if (chatMode === 'personal') {
-      return `That request took longer than expected, but I haven't forgotten about "${message}"! 🕐 While I process complex questions faster, let's break this down: What specific aspect of "${message}" interests you most? Sometimes the best learning happens through focused questions!`;
-    } else {
-      return `The request timed out, but I can still help with "${message}"! Let's approach this step by step - what particular aspect would you like to explore first? I work best with focused, specific questions.`;
-    }
-  }
-  
-  // Default contextual responses using Socratic method
-  if (chatMode === 'personal') {
-    return `That's an interesting question about "${message}"! 🧠 Following the Socratic method, let me guide your thinking: What do you already know about this topic? What connections can you make to things you've learned before?`;
-  } else {
-    return `I'd be happy to guide you through exploring "${message}"! Rather than just telling you the answer, what do you think you already know about this? What questions does it raise for you?`;
-  }
-}

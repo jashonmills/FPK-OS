@@ -1,3 +1,5 @@
+// Packaged copy for review/apply: supabase/functions/fetch-linear-equations-content/index.ts
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0'
 
 const corsHeaders = {
@@ -186,7 +188,7 @@ function parseMarkdownToBlocks(content: string): Array<{type: string, content: s
       }
     }
     // Problems or exercises (lines starting with numbers or "Problem:")
-    else if (/^\d+[\.\)]/.test(line) || line.toLowerCase().startsWith('problem') || line.toLowerCase().startsWith('solve')) {
+  else if (/^\d+[.)]/.test(line) || line.toLowerCase().startsWith('problem') || line.toLowerCase().startsWith('solve')) {
       if (currentBlock && currentBlock.type === 'practice') {
         // Continue building practice block
         currentBlock.content.push(line);

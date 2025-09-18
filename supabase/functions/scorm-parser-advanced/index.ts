@@ -1,3 +1,5 @@
+// Packaged copy for review/apply: supabase/functions/scorm-parser-advanced/index.ts
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -45,7 +47,7 @@ function parseManifestXML(xmlContent: string) {
       const resource = resources.get(resourceRef);
       
       // Extract item title
-      const itemTitleMatch = xmlContent.match(new RegExp(`<item[^>]*identifier="${itemId}"[^>]*>.*?<title[^>]*>([^<]*)<\/title>`, 's'));
+  const itemTitleMatch = xmlContent.match(new RegExp(`<item[^>]*identifier="${itemId}"[^>]*>.*?<title[^>]*>([^<]*)</title>`, 's'));
       const itemTitle = itemTitleMatch?.[1] || `SCO ${index + 1}`;
       
       return {

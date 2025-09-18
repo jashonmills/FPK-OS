@@ -20,7 +20,7 @@ serve(async (req) => {
 
     const { organizationId, export_type, format } = await req.json();
 
-    let data = {};
+    const data = {};
     
     // Get organization info
     const { data: org } = await supabaseClient

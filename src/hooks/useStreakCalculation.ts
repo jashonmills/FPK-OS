@@ -45,7 +45,7 @@ export function useStreakCalculation() {
       // Check if user studied today
       if (sessionsByDate.has(today)) {
         currentStreak = 1;
-        let checkDate = new Date();
+        const checkDate = new Date();
         checkDate.setDate(checkDate.getDate() - 1);
         
         // Count consecutive days backwards from today
@@ -61,7 +61,7 @@ export function useStreakCalculation() {
       } else if (sessionsByDate.has(yesterdayStr)) {
         // If didn't study today but studied yesterday, start streak from yesterday
         currentStreak = 1;
-        let checkDate = new Date();
+        const checkDate = new Date();
         checkDate.setDate(checkDate.getDate() - 2);
         
         // Count consecutive days backwards from yesterday

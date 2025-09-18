@@ -197,7 +197,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       loadingTimeoutRef.current = null;
     }
     
-    let errorMessage = `Failed to load PDF: ${error.message}`;
+    const errorMessage = `Failed to load PDF: ${error.message}`;
     let suggestion = '';
     
     // Provide specific error handling

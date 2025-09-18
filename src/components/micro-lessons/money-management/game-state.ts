@@ -148,7 +148,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       let newCurrentEmergencyFund = state.currentEmergencyFund;
       let newDebt = state.currentDebt;
       let newCreditCardBalance = state.creditCardBalance;
-      let newEnvelopes = { ...state.envelopes };
+      const newEnvelopes = { ...state.envelopes };
       let newScore = state.score;
       let newCredit = state.creditScore;
       let newStreak = state.streak;
