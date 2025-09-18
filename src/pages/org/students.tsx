@@ -407,6 +407,7 @@ export default function StudentsPage() {
       <EnhancedInviteDialog 
         open={showInviteDialog}
         onOpenChange={setShowInviteDialog}
+        organizationId={orgId}
       />
     </div>
   );
