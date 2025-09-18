@@ -594,6 +594,12 @@ const App: React.FC = () => {
           }>
             <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
+            <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
+            <Route path=":orgId/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
+            <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
+            <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
+            <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
+            <Route path=":orgId/invite" element={<LazyRoute><OrgInvitationsPage /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />
           </Route>
           

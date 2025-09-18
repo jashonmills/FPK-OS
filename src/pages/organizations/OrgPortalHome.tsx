@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import { useOrgBranding } from '@/hooks/useOrgBranding';
 import stOliversBg from '@/assets/st-olivers-bg.webp';
 
 export default function OrgPortalHome() {
+  const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: statistics, isLoading: statsLoading, error: statsError } = useOrgStatistics();
@@ -215,19 +217,34 @@ export default function OrgPortalHome() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              <Button className="flex items-center space-x-2 bg-purple-700 hover:bg-purple-600 text-white border-purple-500">
+              <Button 
+                className="flex items-center space-x-2 bg-purple-700 hover:bg-purple-600 text-white border-purple-500"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/invite`)}
+              >
                 <Users className="h-4 w-4" />
                 <span>Invite Members</span>
               </Button>
-              <Button variant="outline" className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+              >
                 <BookOpen className="h-4 w-4" />
                 <span>Assign Course</span>
               </Button>
-              <Button variant="outline" className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
+              >
                 <Target className="h-4 w-4" />
                 <span>Create Goal</span>
               </Button>
-              <Button variant="outline" className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-purple-400 text-purple-100 hover:bg-purple-800/50"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
+              >
                 <Award className="h-4 w-4" />
                 <span>View Reports</span>
               </Button>
