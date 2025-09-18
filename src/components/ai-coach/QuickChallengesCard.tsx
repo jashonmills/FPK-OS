@@ -10,6 +10,7 @@ import CustomPractice from './challenges/CustomPractice';
 import FlashcardSelectionModal from '@/components/study/FlashcardSelectionModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Flashcard } from '@/hooks/useFlashcards';
+import { logger } from '@/utils/logger';
 
 interface Challenge {
   id: string;
@@ -83,7 +84,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
     try {
       // Validate flashcards data
       if (!Array.isArray(selectedFlashcards)) {
-        console.warn('Invalid flashcards data received:', selectedFlashcards);
+        logger.warn('Invalid flashcards data received', 'FLASHCARDS', selectedFlashcards);
         setComponentError('Invalid flashcard selection');
         return;
       }
@@ -94,7 +95,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
       setActiveChallenge('custom-practice');
       setComponentError(null); // Clear any previous errors
     } catch (error) {
-      console.error('Error in custom practice start:', error);
+      logger.error('Error in custom practice start', 'FLASHCARDS', error);
       setComponentError('Failed to start custom practice');
     }
   };
@@ -106,7 +107,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
       setComponentError(null); // Clear any errors
       // Keep the current active challenge but it will now use default behavior
     } catch (error) {
-      console.error('Error clearing custom selection:', error);
+      logger.error('Error clearing custom selection', 'FLASHCARDS', error);
       setComponentError('Failed to clear selection');
     }
   };
@@ -163,7 +164,7 @@ const QuickChallengesCard: React.FC<QuickChallengesCardProps> = ({ challenges })
       
       return <ComponentToRender />;
     } catch (error) {
-      console.error('Error rendering challenge component:', error);
+      logger.error('Error rendering challenge component', 'FLASHCARDS', error);
       setComponentError('Failed to load challenge component');
       return null;
     }

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { NavigationItem } from '@/types/common-interfaces';
+import { logger } from '@/utils/logger';
 import {
   Sidebar,
   SidebarContent,
@@ -250,7 +251,7 @@ export function AppSidebar() {
       await signOut();
       navigate('/login');
     } catch (error) {
-      console.error('Error signing out:', error);
+      logger.auth('Error signing out', error);
     }
   };
 

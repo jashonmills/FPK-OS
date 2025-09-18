@@ -16,6 +16,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { analyticsDataSync } from '@/utils/analyticsDataSync';
 import { EnrollmentData, LessonData } from '@/types/analytics-data';
+import { logger } from '@/utils/logger';
 
 interface CourseAnalytics {
   courseId: string;
@@ -49,7 +50,7 @@ export const CoursePerformanceAnalytics: React.FC = () => {
   const loadAnalyticsData = async () => {
     setIsLoading(true);
     try {
-      console.log('🔄 Loading admin course analytics data');
+      logger.debug('Loading admin course analytics data', 'ANALYTICS');
       
       // Load all enrollments from both tables (admin view)
       const { data: newEnrollmentData, error: newEnrollmentError } = await supabase
@@ -61,10 +62,10 @@ export const CoursePerformanceAnalytics: React.FC = () => {
         .select('course_id, enrolled_at, user_id, progress');
 
       if (newEnrollmentError) {
-        console.error('Error loading new enrollments:', newEnrollmentError);
+        logger.error('Error loading new enrollments', 'ANALYTICS', newEnrollmentError);
       }
       if (oldEnrollmentError) {
-        console.error('Error loading old enrollments:', oldEnrollmentError);
+        logger.error('Error loading old enrollments', 'ANALYTICS', oldEnrollmentError);
       }
 
       // Convert old enrollments to new format
@@ -87,7 +88,7 @@ export const CoursePerformanceAnalytics: React.FC = () => {
 
       // Combine all enrollment data
       const allEnrollments = [...(newEnrollmentData || []), ...convertedEnrollments];
-      console.log('📈 Total admin enrollments:', allEnrollments.length);
+      logger.debug('Total admin enrollments', 'ANALYTICS', { count: allEnrollments.length });
 
       // Load all lesson analytics
       const { data: lessonData, error: lessonError } = await supabase
@@ -95,7 +96,7 @@ export const CoursePerformanceAnalytics: React.FC = () => {
         .select('*');
 
       if (lessonError) {
-        console.error('Error loading lesson data:', lessonError);
+        logger.error('Error loading lesson data', 'ANALYTICS', lessonError);
       }
 
       // Process course analytics with all data
@@ -107,7 +108,7 @@ export const CoursePerformanceAnalytics: React.FC = () => {
       setLearningTrends(trends);
       
     } catch (error) {
-      console.error('Error loading admin analytics data:', error);
+      logger.error('Error loading admin analytics data', 'ANALYTICS', error);
     } finally {
       setIsLoading(false);
     }
@@ -276,7 +277,7 @@ export const CoursePerformanceAnalytics: React.FC = () => {
               try {
                 await loadAnalyticsData();
               } catch (error) {
-                console.error('Sync failed:', error);
+                logger.error('Sync failed', 'ANALYTICS', error);
               } finally {
                 setIsLoading(false);
               }

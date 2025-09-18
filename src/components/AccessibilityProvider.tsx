@@ -2,6 +2,7 @@
 import React from 'react';
 import { useOptimizedAccessibility } from '@/hooks/useOptimizedAccessibility';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
+import { logger } from '@/utils/logger';
 
 interface AccessibilityProviderProps {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ const AccessibilityProviderContent: React.FC<AccessibilityProviderProps> = ({ ch
   const { error } = useOptimizedAccessibility();
 
   if (error) {
-    console.warn('Accessibility Provider Error:', error);
+    logger.accessibility('Accessibility Provider Error', error);
   }
 
   return <>{children}</>;

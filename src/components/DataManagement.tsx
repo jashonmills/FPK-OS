@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuditLog } from "@/hooks/useAuditLog";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, Trash2, FileText, Shield, Clock, AlertTriangle } from "lucide-react";
+import { logger } from '@/utils/logger';
 import { DataRetentionNotice } from "@/components/compliance/DataRetentionNotice";
 
 export function DataManagement() {
@@ -107,7 +108,7 @@ export function DataManagement() {
         description: `${totalRecords} records exported. Download includes all your personal data.`,
       });
     } catch (error) {
-      console.error('Export error:', error);
+      logger.error('Export error', 'DATA_EXPORT', error);
       toast({
         title: "Export failed",
         description: "There was an error exporting your data. Please try again.",
@@ -154,7 +155,7 @@ export function DataManagement() {
         description: "Your account and all personal data have been permanently deleted. Audit logs are retained for legal compliance.",
       });
     } catch (error) {
-      console.error('Delete error:', error);
+      logger.error('Delete error', 'DATA_DELETE', error);
       toast({
         title: "Deletion failed",
         description: "There was an error deleting your account. Please contact support.",

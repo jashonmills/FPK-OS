@@ -100,7 +100,7 @@ const ScormPackages = lazy(() => import("./pages/scorm/ScormPackages"));
 const ScormAssignments = lazy(() => import("./pages/scorm/ScormAssignments"));
 const ScormPlayer = lazy(() =>
   import("./pages/scorm/ScormPlayer").catch(error => {
-    console.error('❌ Failed to load ScormPlayer component:', error);
+    logger.error('Failed to load ScormPlayer component', 'COMPONENT_LOADER', error);
     throw error;
   })
 );
@@ -174,7 +174,7 @@ const App: React.FC = () => {
         } catch (error) {
           // Silently handle cleanup errors in production
           if (import.meta.env.DEV) {
-            console.warn('Performance cleanup error:', error);
+            logger.warn('Performance cleanup error', 'PERFORMANCE', error);
           }
         }
       }, 900000, 'app-performance-cleanup'); // Increased to 15 minutes to reduce overhead

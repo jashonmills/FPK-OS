@@ -166,14 +166,14 @@ const FileUploadCard: React.FC = () => {
       });
 
       if (error) {
-        console.error('Edge function error:', error);
+        logger.api('Edge function error', error);
         throw error;
       }
 
       return data.flashcardsGenerated || 0;
 
     } catch (error) {
-      console.error('Error processing file for AI coach:', error);
+      logger.error('Error processing file for AI coach', 'FILE_PROCESSING', error);
       throw error;
     }
   };
@@ -263,7 +263,7 @@ const FileUploadCard: React.FC = () => {
           .upload(filePath, file);
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
+          logger.error('Upload error', 'FILE_UPLOAD', uploadError);
           toast({
             title: "❌ Upload failed",
             description: "Failed to upload file to storage.",
@@ -345,7 +345,7 @@ const FileUploadCard: React.FC = () => {
             }
 
           } catch (error) {
-            console.error('AI processing error:', error);
+            logger.error('AI processing error', 'AI_PROCESSING', error);
             
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
@@ -386,7 +386,7 @@ const FileUploadCard: React.FC = () => {
         }, 1000);
 
       } catch (error) {
-        console.error('File upload error:', error);
+        logger.error('File upload error', 'FILE_UPLOAD', error);
         toast({
           title: "❌ Upload error",
           description: "An unexpected error occurred during upload.",
@@ -469,7 +469,7 @@ const FileUploadCard: React.FC = () => {
       );
 
     } catch (error) {
-      console.error('Retry processing error:', error);
+      logger.error('Retry processing error', 'FILE_PROCESSING', error);
       toast({
         title: "❌ Retry failed",
         description: "Failed to retry AI processing. Please try uploading again.",

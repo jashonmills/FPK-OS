@@ -8,6 +8,7 @@ import { Eye, EyeOff, Loader2, Lock, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -62,18 +63,18 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
     setError('');
 
     try {
-      console.log('🔐 Updating password...');
-      const { error } = await supabase.auth.updateUser({ 
+      logger.auth('Updating password');
+      const { error } = await supabase.auth.updateUser({
         password: passwords.newPassword 
       });
 
       if (error) {
-        console.error('❌ Password update failed:', error);
+        logger.error('Password update failed', 'AUTH', error);
         setError(error.message || 'Failed to update password. Please try again.');
         return;
       }
 
-      console.log('✅ Password updated successfully');
+      logger.auth('Password updated successfully');
       setSuccess(true);
       
       toast({
@@ -88,7 +89,7 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
       }, 2000);
       
     } catch (err) {
-      console.error('❌ Password reset error:', err);
+      logger.error('Password reset error', 'AUTH', err);
       setError('An error occurred while updating your password. Please try again.');
     } finally {
       setIsLoading(false);

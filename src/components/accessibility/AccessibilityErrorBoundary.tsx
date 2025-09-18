@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface AccessibilityErrorBoundaryState {
   hasError: boolean;
@@ -27,11 +28,7 @@ class AccessibilityErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(`❌ Component error in ${this.props.componentName || 'Unknown'}:`, error);
-    console.error('❌ Error info:', errorInfo);
-    if (error?.stack) {
-      console.error('❌ Error stack:', error.stack);
-    }
+    logger.accessibility(`Component error in ${this.props.componentName || 'Unknown'}`, { error, errorInfo, stack: error?.stack });
   }
 
   render() {
