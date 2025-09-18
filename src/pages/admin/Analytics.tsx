@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Users, BookOpen, TrendingUp, Award, Clock, Target, BarChart3, MessageCircle } from 'lucide-react';
-import RouteBoundary from '@/components/RouteBoundary';
+import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 
 // Dynamic imports for admin analytics components
 const CoursePerformanceAnalytics = React.lazy(() => 
@@ -267,7 +267,7 @@ const Analytics = () => {
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <div className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -378,11 +378,11 @@ const Analytics = () => {
                 </Card>
               </div>
             </div>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="courses" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -390,11 +390,11 @@ const Analytics = () => {
             }>
               <CoursePerformanceAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="reading" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -402,11 +402,11 @@ const Analytics = () => {
             }>
               <AdminReadingAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="ai-coach" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -414,11 +414,11 @@ const Analytics = () => {
             }>
               <AdminAICoachAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="goals" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -426,7 +426,7 @@ const Analytics = () => {
             }>
               <AdminGoalsAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
       </Tabs>
     </div>

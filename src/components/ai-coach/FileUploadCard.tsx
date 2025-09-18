@@ -11,6 +11,7 @@ import { useFileUploadSubscription } from '@/hooks/useFileUploadSubscription';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, CheckCircle, AlertCircle, X, RefreshCw, Brain } from 'lucide-react';
 import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 const FileUploadCard: React.FC = () => {
   const cleanup = useCleanup('FileUploadCard');
@@ -21,7 +22,7 @@ const FileUploadCard: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
-  const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, string>>({});
   const subscriptionIdRef = useRef<string>(`ai-coach-upload-${Date.now()}`);
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
@@ -47,7 +48,7 @@ const FileUploadCard: React.FC = () => {
       if (payload.new.processing_status === 'completed') {
         // Clear timeout and progress
         if (processingTimeouts[payload.new.id]) {
-          clearTimeout(processingTimeouts[payload.new.id]);
+          cleanup.cleanup(processingTimeouts[payload.new.id]);
         }
         
         setProcessingProgress(prev => {
@@ -72,7 +73,7 @@ const FileUploadCard: React.FC = () => {
       } else if (payload.new.processing_status === 'failed') {
         // Clear timeout and progress
         if (processingTimeouts[payload.new.id]) {
-          clearTimeout(processingTimeouts[payload.new.id]);
+          cleanup.cleanup(processingTimeouts[payload.new.id]);
         }
         
         setProcessingProgress(prev => {
@@ -97,7 +98,7 @@ const FileUploadCard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error handling file upload update:', error);
+      logger.error('Error handling file upload update', 'FILE_UPLOAD', error);
       setSubscriptionError('Error processing upload update');
     }
   }, [processingTimeouts, stopPolling, toast]);
@@ -112,7 +113,7 @@ const FileUploadCard: React.FC = () => {
       subscribe(subscriptionId, handleFileUploadUpdate);
       setSubscriptionError(null);
     } catch (error) {
-      console.error('Error setting up subscription:', error);
+      logger.error('Error setting up subscription', 'FILE_UPLOAD', error);
       setSubscriptionError('Failed to set up real-time updates');
       // Continue without real-time updates instead of crashing
       return;
@@ -122,16 +123,17 @@ const FileUploadCard: React.FC = () => {
       try {
         unsubscribe(subscriptionId);
       } catch (error) {
-        console.error('Error cleaning up subscription:', error);
+        logger.error('Error cleaning up subscription', 'FILE_UPLOAD', error);
       }
       
-      // Clean up timeouts
-      Object.values(processingTimeouts).forEach(timeout => {
-        if (timeout) {
+      // Clean up timeouts via cleanup manager
+      Object.keys(processingTimeouts).forEach(uploadId => {
+        const timeoutId = processingTimeouts[uploadId];
+        if (timeoutId) {
           try {
-            clearTimeout(timeout);
+            cleanup.cleanup(timeoutId);
           } catch (error) {
-            console.warn('Error clearing timeout:', error);
+            logger.warn('Error clearing timeout via cleanup manager', 'FILE_UPLOAD', { error, uploadId });
           }
         }
       });
@@ -284,7 +286,7 @@ const FileUploadCard: React.FC = () => {
         });
 
         // Process with AI after upload
-        setTimeout(async () => {
+        cleanup.setTimeout(async () => {
           try {
             const { data: uploadRecord } = await supabase
               .from('file_uploads')
@@ -305,7 +307,7 @@ const FileUploadCard: React.FC = () => {
             const sizeMultiplier = Math.min(file.size / (10 * 1024 * 1024), 1.5); // Reduced multiplier
             const timeoutDuration = Math.min(baseTimeout * (1 + sizeMultiplier), 300000); // Max 5 minutes (reduced from 8)
 
-            const timeoutId = setTimeout(() => {
+            const timeoutId = cleanup.setTimeout(() => {
               updateUpload({
                 id: uploadRecord.id,
                 processing_status: 'failed',
@@ -366,7 +368,7 @@ const FileUploadCard: React.FC = () => {
               });
 
               if (processingTimeouts[uploadRecord.id]) {
-                clearTimeout(processingTimeouts[uploadRecord.id]);
+                cleanup.cleanup(processingTimeouts[uploadRecord.id]);
                 setProcessingTimeouts(prev => {
                   const newState = { ...prev };
                   delete newState[uploadRecord.id];
@@ -414,7 +416,7 @@ const FileUploadCard: React.FC = () => {
 
   const removeUpload = (id: string) => {
     if (processingTimeouts[id]) {
-      clearTimeout(processingTimeouts[id]);
+      cleanup.cleanup(processingTimeouts[id]);
       setProcessingTimeouts(prev => {
         const newState = { ...prev };
         delete newState[id];
@@ -441,7 +443,7 @@ const FileUploadCard: React.FC = () => {
 
       simulateProgress(upload.id, 7000);
 
-      const timeoutId = setTimeout(() => {
+      const timeoutId = cleanup.setTimeout(() => {
         updateUpload({
           id: upload.id,
           processing_status: 'failed',

@@ -25,6 +25,7 @@ import { useNASARecentAPODs } from '@/hooks/useNASAAPOD';
 import { format } from 'date-fns';
 import { APODData } from '@/services/NASAService';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface APODGalleryModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const APODGalleryModal: React.FC<APODGalleryModalProps> = ({
   onClose, 
   initialDate 
 }) => {
+  const cleanup = useCleanup('APODGalleryModal');
   const { data: apods, isLoading, error, refetch } = useNASARecentAPODs(7);
   const [currentIndex, setCurrentIndex] = useState(0);
   const isMobile = useIsMobile();
@@ -73,9 +75,11 @@ const APODGalleryModal: React.FC<APODGalleryModalProps> = ({
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, onClose, apods]);
+    const keyListenerId = cleanup.addEventListener(document, 'keydown', handleKeyPress);
+    return () => {
+      cleanup.cleanup(keyListenerId);
+    };
+  }, [isOpen, onClose, apods, cleanup]);
 
   const currentAPOD = apods?.[currentIndex];
 

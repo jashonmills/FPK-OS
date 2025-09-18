@@ -16,7 +16,7 @@ import {
   Mail,
   Clock
 } from 'lucide-react';
-import RouteBoundary from '@/components/RouteBoundary';
+import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { useUser } from '@/hooks/useUser';
 import RequireAdmin from '@/components/guards/RequireAdmin';
 import { getRoleBadgeVariant } from '@/types/user';
@@ -194,7 +194,7 @@ const AdminUserAnalytics = () => {
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
-            <RouteBoundary>
+            <ErrorBoundaryUnified>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <ReadingAnalyticsCard userId={userId} />
                 <AICoachEngagementCard userId={userId} />
@@ -236,11 +236,11 @@ const AdminUserAnalytics = () => {
                   </CardContent>
                 </Card>
               </div>
-            </RouteBoundary>
+            </ErrorBoundaryUnified>
           </TabsContent>
 
           <TabsContent value="reading" className="mt-6">
-            <RouteBoundary>
+            <ErrorBoundaryUnified>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader>
@@ -315,11 +315,11 @@ const AdminUserAnalytics = () => {
                   </Card>
                 )}
               </div>
-            </RouteBoundary>
+            </ErrorBoundaryUnified>
           </TabsContent>
 
           <TabsContent value="ai-coach" className="mt-6">
-            <RouteBoundary>
+            <ErrorBoundaryUnified>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader>
@@ -414,11 +414,11 @@ const AdminUserAnalytics = () => {
                   </Card>
                 )}
               </div>
-            </RouteBoundary>
+            </ErrorBoundaryUnified>
           </TabsContent>
 
           <TabsContent value="goals" className="mt-6">
-            <RouteBoundary>
+            <ErrorBoundaryUnified>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 <Card>
                   <CardHeader>
@@ -529,7 +529,7 @@ const AdminUserAnalytics = () => {
                   </Card>
                 )}
               </div>
-            </RouteBoundary>
+            </ErrorBoundaryUnified>
           </TabsContent>
         </Tabs>
       </div>

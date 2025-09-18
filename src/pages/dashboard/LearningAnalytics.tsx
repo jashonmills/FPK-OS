@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
-import RouteBoundary from '@/components/RouteBoundary';
+import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
@@ -125,7 +125,7 @@ const LearningAnalytics = () => {
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <ReadingAnalyticsCard />
               <AICoachEngagementCard />
@@ -178,11 +178,11 @@ const LearningAnalytics = () => {
                 </CardContent>
               </Card>
             </div>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="courses" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -190,11 +190,11 @@ const LearningAnalytics = () => {
             }>
               <UserLearningProgress />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="reading" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -202,11 +202,11 @@ const LearningAnalytics = () => {
             }>
               <LibraryReadingAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="ai-coach" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -214,11 +214,11 @@ const LearningAnalytics = () => {
             }>
               <AICoachAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
 
         <TabsContent value="goals" className="mt-6">
-          <RouteBoundary>
+          <ErrorBoundaryUnified>
             <React.Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -226,7 +226,7 @@ const LearningAnalytics = () => {
             }>
               <GoalsGamificationAnalytics />
             </React.Suspense>
-          </RouteBoundary>
+          </ErrorBoundaryUnified>
         </TabsContent>
       </Tabs>
     </div>

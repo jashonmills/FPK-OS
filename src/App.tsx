@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppProviders from '@/components/AppProviders';
-import RouteBoundary from '@/components/RouteBoundary';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import BetaUpdateListener from '@/components/notifications/BetaUpdateListener';
 import { SubscriptionGate } from '@/components/SubscriptionGate';
@@ -154,9 +153,9 @@ const PageLoader: React.FC = React.memo(() => (
 // Optimized lazy route wrapper with error boundary
 const LazyRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => (
   <Suspense fallback={<PageLoader />}>
-    <RouteBoundary>
+    <ErrorBoundaryUnified resetOnPropsChange={true}>
       {children}
-    </RouteBoundary>
+    </ErrorBoundaryUnified>
   </Suspense>
 ));
 

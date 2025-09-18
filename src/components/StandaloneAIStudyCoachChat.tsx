@@ -16,6 +16,8 @@ import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 import { useConversationState, ChatMessage as ConversationMessage } from '@/hooks/useConversationState';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
+import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 interface ChatMessage {
   id: string;
@@ -24,21 +26,22 @@ interface ChatMessage {
   timestamp: string;
 }
 
-// Helper to prevent hanging requests
-const withTimeout = <T,>(promise: Promise<T>, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
+// Helper to prevent hanging requests with cleanup manager
+const withTimeout = <T,>(promise: Promise<T>, cleanup: any, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+    const timerId = cleanup.setTimeout(() => reject(new Error(timeoutMessage)), ms);
     promise.then((value) => {
-      clearTimeout(timer);
+      cleanup.cleanup(timerId);
       resolve(value);
     }).catch((err) => {
-      clearTimeout(timer);
+      cleanup.cleanup(timerId);
       reject(err);
     });
   });
 };
 
 const StandaloneAIStudyCoachChat: React.FC = () => {
+  const cleanup = useCleanup('StandaloneAIStudyCoachChat');
   const { user } = useAuth();
   const { toast } = useToast();
   // Use anonymous ID for non-authenticated users
@@ -66,7 +69,7 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   // Auto scroll when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth',
           block: 'end',
@@ -74,7 +77,7 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
         });
       }, 100);
     }
-  }, [messages]);
+  }, [messages, cleanup]);
 
   // Add welcome message if no messages exist
   useEffect(() => {
@@ -154,6 +157,7 @@ What would you like to learn about today?`
             clientHistory
           }
         }),
+        cleanup,
         18000
       );
       
@@ -181,7 +185,7 @@ What would you like to learn about today?`
       }
 
     } catch (error) {
-      console.error('❌ Chat error details:', {
+      logger.error('Chat error details', 'CHAT', {
         error: error instanceof Error ? error.message : error,
         messageText: messageText.substring(0, 50) + '...',
         timestamp: new Date().toISOString(),
@@ -247,7 +251,7 @@ What specific topic would you like to focus on?`;
     if (transcription.trim()) {
       setInput(transcription);
       // Auto-send voice input
-      setTimeout(() => sendMessage(transcription), 100);
+      cleanup.setTimeout(() => sendMessage(transcription), 100);
     }
   };
 
@@ -309,7 +313,7 @@ What specific topic would you like to focus on?`;
         !isLoading) {
       
       // Small delay to ensure message is rendered
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         speak(lastMessage.content);
         setLastSpokenMessageId(lastMessage.id);
       }, 500);

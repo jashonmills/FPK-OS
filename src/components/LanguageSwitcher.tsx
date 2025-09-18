@@ -16,8 +16,10 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { logger } from '@/utils/logger';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const LanguageSwitcher = () => {
+  const cleanup = useCleanup('LanguageSwitcher');
   const { i18n, tString } = useGlobalTranslation('settings');
   const { profile, updateProfile } = useUserProfile();
   const [dualLanguageEnabled, setDualLanguageEnabled] = useState(false);
@@ -58,12 +60,12 @@ const LanguageSwitcher = () => {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+    const storageListenerId = cleanup.addEventListener(window, 'storage', handleStorageChange);
+    const customListenerId = cleanup.addEventListener(window, 'dual-language-change', handleCustomStorageChange as EventListener);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('dual-language-change', handleCustomStorageChange as EventListener);
+      cleanup.cleanup(storageListenerId);
+      cleanup.cleanup(customListenerId);
     };
   }, []);
 
@@ -121,7 +123,7 @@ const LanguageSwitcher = () => {
           true // silent update
         );
       } catch (error) {
-        console.error('Failed to update dual language setting:', error);
+        logger.error('Failed to update dual language setting', 'LANGUAGE', error);
         // Revert local state if update fails
         setDualLanguageEnabled(!enabled);
         safeLocalStorage.setItem('fpk-dual-language', (!enabled).toString());

@@ -7,6 +7,8 @@ import { useProgressTracking } from '@/hooks/useProgressTracking';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useLanguageConsistency } from '@/hooks/useLanguageConsistency';
 import { iframeAnalytics } from '@/utils/iframeAnalytics';
+import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 import { Loader2 } from 'lucide-react';
 
@@ -16,6 +18,7 @@ interface CoursePlayerProps {
 }
 
 const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) => {
+  const cleanup = useCleanup('CoursePlayer');
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -45,12 +48,12 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
       }
 
       const { type, ...data } = event.data;
-      console.log('CoursePlayer received message:', { type, data });
+      logger.info('CoursePlayer received message', 'COURSE_PLAYER', { type, data });
 
       try {
         switch (type) {
           case 'MODULE_COMPLETE':
-            console.log('Module completed:', data.moduleId);
+            logger.info('Module completed', 'COURSE_PLAYER', { moduleId: data.moduleId });
             await updateProgress({
               type: 'module_complete',
               moduleId: data.moduleId,
@@ -60,7 +63,7 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
             break;
 
           case 'COURSE_COMPLETE':
-            console.log('Course completed');
+            logger.info('Course completed', 'COURSE_PLAYER');
             await updateProgress({
               type: 'course_complete',
               completedAt: new Date().toISOString(),
@@ -70,7 +73,7 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
             break;
 
           case 'PROGRESS_UPDATE':
-            console.log('Progress updated:', data.percent);
+            logger.info('Progress updated', 'COURSE_PLAYER', { percent: data.percent });
             await updateProgress({
               type: 'progress_update',
               completionPercentage: data.percent
@@ -79,7 +82,7 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
             break;
 
           case 'READY':
-            console.log('Course player is ready');
+            logger.info('Course player is ready', 'COURSE_PLAYER');
             setIsLoading(false);
             setError(null);
             // Send initialization data to the iframe
@@ -96,29 +99,29 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
             break;
 
           default:
-            console.log('Unknown message type:', type);
+            logger.warn('Unknown message type', 'COURSE_PLAYER', { type });
         }
       } catch (error) {
-        console.error('Error handling course player message:', error);
+        logger.error('Error handling course player message', 'COURSE_PLAYER', error);
         setError('Failed to communicate with course content');
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    const messageListenerId = cleanup.addEventListener(window, 'message', handleMessage);
 
     return () => {
-      window.removeEventListener('message', handleMessage);
+      cleanup.cleanup(messageListenerId);
     };
   }, [updateProgress, user?.id, currentProgress, onProgress, onComplete]);
 
   // Handle iframe load event
   useEffect(() => {
     const handleIframeLoad = () => {
-      console.log('Iframe loaded successfully');
+      logger.info('Iframe loaded successfully', 'COURSE_PLAYER');
       // Give the iframe a moment to initialize before sending messages
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         if (iframeRef.current?.contentWindow && user?.id) {
-          console.log('Sending init handshake to course player');
+          logger.info('Sending init handshake to course player', 'COURSE_PLAYER');
           iframeRef.current.contentWindow.postMessage(
             { 
               type: 'INIT', 
@@ -132,29 +135,29 @@ const CoursePlayer: React.FC<CoursePlayerProps> = ({ onProgress, onComplete }) =
     };
 
     const handleIframeError = () => {
-      console.error('Iframe failed to load');
+      logger.error('Iframe failed to load', 'COURSE_PLAYER');
       setIsLoading(false);
       setError('Failed to load course content. Please check your internet connection and try again.');
     };
 
     const iframe = iframeRef.current;
     if (iframe) {
-      iframe.addEventListener('load', handleIframeLoad);
-      iframe.addEventListener('error', handleIframeError);
+      const loadListenerId = cleanup.addEventListener(iframe, 'load', handleIframeLoad);
+      const errorListenerId = cleanup.addEventListener(iframe, 'error', handleIframeError);
       
       // Set a timeout to handle cases where the iframe never loads
-      const timeout = setTimeout(() => {
+      const timeoutId = cleanup.setTimeout(() => {
         if (isLoading) {
-          console.warn('Iframe load timeout');
+          logger.warn('Iframe load timeout', 'COURSE_PLAYER');
           setIsLoading(false);
           setError('Course content is taking too long to load. Please refresh the page.');
         }
       }, 15000);
 
       return () => {
-        iframe.removeEventListener('load', handleIframeLoad);
-        iframe.removeEventListener('error', handleIframeError);
-        clearTimeout(timeout);
+        cleanup.cleanup(loadListenerId);
+        cleanup.cleanup(errorListenerId);
+        cleanup.cleanup(timeoutId);
       };
     }
   }, [user?.id, currentProgress, isLoading]);
