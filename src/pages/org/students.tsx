@@ -169,8 +169,8 @@ export default function StudentsPage() {
         <div className="flex items-center gap-2">
           <Users className="h-8 w-8" />
           <div>
-            <h1 className="text-3xl font-bold">Students</h1>
-          <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold text-white drop-shadow-lg">Students</h1>
+          <p className="text-white/80 drop-shadow">
             {filteredStudents.length} students in organization
           </p>
           </div>

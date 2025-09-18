@@ -110,8 +110,8 @@ export default function OrgSettingsPage() {
       <div className="flex items-center gap-2">
         <Settings className="h-8 w-8" />
         <div>
-          <h1 className="text-3xl font-bold">Organization Settings</h1>
-          <p className="text-muted-foreground">Manage your organization configuration</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-lg">Organization Settings</h1>
+          <p className="text-white/80 drop-shadow">Manage your organization configuration</p>
         </div>
       </div>
 

@@ -84,8 +84,8 @@ export default function GoalsManagement() {
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Goals</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Goals</h1>
+          <p className="text-white/80 mt-2 drop-shadow">
             Set and track organizational learning goals for your students
           </p>
         </div>

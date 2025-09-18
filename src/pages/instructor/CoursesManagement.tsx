@@ -48,8 +48,8 @@ export default function CoursesManagement() {
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Courses</h1>
+          <p className="text-white/80 mt-2 drop-shadow">
             Manage and monitor your organization's learning content
           </p>
         </div>
@@ -125,12 +125,16 @@ export default function CoursesManagement() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50">
-            <div className="aspect-video bg-muted">
+            <div className="aspect-video bg-muted relative overflow-hidden">
               <img 
-                src={course.thumbnail_url || '/placeholder.svg'} 
+                src="/placeholder.svg"
                 alt={course.title}
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-2 left-2 right-2">
+                <BookOpen className="w-6 h-6 text-white mb-1" />
+              </div>
             </div>
             <OrgCardHeader className="pb-3">
               <div className="flex items-start justify-between">

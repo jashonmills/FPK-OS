@@ -119,8 +119,8 @@ export default function OrgBrandingSettings() {
   return (
     <div className="container max-w-4xl mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Organization Branding</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Organization Branding</h1>
+        <p className="text-white/80 mt-2 drop-shadow">
           Customize your organization's appearance with logos and theme colors
         </p>
       </div>

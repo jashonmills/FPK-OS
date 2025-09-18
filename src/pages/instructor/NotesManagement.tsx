@@ -50,8 +50,8 @@ export default function NotesManagement() {
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notes</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Notes</h1>
+          <p className="text-white/80 mt-2 drop-shadow">
             Manage instructional notes and resources for your organization
           </p>
         </div>
