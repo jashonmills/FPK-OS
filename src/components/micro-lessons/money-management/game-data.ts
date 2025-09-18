@@ -487,5 +487,285 @@ export const ALL_SCENARIOS: Scenario[] = [
         feedback: "A good compromise! You're still enjoying your coffee ritual but cutting costs significantly. Moderation is key to sustainable budgeting."
       }
     ]
+  },
+  {
+    id: 'car-insurance',
+    title: 'Car Insurance Decision',
+    description: "Your car insurance is up for renewal. You can pay $180 for 6 months upfront or $35/month.",
+    category: 'insurance',
+    options: [
+      {
+        text: 'Pay 6 months upfront ($180)',
+        impact: 'needs: -180, balance: -180, score: 10',
+        feedback: "Smart choice! Paying upfront usually saves money compared to monthly payments and helps you avoid late fees."
+      },
+      {
+        text: 'Pay monthly ($35/month)',
+        impact: 'needs: -35, balance: -35',
+        feedback: "Monthly payments are convenient but often cost more over time. You'll pay $210 total instead of $180 - a $30 premium for the convenience."
+      },
+      {
+        text: 'Use credit card for 6-month payment ($180)',
+        impact: 'creditCard: 180, credit: -7',
+        feedback: "You got the discount by paying upfront but used credit. Make sure to pay this off quickly to actually benefit from the savings."
+      },
+      {
+        text: 'Skip insurance this month',
+        impact: 'score: -25, credit: -10',
+        feedback: "This is extremely risky and illegal in most places! Driving without insurance can result in huge fines, license suspension, and financial ruin if you have an accident."
+      }
+    ]
+  },
+  {
+    id: 'job-interview-outfit',
+    title: 'Job Interview Outfit',
+    description: "You have a job interview tomorrow and want to look professional. A new outfit costs $120.",
+    category: 'career',
+    options: [
+      {
+        text: 'Buy a new professional outfit ($120)',
+        impact: 'needs: -120, balance: -120',
+        feedback: "Looking professional is important for interviews, but this was expensive. A good interview outfit is an investment, but shop around for better deals next time."
+      },
+      {
+        text: 'Borrow or thrift a professional outfit ($25)',
+        impact: 'needs: -25, balance: -25, score: 15',
+        feedback: "Excellent resourcefulness! You prioritized the interview while being budget-conscious. Thrift stores and borrowing are great ways to look professional on a budget."
+      },
+      {
+        text: 'Use credit card for new outfit ($120)',
+        impact: 'creditCard: 120, credit: -5',
+        feedback: "You invested in your career prospects but used credit. If you get the job, prioritize paying this off quickly from your first paycheck."
+      },
+      {
+        text: 'Wear what you already have',
+        impact: 'score: 5, savings: 15',
+        feedback: "If you have something appropriate, this works! But remember, first impressions matter in interviews - make sure you look polished and professional."
+      }
+    ]
+  },
+  {
+    id: 'investment-opportunity',
+    title: 'Investment Opportunity',
+    description: "A friend tells you about a 'guaranteed' investment that could double your money in a month. Minimum investment is $200.",
+    category: 'investment',
+    options: [
+      {
+        text: 'Invest the $200',
+        impact: 'balance: -200, score: -20',
+        feedback: "Red flag! No legitimate investment 'guarantees' doubling your money in a month. This sounds like a scam. Real investing takes time and research."
+      },
+      {
+        text: 'Use credit card to invest ($200)',
+        impact: 'creditCard: 200, credit: -15, score: -25',
+        feedback: "Never invest borrowed money, especially in sketchy 'opportunities'! You could lose the money AND owe credit card debt with interest."
+      },
+      {
+        text: 'Decline and research legitimate investing',
+        impact: 'score: 20, savings: 50',
+        feedback: "Excellent judgment! You avoided a likely scam and chose to educate yourself instead. Real investing starts with learning the basics and understanding risk."
+      },
+      {
+        text: 'Ask for more details and proof',
+        impact: 'score: 10',
+        feedback: "Good instinct to be skeptical! Legitimate investments have documentation, regulatory oversight, and realistic return expectations. Keep researching."
+      }
+    ]
+  },
+  {
+    id: 'pet-emergency',
+    title: 'Pet Emergency',
+    description: "Your dog ate something toxic and needs emergency vet care. The bill is $350.",
+    category: 'emergency',
+    options: [
+      {
+        text: 'Use emergency fund ($350)',
+        impact: 'emergency: -350, credit: 20',
+        feedback: "This is exactly what emergency funds are for! Pet emergencies are unpredictable but necessary expenses. You handled this crisis without going into debt."
+      },
+      {
+        text: 'Pay from main balance ($350)',
+        impact: 'balance: -350',
+        feedback: "You were able to pay for the emergency care, but it significantly impacted your budget. Pet insurance or a dedicated pet emergency fund could help in the future."
+      },
+      {
+        text: 'Use credit card ($350)',
+        impact: 'creditCard: 350, credit: -12',
+        feedback: "Your pet needed help and you provided it, but this is substantial debt. Create a payment plan to pay this off quickly and consider pet insurance."
+      },
+      {
+        text: 'Ask vet for payment plan',
+        impact: 'debt: 350, score: 5',
+        feedback: "Many vets offer payment plans for emergencies. This avoids high credit card interest, but make sure you understand the terms and pay promptly."
+      }
+    ]
+  },
+  {
+    id: 'major-car-repair',
+    title: 'Major Car Repair',
+    description: "Your car needs a new transmission. The repair costs $2,200, but the car is only worth $3,000.",
+    category: 'transportation',
+    options: [
+      {
+        text: 'Pay for the expensive repair ($2,200)',
+        impact: 'balance: -2200, credit: -20',
+        feedback: "This is a tough situation. You kept your current car running, but spent most of its value on repairs. Sometimes major repairs aren't worth it on older cars."
+      },
+      {
+        text: 'Finance the repair ($2,200)',
+        impact: 'debt: 2200, credit: -15',
+        feedback: "You got your car fixed but took on significant debt. Make sure you have a solid plan to pay this off, as you now owe more than the car is worth."
+      },
+      {
+        text: 'Sell car as-is and buy used ($800 loss, $1500 for replacement)',
+        impact: 'balance: -1500, score: 10',
+        feedback: "Smart financial thinking! Sometimes it's better to cut losses and find a more reliable vehicle rather than put money into endless repairs."
+      },
+      {
+        text: 'Look into public transportation',
+        impact: 'score: 15, savings: 100',
+        feedback: "If feasible in your area, this could save you thousands in car expenses. Calculate the total cost of car ownership vs. alternative transportation."
+      }
+    ]
+  },
+  {
+    id: 'influencer-product',
+    title: 'Influencer Product',
+    description: "Your favorite social media influencer is promoting a skincare set for $95 with their discount code.",
+    category: 'beauty',
+    options: [
+      {
+        text: 'Buy the influencer skincare set ($95)',
+        impact: 'wants: -95, balance: -95',
+        feedback: "Influencer marketing is powerful, but expensive. Research products independently and compare prices elsewhere before buying based on social media promotions."
+      },
+      {
+        text: 'Use credit card for skincare set ($95)',
+        impact: 'creditCard: 95, credit: -4',
+        feedback: "You fell for the marketing and used credit. Influencer products are often overpriced. Research cheaper alternatives and pay this off quickly."
+      },
+      {
+        text: 'Research similar products at lower prices',
+        impact: 'wants: -35, balance: -35, score: 12',
+        feedback: "Smart consumer behavior! You found similar products for less money. Don't let influencer marketing pressure you into overspending."
+      },
+      {
+        text: 'Skip the purchase entirely',
+        impact: 'score: 15, savings: 30',
+        feedback: "Excellent self-control! Influencer marketing creates artificial urgency and desire. You kept your money for more important goals."
+      }
+    ]
+  },
+  {
+    id: 'holiday-spending',
+    title: 'Holiday Gift Spending',
+    description: "The holidays are coming and you want to buy gifts for family. Your gift budget is overwhelming at $400.",
+    category: 'seasonal',
+    options: [
+      {
+        text: 'Spend the full $400 on gifts',
+        impact: 'wants: -400, balance: -400',
+        feedback: "Holiday spending can quickly get out of control. While generous, this significantly impacts your budget. Consider setting spending limits per person next time."
+      },
+      {
+        text: 'Use credit card for all gifts ($400)',
+        impact: 'creditCard: 400, credit: -18',
+        feedback: "Holiday debt is common but dangerous. At 18% APR, these gifts will cost you much more if you don't pay off the balance quickly."
+      },
+      {
+        text: 'Set a $150 budget and be creative',
+        impact: 'wants: -150, balance: -150, score: 15',
+        feedback: "Thoughtful spending! Setting limits forces creativity. Homemade gifts, experiences, and meaningful but affordable presents often mean more than expensive ones."
+      },
+      {
+        text: 'Suggest family gift exchange or spending limit',
+        impact: 'wants: -75, balance: -75, score: 20',
+        feedback: "Brilliant! Many families appreciate spending limits or gift exchanges. You saved money while potentially helping your family do the same."
+      }
+    ]
+  },
+  {
+    id: 'laptop-upgrade',
+    title: 'Laptop Upgrade',
+    description: "Your 3-year-old laptop is getting slow. A new one costs $800, but yours still works for basic tasks.",
+    category: 'tech',
+    options: [
+      {
+        text: 'Buy the new laptop ($800)',
+        impact: 'balance: -800, credit: -20',
+        feedback: "This was a major purchase for something you didn't urgently need. Technology desires can quickly drain your budget. Consider if upgrades are truly necessary."
+      },
+      {
+        text: 'Finance laptop with credit card ($800)',
+        impact: 'creditCard: 800, credit: -25',
+        feedback: "You've taken on substantial debt for a non-essential upgrade. At high interest rates, this laptop will cost you much more than $800."
+      },
+      {
+        text: 'Try cleaning and optimizing current laptop first',
+        impact: 'needs: -25, balance: -25, score: 20',
+        feedback: "Excellent problem-solving! Often slow computers just need cleaning, software updates, or removing unnecessary programs. You saved hundreds!"
+      },
+      {
+        text: 'Look for refurbished or used laptops',
+        impact: 'balance: -350, score: 15',
+        feedback: "Smart shopping! Refurbished electronics offer good value and often come with warranties. You got an upgrade while being budget-conscious."
+      }
+    ]
+  },
+  {
+    id: 'apartment-deposit',
+    title: 'Apartment Security Deposit',
+    description: "You found a great apartment but need first month's rent ($600) plus security deposit ($600) upfront.",
+    category: 'housing',
+    options: [
+      {
+        text: 'Pay both from savings ($1,200)',
+        impact: 'balance: -1200, score: 10',
+        feedback: "Having money saved for housing expenses shows great financial planning! This is exactly what savings are for - major life transitions."
+      },
+      {
+        text: 'Use credit card for deposit ($1,200)',
+        impact: 'creditCard: 1200, credit: -30',
+        feedback: "This is a massive amount of debt to take on. Housing deposits are expected expenses - you should have saved for this rather than using credit."
+      },
+      {
+        text: 'Ask family for help with deposit',
+        impact: 'balance: -600, debt: 600, score: 5',
+        feedback: "Family help can be valuable, but make sure you have a clear repayment plan. Mixing money and family relationships requires careful communication."
+      },
+      {
+        text: 'Look for apartments with lower deposit requirements',
+        impact: 'balance: -900, score: 15',
+        feedback: "Smart shopping! Some apartments offer reduced deposits or payment plans. Always compare total costs, not just monthly rent, when apartment hunting."
+      }
+    ]
+  },
+  {
+    id: 'subscription-audit',
+    title: 'Subscription Audit',
+    description: "You realize you're paying for 5 subscriptions totaling $67/month. You only actively use 2 of them.",
+    category: 'subscriptions',
+    options: [
+      {
+        text: 'Cancel all unused subscriptions',
+        impact: 'score: 25, savings: 100',
+        feedback: "Excellent financial housekeeping! Subscription creep is real - regularly auditing recurring charges can save hundreds per year. You're now spending mindfully."
+      },
+      {
+        text: 'Cancel 2 subscriptions, keep 1 extra',
+        impact: 'wants: -45, balance: -45, score: 15',
+        feedback: "Good progress! You eliminated most of the waste while keeping one service you occasionally enjoy. Regular subscription reviews should be a monthly habit."
+      },
+      {
+        text: 'Keep all subscriptions for convenience',
+        impact: 'wants: -67, balance: -67, score: -10',
+        feedback: "Convenience is expensive! These unused subscriptions cost you $804 per year. Consider which services actually add value to your life."
+      },
+      {
+        text: 'Set up annual subscription review calendar',
+        impact: 'wants: -22, balance: -22, score: 20',
+        feedback: "Proactive approach! You cancelled unused services and created a system to prevent future subscription creep. This habit will save you thousands over time."
+      }
+    ]
   }
 ];
