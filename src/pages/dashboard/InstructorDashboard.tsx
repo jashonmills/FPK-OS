@@ -5,8 +5,10 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, BookOpen, Target, FileText, BarChart3, Plus, TrendingUp, Clock, AlertTriangle, Award } from 'lucide-react';
+import { Users, BookOpen, Target, FileText, BarChart3, Plus, TrendingUp, Clock } from 'lucide-react';
 import { useOrganizations, useOrganization, useOrgMembers } from '@/hooks/useOrganization';
+import { useOrgStatistics } from '@/hooks/useOrgStatistics';
+import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import { SUBSCRIPTION_TIERS } from '@/types/organization';
@@ -30,6 +32,8 @@ export default function InstructorDashboard() {
 
   const { data: organization } = useOrganization(orgId);
   const { data: members } = useOrgMembers(orgId);
+  const { data: statistics } = useOrgStatistics(orgId);
+  const { analytics } = useOrgAnalytics(orgId);
 
   if (isLoading) {
     return (
@@ -104,30 +108,27 @@ export default function InstructorDashboard() {
           <KpiCard 
             title="Active Students (7d)" 
             value={studentCount.toString()} 
-            delta="+4.1%" 
             icon={<Users className="h-5 w-5 text-blue-600" />}
           />
           <KpiCard 
-            title="Attendance" 
-            value="96%" 
-            delta="+1%" 
-            icon={<TrendingUp className="h-5 w-5 text-green-600" />}
+            title="Total Courses" 
+            value={statistics?.totalCourses?.toString() || '0'} 
+            icon={<BookOpen className="h-5 w-5 text-green-600" />}
           />
           <KpiCard 
-            title="On-time Submissions" 
-            value="89%" 
-            delta="+2%" 
-            icon={<Clock className="h-5 w-5 text-purple-600" />}
+            title="Avg Progress" 
+            value={`${statistics?.averageProgress || 0}%`} 
+            icon={<TrendingUp className="h-5 w-5 text-purple-600" />}
           />
           <KpiCard 
-            title="At-risk" 
-            value="12"
-            icon={<AlertTriangle className="h-5 w-5 text-orange-600" />}
+            title="Learning Hours" 
+            value={`${analytics?.totalLearningHours || 0}h`}
+            icon={<Clock className="h-5 w-5 text-orange-600" />}
           />
           <KpiCard 
-            title="Mastery Δ" 
-            value="+6 pts"
-            icon={<Award className="h-5 w-5 text-emerald-600" />}
+            title="Goals Completed" 
+            value={statistics?.completedGoals?.toString() || '0'}
+            icon={<Target className="h-5 w-5 text-emerald-600" />}
           />
         </div>
 

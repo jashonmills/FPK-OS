@@ -7261,6 +7261,10 @@ export type Database = {
           total_duration_minutes: number
         }[]
       }
+      get_admin_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_analytics_by_role: {
         Args: { p_org_id?: string; p_scope?: string; p_time_range?: unknown }
         Returns: Json
@@ -7287,6 +7291,14 @@ export type Database = {
           completion_rate: number
         }[]
       }
+      get_organization_analytics: {
+        Args: { p_org_id: string }
+        Returns: Json
+      }
+      get_organization_statistics: {
+        Args: { p_org_id: string }
+        Returns: Json
+      }
       get_package_avg_score: {
         Args: { date_from?: string; date_to?: string; package_id: string }
         Returns: {
@@ -7302,6 +7314,10 @@ export type Database = {
       }
       get_public_platform_metrics: {
         Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_student_analytics: {
+        Args: { p_user_id?: string }
         Returns: Json
       }
       get_user_subscription_status: {
