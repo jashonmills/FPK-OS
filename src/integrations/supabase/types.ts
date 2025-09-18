@@ -112,6 +112,54 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_inbox: {
+        Row: {
+          confidence: number
+          created_at: string
+          cta: Json
+          dismissed: boolean | null
+          id: string
+          org_id: string | null
+          severity: string
+          subtitle: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string | null
+          why: Json | null
+        }
+        Insert: {
+          confidence?: number
+          created_at?: string
+          cta?: Json
+          dismissed?: boolean | null
+          id?: string
+          org_id?: string | null
+          severity?: string
+          subtitle?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id?: string | null
+          why?: Json | null
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          cta?: Json
+          dismissed?: boolean | null
+          id?: string
+          org_id?: string | null
+          severity?: string
+          subtitle?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+          why?: Json | null
+        }
+        Relationships: []
+      }
       ai_outputs: {
         Row: {
           approved_at: string | null
@@ -183,8 +231,11 @@ export type Database = {
       }
       analytics_metrics: {
         Row: {
+          cohort_id: string | null
+          confidence: number | null
           created_at: string
           id: string
+          insight_type: string | null
           metadata: Json | null
           metric_name: string
           timestamp: string
@@ -192,8 +243,11 @@ export type Database = {
           value: number
         }
         Insert: {
+          cohort_id?: string | null
+          confidence?: number | null
           created_at?: string
           id?: string
+          insight_type?: string | null
           metadata?: Json | null
           metric_name: string
           timestamp?: string
@@ -201,8 +255,11 @@ export type Database = {
           value: number
         }
         Update: {
+          cohort_id?: string | null
+          confidence?: number | null
           created_at?: string
           id?: string
+          insight_type?: string | null
           metadata?: Json | null
           metric_name?: string
           timestamp?: string
@@ -1811,6 +1868,39 @@ export type Database = {
         }
         Relationships: []
       }
+      engagement_matrix: {
+        Row: {
+          cohort_id: string
+          created_at: string
+          examples: Json | null
+          id: string
+          quadrants: Json
+          thresholds: Json
+          updated_at: string
+          window_days: number | null
+        }
+        Insert: {
+          cohort_id: string
+          created_at?: string
+          examples?: Json | null
+          id?: string
+          quadrants?: Json
+          thresholds?: Json
+          updated_at?: string
+          window_days?: number | null
+        }
+        Update: {
+          cohort_id?: string
+          created_at?: string
+          examples?: Json | null
+          id?: string
+          quadrants?: Json
+          thresholds?: Json
+          updated_at?: string
+          window_days?: number | null
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_id: string
@@ -2010,6 +2100,51 @@ export type Database = {
           session_data?: Json | null
           session_mode?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      gap_analysis: {
+        Row: {
+          blockers: Json | null
+          cohort_id: string | null
+          confidence: number
+          course_id: string
+          created_at: string
+          gap_score: number
+          id: string
+          metrics: Json | null
+          outcome_id: string
+          title: string
+          updated_at: string
+          window_days: number | null
+        }
+        Insert: {
+          blockers?: Json | null
+          cohort_id?: string | null
+          confidence: number
+          course_id: string
+          created_at?: string
+          gap_score: number
+          id?: string
+          metrics?: Json | null
+          outcome_id: string
+          title: string
+          updated_at?: string
+          window_days?: number | null
+        }
+        Update: {
+          blockers?: Json | null
+          cohort_id?: string | null
+          confidence?: number
+          course_id?: string
+          created_at?: string
+          gap_score?: number
+          id?: string
+          metrics?: Json | null
+          outcome_id?: string
+          title?: string
+          updated_at?: string
+          window_days?: number | null
         }
         Relationships: []
       }
@@ -3175,6 +3310,48 @@ export type Database = {
           topic_category?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      misconception_clusters: {
+        Row: {
+          cohort_id: string
+          confidence: number
+          created_at: string
+          id: string
+          label: string
+          linked_outcomes: Json | null
+          representative_answers: Json | null
+          suggested_actions: Json | null
+          support_count: number
+          updated_at: string
+          window_days: number | null
+        }
+        Insert: {
+          cohort_id: string
+          confidence: number
+          created_at?: string
+          id?: string
+          label: string
+          linked_outcomes?: Json | null
+          representative_answers?: Json | null
+          suggested_actions?: Json | null
+          support_count?: number
+          updated_at?: string
+          window_days?: number | null
+        }
+        Update: {
+          cohort_id?: string
+          confidence?: number
+          created_at?: string
+          id?: string
+          label?: string
+          linked_outcomes?: Json | null
+          representative_answers?: Json | null
+          suggested_actions?: Json | null
+          support_count?: number
+          updated_at?: string
+          window_days?: number | null
         }
         Relationships: []
       }
@@ -4704,6 +4881,57 @@ export type Database = {
           session_start?: string | null
           start_cfi?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      risk_radar_alerts: {
+        Row: {
+          cohort_id: string | null
+          confidence: number
+          created_at: string
+          id: string
+          next_deadline_at: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          risk_score: number
+          risk_type: string
+          student_id: string
+          suggested_actions: Json | null
+          top_features: Json | null
+          updated_at: string
+          window_days: number | null
+        }
+        Insert: {
+          cohort_id?: string | null
+          confidence: number
+          created_at?: string
+          id?: string
+          next_deadline_at?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          risk_score: number
+          risk_type: string
+          student_id: string
+          suggested_actions?: Json | null
+          top_features?: Json | null
+          updated_at?: string
+          window_days?: number | null
+        }
+        Update: {
+          cohort_id?: string | null
+          confidence?: number
+          created_at?: string
+          id?: string
+          next_deadline_at?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          risk_score?: number
+          risk_type?: string
+          student_id?: string
+          suggested_actions?: Json | null
+          top_features?: Json | null
+          updated_at?: string
+          window_days?: number | null
         }
         Relationships: []
       }
