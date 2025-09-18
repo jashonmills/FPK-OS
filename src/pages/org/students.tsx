@@ -126,7 +126,7 @@ export default function StudentsPage() {
 
   if (!currentOrg) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="w-full max-w-7xl mx-auto px-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
           <p className="text-muted-foreground">Please select an organization to view students.</p>
@@ -155,7 +155,7 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="w-full max-w-7xl mx-auto px-6 space-y-6 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
