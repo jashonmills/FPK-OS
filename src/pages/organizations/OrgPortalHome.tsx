@@ -18,12 +18,15 @@ import { useOrgStatistics } from '@/hooks/useOrgStatistics';
 import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
+import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
 import stOliversBg from '@/assets/st-olivers-bg.webp';
+import waterfordWexfordBg from '@/assets/waterford-wexford-bg.jpg';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
+  const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
   const { data: statistics, isLoading: statsLoading, error: statsError } = useOrgStatistics();
   const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
 
@@ -100,11 +103,31 @@ export default function OrgPortalHome() {
 
   const recentActivity: any[] = [];
 
+  // Determine background image to use
+  const getBackgroundImage = () => {
+    // First try enhanced branding, then basic branding
+    const brandingData = enhancedBranding || branding;
+    
+    // If there's a custom banner from branding, use it
+    if (brandingData?.banner_url) {
+      return brandingData.banner_url;
+    }
+    
+    // For Waterford and Wexford, use the custom background
+    if (currentOrg.organizations.name.toLowerCase().includes('waterford') && 
+        currentOrg.organizations.name.toLowerCase().includes('wexford')) {
+      return waterfordWexfordBg;
+    }
+    
+    // Default fallback
+    return stOliversBg;
+  };
+
   return (
     <div 
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed relative -m-6"
       style={{
-        backgroundImage: `url(${stOliversBg})`
+        backgroundImage: `url(${getBackgroundImage()})`
       }}
     >
       {/* Background overlay */}

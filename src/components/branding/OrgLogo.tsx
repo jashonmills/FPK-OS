@@ -1,6 +1,7 @@
 import React from 'react';
 import { Building2 } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
+import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +20,7 @@ export function OrgLogo({
 }: OrgLogoProps) {
   const { currentOrg, isPersonalMode } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
+  const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
 
   if (isPersonalMode || !currentOrg) {
     return null;
@@ -31,8 +33,25 @@ export function OrgLogo({
     xl: 'w-16 h-16'
   };
 
-  // Use the logo from the organizations table
-  const logoUrl = branding?.logo_url;
+  // Use the logo from enhanced branding first, then basic branding
+  const getLogoUrl = () => {
+    if (enhancedBranding) {
+      // Enhanced branding has separate light/dark logos
+      if (variant === 'light') {
+        return enhancedBranding.logo_light_url;
+      } else if (variant === 'dark') {
+        return enhancedBranding.logo_dark_url;
+      } else {
+        // Auto mode - prefer light logo, fall back to dark
+        return enhancedBranding.logo_light_url || enhancedBranding.logo_dark_url;
+      }
+    }
+    
+    // Fall back to basic branding
+    return branding?.logo_url;
+  };
+  
+  const logoUrl = getLogoUrl();
 
   if (logoUrl) {
     return (
