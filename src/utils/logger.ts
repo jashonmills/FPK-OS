@@ -1,46 +1,25 @@
-// Comprehensive logger implementation
-const createCategoryLogger = (category: string) => {
-  const categoryLogger = (message: string, ...args: any[]) => {
-    console.info(`[${category}] ${message}`, ...args);
-  };
-  
-  categoryLogger.info = (message: string, ...args: any[]) => console.info(`[${category}] ${message}`, ...args);
-  categoryLogger.warn = (message: string, ...args: any[]) => console.warn(`[${category}] ${message}`, ...args);
-  categoryLogger.error = (message: string, ...args: any[]) => console.error(`[${category}] ${message}`, ...args);
-  categoryLogger.debug = (message: string, ...args: any[]) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(`[${category}] ${message}`, ...args);
-    }
-  };
-  
-  return categoryLogger;
-};
+// src/utils/logger.ts
 
+type Json = Record<string, unknown>;
+export type Level = 'info' | 'warn' | 'error' | 'debug';
+
+/**
+ * Minimal logger used across the app.
+ * - Keeps a named export `logger` for existing imports:
+ *     import { logger } from '@/utils/logger'
+ * - Also provides a default export for future flexibility:
+ *     import logger from '@/utils/logger'
+ * No side effects; safe for server and client.
+ */
 export const logger = {
-  info: (message: string, ...args: any[]) => {
-    console.info(`[INFO] ${message}`, ...args);
-  },
-  warn: (message: string, ...args: any[]) => {
-    console.warn(`[WARN] ${message}`, ...args);
-  },
-  error: (message: string, ...args: any[]) => {
-    console.error(`[ERROR] ${message}`, ...args);
-  },
-  debug: (message: string, ...args: any[]) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(`[DEBUG] ${message}`, ...args);
-    }
-  },
-  log: (message: string, ...args: any[]) => {
-    console.log(`[LOG] ${message}`, ...args);
-  },
-  // Category-specific loggers that are both callable and have methods
-  performance: createCategoryLogger('PERFORMANCE'),
-  auth: createCategoryLogger('AUTH'),
-  accessibility: createCategoryLogger('ACCESSIBILITY'),
-  api: createCategoryLogger('API'),
-  epub: createCategoryLogger('EPUB'),
-  museum: createCategoryLogger('MUSEUM')
+  info: (message: string, payload?: Json) =>
+    console.info('[info]', message, payload),
+  warn: (message: string, payload?: Json) =>
+    console.warn('[warn]', message, payload),
+  error: (message: string, payload?: Json) =>
+    console.error('[error]', message, payload),
+  debug: (message: string, payload?: Json) =>
+    console.debug('[debug]', message, payload),
 };
 
 export default logger;
