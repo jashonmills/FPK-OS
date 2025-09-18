@@ -34,13 +34,9 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
     
     root.style.setProperty('--accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
 
-    // Set organization tile colors using HSLA format that works with Tailwind
-    const hslValues = branding.theme_accent.split(' ');
-    if (hslValues.length === 3) {
-      const [h, s, l] = hslValues;
-      root.style.setProperty('--org-tile-bg', `${h}, ${s}, ${l}`);
-      root.style.setProperty('--org-tile-border', `${h}, ${s}, ${l}`);
-    }
+    // Set organization tile colors using space-separated HSL format for modern CSS
+    root.style.setProperty('--org-tile-bg', branding.theme_accent);
+    root.style.setProperty('--org-tile-border', branding.theme_accent);
     root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
 
     // Cleanup on unmount
