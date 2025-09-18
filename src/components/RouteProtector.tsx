@@ -16,6 +16,7 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
   const currentPath = location.pathname;
   const isDashboardRoute = currentPath.startsWith('/dashboard');
+  const isOrgRoute = currentPath.startsWith('/org/');
   const isPublicRoute = ['/', '/login', '/choose-plan', '/privacy-policy', '/terms-of-service'].includes(currentPath) ||
                        currentPath.startsWith('/subscription');
 
@@ -80,7 +81,38 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       return;
     }
 
-  }, [authLoading, subscriptionLoading, user, hasAccess, currentPath, hasNavigated, navigate, isDashboardRoute]);
+    // PRIORITY 6: Auto-redirect to correct context (org vs personal)
+    if (user && !subscriptionLoading && hasAccess) {
+      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      
+      // Debug logging in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('RouteProtector context check:', {
+          currentPath,
+          activeOrgId,
+          isDashboardRoute,
+          isOrgRoute
+        });
+      }
+      
+      // If user has active org but is on dashboard route, redirect to org
+      if (activeOrgId && isDashboardRoute) {
+        console.log('Redirecting to org route:', `/org/${activeOrgId}`);
+        setHasNavigated(true);
+        navigate(`/org/${activeOrgId}`, { replace: true });
+        return;
+      }
+      
+      // If user has no active org but is on org route, redirect to dashboard
+      if (!activeOrgId && isOrgRoute) {
+        console.log('Redirecting to personal dashboard');
+        setHasNavigated(true);
+        navigate('/dashboard/learner', { replace: true });
+        return;
+      }
+    }
+
+  }, [authLoading, subscriptionLoading, user, hasAccess, currentPath, hasNavigated, navigate, isDashboardRoute, isOrgRoute]);
 
   // Reset navigation flag when route changes
   useEffect(() => {
