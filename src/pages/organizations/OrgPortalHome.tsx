@@ -99,8 +99,11 @@ export default function OrgPortalHome() {
   return (
     <div className="space-y-6">
       {/* Branded Hero Section */}
-      <OrgBanner className="rounded-lg min-h-[160px]">
-        <div className="p-6">
+      <OrgBanner className="rounded-lg min-h-[160px]" overlay={false} />
+
+      {/* Organization Info Card */}
+      <Card>
+        <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <OrgLogo size="lg" />
@@ -108,7 +111,7 @@ export default function OrgPortalHome() {
                 <h1 className="text-2xl font-bold text-foreground">
                   Welcome to {currentOrg.organizations.name}
                 </h1>
-                <p className="text-foreground/80 mt-1">
+                <p className="text-muted-foreground mt-1">
                   {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
                 </p>
               </div>
@@ -117,8 +120,8 @@ export default function OrgPortalHome() {
               {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
             </Badge>
           </div>
-        </div>
-      </OrgBanner>
+        </CardContent>
+      </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
