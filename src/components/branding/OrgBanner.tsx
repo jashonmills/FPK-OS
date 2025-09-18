@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
+import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +17,7 @@ export function OrgBanner({
   overlayOpacity = 0.6 
 }: OrgBannerProps) {
   const { currentOrg, isPersonalMode } = useOrgContext();
-  const { data: branding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
+  const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
 
   if (isPersonalMode || !currentOrg || !branding?.banner_url) {
     return (
@@ -44,8 +44,7 @@ export function OrgBanner({
         <div 
           className="absolute inset-0 bg-background"
           style={{ 
-            backgroundColor: `hsl(var(--background) / ${overlayOpacity})`,
-            opacity: branding.watermark_opacity || 0.6
+            backgroundColor: `hsl(var(--background) / ${overlayOpacity})`
           }}
         />
       )}

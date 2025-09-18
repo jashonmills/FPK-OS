@@ -1,13 +1,13 @@
 import React from 'react';
 import { Building2 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
+import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { Badge } from '@/components/ui/badge';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 
 export function OrgBrandingBadge() {
   const { currentOrg, isPersonalMode } = useOrgContext();
-  const { data: branding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
+  const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
 
   if (isPersonalMode || !currentOrg) {
     return null;
