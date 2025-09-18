@@ -35,14 +35,21 @@ export interface NoteTarget {
   created_at: string;
 }
 
-export function useOrgNoteFolders() {
+export function useOrgNoteFolders(organizationId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const orgId = assertOrg();
+  
+  // Use provided organizationId or fall back to empty string for graceful degradation
+  const orgId = organizationId || '';
 
   const { data: folders = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-note-folders', orgId],
     queryFn: async () => {
+      if (!orgId) {
+        // Return empty array if no organization ID
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('org_note_folders')
         .select('*')
@@ -57,10 +64,15 @@ export function useOrgNoteFolders() {
       return data as any[];
     },
     staleTime: 1000 * 60 * 5,
+    enabled: !!orgId, // Only run query if we have an org ID
   });
 
   const createFolderMutation = useMutation({
     mutationFn: async (folderData: { name: string }) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to create folders');
+      }
+
       const { data, error } = await supabase
         .from('org_note_folders')
         .insert({
@@ -101,14 +113,21 @@ export function useOrgNoteFolders() {
   };
 }
 
-export function useOrgNotes(folderId?: string) {
+export function useOrgNotes(organizationId?: string, folderId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const orgId = assertOrg();
+  
+  // Use provided organizationId or fall back to empty string for graceful degradation
+  const orgId = organizationId || '';
 
   const { data: notes = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-notes', orgId, folderId],
     queryFn: async () => {
+      if (!orgId) {
+        // Return empty array if no organization ID
+        return [];
+      }
+
       let query = supabase
         .from('org_notes')
         .select('*')
@@ -128,10 +147,15 @@ export function useOrgNotes(folderId?: string) {
       return data as OrgNote[];
     },
     staleTime: 1000 * 60 * 5,
+    enabled: !!orgId, // Only run query if we have an org ID
   });
 
   const createNoteMutation = useMutation({
     mutationFn: async (noteData: { title: string; content: string; category: string; student_id: string; folder_path?: string }) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to create notes');
+      }
+
       // Create note using existing table structure
       const { data: noteResult, error: noteError } = await supabase
         .from('org_notes')
@@ -170,6 +194,10 @@ export function useOrgNotes(folderId?: string) {
 
   const updateNoteMutation = useMutation({
     mutationFn: async (noteData: Partial<OrgNote> & { id: string }) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to update notes');
+      }
+
       const { id, ...updateData } = noteData;
       const { data, error } = await supabase
         .from('org_notes')

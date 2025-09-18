@@ -30,14 +30,29 @@ export interface GoalTarget {
   updated_at: string;
 }
 
-export function useOrgGoals() {
+export function useOrgGoals(organizationId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const orgId = assertOrg();
+  
+  // Use provided organizationId or fall back to context
+  const orgId = organizationId || ((): string => {
+    try {
+      return assertOrg();
+    } catch (error) {
+      // If no context available and no organizationId provided, return empty string
+      // This allows the hook to work but return empty results
+      return '';
+    }
+  })();
 
   const { data: goals = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-goals', orgId],
     queryFn: async () => {
+      // Return empty array if no organization ID
+      if (!orgId) {
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('org_goals')
         .select('*')
@@ -52,10 +67,15 @@ export function useOrgGoals() {
       return data as OrgGoal[];
     },
     staleTime: 1000 * 60 * 5,
+    enabled: !!orgId, // Only run query if we have an org ID
   });
 
   const createGoalMutation = useMutation({
     mutationFn: async (goalData: { title: string; description: string; category: string; student_id: string; priority: string }) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to create goals');
+      }
+
       // Create goal using existing table structure
       const { data: goalResult, error: goalError } = await supabase
         .from('org_goals')
@@ -94,6 +114,10 @@ export function useOrgGoals() {
 
   const updateGoalMutation = useMutation({
     mutationFn: async (goalData: Partial<OrgGoal> & { id: string }) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to update goals');
+      }
+
       const { id, ...updateData } = goalData;
       const { data, error } = await supabase
         .from('org_goals')

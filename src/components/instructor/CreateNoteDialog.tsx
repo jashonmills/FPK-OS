@@ -56,12 +56,13 @@ interface FlattenedFolder {
 
 interface CreateNoteDialogProps {
   children?: React.ReactNode;
+  organizationId?: string;
 }
 
-export default function CreateNoteDialog({ children }: CreateNoteDialogProps) {
+export default function CreateNoteDialog({ children, organizationId }: CreateNoteDialogProps) {
   const [open, setOpen] = React.useState(false);
-  const { createNote } = useOrgNotes();
-  const { folders } = useOrgNoteFolders();
+  const { createNote } = useOrgNotes(organizationId);
+  const { folders } = useOrgNoteFolders(organizationId);
 
   const form = useForm<NoteFormData>({
     resolver: zodResolver(noteSchema),

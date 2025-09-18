@@ -39,8 +39,8 @@ interface TopPerformer {
 }
 
 export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
-  const { data: statistics, isLoading: statsLoading } = useOrgStatistics();
-  const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
+  const { data: statistics, isLoading: statsLoading } = useOrgStatistics(organizationId);
+  const { analytics, isLoading: analyticsLoading } = useOrgAnalytics(organizationId);
 
   if (statsLoading || analyticsLoading) {
     return (
@@ -93,7 +93,7 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeStudents}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((stats.activeStudents / stats.totalStudents) * 100)}% of total students
+              {stats.totalStudents > 0 ? Math.round((stats.activeStudents / stats.totalStudents) * 100) : 0}% of total students
             </p>
           </CardContent>
         </Card>

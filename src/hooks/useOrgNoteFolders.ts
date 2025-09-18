@@ -16,21 +16,20 @@ export interface OrgNoteFolder {
   children?: OrgNoteFolder[];
 }
 
-export const useOrgNoteFolders = () => {
-  const { currentOrg } = useOrgContext();
+export const useOrgNoteFolders = (organizationId?: string) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data: folders = [], isLoading } = useQuery({
-    queryKey: ['org-note-folders', currentOrg?.organization_id],
+    queryKey: ['org-note-folders', organizationId],
     queryFn: async () => {
-      if (!currentOrg?.organization_id) return [];
+      if (!organizationId) return [];
       
       // For now, return some default folders since we don't have the table yet
       const defaultFolders = [
         {
           id: '1',
-          organization_id: currentOrg.organization_id,
+          organization_id: organizationId,
           name: 'Math',
           parent_folder_id: null,
           created_by: '',
@@ -41,7 +40,7 @@ export const useOrgNoteFolders = () => {
         },
         {
           id: '2',
-          organization_id: currentOrg.organization_id,
+          organization_id: organizationId,
           name: 'Science',
           parent_folder_id: null,
           created_by: '',
@@ -52,7 +51,7 @@ export const useOrgNoteFolders = () => {
         },
         {
           id: '3',
-          organization_id: currentOrg.organization_id,
+          organization_id: organizationId,
           name: 'Progress Reports',
           parent_folder_id: null,
           created_by: '',
@@ -65,7 +64,7 @@ export const useOrgNoteFolders = () => {
 
       return defaultFolders;
     },
-    enabled: !!currentOrg?.organization_id,
+    enabled: !!organizationId,
   });
 
   const createFolder = useMutation({

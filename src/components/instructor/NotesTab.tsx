@@ -110,7 +110,7 @@ export default function NotesTab({ organizationId }: NotesTabProps) {
           <h2 className="text-2xl font-bold">Notes Management</h2>
           <p className="text-muted-foreground">Create and manage notes for your students</p>
         </div>
-        <CreateNoteDialog>
+        <CreateNoteDialog organizationId={organizationId}>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Create Note
@@ -265,7 +265,7 @@ export default function NotesTab({ organizationId }: NotesTabProps) {
                 <p className="text-muted-foreground mb-4">
                   Create notes to track student progress and important observations.
                 </p>
-                <CreateNoteDialog>
+                <CreateNoteDialog organizationId={organizationId}>
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Note

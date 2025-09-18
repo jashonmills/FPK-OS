@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Target, Search, Plus, Calendar, User, FolderOpen } from 'lucide-react';
+import { useOrgGoals } from '@/hooks/useOrgGoals';
 import OrgGoalCreationDialog from '@/components/organizations/OrgGoalCreationDialog';
 
 interface GoalsTabProps {
@@ -13,9 +14,23 @@ interface GoalsTabProps {
 export default function GoalsTab({ organizationId }: GoalsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFolder, setSelectedFolder] = useState('/');
+  
+  // Use the actual hook with organization ID
+  const { goals: realGoals = [], isLoading } = useOrgGoals(organizationId);
 
-  // Placeholder data - will be replaced with real data hooks
-  const goals = [
+  // Placeholder data - use real goals if available, otherwise use mock data for demonstration
+  const goals = realGoals.length > 0 ? realGoals.map(goal => ({
+    id: goal.id,
+    title: goal.title,
+    description: goal.description,
+    student: 'Student', // This would come from a join with profiles
+    priority: goal.priority,
+    status: goal.status,
+    progress: goal.progress_percentage,
+    dueDate: goal.target_date,
+    folder: goal.folder_path
+  })) : [
+    // Mock data for when no real goals exist
     {
       id: '1',
       title: 'Complete Math Module 1',
@@ -72,7 +87,7 @@ export default function GoalsTab({ organizationId }: GoalsTabProps) {
           <h2 className="text-2xl font-bold">Goals Management</h2>
           <p className="text-muted-foreground">Create and track learning goals for your students</p>
         </div>
-        <OrgGoalCreationDialog>
+        <OrgGoalCreationDialog organizationId={organizationId}>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Create Goal
@@ -194,7 +209,7 @@ export default function GoalsTab({ organizationId }: GoalsTabProps) {
           </div>
 
           {/* Empty state */}
-          {goals.length === 0 && (
+          {goals.length === 0 && !isLoading && (
             <Card>
               <CardContent className="text-center py-12">
                 <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -202,12 +217,22 @@ export default function GoalsTab({ organizationId }: GoalsTabProps) {
                 <p className="text-muted-foreground mb-4">
                   Create learning goals to help guide your students' progress.
                 </p>
-                <OrgGoalCreationDialog>
+                <OrgGoalCreationDialog organizationId={organizationId}>
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Goal
                   </Button>
                 </OrgGoalCreationDialog>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Loading state */}
+          {isLoading && (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading goals...</p>
               </CardContent>
             </Card>
           )}

@@ -44,14 +44,16 @@ type GoalFormData = z.infer<typeof goalSchema>;
 interface OrgGoalCreationDialogProps {
   children?: React.ReactNode;
   onGoalCreated?: () => void;
+  organizationId?: string;
 }
 
 export default function OrgGoalCreationDialog({ 
   children, 
-  onGoalCreated 
+  onGoalCreated,
+  organizationId 
 }: OrgGoalCreationDialogProps) {
   const [open, setOpen] = useState(false);
-  const { createGoal, isCreating } = useOrgGoals();
+  const { createGoal, isCreating } = useOrgGoals(organizationId);
   const { toast } = useToast();
 
   const form = useForm<GoalFormData>({
