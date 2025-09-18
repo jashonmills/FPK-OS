@@ -85,7 +85,7 @@ export function OrgNavigation() {
   });
 
   return (
-    <nav className="w-64 bg-card border-r min-h-screen">
+    <nav className="w-64 bg-card border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="p-4">
         <div className="space-y-2">
           {filteredNavItems.map((item) => (

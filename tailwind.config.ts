@@ -81,8 +81,8 @@ export default {
 				
 				// Organization Tile Colors (dynamic)
 				'org-tile': {
-					DEFAULT: 'hsl(var(--org-tile-bg) / 65%)',
-					border: 'hsl(var(--org-tile-border) / 20%)',
+					DEFAULT: 'hsla(var(--org-tile-bg), 0.65)',
+					border: 'hsla(var(--org-tile-border), 0.2)',
 					text: 'rgb(var(--org-tile-text))',
 				},
 			},
