@@ -19,7 +19,24 @@ export function OrgBanner({
   const { currentOrg, isPersonalMode } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
 
-  if (isPersonalMode || !currentOrg || !branding?.banner_url) {
+  if (isPersonalMode || !currentOrg) {
+    return (
+      <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10', className)}>
+        {overlay && (
+          <div 
+            className="absolute inset-0 bg-background/60"
+            style={{ backgroundColor: `hsl(var(--background) / ${overlayOpacity})` }}
+          />
+        )}
+        <div className="relative z-10">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  // If no banner URL, show gradient fallback
+  if (!branding?.banner_url) {
     return (
       <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10', className)}>
         {overlay && (
