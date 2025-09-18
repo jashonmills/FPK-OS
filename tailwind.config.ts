@@ -69,6 +69,15 @@ export default {
 				'fpk-amber': '#B45309',   /* Darker amber for better contrast */
 				'fpk-card': '#FBF6F0',
 				'fpk-orange': 'hsl(var(--fpk-orange))',
+				
+				// Enhanced Branding Colors
+				'brand': {
+					DEFAULT: 'hsl(var(--brand-accent))',
+					600: 'hsl(var(--brand-accent-600))',
+					700: 'hsl(var(--brand-accent-700))',
+					foreground: 'hsl(var(--brand-contrast))',
+					surface: 'hsl(var(--brand-surface))',
+				},
 			},
 			fontFamily: {
 				// Accessibility fonts with proper fallbacks

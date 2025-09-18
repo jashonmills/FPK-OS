@@ -4,6 +4,7 @@ import { OrgProvider } from './OrgContext';
 import OrgHeader from './OrgHeader';
 import { OrgNavigation } from './OrgNavigation';
 import { useAuth } from '@/hooks/useAuth';
+import { EnhancedOrgThemeProvider } from '@/components/theme/EnhancedOrgThemeProvider';
 import { Loader2 } from 'lucide-react';
 
 export default function OrgLayout() {
@@ -24,15 +25,17 @@ export default function OrgLayout() {
 
   return (
     <OrgProvider orgId={orgId}>
-      <div className="min-h-screen flex flex-col">
-        <OrgHeader />
-        <div className="flex flex-1">
-          <OrgNavigation />
-          <main className="flex-1 p-6">
-            <Outlet />
-          </main>
+      <EnhancedOrgThemeProvider>
+        <div className="min-h-screen flex flex-col">
+          <OrgHeader />
+          <div className="flex flex-1">
+            <OrgNavigation />
+            <main className="flex-1 p-6">
+              <Outlet />
+            </main>
+          </div>
         </div>
-      </div>
+      </EnhancedOrgThemeProvider>
     </OrgProvider>
   );
 }

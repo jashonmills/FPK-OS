@@ -74,6 +74,15 @@
 
     /* FPK Homepage Colors */
     --fpk-orange: 18 100% 54%;
+
+    /* Enhanced Branding Variables */
+    --brand-accent: var(--accent);
+    --brand-accent-600: var(--accent);
+    --brand-accent-700: var(--accent);
+    --brand-contrast: var(--accent-foreground);
+    --brand-surface: rgba(255,255,255,0.60);
+    --brand-ring: var(--ring);
+    --brand-radius: var(--radius);
   }
 
   .dark {

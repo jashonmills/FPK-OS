@@ -15,6 +15,8 @@ import {
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgStatistics } from '@/hooks/useOrgStatistics';
 import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
+import { OrgLogo } from '@/components/branding/OrgLogo';
+import { OrgBanner } from '@/components/branding/OrgBanner';
 
 export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
@@ -96,18 +98,27 @@ export default function OrgPortalHome() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome back!</h1>
-          <p className="text-muted-foreground mt-2">
-            Here's what's happening in {currentOrg.organizations.name}
-          </p>
+      {/* Branded Hero Section */}
+      <OrgBanner className="rounded-lg min-h-[160px]">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <OrgLogo size="lg" />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  Welcome to {currentOrg.organizations.name}
+                </h1>
+                <p className="text-foreground/80 mt-1">
+                  {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
+                </p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="text-sm">
+              {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
+            </Badge>
+          </div>
         </div>
-        <Badge variant="secondary" className="capitalize">
-          {currentOrg.organizations.subscription_tier} Plan
-        </Badge>
-      </div>
+      </OrgBanner>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

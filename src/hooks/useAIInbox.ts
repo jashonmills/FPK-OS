@@ -40,7 +40,11 @@ export const useAIInbox = (options: AIInsightsOptions = {}) => {
         }
 
         return {
-          data: (inboxData || []) as AIInboxCard[],
+          data: (inboxData || []).map(item => ({
+            ...item,
+            cta: item.cta as ActionCTA,
+            why: item.why as string[]
+          })) as AIInboxCard[],
           next_cursor: null
         };
       } catch (error) {

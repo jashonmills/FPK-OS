@@ -3716,6 +3716,62 @@ export type Database = {
           },
         ]
       }
+      org_branding: {
+        Row: {
+          accent_hex: string | null
+          banner_url: string | null
+          created_at: string
+          favicon_url: string | null
+          id: string
+          is_active: boolean | null
+          logo_dark_url: string | null
+          logo_light_url: string | null
+          org_id: string
+          radius_scale: string | null
+          updated_at: string
+          version: number | null
+          watermark_opacity: number | null
+        }
+        Insert: {
+          accent_hex?: string | null
+          banner_url?: string | null
+          created_at?: string
+          favicon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          org_id: string
+          radius_scale?: string | null
+          updated_at?: string
+          version?: number | null
+          watermark_opacity?: number | null
+        }
+        Update: {
+          accent_hex?: string | null
+          banner_url?: string | null
+          created_at?: string
+          favicon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          org_id?: string
+          radius_scale?: string | null
+          updated_at?: string
+          version?: number | null
+          watermark_opacity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_org_branding_org_id"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_course_assignments: {
         Row: {
           assigned_by: string
