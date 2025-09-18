@@ -69,19 +69,20 @@ interface AIStudyChatInterfaceProps {
 const withProgressiveTimeout = <T,>(
   promise: Promise<T>, 
   onProgress: (message: string) => void,
+  cleanup: any,
   ms = 18000
 ): Promise<T> => {
   return new Promise((resolve, reject) => {
     let progressTimer: NodeJS.Timeout;
     
     // Show "Still thinking..." after 8 seconds  
-    const progressTimeout = window.setTimeout(() => {
+    const progressTimeout = cleanup.setTimeout(() => {
       onProgress("Still thinking... This might take a moment.");
     }, 8000);
     
     // Final timeout after 18 seconds
-    const finalTimeout = window.setTimeout(() => {
-      clearTimeout(progressTimeout);
+    const finalTimeout = cleanup.setTimeout(() => {
+      cleanup.cleanup(progressTimeout);
       reject(new Error('Request timed out - please try again'));
     }, ms);
     
@@ -281,6 +282,7 @@ What would you like to learn about today?`;
           }
         }),
         (progress) => setProgressMessage(progress),
+        cleanup,
         18000
       );
       

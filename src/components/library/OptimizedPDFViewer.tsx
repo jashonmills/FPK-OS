@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { initializeReliablePDF } from '@/utils/reliablePdfConfig';
+import { useCleanup } from '@/utils/cleanupManager';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -25,6 +26,7 @@ interface PageCache {
 }
 
 const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileName, onClose }) => {
+  const cleanup = useCleanup('OptimizedPDFViewer');
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
@@ -338,8 +340,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    cleanup.addEventListener(document, 'keydown', handleKeyPress);
   }, [pageNumber, numPages, onClose, goToPrevPage, goToNextPage, goToPage, zoomIn, zoomOut, resetZoom, rotateDocument]);
 
   // Touch gesture handling

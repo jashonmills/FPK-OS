@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { safeLocalStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface VoiceSettings {
   enabled: boolean;
@@ -54,6 +55,7 @@ const getBrowserVoices = (): BrowserVoice[] => {
 };
 
 export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const cleanup = useCleanup('VoiceSettingsProvider');
   const [settings, setSettings] = useState<VoiceSettings>({
     enabled: true,
     autoRead: true,
@@ -150,14 +152,9 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('keydown', handleUserInteraction, { once: true });
-    
-    return () => {
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-    };
-  }, [settings.hasInteracted]);
+    cleanup.addEventListener(document, 'click', handleUserInteraction);
+    cleanup.addEventListener(document, 'keydown', handleUserInteraction);
+  }, [settings.hasInteracted, cleanup]);
 
   const initializeVoice = async (): Promise<void> => {
     console.log('🔊 Browser voice system initialized with', availableVoices.length, 'voices');

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 import DOMPurify from 'isomorphic-dompurify';
 import {
   Dialog,
@@ -7,7 +8,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { HelpCircle } from 'lucide-react';
-import { useCleanup } from '@/utils/cleanupManager';
 
 interface FirstVisitVideoModalProps {
   isOpen: boolean;
@@ -18,6 +18,8 @@ interface FirstVisitVideoModalProps {
 }
 
 export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, contentHtml }: FirstVisitVideoModalProps) {
+  const cleanup = useCleanup('FirstVisitVideoModal');
+  
   // Handle ESC key press
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -27,7 +29,7 @@ export function FirstVisitVideoModal({ isOpen, onClose, title, videoUrl, content
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscapeKey);
+      cleanup.addEventListener(document, 'keydown', handleEscapeKey);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }

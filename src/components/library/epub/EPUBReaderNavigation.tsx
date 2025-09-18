@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface EPUBReaderNavigationProps {
   isLoading: boolean;
@@ -22,6 +23,7 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
   onClose,
   readerRef
 }) => {
+  const cleanup = useCleanup('EPUBReaderNavigation');
   // Add keyboard navigation that doesn't interfere with scrolling
   useEffect(() => {
     if (isLoading || error || !isInitialized) return;
@@ -50,8 +52,7 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    cleanup.addEventListener(document, 'keydown', handleKeyDown);
   }, [isLoading, error, isNavigating, onPrevPage, onNextPage, onClose, isInitialized]);
 
   // Add enhanced touch/swipe navigation that respects scrolling
@@ -107,15 +108,9 @@ export const EPUBReaderNavigation: React.FC<EPUBReaderNavigationProps> = ({
     };
 
     const container = readerRef.current;
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchmove', handleTouchMove, { passive: true });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-    return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
-    };
+    cleanup.addEventListener(container, 'touchstart', handleTouchStart);
+    cleanup.addEventListener(container, 'touchmove', handleTouchMove);
+    cleanup.addEventListener(container, 'touchend', handleTouchEnd);
   }, [isLoading, error, isNavigating, onPrevPage, onNextPage, isInitialized]);
 
   return null; // This component only handles navigation logic

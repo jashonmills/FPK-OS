@@ -7,8 +7,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProgressTracking } from '@/hooks/useProgressTracking';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useTranslation } from 'react-i18next';
+import { useCleanup } from '@/utils/cleanupManager';
 
 const LearningStateEmbed = () => {
+  const cleanup = useCleanup('LearningStateEmbed');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -68,12 +70,8 @@ const LearningStateEmbed = () => {
       }
     };
 
-    window.addEventListener('message', handleMessage);
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, [updateProgress]);
+    cleanup.addEventListener(window, 'message', handleMessage);
+  }, [updateProgress, cleanup]);
 
   useEffect(() => {
     // Send initialization handshake when iframe loads

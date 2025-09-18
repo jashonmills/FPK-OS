@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,8 @@ interface LiveHubVideoModalProps {
 }
 
 export function LiveHubVideoModal({ isOpen, onClose }: LiveHubVideoModalProps) {
+  const cleanup = useCleanup('LiveHubVideoModal');
+  
   // Handle ESC key press
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -22,7 +25,7 @@ export function LiveHubVideoModal({ isOpen, onClose }: LiveHubVideoModalProps) {
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscapeKey);
+      cleanup.addEventListener(document, 'keydown', handleEscapeKey);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }

@@ -5,6 +5,7 @@ import { useAccessibility } from '@/hooks/useAccessibility';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useCleanupDebugUI } from '@/hooks/useCleanupDebugUI';
 import { useUnifiedProgressTracking } from '@/hooks/useUnifiedProgressTracking';
+import { useCleanup } from '@/utils/cleanupManager';
 import CourseHeader from '@/components/course/CourseHeader';
 import CourseOverview from '@/components/course/CourseOverview';
 import CoursePlayer from '@/components/course/CoursePlayer';
@@ -14,6 +15,7 @@ import StickyMediaToolbar from '@/components/layout/StickyMediaToolbar';
 import { PolishedContainer } from '@/components/common/UIPolishProvider';
 
 const LearningStateCourse = () => {
+  const cleanup = useCleanup('LearningStateCourse');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showStickyToolbar, setShowStickyToolbar] = useState(false);
   const [currentLessonId, setCurrentLessonId] = useState<string>('cognitive-load');
@@ -64,21 +66,15 @@ const LearningStateCourse = () => {
     };
 
     // Add event listeners with throttling
-    let scrollTimeout: NodeJS.Timeout;
+    let scrollTimeout: string;
     const throttledScrollHandler = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(handleScroll, 1000); // Throttle to once per second
+      if (scrollTimeout) cleanup.cleanup(scrollTimeout);
+      scrollTimeout = cleanup.setTimeout(handleScroll, 1000); // Throttle to once per second
     };
 
-    window.addEventListener('scroll', throttledScrollHandler);
-    document.addEventListener('click', handleClick);
-
-    return () => {
-      window.removeEventListener('scroll', throttledScrollHandler);
-      document.removeEventListener('click', handleClick);
-      clearTimeout(scrollTimeout);
-    };
-  }, [trackInteraction]);
+    cleanup.addEventListener(window, 'scroll', throttledScrollHandler);
+    cleanup.addEventListener(document, 'click', handleClick);
+  }, [trackInteraction, cleanup]);
 
   // Clean up debug UI in production
   useCleanupDebugUI({
