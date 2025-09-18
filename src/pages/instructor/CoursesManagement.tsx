@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgCourses } from '@/hooks/useOrgCourses';
+import { useCourses } from '@/hooks/useCourses';
+import { useOrganizationCourseAssignments } from '@/hooks/useOrganizationCourseAssignments';
+import { getCourseImage } from '@/utils/courseImages';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +18,8 @@ import {
 export default function CoursesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { courses, isLoading } = useOrgCourses(currentOrg?.organization_id);
+  const { courses: allCourses, isLoading } = useCourses({ status: 'published' });
+  const { assignedCourses, assignCourse, unassignCourse, isCourseAssigned } = useOrganizationCourseAssignments(currentOrg?.organization_id);
 
   if (!currentOrg) {
     return (
@@ -31,12 +34,12 @@ export default function CoursesManagement() {
   }
 
   // Filter courses by search query
-  const filteredCourses = courses.filter(course => 
+  const filteredCourses = allCourses.filter(course => 
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const publishedCourses = filteredCourses.filter(c => c.published);
+  const publishedCourses = filteredCourses.filter(c => c.status === 'published');
   const totalEnrollments = filteredCourses.reduce((sum, c) => sum + (c.enrollments_count || 0), 0);
   const avgCompletion = filteredCourses.length > 0 
     ? filteredCourses.reduce((sum, c) => sum + (c.completion_rate || 0), 0) / filteredCourses.length 
@@ -123,45 +126,47 @@ export default function CoursesManagement() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50">
-            <div className="aspect-video relative overflow-hidden">
-              {course.thumbnail_url ? (
-                <img 
-                  src={course.thumbnail_url}
-                  alt={course.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="bg-gradient-to-br from-orange-400 to-orange-600 w-full h-full" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3">
-                <BookOpen className="w-8 h-8 text-white mb-2 drop-shadow-lg" />
-                <h3 className="text-white font-semibold text-lg drop-shadow-md line-clamp-1">{course.title}</h3>
-              </div>
-            </div>
+                <div className="aspect-video relative overflow-hidden">
+                  <div 
+                    className="w-full h-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${getCourseImage(course.id, course.title)})` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <BookOpen className="w-8 h-8 text-white mb-2 drop-shadow-lg" />
+                    <h3 className="text-white font-semibold text-lg drop-shadow-md line-clamp-1">{course.title}</h3>
+                  </div>
+                </div>
             <OrgCardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <OrgCardTitle className="text-lg line-clamp-2 text-white">{course.title}</OrgCardTitle>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-white hover:bg-orange-500/30">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit Course</DropdownMenuItem>
-                    <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    {!course.published ? (
-                      <DropdownMenuItem>Publish</DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem>Unpublish</DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem className="text-destructive">
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-2">
+                  <Badge className={isCourseAssigned(course.id) ? "bg-green-500/80 text-white" : "bg-gray-500/80 text-white"}>
+                    {isCourseAssigned(course.id) ? 'Assigned' : 'Available'}
+                  </Badge>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-white hover:bg-orange-500/30">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => isCourseAssigned(course.id) 
+                          ? unassignCourse(course.id) 
+                          : assignCourse(course.id)
+                        }
+                      >
+                        {isCourseAssigned(course.id) ? 'Remove from Students' : 'Assign to Students'}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>View Course Details</DropdownMenuItem>
+                      {isCourseAssigned(course.id) && (
+                        <DropdownMenuItem>Manage Student Enrollment</DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
               <OrgCardDescription className="line-clamp-2 text-white/80">
                 {course.description}
@@ -170,8 +175,8 @@ export default function CoursesManagement() {
             <OrgCardContent className="pt-0">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Badge variant={course.published ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
-                    {course.published ? 'Published' : 'Draft'}
+                  <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
+                    {course.status === 'published' ? 'Published' : 'Draft'}
                   </Badge>
                   <div className="flex items-center text-sm text-white/70">
                     <Clock className="w-3 h-3 mr-1" />
@@ -190,8 +195,15 @@ export default function CoursesManagement() {
                   </div>
                 </div>
                 
-                <Button className="w-full bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60" size="sm">
-                  Manage Course
+                <Button 
+                  className="w-full bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60" 
+                  size="sm"
+                  onClick={() => isCourseAssigned(course.id) 
+                    ? unassignCourse(course.id) 
+                    : assignCourse(course.id)
+                  }
+                >
+                  {isCourseAssigned(course.id) ? 'Remove Assignment' : 'Assign to Students'}
                 </Button>
               </div>
             </OrgCardContent>

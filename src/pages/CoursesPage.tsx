@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCourseImage } from '@/utils/courseImages';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,18 +19,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
-// Import course header images (same as in StyledCourseCard)
-import courseLinearEquations from '@/assets/course-linear-equations.jpg';
-import courseTrigonometry from '@/assets/course-trigonometry.jpg';
-import courseAlgebra from '@/assets/course-algebra.jpg';
-import courseLogic from '@/assets/course-logic.jpg';
-import courseEconomics from '@/assets/course-economics.jpg';
-import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
-import courseNeurodiversity from '@/assets/course-neurodiversity.jpg';
-import courseScience from '@/assets/course-science.jpg';
-import courseMoneyManagement from '@/assets/course-money-management.jpg';
-import learningStateBg from '@/assets/learning-state-course-bg.jpg';
-import eltBackground from '@/assets/elt-background.jpg';
+// Course image logic moved to shared utility
+
+// Course image logic moved to shared utility
 
 interface Course {
   id: string;
@@ -46,47 +38,7 @@ interface Course {
   image?: string; // Added for course header images
 }
 
-// Map course IDs to their images (same as StyledCourseCard)
-const courseImageMap: Record<string, string> = {
-  'empowering-learning-spelling': courseSpellingReading,
-  'empowering-learning-reading': courseSpellingReading,
-  'empowering-learning-numeracy': courseSpellingReading,
-  'empowering-learning-state': learningStateBg,
-  'logic-critical-thinking': courseLogic,
-  'interactive-science': courseScience,
-  'interactive-algebra': courseAlgebra,
-  'interactive-linear-equations': courseLinearEquations,
-  'interactive-trigonometry': courseTrigonometry,
-  'interactive-economics': courseEconomics,
-  'interactive-neurodiversity': courseNeurodiversity,
-  'money-management-teens': courseMoneyManagement,
-  'elt-empowering-learning-techniques': eltBackground,
-};
-
-// Fallback function for courses not in the map
-const getCourseImage = (id: string, title: string): string => {
-  // Check direct ID mapping first
-  if (courseImageMap[id]) {
-    return courseImageMap[id];
-  }
-  
-  // Fallback based on title keywords
-  const titleLower = title.toLowerCase();
-  if (titleLower.includes('linear') || titleLower.includes('equation')) return courseLinearEquations;
-  if (titleLower.includes('trigonometry') || titleLower.includes('trig')) return courseTrigonometry;
-  if (titleLower.includes('algebra')) return courseAlgebra;
-  if (titleLower.includes('logic') || titleLower.includes('critical')) return courseLogic;
-  if (titleLower.includes('economics') || titleLower.includes('economic')) return courseEconomics;
-  if (titleLower.includes('spelling') || titleLower.includes('reading') || titleLower.includes('english')) return courseSpellingReading;
-  if (titleLower.includes('learning') && titleLower.includes('state')) return learningStateBg;
-  if (titleLower.includes('neurodiversity') || titleLower.includes('neurodivergent')) return courseNeurodiversity;
-  if (titleLower.includes('science') || titleLower.includes('biology') || titleLower.includes('chemistry')) return courseScience;
-  if (titleLower.includes('money') || titleLower.includes('financial') || titleLower.includes('teen')) return courseMoneyManagement;
-  if (titleLower.includes('elt') || titleLower.includes('empowering learning techniques')) return eltBackground;
-  
-  // Default fallback
-  return courseScience;
-};
+// Remove duplicate courseImageMap and getCourseImage - using shared utility
 
 const courses: Course[] = [
   {

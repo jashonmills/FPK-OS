@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Star, CheckCircle, Clock } from 'lucide-react';
 import type { Course } from '@/hooks/useEnrolledCourses';
+import { getCourseImage } from '@/utils/courseImages';
 
 interface CourseCardProps {
   course: Course;
@@ -29,17 +30,19 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const completedModules = progress?.completed_modules?.length || 0;
   const isCompleted = progress?.completed || false;
 
+  // Get the course image using the shared utility
+  const courseImage = getCourseImage(course.id, course.title);
+
   return (
     <Card className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">
-      {course.thumbnail_url && (
-        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-          <img
-            src={course.thumbnail_url}
-            alt={course.title}
-            className="w-full h-full object-cover"
-          />
+      <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+        <div 
+          className="w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${courseImage})` }}
+        >
+          <div className="w-full h-full bg-black/20" />
         </div>
-      )}
+      </div>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
