@@ -31,10 +31,11 @@ import {
   Mail,
   Calendar,
   BookOpen,
-  Target
+  Target,
+  Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SimpleModal } from '@/components/org/SimpleModal';
+import { PortalModal } from '@/components/org/PortalModal';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -138,11 +139,6 @@ export default function StudentsPage() {
   const students = members.filter(member => member.role === 'student');
   const instructors = members.filter(member => member.role === 'instructor');
   
-  // Debug logging
-  console.log('StudentsPage render - showInviteDialog state:', showInviteDialog);
-  console.log('StudentsPage render - canManageMembers:', canManageMembers);
-  console.log('StudentsPage render - userRole:', userRole);
-  
   const filteredStudents = students.filter(student => 
     student.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.profiles?.email?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -175,10 +171,7 @@ export default function StudentsPage() {
         {canManageMembers && (
           <Button 
             className="flex items-center gap-2"
-            onClick={() => {
-              console.log('Invite button clicked - setting showInviteDialog to true');
-              setShowInviteDialog(true);
-            }}
+            onClick={() => setShowInviteDialog(true)}
           >
             <UserPlus className="h-4 w-4" />
             Invite Students
@@ -234,6 +227,13 @@ export default function StudentsPage() {
             className="pl-10 bg-transparent border-white/20 text-white placeholder:text-white/60"
           />
         </div>
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2 bg-transparent border-white/20 text-white hover:bg-white/10"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </Button>
       </div>
 
       {/* Students List */}
@@ -255,10 +255,7 @@ export default function StudentsPage() {
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
-                <Button onClick={() => {
-                  console.log('Invite button (empty state) clicked - setting showInviteDialog to true');
-                  setShowInviteDialog(true);
-                }}>
+                <Button onClick={() => setShowInviteDialog(true)}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invite Students
                 </Button>
@@ -299,7 +296,7 @@ export default function StudentsPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 z-50">
+                      <DropdownMenuContent className="bg-card dark:bg-card border border-border z-50">
                         <DropdownMenuItem onClick={() => setSelectedStudent(student)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Progress
@@ -415,12 +412,9 @@ export default function StudentsPage() {
       </Sheet>
 
       {/* Invite Modal */}
-      <SimpleModal 
+      <PortalModal 
         open={showInviteDialog}
-        onOpenChange={(open) => {
-          console.log('SimpleModal onOpenChange:', open);
-          setShowInviteDialog(open);
-        }}
+        onOpenChange={setShowInviteDialog}
         organizationId={orgId}
       />
     </div>
