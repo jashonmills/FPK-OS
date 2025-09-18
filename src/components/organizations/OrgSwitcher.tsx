@@ -38,7 +38,7 @@ export function OrgSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2 min-w-[200px] justify-between">
+        <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-between">
           <div className="flex items-center gap-2">
             {isPersonalMode ? (
               <User className="h-4 w-4" />
