@@ -34,10 +34,9 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
     
     root.style.setProperty('--accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
 
-    // Set organization tile colors based on accent
-    const accentRgb = accent.toRgb();
-    root.style.setProperty('--org-tile-bg', `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`);
-    root.style.setProperty('--org-tile-border', `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`);
+    // Set organization tile colors based on accent (using the accent HSL values directly)
+    root.style.setProperty('--org-tile-bg', branding.theme_accent);
+    root.style.setProperty('--org-tile-border', branding.theme_accent);
     root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
 
     // Cleanup on unmount
