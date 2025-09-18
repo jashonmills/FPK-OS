@@ -34,7 +34,7 @@ import {
   Target
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { EnhancedInviteDialog } from '@/components/org/EnhancedInviteDialog';
+import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -415,10 +415,10 @@ export default function StudentsPage() {
       </Sheet>
 
       {/* Invite Dialog */}
-      <EnhancedInviteDialog 
+      <SimpleInviteDialog 
         open={showInviteDialog}
         onOpenChange={(open) => {
-          console.log('EnhancedInviteDialog onOpenChange called with:', open);
+          console.log('SimpleInviteDialog onOpenChange called with:', open);
           setShowInviteDialog(open);
         }}
         organizationId={orgId}
