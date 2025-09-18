@@ -78,6 +78,13 @@ export default {
 					foreground: 'hsl(var(--brand-contrast))',
 					surface: 'hsl(var(--brand-surface))',
 				},
+				
+				// Organization Tile Colors (dynamic)
+				'org-tile': {
+					DEFAULT: 'rgba(var(--org-tile-bg) / 0.65)',
+					border: 'rgba(var(--org-tile-border) / 0.2)',
+					text: 'rgb(var(--org-tile-text))',
+				},
 			},
 			fontFamily: {
 				// Accessibility fonts with proper fallbacks

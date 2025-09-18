@@ -18,6 +18,9 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       // Reset to default theme
       root.style.removeProperty('--accent');
       root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--org-tile-bg');
+      root.style.removeProperty('--org-tile-border');
+      root.style.removeProperty('--org-tile-text');
       return;
     }
 
@@ -31,10 +34,19 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
     
     root.style.setProperty('--accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
 
+    // Set organization tile colors based on accent
+    const accentRgb = accent.toRgb();
+    root.style.setProperty('--org-tile-bg', `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`);
+    root.style.setProperty('--org-tile-border', `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}`);
+    root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
+
     // Cleanup on unmount
     return () => {
       root.style.removeProperty('--accent');
       root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--org-tile-bg');
+      root.style.removeProperty('--org-tile-border');
+      root.style.removeProperty('--org-tile-text');
     };
   }, [branding?.theme_accent, isPersonalMode]);
 

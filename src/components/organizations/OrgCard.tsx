@@ -12,7 +12,7 @@ const OrgCard = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border shadow-sm bg-purple-900/65 backdrop-blur-sm border-purple-300/20 text-white",
+        "rounded-lg border shadow-sm bg-org-tile backdrop-blur-sm border-org-tile-border text-org-tile-text",
         getAccessibilityClasses('card'),
         className
       )}
@@ -44,7 +44,7 @@ const OrgCardTitle = React.forwardRef<
     <h3
       ref={ref}
       className={cn(
-        "text-2xl font-semibold leading-none tracking-tight text-white",
+        "text-2xl font-semibold leading-none tracking-tight text-org-tile-text",
         getAccessibilityClasses('text'),
         className
       )}
@@ -64,7 +64,7 @@ const OrgCardDescription = React.forwardRef<
     <p
       ref={ref}
       className={cn(
-        "text-sm text-purple-200",
+        "text-sm opacity-80",
         getAccessibilityClasses('text'),
         className
       )}
