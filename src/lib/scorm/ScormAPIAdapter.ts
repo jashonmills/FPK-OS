@@ -4,6 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type DebugEventType = 'info' | 'success' | 'error' | 'warning';
 
+const safeStringify = (v: unknown) => {
+  try {
+    return typeof v === 'string' ? v : JSON.stringify(v);
+  } catch (_) {
+    return String(v);
+  }
+};
+
 export interface ScormAPIAdapter {
   initialize: () => void;
   cleanup: () => void;
@@ -11,7 +19,7 @@ export interface ScormAPIAdapter {
 }
 
 export class Scorm12Adapter implements ScormAPIAdapter {
-  private api: any;
+  private api: unknown;
   private debugLogs: string[] = [];
   private enrollmentId: string;
   private scoId: string;
@@ -29,9 +37,9 @@ export class Scorm12Adapter implements ScormAPIAdapter {
   }
 
   private createAPI() {
-    const handleCommit = async (cmiData: any) => {
+    const handleCommit = async (cmiData: unknown) => {
       try {
-        this.onDebugEvent('info', `SCORM 1.2 Commit: ${JSON.stringify(cmiData).substring(0, 100)}...`);
+        this.onDebugEvent('info', `SCORM 1.2 Commit: ${safeStringify(cmiData).substring(0, 100)}...`);
         
         const { error } = await supabase.functions.invoke('scorm-runtime-advanced', {
           body: {
@@ -44,13 +52,14 @@ export class Scorm12Adapter implements ScormAPIAdapter {
         
         if (error) throw error;
         this.onDebugEvent('success', 'SCORM 1.2 data committed successfully');
-      } catch (error: any) {
-        this.onDebugEvent('error', `SCORM 1.2 Commit failed: ${error.message}`);
+      } catch (error: unknown) {
+        const msg = (error as any)?.message ?? String(error);
+        this.onDebugEvent('error', `SCORM 1.2 Commit failed: ${msg}`);
         throw error;
       }
     };
 
-    const handleFinish = async (cmiData: any) => {
+    const handleFinish = async (cmiData: unknown) => {
       try {
         this.onDebugEvent('info', 'SCORM 1.2 Finishing session...');
         
@@ -65,8 +74,9 @@ export class Scorm12Adapter implements ScormAPIAdapter {
         
         if (error) throw error;
         this.onDebugEvent('success', 'SCORM 1.2 session finished successfully');
-      } catch (error: any) {
-        this.onDebugEvent('error', `SCORM 1.2 Finish failed: ${error.message}`);
+      } catch (error: unknown) {
+        const msg = (error as any)?.message ?? String(error);
+        this.onDebugEvent('error', `SCORM 1.2 Finish failed: ${msg}`);
         throw error;
       }
     };
@@ -98,7 +108,7 @@ export class Scorm12Adapter implements ScormAPIAdapter {
 }
 
 export class Scorm2004Adapter implements ScormAPIAdapter {
-  private api: any;
+  private api: unknown;
   private debugLogs: string[] = [];
   private enrollmentId: string;
   private scoId: string;
@@ -116,10 +126,10 @@ export class Scorm2004Adapter implements ScormAPIAdapter {
   }
 
   private createAPI() {
-    const handleCommit = async (cmiData: any) => {
+    const handleCommit = async (cmiData: unknown) => {
       try {
-        this.onDebugEvent('info', `SCORM 2004 Commit: ${JSON.stringify(cmiData).substring(0, 100)}...`);
-        
+        this.onDebugEvent('info', `SCORM 2004 Commit: ${safeStringify(cmiData).substring(0, 100)}...`);
+
         const { error } = await supabase.functions.invoke('scorm-runtime-advanced', {
           body: {
             action: 'commit',
@@ -128,19 +138,20 @@ export class Scorm2004Adapter implements ScormAPIAdapter {
             cmiData
           }
         });
-        
+
         if (error) throw error;
         this.onDebugEvent('success', 'SCORM 2004 data committed successfully');
-      } catch (error: any) {
-        this.onDebugEvent('error', `SCORM 2004 Commit failed: ${error.message}`);
+      } catch (error: unknown) {
+        const msg = (error as any)?.message ?? String(error);
+        this.onDebugEvent('error', `SCORM 2004 Commit failed: ${msg}`);
         throw error;
       }
     };
 
-    const handleTerminate = async (cmiData: any) => {
+    const handleTerminate = async (cmiData: unknown) => {
       try {
         this.onDebugEvent('info', 'SCORM 2004 Terminating session...');
-        
+
         const { error } = await supabase.functions.invoke('scorm-runtime-advanced', {
           body: {
             action: 'terminate',
@@ -149,11 +160,12 @@ export class Scorm2004Adapter implements ScormAPIAdapter {
             cmiData
           }
         });
-        
+
         if (error) throw error;
         this.onDebugEvent('success', 'SCORM 2004 session terminated successfully');
-      } catch (error: any) {
-        this.onDebugEvent('error', `SCORM 2004 Terminate failed: ${error.message}`);
+      } catch (error: unknown) {
+        const msg = (error as any)?.message ?? String(error);
+        this.onDebugEvent('error', `SCORM 2004 Terminate failed: ${msg}`);
         throw error;
       }
     };

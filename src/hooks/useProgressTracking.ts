@@ -72,7 +72,7 @@ export function useProgressTracking(courseId: string) {
     if (!user?.id) return;
 
     try {
-      let newProgress = { ...currentProgress };
+      const newProgress = { ...currentProgress };
       let xpAwarded = false;
 
       switch (update.type) {

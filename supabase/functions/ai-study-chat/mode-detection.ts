@@ -105,7 +105,7 @@ export function detectQueryMode(message: string): QueryMode {
   
   // Heuristic fallback: question-like or math-like inputs are general knowledge
   const looksLikeQuestion = /\b(what|who|why|how|when|where)\b|\?/i.test(lowerMessage);
-  const looksLikeMath = /\b\d+\s*([x*×+\/-])\s*\d+\b/.test(lowerMessage);
+  const looksLikeMath = /\b\d+\s*([x*×+/-])\s*\d+\b/.test(lowerMessage);
   if (looksLikeQuestion || looksLikeMath) {
     return 'general';
   }

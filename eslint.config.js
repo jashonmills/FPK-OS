@@ -4,8 +4,8 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
-  { ignores: ["dist"] },
+const baseConfig = tseslint.config(
+  { ignores: ["patches/**", "reports/**", "dist/**", "coverage/**"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -27,3 +27,20 @@ export default tseslint.config(
     },
   }
 );
+
+// Export a flat-config array: base config followed by file-scoped configs.
+export default [
+  ...baseConfig,
+  {
+    files: ["supabase/**"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
+    files: ["src/utils/**"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+];

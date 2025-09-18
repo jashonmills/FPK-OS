@@ -1,6 +1,6 @@
 // SCORM 1.2 API Implementation
 export function createScorm12API(initialData: any = {}, handlers: any = {}) {
-  let cmiData = { ...initialData };
+  const cmiData = { ...initialData };
   let initialized = false;
   let terminated = false;
   let errorCode = "0";

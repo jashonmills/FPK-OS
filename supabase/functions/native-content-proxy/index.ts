@@ -1,3 +1,5 @@
+// Packaged copy for review/apply: supabase/functions/native-content-proxy/index.ts
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
@@ -46,7 +48,7 @@ Deno.serve(async (req) => {
 
   try {
     // Parse the URL path: /native-content/:pkg/*
-    const pathMatch = url.pathname.match(/^\/native-content\/([^\/]+)\/(.*)$/);
+  const pathMatch = url.pathname.match(/^\/native-content\/([^/]+)\/(.*)$/);
     if (!pathMatch) {
       return new Response('Invalid path format. Expected: /native-content/:pkg/path', {
         status: 400,

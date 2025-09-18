@@ -126,7 +126,7 @@ const FlashcardSelectionModal: React.FC<FlashcardSelectionModalProps> = ({
   };
 
   const getSelectedFlashcards = () => {
-    let selectedCards: Flashcard[] = [];
+    const selectedCards: Flashcard[] = [];
     
     // Add selected recent cards
     const selectedRecentFlashcards = flashcards.filter(card => 

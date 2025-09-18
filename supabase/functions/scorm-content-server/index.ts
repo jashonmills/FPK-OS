@@ -21,22 +21,18 @@ serve(async (req) => {
     );
 
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    
-    // Handle different URL structures - the function might receive the full path or just the part after function name
-    let packageId: string;
-    let filePath: string;
-    
-    // Find the package ID (UUID format) in the path
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const packageIndex = pathParts.findIndex(part => uuidRegex.test(part));
+  const pathParts = url.pathname.split('/').filter(Boolean);
+
+  // Handle different URL structures - the function might receive the full path or just the part after function name
+  // Find the package ID (UUID format) in the path and derive packageId/filePath as consts
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const packageIndex = pathParts.findIndex(part => uuidRegex.test(part));
+  const packageId = packageIndex === -1 ? '' : pathParts[packageIndex];
+  const filePath = packageIndex === -1 ? '' : pathParts.slice(packageIndex + 1).join('/');
     
     if (packageIndex === -1) {
       return new Response('Package ID not found in path', { status: 400, headers: corsHeaders });
     }
-    
-    packageId = pathParts[packageIndex];
-    filePath = pathParts.slice(packageIndex + 1).join('/');
 
     console.log(`SCORM Content Server: Serving ${filePath} from package ${packageId}`);
 

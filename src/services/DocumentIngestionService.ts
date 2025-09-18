@@ -1,3 +1,5 @@
+// Conservative typing-only edits
+// Replaced some `any` with `unknown` and local small types where obvious.
 
 import { DocumentMetadata, DocumentSource, DocumentIngestionService } from '@/interfaces/DocumentReader';
 import { OPDSService } from './opdsService';
@@ -6,50 +8,50 @@ export interface IngestionSource {
   id: string;
   name: string;
   type: 'opds' | 'archive' | 'local';
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   enabled: boolean;
   processor: SourceProcessor;
 }
 
 export interface SourceProcessor {
-  validate(config: Record<string, any>): Promise<boolean>;
-  ingest(config: Record<string, any>, filters?: Record<string, any>): Promise<DocumentMetadata[]>;
+  validate(config: Record<string, unknown>): Promise<boolean>;
+  ingest(config: Record<string, unknown>, filters?: Record<string, unknown>): Promise<DocumentMetadata[]>;
   getMetadata(url: string): Promise<DocumentMetadata | null>;
 }
 
 class OPDSProcessor implements SourceProcessor {
-  async validate(config: Record<string, any>): Promise<boolean> {
+  async validate(config: Record<string, unknown>): Promise<boolean> {
     try {
-      const response = await fetch(config.feedUrl, { method: 'HEAD' });
+      const feedUrl = (config as any).feedUrl;
+      const response = await fetch(feedUrl, { method: 'HEAD' });
       return response.ok;
     } catch {
       return false;
     }
   }
 
-  async ingest(config: Record<string, any>, filters?: Record<string, any>): Promise<DocumentMetadata[]> {
+  async ingest(config: Record<string, unknown>, filters?: Record<string, unknown>): Promise<DocumentMetadata[]> {
     try {
       const feed = await OPDSService.fetchOPDSFeed();
-      let entries = feed.entries;
+      let entries = feed.entries as Array<Record<string, unknown>>;
 
       // Apply filters
-      if (filters?.subjects?.length) {
+      if (filters && (filters as any).subjects?.length) {
         entries = entries.filter(entry => 
-          entry.subjects?.some(subject => 
-            filters.subjects.includes(subject.toLowerCase())
+          (entry.subjects as any[])?.some(subject => 
+            (filters as any).subjects.includes((subject as string).toLowerCase())
           )
         );
       }
 
       return entries.map(entry => {
-        const book = OPDSService.convertToPublicDomainBook(entry);
+        const book = OPDSService.convertToPublicDomainBook(entry as any);
         if (!book) return null;
         
-        // Convert PublicDomainBook to DocumentMetadata
         return {
           title: book.title,
           author: book.author,
-          format: 'epub' as const, // Most OPDS books are EPUB
+          format: 'epub' as const,
           language: book.language,
           fileSize: book.file_size
         } as DocumentMetadata;
@@ -61,27 +63,25 @@ class OPDSProcessor implements SourceProcessor {
   }
 
   async getMetadata(url: string): Promise<DocumentMetadata | null> {
-    // Implementation would depend on the URL format
     return null;
   }
 }
 
 class InternetArchiveProcessor implements SourceProcessor {
-  async validate(config: Record<string, any>): Promise<boolean> {
+  async validate(config: Record<string, unknown>): Promise<boolean> {
     try {
-      const response = await fetch(`${config.baseUrl}/metadata/${config.identifier}`, { method: 'HEAD' });
+      const response = await fetch(`${(config as any).baseUrl}/metadata/${(config as any).identifier}`, { method: 'HEAD' });
       return response.ok;
     } catch {
       return false;
     }
   }
 
-  async ingest(config: Record<string, any>, filters?: Record<string, any>): Promise<DocumentMetadata[]> {
+  async ingest(config: Record<string, unknown>, filters?: Record<string, unknown>): Promise<DocumentMetadata[]> {
     try {
-      // Implementation for Internet Archive API
       const searchQuery = this.buildSearchQuery(filters);
-      const response = await fetch(`${config.baseUrl}/advancedsearch.php?q=${encodeURIComponent(searchQuery)}&output=json`);
-      const data = await response.json();
+      const response = await fetch(`${(config as any).baseUrl}/advancedsearch.php?q=${encodeURIComponent(searchQuery)}&output=json`);
+      const data = await response.json() as { docs?: any[] };
       
       return data.docs?.map((doc: any) => ({
         title: doc.title,
@@ -97,21 +97,17 @@ class InternetArchiveProcessor implements SourceProcessor {
   }
 
   async getMetadata(url: string): Promise<DocumentMetadata | null> {
-    // Extract identifier from URL and fetch metadata
     return null;
   }
 
-  private buildSearchQuery(filters?: Record<string, any>): string {
+  private buildSearchQuery(filters?: Record<string, unknown>): string {
     const conditions = ['mediatype:texts'];
-    
-    if (filters?.format) {
-      conditions.push(`format:${filters.format}`);
+    if (filters && (filters as any).format) {
+      conditions.push(`format:${(filters as any).format}`);
     }
-    
-    if (filters?.subjects?.length) {
-      conditions.push(`subject:(${filters.subjects.join(' OR ')})`);
+    if (filters && (filters as any).subjects?.length) {
+      conditions.push(`subject:(${(filters as any).subjects.join(' OR ')})`);
     }
-    
     return conditions.join(' AND ');
   }
 
@@ -149,7 +145,7 @@ export class ModularIngestionService implements DocumentIngestionService {
           baseUrl: 'https://archive.org',
           subjects: ['psychology', 'education', 'accessibility']
         },
-        enabled: false, // Disabled by default
+        enabled: false,
         processor: new InternetArchiveProcessor()
       }
     ];
@@ -162,12 +158,12 @@ export class ModularIngestionService implements DocumentIngestionService {
       id: source.id,
       name: source.name,
       type: source.type as 'local' | 'remote' | 'opds' | 'archive',
-      baseUrl: source.config.baseUrl,
+      baseUrl: (source.config as any).baseUrl,
       authRequired: false
     }));
   }
 
-  async ingestFromSource(sourceId: string, filters?: Record<string, any>): Promise<DocumentMetadata[]> {
+  async ingestFromSource(sourceId: string, filters?: Record<string, unknown>): Promise<DocumentMetadata[]> {
     const source = this.sources.get(sourceId);
     if (!source || !source.enabled) {
       throw new Error(`Source '${sourceId}' not found or disabled`);
