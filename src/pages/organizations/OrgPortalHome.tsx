@@ -104,21 +104,21 @@ export default function OrgPortalHome() {
   return (
     <div className="space-y-6">
       {/* Branded Hero Section */}
-      <Card>
+      <Card className="bg-orange-500/65 border-orange-400/50">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <OrgLogo size="lg" />
               <div>
-                <h1 className="text-2xl font-bold">
+                <h1 className="text-2xl font-bold text-white">
                   Welcome to {currentOrg.organizations.name}
                 </h1>
-                <p className="opacity-80 mt-1">
+                <p className="text-white/80 mt-1">
                   {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm opacity-90">
+            <Badge variant="secondary" className="text-sm bg-white/20 text-white border-white/30">
               {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
             </Badge>
           </div>
@@ -128,13 +128,13 @@ export default function OrgPortalHome() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index} className="bg-orange-500/65 border-orange-400/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-80">{stat.label}</CardTitle>
-              <stat.icon className="h-4 w-4 opacity-70" />
+              <CardTitle className="text-sm font-medium text-white/80">{stat.label}</CardTitle>
+              <stat.icon className="h-4 w-4 text-white/70" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-2xl font-bold text-white">{stat.value}</div>
             </CardContent>
           </Card>
         ))}
@@ -142,32 +142,32 @@ export default function OrgPortalHome() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Overview */}
-        <Card>
+        <Card className="bg-orange-500/65 border-orange-400/50">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 opacity-70" />
+            <CardTitle className="flex items-center space-x-2 text-white">
+              <TrendingUp className="h-5 w-5 text-white/70" />
               <span>Progress Overview</span>
             </CardTitle>
-            <CardDescription className="opacity-80">
+            <CardDescription className="text-white/80">
               Current completion rates across all courses
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center py-8">
-              <TrendingUp className="h-8 w-8 mx-auto opacity-70 mb-2" />
-              <p className="text-sm opacity-80">No progress data available yet</p>
+              <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+              <p className="text-sm text-white/80">No progress data available yet</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Recent Activity */}
-        <Card>
+        <Card className="bg-orange-500/65 border-orange-400/50">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 opacity-70" />
+            <CardTitle className="flex items-center space-x-2 text-white">
+              <Calendar className="h-5 w-5 text-white/70" />
               <span>Recent Activity</span>
             </CardTitle>
-            <CardDescription className="opacity-80">
+            <CardDescription className="text-white/80">
               Latest updates from your organization
             </CardDescription>
           </CardHeader>
@@ -176,12 +176,12 @@ export default function OrgPortalHome() {
               {recentActivity.length > 0 ? (
                 recentActivity.map((activity, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-current opacity-70 rounded-full mt-2" />
+                    <div className="w-2 h-2 bg-white/70 rounded-full mt-2" />
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">
+                      <p className="text-sm font-medium leading-none text-white">
                         {activity.student_name}: {activity.activity}
                       </p>
-                      <p className="text-sm opacity-80">
+                      <p className="text-sm text-white/80">
                         {new Date(activity.timestamp).toLocaleString()}
                       </p>
                     </div>
@@ -189,8 +189,8 @@ export default function OrgPortalHome() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <Calendar className="h-8 w-8 mx-auto opacity-70 mb-2" />
-                  <p className="text-sm opacity-80">No recent activity</p>
+                  <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                  <p className="text-sm text-white/80">No recent activity</p>
                 </div>
               )}
             </div>
@@ -199,17 +199,17 @@ export default function OrgPortalHome() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="bg-orange-500/65 border-orange-400/50">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription className="opacity-80">
+          <CardTitle className="text-white">Quick Actions</CardTitle>
+          <CardDescription className="text-white/80">
             Common tasks for organization management
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
             <Button 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
               onClick={() => navigate(`/org/${currentOrg?.organization_id}/invite`)}
             >
               <Users className="h-4 w-4" />
@@ -217,7 +217,7 @@ export default function OrgPortalHome() {
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
               onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
             >
               <BookOpen className="h-4 w-4" />
@@ -225,7 +225,7 @@ export default function OrgPortalHome() {
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
               onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
             >
               <Target className="h-4 w-4" />
@@ -233,7 +233,7 @@ export default function OrgPortalHome() {
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
               onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
             >
               <Award className="h-4 w-4" />

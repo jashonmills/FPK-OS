@@ -97,40 +97,40 @@ export default function GoalsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Flag className="w-4 h-4 text-purple-300" />
-              <span className="text-sm font-medium text-purple-100">Total Goals</span>
+              <Flag className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Total Goals</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-white">3</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-purple-300" />
-              <span className="text-sm font-medium text-purple-100">Active Goals</span>
+              <Target className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Active Goals</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-400">2</div>
+            <div className="text-2xl font-bold mt-2 text-blue-300">2</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-300" />
-              <span className="text-sm font-medium text-purple-100">Achieved</span>
+              <TrendingUp className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Achieved</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-400">1</div>
+            <div className="text-2xl font-bold mt-2 text-green-300">1</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-purple-100">Avg Progress</span>
+              <span className="text-sm font-medium text-white">Avg Progress</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-white">83%</div>
           </OrgCardContent>
@@ -138,17 +138,17 @@ export default function GoalsManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard>
+      <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-300" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
               <Input 
                 placeholder="Search goals..." 
-                className="pl-10 bg-purple-800/30 border-purple-400/30 text-white placeholder:text-purple-300"
+                className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
               />
             </div>
-            <Button variant="outline" className="border-purple-400/30 text-purple-100 hover:bg-purple-800/50">
+            <Button variant="outline" className="border-white/30 text-white hover:bg-white/20">
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
@@ -164,20 +164,20 @@ export default function GoalsManagement() {
             : (goal.currentValue / goal.targetValue) * 100;
           
           return (
-            <OrgCard key={goal.id}>
+            <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50">
               <OrgCardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <OrgCardTitle className="text-lg text-white">{goal.title}</OrgCardTitle>
-                    <OrgCardDescription className="text-purple-200">{goal.description}</OrgCardDescription>
+                    <OrgCardDescription className="text-white/80">{goal.description}</OrgCardDescription>
                     <div className="flex gap-2">
-                      <Badge variant={getCategoryColor(goal.category) as any}>
+                      <Badge variant={getCategoryColor(goal.category) as any} className="bg-white/20 text-white border-white/30">
                         {goal.category}
                       </Badge>
-                      <Badge variant={getPriorityColor(goal.priority) as any}>
+                      <Badge variant={getPriorityColor(goal.priority) as any} className="bg-white/20 text-white border-white/30">
                         {goal.priority} priority
                       </Badge>
-                      <Badge variant={goal.status === 'achieved' ? 'default' : 'secondary'}>
+                      <Badge variant={goal.status === 'achieved' ? 'default' : 'secondary'} className="bg-white/20 text-white border-white/30">
                         {goal.status}
                       </Badge>
                     </div>
@@ -187,30 +187,30 @@ export default function GoalsManagement() {
               <OrgCardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <div className="text-sm font-medium text-purple-100">Target</div>
+                    <div className="text-sm font-medium text-white">Target</div>
                     <div className="text-lg font-bold text-white">
                       {goal.targetValue}{goal.category === 'retention' ? '% max' : '%'}
                     </div>
                   </div>
                   
                   <div>
-                    <div className="text-sm font-medium text-purple-100">Current</div>
+                    <div className="text-sm font-medium text-white">Current</div>
                     <div className="text-lg font-bold text-white">
                       {goal.currentValue}{goal.category === 'retention' ? '% current' : '%'}
                     </div>
                   </div>
                   
                   <div>
-                    <div className="text-sm font-medium text-purple-100">Progress</div>
+                    <div className="text-sm font-medium text-white">Progress</div>
                     <div className="text-lg font-bold mb-1 text-white">
                       {Math.round(progressPercentage)}%
                     </div>
-                    <div className="w-full bg-purple-800/30 rounded-full h-2">
+                    <div className="w-full bg-white/20 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${
-                          progressPercentage >= 100 ? 'bg-green-400' : 
-                          progressPercentage >= 75 ? 'bg-blue-400' : 
-                          progressPercentage >= 50 ? 'bg-yellow-400' : 'bg-red-400'
+                          progressPercentage >= 100 ? 'bg-green-300' : 
+                          progressPercentage >= 75 ? 'bg-blue-300' : 
+                          progressPercentage >= 50 ? 'bg-yellow-300' : 'bg-red-300'
                         }`}
                         style={{ width: `${Math.min(100, progressPercentage)}%` }}
                       />
@@ -218,17 +218,17 @@ export default function GoalsManagement() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="border-purple-400/30 text-purple-100 hover:bg-purple-800/50">
+                    <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/20">
                       View Details
                     </Button>
-                    <Button size="sm" className="bg-purple-700 hover:bg-purple-600 text-white">
+                    <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
                       Edit Goal
                     </Button>
                   </div>
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-purple-400/20 flex items-center justify-between">
-                  <div className="text-sm text-purple-200">
+                <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between">
+                  <div className="text-sm text-white/80">
                     Due: {new Date(goal.dueDate).toLocaleDateString()} • 
                     Assigned to {goal.assignedStudents} students
                   </div>

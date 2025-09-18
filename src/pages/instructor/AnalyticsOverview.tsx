@@ -54,59 +54,59 @@ export default function AnalyticsOverview() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-100">Total Students</p>
+                <p className="text-sm font-medium text-white">Total Students</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.totalStudents}</p>
               </div>
-              <Users className="w-8 h-8 text-purple-300" />
+              <Users className="w-8 h-8 text-white/70" />
             </div>
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-100">Active This Week</p>
+                <p className="text-sm font-medium text-white">Active This Week</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.activeStudents}</p>
-                <p className="text-xs text-green-400">
+                <p className="text-xs text-green-300">
                   +12% from last week
                 </p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-400" />
+              <TrendingUp className="w-8 h-8 text-green-300" />
             </div>
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-100">Completion Rate</p>
+                <p className="text-sm font-medium text-white">Completion Rate</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.completionRate}%</p>
-                <p className="text-xs text-blue-400">
+                <p className="text-xs text-blue-300">
                   +5% from last month
                 </p>
               </div>
-              <Target className="w-8 h-8 text-blue-400" />
+              <Target className="w-8 h-8 text-blue-300" />
             </div>
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-100">Avg Session Time</p>
+                <p className="text-sm font-medium text-white">Avg Session Time</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.avgSessionTime}m</p>
-                <p className="text-xs text-purple-300">
+                <p className="text-xs text-white/70">
                   +3m from last week
                 </p>
               </div>
-              <Clock className="w-8 h-8 text-purple-300" />
+              <Clock className="w-8 h-8 text-white/70" />
             </div>
           </OrgCardContent>
         </OrgCard>
