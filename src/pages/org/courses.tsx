@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

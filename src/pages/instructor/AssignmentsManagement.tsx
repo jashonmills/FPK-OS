@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -16,11 +16,11 @@ export default function AssignmentsManagement() {
   if (!currentOrg) {
     return (
       <div className="container max-w-6xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
             <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -99,47 +99,47 @@ export default function AssignmentsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Total Assignments</span>
             </div>
             <div className="text-2xl font-bold mt-2">{filteredAssignments.length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Active</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-blue-600">{filteredAssignments.length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Completed</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-green-600">0</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Avg Completion</span>
             </div>
             <div className="text-2xl font-bold mt-2">0%</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardHeader>
+      <OrgCard>
+        <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -155,18 +155,18 @@ export default function AssignmentsManagement() {
               Filters
             </Button>
           </div>
-        </CardHeader>
-      </Card>
+        </OrgCardHeader>
+      </OrgCard>
 
       {/* Assignments List */}
       <div className="space-y-4">
         {filteredAssignments.length > 0 ? (
           filteredAssignments.map((assignment) => (
-            <Card key={assignment.id}>
-              <CardHeader className="pb-3">
+            <OrgCard key={assignment.id}>
+              <OrgCardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg">{assignment.title}</CardTitle>
+                    <OrgCardTitle className="text-lg">{assignment.title}</OrgCardTitle>
                     <div className="text-sm text-muted-foreground">
                       Type: {assignment.type} • Created: {new Date(assignment.created_at).toLocaleDateString()}
                     </div>
@@ -175,8 +175,8 @@ export default function AssignmentsManagement() {
                     {assignment.type}
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
+              </OrgCardHeader>
+              <OrgCardContent>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
                     View Details
@@ -185,20 +185,20 @@ export default function AssignmentsManagement() {
                     Edit
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </OrgCardContent>
+            </OrgCard>
           ))
         ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
+          <OrgCard>
+            <OrgCardContent className="p-8 text-center">
               <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">No assignments found</h3>
               <p className="text-muted-foreground mb-4">
                 {searchQuery ? 'Try adjusting your search terms.' : 'Create your first assignment to get started.'}
               </p>
               <CreateAssignmentDialog />
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         )}
       </div>
     </div>

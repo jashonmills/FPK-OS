@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -115,14 +115,14 @@ export default function AnalyticsOverview() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Learning Progress Trend</CardTitle>
-            <CardDescription>
+        <OrgCard>
+          <OrgCardHeader>
+            <OrgCardTitle>Learning Progress Trend</OrgCardTitle>
+            <OrgCardDescription>
               Average completion percentage over the last 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </OrgCardDescription>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="space-y-4">
               <div className="h-48 bg-muted/20 rounded-lg flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
@@ -147,18 +147,18 @@ export default function AnalyticsOverview() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
         {/* Engagement Metrics */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Student Engagement</CardTitle>
-            <CardDescription>
+        <OrgCard>
+          <OrgCardHeader>
+            <OrgCardTitle>Student Engagement</OrgCardTitle>
+            <OrgCardDescription>
               Weekly engagement metrics and activity levels
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </OrgCardDescription>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -199,22 +199,22 @@ export default function AnalyticsOverview() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Course Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5" />
             Course Performance
-          </CardTitle>
-          <CardDescription>
+          </OrgCardTitle>
+          <OrgCardDescription>
             Enrollment and completion metrics for each course
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent>
           <div className="space-y-4">
             {analyticsData.topCourses.map((course, index) => (
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
@@ -244,18 +244,18 @@ export default function AnalyticsOverview() {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics Actions</CardTitle>
-          <CardDescription>
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle>Analytics Actions</OrgCardTitle>
+          <OrgCardDescription>
             Common analytics tasks and reports
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
               <BarChart3 className="w-5 h-5 mb-2" />
@@ -281,8 +281,8 @@ export default function AnalyticsOverview() {
               </div>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
     </div>
   );
 }

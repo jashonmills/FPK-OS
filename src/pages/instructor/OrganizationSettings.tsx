@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,11 +15,11 @@ export default function OrganizationSettings() {
   if (!currentOrg) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
             <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -34,17 +34,17 @@ export default function OrganizationSettings() {
       </div>
 
       {/* Organization Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="flex items-center gap-2">
             <Building2 className="w-5 h-5" />
             Organization Overview
-          </CardTitle>
-          <CardDescription>
+          </OrgCardTitle>
+          <OrgCardDescription>
             Basic information about your organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="org-name">Organization Name</Label>
@@ -74,21 +74,21 @@ export default function OrganizationSettings() {
               rows={3}
             />
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
 
       {/* Capacity Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
             Capacity & Usage
-          </CardTitle>
-          <CardDescription>
+          </OrgCardTitle>
+          <OrgCardDescription>
             Monitor your organization's seat usage and limits
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted/50 rounded-lg">
               <div className="text-2xl font-bold text-primary">
@@ -109,21 +109,21 @@ export default function OrganizationSettings() {
               <div className="text-sm text-muted-foreground">Total Capacity</div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
 
       {/* Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
             Organization Settings
-          </CardTitle>
-          <CardDescription>
+          </OrgCardTitle>
+          <OrgCardDescription>
             Configure organization-wide preferences and policies
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -165,27 +165,27 @@ export default function OrganizationSettings() {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
 
       {/* Danger Zone */}
       {currentOrg.role === 'owner' && (
-        <Card className="border-destructive/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
+        <OrgCard className="border-destructive/20">
+          <OrgCardHeader>
+            <OrgCardTitle className="flex items-center gap-2 text-destructive">
               <Crown className="w-5 h-5" />
               Danger Zone
-            </CardTitle>
-            <CardDescription>
+            </OrgCardTitle>
+            <OrgCardDescription>
               Irreversible actions that affect your entire organization
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </OrgCardDescription>
+          </OrgCardHeader>
+          <OrgCardContent>
             <Button variant="destructive" className="w-full">
               Delete Organization
             </Button>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       )}
     </div>
   );

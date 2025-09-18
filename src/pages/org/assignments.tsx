@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -206,45 +206,45 @@ export default function AssignmentsPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Active</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="text-2xl font-bold">{activeAssignments.length}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Overdue</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="text-2xl font-bold text-red-500">{overdueAssignments.length}</div>
             <p className="text-xs text-muted-foreground">Past due date</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Completion Rate</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="text-2xl font-bold">76%</div>
             <p className="text-xs text-muted-foreground">Average completion</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Total Students</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="text-2xl font-bold">24</div>
             <p className="text-xs text-muted-foreground">Assigned students</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
@@ -286,13 +286,13 @@ export default function AssignmentsPage() {
           ) : (
             <div className="space-y-4">
               {filteredAssignments.map((assignment) => (
-                <Card key={assignment.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
+                <OrgCard key={assignment.id} className="hover:shadow-md transition-shadow">
+                  <OrgCardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {getStatusIcon(assignment.status)}
-                          <CardTitle className="text-lg">{assignment.title}</CardTitle>
+                          <OrgCardTitle className="text-lg">{assignment.title}</OrgCardTitle>
                           <Badge 
                             variant="outline" 
                             className={cn("capitalize", getStatusColor(assignment.status))}
@@ -300,9 +300,9 @@ export default function AssignmentsPage() {
                             {assignment.status}
                           </Badge>
                         </div>
-                        <CardDescription className="line-clamp-2">
+                        <OrgCardDescription className="line-clamp-2">
                           {assignment.description || 'No description provided'}
-                        </CardDescription>
+                        </OrgCardDescription>
                       </div>
                       {canManageAssignments && (
                         <DropdownMenu>
@@ -320,8 +320,8 @@ export default function AssignmentsPage() {
                         </DropdownMenu>
                       )}
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                  </OrgCardHeader>
+                  <OrgCardContent>
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
@@ -339,8 +339,8 @@ export default function AssignmentsPage() {
                         {Math.round((assignment.completed_count / assignment.assigned_count) * 100)}% complete
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </OrgCardContent>
+                </OrgCard>
               ))}
             </div>
           )}
@@ -348,23 +348,23 @@ export default function AssignmentsPage() {
 
         <TabsContent value="overdue" className="space-y-4">
           {overdueAssignments.map((assignment) => (
-            <Card key={assignment.id} className="border-red-200 hover:shadow-md transition-shadow">
+            <OrgCard key={assignment.id} className="border-red-200 hover:shadow-md transition-shadow">
               {/* Same structure as active tab but with red styling */}
-              <CardHeader>
+              <OrgCardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {getStatusIcon(assignment.status)}
-                      <CardTitle className="text-lg">{assignment.title}</CardTitle>
+                      <OrgCardTitle className="text-lg">{assignment.title}</OrgCardTitle>
                       <Badge variant="destructive">Overdue</Badge>
                     </div>
-                    <CardDescription className="line-clamp-2">
+                    <OrgCardDescription className="line-clamp-2">
                       {assignment.description || 'No description provided'}
-                    </CardDescription>
+                    </OrgCardDescription>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
+              </OrgCardHeader>
+              <OrgCardContent>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
@@ -379,21 +379,21 @@ export default function AssignmentsPage() {
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </OrgCardContent>
+            </OrgCard>
           ))}
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
           {filteredAssignments.map((assignment) => (
-            <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+            <OrgCard key={assignment.id} className="hover:shadow-md transition-shadow">
               {/* Same structure as active tab */}
-              <CardHeader>
+              <OrgCardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {getStatusIcon(assignment.status)}
-                      <CardTitle className="text-lg">{assignment.title}</CardTitle>
+                      <OrgCardTitle className="text-lg">{assignment.title}</OrgCardTitle>
                       <Badge 
                         variant={assignment.status === 'overdue' ? 'destructive' : 'outline'}
                         className={assignment.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
@@ -401,13 +401,13 @@ export default function AssignmentsPage() {
                         {assignment.status}
                       </Badge>
                     </div>
-                    <CardDescription className="line-clamp-2">
+                    <OrgCardDescription className="line-clamp-2">
                       {assignment.description || 'No description provided'}
-                    </CardDescription>
+                    </OrgCardDescription>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
+              </OrgCardHeader>
+              <OrgCardContent>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
@@ -425,8 +425,8 @@ export default function AssignmentsPage() {
                     {Math.round((assignment.completed_count / assignment.assigned_count) * 100)}% complete
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </OrgCardContent>
+            </OrgCard>
           ))}
         </TabsContent>
       </Tabs>

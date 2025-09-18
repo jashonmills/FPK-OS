@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +23,11 @@ export default function CoursesManagement() {
   if (!currentOrg) {
     return (
       <div className="container max-w-6xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
             <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -61,48 +61,48 @@ export default function CoursesManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Total Courses</span>
             </div>
             <div className="text-2xl font-bold mt-2">{filteredCourses.length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Published</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-green-600">{publishedCourses.length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Total Enrollments</span>
             </div>
             <div className="text-2xl font-bold mt-2">{totalEnrollments}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Avg Completion</span>
             </div>
             <div className="text-2xl font-bold mt-2">{Math.round(avgCompletion)}%</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardHeader>
+      <OrgCard>
+        <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -118,13 +118,13 @@ export default function CoursesManagement() {
               Filters
             </Button>
           </div>
-        </CardHeader>
-      </Card>
+        </OrgCardHeader>
+      </OrgCard>
 
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
-          <Card key={course.id} className="overflow-hidden">
+          <OrgCard key={course.id} className="overflow-hidden">
             <div className="aspect-video bg-muted">
               <img 
                 src={course.thumbnail_url || '/placeholder.svg'} 
@@ -132,9 +132,9 @@ export default function CoursesManagement() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <CardHeader className="pb-3">
+            <OrgCardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <CardTitle className="text-lg line-clamp-2">{course.title}</CardTitle>
+                <OrgCardTitle className="text-lg line-clamp-2">{course.title}</OrgCardTitle>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -156,11 +156,11 @@ export default function CoursesManagement() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <CardDescription className="line-clamp-2">
+              <OrgCardDescription className="line-clamp-2">
                 {course.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="pt-0">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Badge variant={course.status === 'published' ? 'default' : 'secondary'}>
@@ -187,15 +187,15 @@ export default function CoursesManagement() {
                   Manage Course
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         ))}
       </div>
       
       {/* Empty state */}
       {filteredCourses.length === 0 && !isLoading && (
-        <Card>
-          <CardContent className="text-center py-12">
+        <OrgCard>
+          <OrgCardContent className="text-center py-12">
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Courses Found</h3>
             <p className="text-muted-foreground mb-4">
@@ -205,8 +205,8 @@ export default function CoursesManagement() {
               <Plus className="w-4 h-4 mr-2" />
               Create Course
             </Button>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       )}
     </div>
   );

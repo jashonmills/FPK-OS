@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -213,56 +213,56 @@ export default function StudentProgress() {
 
       {/* Progress Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Overall Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Overall Progress</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="space-y-2">
               <div className="text-2xl font-bold">{studentData.overall_progress}%</div>
               <Progress value={studentData.overall_progress} className="h-2" />
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">XP & Level</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">XP & Level</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-yellow-500" />
               <div className="text-2xl font-bold">Lv.{studentData.stats.level}</div>
             </div>
             <p className="text-xs text-muted-foreground">{studentData.stats.total_xp} XP earned</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Study Time</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Study Time</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-blue-500" />
               <div className="text-2xl font-bold">{studentData.stats.study_time_hours}h</div>
             </div>
             <p className="text-xs text-muted-foreground">Total study time</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Completions</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium">Completions</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
               <div className="text-2xl font-bold">{studentData.stats.courses_completed}</div>
             </div>
             <p className="text-xs text-muted-foreground">Courses completed</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Detailed Progress Tabs */}
@@ -274,17 +274,17 @@ export default function StudentProgress() {
         </TabsList>
 
         <TabsContent value="courses" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
                 Course Progress
-              </CardTitle>
-              <CardDescription>
+              </OrgCardTitle>
+              <OrgCardDescription>
                 Track progress across all enrolled courses
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
               <div className="space-y-4">
                 {studentData.courses.map((course) => (
                   <div key={course.id} className="p-4 border rounded-lg">
@@ -310,22 +310,22 @@ export default function StudentProgress() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         </TabsContent>
 
         <TabsContent value="goals" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5" />
                 Learning Goals
-              </CardTitle>
-              <CardDescription>
+              </OrgCardTitle>
+              <OrgCardDescription>
                 Monitor progress toward learning objectives
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
               <div className="space-y-4">
                 {studentData.goals.map((goal) => (
                   <div key={goal.id} className="p-4 border rounded-lg">
@@ -349,22 +349,22 @@ export default function StudentProgress() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle className="flex items-center gap-2">
                 <Trophy className="h-5 w-5" />
                 Achievements
-              </CardTitle>
-              <CardDescription>
+              </OrgCardTitle>
+              <OrgCardDescription>
                 Badges and milestones earned by the student
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {studentData.achievements.map((achievement) => (
                   <div key={achievement.id} className="p-4 border rounded-lg">
@@ -384,8 +384,8 @@ export default function StudentProgress() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         </TabsContent>
       </Tabs>
     </div>

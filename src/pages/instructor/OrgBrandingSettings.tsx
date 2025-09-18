@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,11 +37,11 @@ export default function OrgBrandingSettings() {
   if (!currentOrg) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
             <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -104,14 +104,14 @@ export default function OrgBrandingSettings() {
   if (isLoading) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8">
+        <OrgCard>
+          <OrgCardContent className="p-8">
             <div className="animate-pulse space-y-4">
               <div className="h-8 bg-muted rounded w-1/3"></div>
               <div className="h-4 bg-muted rounded w-2/3"></div>
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -129,14 +129,14 @@ export default function OrgBrandingSettings() {
         {/* Settings Panel */}
         <div className="space-y-6">
           {/* Logo Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Logo</CardTitle>
-              <CardDescription>
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle>Logo</OrgCardTitle>
+              <OrgCardDescription>
                 Upload a square logo (recommended 64x64px or larger, max 2MB)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="space-y-4">
               <div className="flex items-center gap-4">
                 {(logoFile || branding?.logo_url) && (
                   <div className="w-16 h-16 border rounded-lg overflow-hidden bg-muted">
@@ -177,18 +177,18 @@ export default function OrgBrandingSettings() {
                   </Button>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
 
           {/* Banner Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Banner (Optional)</CardTitle>
-              <CardDescription>
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle>Banner (Optional)</OrgCardTitle>
+              <OrgCardDescription>
                 Upload a wide banner image (recommended 1200x300px, max 2MB)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="space-y-4">
               {(bannerFile || branding?.banner_url) && (
                 <div className="w-full h-20 border rounded-lg overflow-hidden bg-muted">
                   <img
@@ -227,18 +227,18 @@ export default function OrgBrandingSettings() {
                   </Button>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
 
           {/* Theme Accent */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Accent Color</CardTitle>
-              <CardDescription>
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle>Accent Color</OrgCardTitle>
+              <OrgCardDescription>
                 Choose a color that represents your organization
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="space-y-4">
               {/* Preset Colors */}
               <div>
                 <Label className="text-sm font-medium">Presets</Label>
@@ -285,8 +285,8 @@ export default function OrgBrandingSettings() {
                   Use HSL format without "hsl()" wrapper. Example: 280 100% 70%
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
 
           {/* Save Button */}
           <Button 
@@ -301,17 +301,17 @@ export default function OrgBrandingSettings() {
 
         {/* Preview Panel */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <OrgCard>
+            <OrgCardHeader>
+              <OrgCardTitle className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
                 Live Preview
-              </CardTitle>
-              <CardDescription>
+              </OrgCardTitle>
+              <OrgCardDescription>
                 See how your branding will look in the application
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="space-y-4">
               {/* Header Preview */}
               <div className="border rounded-lg p-4 bg-background">
                 <div className="flex items-center gap-3 mb-4">
@@ -387,8 +387,8 @@ export default function OrgBrandingSettings() {
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         </div>
       </div>
     </div>
