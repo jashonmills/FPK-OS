@@ -231,7 +231,7 @@ export default function StudentsPage() {
             placeholder="Search students..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-transparent border-white/20 text-white placeholder:text-white/60"
           />
         </div>
       </div>

@@ -27,6 +27,9 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug logging
+  console.log('SimpleInviteDialog render - open:', open, 'organizationId:', organizationId);
+
   const handleEmailInvite = async () => {
     if (!email.trim()) {
       toast({
@@ -87,7 +90,10 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(openState) => {
+      console.log('Dialog onOpenChange called with:', openState);
+      onOpenChange(openState);
+    }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Invite Students</DialogTitle>
