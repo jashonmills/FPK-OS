@@ -8,6 +8,12 @@ export function getActiveOrgId(): string | null {
     return orgId;
   }
   
+  // Check URL path pattern /org/{orgId}/...
+  const pathMatch = window.location.pathname.match(/\/org\/([^\/]+)/);
+  if (pathMatch && pathMatch[1]) {
+    return pathMatch[1];
+  }
+  
   return null;
 }
 
