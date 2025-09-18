@@ -600,6 +600,7 @@ const App: React.FC = () => {
             <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
             <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
             <Route path=":orgId/invite" element={<LazyRoute><OrgInvitationsPage /></LazyRoute>} />
+            <Route path=":orgId/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />
           </Route>
           

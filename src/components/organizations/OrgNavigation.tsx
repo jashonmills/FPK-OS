@@ -10,7 +10,7 @@ import {
   BarChart3,
   Settings,
   UserPlus,
-  ArrowLeft
+  Palette
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 
@@ -27,11 +27,6 @@ export function OrgNavigation() {
   if (!currentOrg) return null;
 
   const navItems: NavItem[] = [
-    {
-      href: '/dashboard/organizations',
-      label: 'All Organizations',
-      icon: ArrowLeft,
-    },
     {
       href: `/org/${currentOrg.organization_id}`,
       label: 'Dashboard',
@@ -69,6 +64,12 @@ export function OrgNavigation() {
       label: 'Invite Members',
       icon: UserPlus,
       roles: ['owner', 'instructor'],
+    },
+    {
+      href: `/org/${currentOrg.organization_id}/branding`,
+      label: 'Branding',
+      icon: Palette,
+      roles: ['owner'],
     },
     {
       href: `/org/${currentOrg.organization_id}/settings`,
