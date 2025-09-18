@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import StructuredQuestions, { StructuredResponse } from './StructuredQuestions';
+import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 interface FeedbackData {
   type: 'bug' | 'feature' | 'general' | 'urgent';
@@ -32,6 +34,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
   currentModule,
   trigger
 }) => {
+  const cleanup = useCleanup('FeedbackSystem');
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<FeedbackData>({
@@ -50,9 +53,11 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
       setIsOpen(true);
     };
 
-    window.addEventListener('triggerFeedback', handleTriggerFeedback);
-    return () => window.removeEventListener('triggerFeedback', handleTriggerFeedback);
-  }, []);
+    const triggerListenerId = cleanup.addEventListener(window, 'triggerFeedback', handleTriggerFeedback);
+    return () => {
+      cleanup.cleanup(triggerListenerId);
+    };
+  }, [cleanup]);
 
   const feedbackTypes = [
     { value: 'bug', label: 'Bug Report', icon: Bug, color: 'destructive' },
@@ -137,7 +142,7 @@ const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
       });
       setIsOpen(false);
     } catch (error) {
-      console.error('Feedback submission error:', error);
+      logger.error('Feedback submission error', 'FEEDBACK', error);
       toast.error('Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);

@@ -9,6 +9,7 @@ import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useTextSelection } from '@/hooks/useTextSelection';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import SaveToNotesButton from '@/components/ai-coach/SaveToNotesButton';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface ChatMessage {
   id: string;
@@ -38,6 +39,7 @@ const ChatMessagesPane = ({
   showDeleteButtons = false,
   fixedHeight = false
 }: ChatMessagesPaneProps) => {
+  const cleanup = useCleanup('ChatMessagesPane');
   const { speak, stop, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
   const { settings } = useVoiceSettings();
   const voicePlayButtonEnabled = featureFlagService.isEnabled('voicePlayButton');
@@ -93,7 +95,7 @@ const ChatMessagesPane = ({
         
         // Only auto-scroll if user is near bottom or this is the first message
         if (isNearBottom || messages.length === 1) {
-          setTimeout(scrollToBottom, 100);
+          cleanup.setTimeout(scrollToBottom, 100);
         }
       }
     }
@@ -108,7 +110,7 @@ const ChatMessagesPane = ({
         const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
         
         if (isAtBottom) {
-          setTimeout(scrollToBottom, 50);
+          cleanup.setTimeout(scrollToBottom, 50);
         }
       }
     }

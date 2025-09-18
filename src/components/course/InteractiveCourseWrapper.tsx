@@ -4,6 +4,7 @@ import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgre
 import { timeoutManager } from '@/utils/performanceOptimizer';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CourseAIStudyCoach } from '@/components/course/CourseAIStudyCoach';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface InteractiveCourseWrapperProps {
   courseId: string;
@@ -22,6 +23,7 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
   children,
   onProgressUpdate
 }) => {
+  const cleanup = useCleanup('InteractiveCourseWrapper');
   const {
     startCourseSession,
     endCourseSession,
@@ -49,7 +51,7 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
       if ('requestIdleCallback' in window) {
         requestIdleCallback(() => enrollInCourse(), { timeout: 2000 });
       } else {
-        setTimeout(enrollInCourse, 1000);
+        cleanup.setTimeout(enrollInCourse, 1000);
       }
     };
 

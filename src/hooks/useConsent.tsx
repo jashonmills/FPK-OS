@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { safeLocalStorage } from '@/utils/safeStorage';
+import { logger } from '@/utils/logger';
 
 export interface ConsentPreferences {
   essential: boolean;
@@ -43,8 +44,14 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         logErrors: false
       });
       if (localConsent) {
-        const parsed = JSON.parse(localConsent);
-        setPreferences(parsed);
+        try {
+          const parsed = typeof localConsent === 'string' ? JSON.parse(localConsent) : localConsent;
+          setPreferences(parsed);
+        } catch (parseError) {
+          logger.warn('Failed to parse consent preferences, using defaults', 'CONSENT', { localConsent, error: parseError });
+          // Reset corrupted data
+          safeLocalStorage.removeItem('cookie-consent');
+        }
       }
 
       // If user is authenticated, load from database
@@ -56,7 +63,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
           .is('withdrawn_at', null);
 
         if (error) {
-          console.error('Error loading consent:', error);
+          logger.error('Error loading consent', 'CONSENT', error);
           return;
         }
 
@@ -79,7 +86,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         safeLocalStorage.setItem('cookie-consent', JSON.stringify(dbPreferences));
       }
     } catch (error) {
-      console.error('Error loading consent preferences:', error);
+      logger.error('Error loading consent preferences', 'CONSENT', error);
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +117,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
           .insert(consentRecords);
 
         if (error) {
-          console.error('Error saving consent:', error);
+          logger.error('Error saving consent', 'CONSENT', error);
         }
 
         // Record audit event
@@ -119,7 +126,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         }, 'consent', 'User updated cookie consent preferences');
 
       } catch (error) {
-        console.error('Error updating consent in database:', error);
+        logger.error('Error updating consent in database', 'CONSENT', error);
       }
     }
 
@@ -149,7 +156,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         }, 'consent', `User withdrew ${type} consent`);
 
       } catch (error) {
-        console.error('Error withdrawing consent:', error);
+        logger.error('Error withdrawing consent', 'CONSENT', error);
       }
     }
   };
@@ -261,7 +268,7 @@ async function recordAuditEvent(
       p_purpose: purpose,
     });
   } catch (error) {
-    console.error('Error recording audit event:', error);
+    logger.error('Error recording audit event', 'CONSENT', error);
   }
 }
 

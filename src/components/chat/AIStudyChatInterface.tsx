@@ -16,6 +16,8 @@ import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 import { useConversationState, ChatMessage as ConversationMessage } from '@/hooks/useConversationState';
 import { v4 as uuidv4 } from 'uuid';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
+import { useCleanup } from '@/utils/cleanupManager';
+import { useCleanup } from '@/utils/cleanupManager';
 import ChatModeToggle from '@/components/ai-coach/ChatModeToggle';
 import { SaveBeforeClearDialog } from '@/components/ai-coach/SaveBeforeClearDialog';
 import { useSavedCoachChats } from '@/hooks/useSavedCoachChats';
@@ -399,7 +401,7 @@ What specific aspect would you like to focus on?`;
   const handleVoiceInput = (transcription: string) => {
     if (transcription.trim()) {
       setInput(transcription);
-      setTimeout(() => sendMessage(transcription), 100);
+      cleanup.setTimeout(() => sendMessage(transcription), 100);
     }
   };
 

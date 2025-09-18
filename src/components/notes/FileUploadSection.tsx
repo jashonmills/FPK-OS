@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import FileUploadDropzone from './FileUploadDropzone';
 import FileUploadProgress from './FileUploadProgress';
 import { allowedTypes, maxFileSize, formatFileSize } from './FileUploadUtils';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface FileUploadPayload {
   new: {
@@ -29,6 +30,7 @@ interface FlashcardData {
 }
 
 const FileUploadSection: React.FC = () => {
+  const cleanup = useCleanup('FileUploadSection');
   const { user } = useAuth();
   const { uploads, createUploadAsync, updateUpload, deleteUpload } = useFileUploads();
   const { addPreviewCards } = useFlashcardPreview();
@@ -192,8 +194,8 @@ const FileUploadSection: React.FC = () => {
       startProcessing(uploadId, file.name, file.size);
       
       // Simulate progress stages more quickly
-      setTimeout(() => completeStage(uploadId, 'download'), 1000);
-      setTimeout(() => completeStage(uploadId, 'extraction'), 2000);
+      cleanup.setTimeout(() => completeStage(uploadId, 'download'), 1000);
+      cleanup.setTimeout(() => completeStage(uploadId, 'extraction'), 2000);
       
       const { data, error } = await supabase.functions.invoke('process-file-flashcards', {
         body: {

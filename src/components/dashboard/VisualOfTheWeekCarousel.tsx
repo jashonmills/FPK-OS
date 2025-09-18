@@ -15,12 +15,14 @@ import { Palette, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { useVisualOfTheWeek } from '@/hooks/useMuseumData';
 import { useViewportAnalytics } from '@/hooks/useViewportAnalytics';
 import { MuseumItem } from '@/services/MuseumService';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface VisualOfTheWeekCarouselProps {
   onItemClick: (item: MuseumItem) => void;
 }
 
 const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onItemClick }) => {
+  const cleanup = useCleanup('VisualOfTheWeekCarousel');
   const { data: items, isLoading, error, refetch } = useVisualOfTheWeek();
   const { elementRef, trackClick } = useViewportAnalytics('visual3d');
   const [api, setApi] = useState<CarouselApi>();
@@ -56,8 +58,10 @@ const VisualOfTheWeekCarousel: React.FC<VisualOfTheWeekCarouselProps> = ({ onIte
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    const keyListenerId = cleanup.addEventListener(document, 'keydown', handleKeyDown);
+    return () => {
+      cleanup.cleanup(keyListenerId);
+    };
   }, [api, items]);
 
   const handleItemClick = (item: MuseumItem) => {

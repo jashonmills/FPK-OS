@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface OnboardingFlowManagerProps {
   children: React.ReactNode;
 }
 
 export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ children }) => {
+  const cleanup = useCleanup('OnboardingFlowManager');
   const { 
     currentStep, 
     isLoading, 
@@ -46,9 +48,9 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
       if (navigationLock) return;
       
       setNavigationLock(true);
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         navigateToStep(step as any);
-        setTimeout(() => setNavigationLock(false), 100);
+        cleanup.setTimeout(() => setNavigationLock(false), 100);
       }, 50);
     };
 

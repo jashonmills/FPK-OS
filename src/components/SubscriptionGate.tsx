@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Lock } from 'lucide-react';
 import { logger } from '@/utils/logger';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SubscriptionGateProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface SubscriptionGateProps {
 }
 
 export function SubscriptionGate({ children, allowedPaths = [] }: SubscriptionGateProps) {
+  const cleanup = useCleanup('SubscriptionGate');
   const { isLoading, hasAccess, shouldRedirectToPlanSelection } = useSubscriptionGate();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,13 +25,15 @@ export function SubscriptionGate({ children, allowedPaths = [] }: SubscriptionGa
         location.pathname !== '/choose-plan' &&
         !location.pathname.startsWith('/subscription')) {
       // Debounce navigation to prevent conflicts
-      const timer = setTimeout(() => {
+      const timerId = cleanup.setTimeout(() => {
         logger.info('SubscriptionGate: Redirecting to choose-plan', 'SUBSCRIPTION', { from: location.pathname });
         navigate('/choose-plan');
       }, 100);
-      return () => clearTimeout(timer);
+      return () => {
+        cleanup.cleanup(timerId);
+      };
     }
-  }, [isLoading, shouldRedirectToPlanSelection, navigate, location.pathname, allowedPaths]);
+  }, [isLoading, shouldRedirectToPlanSelection, navigate, location.pathname, allowedPaths, cleanup]);
 
   // Show loading while checking subscription status
   if (isLoading) {

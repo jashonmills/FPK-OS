@@ -21,6 +21,8 @@ import {
 import { systemDiagnostics } from '@/utils/systemDiagnostics';
 import { memoryManager } from '@/utils/memoryManager';
 import { useMonitoring } from '@/hooks/useMonitoring';
+import { useCleanup } from '@/utils/cleanupManager';
+import { logger } from '@/utils/logger';
 
 interface SystemHealthData {
   overallScore: number;
@@ -39,6 +41,7 @@ interface SystemHealthData {
 }
 
 const SystemHealthDashboard: React.FC = () => {
+  const cleanup = useCleanup('SystemHealthDashboard');
   const [healthData, setHealthData] = useState<SystemHealthData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -52,7 +55,7 @@ const SystemHealthDashboard: React.FC = () => {
       setHealthData(results);
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Failed to run diagnostics:', error);
+      logger.error('Failed to run diagnostics', 'SYSTEM_HEALTH', error);
     } finally {
       setIsLoading(false);
     }
@@ -77,9 +80,11 @@ const SystemHealthDashboard: React.FC = () => {
       setLastUpdate(new Date());
     };
 
-    window.addEventListener('system-health-alert', handleHealthAlert as EventListener);
-    return () => window.removeEventListener('system-health-alert', handleHealthAlert as EventListener);
-  }, []);
+    const healthAlertListenerId = cleanup.addEventListener(window, 'system-health-alert', handleHealthAlert as EventListener);
+    return () => {
+      cleanup.cleanup(healthAlertListenerId);
+    };
+  }, [cleanup]);
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600';
@@ -119,7 +124,7 @@ const SystemHealthDashboard: React.FC = () => {
   const forceMemoryCleanup = () => {
     memoryManager.forceGC();
     // Trigger a re-diagnostic after cleanup
-    setTimeout(runDiagnostics, 1000);
+    cleanup.setTimeout(runDiagnostics, 1000);
   };
 
   if (!healthData && !isLoading) {
