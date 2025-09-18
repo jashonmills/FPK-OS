@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 export function useAdminAnalytics() {
   const { data: analytics, isLoading, error } = useQuery({
@@ -9,7 +10,7 @@ export function useAdminAnalytics() {
         const { data, error } = await supabase.rpc('get_admin_analytics');
 
         if (error) {
-          console.error('Error fetching admin analytics:', error);
+          logger.error('Error fetching admin analytics', 'ANALYTICS', error);
           throw error;
         }
 
@@ -24,7 +25,7 @@ export function useAdminAnalytics() {
           activeOrganizations: parseInt((data as any)?.activeOrganizations) || 0
         };
       } catch (error) {
-        console.error('Failed to fetch admin analytics:', error);
+        logger.error('Failed to fetch admin analytics', 'ANALYTICS', error);
         // Return fallback data structure for admins
         return {
           totalOrganizations: 0,

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { logger } from '@/utils/logger';
 
 export function useStudentAnalytics(userId?: string) {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ export function useStudentAnalytics(userId?: string) {
         });
 
         if (error) {
-          console.error('Error fetching student analytics:', error);
+          logger.error('Error fetching student analytics', 'ANALYTICS', error);
           throw error;
         }
 
@@ -41,7 +42,7 @@ export function useStudentAnalytics(userId?: string) {
           totalXP: parseInt((data as any)?.totalXP) || 0
         };
       } catch (error) {
-        console.error('Failed to fetch student analytics:', error);
+        logger.error('Failed to fetch student analytics', 'ANALYTICS', error);
         // Return fallback data structure
         return {
           totalCourses: 0,
