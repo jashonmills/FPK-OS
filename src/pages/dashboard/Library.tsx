@@ -8,6 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Search, BookOpen, Filter, Grid, List, Upload, Users, Globe, HelpCircle } from 'lucide-react';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
+import { useCleanup } from '@/utils/cleanupManager';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { useOpenLibrarySearch } from '@/hooks/useOpenLibrarySearch';
@@ -24,6 +25,7 @@ const Library = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [activeTab, setActiveTab] = useState('public-domain');
+  const cleanup = useCleanup('Library');
 
   // Video guide modal state
   const { hasSeenVideo, shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('library_intro_seen');
@@ -65,16 +67,14 @@ const Library = () => {
 
   // Auto-search when query changes (debounced)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    cleanup.setTimeout(() => {
       if (searchQuery.trim()) {
         handleSearch(searchQuery);
       } else {
         clearResults();
       }
     }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, cleanup]);
 
   const renderPublicDomainSection = () => (
     <ErrorBoundary>

@@ -8,6 +8,7 @@ import ProfileSection from '@/components/settings/ProfileSection';
 import SecuritySection from '@/components/settings/SecuritySection';
 import NotificationSection from '@/components/settings/NotificationSection';
 import AccessibilitySettings from '@/components/settings/AccessibilitySettings';
+import { useCleanup } from '@/utils/cleanupManager';
 import LanguageSettings from '@/components/settings/LanguageSettings';
 import IntegrationSection from '@/components/settings/IntegrationSection';
 import { DataManagement } from '@/components/DataManagement';
@@ -25,6 +26,7 @@ const Settings = () => {
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const cleanup = useCleanup('Settings');
   
   // Video storage hook
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('settings_intro_seen');
@@ -56,7 +58,7 @@ const Settings = () => {
   useEffect(() => {
     if (!hasUnsavedChanges || !profile) return;
 
-    const timeoutId = setTimeout(async () => {
+    cleanup.setTimeout(async () => {
       try {
         await updateProfile({}, true); // Silent update
         setHasUnsavedChanges(false);
@@ -64,9 +66,7 @@ const Settings = () => {
         console.error('Auto-save failed:', error);
       }
     }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, [hasUnsavedChanges, profile, updateProfile]);
+  }, [hasUnsavedChanges, profile, updateProfile, cleanup]);
 
   const handleFormChange = async (key: string, value: any) => {
     setHasUnsavedChanges(true);

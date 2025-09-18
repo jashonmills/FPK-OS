@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
@@ -12,10 +13,11 @@ export default function SubscriptionSuccess() {
   const { refreshSubscription } = useSubscription();
   const { toast } = useToast();
   const sessionId = searchParams.get('session_id');
+  const cleanup = useCleanup('SubscriptionSuccess');
 
   useEffect(() => {
     // Refresh subscription status after successful payment
-    const timer = setTimeout(() => {
+    cleanup.setTimeout(() => {
       refreshSubscription();
       
       if (sessionId) {
@@ -25,14 +27,12 @@ export default function SubscriptionSuccess() {
         });
         
         // Redirect to dashboard after showing success message
-        setTimeout(() => {
+        cleanup.setTimeout(() => {
           navigate('/dashboard');
         }, 3000);
       }
     }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [sessionId, refreshSubscription, toast, navigate]);
+  }, [sessionId, refreshSubscription, toast, navigate, cleanup]);
 
   return (
     <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">

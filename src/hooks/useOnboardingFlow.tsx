@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { useSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';
+import { useCleanup } from '@/utils/cleanupManager';
 
 export type OnboardingStep = 
   | 'loading'
@@ -23,6 +24,7 @@ export const useOnboardingFlow = () => {
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
+  const cleanup = useCleanup('useOnboardingFlow');
   
   const [state, setState] = useState<OnboardingFlowState>({
     currentStep: 'loading',
@@ -107,7 +109,7 @@ export const useOnboardingFlow = () => {
   // Update flow state with proper dependency management
   useEffect(() => {
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: string;
     
     const updateFlow = async () => {
       if (!isMounted) return;
@@ -116,7 +118,7 @@ export const useOnboardingFlow = () => {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
         
         // Add timeout to prevent infinite loading
-        timeoutId = setTimeout(() => {
+        timeoutId = cleanup.setTimeout(() => {
           if (isMounted) {
             console.warn('⚠️ Onboarding flow timeout - forcing fallback navigation');
             const fallbackStep = user ? 'dashboard' : 'unauthenticated';
@@ -134,7 +136,7 @@ export const useOnboardingFlow = () => {
         
         if (!isMounted) return;
         
-        clearTimeout(timeoutId);
+        cleanup.cleanup(timeoutId);
         setState(prev => ({
           ...prev,
           currentStep: step,
@@ -152,7 +154,7 @@ export const useOnboardingFlow = () => {
         
       } catch (error) {
         if (!isMounted) return;
-        clearTimeout(timeoutId);
+        cleanup.cleanup(timeoutId);
         console.error('Error determining onboarding step:', error);
         const fallbackStep = user ? 'dashboard' : 'unauthenticated';
         setState(prev => ({
@@ -169,7 +171,7 @@ export const useOnboardingFlow = () => {
       updateFlow();
     } else {
       // Force update after 10 seconds even if still loading
-      const forceUpdateTimeout = setTimeout(() => {
+      const forceUpdateTimeout = cleanup.setTimeout(() => {
         if (isMounted) {
           console.warn('⚠️ Forcing onboarding update due to prolonged loading');
           updateFlow();
@@ -178,14 +180,13 @@ export const useOnboardingFlow = () => {
       
       return () => {
         isMounted = false;
-        clearTimeout(forceUpdateTimeout);
-        if (timeoutId) clearTimeout(timeoutId);
+        if (timeoutId) cleanup.cleanup(timeoutId);
       };
     }
 
     return () => {
       isMounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
+      if (timeoutId) cleanup.cleanup(timeoutId);
     };
   }, [user?.id, authLoading, subscription?.subscribed, subscriptionLoading]); // Minimal stable dependencies
 

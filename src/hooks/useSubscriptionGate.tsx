@@ -1,6 +1,7 @@
 import { useAuth } from './useAuth';
 import { useSubscription } from './useSubscription';
 import { useEffect, useState } from 'react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SubscriptionGateState {
   isLoading: boolean;
@@ -14,6 +15,7 @@ export const useSubscriptionGate = (): SubscriptionGateState => {
   const { subscription, isLoading: subscriptionLoading, refreshSubscription } = useSubscription();
   const [hasCheckedSubscription, setHasCheckedSubscription] = useState(false);
   const [timeoutReached, setTimeoutReached] = useState(false);
+  const cleanup = useCleanup('useSubscriptionGate');
 
   useEffect(() => {
     if (user && !subscriptionLoading && !hasCheckedSubscription) {
@@ -24,15 +26,13 @@ export const useSubscriptionGate = (): SubscriptionGateState => {
 
   // Add timeout to prevent infinite loading
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    cleanup.setTimeout(() => {
       if ((authLoading || subscriptionLoading || !hasCheckedSubscription) && !timeoutReached) {
         console.warn('⚠️ Subscription gate timeout reached - stopping loading state');
         setTimeoutReached(true);
       }
     }, 8000); // 8 second timeout
-
-    return () => clearTimeout(timeoutId);
-  }, [authLoading, subscriptionLoading, hasCheckedSubscription, timeoutReached]);
+  }, [authLoading, subscriptionLoading, hasCheckedSubscription, timeoutReached, cleanup]);
 
   const isLoading = (authLoading || subscriptionLoading || !hasCheckedSubscription) && !timeoutReached;
   

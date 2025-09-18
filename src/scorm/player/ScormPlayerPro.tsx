@@ -29,10 +29,10 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
   mode = 'preview',
   enrollmentId 
 }) => {
-  const cleanup = useCleanup('ScormPlayerPro');
   const { packageId, scoId, enrollmentId: urlEnrollmentId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const cleanup = useCleanup('ScormPlayerPro');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const sessionStartTime = useRef<number>(Date.now());
   
@@ -358,8 +358,7 @@ export const ScormPlayerPro: React.FC<ScormPlayerProProps> = ({
     };
 
     // Delay to ensure iframe is fully loaded
-    const timer = setTimeout(initializeAPI, 1500);
-    return () => clearTimeout(timer);
+    cleanup.setTimeout(initializeAPI, 1500);
   }, [currentSco, isScorm2004, scormVersion, handleCommit, handleFinish, effectiveEnrollmentId, addDebugLog, toast, urlProcessed]);
 
   // Navigation handlers

@@ -136,12 +136,10 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Save settings whenever they change - debounced to prevent performance issues
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    cleanup.setTimeout(() => {
       saveSettingsToStorage();
     }, 1000); // Debounce saves by 1 second
-
-    return () => clearTimeout(timeoutId);
-  }, [settings.enabled, settings.autoRead, settings.selectedVoice, settings.rate, settings.pitch, settings.volume]);
+  }, [settings.enabled, settings.autoRead, settings.selectedVoice, settings.rate, settings.pitch, settings.volume, cleanup]);
 
   // Track user interaction for TTS
   useEffect(() => {

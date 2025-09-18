@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock } from 'lucide-react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
 import { safeLocalStorage } from '@/utils/safeStorage';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SpellingLessonWrapperProps {
   courseId: string;
@@ -30,6 +31,7 @@ export const SpellingLessonWrapper: React.FC<SpellingLessonWrapperProps> = ({
   totalLessons = 11
 }) => {
   const { createTimer, registerCleanup, isSpellingCourse } = useSpellingCoursePerformance(courseId, lessonId);
+  const cleanup = useCleanup('SpellingLessonWrapper');
   
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -53,11 +55,8 @@ export const SpellingLessonWrapper: React.FC<SpellingLessonWrapperProps> = ({
       updateTimeSpent();
       
       // Schedule next update
-      const nextUpdate = createTimer(updateTimeSpent, 10000);
-      registerCleanup(() => clearTimeout(nextUpdate));
+      const nextUpdate = cleanup.setTimeout(updateTimeSpent, 10000);
     }, 10000);
-
-    registerCleanup(() => clearTimeout(timerId));
   }, [isSpellingCourse, createTimer, registerCleanup, updateTimeSpent]);
 
   // Handle lesson completion - simplified
