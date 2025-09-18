@@ -72,25 +72,11 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
     
     if (orgId) {
       safeLocalStorage.setItem('fpk.activeOrgId', orgId);
-      
-      // Find the organization to check the user's role
-      const selectedOrg = organizations.find(o => o.organization_id === orgId);
-      
-      // Navigate to appropriate dashboard based on role and current location
-      if (window.location.pathname.includes('/dashboard/')) {
-        if (selectedOrg?.role === 'owner' || selectedOrg?.role === 'instructor') {
-          // Navigate to instructor dashboard with org parameter
-          navigate(`/dashboard/instructor?org=${orgId}`);
-        } else {
-          // For students, stay on learner dashboard but add org parameter
-          const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.set('org', orgId);
-          setSearchParams(newSearchParams);
-        }
-      }
+      // Navigate to organization portal homepage
+      navigate(`/org/${orgId}`);
     } else {
       safeLocalStorage.removeItem('fpk.activeOrgId');
-      // Remove org param from URL
+      // Remove org param from URL if switching to personal mode
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('org');
       setSearchParams(newSearchParams);
@@ -99,10 +85,8 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
 
   const switchToPersonal = () => {
     switchOrganization(null);
-    // Navigate to learner dashboard if in org context
-    if (window.location.pathname.includes('/dashboard/instructor')) {
-      navigate('/dashboard/learner');
-    }
+    // Navigate to personal learner dashboard
+    navigate('/dashboard/learner');
   };
 
   const isPersonalMode = activeOrgId === null;
