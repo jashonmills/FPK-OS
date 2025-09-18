@@ -21,18 +21,30 @@ export interface OrgCourse {
   status?: string;
 }
 
-export function useOrgCourses() {
+export function useOrgCourses(orgId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const orgId = assertOrg();
+  
+  // If no orgId provided, try to get it from context
+  const contextOrgId = orgId || (() => {
+    try {
+      return assertOrg();
+    } catch {
+      return null;
+    }
+  })();
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['org-courses', orgId],
+    queryKey: ['org-courses', contextOrgId],
     queryFn: async () => {
+      if (!contextOrgId) {
+        throw new Error('No organization ID available');
+      }
+      
       const { data, error } = await supabase
         .from('org_courses')
         .select('*')
-        .eq('org_id', orgId)
+        .eq('org_id', contextOrgId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
@@ -43,16 +55,21 @@ export function useOrgCourses() {
 
       return data as OrgCourse[];
     },
+    enabled: !!contextOrgId,
     staleTime: 1000 * 60 * 5,
   });
 
   const createCourseMutation = useMutation({
     mutationFn: async (courseData: Omit<OrgCourse, 'id' | 'created_at' | 'updated_at' | 'org_id' | 'created_by'>) => {
+      if (!contextOrgId) {
+        throw new Error('No organization ID available');
+      }
+      
       const { data, error } = await supabase
         .from('org_courses')
         .insert({
           ...courseData,
-          org_id: orgId,
+          org_id: contextOrgId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         })
         .select()
@@ -80,12 +97,16 @@ export function useOrgCourses() {
 
   const updateCourseMutation = useMutation({
     mutationFn: async (courseData: Partial<OrgCourse> & { id: string }) => {
+      if (!contextOrgId) {
+        throw new Error('No organization ID available');
+      }
+      
       const { id, ...updateData } = courseData;
       const { data, error } = await supabase
         .from('org_courses')
         .update(updateData)
         .eq('id', id)
-        .eq('org_id', orgId)
+        .eq('org_id', contextOrgId)
         .select()
         .single();
 
@@ -111,11 +132,15 @@ export function useOrgCourses() {
 
   const deleteCourseMutation = useMutation({
     mutationFn: async (courseId: string) => {
+      if (!contextOrgId) {
+        throw new Error('No organization ID available');
+      }
+      
       const { error } = await supabase
         .from('org_courses')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', courseId)
-        .eq('org_id', orgId);
+        .eq('org_id', contextOrgId);
 
       if (error) throw error;
     },
@@ -138,11 +163,15 @@ export function useOrgCourses() {
 
   const togglePublishMutation = useMutation({
     mutationFn: async ({ courseId, published }: { courseId: string; published: boolean }) => {
+      if (!contextOrgId) {
+        throw new Error('No organization ID available');
+      }
+      
       const { error } = await supabase
         .from('org_courses')
         .update({ published })
         .eq('id', courseId)
-        .eq('org_id', orgId);
+        .eq('org_id', contextOrgId);
 
       if (error) throw error;
     },

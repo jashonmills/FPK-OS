@@ -16,7 +16,7 @@ import {
 export default function CoursesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { courses, isLoading } = useOrgCourses();
+  const { courses, isLoading } = useOrgCourses(currentOrg?.organization_id);
 
   if (!currentOrg) {
     return (
