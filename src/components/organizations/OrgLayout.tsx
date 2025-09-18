@@ -37,23 +37,30 @@ function OrgLayoutContent() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
       style={{
         backgroundImage: `url(${getBackgroundImage()})`
       }}
     >
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none" />
       
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      {/* Header - Fixed to top */}
+      <div className="relative z-20">
         <OrgHeader />
-        <div className="flex flex-1">
+      </div>
+      
+      {/* Main layout - Navigation and Content */}
+      <div className="relative z-10 flex">
+        {/* Navigation - Fixed to left side */}
+        <div className="relative z-10">
           <OrgNavigation />
-          <main className="flex-1 p-6">
-            <Outlet />
-          </main>
         </div>
+        
+        {/* Main content - Scrollable */}
+        <main className="flex-1 p-6 overflow-y-auto" style={{ height: 'calc(100vh - 4rem)', paddingTop: '1.5rem' }}>
+          <Outlet />
+        </main>
       </div>
     </div>
   );
