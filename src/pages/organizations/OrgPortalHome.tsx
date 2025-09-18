@@ -21,6 +21,7 @@ import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
 import stOliversBg from '@/assets/st-olivers-bg.webp';
 import waterfordWexfordBg from '@/assets/waterford-wexford-bg.jpg';
+import aiGeneratedOrgBg from '@/assets/ai-generated-org-bg.jpg';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
@@ -119,8 +120,8 @@ export default function OrgPortalHome() {
       return waterfordWexfordBg;
     }
     
-    // Default fallback
-    return stOliversBg;
+    // Use AI-generated professional background as default
+    return aiGeneratedOrgBg;
   };
 
   return (
