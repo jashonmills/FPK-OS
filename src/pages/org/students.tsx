@@ -34,7 +34,7 @@ import {
   Target
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { DebugInviteDialog } from '@/components/org/DebugInviteDialog';
+import { SimpleModal } from '@/components/org/SimpleModal';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -368,7 +368,7 @@ export default function StudentsPage() {
                       <span className="text-sm font-medium">Introduction to Programming</span>
                       <Badge variant="secondary">85%</Badge>
                     </div>
-                    <div className="w-full bg-background rounded-full h-2">
+                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
                       <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
                     </div>
                   </div>
@@ -377,7 +377,7 @@ export default function StudentsPage() {
                       <span className="text-sm font-medium">Web Development Basics</span>
                       <Badge variant="default">100%</Badge>
                     </div>
-                    <div className="w-full bg-background rounded-full h-2">
+                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
                       <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
                     </div>
                   </div>
@@ -414,22 +414,15 @@ export default function StudentsPage() {
         </SheetContent>
       </Sheet>
 
-      {/* Invite Dialog */}
-      <DebugInviteDialog 
+      {/* Invite Modal */}
+      <SimpleModal 
         open={showInviteDialog}
         onOpenChange={(open) => {
-          console.log('DebugInviteDialog onOpenChange called with:', open);
+          console.log('SimpleModal onOpenChange:', open);
           setShowInviteDialog(open);
         }}
         organizationId={orgId}
       />
-      
-      {/* Debug indicator */}
-      {showInviteDialog && (
-        <div className="fixed top-4 right-4 z-[102] bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
-          Dialog State: OPEN
-        </div>
-      )}
     </div>
   );
 }
