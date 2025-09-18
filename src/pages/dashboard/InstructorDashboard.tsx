@@ -78,9 +78,6 @@ export default function InstructorDashboard() {
 
   return (
     <PageShell>
-      {/* Branded Hero Section */}
-      <OrgBanner className="mb-6" overlay={false} />
-      
       <div className="p-6">
         {/* Organization Header */}
         <div className="flex items-center justify-between mb-6">
@@ -110,6 +107,9 @@ export default function InstructorDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Branded Hero Section */}
+        <OrgBanner className="rounded-lg min-h-[160px] mb-6" overlay={false} />
 
         {/* KPI Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
