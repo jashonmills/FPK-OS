@@ -35,7 +35,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PortalModal } from '@/components/org/PortalModal';
+import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -234,7 +234,7 @@ export default function StudentsPage() {
         </div>
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-background/0 backdrop-blur-none"
+          className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-transparent"
         >
           <Filter className="h-4 w-4" />
           Filters
@@ -425,7 +425,7 @@ export default function StudentsPage() {
       </Sheet>
 
       {/* Invite Modal */}
-      <PortalModal 
+      <SimpleInviteDialog 
         open={showInviteDialog}
         onOpenChange={setShowInviteDialog}
         organizationId={orgId}
