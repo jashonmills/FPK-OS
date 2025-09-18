@@ -16,6 +16,7 @@ import { Mail, QrCode, Copy, Check, ExternalLink } from 'lucide-react';
 import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 import { useOrgInvites } from '@/hooks/useOrgInvites';
 import { useToast } from '@/hooks/use-toast';
+import { assertOrg } from '@/lib/org/context';
 
 interface EnhancedInviteDialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ interface EnhancedInviteDialogProps {
 
 export function EnhancedInviteDialog({ open, onOpenChange }: EnhancedInviteDialogProps) {
   const { toast } = useToast();
+  const orgId = assertOrg();
   const emailInviteMutation = useEmailInvitation();
   const { createInvite, generateInviteUrl, isCreating } = useOrgInvites();
   
@@ -47,7 +49,7 @@ export function EnhancedInviteDialog({ open, onOpenChange }: EnhancedInviteDialo
     try {
       // This will automatically send the email via the database function
       await emailInviteMutation.mutateAsync({
-        orgId: '', // This will be handled by the assertOrg in the hook
+        orgId: orgId,
         email: email.trim(),
         role: role
       });
