@@ -131,7 +131,6 @@
 
   html {
     font-size: var(--mobile-base-font-size);
-    overflow-x: hidden;
   }
 
   @media (min-width: 768px) {
@@ -141,7 +140,7 @@
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
     transition: all 0.2s ease;
     line-height: var(--mobile-line-height);
   }

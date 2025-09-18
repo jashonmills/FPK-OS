@@ -170,8 +170,10 @@ export default function StudentsPage() {
         
         {canManageMembers && (
           <Button 
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-10 relative"
-            onClick={() => {
+            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               console.log('Invite button clicked, setting showInviteDialog to true');
               setShowInviteDialog(true);
             }}
@@ -231,8 +233,8 @@ export default function StudentsPage() {
           />
         </div>
         <Button 
-          variant="ghost" 
-          className="flex items-center gap-2 border border-white/20 text-white hover:bg-white/10 bg-transparent"
+          variant="outline" 
+          className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-background/0 backdrop-blur-none"
         >
           <Filter className="h-4 w-4" />
           Filters
@@ -259,8 +261,10 @@ export default function StudentsPage() {
               </p>
               {canManageMembers && !searchQuery && (
                 <Button 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  onClick={() => {
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     console.log('Secondary invite button clicked');
                     setShowInviteDialog(true);
                   }}
