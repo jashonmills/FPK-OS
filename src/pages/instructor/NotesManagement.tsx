@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -17,11 +18,11 @@ export default function NotesManagement() {
   if (!currentOrg) {
     return (
       <div className="container max-w-6xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
+            <p className="text-purple-200">No organization selected</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -62,79 +63,79 @@ export default function NotesManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Notebook className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Total Notes</span>
+              <Notebook className="w-4 h-4 text-purple-300" />
+              <span className="text-sm font-medium text-purple-100">Total Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{notes.length}</div>
-          </CardContent>
-        </Card>
+            <div className="text-2xl font-bold mt-2 text-white">{notes.length}</div>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Shared Notes</span>
+              <Users className="w-4 h-4 text-purple-300" />
+              <span className="text-sm font-medium text-purple-100">Shared Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-600">{notes.filter(n => n.visibility_scope === 'org-public').length}</div>
-          </CardContent>
-        </Card>
+            <div className="text-2xl font-bold mt-2 text-blue-400">{notes.filter(n => n.visibility_scope === 'org-public').length}</div>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Private Notes</span>
+              <FileText className="w-4 h-4 text-purple-300" />
+              <span className="text-sm font-medium text-purple-100">Private Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{notes.filter(n => n.visibility_scope === 'student-only').length}</div>
-          </CardContent>
-        </Card>
+            <div className="text-2xl font-bold mt-2 text-white">{notes.filter(n => n.visibility_scope === 'student-only').length}</div>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">This Week</span>
+              <span className="text-sm font-medium text-purple-100">This Week</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600">{notes.filter(n => {
+            <div className="text-2xl font-bold mt-2 text-green-400">{notes.filter(n => {
               const createdAt = new Date(n.created_at);
               const weekAgo = new Date();
               weekAgo.setDate(weekAgo.getDate() - 7);
               return createdAt >= weekAgo;
             }).length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardHeader>
+      <OrgCard>
+        <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-300" />
               <Input 
               placeholder="Search notes..." 
-              className="pl-10"
+              className="pl-10 bg-purple-800/30 border-purple-400/30 text-white placeholder:text-purple-300"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline">
+            <Button variant="outline" className="border-purple-400/30 text-purple-100 hover:bg-purple-800/50">
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
           </div>
-        </CardHeader>
-      </Card>
+        </OrgCardHeader>
+      </OrgCard>
 
       {/* Notes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {notes.map((note) => (
-          <Card key={note.id} className="flex flex-col">
-            <CardHeader className="pb-3">
+          <OrgCard key={note.id} className="flex flex-col">
+            <OrgCardHeader className="pb-3">
               <div className="space-y-2">
-                <CardTitle className="text-lg line-clamp-2">{note.title}</CardTitle>
+                <OrgCardTitle className="text-lg line-clamp-2 text-white">{note.title}</OrgCardTitle>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant={getCategoryColor(note.category) as any}>
                     {note.category ? note.category.replace('-', ' ') : 'general'}
@@ -144,12 +145,12 @@ export default function NotesManagement() {
                   </Badge>
                 </div>
               </div>
-            </CardHeader>
+            </OrgCardHeader>
             
-            <CardContent className="flex-1 flex flex-col">
-              <CardDescription className="line-clamp-3 mb-4">
+            <OrgCardContent className="flex-1 flex flex-col">
+              <OrgCardDescription className="line-clamp-3 mb-4 text-purple-200">
                 {note.content}
-              </CardDescription>
+              </OrgCardDescription>
               
               <div className="flex flex-wrap gap-1 mb-4">
               {note.tags?.map((tag) => (
@@ -160,45 +161,45 @@ export default function NotesManagement() {
               </div>
               
               <div className="mt-auto space-y-3">
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-purple-200">
                   Created: {new Date(note.created_at).toLocaleDateString()}
                   <br />
                   Updated: {new Date(note.updated_at).toLocaleDateString()}
                 </div>
                 
                 {note.visibility_scope === 'org-public' && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-purple-200">
                     <Users className="w-3 h-3" />
                     Shared with organization
                   </div>
                 )}
                 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1 border-purple-400/30 text-purple-100 hover:bg-purple-800/50">
                     Edit
                   </Button>
-                  <Button size="sm" className="flex-1">
+                  <Button size="sm" className="flex-1 bg-purple-700 hover:bg-purple-600 text-white">
                     View
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </OrgCardContent>
+          </OrgCard>
         ))}
       </div>
 
       {/* Empty state */}
       {notes.length === 0 && !isLoading && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Notebook className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Notes Created</h3>
-            <p className="text-muted-foreground mb-4">
+        <OrgCard>
+          <OrgCardContent className="text-center py-12">
+            <Notebook className="h-12 w-12 mx-auto text-purple-300 mb-4" />
+            <h3 className="text-lg font-semibold mb-2 text-white">No Notes Created</h3>
+            <p className="text-purple-200 mb-4">
               Create instructional notes to organize your teaching materials.
             </p>
             <CreateNoteDialog />
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       )}
     </div>
   );

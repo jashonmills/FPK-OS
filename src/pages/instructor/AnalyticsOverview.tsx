@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, Users, BookOpen, Clock, Target } from 'lucide-react';
@@ -11,11 +12,11 @@ export default function AnalyticsOverview() {
   if (!currentOrg) {
     return (
       <div className="container max-w-6xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
+            <p className="text-purple-200">No organization selected</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -53,62 +54,62 @@ export default function AnalyticsOverview() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Students</p>
-                <p className="text-2xl font-bold">{analyticsData.totalStudents}</p>
+                <p className="text-sm font-medium text-purple-100">Total Students</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.totalStudents}</p>
               </div>
-              <Users className="w-8 h-8 text-muted-foreground" />
+              <Users className="w-8 h-8 text-purple-300" />
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active This Week</p>
-                <p className="text-2xl font-bold">{analyticsData.activeStudents}</p>
-                <p className="text-xs text-green-600">
+                <p className="text-sm font-medium text-purple-100">Active This Week</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.activeStudents}</p>
+                <p className="text-xs text-green-400">
                   +12% from last week
                 </p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
+              <TrendingUp className="w-8 h-8 text-green-400" />
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
-                <p className="text-2xl font-bold">{analyticsData.completionRate}%</p>
-                <p className="text-xs text-blue-600">
+                <p className="text-sm font-medium text-purple-100">Completion Rate</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.completionRate}%</p>
+                <p className="text-xs text-blue-400">
                   +5% from last month
                 </p>
               </div>
-              <Target className="w-8 h-8 text-blue-600" />
+              <Target className="w-8 h-8 text-blue-400" />
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
 
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Session Time</p>
-                <p className="text-2xl font-bold">{analyticsData.avgSessionTime}m</p>
-                <p className="text-xs text-purple-600">
+                <p className="text-sm font-medium text-purple-100">Avg Session Time</p>
+                <p className="text-2xl font-bold text-white">{analyticsData.avgSessionTime}m</p>
+                <p className="text-xs text-purple-300">
                   +3m from last week
                 </p>
               </div>
-              <Clock className="w-8 h-8 text-purple-600" />
+              <Clock className="w-8 h-8 text-purple-300" />
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Charts Section */}

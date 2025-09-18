@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -160,45 +161,45 @@ export default function CoursesPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courses.length}</div>
-            <p className="text-xs text-muted-foreground">All courses</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Courses</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{courses.length}</div>
+            <p className="text-xs text-purple-200">All courses</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Published</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courses.filter(c => c.published).length}</div>
-            <p className="text-xs text-muted-foreground">Available to students</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Published</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{courses.filter(c => c.published).length}</div>
+            <p className="text-xs text-purple-200">Available to students</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Draft</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courses.filter(c => !c.published).length}</div>
-            <p className="text-xs text-muted-foreground">In development</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Draft</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{courses.filter(c => !c.published).length}</div>
+            <p className="text-xs text-purple-200">In development</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Across all courses</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Enrollments</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">0</div>
+            <p className="text-xs text-purple-200">Across all courses</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search Bar */}
@@ -237,19 +238,19 @@ export default function CoursesPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <Card key={course.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
+              <OrgCard key={course.id} className="hover:shadow-md transition-shadow">
+                <OrgCardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="line-clamp-2">{course.title}</CardTitle>
-                      <CardDescription className="line-clamp-3 mt-2">
+                      <OrgCardTitle className="line-clamp-2 text-white">{course.title}</OrgCardTitle>
+                      <OrgCardDescription className="line-clamp-3 mt-2 text-purple-200">
                         {course.description || 'No description provided'}
-                      </CardDescription>
+                      </OrgCardDescription>
                     </div>
                     {canManageCourses && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="text-purple-100 hover:bg-purple-800/50">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -282,8 +283,8 @@ export default function CoursesPage() {
                       </DropdownMenu>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent>
+                </OrgCardHeader>
+                <OrgCardContent>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge variant={course.published ? "default" : "secondary"}>
@@ -295,7 +296,7 @@ export default function CoursesPage() {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 text-sm text-purple-200">
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
                         0
@@ -306,8 +307,8 @@ export default function CoursesPage() {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </OrgCardContent>
+              </OrgCard>
             ))}
           </div>
         )}

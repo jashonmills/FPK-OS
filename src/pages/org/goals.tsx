@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -244,45 +245,45 @@ export default function GoalsPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Goals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeGoals.length}</div>
-            <p className="text-xs text-muted-foreground">In progress</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Active Goals</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{activeGoals.length}</div>
+            <p className="text-xs text-purple-200">In progress</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">{completedGoals.length}</div>
-            <p className="text-xs text-muted-foreground">Successfully achieved</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Completed</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-green-400">{completedGoals.length}</div>
+            <p className="text-xs text-purple-200">Successfully achieved</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Average Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(totalProgress)}%</div>
-            <p className="text-xs text-muted-foreground">Across all goals</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Average Progress</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{Math.round(totalProgress)}%</div>
+            <p className="text-xs text-purple-200">Across all goals</p>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">With assigned goals</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Students</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">18</div>
+            <p className="text-xs text-purple-200">With assigned goals</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
@@ -328,12 +329,12 @@ export default function GoalsPage() {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {filteredGoals.map((goal) => (
-              <Card key={goal.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
+              <OrgCard key={goal.id} className="hover:shadow-md transition-shadow">
+                <OrgCardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg line-clamp-1">{goal.title}</CardTitle>
+                        <OrgCardTitle className="text-lg line-clamp-1 text-white">{goal.title}</OrgCardTitle>
                         <Badge 
                           variant="outline" 
                           className={`text-xs ${getPriorityColor(goal.priority)}`}
@@ -352,14 +353,14 @@ export default function GoalsPage() {
                           {goal.status}
                         </Badge>
                       </div>
-                      <CardDescription className="line-clamp-2">
+                      <OrgCardDescription className="line-clamp-2 text-purple-200">
                         {goal.description || 'No description provided'}
-                      </CardDescription>
+                      </OrgCardDescription>
                     </div>
                     {canManageGoals && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="text-purple-100 hover:bg-purple-800/50">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -380,25 +381,25 @@ export default function GoalsPage() {
                       </DropdownMenu>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent>
+                </OrgCardHeader>
+                <OrgCardContent>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span>Progress</span>
-                        <span>{goal.progress}%</span>
+                        <span className="text-purple-100">Progress</span>
+                        <span className="text-white">{goal.progress}%</span>
                       </div>
                       <Progress value={goal.progress} className="h-2" />
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between text-sm text-purple-200">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           <span>{goal.assigned_count} assigned</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3 text-green-500" />
+                          <CheckCircle2 className="h-3 w-3 text-green-400" />
                           <span>{goal.completed_count} completed</span>
                         </div>
                       </div>
@@ -408,8 +409,8 @@ export default function GoalsPage() {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </OrgCardContent>
+              </OrgCard>
             ))}
           </div>
         )}
