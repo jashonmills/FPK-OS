@@ -18,6 +18,8 @@ import GoalsTab from '@/components/instructor/GoalsTab';
 import NotesTab from '@/components/instructor/NotesTab';
 import AnalyticsTab from '@/components/instructor/AnalyticsTab';
 import CreateOrganizationDialog from '@/components/instructor/CreateOrganizationDialog';
+import { OrgBanner } from '@/components/branding/OrgBanner';
+import { OrgLogo } from '@/components/branding/OrgLogo';
 
 export default function InstructorDashboard() {
   const { user } = useAuth();
@@ -76,12 +78,18 @@ export default function InstructorDashboard() {
 
   return (
     <PageShell>
+      {/* Branded Hero Section */}
+      <OrgBanner className="mb-6" overlay={false} />
+      
       <div className="p-6">
         {/* Organization Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold">{organization.name}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{organization.description}</p>
+          <div className="flex items-center gap-4">
+            <OrgLogo size="lg" />
+            <div>
+              <h1 className="text-2xl font-semibold">{organization.name}</h1>
+              <p className="text-sm text-muted-foreground mt-1">{organization.description}</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
