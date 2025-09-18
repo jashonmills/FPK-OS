@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, QrCode, Copy, Check } from 'lucide-react';
-import { useInviteToOrganization } from '@/hooks/useOrganization';
+import { useEmailInvitation } from '@/hooks/useInvitationSystem';
+import { useOrgInvites } from '@/hooks/useOrgInvites';
 import { useToast } from '@/hooks/use-toast';
 import { useCleanup } from '@/utils/cleanupManager';
 
@@ -30,7 +31,8 @@ export default function InviteStudentDialog({
   const [email, setEmail] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [copied, setCopied] = useState(false);
-  const inviteMutation = useInviteToOrganization();
+  const emailInviteMutation = useEmailInvitation();
+  const { createInvite, generateInviteUrl } = useOrgInvites();
   const { toast } = useToast();
   const cleanup = useCleanup('InviteStudentDialog');
 
@@ -45,9 +47,10 @@ export default function InviteStudentDialog({
     }
 
     try {
-      await inviteMutation.mutateAsync({
-        organization_id: organizationId,
+      await emailInviteMutation.mutateAsync({
+        orgId: organizationId,
         email: email.trim(),
+        role: 'student'
       });
       setEmail('');
       onOpenChange(false);
@@ -58,11 +61,12 @@ export default function InviteStudentDialog({
 
   const handleGenerateCode = async () => {
     try {
-      const result = await inviteMutation.mutateAsync({
-        organization_id: organizationId,
-        generate_code: true,
+      const inviteCode = await createInvite({
+        role: 'student',
+        max_uses: 100,
+        expires_days: 30
       });
-      setGeneratedCode(result.code);
+      setGeneratedCode(inviteCode);
       toast({
         title: 'Invitation code generated',
         description: 'Share this code with your student to join your organization.',
@@ -131,10 +135,10 @@ export default function InviteStudentDialog({
                 </div>
                 <Button 
                   onClick={handleEmailInvite}
-                  disabled={inviteMutation.isPending}
+                  disabled={emailInviteMutation.isPending}
                   className="w-full"
                 >
-                  {inviteMutation.isPending ? 'Sending...' : 'Send Invitation'}
+                  {emailInviteMutation.isPending ? 'Sending...' : 'Send Invitation'}
                 </Button>
               </CardContent>
             </Card>
@@ -155,10 +159,10 @@ export default function InviteStudentDialog({
                 {!generatedCode ? (
                   <Button 
                     onClick={handleGenerateCode}
-                    disabled={inviteMutation.isPending}
+                    disabled={emailInviteMutation.isPending}
                     className="w-full"
                   >
-                    {inviteMutation.isPending ? 'Generating...' : 'Generate Code'}
+                    {emailInviteMutation.isPending ? 'Generating...' : 'Generate Code'}
                   </Button>
                 ) : (
                   <div className="space-y-4">
@@ -191,7 +195,7 @@ export default function InviteStudentDialog({
                       onClick={handleGenerateCode}
                       variant="outline" 
                       className="w-full"
-                      disabled={inviteMutation.isPending}
+                      disabled={emailInviteMutation.isPending}
                     >
                       Generate New Code
                     </Button>

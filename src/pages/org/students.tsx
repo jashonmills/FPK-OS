@@ -42,8 +42,7 @@ import {
   Target
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useOrgInvites } from '@/hooks/useOrgInvites';
-import { CreateInviteDialog } from '@/components/org/CreateInviteDialog';
+import { EnhancedInviteDialog } from '@/components/org/EnhancedInviteDialog';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -177,10 +176,20 @@ export default function StudentsPage() {
         </div>
         
         {canManageMembers && (
-          <Button onClick={() => setShowInviteDialog(true)} className="flex items-center gap-2">
-            <UserPlus className="h-4 w-4" />
-            Invite Students
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                Invite Students
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <EnhancedInviteDialog 
+                open={true}
+                onOpenChange={() => {}}
+              />
+            </DialogContent>
+          </Dialog>
         )}
       </div>
 
@@ -253,10 +262,18 @@ export default function StudentsPage() {
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
-                <Button onClick={() => setShowInviteDialog(true)}>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Students
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Invite Students
+                    </Button>
+                  </DialogTrigger>
+                  <EnhancedInviteDialog 
+                    open={true}
+                    onOpenChange={() => {}}
+                  />
+                </Dialog>
               )}
             </div>
           ) : (
@@ -408,12 +425,6 @@ export default function StudentsPage() {
           )}
         </SheetContent>
       </Sheet>
-
-      {/* Create Invite Dialog */}
-      <CreateInviteDialog 
-        open={showInviteDialog}
-        onOpenChange={setShowInviteDialog}
-      />
     </div>
   );
 }

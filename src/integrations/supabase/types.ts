@@ -7709,6 +7709,10 @@ export type Database = {
         }
         Returns: Json
       }
+      send_organization_invitation: {
+        Args: { p_email: string; p_org_id: string; p_role?: string }
+        Returns: Json
+      }
       track_usage: {
         Args: {
           p_feature_type: string
