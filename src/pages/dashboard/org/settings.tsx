@@ -118,13 +118,13 @@ export default function OrgSettingsPage() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Information */}
-          <Card>
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Building2 className="h-5 w-5" />
                 Basic Information
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Update your organization's basic details
               </CardDescription>
             </CardHeader>
@@ -134,9 +134,9 @@ export default function OrgSettingsPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Organization Name</FormLabel>
+                    <FormLabel className="text-white">Organization Name</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={!canEdit} />
+                      <Input {...field} disabled={!canEdit} className="bg-white/20 border-white/30 text-white placeholder:text-white/70" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,16 +148,17 @@ export default function OrgSettingsPage() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel className="text-white">Description</FormLabel>
                     <FormControl>
                       <Textarea 
                         {...field} 
                         disabled={!canEdit}
                         placeholder="Describe your organization..."
                         rows={3}
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
                       />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-white/70">
                       A brief description of your organization
                     </FormDescription>
                     <FormMessage />
@@ -170,15 +171,16 @@ export default function OrgSettingsPage() {
                 name="logo_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Logo URL</FormLabel>
+                    <FormLabel className="text-white">Logo URL</FormLabel>
                     <FormControl>
                       <Input 
                         {...field} 
                         disabled={!canEdit}
                         placeholder="https://example.com/logo.png"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
                       />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-white/70">
                       URL to your organization's logo image
                     </FormDescription>
                     <FormMessage />
@@ -189,10 +191,10 @@ export default function OrgSettingsPage() {
           </Card>
 
           {/* Capacity Settings */}
-          <Card>
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardHeader>
-              <CardTitle>Capacity & Limits</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Capacity & Limits</CardTitle>
+              <CardDescription className="text-white/80">
                 Configure seat and instructor limits
               </CardDescription>
             </CardHeader>
@@ -203,16 +205,17 @@ export default function OrgSettingsPage() {
                   name="seat_cap"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Student Seat Capacity</FormLabel>
+                      <FormLabel className="text-white">Student Seat Capacity</FormLabel>
                       <FormControl>
                         <Input 
                           {...field}
                           type="number"
                           disabled={!isOwner}
                           onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                          className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-white/70">
                         Maximum number of students
                       </FormDescription>
                       <FormMessage />
@@ -225,16 +228,17 @@ export default function OrgSettingsPage() {
                   name="instructor_limit"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Instructor Limit</FormLabel>
+                      <FormLabel className="text-white">Instructor Limit</FormLabel>
                       <FormControl>
                         <Input 
                           {...field}
                           type="number"
                           disabled={!isOwner}
                           onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                          className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-white/70">
                         Maximum number of instructors
                       </FormDescription>
                       <FormMessage />
@@ -246,10 +250,10 @@ export default function OrgSettingsPage() {
           </Card>
 
           {/* Access Control */}
-          <Card>
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardHeader>
-              <CardTitle>Access Control</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Access Control</CardTitle>
+              <CardDescription className="text-white/80">
                 Manage how users can join your organization
               </CardDescription>
             </CardHeader>
@@ -258,10 +262,10 @@ export default function OrgSettingsPage() {
                 control={form.control}
                 name="invites_enabled"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-white/30 bg-white/10 p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">Enable Invitations</FormLabel>
-                      <FormDescription>
+                      <FormLabel className="text-base text-white">Enable Invitations</FormLabel>
+                      <FormDescription className="text-white/70">
                         Allow creating invitation links for new members
                       </FormDescription>
                     </div>
@@ -281,14 +285,14 @@ export default function OrgSettingsPage() {
                 name="join_policy"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Join Policy</FormLabel>
+                    <FormLabel className="text-white">Join Policy</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={!canEdit}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/20 border-white/30 text-white">
                           <SelectValue placeholder="Select join policy" />
                         </SelectTrigger>
                       </FormControl>
@@ -298,7 +302,7 @@ export default function OrgSettingsPage() {
                         <SelectItem value="closed">Closed - No new members</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
+                    <FormDescription className="text-white/70">
                       How new members can join your organization
                     </FormDescription>
                     <FormMessage />
@@ -311,14 +315,14 @@ export default function OrgSettingsPage() {
                 name="default_role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Default Role</FormLabel>
+                    <FormLabel className="text-white">Default Role</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={!canEdit}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/20 border-white/30 text-white">
                           <SelectValue placeholder="Select default role" />
                         </SelectTrigger>
                       </FormControl>
@@ -327,7 +331,7 @@ export default function OrgSettingsPage() {
                         <SelectItem value="instructor">Instructor</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
+                    <FormDescription className="text-white/70">
                       Default role assigned to new members
                     </FormDescription>
                     <FormMessage />
@@ -342,7 +346,7 @@ export default function OrgSettingsPage() {
               <Button
                 type="submit"
                 disabled={updateSettingsMutation.isPending}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
               >
                 <Save className="h-4 w-4" />
                 {updateSettingsMutation.isPending ? 'Saving...' : 'Save Settings'}
@@ -351,9 +355,9 @@ export default function OrgSettingsPage() {
           )}
 
           {!canEdit && (
-            <Card>
+            <Card className="bg-orange-500/65 border-orange-400/50">
               <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">
+                <p className="text-center text-white/80">
                   Only organization owners can modify these settings.
                 </p>
               </CardContent>

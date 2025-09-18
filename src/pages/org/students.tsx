@@ -186,13 +186,13 @@ export default function StudentsPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-4">
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Students</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Total Students</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
             <div className="text-2xl font-bold text-white">{students.length}</div>
-            <p className="text-xs text-purple-200">
+            <p className="text-xs text-white/80">
               Active students
             </p>
           </OrgCardContent>

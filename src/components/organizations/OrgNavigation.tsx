@@ -85,7 +85,7 @@ export function OrgNavigation() {
   });
 
   return (
-    <nav className="w-64 bg-card border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+    <nav className="w-64 bg-purple-900/65 backdrop-blur-sm border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="p-4">
         <div className="space-y-2">
           {filteredNavItems.map((item) => (
@@ -97,8 +97,8 @@ export function OrgNavigation() {
                 cn(
                   'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    ? 'bg-orange-500/70 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-orange-500/40'
                 )
               }
             >

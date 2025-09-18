@@ -129,17 +129,17 @@ export default function OrgBrandingSettings() {
         {/* Settings Panel */}
         <div className="space-y-6">
           {/* Logo Upload */}
-          <OrgCard>
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader>
-              <OrgCardTitle>Logo</OrgCardTitle>
-              <OrgCardDescription>
+              <OrgCardTitle className="text-white">Logo</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
                 Upload a square logo (recommended 64x64px or larger, max 2MB)
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               <div className="flex items-center gap-4">
                 {(logoFile || branding?.logo_url) && (
-                  <div className="w-16 h-16 border rounded-lg overflow-hidden bg-muted">
+                  <div className="w-16 h-16 border border-white/30 rounded-lg overflow-hidden bg-white/20">
                     <img
                       src={logoFile ? URL.createObjectURL(logoFile) : branding?.logo_url}
                       alt="Logo preview"
@@ -151,7 +151,7 @@ export default function OrgBrandingSettings() {
                   <Button
                     variant="outline"
                     onClick={() => logoInputRef.current?.click()}
-                    className="w-full"
+                    className="w-full border-white/30 text-white hover:bg-white/20"
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     {logoFile ? 'Change Logo' : 'Upload Logo'}
@@ -172,6 +172,7 @@ export default function OrgBrandingSettings() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setLogoFile(null)}
+                    className="text-white hover:bg-white/20"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -181,16 +182,16 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Banner Upload */}
-          <OrgCard>
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader>
-              <OrgCardTitle>Banner (Optional)</OrgCardTitle>
-              <OrgCardDescription>
+              <OrgCardTitle className="text-white">Banner (Optional)</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
                 Upload a wide banner image (recommended 1200x300px, max 2MB)
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               {(bannerFile || branding?.banner_url) && (
-                <div className="w-full h-20 border rounded-lg overflow-hidden bg-muted">
+                <div className="w-full h-20 border border-white/30 rounded-lg overflow-hidden bg-white/20">
                   <img
                     src={bannerFile ? URL.createObjectURL(bannerFile) : branding?.banner_url}
                     alt="Banner preview"
@@ -202,7 +203,7 @@ export default function OrgBrandingSettings() {
                 <Button
                   variant="outline"
                   onClick={() => bannerInputRef.current?.click()}
-                  className="flex-1"
+                  className="flex-1 border-white/30 text-white hover:bg-white/20"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   {bannerFile ? 'Change Banner' : 'Upload Banner'}
@@ -222,6 +223,7 @@ export default function OrgBrandingSettings() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setBannerFile(null)}
+                    className="text-white hover:bg-white/20"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -231,17 +233,17 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Theme Accent */}
-          <OrgCard>
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader>
-              <OrgCardTitle>Accent Color</OrgCardTitle>
-              <OrgCardDescription>
+              <OrgCardTitle className="text-white">Accent Color</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
                 Choose a color that represents your organization
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               {/* Preset Colors */}
               <div>
-                <Label className="text-sm font-medium">Presets</Label>
+                <Label className="text-sm font-medium text-white">Presets</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {ACCENT_PRESETS.map((preset) => (
                     <button
@@ -250,25 +252,25 @@ export default function OrgBrandingSettings() {
                         setSelectedPreset(preset.value);
                         setCustomAccent('');
                       }}
-                      className={`p-3 rounded-lg border text-left hover:bg-muted/50 transition-colors ${
-                        selectedPreset === preset.value ? 'ring-2 ring-primary' : ''
+                      className={`p-3 rounded-lg border border-white/30 text-left hover:bg-white/20 transition-colors ${
+                        selectedPreset === preset.value ? 'ring-2 ring-white' : ''
                       }`}
                     >
                       <div
                         className="w-full h-6 rounded mb-2"
                         style={{ backgroundColor: preset.hex }}
                       />
-                      <div className="text-xs font-medium">{preset.name}</div>
+                      <div className="text-xs font-medium text-white">{preset.name}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <Separator />
+              <div className="border-t border-white/30 my-4" />
 
               {/* Custom Color */}
               <div>
-                <Label htmlFor="custom-accent" className="text-sm font-medium">
+                <Label htmlFor="custom-accent" className="text-sm font-medium text-white">
                   Custom Color (HSL format)
                 </Label>
                 <Input
@@ -279,9 +281,9 @@ export default function OrgBrandingSettings() {
                     setCustomAccent(e.target.value);
                     setSelectedPreset(null);
                   }}
-                  className="mt-2"
+                  className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-white/70 mt-1">
                   Use HSL format without "hsl()" wrapper. Example: 280 100% 70%
                 </p>
               </div>
@@ -292,7 +294,7 @@ export default function OrgBrandingSettings() {
           <Button 
             onClick={handleSave}
             disabled={updateBranding.isPending || uploadFile.isPending}
-            className="w-full"
+            className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
             size="lg"
           >
             {(updateBranding.isPending || uploadFile.isPending) ? 'Saving...' : 'Save Changes'}
@@ -301,28 +303,28 @@ export default function OrgBrandingSettings() {
 
         {/* Preview Panel */}
         <div className="space-y-6">
-          <OrgCard>
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader>
-              <OrgCardTitle className="flex items-center gap-2">
+              <OrgCardTitle className="flex items-center gap-2 text-white">
                 <Eye className="w-5 h-5" />
                 Live Preview
               </OrgCardTitle>
-              <OrgCardDescription>
+              <OrgCardDescription className="text-white/80">
                 See how your branding will look in the application
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               {/* Header Preview */}
-              <div className="border rounded-lg p-4 bg-background">
+              <div className="border border-white/30 rounded-lg p-4 bg-white/10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">FPK</span>
                   </div>
-                  <span className="font-semibold text-lg">{currentOrg.organizations.name}</span>
+                  <span className="font-semibold text-lg text-white">{currentOrg.organizations.name}</span>
                 </div>
                 
                 {/* Org Badge Preview */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border w-fit">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-full border border-white/30 w-fit">
                   {(logoFile || branding?.logo_url) ? (
                     <img 
                       src={logoFile ? URL.createObjectURL(logoFile) : branding?.logo_url}
@@ -330,20 +332,20 @@ export default function OrgBrandingSettings() {
                       className="w-5 h-5 object-contain rounded"
                     />
                   ) : (
-                    <div className="w-5 h-5 bg-muted rounded flex items-center justify-center">
-                      <Palette className="w-3 h-3 text-muted-foreground" />
+                    <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
+                      <Palette className="w-3 h-3 text-white/70" />
                     </div>
                   )}
-                  <span className="text-sm font-medium">{currentOrg.organizations.name}</span>
-                  <Badge variant="secondary" className="text-xs h-4 px-2">
+                  <span className="text-sm font-medium text-white">{currentOrg.organizations.name}</span>
+                  <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-white border-white/30">
                     Org mode
                   </Badge>
                 </div>
               </div>
 
               {/* Accent Color Preview */}
-              <div className="border rounded-lg p-4 bg-background">
-                <h4 className="font-medium mb-3">Accent Color Usage</h4>
+              <div className="border border-white/30 rounded-lg p-4 bg-white/10">
+                <h4 className="font-medium mb-3 text-white">Accent Color Usage</h4>
                 <div className="space-y-3">
                   <Button 
                     style={{ 
@@ -355,10 +357,10 @@ export default function OrgBrandingSettings() {
                     Primary Button
                   </Button>
                   <div 
-                    className="w-full h-8 rounded border"
+                    className="w-full h-8 rounded border border-white/30"
                     style={{ backgroundColor: `hsl(${currentAccent} / 0.1)` }}
                   >
-                    <div className="flex items-center justify-center h-full text-sm">
+                    <div className="flex items-center justify-center h-full text-sm text-white">
                       Accent Background
                     </div>
                   </div>
@@ -367,21 +369,21 @@ export default function OrgBrandingSettings() {
                       className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: `hsl(${currentAccent})` }}
                     />
-                    <span className="text-sm">Accent Indicators</span>
+                    <span className="text-sm text-white">Accent Indicators</span>
                   </div>
                 </div>
               </div>
 
               {/* Banner Preview */}
               {(bannerFile || branding?.banner_url) && (
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border border-white/30 rounded-lg overflow-hidden">
                   <img
                     src={bannerFile ? URL.createObjectURL(bannerFile) : branding?.banner_url}
                     alt="Banner preview"
                     className="w-full h-24 object-cover"
                   />
-                  <div className="p-3 bg-muted/50">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="p-3 bg-white/20">
+                    <p className="text-sm text-white/80">
                       Banner will appear subtly behind page titles
                     </p>
                   </div>
