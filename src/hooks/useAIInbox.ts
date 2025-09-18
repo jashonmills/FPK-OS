@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/logger';
-import type { AIInboxCard, AIInboxResponse, AIInsightsOptions } from '@/types/ai-insights';
+import type { AIInboxCard, AIInboxResponse, AIInsightsOptions, ActionCTA } from '@/types/ai-insights';
 
 export const useAIInbox = (options: AIInsightsOptions = {}) => {
   const { user } = useAuth();
@@ -42,8 +42,8 @@ export const useAIInbox = (options: AIInsightsOptions = {}) => {
         return {
           data: (inboxData || []).map(item => ({
             ...item,
-            cta: item.cta as ActionCTA,
-            why: item.why as string[]
+            cta: item.cta as unknown as ActionCTA,
+            why: item.why as unknown as string[]
           })) as AIInboxCard[],
           next_cursor: null
         };
