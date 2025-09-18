@@ -125,15 +125,11 @@ export default function CoursesManagement() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50">
-            <div className="aspect-video bg-muted relative overflow-hidden">
-              <img 
-                src="/placeholder.svg"
-                alt={course.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-2 left-2 right-2">
-                <BookOpen className="w-6 h-6 text-white mb-1" />
+            <div className="aspect-video bg-gradient-to-br from-orange-400 to-orange-600 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3">
+                <BookOpen className="w-8 h-8 text-white mb-2 drop-shadow-lg" />
+                <h3 className="text-white font-semibold text-lg drop-shadow-md line-clamp-1">{course.title}</h3>
               </div>
             </div>
             <OrgCardHeader className="pb-3">
@@ -141,7 +137,7 @@ export default function CoursesManagement() {
                 <OrgCardTitle className="text-lg line-clamp-2 text-white">{course.title}</OrgCardTitle>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-orange-500/30">
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -167,7 +163,7 @@ export default function CoursesManagement() {
             <OrgCardContent className="pt-0">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="bg-white/20 text-white border-white/30">
+                  <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
                     {course.status}
                   </Badge>
                   <div className="flex items-center text-sm text-white/70">
@@ -187,7 +183,7 @@ export default function CoursesManagement() {
                   </div>
                 </div>
                 
-                <Button className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" size="sm">
+                <Button className="w-full bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60" size="sm">
                   Manage Course
                 </Button>
               </div>
@@ -205,7 +201,7 @@ export default function CoursesManagement() {
             <p className="text-white/80 mb-4">
               {searchQuery ? 'No courses match your search.' : 'Create your first course to get started.'}
             </p>
-            <Button className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+            <Button className="bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60">
               <Plus className="w-4 h-4 mr-2" />
               Create Course
             </Button>
