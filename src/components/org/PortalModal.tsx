@@ -20,6 +20,11 @@ export function PortalModal({ open, onOpenChange, organizationId }: PortalModalP
   
   const emailInvitation = useEmailInvitation();
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('PortalModal render - open:', open, 'organizationId:', organizationId);
+  }, [open, organizationId]);
+
   // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

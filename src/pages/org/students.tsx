@@ -170,8 +170,11 @@ export default function StudentsPage() {
         
         {canManageMembers && (
           <Button 
-            className="flex items-center gap-2"
-            onClick={() => setShowInviteDialog(true)}
+            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-10 relative"
+            onClick={() => {
+              console.log('Invite button clicked, setting showInviteDialog to true');
+              setShowInviteDialog(true);
+            }}
           >
             <UserPlus className="h-4 w-4" />
             Invite Students
@@ -228,8 +231,8 @@ export default function StudentsPage() {
           />
         </div>
         <Button 
-          variant="outline" 
-          className="flex items-center gap-2 bg-transparent border-white/20 text-white hover:bg-white/10"
+          variant="ghost" 
+          className="flex items-center gap-2 border border-white/20 text-white hover:bg-white/10 bg-transparent"
         >
           <Filter className="h-4 w-4" />
           Filters
@@ -255,7 +258,13 @@ export default function StudentsPage() {
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
-                <Button onClick={() => setShowInviteDialog(true)}>
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  onClick={() => {
+                    console.log('Secondary invite button clicked');
+                    setShowInviteDialog(true);
+                  }}
+                >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invite Students
                 </Button>
