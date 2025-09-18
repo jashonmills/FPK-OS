@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { Clock, Check, X, ArrowLeft } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 import type { StudySession } from '@/hooks/useStudySessions';
 import type { Flashcard } from '@/hooks/useFlashcards';
 
@@ -20,6 +21,7 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
   flashcards,
   onComplete
 }) => {
+  const cleanup = useCleanup('TimedChallengeSession');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds per card
@@ -42,12 +44,11 @@ const TimedChallengeSession: React.FC<TimedChallengeSessionProps> = ({
 
   useEffect(() => {
     if (timeLeft > 0 && !showResult && currentIndex < flashcards.length) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
+      cleanup.setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timeLeft === 0 && !showResult) {
       handleTimeUp();
     }
-  }, [timeLeft, showResult, currentIndex]);
+  }, [timeLeft, showResult, currentIndex, cleanup]);
 
   useEffect(() => {
     setTimeLeft(30);

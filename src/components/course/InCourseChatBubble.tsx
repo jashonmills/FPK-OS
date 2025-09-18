@@ -6,7 +6,7 @@ import { MessageCircle, Send, X, Minimize2, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { extractReadableText, extractCourseContent } from '@/utils/courseTextExtractor';
 import { useLessonChat } from '@/hooks/useLessonChat';
-import { timeoutManager } from '@/utils/performanceOptimizer';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -29,6 +29,7 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
   lessonContentRef,
   className
 }) => {
+  const cleanup = useCleanup('InCourseChatBubble');
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
@@ -67,7 +68,7 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
     }
   }, [lessonContentRef]);
 
-  const debouncedExtractRef = useRef<NodeJS.Timeout>();
+  const debouncedExtractRef = useRef<string>();
 
   const handleSendMessage = useCallback(async () => {
     if (!message.trim() || isLoading) return;
@@ -77,12 +78,11 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
 
     // Clear any pending extraction
     if (debouncedExtractRef.current) {
-      timeoutManager.timeouts.delete(debouncedExtractRef.current);
-      clearTimeout(debouncedExtractRef.current);
+      cleanup.cleanup(debouncedExtractRef.current);
     }
 
     // Debounce content extraction by 200ms to reduce DOM queries
-    debouncedExtractRef.current = timeoutManager.setTimeout(() => {
+    debouncedExtractRef.current = cleanup.setTimeout(() => {
       const lessonContent = extractLessonContent();
       sendLessonMessage(userMessage, lessonContent);
     }, 200);
@@ -104,11 +104,10 @@ export const InCourseChatBubble: React.FC<InCourseChatBubbleProps> = ({
   useEffect(() => {
     return () => {
       if (debouncedExtractRef.current) {
-        timeoutManager.timeouts.delete(debouncedExtractRef.current);
-        clearTimeout(debouncedExtractRef.current);
+        cleanup.cleanup(debouncedExtractRef.current);
       }
     };
-  }, []);
+  }, [cleanup]);
 
   if (!isOpen) {
     return (

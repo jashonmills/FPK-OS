@@ -97,7 +97,7 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       }, LOADING_TIMEOUT);
     } else {
       if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current);
+        cleanup.cleanup(String(loadingTimeoutRef.current));
         loadingTimeoutRef.current = null;
       }
     }

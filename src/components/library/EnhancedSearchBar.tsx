@@ -64,9 +64,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
       }
       setSelectedIndex(-1);
     }, 150);
-
-    return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, cleanup]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

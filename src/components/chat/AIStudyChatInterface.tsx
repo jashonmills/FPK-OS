@@ -87,12 +87,12 @@ const withProgressiveTimeout = <T,>(
     }, ms);
     
     promise.then((value) => {
-      clearTimeout(progressTimeout);
-      clearTimeout(finalTimeout);
+      cleanup.cleanup(progressTimeout);
+      cleanup.cleanup(finalTimeout);
       resolve(value);
     }).catch((err) => {
-      clearTimeout(progressTimeout);
-      clearTimeout(finalTimeout);
+      cleanup.cleanup(progressTimeout);
+      cleanup.cleanup(finalTimeout);
       reject(err);
     });
   });
