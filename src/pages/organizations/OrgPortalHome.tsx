@@ -100,7 +100,7 @@ export default function OrgPortalHome() {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat relative"
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed relative -m-6"
       style={{
         backgroundImage: `url(${stOliversBg})`
       }}
