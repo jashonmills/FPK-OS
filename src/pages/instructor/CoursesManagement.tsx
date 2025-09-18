@@ -125,7 +125,16 @@ export default function CoursesManagement() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
           <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50">
-            <div className="aspect-video bg-gradient-to-br from-orange-400 to-orange-600 relative overflow-hidden">
+            <div className="aspect-video relative overflow-hidden">
+              {course.thumbnail_url ? (
+                <img 
+                  src={course.thumbnail_url}
+                  alt={course.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="bg-gradient-to-br from-orange-400 to-orange-600 w-full h-full" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="absolute bottom-3 left-3 right-3">
                 <BookOpen className="w-8 h-8 text-white mb-2 drop-shadow-lg" />

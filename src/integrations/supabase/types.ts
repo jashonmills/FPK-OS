@@ -3826,6 +3826,7 @@ export type Database = {
           level: string | null
           org_id: string
           published: boolean | null
+          thumbnail_url: string | null
           title: string
           updated_at: string | null
         }
@@ -3838,6 +3839,7 @@ export type Database = {
           level?: string | null
           org_id: string
           published?: boolean | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string | null
         }
@@ -3850,6 +3852,7 @@ export type Database = {
           level?: string | null
           org_id?: string
           published?: boolean | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
         }
