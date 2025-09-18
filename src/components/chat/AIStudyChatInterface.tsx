@@ -17,7 +17,6 @@ import { useConversationState, ChatMessage as ConversationMessage } from '@/hook
 import { v4 as uuidv4 } from 'uuid';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
 import { useCleanup } from '@/utils/cleanupManager';
-import { useCleanup } from '@/utils/cleanupManager';
 import ChatModeToggle from '@/components/ai-coach/ChatModeToggle';
 import { SaveBeforeClearDialog } from '@/components/ai-coach/SaveBeforeClearDialog';
 import { useSavedCoachChats } from '@/hooks/useSavedCoachChats';
@@ -132,6 +131,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const { settings, toggle } = useVoiceSettings();
   const voiceInput = useEnhancedVoiceInput();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cleanup = useCleanup('AIStudyChatInterface');
 
   // Auto scroll when messages change
   useEffect(() => {
