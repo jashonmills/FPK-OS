@@ -145,7 +145,6 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     </div>
   );
 
-  // Budget Planning Phase with Enhanced Controls
   const BudgetPlanningScreen = () => {
     const remainingBudget = monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0) - (state.creditCardPayment || 0);
     const weeklyBudgets = Object.entries(envelopes).reduce((acc, [category, amount]) => {
@@ -160,13 +159,13 @@ const MoneyManagementGame: React.FC<GameProps> = ({
         <div className="bg-muted rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-medium">{category}</span>
-            <div className="text-lg font-bold">
+            <div className="text-lg font-bold text-primary">
               ${amount.toFixed(2)}
             </div>
           </div>
           
           <div className="text-sm text-muted-foreground">
-            Weekly: ${weeklyBudgets[category]}
+            Weekly: ${category === 'Credit Card Payment' ? (amount / 4).toFixed(2) : weeklyBudgets[category]}
           </div>
           
           <div className="flex flex-wrap gap-2">
@@ -179,7 +178,11 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   variant="outline"
                   onClick={() => {
                     if (amount >= inc) {
-                      dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount - inc });
+                      if (category === 'Credit Card Payment') {
+                        dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount - inc });
+                      } else {
+                        dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount - inc });
+                      }
                     }
                   }}
                   disabled={amount < inc}
@@ -201,7 +204,11 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   variant="outline"
                   onClick={() => {
                     if (remainingBudget >= inc) {
-                      dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount + inc });
+                      if (category === 'Credit Card Payment') {
+                        dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount + inc });
+                      } else {
+                        dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount + inc });
+                      }
                     }
                   }}
                   disabled={remainingBudget < inc}
@@ -270,22 +277,40 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   Use the increment buttons to precisely allocate your budget. Weekly amounts show how much you'll have each week.
                 </div>
                 
-                <div className="space-y-4">
-                  {Object.entries(envelopes).map(([category, amount]) => (
-                    <BudgetControls key={category} category={category} amount={amount} />
-                  ))}
-                  
-                  {/* Credit Card Payment Option */}
-                  {creditCardBalance > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-red-800 mb-2">Credit Card Payment</h4>
-                      <div className="text-sm text-red-600 mb-3">
-                        Current Balance: ${creditCardBalance.toFixed(2)} (${(creditCardBalance * (creditCardInterestRate / 12)).toFixed(2)}/mo interest)
-                      </div>
-                      <BudgetControls category="Credit Card Payment" amount={state.creditCardPayment || 0} />
+                {Object.entries(envelopes).map(([category, amount]) => (
+                  <BudgetControls key={category} category={category} amount={amount} />
+                ))}
+                
+                {/* Credit Card Payment Option */}
+                {creditCardBalance > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                      <CreditCard className="w-4 h-4" />
+                      Credit Card Payment
+                    </h4>
+                    <div className="text-sm text-red-600 mb-3">
+                      Current Balance: ${creditCardBalance.toFixed(2)} 
+                      <span className="block text-xs">
+                        Monthly Interest: ${(creditCardBalance * (creditCardInterestRate / 12)).toFixed(2)}
+                        {' '}({(creditCardInterestRate * 100).toFixed(1)}% APR)
+                      </span>
                     </div>
-                  )}
-                </div>
+                    <BudgetControls category="Credit Card Payment" amount={state.creditCardPayment || 0} />
+                    <div className="text-xs text-red-500 mt-2">
+                      💡 Tip: Paying more toward credit cards reduces interest charges and improves your credit score!
+                    </div>
+                  </div>
+                )}
+                
+                {/* Add credit card option even if no debt, for education */}
+                {creditCardBalance === 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="text-sm text-green-700 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Great! You have no credit card debt. Keep it that way by spending wisely!
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -303,6 +328,27 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                       <div className="text-xs text-muted-foreground">per week</div>
                     </div>
                   ))}
+                  {/* Add Credit Card Payment to summary if allocated */}
+                  {state.creditCardPayment > 0 && (
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-muted-foreground">Credit Card Payment</div>
+                      <div className="text-lg font-bold text-red-600">${(state.creditCardPayment / 4).toFixed(2)}</div>
+                      <div className="text-xs text-muted-foreground">per week</div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Show total allocated */}
+                <div className="mt-4 pt-3 border-t border-border">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Total Weekly Allocation:</span>
+                    <span className="text-lg font-bold">
+                      ${((Object.values(envelopes).reduce((sum, val) => sum + val, 0) + (state.creditCardPayment || 0)) / 4).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    From ${monthlyIncome.toFixed(2)} monthly income
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -718,31 +764,18 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     const handleDebtPayment = (type: 'credit' | 'debt', amount: number) => {
       if (amount <= 0 || amount > balance) return;
       
-      const logEntry = {
-        type: 'Payment',
-        title: type === 'credit' ? 'Credit Card Payment' : 'Debt Payment',
-        option: `Payment of $${amount.toFixed(2)}`,
-        impact: `balance: -${amount}`,
-        feedback: `You paid $${amount.toFixed(2)} toward your ${type === 'credit' ? 'credit card' : 'debt'}.`,
-        date: new Date().toLocaleDateString(),
-        week: week,
-        month: month,
-        amount: -amount,
-        balanceAfter: balance - amount
-      };
-
       dispatch({ 
-        type: 'MANUAL_TRANSACTION', 
-        logEntry, 
-        newBalance: balance - amount 
+        type: 'PAY_DEBT', 
+        debtType: type, 
+        amount: amount 
       });
-
-      // Update debt amounts
-      if (type === 'credit') {
-        dispatch({ type: 'MAKE_CHOICE', option: { impact: `creditCard: -${amount}, credit: 5` }});
-      } else {
-        dispatch({ type: 'MAKE_CHOICE', option: { impact: `debt: -${amount}, credit: 5` }});
-      }
+      
+      trackGameInteraction('debt_payment', {
+        type,
+        amount,
+        week,
+        remainingBalance: balance - amount
+      });
     };
 
     return (

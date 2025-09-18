@@ -96,7 +96,8 @@ type GameAction =
   | { type: 'RESET_GAME' }
   | { type: 'MANUAL_TRANSACTION'; logEntry: any; newBalance: number }
   | { type: 'CONTINUE_FROM_OUTCOME' }
-  | { type: 'GO_TO_SCENARIO'; payload: { scenarioIndex: number; scenario: any } };
+  | { type: 'GO_TO_SCENARIO'; payload: { scenarioIndex: number; scenario: any } }
+  | { type: 'PAY_DEBT'; debtType: 'credit' | 'debt'; amount: number };
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -358,7 +359,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...state,
         balance: action.newBalance,
-        ledgerTransactions: [...state.ledgerTransactions, action.logEntry]
+        ledgerTransactions: [...state.ledgerTransactions, action.logEntry],
+        weekLog: [...state.weekLog, action.logEntry]
       };
 
     case 'GO_TO_SCENARIO':
@@ -370,6 +372,38 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         feedbackMessage: null,
         lastChoice: null
       };
+
+    case 'PAY_DEBT': {
+      if (action.amount <= 0 || action.amount > state.balance) return state;
+      
+      const logEntry = {
+        type: 'Payment',
+        title: action.debtType === 'credit' ? 'Credit Card Payment' : 'Debt Payment',
+        option: `Payment of $${action.amount.toFixed(2)}`,
+        impact: `balance: -${action.amount}`,
+        feedback: `You paid $${action.amount.toFixed(2)} toward your ${action.debtType === 'credit' ? 'credit card' : 'debt'}.`,
+        date: new Date().toLocaleDateString(),
+        week: state.week,
+        month: state.month,
+        amount: -action.amount,
+        balanceAfter: state.balance - action.amount
+      };
+
+      return {
+        ...state,
+        balance: state.balance - action.amount,
+        creditCardBalance: action.debtType === 'credit' 
+          ? Math.max(0, state.creditCardBalance - action.amount)
+          : state.creditCardBalance,
+        currentDebt: action.debtType === 'debt' 
+          ? Math.max(0, state.currentDebt - action.amount)
+          : state.currentDebt,
+        creditScore: Math.min(850, state.creditScore + 5), // Small credit boost for payment
+        score: state.score + 5, // Small score boost for responsible payment
+        weekLog: [...state.weekLog, logEntry],
+        monthlyLog: [...state.monthlyLog, logEntry]
+      };
+    }
 
     default:
       return state;
