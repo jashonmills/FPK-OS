@@ -145,106 +145,173 @@ const MoneyManagementGame: React.FC<GameProps> = ({
     </div>
   );
 
-  // Budget Planning Phase
-  const BudgetPlanningScreen = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <Target className="w-6 h-6" />
-            Plan Your Monthly Budget
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="bg-card p-4 rounded-lg border">
-                <h3 className="font-semibold mb-2">Monthly Income</h3>
-                <div className="text-2xl font-bold text-green-600">
-                  ${monthlyIncome.toFixed(2)}
-                </div>
-              </div>
-              
-              <div className="bg-card p-4 rounded-lg border">
-                <h3 className="font-semibold mb-2">Savings Goal</h3>
-                <div className="text-2xl font-bold text-primary">
-                  ${savingsGoal.toFixed(2)}
-                </div>
-              </div>
-            </div>
+  // Budget Planning Phase with Enhanced Controls
+  const BudgetPlanningScreen = () => {
+    const remainingBudget = monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0);
+    const weeklyBudgets = Object.entries(envelopes).reduce((acc, [category, amount]) => {
+      acc[category] = (amount / 4).toFixed(2); // Weekly allocation
+      return acc;
+    }, {} as Record<string, string>);
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Allocate Your Budget</h3>
-              <div className="space-y-3">
-                {Object.entries(envelopes).map(([category, amount]) => (
-                  <div key={category} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <span className="font-medium">{category}</span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          if (amount >= 10) {
-                            dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount - 10 });
-                          }
-                        }}
-                        disabled={amount < 10}
-                      >
-                        -$10
-                      </Button>
-                      <span className="w-20 text-center font-mono">
-                        ${amount.toFixed(2)}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          const remainingBudget = monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0);
-                          if (remainingBudget >= 10) {
-                            dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount + 10 });
-                          }
-                        }}
-                        disabled={Object.values(envelopes).reduce((sum, val) => sum + val, 0) >= monthlyIncome}
-                      >
-                        +$10
-                      </Button>
-                    </div>
+    const BudgetControls = ({ category, amount }: { category: string; amount: number }) => {
+      const increments = [1, 10, 25, 50];
+      
+      return (
+        <div className="bg-muted rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{category}</span>
+            <div className="text-lg font-bold">
+              ${amount.toFixed(2)}
+            </div>
+          </div>
+          
+          <div className="text-sm text-muted-foreground">
+            Weekly: ${weeklyBudgets[category]}
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {/* Subtract buttons */}
+            <div className="flex gap-1">
+              {increments.map(inc => (
+                <Button
+                  key={`sub-${inc}`}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (amount >= inc) {
+                      dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount - inc });
+                    }
+                  }}
+                  disabled={amount < inc}
+                  className="text-xs px-2"
+                >
+                  -${inc}
+                </Button>
+              ))}
+            </div>
+            
+            <div className="w-px bg-border"></div>
+            
+            {/* Add buttons */}
+            <div className="flex gap-1">
+              {increments.map(inc => (
+                <Button
+                  key={`add-${inc}`}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (remainingBudget >= inc) {
+                      dispatch({ type: 'ALLOCATE_BUDGET', category, amount: amount + inc });
+                    }
+                  }}
+                  disabled={remainingBudget < inc}
+                  className="text-xs px-2"
+                >
+                  +${inc}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="max-w-5xl mx-auto space-y-6">
+        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Target className="w-6 h-6" />
+              Plan Your Monthly Budget - Week {week}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Income and Goals */}
+              <div className="space-y-4">
+                <div className="bg-card p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-2">Monthly Income</h3>
+                  <div className="text-2xl font-bold text-green-600">
+                    ${monthlyIncome.toFixed(2)}
                   </div>
-                ))}
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Weekly: ${(monthlyIncome / 4).toFixed(2)}
+                  </div>
+                </div>
+                
+                <div className="bg-card p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-2">Savings Goal</h3>
+                  <div className="text-2xl font-bold text-primary">
+                    ${savingsGoal.toFixed(2)}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Weekly: ${(savingsGoal / 4).toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="bg-card p-4 rounded-lg border">
+                  <h3 className="font-semibold mb-2">Remaining Budget</h3>
+                  <div className={`text-2xl font-bold ${remainingBudget === 0 ? 'text-green-600' : remainingBudget > 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    ${remainingBudget.toFixed(2)}
+                  </div>
+                  {remainingBudget !== 0 && (
+                    <div className="text-sm text-yellow-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Must be $0.00 to continue
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Budget Allocation */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-lg font-semibold">Allocate Your Budget</h3>
+                <div className="text-sm text-muted-foreground mb-4">
+                  Use the increment buttons to precisely allocate your budget. Weekly amounts show how much you'll have each week.
+                </div>
+                
+                <div className="space-y-4">
+                  {Object.entries(envelopes).map(([category, amount]) => (
+                    <BudgetControls key={category} category={category} amount={amount} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">Remaining Budget:</span>
-              <span className="text-lg font-bold">
-                ${(monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0)).toFixed(2)}
-              </span>
-            </div>
-            {Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome && (
-              <div className="text-sm text-yellow-600 mt-2 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                You must allocate your entire ${monthlyIncome.toFixed(2)} monthly income before starting scenarios.
-              </div>
-            )}
-          </div>
+            {/* Weekly Budget Summary */}
+            <Card className="bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Weekly Budget Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(envelopes).map(([category, amount]) => (
+                    <div key={category} className="text-center">
+                      <div className="text-sm font-medium text-muted-foreground">{category}</div>
+                      <div className="text-lg font-bold">${(amount / 4).toFixed(2)}</div>
+                      <div className="text-xs text-muted-foreground">per week</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-          <Button 
-            size="lg" 
-            onClick={() => {
-              dispatch({ type: 'START_SCENARIOS' });
-              trackGameInteraction('budget_planned', { envelopes });
-            }}
-            disabled={Object.values(envelopes).reduce((sum, val) => sum + val, 0) !== monthlyIncome}
-            className="w-full"
-          >
-            Start Week {week} Scenarios
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+            <Button 
+              size="lg" 
+              onClick={() => {
+                dispatch({ type: 'START_SCENARIOS' });
+                trackGameInteraction('budget_planned', { envelopes, week });
+              }}
+              disabled={remainingBudget !== 0}
+              className="w-full"
+            >
+              Start Week {week} Scenarios
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   // Scenario Screen
   const ScenarioScreen = () => {
