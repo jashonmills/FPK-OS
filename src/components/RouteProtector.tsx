@@ -36,7 +36,14 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     // PRIORITY 1: Redirect authenticated users away from login page immediately
     if (user && currentPath === '/login') {
       setHasNavigated(true);
-      navigate('/dashboard/learner', { replace: true });
+      
+      // Check if user has an active organization
+      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      if (activeOrgId) {
+        navigate(`/org/${activeOrgId}`, { replace: true });
+      } else {
+        navigate('/dashboard/learner', { replace: true });
+      }
       return;
     }
 
@@ -62,7 +69,14 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     // PRIORITY 5: Redirect authenticated users with access away from plan page
     if (user && !subscriptionLoading && hasAccess && currentPath === '/choose-plan') {
       setHasNavigated(true);
-      navigate('/dashboard/learner', { replace: true });
+      
+      // Check if user has an active organization
+      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      if (activeOrgId) {
+        navigate(`/org/${activeOrgId}`, { replace: true });
+      } else {
+        navigate('/dashboard/learner', { replace: true });
+      }
       return;
     }
 
