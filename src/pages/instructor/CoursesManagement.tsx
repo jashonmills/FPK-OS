@@ -135,12 +135,12 @@ export default function CoursesManagement() {
                   </div>
                   <div className="absolute bottom-3 left-3 right-3">
                     <BookOpen className="w-8 h-8 text-white mb-2 drop-shadow-lg" />
-                    <h3 className="text-white font-semibold text-lg drop-shadow-md line-clamp-1">{course.title}</h3>
+                    <h3 className="text-white font-semibold text-lg drop-shadow-md break-words">{course.title}</h3>
                   </div>
                 </div>
             <OrgCardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <OrgCardTitle className="text-lg line-clamp-2 text-white">{course.title}</OrgCardTitle>
+                <OrgCardTitle className="text-lg text-white break-words leading-tight">{course.title}</OrgCardTitle>
                 <div className="flex items-center gap-2">
                   <Badge className={isCourseAssigned(course.id) ? "bg-green-500/80 text-white" : "bg-gray-500/80 text-white"}>
                     {isCourseAssigned(course.id) ? 'Assigned' : 'Available'}
@@ -168,7 +168,7 @@ export default function CoursesManagement() {
                   </DropdownMenu>
                 </div>
               </div>
-              <OrgCardDescription className="line-clamp-2 text-white/80">
+              <OrgCardDescription className="text-white/80 text-sm leading-relaxed">
                 {course.description}
               </OrgCardDescription>
             </OrgCardHeader>
