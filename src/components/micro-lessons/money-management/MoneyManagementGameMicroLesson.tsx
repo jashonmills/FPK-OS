@@ -341,7 +341,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   key={index}
                   variant="outline"
                   size="lg"
-                  className="w-full justify-start text-left p-4 h-auto"
+                  className="w-full justify-start text-left p-4 h-auto border-input bg-background hover:bg-muted hover:text-foreground transition-colors duration-200"
                   onClick={() => {
                     dispatch({ type: 'MAKE_CHOICE', option });
                     trackGameInteraction('scenario_choice', {
