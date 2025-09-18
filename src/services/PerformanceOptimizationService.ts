@@ -153,7 +153,8 @@ class PerformanceOptimizationService {
   }
 
   async prefetchSearchResults(queries: string[]): Promise<void> {
-    return this.prefetchManager.prefetchSearchResults(queries);
+    // Method implementation removed - not needed
+    console.warn('prefetchSearchResults not implemented');
   }
 
   optimizeImageLoading(img: HTMLImageElement, src: string): void {
