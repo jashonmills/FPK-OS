@@ -17,6 +17,7 @@ import { useOrgStatistics } from '@/hooks/useOrgStatistics';
 import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
+import stOliversBg from '@/assets/st-olivers-bg.webp';
 
 export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
@@ -101,7 +102,7 @@ export default function OrgPortalHome() {
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat relative"
       style={{
-        backgroundImage: branding?.banner_url ? `url(${branding.banner_url})` : 'linear-gradient(135deg, hsl(262 65% 50% / 0.3), hsl(262 65% 30% / 0.5))'
+        backgroundImage: `url(${stOliversBg})`
       }}
     >
       {/* Background overlay */}
