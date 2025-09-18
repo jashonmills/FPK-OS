@@ -75,12 +75,12 @@ const withProgressiveTimeout = <T,>(
     let progressTimer: NodeJS.Timeout;
     
     // Show "Still thinking..." after 8 seconds
-    const progressTimeout = setTimeout(() => {
+    const progressTimeout = window.setTimeout(() => {
       onProgress("Still thinking... This might take a moment.");
     }, 8000);
     
     // Final timeout after 18 seconds
-    const finalTimeout = setTimeout(() => {
+    const finalTimeout = window.setTimeout(() => {
       clearTimeout(progressTimeout);
       reject(new Error('Request timed out - please try again'));
     }, ms);
@@ -136,7 +136,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   // Auto scroll when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth',
           block: 'end',
@@ -144,7 +144,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
         });
       }, 100);
     }
-  }, [messages]);
+  }, [messages, cleanup]);
 
   // Add welcome message with dashboard data
   useEffect(() => {
@@ -487,7 +487,7 @@ What specific aspect would you like to focus on?`;
         lastMessage.id !== lastSpokenMessageId &&
         !isLoading) {
       
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         speak(lastMessage.content);
         setLastSpokenMessageId(lastMessage.id);
       }, 500);

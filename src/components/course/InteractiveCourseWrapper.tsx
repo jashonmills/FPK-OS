@@ -97,7 +97,7 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
       }, { timeout: 1000 });
     } else {
       // Fallback for browsers without requestIdleCallback
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         updateCourseProgress(completedCount, totalLessons);
         onProgressUpdate?.(completedCount, totalLessons);
       }, 0);

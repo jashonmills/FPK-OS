@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Loader2, Lock, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
   onSuccess,
   userEmail
 }) => {
+  const cleanup = useCleanup('ResetPasswordModal');
   const [passwords, setPasswords] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -80,7 +82,7 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
       });
 
       // Close modal after a brief delay and trigger success callback
-      setTimeout(() => {
+      cleanup.setTimeout(() => {
         handleClose();
         onSuccess(userEmail);
       }, 2000);

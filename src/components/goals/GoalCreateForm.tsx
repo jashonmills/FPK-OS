@@ -17,6 +17,7 @@ import {
 import { Target, Calendar, Flag, BookOpen, Heart, Trophy, Briefcase, Brain } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 import DualLanguageText from '@/components/DualLanguageText';
 
 interface GoalCreateFormProps {
@@ -27,6 +28,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
   const { createGoal, saving } = useGoals();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const cleanup = useCleanup('GoalCreateForm');
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -87,7 +89,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
         });
         
         // Small delay to ensure UI updates smoothly
-        setTimeout(() => {
+        cleanup.setTimeout(() => {
           if (onGoalCreated) {
             onGoalCreated();
           }
@@ -107,7 +109,7 @@ const GoalCreateForm: React.FC<GoalCreateFormProps> = ({ onGoalCreated }) => {
       
       // If it's an authentication error, redirect to login
       if (errorMessage.includes('Authentication')) {
-        setTimeout(() => {
+        cleanup.setTimeout(() => {
           navigate('/login');
         }, 2000);
       }

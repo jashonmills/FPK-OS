@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, QrCode, Copy, Check } from 'lucide-react';
 import { useInviteToOrganization } from '@/hooks/useOrganization';
 import { useToast } from '@/hooks/use-toast';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface InviteStudentDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ export default function InviteStudentDialog({
   const [copied, setCopied] = useState(false);
   const inviteMutation = useInviteToOrganization();
   const { toast } = useToast();
+  const cleanup = useCleanup('InviteStudentDialog');
 
   const handleEmailInvite = async () => {
     if (!email.trim()) {
@@ -74,7 +76,7 @@ export default function InviteStudentDialog({
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      cleanup.setTimeout(() => setCopied(false), 2000);
       toast({
         title: 'Copied to clipboard',
         description: 'The invitation code has been copied to your clipboard.',

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Brain, User, Bot } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 import { Flashcard } from '@/hooks/useFlashcards';
 import { ChatSession, UserProfile, UserInsights } from '@/types/ai-coach';
@@ -23,6 +24,7 @@ const MinimalChatInterface: React.FC<MinimalChatInterfaceProps> = ({
   fixedHeight = false 
 }) => {
   const [message, setMessage] = useState('');
+  const cleanup = useCleanup('MinimalChatInterface');
   const [messages, setMessages] = useState<Array<{
     id: string;
     role: 'user' | 'assistant';
@@ -53,7 +55,7 @@ const MinimalChatInterface: React.FC<MinimalChatInterfaceProps> = ({
     setIsLoading(true);
 
     // Simple fallback response
-    setTimeout(() => {
+    cleanup.setTimeout(() => {
       const aiResponse = {
         id: (Date.now() + 1).toString(),
         role: 'assistant' as const,

@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { HelpCircle } from 'lucide-react';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface FirstVisitVideoModalProps {
   isOpen: boolean;

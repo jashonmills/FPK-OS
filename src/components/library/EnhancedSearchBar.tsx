@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { searchIndexService } from '@/services/SearchIndexService';
 import { browsingPatternsAnalyzer } from '@/services/BrowsingPatternsAnalyzer';
+import { useCleanup } from '@/utils/cleanupManager';
 
 interface SearchSuggestion {
   term: string;
@@ -37,6 +38,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const cleanup = useCleanup('EnhancedSearchBar');
 
   // Get search stats and popular terms
   const searchStats = searchIndexService.getSearchStats();
@@ -44,7 +46,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   // Debounced suggestion fetching
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = cleanup.setTimeout(() => {
       if (query.trim() && query.length >= 2) {
         setIsSearching(true);
         console.log('🔍 Fetching suggestions for:', query);

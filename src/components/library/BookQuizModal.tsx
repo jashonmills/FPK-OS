@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle, Brain, Trophy, RotateCcw } from 'lucide-react';
 import { useBookQuiz, QuizQuestion } from '@/hooks/useBookQuiz';
+import { useCleanup } from '@/utils/cleanupManager';
 import { cn } from '@/lib/utils';
 
 interface BookQuizModalProps {
@@ -19,6 +20,7 @@ interface BookQuizModalProps {
 
 const BookQuizModal = ({ open, onOpenChange, bookId, bookTitle, maxChapterIndex }: BookQuizModalProps) => {
   const { session, loading, error, startQuiz, submitAnswer, completeQuiz, resetQuiz } = useBookQuiz();
+  const cleanup = useCleanup('BookQuizModal');
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [lastAnswerResult, setLastAnswerResult] = useState<{ isCorrect: boolean; currentScore: number } | null>(null);
@@ -36,7 +38,7 @@ const BookQuizModal = ({ open, onOpenChange, bookId, bookTitle, maxChapterIndex 
     setShowFeedback(true);
     
     // Auto-advance after showing feedback
-    setTimeout(() => {
+    cleanup.setTimeout(() => {
       if (session.isComplete) {
         handleCompleteQuiz();
       } else {

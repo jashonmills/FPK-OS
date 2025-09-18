@@ -142,7 +142,7 @@ const SpeedTest: React.FC<SpeedTestProps> = ({ customCards }) => {
     }
     
     // Auto-advance after 1 second
-    setTimeout(() => {
+    cleanup.setTimeout(() => {
       handleNext(isCorrect);
     }, 1000);
   };
