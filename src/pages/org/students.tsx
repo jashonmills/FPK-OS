@@ -34,7 +34,7 @@ import {
   Target
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
+import { DebugInviteDialog } from '@/components/org/DebugInviteDialog';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -295,11 +295,11 @@ export default function StudentsPage() {
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="bg-transparent hover:bg-white/10">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 z-50">
                         <DropdownMenuItem onClick={() => setSelectedStudent(student)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Progress
@@ -415,14 +415,21 @@ export default function StudentsPage() {
       </Sheet>
 
       {/* Invite Dialog */}
-      <SimpleInviteDialog 
+      <DebugInviteDialog 
         open={showInviteDialog}
         onOpenChange={(open) => {
-          console.log('SimpleInviteDialog onOpenChange called with:', open);
+          console.log('DebugInviteDialog onOpenChange called with:', open);
           setShowInviteDialog(open);
         }}
         organizationId={orgId}
       />
+      
+      {/* Debug indicator */}
+      {showInviteDialog && (
+        <div className="fixed top-4 right-4 z-[102] bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
+          Dialog State: OPEN
+        </div>
+      )}
     </div>
   );
 }

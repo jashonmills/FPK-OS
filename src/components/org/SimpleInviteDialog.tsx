@@ -29,6 +29,11 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
 
   // Debug logging
   console.log('SimpleInviteDialog render - open:', open, 'organizationId:', organizationId);
+  
+  // Visible state indicator for debugging
+  if (open) {
+    console.log('Dialog should be visible now!');
+  }
 
   const handleEmailInvite = async () => {
     if (!email.trim()) {
@@ -94,7 +99,7 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
       console.log('Dialog onOpenChange called with:', openState);
       onOpenChange(openState);
     }}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] z-[100] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl">
         <DialogHeader>
           <DialogTitle>Invite Students</DialogTitle>
           <DialogDescription>
