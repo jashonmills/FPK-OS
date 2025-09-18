@@ -147,7 +147,7 @@ const MoneyManagementGame: React.FC<GameProps> = ({
 
   // Budget Planning Phase with Enhanced Controls
   const BudgetPlanningScreen = () => {
-    const remainingBudget = monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0);
+    const remainingBudget = monthlyIncome - Object.values(envelopes).reduce((sum, val) => sum + val, 0) - (state.creditCardPayment || 0);
     const weeklyBudgets = Object.entries(envelopes).reduce((acc, [category, amount]) => {
       acc[category] = (amount / 4).toFixed(2); // Weekly allocation
       return acc;
@@ -274,6 +274,17 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   {Object.entries(envelopes).map(([category, amount]) => (
                     <BudgetControls key={category} category={category} amount={amount} />
                   ))}
+                  
+                  {/* Credit Card Payment Option */}
+                  {creditCardBalance > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-red-800 mb-2">Credit Card Payment</h4>
+                      <div className="text-sm text-red-600 mb-3">
+                        Current Balance: ${creditCardBalance.toFixed(2)} (${(creditCardBalance * (creditCardInterestRate / 12)).toFixed(2)}/mo interest)
+                      </div>
+                      <BudgetControls category="Credit Card Payment" amount={state.creditCardPayment || 0} />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -875,33 +886,89 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   {creditCardBalance > 0 && (
                     <div className="space-y-4">
                       <h5 className="font-medium">Credit Card Payment</h5>
-                      <div className="space-y-3">
-                        <div>
-                          <Label htmlFor="cc-payment">Payment Amount</Label>
-                          <div className="flex gap-2 mt-1">
-                            <Input
-                              id="cc-payment"
-                              type="number"
-                              placeholder="0"
-                              value={ccPaymentAmount}
-                              onChange={(e) => setCcPaymentAmount(e.target.value)}
-                              max={Math.min(balance, creditCardBalance)}
-                            />
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                const amount = parseFloat(ccPaymentAmount);
-                                if (amount > 0) {
-                                  handleDebtPayment('credit', amount);
-                                  setCcPaymentAmount('');
-                                }
-                              }}
-                              disabled={!ccPaymentAmount || parseFloat(ccPaymentAmount) <= 0 || parseFloat(ccPaymentAmount) > balance}
-                            >
-                              Pay
-                            </Button>
-                          </div>
-                        </div>
+                       <div className="space-y-3">
+                         <div>
+                           <Label>Payment Amount</Label>
+                           <div className="flex items-center gap-2 mt-1">
+                             <div className="text-sm text-muted-foreground">
+                               Current Amount: ${ccPaymentAmount || '0'}
+                             </div>
+                           </div>
+                           
+                           {/* Increment buttons */}
+                           <div className="flex flex-wrap gap-2 mt-2">
+                             <div className="flex gap-1">
+                               {[1, 5, 10, 25, 50].map(inc => {
+                                 const newAmount = parseFloat(ccPaymentAmount || '0') + inc;
+                                 const canAdd = newAmount <= balance && newAmount <= creditCardBalance;
+                                 return (
+                                   <Button
+                                     key={`add-${inc}`}
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => setCcPaymentAmount((newAmount).toString())}
+                                     disabled={!canAdd}
+                                     className="text-xs px-2"
+                                   >
+                                     +${inc}
+                                   </Button>
+                                 );
+                               })}
+                             </div>
+                             
+                             <div className="flex gap-1">
+                               {[1, 5, 10, 25, 50].map(inc => {
+                                 const currentAmount = parseFloat(ccPaymentAmount || '0');
+                                 const newAmount = Math.max(0, currentAmount - inc);
+                                 return (
+                                   <Button
+                                     key={`sub-${inc}`}
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => setCcPaymentAmount(newAmount.toString())}
+                                     disabled={currentAmount < inc}
+                                     className="text-xs px-2"
+                                   >
+                                     -${inc}
+                                   </Button>
+                                 );
+                               })}
+                             </div>
+                             
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => setCcPaymentAmount('0')}
+                               disabled={!ccPaymentAmount || parseFloat(ccPaymentAmount) === 0}
+                               className="text-xs"
+                             >
+                               Clear
+                             </Button>
+                             
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => setCcPaymentAmount(Math.min(balance, creditCardBalance).toString())}
+                               className="text-xs"
+                             >
+                               Max
+                             </Button>
+                             
+                             <Button
+                               variant="default"
+                               onClick={() => {
+                                 const amount = parseFloat(ccPaymentAmount);
+                                 if (amount > 0) {
+                                   handleDebtPayment('credit', amount);
+                                   setCcPaymentAmount('');
+                                 }
+                               }}
+                               disabled={!ccPaymentAmount || parseFloat(ccPaymentAmount) <= 0 || parseFloat(ccPaymentAmount) > balance}
+                             >
+                               Pay ${ccPaymentAmount || '0'}
+                             </Button>
+                           </div>
+                         </div>
                         {ccPaymentAmount && parseFloat(ccPaymentAmount) > 0 && (
                           <div className="bg-gray-50 p-3 rounded text-sm">
                             {(() => {
@@ -923,33 +990,89 @@ const MoneyManagementGame: React.FC<GameProps> = ({
                   {currentDebt > 0 && (
                     <div className="space-y-4">
                       <h5 className="font-medium">Other Debt Payment</h5>
-                      <div className="space-y-3">
-                        <div>
-                          <Label htmlFor="debt-payment">Payment Amount</Label>
-                          <div className="flex gap-2 mt-1">
-                            <Input
-                              id="debt-payment"
-                              type="number"
-                              placeholder="0"
-                              value={debtPaymentAmount}
-                              onChange={(e) => setDebtPaymentAmount(e.target.value)}
-                              max={Math.min(balance, currentDebt)}
-                            />
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                const amount = parseFloat(debtPaymentAmount);
-                                if (amount > 0) {
-                                  handleDebtPayment('debt', amount);
-                                  setDebtPaymentAmount('');
-                                }
-                              }}
-                              disabled={!debtPaymentAmount || parseFloat(debtPaymentAmount) <= 0 || parseFloat(debtPaymentAmount) > balance}
-                            >
-                              Pay
-                            </Button>
-                          </div>
-                        </div>
+                       <div className="space-y-3">
+                         <div>
+                           <Label>Payment Amount</Label>
+                           <div className="flex items-center gap-2 mt-1">
+                             <div className="text-sm text-muted-foreground">
+                               Current Amount: ${debtPaymentAmount || '0'}
+                             </div>
+                           </div>
+                           
+                           {/* Increment buttons */}
+                           <div className="flex flex-wrap gap-2 mt-2">
+                             <div className="flex gap-1">
+                               {[1, 5, 10, 25, 50].map(inc => {
+                                 const newAmount = parseFloat(debtPaymentAmount || '0') + inc;
+                                 const canAdd = newAmount <= balance && newAmount <= currentDebt;
+                                 return (
+                                   <Button
+                                     key={`add-${inc}`}
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => setDebtPaymentAmount((newAmount).toString())}
+                                     disabled={!canAdd}
+                                     className="text-xs px-2"
+                                   >
+                                     +${inc}
+                                   </Button>
+                                 );
+                               })}
+                             </div>
+                             
+                             <div className="flex gap-1">
+                               {[1, 5, 10, 25, 50].map(inc => {
+                                 const currentAmount = parseFloat(debtPaymentAmount || '0');
+                                 const newAmount = Math.max(0, currentAmount - inc);
+                                 return (
+                                   <Button
+                                     key={`sub-${inc}`}
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => setDebtPaymentAmount(newAmount.toString())}
+                                     disabled={currentAmount < inc}
+                                     className="text-xs px-2"
+                                   >
+                                     -${inc}
+                                   </Button>
+                                 );
+                               })}
+                             </div>
+                             
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => setDebtPaymentAmount('0')}
+                               disabled={!debtPaymentAmount || parseFloat(debtPaymentAmount) === 0}
+                               className="text-xs"
+                             >
+                               Clear
+                             </Button>
+                             
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => setDebtPaymentAmount(Math.min(balance, currentDebt).toString())}
+                               className="text-xs"
+                             >
+                               Max
+                             </Button>
+                             
+                             <Button
+                               variant="default"
+                               onClick={() => {
+                                 const amount = parseFloat(debtPaymentAmount);
+                                 if (amount > 0) {
+                                   handleDebtPayment('debt', amount);
+                                   setDebtPaymentAmount('');
+                                 }
+                               }}
+                               disabled={!debtPaymentAmount || parseFloat(debtPaymentAmount) <= 0 || parseFloat(debtPaymentAmount) > balance}
+                             >
+                               Pay ${debtPaymentAmount || '0'}
+                             </Button>
+                           </div>
+                         </div>
                         {debtPaymentAmount && parseFloat(debtPaymentAmount) > 0 && (
                           <div className="bg-gray-50 p-3 rounded text-sm">
                             {(() => {

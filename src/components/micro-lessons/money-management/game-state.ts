@@ -22,6 +22,7 @@ export interface GameState {
     Savings: number;
     Emergency: number;
   };
+  creditCardPayment: number;
   creditScore: number;
   score: number;
   streak: number;
@@ -67,6 +68,7 @@ export const initialState: GameState = {
     Savings: 0,
     Emergency: 0
   },
+  creditCardPayment: 0,
   creditScore: 650,
   score: 100,
   streak: 0,
@@ -99,13 +101,20 @@ type GameAction =
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'ALLOCATE_BUDGET':
-      return {
-        ...state,
-        envelopes: {
-          ...state.envelopes,
-          [action.category]: action.amount
-        }
-      };
+      if (action.category === 'Credit Card Payment') {
+        return {
+          ...state,
+          creditCardPayment: action.amount
+        };
+      } else {
+        return {
+          ...state,
+          envelopes: {
+            ...state.envelopes,
+            [action.category]: action.amount
+          }
+        };
+      }
 
     case 'START_SCENARIOS': {
       // Select random scenarios for the week
