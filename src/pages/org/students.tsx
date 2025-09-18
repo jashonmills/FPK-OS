@@ -3,6 +3,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -185,39 +186,39 @@ export default function StudentsPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.length}</div>
-            <p className="text-xs text-muted-foreground">
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Students</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{students.length}</div>
+            <p className="text-xs text-purple-200">
               Active students
             </p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Instructors</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{instructors.length}</div>
-            <p className="text-xs text-muted-foreground">
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Instructors</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{instructors.length}</div>
+            <p className="text-xs text-purple-200">
               Active instructors
             </p>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{members.length}</div>
-            <p className="text-xs text-muted-foreground">All roles combined</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Active Members</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{members.length}</div>
+            <p className="text-xs text-purple-200">All roles combined</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search Bar */}
@@ -234,12 +235,12 @@ export default function StudentsPage() {
       </div>
 
       {/* Students List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Student Roster</CardTitle>
-          <CardDescription>Manage your organization's students</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
+          <OrgCardDescription className="text-purple-200">Manage your organization's students</OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent>
           {isLoading ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">Loading students...</p>
@@ -314,8 +315,8 @@ export default function StudentsPage() {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
 
       {/* Student Detail Sheet */}
       <Sheet open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>

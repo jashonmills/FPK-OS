@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +24,11 @@ export default function StudentsManagement() {
   if (!currentOrg) {
     return (
       <div className="container max-w-6xl mx-auto py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No organization selected</p>
-          </CardContent>
-        </Card>
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
+            <p className="text-purple-200">No organization selected</p>
+          </OrgCardContent>
+        </OrgCard>
       </div>
     );
   }
@@ -49,85 +50,85 @@ export default function StudentsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Total Students</span>
+              <Users className="w-4 h-4 text-purple-300" />
+              <span className="text-sm font-medium text-purple-100">Total Students</span>
             </div>
-            <div className="text-2xl font-bold mt-2">
+            <div className="text-2xl font-bold mt-2 text-white">
               {students.length}
             </div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Active This Week</span>
+              <span className="text-sm font-medium text-purple-100">Active This Week</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600">{students.filter(s => {
+            <div className="text-2xl font-bold mt-2 text-green-400">{students.filter(s => {
               const lastActivity = new Date(s.last_activity || s.joined_at);
               const weekAgo = new Date();
               weekAgo.setDate(weekAgo.getDate() - 7);
               return lastActivity >= weekAgo;
             }).length}</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Average Progress</span>
+              <span className="text-sm font-medium text-purple-100">Average Progress</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{students.length > 0 ? Math.round(
+            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(
               students.reduce((acc, s) => acc + (s.progress || 0), 0) / students.length
             ) : 0}%</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
         
-        <Card>
-          <CardContent className="p-6">
+        <OrgCard>
+          <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Completion Rate</span>
+              <span className="text-sm font-medium text-purple-100">Completion Rate</span>
             </div>
-            <div className="text-2xl font-bold mt-2">{students.length > 0 ? Math.round(
+            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(
               students.filter(s => (s.courses_completed || 0) > 0).length / students.length * 100
             ) : 0}%</div>
-          </CardContent>
-        </Card>
+          </OrgCardContent>
+        </OrgCard>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardHeader>
+      <OrgCard>
+        <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-300" />
               <Input 
                 placeholder="Search students..." 
-                className="pl-10"
+                className="pl-10 bg-purple-800/30 border-purple-400/30 text-white placeholder:text-purple-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline">
+            <Button variant="outline" className="border-purple-400/30 text-purple-100 hover:bg-purple-800/50">
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
           </div>
-        </CardHeader>
-      </Card>
+        </OrgCardHeader>
+      </OrgCard>
 
       {/* Students List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Student Roster</CardTitle>
-          <CardDescription>
+      <OrgCard>
+        <OrgCardHeader>
+          <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
+          <OrgCardDescription className="text-purple-200">
             Overview of all students in your organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </OrgCardDescription>
+        </OrgCardHeader>
+        <OrgCardContent>
           <div className="space-y-4">
             {students.map((student) => (
               <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -184,20 +185,20 @@ export default function StudentsManagement() {
             
             {students.length === 0 && !isLoading && (
               <div className="text-center py-8">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Students Found</h3>
-                <p className="text-muted-foreground mb-4">
+                <Users className="h-12 w-12 mx-auto text-purple-300 mb-4" />
+                <h3 className="text-lg font-semibold mb-2 text-white">No Students Found</h3>
+                <p className="text-purple-200 mb-4">
                   Invite students to join your organization.
                 </p>
-                <Button>
+                <Button className="bg-purple-700 hover:bg-purple-600 text-white">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Invite Students
                 </Button>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </OrgCardContent>
+      </OrgCard>
     </div>
   );
 }
