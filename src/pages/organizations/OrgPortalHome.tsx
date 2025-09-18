@@ -22,6 +22,8 @@ import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
 import stOliversBg from '@/assets/st-olivers-bg.webp';
 import waterfordWexfordBg from '@/assets/waterford-wexford-bg.jpg';
 import aiGeneratedOrgBg from '@/assets/ai-generated-org-bg.jpg';
+import stOliversCommunityCollegeBg from '@/assets/st-olivers-community-college-bg.jpg';
+import waterfordWexfordEducationBg from '@/assets/waterford-wexford-education-bg.jpg';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
@@ -104,23 +106,21 @@ export default function OrgPortalHome() {
 
   const recentActivity: any[] = [];
 
-  // Determine background image to use
+  // Determine background image to use - each organization gets its own unique background
   const getBackgroundImage = () => {
-    // First try enhanced branding, then basic branding
-    const brandingData = enhancedBranding || branding;
+    const orgName = currentOrg.organizations.name.toLowerCase();
     
-    // If there's a custom banner from branding, use it
-    if (brandingData?.banner_url) {
-      return brandingData.banner_url;
+    // St Oliver's Community College gets its own custom background
+    if (orgName.includes("st oliver") || orgName.includes("st. oliver")) {
+      return stOliversCommunityCollegeBg;
     }
     
-    // For Waterford and Wexford, use the custom background
-    if (currentOrg.organizations.name.toLowerCase().includes('waterford') && 
-        currentOrg.organizations.name.toLowerCase().includes('wexford')) {
-      return waterfordWexfordBg;
+    // Waterford and Wexford Education and Training Board gets its own custom background
+    if (orgName.includes('waterford') && orgName.includes('wexford')) {
+      return waterfordWexfordEducationBg;
     }
     
-    // Use AI-generated professional background as default
+    // Generic AI-generated professional background for all other organizations
     return aiGeneratedOrgBg;
   };
 
