@@ -317,8 +317,12 @@ export default function OrgBrandingSettings() {
               {/* Header Preview */}
               <div className="border border-white/30 rounded-lg p-4 bg-white/10">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 fpk-gradient rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">FPK</span>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                    <img 
+                      src="/assets/fpk-character-logo.png" 
+                      alt="FPK University"
+                      className="w-8 h-8 object-contain rounded-lg"
+                    />
                   </div>
                   <span className="font-semibold text-lg text-white">{currentOrg.organizations.name}</span>
                 </div>

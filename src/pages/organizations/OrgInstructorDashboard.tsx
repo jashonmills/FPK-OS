@@ -62,8 +62,12 @@ export default function OrgInstructorDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 fpk-gradient rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">FPK</span>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center">
+                  <img 
+                    src="/assets/fpk-character-logo.png" 
+                    alt="FPK University"
+                    className="w-12 h-12 object-contain rounded-lg"
+                  />
                 </div>
                 <span className="text-lg font-semibold">FPK University</span>
               </div>
