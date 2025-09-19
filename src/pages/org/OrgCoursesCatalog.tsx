@@ -218,17 +218,23 @@ export default function OrgCoursesCatalog() {
               <div className="flex items-center gap-1 border border-white/20 rounded-lg p-1">
                 <Button
                   size="sm"
-                  variant={viewType === 'grid' ? 'default' : 'ghost'}
+                  variant={viewType === 'grid' ? 'secondary' : 'ghost'}
                   onClick={() => handleViewTypeChange('grid')}
-                  className="h-8 w-8 p-0 bg-white/20 text-white border-white/30 hover:bg-white/30"
+                  className={viewType === 'grid' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
                 >
                   <Grid3X3 className="w-4 h-4" />
                 </Button>
                 <Button
                   size="sm"
-                  variant={viewType === 'list' ? 'default' : 'ghost'}
+                  variant={viewType === 'list' ? 'secondary' : 'ghost'}
                   onClick={() => handleViewTypeChange('list')}
-                  className="h-8 w-8 p-0 bg-white/20 text-white border-white/30 hover:bg-white/30"
+                  className={viewType === 'list' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -330,12 +336,17 @@ export default function OrgCoursesCatalog() {
             ) : filteredPlatformCourses.length === 0 ? (
               <EmptyState type="platform" />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={
+                viewType === 'grid' 
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-4"
+              }>
                 {filteredPlatformCourses.map((course) => (
                   <EnhancedCourseCard
                     key={course.id}
                     course={toCourseCardModel(course)}
                     actions={createCourseActions(false)}
+                    viewType={viewType}
                   />
                 ))}
               </div>
@@ -364,12 +375,17 @@ export default function OrgCoursesCatalog() {
                 onUploadScorm={handleUploadScorm}
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={
+                viewType === 'grid' 
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-4"
+              }>
                 {filteredOrgCourses.map((course) => (
                   <EnhancedCourseCard
                     key={course.id}
                     course={toCourseCardModel(course)}
                     actions={createCourseActions(true)}
+                    viewType={viewType}
                   />
                 ))}
               </div>
