@@ -299,19 +299,7 @@ function mapToFramework2(manifest: ScormManifest, contentFiles: Map<string, stri
       id: `lesson_${orgIndex + 1}_${itemIndex + 1}`,
       title: cleanTitle(item.title),
       description: extractLessonDescription(item, contentFiles),
-      slides: item.children && item.children.length > 0 
-        ? item.children.map((child, childIndex) => ({
-            id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
-            kind: inferSlideType(child.title),
-            title: cleanTitle(child.title),
-            html: generateSlideContent(child.title, item.resource, manifest.resources, contentFiles, processedAssets)
-          }))
-        : [{
-            id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
-            kind: 'content' as const,
-            title: cleanTitle(item.title),
-            html: generateSlideContent(item.title, item.resource, manifest.resources, contentFiles, processedAssets)
-          }]
+      slides: generateLessonSlides(item, orgIndex, itemIndex, manifest.resources, contentFiles, processedAssets)
     }))
   }));
 
@@ -464,16 +452,56 @@ function extractDescriptionFromHtml(htmlContent: string, title: string): string 
 }
 
 /**
- * Generate meaningful slide content based on SCORM resource
+ * Generate multiple slides for a lesson using smart content chunking
  */
-function generateSlideContent(title: string, resourceRef: string, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): string {
-  const cleanedTitle = cleanTitle(title);
+function generateLessonSlides(item: any, orgIndex: number, itemIndex: number, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): any[] {
+  const cleanedTitle = cleanTitle(item.title);
   
-  console.log(`🔍 Generating content for: ${cleanedTitle}, resourceRef: ${resourceRef}`);
-  console.log(`📄 Available content files: ${Array.from(contentFiles.keys()).join(', ')}`);
+  console.log(`🎯 Generating slides for lesson: ${cleanedTitle}`);
   
+  // If item has predefined children, create slides for each
+  if (item.children && item.children.length > 0) {
+    return item.children.map((child, childIndex) => ({
+      id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
+      kind: inferSlideType(child.title),
+      title: cleanTitle(child.title),
+      html: generateSlideContent(child.title, item.resource, resources, contentFiles, processedAssets)
+    }));
+  }
+  
+  // Find content for this lesson
+  const actualContent = findContentForItem(item, cleanedTitle, resources, contentFiles);
+  
+  if (actualContent) {
+    console.log(`📚 Chunking content for: ${cleanedTitle}`);
+    const contentChunks = chunkEducationalContent(actualContent, cleanedTitle, processedAssets);
+    
+    if (contentChunks.length > 1) {
+      console.log(`✂️  Created ${contentChunks.length} content chunks for ${cleanedTitle}`);
+      return contentChunks.map((chunk, chunkIndex) => ({
+        id: `slide_${orgIndex + 1}_${itemIndex + 1}_${chunkIndex + 1}`,
+        kind: chunk.type,
+        title: chunk.title,
+        html: chunk.content
+      }));
+    }
+  }
+  
+  // Fallback: single slide with basic content
+  return [{
+    id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
+    kind: 'content' as const,
+    title: cleanedTitle,
+    html: generateSlideContent(cleanedTitle, item.resource, resources, contentFiles, processedAssets)
+  }];
+}
+
+/**
+ * Find content for a lesson item using multiple strategies
+ */
+function findContentForItem(item: any, cleanedTitle: string, resources: any[], contentFiles: Map<string, string>): string | null {
   // Find the associated resource
-  const resource = resources.find(r => r.identifier === resourceRef);
+  const resource = resources.find(r => r.identifier === item.resource);
   
   // Try multiple strategies to find content
   let actualContent = null;
@@ -481,18 +509,15 @@ function generateSlideContent(title: string, resourceRef: string, resources: any
   if (resource && resource.href) {
     // Strategy 1: Direct match
     actualContent = contentFiles.get(resource.href);
-    console.log(`🔍 Direct match for ${resource.href}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
     
     // Strategy 2: Try without leading slash
     if (!actualContent && resource.href.startsWith('/')) {
       actualContent = contentFiles.get(resource.href.substring(1));
-      console.log(`🔍 Without leading slash ${resource.href.substring(1)}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
     }
     
     // Strategy 3: Try with leading slash
     if (!actualContent && !resource.href.startsWith('/')) {
       actualContent = contentFiles.get('/' + resource.href);
-      console.log(`🔍 With leading slash /${resource.href}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
     }
   }
   
@@ -501,7 +526,6 @@ function generateSlideContent(title: string, resourceRef: string, resources: any
     const titleLower = cleanedTitle.toLowerCase();
     for (const [filePath, content] of contentFiles) {
       if (filePath.toLowerCase().includes(titleLower) || 
-          filePath.toLowerCase().includes(title.toLowerCase()) ||
           content.toLowerCase().includes(titleLower)) {
         actualContent = content;
         console.log(`🔍 Found content by title matching in: ${filePath}`);
@@ -510,43 +534,267 @@ function generateSlideContent(title: string, resourceRef: string, resources: any
     }
   }
   
-  // Strategy 5: Try common patterns based on title
-  if (!actualContent) {
-    const patterns = [
-      `${cleanedTitle.toLowerCase().replace(/\s+/g, '')}.html`,
-      `${cleanedTitle.toLowerCase().replace(/\s+/g, '_')}.html`,
-      `lesson${cleanedTitle.toLowerCase().replace(/\D/g, '')}.html`,
-      `${cleanedTitle.toLowerCase()}/index.html`
-    ];
+  return actualContent;
+}
+
+/**
+ * Smart content chunking - breaks HTML into educational sections
+ */
+function chunkEducationalContent(htmlContent: string, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
+  try {
+    const root = parseHtml(htmlContent);
     
-    for (const pattern of patterns) {
-      for (const [filePath, content] of contentFiles) {
-        if (filePath.toLowerCase().includes(pattern) || filePath.toLowerCase().endsWith(pattern)) {
-          actualContent = content;
-          console.log(`🔍 Found content by pattern ${pattern} in: ${filePath}`);
-          break;
-        }
+    // Remove script tags and non-content elements
+    root.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    
+    // Find main content area
+    let mainContent = root.querySelector('main, .content, .lesson-content, #content, .main-content');
+    if (!mainContent) {
+      mainContent = root.querySelector('body') || root;
+    }
+    
+    const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
+    
+    // Strategy 1: Look for clear educational sections with headings
+    const sections = identifyEducationalSections(mainContent, lessonTitle);
+    if (sections.length > 1) {
+      return sections.map(section => ({
+        title: section.title,
+        content: section.content,
+        type: section.type
+      }));
+    }
+    
+    // Strategy 2: Split by major headings (H2, H3)
+    const headingSections = splitByHeadings(mainContent, lessonTitle, processedAssets);
+    if (headingSections.length > 1) {
+      return headingSections;
+    }
+    
+    // Strategy 3: Split long content by paragraphs and natural breaks
+    const paragraphChunks = chunkByParagraphs(mainContent, lessonTitle, processedAssets);
+    if (paragraphChunks.length > 1) {
+      return paragraphChunks;
+    }
+    
+    // Fallback: single chunk
+    return [{
+      title: lessonTitle,
+      content: parseHtmlContent(htmlContent, lessonTitle, processedAssets),
+      type: 'content'
+    }];
+    
+  } catch (error) {
+    console.warn('⚠️  Error chunking content:', error);
+    return [{
+      title: lessonTitle,
+      content: `<h3>${lessonTitle}</h3><p>Educational content for ${lessonTitle.toLowerCase()}.</p>`,
+      type: 'content'
+    }];
+  }
+}
+
+/**
+ * Identify clear educational sections (objectives, intro, examples, practice, summary)
+ */
+function identifyEducationalSections(element: any, lessonTitle: string): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
+  const sections: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
+  const educationalKeywords = [
+    { patterns: ['objective', 'goal', 'learn', 'will', 'able'], type: 'content', titlePrefix: 'Learning Objectives' },
+    { patterns: ['introduction', 'overview', 'intro'], type: 'content', titlePrefix: 'Introduction' },
+    { patterns: ['example', 'scenario', 'case', 'demo', 'illustration'], type: 'example', titlePrefix: 'Examples' },
+    { patterns: ['practice', 'exercise', 'activity', 'quiz', 'question'], type: 'practice', titlePrefix: 'Practice' },
+    { patterns: ['summary', 'conclusion', 'review', 'key point', 'takeaway'], type: 'summary', titlePrefix: 'Summary' }
+  ];
+  
+  // Look for headings that match educational patterns
+  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const headingText = heading.text.toLowerCase().trim();
+    
+    // Find matching educational pattern
+    const matchedPattern = educationalKeywords.find(pattern => 
+      pattern.patterns.some(keyword => headingText.includes(keyword))
+    );
+    
+    if (matchedPattern) {
+      // Extract content between this heading and the next
+      const content = extractContentBetweenElements(heading, headings[i + 1]);
+      if (content.trim()) {
+        sections.push({
+          title: heading.text.trim() || matchedPattern.titlePrefix,
+          content: `<h3>${heading.text.trim()}</h3>\n${content}`,
+          type: matchedPattern.type as any
+        });
       }
-      if (actualContent) break;
     }
   }
   
-  // Strategy 6: Use any available content if we still haven't found anything
-  if (!actualContent && contentFiles.size > 0) {
-    const firstContent = Array.from(contentFiles.values())[0];
-    const firstPath = Array.from(contentFiles.keys())[0];
-    actualContent = firstContent;
-    console.log(`🔍 Using first available content from: ${firstPath}`);
+  // If we found educational sections, return them
+  if (sections.length > 0) {
+    return sections;
   }
   
-  // If we found actual content, parse it
+  return [];
+}
+
+/**
+ * Split content by major headings
+ */
+function splitByHeadings(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
+  const headings = element.querySelectorAll('h2, h3');
+  
+  if (headings.length < 2) return [];
+  
+  const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
+  
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const headingText = heading.text.trim();
+    const content = extractContentBetweenElements(heading, headings[i + 1]);
+    
+    if (content.trim() && content.length > 50) {
+      const processedContent = processContentChunk(content, headingText, processedAssets);
+      
+      chunks.push({
+        title: headingText || `${lessonTitle} - Part ${i + 1}`,
+        content: `<h3>${headingText}</h3>\n${processedContent}`,
+        type: inferSlideType(headingText)
+      });
+    }
+  }
+  
+  return chunks.length > 1 ? chunks : [];
+}
+
+/**
+ * Chunk content by paragraphs for long content
+ */
+function chunkByParagraphs(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
+  const allParagraphs = element.querySelectorAll('p, ul, ol, div.text-content');
+  
+  if (allParagraphs.length < 4) return [];
+  
+  const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
+  const wordsPerChunk = 300; // Target words per slide
+  
+  let currentChunk = '';
+  let currentWordCount = 0;
+  let chunkIndex = 1;
+  
+  for (const para of allParagraphs) {
+    const text = para.text.trim();
+    if (text.length < 20) continue; // Skip short paragraphs
+    
+    const wordCount = text.split(/\s+/).length;
+    
+    if (currentWordCount + wordCount > wordsPerChunk && currentChunk) {
+      // Finalize current chunk
+      chunks.push({
+        title: `${lessonTitle} - Part ${chunkIndex}`,
+        content: `<h3>${lessonTitle} - Part ${chunkIndex}</h3>\n${currentChunk}`,
+        type: 'content'
+      });
+      
+      currentChunk = '';
+      currentWordCount = 0;
+      chunkIndex++;
+    }
+    
+    // Add paragraph to current chunk
+    if (para.tagName === 'P') {
+      currentChunk += `<p>${text}</p>\n`;
+    } else if (para.tagName === 'UL' || para.tagName === 'OL') {
+      const listItems = para.querySelectorAll('li');
+      if (listItems.length > 0) {
+        currentChunk += `<${para.tagName.toLowerCase()}>\n`;
+        listItems.forEach(li => {
+          if (li.text.trim()) {
+            currentChunk += `  <li>${li.text.trim()}</li>\n`;
+          }
+        });
+        currentChunk += `</${para.tagName.toLowerCase()}>\n`;
+      }
+    } else {
+      currentChunk += `<p>${text}</p>\n`;
+    }
+    
+    currentWordCount += wordCount;
+  }
+  
+  // Add final chunk if there's content
+  if (currentChunk.trim()) {
+    chunks.push({
+      title: `${lessonTitle} - Part ${chunkIndex}`,
+      content: `<h3>${lessonTitle} - Part ${chunkIndex}</h3>\n${currentChunk}`,
+      type: 'content'
+    });
+  }
+  
+  return chunks.length > 1 ? chunks : [];
+}
+
+/**
+ * Extract content between two elements
+ */
+function extractContentBetweenElements(start: any, end?: any): string {
+  let content = '';
+  let current = start.nextElementSibling;
+  
+  while (current && current !== end) {
+    const text = current.text?.trim();
+    if (text && text.length > 10) {
+      if (current.tagName === 'P') {
+        content += `<p>${text}</p>\n`;
+      } else if (current.tagName === 'UL' || current.tagName === 'OL') {
+        const listItems = current.querySelectorAll('li');
+        if (listItems.length > 0) {
+          content += `<${current.tagName.toLowerCase()}>\n`;
+          listItems.forEach(li => {
+            if (li.text.trim()) {
+              content += `  <li>${li.text.trim()}</li>\n`;
+            }
+          });
+          content += `</${current.tagName.toLowerCase()}>\n`;
+        }
+      } else {
+        content += `<p>${text}</p>\n`;
+      }
+    }
+    current = current.nextElementSibling;
+  }
+  
+  return content;
+}
+
+/**
+ * Process a content chunk and clean it up
+ */
+function processContentChunk(content: string, title: string, processedAssets: Map<string, string>): string {
+  // Basic HTML cleaning and processing
+  return content
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/<style[^>]*>.*?<\/style>/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Generate meaningful slide content based on SCORM resource (fallback function)
+ */
+function generateSlideContent(title: string, resourceRef: string, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): string {
+  const cleanedTitle = cleanTitle(title);
+  
+  // Find content for this specific slide
+  const actualContent = findContentForItem({resource: resourceRef}, cleanedTitle, resources, contentFiles);
+  
   if (actualContent) {
-    console.log(`✅ Using actual HTML content for ${cleanedTitle}`);
     return parseHtmlContent(actualContent, cleanedTitle, processedAssets);
   }
   
-  // Final fallback - this should rarely happen now
-  console.log(`⚠️  No content found for ${cleanedTitle}, using fallback`);
+  // Final fallback
   const contentType = inferSlideType(title);
   switch (contentType) {
     case 'practice':
