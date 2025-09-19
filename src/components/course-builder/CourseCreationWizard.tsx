@@ -40,17 +40,26 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   const courseDraftHook = useCourseDraft({ orgId: orgId! });
   const { draft, isLoading } = courseDraftHook;
   
-  // Memoize functions to prevent unnecessary re-renders of child components
-  const stableFunctions = useMemo(() => ({
+  // Memoize the entire hook result to prevent child components from re-rendering
+  const stableHookData = useMemo(() => ({
+    draft,
     updateCourse: courseDraftHook.updateCourse,
     addModule: courseDraftHook.addModule,
     addLesson: courseDraftHook.addLesson,
     addSlide: courseDraftHook.addSlide,
     setBackgroundImageUrl: courseDraftHook.setBackgroundImageUrl,
     clearDraft: courseDraftHook.clearDraft
-  }), [courseDraftHook.updateCourse, courseDraftHook.addModule, courseDraftHook.addLesson, courseDraftHook.addSlide, courseDraftHook.setBackgroundImageUrl, courseDraftHook.clearDraft]);
+  }), [
+    draft,
+    courseDraftHook.updateCourse,
+    courseDraftHook.addModule,
+    courseDraftHook.addLesson,
+    courseDraftHook.addSlide,
+    courseDraftHook.setBackgroundImageUrl,
+    courseDraftHook.clearDraft
+  ]);
 
-  if (isLoading || !draft || !orgId) {
+  if (isLoading || !stableHookData.draft || !orgId) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
@@ -58,9 +67,10 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const canProceed = () => {
+    const { draft } = stableHookData;
     switch (currentStep) {
       case 'overview':
-        return draft.title.trim().length > 0;
+        return draft.title?.trim().length > 0;
       case 'planning':
         return draft.modules.length > 0 && draft.modules.every(m => m.lessons.length > 0);
       case 'design':
@@ -97,7 +107,7 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   };
 
   const handlePublish = () => {
-    stableFunctions.clearDraft();
+    stableHookData.clearDraft();
     if (onOpenChange) {
       onOpenChange(false);
     } else {
@@ -157,35 +167,39 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
         <CardContent className="p-6">
           {currentStep === 'overview' && (
             <CourseOverviewStep
-              draft={draft}
+              key={`overview-${stableHookData.draft.id}`}
+              draft={stableHookData.draft}
               orgId={orgId}
-              updateCourse={stableFunctions.updateCourse}
-              setBackgroundImageUrl={stableFunctions.setBackgroundImageUrl}
+              updateCourse={stableHookData.updateCourse}
+              setBackgroundImageUrl={stableHookData.setBackgroundImageUrl}
             />
           )}
           
           {currentStep === 'planning' && (
             <LessonPlanningStep
-              draft={draft}
+              key={`planning-${stableHookData.draft.id}`}
+              draft={stableHookData.draft}
               orgId={orgId}
-              updateCourse={stableFunctions.updateCourse}
-              addModule={stableFunctions.addModule}
-              addLesson={stableFunctions.addLesson}
+              updateCourse={stableHookData.updateCourse}
+              addModule={stableHookData.addModule}
+              addLesson={stableHookData.addLesson}
             />
           )}
           
           {currentStep === 'design' && (
             <MicroLessonDesignStep
-              draft={draft}
+              key={`design-${stableHookData.draft.id}`}
+              draft={stableHookData.draft}
               orgId={orgId}
-              updateCourse={stableFunctions.updateCourse}
-              addSlide={stableFunctions.addSlide}
+              updateCourse={stableHookData.updateCourse}
+              addSlide={stableHookData.addSlide}
             />
           )}
           
           {currentStep === 'review' && (
             <ReviewStep
-              draft={draft}
+              key={`review-${stableHookData.draft.id}`}
+              draft={stableHookData.draft}
               orgId={orgId}
               onPublish={handlePublish}
             />

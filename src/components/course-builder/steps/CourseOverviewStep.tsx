@@ -42,22 +42,29 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
   const [importData, setImportData] = useState<any>(null);
   const [isImporting, setIsImporting] = useState(false);
   
-  // Refs for debouncing
+  // Refs for debouncing and tracking user interaction
   const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const descriptionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUserTypingTitle = useRef(false);
+  const isUserTypingDescription = useRef(false);
 
-  // Initialize local state only once when component mounts
+  // Sync local state with draft when not actively typing
   useEffect(() => {
-    setLocalTitle(draft.title || '');
-  }, []); // Only run on mount
+    if (!isUserTypingTitle.current && draft.title !== localTitle) {
+      setLocalTitle(draft.title || '');
+    }
+  }, [draft.title, localTitle]);
 
   useEffect(() => {
-    setLocalDescription(draft.description || '');
-  }, []); // Only run on mount
+    if (!isUserTypingDescription.current && draft.description !== localDescription) {
+      setLocalDescription(draft.description || '');
+    }
+  }, [draft.description, localDescription]);
 
-  // Debounced update functions
+  // Debounced update functions with focus protection
   const updateTitle = (value: string) => {
     setLocalTitle(value);
+    isUserTypingTitle.current = true;
     
     if (titleTimeoutRef.current) {
       clearTimeout(titleTimeoutRef.current);
@@ -66,11 +73,13 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
     titleTimeoutRef.current = setTimeout(() => {
       updateCourse({ title: value });
       titleTimeoutRef.current = null;
-    }, 300);
+      isUserTypingTitle.current = false;
+    }, 500);
   };
 
   const updateDescription = (value: string) => {
     setLocalDescription(value);
+    isUserTypingDescription.current = true;
     
     if (descriptionTimeoutRef.current) {
       clearTimeout(descriptionTimeoutRef.current);
@@ -79,7 +88,8 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
     descriptionTimeoutRef.current = setTimeout(() => {
       updateCourse({ description: value });
       descriptionTimeoutRef.current = null;
-    }, 300);
+      isUserTypingDescription.current = false;
+    }, 500);
   };
 
   const handleBackgroundUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
