@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { useOrgCourses, OrgCourse } from '@/hooks/useOrgCourses';
 import { usePlatformCourses } from '@/hooks/usePlatformCourses';
+// import { useOrgCatalog } from '@/hooks/useOrgCatalog'; // Temporarily disabled
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -66,7 +67,7 @@ export default function CoursesPage() {
   // Get organization ID directly from URL
   const orgId = getActiveOrgId();
   
-  // Fetch platform and organization courses separately
+  // Keep existing hooks for now and add new unified catalog
   const { courses: platformCourses, isLoading: isLoadingPlatform } = usePlatformCourses();
   
   const {
