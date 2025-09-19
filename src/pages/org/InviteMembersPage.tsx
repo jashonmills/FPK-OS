@@ -62,6 +62,7 @@ import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { TransparentTile } from '@/components/ui/transparent-tile';
+import { supabase } from '@/integrations/supabase/client';
 
 const InviteMembersPage = () => {
   const { orgId } = useParams<{ orgId: string }>();
@@ -134,12 +135,19 @@ const InviteMembersPage = () => {
     }
 
     try {
+      // Use edge function instead of database function
       for (const email of validEmails) {
-        await emailInviteMutation.mutateAsync({
-          orgId: orgId!,
-          email: email.trim(),
-          role: (selectedRole === 'instructor' ? 'instructor' : 'student') as 'student' | 'instructor'
+        const { data, error } = await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            orgId: orgId!,
+            email: email.trim(),
+            role: selectedRole,
+            organizationName: currentOrg?.organizations?.name,
+          }
         });
+
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Failed to send invitation');
       }
       
       toast({
@@ -149,8 +157,13 @@ const InviteMembersPage = () => {
       // Reset form
       setEmails(['']);
       setInviteMessage('');
-    } catch (error) {
-      // Error handled by mutation
+    } catch (error: any) {
+      console.error('Error sending invites:', error);
+      toast({
+        title: 'Failed to send invitation',
+        description: error.message || 'There was an error sending the invitation email.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -472,7 +485,7 @@ const InviteMembersPage = () => {
                     Current organization members
                   </CardDescription>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => navigate(`/org/${orgId}/students`)}>
+                <Button variant="outline" size="sm" onClick={() => navigate(`/org/${orgId}`)}>
                   View All
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
