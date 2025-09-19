@@ -129,7 +129,7 @@ export default function GoalsManagement() {
                 className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
               />
             </div>
-            <Button variant="outline" className="border-white/30 text-white hover:bg-white/20">
+            <Button variant="outline">
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
