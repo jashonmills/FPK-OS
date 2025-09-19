@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import JSZip from 'npm:jszip@3.10.1';
 import { XMLParser } from 'npm:fast-xml-parser@4.2.5';
+import { parse as parseHtml } from 'npm:node-html-parser@6.1.12';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -183,16 +184,20 @@ serve(async (req) => {
       // Parse manifest into our format
       const manifest = parseManifest(manifestData);
 
-      // Step 4: Map to Framework 2
-      await updateProgress('mapping', 'mapping', 'Mapping to Course Framework 2', 60);
+      // Step 4: Extract content files
+      await updateProgress('parsing_content', 'parsing_content', 'Parsing content files', 50);
       
-      const mappedStructure = mapToFramework2(manifest, backgroundImageOverride);
+      const contentFiles = await extractContentFiles(zipContent, manifest);
 
-      // Step 5: Convert assets (simplified - mark as future enhancement)
-      await updateProgress('converting', 'converting', 'Processing assets', 80);
+      // Step 5: Process assets
+      await updateProgress('processing_assets', 'processing_assets', 'Processing media assets', 65);
       
-      // Step 6: Build preview
-      await updateProgress('building_preview', 'building_preview', 'Building course preview', 95);
+      const processedAssets = await processAssets(zipContent, manifest, supabase, orgId);
+
+      // Step 6: Map to Framework 2
+      await updateProgress('mapping', 'mapping', 'Mapping to Course Framework 2', 75);
+      
+      const mappedStructure = mapToFramework2(manifest, contentFiles, processedAssets, backgroundImageOverride);
       
       // Final step: Mark as ready
       await updateProgress('ready', 'ready', 'Import completed successfully', 100, {
@@ -286,7 +291,7 @@ function parseManifest(manifestData: any): ScormManifest {
   };
 }
 
-function mapToFramework2(manifest: ScormManifest, backgroundImageOverride?: string) {
+function mapToFramework2(manifest: ScormManifest, contentFiles: Map<string, string>, processedAssets: Map<string, string>, backgroundImageOverride?: string) {
   const modules = manifest.organizations.map((org, orgIndex) => ({
     id: `module_${orgIndex + 1}`,
     title: cleanTitle(org.title),
@@ -299,13 +304,13 @@ function mapToFramework2(manifest: ScormManifest, backgroundImageOverride?: stri
             id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
             kind: inferSlideType(child.title),
             title: cleanTitle(child.title),
-            html: generateSlideContent(child.title, item.resource, manifest.resources)
+            html: generateSlideContent(child.title, item.resource, manifest.resources, contentFiles, processedAssets)
           }))
         : [{
             id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
             kind: 'content' as const,
             title: cleanTitle(item.title),
-            html: generateSlideContent(item.title, item.resource, manifest.resources)
+            html: generateSlideContent(item.title, item.resource, manifest.resources, contentFiles, processedAssets)
           }]
     }))
   }));
@@ -370,26 +375,44 @@ function extractLessonDescription(item: any): string {
     return cleanTitle(item.description);
   }
   
-  // If no description, create a basic one from the title
+  // If no description, create a descriptive one based on the title and content type
   if (item.title) {
-    return `Learn about ${cleanTitle(item.title).toLowerCase()}`;
+    const cleanedTitle = cleanTitle(item.title);
+    const contentType = inferSlideType(item.title);
+    
+    switch (contentType) {
+      case 'practice':
+        return `Interactive exercises and practice activities for ${cleanedTitle.toLowerCase()}`;
+      case 'example':
+        return `Real-world examples and demonstrations of ${cleanedTitle.toLowerCase()}`;
+      case 'summary':
+        return `Key takeaways and summary of ${cleanedTitle.toLowerCase()}`;
+      default:
+        return `Comprehensive lesson covering ${cleanedTitle.toLowerCase()}`;
+    }
   }
   
-  return '';
+  return 'Interactive educational content';
 }
 
 /**
  * Generate meaningful slide content based on SCORM resource
  */
-function generateSlideContent(title: string, resourceRef: string, resources: any[]): string {
+function generateSlideContent(title: string, resourceRef: string, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): string {
   const cleanedTitle = cleanTitle(title);
   
   // Find the associated resource
   const resource = resources.find(r => r.identifier === resourceRef);
   
   if (resource && resource.href) {
-    // For now, create structured content with the resource reference
-    // In a full implementation, you would parse the actual HTML file
+    // Try to get actual content from extracted files
+    const actualContent = contentFiles.get(resource.href);
+    
+    if (actualContent) {
+      return parseHtmlContent(actualContent, cleanedTitle, processedAssets);
+    }
+    
+    // Fallback: create structured content with the resource reference
     return `<h3>${cleanedTitle}</h3>
 <p>This lesson covers key concepts related to ${cleanedTitle.toLowerCase()}.</p>
 <div class="resource-reference" data-href="${resource.href}">
@@ -427,5 +450,197 @@ function generateSlideContent(title: string, resourceRef: string, resources: any
       return `<h3>${cleanedTitle}</h3>
 <p>Explore the fundamentals of ${cleanedTitle.toLowerCase()} in this comprehensive lesson.</p>
 <p>You will learn the essential concepts and practical applications.</p>`;
+  }
+}
+
+/**
+ * Extract content files from the SCORM package
+ */
+async function extractContentFiles(zipContent: JSZip, manifest: ScormManifest): Promise<Map<string, string>> {
+  const contentFiles = new Map<string, string>();
+  
+  console.log('📂 Extracting content files from SCORM package...');
+  
+  // Get all HTML files referenced in resources
+  for (const resource of manifest.resources) {
+    if (resource.href && (resource.href.endsWith('.html') || resource.href.endsWith('.htm'))) {
+      try {
+        const file = zipContent.file(resource.href);
+        if (file) {
+          const content = await file.async('text');
+          contentFiles.set(resource.href, content);
+          console.log(`✅ Extracted content from: ${resource.href}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️  Could not extract ${resource.href}:`, error);
+      }
+    }
+  }
+  
+  // Also look for common SCORM content files
+  const commonPaths = ['index.html', 'content.html', 'lesson.html', 'main.html'];
+  for (const path of commonPaths) {
+    const file = zipContent.file(path);
+    if (file && !contentFiles.has(path)) {
+      try {
+        const content = await file.async('text');
+        contentFiles.set(path, content);
+        console.log(`✅ Found and extracted: ${path}`);
+      } catch (error) {
+        console.warn(`⚠️  Could not extract ${path}:`, error);
+      }
+    }
+  }
+  
+  console.log(`📊 Total content files extracted: ${contentFiles.size}`);
+  return contentFiles;
+}
+
+/**
+ * Process and upload assets from SCORM package
+ */
+async function processAssets(zipContent: JSZip, manifest: ScormManifest, supabase: any, orgId: string): Promise<Map<string, string>> {
+  const processedAssets = new Map<string, string>();
+  
+  console.log('🖼️  Processing SCORM assets...');
+  
+  // Find all asset files (images, videos, etc.)
+  const assetExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.mp4', '.mp3', '.wav', '.pdf'];
+  const assetFiles: string[] = [];
+  
+  zipContent.forEach((relativePath, file) => {
+    if (!file.dir) {
+      const ext = relativePath.toLowerCase().substring(relativePath.lastIndexOf('.'));
+      if (assetExtensions.includes(ext)) {
+        assetFiles.push(relativePath);
+      }
+    }
+  });
+  
+  console.log(`🔍 Found ${assetFiles.length} potential asset files`);
+  
+  // Process and upload assets (limit to reasonable number for performance)
+  const maxAssets = 20;
+  const assetsToProcess = assetFiles.slice(0, maxAssets);
+  
+  for (const assetPath of assetsToProcess) {
+    try {
+      const file = zipContent.file(assetPath);
+      if (file) {
+        const blob = await file.async('blob');
+        const fileName = `scorm_assets/${Date.now()}_${assetPath.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        
+        const { data, error } = await supabase.storage
+          .from('org-assets')
+          .upload(`${orgId}/imports/${fileName}`, blob, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (!error && data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('org-assets')
+            .getPublicUrl(data.path);
+          
+          processedAssets.set(assetPath, publicUrl);
+          console.log(`✅ Uploaded asset: ${assetPath} -> ${publicUrl}`);
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️  Could not process asset ${assetPath}:`, error);
+    }
+  }
+  
+  console.log(`📊 Total assets processed: ${processedAssets.size}`);
+  return processedAssets;
+}
+
+/**
+ * Parse HTML content and extract meaningful educational content
+ */
+function parseHtmlContent(htmlContent: string, title: string, processedAssets: Map<string, string>): string {
+  try {
+    const root = parseHtml(htmlContent);
+    
+    // Remove script tags and non-content elements
+    root.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    
+    // Extract main content areas
+    let mainContent = root.querySelector('main, .content, .lesson-content, #content, .main-content');
+    if (!mainContent) {
+      mainContent = root.querySelector('body') || root;
+    }
+    
+    // Clean up and extract text content
+    let extractedHtml = '';
+    
+    // Process headings
+    const headings = mainContent.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings.length > 0) {
+      extractedHtml += `<h3>${title}</h3>\n`;
+      
+      headings.forEach((heading, index) => {
+        if (index === 0 && heading.text.trim().toLowerCase() === title.toLowerCase()) {
+          return; // Skip if it's the same as our title
+        }
+        const level = Math.max(4, parseInt(heading.tagName[1]) + 1); // Adjust heading level
+        extractedHtml += `<h${level}>${heading.text.trim()}</h${level}>\n`;
+      });
+    } else {
+      extractedHtml += `<h3>${title}</h3>\n`;
+    }
+    
+    // Extract paragraphs and lists
+    const contentElements = mainContent.querySelectorAll('p, ul, ol, div.text-content, .lesson-text');
+    contentElements.forEach(el => {
+      const text = el.text.trim();
+      if (text && text.length > 20) { // Only include substantial content
+        if (el.tagName === 'P') {
+          extractedHtml += `<p>${text}</p>\n`;
+        } else if (el.tagName === 'UL' || el.tagName === 'OL') {
+          const listItems = el.querySelectorAll('li');
+          if (listItems.length > 0) {
+            extractedHtml += `<${el.tagName.toLowerCase()}>\n`;
+            listItems.forEach(li => {
+              if (li.text.trim()) {
+                extractedHtml += `  <li>${li.text.trim()}</li>\n`;
+              }
+            });
+            extractedHtml += `</${el.tagName.toLowerCase()}>\n`;
+          }
+        } else if (text.length > 50) {
+          extractedHtml += `<p>${text}</p>\n`;
+        }
+      }
+    });
+    
+    // Process images and update URLs
+    const images = mainContent.querySelectorAll('img');
+    images.forEach(img => {
+      const src = img.getAttribute('src');
+      if (src && processedAssets.has(src)) {
+        const newSrc = processedAssets.get(src);
+        const alt = img.getAttribute('alt') || 'Educational content image';
+        extractedHtml += `<img src="${newSrc}" alt="${alt}" class="lesson-image" />\n`;
+      }
+    });
+    
+    // If we didn't extract much content, fall back to basic text extraction
+    if (extractedHtml.length < 100) {
+      const bodyText = mainContent.text.trim();
+      if (bodyText.length > 50) {
+        const sentences = bodyText.split('.').filter(s => s.trim().length > 20);
+        extractedHtml = `<h3>${title}</h3>\n`;
+        sentences.slice(0, 5).forEach(sentence => {
+          extractedHtml += `<p>${sentence.trim()}.</p>\n`;
+        });
+      }
+    }
+    
+    return extractedHtml || `<h3>${title}</h3>\n<p>Educational content for ${title.toLowerCase()}.</p>`;
+    
+  } catch (error) {
+    console.warn('⚠️  Error parsing HTML content:', error);
+    return `<h3>${title}</h3>\n<p>Learn about ${title.toLowerCase()} in this comprehensive lesson.</p>`;
   }
 }
