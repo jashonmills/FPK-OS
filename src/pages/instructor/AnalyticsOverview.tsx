@@ -112,175 +112,175 @@ export default function AnalyticsOverview() {
         </OrgCard>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Progress Trend */}
-        <OrgCard>
-          <OrgCardHeader>
-            <OrgCardTitle>Learning Progress Trend</OrgCardTitle>
-            <OrgCardDescription>
-              Average completion percentage over the last 6 months
-            </OrgCardDescription>
-          </OrgCardHeader>
-          <OrgCardContent>
-            <div className="space-y-4">
-              <div className="h-48 bg-muted/20 rounded-lg flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm">Progress Chart Placeholder</p>
-                  <p className="text-xs">Monthly trend: {analyticsData.monthlyProgress.join('% → ')}%</p>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Progress Trend */}
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+            <OrgCardHeader>
+              <OrgCardTitle className="text-white">Learning Progress Trend</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
+                Average completion percentage over the last 6 months
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
+              <div className="space-y-4">
+                <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-white/70">
+                    <BarChart3 className="w-12 h-12 mx-auto mb-2" />
+                    <p className="text-sm">Progress Chart Placeholder</p>
+                    <p className="text-xs">Monthly trend: {analyticsData.monthlyProgress.join('% → ')}%</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-sm text-white/70">This Month</div>
+                    <div className="text-xl font-bold text-white">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 1]}%</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Last Month</div>
+                    <div className="text-xl font-bold text-white">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 2]}%</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Avg Growth</div>
+                    <div className="text-xl font-bold text-green-300">+3.2%</div>
+                  </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-sm text-muted-foreground">This Month</div>
-                  <div className="text-xl font-bold">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 1]}%</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Last Month</div>
-                  <div className="text-xl font-bold">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 2]}%</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Avg Growth</div>
-                  <div className="text-xl font-bold text-green-600">+3.2%</div>
-                </div>
-              </div>
-            </div>
           </OrgCardContent>
         </OrgCard>
 
-        {/* Engagement Metrics */}
-        <OrgCard>
-          <OrgCardHeader>
-            <OrgCardTitle>Student Engagement</OrgCardTitle>
-            <OrgCardDescription>
-              Weekly engagement metrics and activity levels
-            </OrgCardDescription>
-          </OrgCardHeader>
-          <OrgCardContent>
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Weekly Engagement</span>
-                  <Badge variant="default">{analyticsData.weeklyEngagement}%</Badge>
+          {/* Engagement Metrics */}
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+            <OrgCardHeader>
+              <OrgCardTitle className="text-white">Student Engagement</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
+                Weekly engagement metrics and activity levels
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Weekly Engagement</span>
+                    <Badge variant="default" className="bg-white/20 text-white border-white/30">{analyticsData.weeklyEngagement}%</Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-purple-400 h-2 rounded-full"
+                      style={{ width: `${analyticsData.weeklyEngagement}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full"
-                    style={{ width: `${analyticsData.weeklyEngagement}%` }}
-                  />
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Course Completion</span>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">{analyticsData.completionRate}%</Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-green-400 h-2 rounded-full"
+                      style={{ width: `${analyticsData.completionRate}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Assignment Submission</span>
+                    <Badge variant="outline" className="bg-white/20 text-white border-white/30">74%</Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-blue-400 h-2 rounded-full"
+                      style={{ width: '74%' }}
+                    />
+                  </div>
                 </div>
               </div>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Course Completion</span>
-                  <Badge variant="secondary">{analyticsData.completionRate}%</Badge>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${analyticsData.completionRate}%` }}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Assignment Submission</span>
-                  <Badge variant="outline">74%</Badge>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: '74%' }}
-                  />
-                </div>
-              </div>
-            </div>
           </OrgCardContent>
         </OrgCard>
       </div>
 
-      {/* Course Performance */}
-      <OrgCard>
-        <OrgCardHeader>
-          <OrgCardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            Course Performance
-          </OrgCardTitle>
-          <OrgCardDescription>
-            Enrollment and completion metrics for each course
-          </OrgCardDescription>
-        </OrgCardHeader>
-        <OrgCardContent>
-          <div className="space-y-4">
-            {analyticsData.topCourses.map((course, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <h4 className="font-medium">{course.title}</h4>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <span>{course.enrollments} enrollments</span>
-                    <span>{course.completion}% completion rate</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="text-sm font-medium">{course.completion}%</div>
-                    <div className="w-24 bg-muted rounded-full h-2 mt-1">
-                      <div 
-                        className="bg-primary h-2 rounded-full"
-                        style={{ width: `${course.completion}%` }}
-                      />
+        {/* Course Performance */}
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader>
+            <OrgCardTitle className="flex items-center gap-2 text-white">
+              <BookOpen className="w-5 h-5" />
+              Course Performance
+            </OrgCardTitle>
+            <OrgCardDescription className="text-white/80">
+              Enrollment and completion metrics for each course
+            </OrgCardDescription>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="space-y-4">
+              {analyticsData.topCourses.map((course, index) => (
+                <div key={index} className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/10">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-white">{course.title}</h4>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-white/70">
+                      <span>{course.enrollments} enrollments</span>
+                      <span>{course.completion}% completion rate</span>
                     </div>
                   </div>
                   
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-white">{course.completion}%</div>
+                      <div className="w-24 bg-white/20 rounded-full h-2 mt-1">
+                        <div 
+                          className="bg-purple-400 h-2 rounded-full"
+                          style={{ width: `${course.completion}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
+                      View Details
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
         </OrgCardContent>
       </OrgCard>
 
-      {/* Quick Actions */}
-      <OrgCard>
-        <OrgCardHeader>
-          <OrgCardTitle>Analytics Actions</OrgCardTitle>
-          <OrgCardDescription>
-            Common analytics tasks and reports
-          </OrgCardDescription>
-        </OrgCardHeader>
-        <OrgCardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <BarChart3 className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Generate Report</div>
-                <div className="text-xs text-muted-foreground">Export detailed analytics</div>
-              </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <TrendingUp className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Performance Insights</div>
-                <div className="text-xs text-muted-foreground">AI-powered recommendations</div>
-              </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-start">
-              <Users className="w-5 h-5 mb-2" />
-              <div className="text-left">
-                <div className="font-medium">Student Analytics</div>
-                <div className="text-xs text-muted-foreground">Individual progress tracking</div>
-              </div>
-            </Button>
-          </div>
+        {/* Quick Actions */}
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader>
+            <OrgCardTitle className="text-white">Analytics Actions</OrgCardTitle>
+            <OrgCardDescription className="text-white/80">
+              Common analytics tasks and reports
+            </OrgCardDescription>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button variant="outline" className="h-auto p-4 flex flex-col items-start bg-white/10 text-white border-white/30 hover:bg-white/20">
+                <BarChart3 className="w-5 h-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-medium">Generate Report</div>
+                  <div className="text-xs text-white/70">Export detailed analytics</div>
+                </div>
+              </Button>
+              
+              <Button variant="outline" className="h-auto p-4 flex flex-col items-start bg-white/10 text-white border-white/30 hover:bg-white/20">
+                <TrendingUp className="w-5 h-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-medium">Performance Insights</div>
+                  <div className="text-xs text-white/70">AI-powered recommendations</div>
+                </div>
+              </Button>
+              
+              <Button variant="outline" className="h-auto p-4 flex flex-col items-start bg-white/10 text-white border-white/30 hover:bg-white/20">
+                <Users className="w-5 h-5 mb-2" />
+                <div className="text-left">
+                  <div className="font-medium">Student Analytics</div>
+                  <div className="text-xs text-white/70">Individual progress tracking</div>
+                </div>
+              </Button>
+            </div>
         </OrgCardContent>
       </OrgCard>
     </div>
