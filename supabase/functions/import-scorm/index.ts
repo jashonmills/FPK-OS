@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import JSZip from 'npm:jszip@3.10.1';
+import { XMLParser } from 'npm:fast-xml-parser@4.2.5';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -173,11 +174,14 @@ serve(async (req) => {
       await updateProgress('extracting', 'extracting', 'Extracting SCORM structure', 40);
       
       const manifestContent = await manifestFile.async('text');
-      const parser = new DOMParser();
-      const manifestDoc = parser.parseFromString(manifestContent, 'text/xml');
+      const xmlParser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '@_'
+      });
+      const manifestData = xmlParser.parse(manifestContent);
 
       // Parse manifest into our format
-      const manifest = parseManifest(manifestDoc);
+      const manifest = parseManifest(manifestData);
 
       // Step 4: Map to Framework 2
       await updateProgress('mapping', 'mapping', 'Mapping to Course Framework 2', 60);
@@ -232,44 +236,53 @@ serve(async (req) => {
   }
 });
 
-function parseManifest(manifestDoc: Document): ScormManifest {
-  const manifestElement = manifestDoc.querySelector('manifest');
-  const identifier = manifestElement?.getAttribute('identifier') || 'unknown';
-  const version = manifestElement?.getAttribute('version') || '1.2';
+function parseManifest(manifestData: any): ScormManifest {
+  const manifest = manifestData.manifest;
+  const identifier = manifest['@_identifier'] || 'unknown';
+  const version = manifest['@_version'] || '1.2';
   
-  // Extract title from metadata or organizations
-  const titleElement = manifestDoc.querySelector('title') || 
-                      manifestDoc.querySelector('organization title');
-  const title = titleElement?.textContent || 'Imported SCORM Course';
+  // Extract title from organizations
+  const organizations = manifest.organizations?.organization || [];
+  const orgArray = Array.isArray(organizations) ? organizations : [organizations];
   
-  const organizations = Array.from(manifestDoc.querySelectorAll('organization')).map(org => ({
-    identifier: org.getAttribute('identifier'),
-    title: org.querySelector('title')?.textContent || 'Module',
-    items: Array.from(org.querySelectorAll('item')).map(item => ({
-      identifier: item.getAttribute('identifier'),
-      title: item.querySelector('title')?.textContent || 'Lesson',
-      resource: item.getAttribute('identifierref'),
-      children: Array.from(item.querySelectorAll(':scope > item')).map(child => ({
-        identifier: child.getAttribute('identifier'),
-        title: child.querySelector('title')?.textContent || 'Screen'
+  const title = orgArray[0]?.title || manifest.metadata?.schema || 'Imported SCORM Course';
+  
+  const parsedOrganizations = orgArray.map((org: any) => {
+    const items = org.item || [];
+    const itemArray = Array.isArray(items) ? items : [items];
+    
+    return {
+      identifier: org['@_identifier'],
+      title: typeof org.title === 'string' ? org.title : org.title?.['#text'] || 'Module',
+      items: itemArray.map((item: any) => ({
+        identifier: item['@_identifier'],
+        title: typeof item.title === 'string' ? item.title : item.title?.['#text'] || 'Lesson',
+        resource: item['@_identifierref'],
+        children: item.item ? (Array.isArray(item.item) ? item.item : [item.item]).map((child: any) => ({
+          identifier: child['@_identifier'],
+          title: typeof child.title === 'string' ? child.title : child.title?.['#text'] || 'Screen'
+        })) : []
       }))
-    }))
-  }));
+    };
+  });
 
-  const resources = Array.from(manifestDoc.querySelectorAll('resource')).map(res => ({
-    identifier: res.getAttribute('identifier'),
-    type: res.getAttribute('type'),
-    href: res.getAttribute('href'),
-    scormType: res.getAttribute('adlcp:scormType') || 'sco'
+  const resources = manifest.resources?.resource || [];
+  const resourceArray = Array.isArray(resources) ? resources : [resources];
+  
+  const parsedResources = resourceArray.map((res: any) => ({
+    identifier: res['@_identifier'],
+    type: res['@_type'],
+    href: res['@_href'],
+    scormType: res['@_adlcp:scormType'] || 'sco'
   }));
 
   return {
     identifier,
     version,
-    title,
-    description: manifestDoc.querySelector('description')?.textContent,
-    organizations,
-    resources
+    title: typeof title === 'string' ? title : title?.['#text'] || 'Imported SCORM Course',
+    description: manifest.metadata?.lom?.general?.description?.string || 'Course imported from SCORM package',
+    organizations: parsedOrganizations,
+    resources: parsedResources
   };
 }
 
