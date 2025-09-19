@@ -24,6 +24,7 @@ import {
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
 import { CollectionSelectionModal } from '@/components/collections/CollectionSelectionModal';
+import { CollectionsDropdown } from '@/components/collections/CollectionsDropdown';
 import { useCourseActions } from '@/hooks/useCourseActions';
 import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
@@ -181,6 +182,7 @@ export default function OrgCoursesCatalog() {
                   <List className="w-4 h-4" />
                 </Button>
               </div>
+              <CollectionsDropdown orgId={orgId} />
               <Button 
                 onClick={handleCreateCourse}
                 className="bg-white/20 text-white border-white/30 hover:bg-white/30"
