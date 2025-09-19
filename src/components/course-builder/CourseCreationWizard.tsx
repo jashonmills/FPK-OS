@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ interface CourseCreationWizardProps {
   orgId: string;
 }
 
-export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({ 
+export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.memo(({ 
   open = true, 
   onOpenChange, 
   orgId: propOrgId 
@@ -37,16 +37,18 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
   // Use prop orgId if provided, otherwise use param orgId
   const orgId = propOrgId || paramOrgId;
   
-  const {
-    draft,
-    isLoading,
-    updateCourse,
-    addModule,
-    addLesson,
-    addSlide,
-    setBackgroundImageUrl,
-    clearDraft
-  } = useCourseDraft({ orgId: orgId! });
+  const courseDraftHook = useCourseDraft({ orgId: orgId! });
+  const { draft, isLoading } = courseDraftHook;
+  
+  // Memoize functions to prevent unnecessary re-renders of child components
+  const stableFunctions = useMemo(() => ({
+    updateCourse: courseDraftHook.updateCourse,
+    addModule: courseDraftHook.addModule,
+    addLesson: courseDraftHook.addLesson,
+    addSlide: courseDraftHook.addSlide,
+    setBackgroundImageUrl: courseDraftHook.setBackgroundImageUrl,
+    clearDraft: courseDraftHook.clearDraft
+  }), [courseDraftHook.updateCourse, courseDraftHook.addModule, courseDraftHook.addLesson, courseDraftHook.addSlide, courseDraftHook.setBackgroundImageUrl, courseDraftHook.clearDraft]);
 
   if (isLoading || !draft || !orgId) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -95,7 +97,7 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
   };
 
   const handlePublish = () => {
-    clearDraft();
+    stableFunctions.clearDraft();
     if (onOpenChange) {
       onOpenChange(false);
     } else {
@@ -157,8 +159,8 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
             <CourseOverviewStep
               draft={draft}
               orgId={orgId}
-              updateCourse={updateCourse}
-              setBackgroundImageUrl={setBackgroundImageUrl}
+              updateCourse={stableFunctions.updateCourse}
+              setBackgroundImageUrl={stableFunctions.setBackgroundImageUrl}
             />
           )}
           
@@ -166,9 +168,9 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
             <LessonPlanningStep
               draft={draft}
               orgId={orgId}
-              updateCourse={updateCourse}
-              addModule={addModule}
-              addLesson={addLesson}
+              updateCourse={stableFunctions.updateCourse}
+              addModule={stableFunctions.addModule}
+              addLesson={stableFunctions.addLesson}
             />
           )}
           
@@ -176,8 +178,8 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
             <MicroLessonDesignStep
               draft={draft}
               orgId={orgId}
-              updateCourse={updateCourse}
-              addSlide={addSlide}
+              updateCourse={stableFunctions.updateCourse}
+              addSlide={stableFunctions.addSlide}
             />
           )}
           
@@ -236,4 +238,6 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+CourseCreationWizard.displayName = 'CourseCreationWizard';
