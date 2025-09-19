@@ -23,6 +23,7 @@ export default function CatalogDemoPage() {
   const handleAssignCourse = (course: CourseCardType) => {
     setSelectedCourse(course);
     console.log('Phase 3 - Assign course:', course);
+    return null; // Return null as ReactNode
   };
 
   if (isLoading) {

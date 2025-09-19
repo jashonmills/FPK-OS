@@ -11,6 +11,7 @@ export interface OrgAssignment {
   title: string;
   created_by: string;
   created_at: string;
+  metadata?: any;
 }
 
 export interface AssignmentTarget {
@@ -44,7 +45,7 @@ export function useOrgAssignments() {
   });
 
   const createAssignmentMutation = useMutation({
-    mutationFn: async (assignmentData: { title: string; type: string; resource_id: string }) => {
+    mutationFn: async (assignmentData: { title: string; type: string; resource_id: string; metadata?: any }) => {
       // Create assignment using existing table structure
       const { data: assignmentResult, error: assignmentError } = await supabase
         .from('org_assignments')

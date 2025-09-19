@@ -9,7 +9,7 @@ import type { CourseCard as CourseCardType } from '@/types/course-card';
 interface CourseCardProps {
   course: CourseCardType;
   showAssignButton?: boolean;
-  onAssign?: (course: CourseCardType) => void;
+  onAssign?: (course: CourseCardType) => React.ReactNode;
 }
 
 export function CourseCard({ course, showAssignButton = false, onAssign }: CourseCardProps) {
