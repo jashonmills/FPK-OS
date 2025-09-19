@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Upload, FileText, Image, Video, FileIcon, X, SidebarOpen, SidebarClose } from 'lucide-react';
+import { Plus, Upload, FileText, Image, Video, FileIcon, X, SidebarOpen, SidebarClose, Eye, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { slideAssetPath } from '@/utils/storagePaths';
 import { toast } from 'sonner';
@@ -444,6 +444,19 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
           <p>Select a lesson to start creating slides</p>
         </div>
       )}
+
+      {/* Quick Preview Button */}
+      <div className="mt-6 flex justify-center">
+        <Button 
+          variant="outline"
+          onClick={() => window.open(`/draft-preview/${draft.id}`, '_blank')}
+          className="w-full max-w-sm"
+        >
+          <Eye className="w-4 h-4 mr-2" />
+          Preview Course
+          <ExternalLink className="w-3 h-3 ml-2" />
+        </Button>
+      </div>
 
         {draft.modules.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">

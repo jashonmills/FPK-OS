@@ -115,6 +115,7 @@ const ScormPlayer = lazy(() =>
 
 // Course Preview and Analytics
 const CoursePreview = lazy(() => import("./pages/preview/CoursePreview"));
+const DraftPreview = lazy(() => import("./pages/preview/DraftPreview"));
 const CourseAnalytics = lazy(() => import("./pages/org/CourseAnalytics"));
 
 // Course Builder components
@@ -329,6 +330,13 @@ const App: React.FC = () => {
           {/* Public Course Preview Routes */}
           <Route path="/preview/:courseId" element={
             <LazyRoute><CoursePreview /></LazyRoute>
+          } />
+          
+          {/* Draft Preview Route - Authenticated */}
+          <Route path="/draft-preview/:draftId" element={
+            <RouteProtector>
+              <LazyRoute><DraftPreview /></LazyRoute>
+            </RouteProtector>
           } />
           
           {/* SCORM Player Routes - Admin only for full-screen experience */}

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Book, FileText, Clock, Target, CheckCircle, Users } from 'lucide-react';
+import { Book, FileText, Clock, Target, CheckCircle, Users, Eye, ExternalLink } from 'lucide-react';
 import { useOrgCourses } from '@/hooks/useOrgCourses';
 import { toast } from 'sonner';
 
@@ -201,16 +201,27 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Publish Button */}
+      {/* Preview and Publish */}
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <CardTitle className="text-primary">Ready to Publish</CardTitle>
           <CardDescription>
-            Your course will be created as a draft and will only be visible to your organization. 
-            You can publish it later when you're ready for students to access it.
+            Preview your course first to see exactly how students will experience it, then create it as a draft.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <Button 
+            onClick={() => window.open(`/draft-preview/${draft.id}`, '_blank')}
+            variant="outline"
+            size="lg"
+            className="w-full"
+            disabled={isPublishing}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            Preview Course
+            <ExternalLink className="w-3 h-3 ml-2" />
+          </Button>
+          
           <Button 
             onClick={handlePublish} 
             disabled={isPublishing}
