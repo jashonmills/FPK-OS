@@ -149,6 +149,7 @@ export default function GoalsPage() {
   }
 
   const canManageGoals = userRole === 'owner' || userRole === 'instructor';
+  console.log('🔐 Goals permissions:', { userRole, canManageGoals, hasOrg: !!currentOrg });
   
   const filteredGoals = mockGoals.filter(goal => {
     const matchesSearch = goal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -162,7 +163,7 @@ export default function GoalsPage() {
 
   const handleCreateGoal = (data: GoalFormData) => {
     // This would normally call an API
-    console.log('Creating goal:', data);
+    console.log('🎯 Creating goal:', data);
     toast({
       title: "Success",
       description: "Goal created successfully.",
@@ -173,6 +174,7 @@ export default function GoalsPage() {
   };
 
   const handleEditGoal = (goal: Goal) => {
+    console.log('✏️ Edit goal clicked:', goal.id, goal.title);
     setEditingGoal(goal);
     form.reset({
       title: goal.title,
@@ -236,7 +238,10 @@ export default function GoalsPage() {
         </div>
         
         {canManageGoals && (
-          <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
+          <Button onClick={() => {
+            console.log('➕ Create Goal button clicked');
+            setShowCreateDialog(true);
+          }} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Create Goal
           </Button>
@@ -367,7 +372,7 @@ export default function GoalsPage() {
                         <DropdownMenuContent>
                           <DropdownMenuItem onClick={(e) => {
                             e.preventDefault();
-                            console.log('View Details clicked for goal:', goal.id);
+                            console.log('👁️ View Details clicked for goal:', goal.id);
                             setSelectedGoal(goal);
                           }}>
                             <Eye className="h-4 w-4 mr-2" />
@@ -375,7 +380,7 @@ export default function GoalsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={(e) => {
                             e.preventDefault();
-                            console.log('Edit Goal clicked for goal:', goal.id);
+                            console.log('✏️ Edit Goal clicked for goal:', goal.id);
                             handleEditGoal(goal);
                           }}>
                             <Edit className="h-4 w-4 mr-2" />
