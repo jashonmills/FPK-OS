@@ -36,6 +36,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useOrgCourses, OrgCourse } from '@/hooks/useOrgCourses';
+import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -61,9 +62,12 @@ export default function CoursesPage() {
 
   const isWizardEnabled = featureFlagService.isEnabled('orgCourseWizard');
 
+  // Fetch both platform and organization courses
+  const { data: organizationCoursesData, isLoading: isLoadingOrgCourses } = useOrganizationCourses(currentOrg?.organization_id || '');
+  
   const {
-    courses,
-    isLoading,
+    courses: orgCourses,
+    isLoading: isLoadingOrgOnly,
     createCourse,
     updateCourse,
     deleteCourse,
@@ -96,10 +100,42 @@ export default function CoursesPage() {
 
   const canManageCourses = userRole === 'owner' || userRole === 'instructor';
   
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    course.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Combine platform courses and organization courses
+  const platformCourses = [
+    ...(organizationCoursesData?.globalCourses || []),
+    ...(organizationCoursesData?.nativeCourses || []),
+    ...(organizationCoursesData?.assignedCourses || []),
+    ...(organizationCoursesData?.assignedNativeCourses || [])
+  ];
+  
+  const organizationOwnedCourses = [
+    ...(organizationCoursesData?.organizationOwnedCourses || []),
+    ...(organizationCoursesData?.organizationOwnedNativeCourses || []),
+    ...orgCourses // Include org_courses table data
+  ];
+
+  const filteredPlatformCourses = platformCourses.filter(course => {
+    const title = course.title || '';
+    const description = (course as any).description || '';
+    return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           description.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const filteredOrgCourses = organizationOwnedCourses.filter(course => {
+    const title = course.title || '';
+    const description = (course as any).description || '';
+    return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           description.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const isLoading = isLoadingOrgCourses || isLoadingOrgOnly;
+  const totalCourses = platformCourses.length + organizationOwnedCourses.length;
+  
+  // Helper functions to safely get course properties
+  const getCourseDescription = (course: any) => course.description || 'No description provided';
+  const getCourseDifficulty = (course: any) => course.difficulty_level || course.level;
+  const isCoursePublished = (course: any) => course.published || course.status === 'published';
+  const isOrgCourse = (course: any): course is OrgCourse => 'org_id' in course;
 
   const handleCreateCourse = (data: CourseFormData) => {
     createCourse({
@@ -187,38 +223,38 @@ export default function CoursesPage() {
             <OrgCardTitle className="text-sm font-medium text-purple-100">Total Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{courses.length}</div>
-            <p className="text-xs text-purple-200">All courses</p>
+            <div className="text-2xl font-bold text-white">{totalCourses}</div>
+            <p className="text-xs text-purple-200">Platform + Organization</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Published</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Platform Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{courses.filter(c => c.published).length}</div>
-            <p className="text-xs text-purple-200">Available to students</p>
+            <div className="text-2xl font-bold text-white">{platformCourses.length}</div>
+            <p className="text-xs text-purple-200">From FPK University</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Draft</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Organization Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{courses.filter(c => !c.published).length}</div>
-            <p className="text-xs text-purple-200">In development</p>
+            <div className="text-2xl font-bold text-white">{organizationOwnedCourses.length}</div>
+            <p className="text-xs text-purple-200">Created by organization</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Enrollments</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-purple-100">Published Org Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">0</div>
-            <p className="text-xs text-purple-200">Across all courses</p>
+            <div className="text-2xl font-bold text-white">{organizationOwnedCourses.filter(c => isCoursePublished(c)).length}</div>
+            <p className="text-xs text-purple-200">Ready for students</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -237,109 +273,202 @@ export default function CoursesPage() {
       </div>
 
       {/* Courses Grid */}
-      <div className="space-y-4">
+      <div className="space-y-8">
         {isLoading ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">Loading courses...</p>
           </div>
-        ) : filteredCourses.length === 0 ? (
-          <div className="text-center py-8">
-            <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Courses Found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchQuery ? 'No courses match your search.' : 'Start by creating your first course.'}
-            </p>
-            {canManageCourses && !searchQuery && (
-              <div className="flex items-center gap-2">
-                {isWizardEnabled && (
-                  <Button onClick={() => setShowCourseWizard(true)}>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Create Interactive Course
-                  </Button>
-                )}
-                <Button onClick={() => setShowCreateDialog(true)} variant={isWizardEnabled ? "outline" : "default"}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Quick Course
-                </Button>
-              </div>
-            )}
-          </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <OrgCard key={course.id} className="hover:shadow-md transition-shadow">
-                <OrgCardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <OrgCardTitle className="line-clamp-2 text-white">{course.title}</OrgCardTitle>
-                      <OrgCardDescription className="line-clamp-3 mt-2 text-purple-200">
-                        {course.description || 'No description provided'}
-                      </OrgCardDescription>
-                    </div>
-                    {canManageCourses && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-purple-100 hover:bg-purple-800/50">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => handleEditCourse(course)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Course
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleTogglePublish(course)}>
-                            {course.published ? (
-                              <>
-                                <Pause className="h-4 w-4 mr-2" />
-                                Unpublish
-                              </>
-                            ) : (
-                              <>
-                                <Play className="h-4 w-4 mr-2" />
-                                Publish
-                              </>
+          <>
+            {/* Platform Courses Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold">Platform Courses</h2>
+                <Badge variant="outline">{filteredPlatformCourses.length}</Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Courses available from FPK University platform
+              </p>
+              
+              {filteredPlatformCourses.length === 0 ? (
+                <div className="text-center py-6 border-2 border-dashed border-muted rounded-lg">
+                  <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground">
+                    {searchQuery ? 'No platform courses match your search.' : 'No platform courses available.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPlatformCourses.map((course) => (
+                    <OrgCard key={`platform-${course.id}`} className="hover:shadow-md transition-shadow">
+                      <OrgCardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <OrgCardTitle className="line-clamp-2 text-white">{course.title}</OrgCardTitle>
+                            <OrgCardDescription className="line-clamp-3 mt-2 text-purple-200">
+                              {getCourseDescription(course)}
+                            </OrgCardDescription>
+                          </div>
+                        </div>
+                      </OrgCardHeader>
+                      <OrgCardContent>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default">Platform</Badge>
+                            {getCourseDifficulty(course) && (
+                              <Badge variant="outline" className="capitalize">
+                                {getCourseDifficulty(course)}
+                              </Badge>
                             )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => deleteCourse(course.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Course
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-purple-200">
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              0
+                            </div>
+                          </div>
+                        </div>
+                      </OrgCardContent>
+                    </OrgCard>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-muted"></div>
+
+            {/* Organization Courses Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-semibold">Organization Courses</h2>
+                  <Badge variant="outline">{filteredOrgCourses.length}</Badge>
+                </div>
+                {canManageCourses && (
+                  <div className="flex items-center gap-2">
+                    {isWizardEnabled && (
+                      <Button onClick={() => setShowCourseWizard(true)} size="sm">
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Create Interactive Course
+                      </Button>
                     )}
+                    <Button 
+                      onClick={() => setShowCreateDialog(true)} 
+                      variant={isWizardEnabled ? "outline" : "default"}
+                      size="sm"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Quick Course
+                    </Button>
                   </div>
-                </OrgCardHeader>
-                <OrgCardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={course.published ? "default" : "secondary"}>
-                        {course.published ? 'Published' : 'Draft'}
-                      </Badge>
-                      {course.level && (
-                        <Badge variant="outline" className="capitalize">
-                          {course.level}
-                        </Badge>
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Courses created by your organization
+              </p>
+              
+              {filteredOrgCourses.length === 0 ? (
+                <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Organization Courses</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery ? 'No organization courses match your search.' : 'Start by creating your first course.'}
+                  </p>
+                  {canManageCourses && !searchQuery && (
+                    <div className="flex items-center justify-center gap-2">
+                      {isWizardEnabled && (
+                        <Button onClick={() => setShowCourseWizard(true)}>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Create Interactive Course
+                        </Button>
                       )}
+                      <Button onClick={() => setShowCreateDialog(true)} variant={isWizardEnabled ? "outline" : "default"}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Quick Course
+                      </Button>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-purple-200">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        0
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <BarChart className="h-3 w-3" />
-                        0%
-                      </div>
-                    </div>
-                  </div>
-                </OrgCardContent>
-              </OrgCard>
-            ))}
-          </div>
+                  )}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredOrgCourses.map((course) => (
+                    <OrgCard key={`org-${course.id}`} className="hover:shadow-md transition-shadow">
+                      <OrgCardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <OrgCardTitle className="line-clamp-2 text-white">{course.title}</OrgCardTitle>
+                            <OrgCardDescription className="line-clamp-3 mt-2 text-purple-200">
+                              {getCourseDescription(course)}
+                            </OrgCardDescription>
+                          </div>
+                          {canManageCourses && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-purple-100 hover:bg-purple-800/50">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => isOrgCourse(course) && handleEditCourse(course)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Course
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => isOrgCourse(course) && handleTogglePublish(course)}>
+                                  {isCoursePublished(course) ? (
+                                    <>
+                                      <Pause className="h-4 w-4 mr-2" />
+                                      Unpublish
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Play className="h-4 w-4 mr-2" />
+                                      Publish
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => deleteCourse(course.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete Course
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      </OrgCardHeader>
+                      <OrgCardContent>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant={isCoursePublished(course) ? "default" : "secondary"}>
+                              {isCoursePublished(course) ? 'Published' : 'Draft'}
+                            </Badge>
+                            {getCourseDifficulty(course) && (
+                              <Badge variant="outline" className="capitalize">
+                                {getCourseDifficulty(course)}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-purple-200">
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              0
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <BarChart className="h-3 w-3" />
+                              0%
+                            </div>
+                          </div>
+                        </div>
+                      </OrgCardContent>
+                    </OrgCard>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
 
