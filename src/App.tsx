@@ -318,6 +318,11 @@ const App: React.FC = () => {
             <Route index element={<Navigate to="learner" replace />} />
           </Route>
           
+          {/* Public Course Preview Routes */}
+          <Route path="/preview/:courseId" element={
+            <LazyRoute><CoursePreview /></LazyRoute>
+          } />
+          
           {/* SCORM Player Routes - Admin only for full-screen experience */}
           <Route path="/scorm/*" element={
             <RequireAdmin>
@@ -609,6 +614,7 @@ const App: React.FC = () => {
             <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
             <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
             <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
+            <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/invite" element={<LazyRoute><InviteMembersPage /></LazyRoute>} />
             <Route path=":orgId/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />

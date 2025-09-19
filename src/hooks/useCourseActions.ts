@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useOrganizationCourseAssignments } from '@/hooks/useOrganizationCourseAssignments';
+import { useCourseDuplication } from '@/hooks/useCourseDuplication';
 import type { AssignmentSummary } from '@/types/enhanced-course-card';
 
 export interface CourseActionsConfig {
@@ -15,6 +16,9 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
   const { orgId } = useParams<{ orgId: string }>();
   const { toast } = useToast();
   const { assignCourse } = useOrganizationCourseAssignments(orgId);
+  const { duplicateCourse } = useCourseDuplication(orgId);
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<{ id: string; title: string } | null>(null);
 
   const preview = useCallback((courseId: string, route?: string) => {
     console.log('Preview course:', courseId);
@@ -57,21 +61,21 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
     }
   }, [config, toast]);
 
-  const duplicate = useCallback(async (courseId: string) => {
-    console.log('Duplicate to org:', courseId);
-    // TODO: Implement actual duplication logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Course Duplicated",
-      description: "Cloned to your organization. Opening editor with attribution banner...",
-    });
-    
-    // Navigate to edit with cloned flag
-    if (orgId) {
-      navigate(`/org/${orgId}/courses/edit/${courseId}?cloned=true`);
+  const duplicate = useCallback(async (courseId: string, courseTitle?: string) => {
+    try {
+      await duplicateCourse.mutateAsync({ 
+        courseId, 
+        title: courseTitle,
+        attribution: {
+          source: 'platform',
+          cloned_from: courseId,
+          cloned_at: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Duplication failed:', error);
     }
-  }, [navigate, orgId, toast]);
+  }, [duplicateCourse]);
 
   const publish = useCallback(async (courseId: string): Promise<AssignmentSummary> => {
     console.log('Publishing course:', courseId);
@@ -148,13 +152,10 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
     }
   }, [toast]);
 
-  const addToCollection = useCallback((courseId: string) => {
-    console.log('Add to collection:', courseId);
-    toast({
-      title: "Add to Collection",
-      description: "Collection selection modal would open...",
-    });
-  }, [toast]);
+  const addToCollection = useCallback((courseId: string, courseTitle?: string) => {
+    setSelectedCourse({ id: courseId, title: courseTitle || 'Unknown Course' });
+    setShowCollectionModal(true);
+  }, []);
 
   return {
     preview,
@@ -167,5 +168,9 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
     viewAnalytics,
     sharePreview,
     addToCollection,
+    // Collection modal state
+    showCollectionModal,
+    setShowCollectionModal,
+    selectedCourse,
   };
 }

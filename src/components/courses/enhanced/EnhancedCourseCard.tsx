@@ -32,6 +32,7 @@ import { ConfirmModal } from './ConfirmModal';
 import type { CourseCardModel, CourseCardActions, ConfirmModalData } from '@/types/enhanced-course-card';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { getCourseImage } from '@/utils/courseImages';
+import { CollectionSelectionModal } from '@/components/collections/CollectionSelectionModal';
 
 interface EnhancedCourseCardProps {
   course: CourseCardModel;

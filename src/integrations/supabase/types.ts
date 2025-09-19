@@ -1032,6 +1032,101 @@ export type Database = {
           },
         ]
       }
+      course_collection_items: {
+        Row: {
+          added_at: string
+          added_by: string
+          collection_id: string
+          course_id: string
+          id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by: string
+          collection_id: string
+          course_id: string
+          id?: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string
+          collection_id?: string
+          course_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "course_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_collections: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      course_duplicates: {
+        Row: {
+          attribution_info: Json | null
+          created_at: string
+          duplicated_by: string
+          duplicated_course_id: string
+          id: string
+          org_id: string | null
+          original_course_id: string
+        }
+        Insert: {
+          attribution_info?: Json | null
+          created_at?: string
+          duplicated_by: string
+          duplicated_course_id: string
+          id?: string
+          org_id?: string | null
+          original_course_id: string
+        }
+        Update: {
+          attribution_info?: Json | null
+          created_at?: string
+          duplicated_by?: string
+          duplicated_course_id?: string
+          id?: string
+          org_id?: string | null
+          original_course_id?: string
+        }
+        Relationships: []
+      }
       course_lessons: {
         Row: {
           created_at: string
