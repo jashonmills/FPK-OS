@@ -239,11 +239,9 @@ export default function CoursesManagementNew() {
             </>
           )}
         </div>
-        {course.instructor_name && (
-          <div className="text-xs text-white/70">
-            Instructor: {course.instructor_name}
-          </div>
-        )}
+        <div className="text-xs text-white/70">
+          Instructor: {course.instructor_name || 'FPK University'}
+        </div>
       </CardContent>
     </Card>
   );
