@@ -1097,6 +1097,92 @@ export type Database = {
         }
         Relationships: []
       }
+      course_drafts: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_minutes: number | null
+          framework: string
+          id: string
+          level: string | null
+          org_id: string
+          source: string
+          source_package_id: string | null
+          status: string
+          structure: Json
+          title: string
+          updated_at: string
+          updated_by: string | null
+          validation: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_minutes?: number | null
+          framework?: string
+          id?: string
+          level?: string | null
+          org_id: string
+          source: string
+          source_package_id?: string | null
+          status?: string
+          structure?: Json
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          validation?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_minutes?: number | null
+          framework?: string
+          id?: string
+          level?: string | null
+          org_id?: string
+          source?: string
+          source_package_id?: string | null
+          status?: string
+          structure?: Json
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          validation?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_drafts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_drafts_source_package_id_fkey"
+            columns: ["source_package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_learner_progress"
+            referencedColumns: ["package_id"]
+          },
+          {
+            foreignKeyName: "course_drafts_source_package_id_fkey"
+            columns: ["source_package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_package_metrics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_drafts_source_package_id_fkey"
+            columns: ["source_package_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_duplicates: {
         Row: {
           attribution_info: Json | null

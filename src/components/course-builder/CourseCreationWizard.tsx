@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,7 +22,7 @@ const steps: Array<{ key: WizardStep; title: string; description: string }> = [
 interface CourseCreationWizardProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  orgId: string;
+  orgId?: string;
 }
 
 export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.memo(({ 
@@ -31,14 +31,18 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   orgId: propOrgId 
 }) => {
   const navigate = useNavigate();
-  const { orgId: paramOrgId } = useParams<{ orgId: string }>();
-  const [currentStep, setCurrentStep] = useState<WizardStep>('overview');
+  const { orgId: paramOrgId, draftId } = useParams<{ orgId: string; draftId?: string }>();
+  const [searchParams] = useSearchParams();
   
   // Use prop orgId if provided, otherwise use param orgId
   const orgId = propOrgId || paramOrgId;
   
-  const courseDraftHook = useCourseDraft({ orgId: orgId! });
-  const { draft, isLoading, updateCourse, addModule, addLesson, addSlide, setBackgroundImageUrl, clearDraft } = courseDraftHook;
+  // Get initial step from URL params or default to overview
+  const urlStep = searchParams.get('step') as WizardStep;
+  const [currentStep, setCurrentStep] = useState<WizardStep>(urlStep || 'overview');
+  
+  const courseDraftHook = useCourseDraft({ orgId: orgId!, draftId });
+  const { draft, isLoading, isFromImport, updateCourse, addModule, addLesson, addSlide, setBackgroundImageUrl, clearDraft, loadFromImportData } = courseDraftHook;
 
   if (isLoading || !draft || !orgId) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -52,9 +56,11 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
       case 'overview':
         return draft.title?.trim().length > 0;
       case 'planning':
-        return draft.modules.length > 0 && draft.modules.every(m => m.lessons.length > 0);
+        // Allow proceeding if imported from SCORM or has manual modules
+        return isFromImport || (draft.modules.length > 0 && draft.modules.every(m => m.lessons.length > 0));
       case 'design':
-        return draft.modules.every(m => 
+        // Allow proceeding if imported from SCORM or has slides
+        return isFromImport || draft.modules.every(m => 
           m.lessons.every(l => l.slides.length > 0)
         );
       case 'review':
@@ -67,14 +73,26 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   const handleNext = () => {
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
-      setCurrentStep(steps[nextIndex].key);
+      const nextStep = steps[nextIndex].key;
+      setCurrentStep(nextStep);
+      
+      // Update URL if using draftId routing
+      if (draftId) {
+        navigate(`/org/${orgId}/courses/editor/${draftId}?step=${nextStep}`, { replace: true });
+      }
     }
   };
 
   const handlePrevious = () => {
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
-      setCurrentStep(steps[prevIndex].key);
+      const prevStep = steps[prevIndex].key;
+      setCurrentStep(prevStep);
+      
+      // Update URL if using draftId routing
+      if (draftId) {
+        navigate(`/org/${orgId}/courses/editor/${draftId}?step=${prevStep}`, { replace: true });
+      }
     }
   };
 
@@ -151,6 +169,7 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
               orgId={orgId}
               updateCourse={updateCourse}
               setBackgroundImageUrl={setBackgroundImageUrl}
+              loadFromImportData={loadFromImportData}
             />
           )}
           

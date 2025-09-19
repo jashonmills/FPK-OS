@@ -20,13 +20,15 @@ interface CourseOverviewStepProps {
   orgId: string;
   updateCourse: (updates: Partial<CourseDraft>) => void;
   setBackgroundImageUrl: (url: string) => void;
+  loadFromImportData?: (importStructure: any, sourcePackageId?: string) => Promise<string | null>;
 }
 
 export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
   draft,
   orgId,
   updateCourse,
-  setBackgroundImageUrl
+  setBackgroundImageUrl,
+  loadFromImportData
 }) => {
   // Local state to prevent input focus loss
   const [localTitle, setLocalTitle] = useState(draft.title || '');
@@ -219,10 +221,21 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
           toast.success('Course imported successfully!');
           setImportData(null);
         }}
-        onEdit={() => {
-          // Reset to manual mode with imported data
-          setStartFrom('manual');
-          setImportData(null);
+        onEdit={async () => {
+          if (importData?.mapped_structure && loadFromImportData) {
+            // Create persistent draft from SCORM import
+            const draftId = await loadFromImportData(
+              importData.mapped_structure,
+              importData.package_id
+            );
+            
+            if (draftId) {
+              // Navigate to editor with persistent draft
+              window.location.href = `/org/${orgId}/courses/editor/${draftId}?step=review`;
+            } else {
+              toast.error('Failed to create course draft');
+            }
+          }
         }}
         onReImport={() => {
           // Reset import state

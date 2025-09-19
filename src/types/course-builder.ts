@@ -42,4 +42,32 @@ export interface CourseDraft {
   framework: 'interactive_micro_learning';
 }
 
+// Backend persistent draft interface
+export interface CourseDraftBackend {
+  id: string;
+  org_id: string;
+  source: 'scorm' | 'manual' | 'json' | 'csv';
+  source_package_id?: string;
+  title: string;
+  description?: string;
+  level?: 'intro' | 'intermediate' | 'advanced';
+  duration_minutes?: number;
+  framework: 'interactive_micro_learning' | 'sequential_learning';
+  structure: {
+    modules: ModuleDraft[];
+    objectives?: string[];
+    prerequisites?: string[];
+    backgroundImageUrl?: string;
+  };
+  status: 'parsing' | 'ready' | 'error';
+  validation: {
+    errors: string[];
+    warnings: string[];
+  };
+  created_by: string;
+  updated_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type WizardStep = 'overview' | 'planning' | 'design' | 'review';

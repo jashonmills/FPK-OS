@@ -25,8 +25,9 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
       if (draftId) {
         try {
           // Load from backend
-          const { data, error } = await supabase.functions.invoke(`course-drafts/${draftId}`, {
-            method: 'GET'
+          const { data, error } = await supabase.functions.invoke('course-drafts', {
+            method: 'GET',
+            body: {},
           });
 
           if (error) throw error;
@@ -140,7 +141,7 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
   }, [draft, saveDraft]);
 
   const addModule = useCallback((title: string) => {
-    if (!draft) return '';
+    if (!draft) return;
     
     const newModule: ModuleDraft = {
       id: crypto.randomUUID(),
@@ -154,11 +155,10 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
     };
     
     saveDraft(updatedDraft);
-    return newModule.id;
   }, [draft, saveDraft]);
 
   const addLesson = useCallback((moduleId: string, title: string, description?: string) => {
-    if (!draft) return '';
+    if (!draft) return;
     
     const newLesson: LessonDraft = {
       id: crypto.randomUUID(),
@@ -177,11 +177,10 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
     };
     
     saveDraft(updatedDraft);
-    return newLesson.id;
   }, [draft, saveDraft]);
 
   const addSlide = useCallback((moduleId: string, lessonId: string, slide: Omit<SlideDraft, 'id'>) => {
-    if (!draft) return '';
+    if (!draft) return;
     
     const newSlide: SlideDraft = {
       ...slide,
@@ -205,7 +204,6 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
     };
     
     saveDraft(updatedDraft);
-    return newSlide.id;
   }, [draft, saveDraft]);
 
   const setBackgroundImageUrl = useCallback((url: string) => {
@@ -275,13 +273,13 @@ export function useCourseDraft({ orgId, draftId }: UseCourseDraftProps) {
     draft,
     isLoading,
     isFromImport,
+    saveDraft,
     updateCourse,
     addModule,
     addLesson,
     addSlide,
     setBackgroundImageUrl,
     loadFromImportData,
-    clearDraft,
-    saveDraft
+    clearDraft
   };
 }
