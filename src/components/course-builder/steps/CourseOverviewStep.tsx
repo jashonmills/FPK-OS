@@ -22,7 +22,7 @@ interface CourseOverviewStepProps {
   setBackgroundImageUrl: (url: string) => void;
 }
 
-export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
+export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
   draft,
   orgId,
   updateCourse,
@@ -46,18 +46,14 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
   const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const descriptionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update local state when draft changes externally (but not during typing)
+  // Initialize local state only once when component mounts
   useEffect(() => {
-    if (draft.title !== localTitle && !titleTimeoutRef.current) {
-      setLocalTitle(draft.title || '');
-    }
-  }, [draft.title]);
+    setLocalTitle(draft.title || '');
+  }, []); // Only run on mount
 
   useEffect(() => {
-    if (draft.description !== localDescription && !descriptionTimeoutRef.current) {
-      setLocalDescription(draft.description || '');
-    }
-  }, [draft.description]);
+    setLocalDescription(draft.description || '');
+  }, []); // Only run on mount
 
   // Debounced update functions
   const updateTitle = (value: string) => {
@@ -440,4 +436,6 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
       )}
     </div>
   );
-};
+});
+
+CourseOverviewStep.displayName = 'CourseOverviewStep';
