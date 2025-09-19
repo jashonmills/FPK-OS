@@ -43,6 +43,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
 import { featureFlagService } from '@/services/FeatureFlagService';
+import { getActiveOrgId } from '@/lib/org/context';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -62,6 +63,9 @@ export default function CoursesPage() {
 
   const isWizardEnabled = featureFlagService.isEnabled('orgCourseWizard');
 
+  // Get organization ID directly from URL
+  const orgId = getActiveOrgId();
+  
   // Fetch platform and organization courses separately
   const { courses: platformCourses, isLoading: isLoadingPlatform } = usePlatformCourses();
   
@@ -76,10 +80,11 @@ export default function CoursesPage() {
     isUpdating,
     isDeleting,
     isTogglingPublish,
-  } = useOrgCourses(currentOrg?.organization_id);
+  } = useOrgCourses(orgId);
 
   // Debug logging
-  console.log('Debug - Organization ID:', currentOrg?.organization_id);
+  console.log('Debug - URL Org ID:', orgId);
+  console.log('Debug - CurrentOrg:', currentOrg);
   console.log('Debug - Organization courses:', orgCourses);
   console.log('Debug - Platform courses:', platformCourses);
   console.log('Debug - Loading states:', { isLoadingOrg, isLoadingPlatform });

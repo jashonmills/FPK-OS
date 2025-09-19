@@ -45,9 +45,14 @@ export function useOrgCourses(orgId?: string) {
   const { data: courses = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-courses', contextOrgId],
     queryFn: async () => {
+      console.log('useOrgCourses - QueryFn called with contextOrgId:', contextOrgId);
+      
       if (!contextOrgId) {
+        console.log('useOrgCourses - No organization ID available');
         throw new Error('No organization ID available');
       }
+      
+      console.log('useOrgCourses - Executing query for org_id:', contextOrgId);
       
       const { data, error } = await supabase
         .from('org_courses')
@@ -57,14 +62,18 @@ export function useOrgCourses(orgId?: string) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching org courses:', error);
+        console.error('useOrgCourses - Error fetching org courses:', error);
         throw error;
       }
+
+      console.log('useOrgCourses - Query result:', data);
+      console.log('useOrgCourses - Number of courses found:', data?.length || 0);
 
       return data as OrgCourse[];
     },
     enabled: !!contextOrgId,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
   const createCourseMutation = useMutation({
