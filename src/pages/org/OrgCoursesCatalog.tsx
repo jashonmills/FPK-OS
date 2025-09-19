@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
@@ -36,6 +36,7 @@ export default function OrgCoursesCatalog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [viewType, setViewType] = useState<ViewType>(() => {
     const saved = localStorage.getItem('courses-view-type');
     return (saved as ViewType) || 'grid';
@@ -97,6 +98,56 @@ export default function OrgCoursesCatalog() {
 
   const handleUploadScorm = () => {
     setShowImportDialog(true);
+  };
+
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (fileExtension === 'zip') {
+      handleSCORMImport(file);
+    } else if (fileExtension === 'json') {
+      handleJSONImport(file);
+    } else {
+      toast({
+        title: "Unsupported File Type",
+        description: "Please upload a ZIP (SCORM) or JSON file.",
+        variant: "destructive",
+      });
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setShowImportDialog(false);
+  };
+
+  const handleSCORMImport = async (file: File) => {
+    toast({
+      title: "SCORM Import",
+      description: "SCORM import functionality coming soon!",
+    });
+  };
+
+  const handleJSONImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const courseData = JSON.parse(text);
+      
+      toast({
+        title: "JSON Import",
+        description: "JSON course import functionality coming soon!",
+      });
+    } catch (error) {
+      toast({
+        title: "Import Error",
+        description: "Failed to parse JSON file. Please check the format.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewTypeChange = (type: ViewType) => {
@@ -342,6 +393,42 @@ export default function OrgCoursesCatalog() {
           courseId={courseActions.selectedCourse?.id || ''}
           courseTitle={courseActions.selectedCourse?.title || ''}
         />
+
+        {/* Import Dialog */}
+        {showImportDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-card rounded-lg p-6 w-96 mx-4">
+              <h3 className="text-lg font-semibold mb-4">Import Courses</h3>
+              <p className="text-muted-foreground mb-4">
+                Upload a SCORM package (.zip) or course definition (.json) file to import courses.
+              </p>
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".zip,.json"
+                onChange={handleFileImport}
+                className="hidden"
+              />
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose File
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowImportDialog(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Debug Info - Remove in production */}
         {process.env.NODE_ENV === 'development' && (
