@@ -233,7 +233,7 @@ export default function OrgPortalHome() {
             </Button>
             <Button 
               variant="outline" 
-              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
               onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
             >
               <Award className="h-4 w-4" />
