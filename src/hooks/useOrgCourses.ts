@@ -19,6 +19,14 @@ export interface OrgCourse {
   thumbnail_url?: string;
   duration_minutes?: number;
   status?: string;
+  // New course builder fields
+  background_image_url?: string;
+  framework?: string;
+  lesson_structure?: any; // JSONB
+  micro_lesson_data?: any; // JSONB
+  duration_estimate_mins?: number;
+  objectives?: any; // JSONB array
+  prerequisites?: any; // JSONB array
 }
 
 export function useOrgCourses(orgId?: string) {

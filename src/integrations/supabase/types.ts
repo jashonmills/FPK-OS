@@ -3818,39 +3818,60 @@ export type Database = {
       }
       org_courses: {
         Row: {
+          background_image_url: string | null
           created_at: string | null
           created_by: string
           deleted_at: string | null
           description: string | null
+          duration_estimate_mins: number | null
+          framework: string | null
           id: string
+          lesson_structure: Json | null
           level: string | null
+          micro_lesson_data: Json | null
+          objectives: Json | null
           org_id: string
+          prerequisites: Json | null
           published: boolean | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          background_image_url?: string | null
           created_at?: string | null
           created_by: string
           deleted_at?: string | null
           description?: string | null
+          duration_estimate_mins?: number | null
+          framework?: string | null
           id?: string
+          lesson_structure?: Json | null
           level?: string | null
+          micro_lesson_data?: Json | null
+          objectives?: Json | null
           org_id: string
+          prerequisites?: Json | null
           published?: boolean | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          background_image_url?: string | null
           created_at?: string | null
           created_by?: string
           deleted_at?: string | null
           description?: string | null
+          duration_estimate_mins?: number | null
+          framework?: string | null
           id?: string
+          lesson_structure?: Json | null
           level?: string | null
+          micro_lesson_data?: Json | null
+          objectives?: Json | null
           org_id?: string
+          prerequisites?: Json | null
           published?: boolean | null
           thumbnail_url?: string | null
           title?: string
