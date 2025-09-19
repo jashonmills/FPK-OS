@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { CourseDraft, ModuleDraft, LessonDraft, SlideDraft } from '@/types/course-builder';
 import { toast } from 'sonner';
 
@@ -10,6 +10,7 @@ interface UseCourseDraftProps {
 export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
   const [draft, setDraft] = useState<CourseDraft | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const storageKey = `course-draft-${orgId}-${draftId || 'new'}`;
 
@@ -54,8 +55,24 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
     if (!draft) return;
     
     const updatedDraft = { ...draft, ...updates };
-    saveDraft(updatedDraft);
-  }, [draft, saveDraft]);
+    // Update state immediately for responsive UI
+    setDraft(updatedDraft);
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Debounce the localStorage save to avoid constant writes
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+      } catch (error) {
+        console.error('Error saving course draft:', error);
+        toast.error('Failed to save draft');
+      }
+    }, 300);
+  }, [draft, storageKey]);
 
   // Add module
   const addModule = useCallback((title: string) => {

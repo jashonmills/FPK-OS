@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CourseDraft } from '@/types/course-builder';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,36 +27,6 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
   const [uploading, setUploading] = useState(false);
   const [newObjective, setNewObjective] = useState('');
   const [newPrerequisite, setNewPrerequisite] = useState('');
-  const [localTitle, setLocalTitle] = useState(draft.title);
-  const [localDescription, setLocalDescription] = useState(draft.description || '');
-
-  // Sync local state with draft when draft changes
-  useEffect(() => {
-    setLocalTitle(draft.title);
-    setLocalDescription(draft.description || '');
-  }, [draft.title, draft.description]);
-
-  // Update draft when local title loses focus or after delay
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (localTitle !== draft.title) {
-        updateCourse({ title: localTitle });
-      }
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timeoutId);
-  }, [localTitle, draft.title, updateCourse]);
-
-  // Update draft when local description loses focus or after delay
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (localDescription !== draft.description) {
-        updateCourse({ description: localDescription });
-      }
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timeoutId);
-  }, [localDescription, draft.description, updateCourse]);
 
   const handleBackgroundUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,9 +110,8 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
             <Label htmlFor="title">Course Title *</Label>
             <Input
               id="title"
-              value={localTitle}
-              onChange={(e) => setLocalTitle(e.target.value)}
-              onBlur={() => updateCourse({ title: localTitle })}
+              value={draft.title}
+              onChange={(e) => updateCourse({ title: e.target.value })}
               placeholder="Enter course title..."
               className="mt-1"
             />
@@ -152,9 +121,8 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={localDescription}
-              onChange={(e) => setLocalDescription(e.target.value)}
-              onBlur={() => updateCourse({ description: localDescription })}
+              value={draft.description || ''}
+              onChange={(e) => updateCourse({ description: e.target.value })}
               placeholder="Describe what students will learn..."
               rows={4}
               className="mt-1"
