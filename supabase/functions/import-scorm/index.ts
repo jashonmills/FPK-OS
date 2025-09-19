@@ -458,9 +458,11 @@ function generateLessonSlides(item: any, orgIndex: number, itemIndex: number, re
   const cleanedTitle = cleanTitle(item.title);
   
   console.log(`🎯 Generating slides for lesson: ${cleanedTitle}`);
+  console.log(`📋 Item details:`, JSON.stringify({ title: item.title, resource: item.resource, hasChildren: !!(item.children && item.children.length > 0) }));
   
   // If item has predefined children, create slides for each
   if (item.children && item.children.length > 0) {
+    console.log(`👶 Found ${item.children.length} predefined children, creating slides for each`);
     return item.children.map((child, childIndex) => ({
       id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
       kind: inferSlideType(child.title),
@@ -473,21 +475,31 @@ function generateLessonSlides(item: any, orgIndex: number, itemIndex: number, re
   const actualContent = findContentForItem(item, cleanedTitle, resources, contentFiles);
   
   if (actualContent) {
-    console.log(`📚 Chunking content for: ${cleanedTitle}`);
+    console.log(`📚 Found content for chunking: ${cleanedTitle} (${actualContent.length} characters)`);
     const contentChunks = chunkEducationalContent(actualContent, cleanedTitle, processedAssets);
     
+    console.log(`📊 Chunking result: ${contentChunks.length} chunks created`);
+    contentChunks.forEach((chunk, idx) => {
+      console.log(`  Chunk ${idx + 1}: "${chunk.title}" (${chunk.type}) - ${chunk.content.length} chars`);
+    });
+    
     if (contentChunks.length > 1) {
-      console.log(`✂️  Created ${contentChunks.length} content chunks for ${cleanedTitle}`);
+      console.log(`✂️  SUCCESS: Created ${contentChunks.length} content chunks for ${cleanedTitle}`);
       return contentChunks.map((chunk, chunkIndex) => ({
         id: `slide_${orgIndex + 1}_${itemIndex + 1}_${chunkIndex + 1}`,
         kind: chunk.type,
         title: chunk.title,
         html: chunk.content
       }));
+    } else {
+      console.log(`⚠️  FALLBACK: Only got 1 chunk, falling back to single slide for ${cleanedTitle}`);
     }
+  } else {
+    console.log(`❌ No content found for chunking: ${cleanedTitle}`);
   }
   
   // Fallback: single slide with basic content
+  console.log(`📄 Creating single fallback slide for: ${cleanedTitle}`);
   return [{
     id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
     kind: 'content' as const,
@@ -542,6 +554,9 @@ function findContentForItem(item: any, cleanedTitle: string, resources: any[], c
  */
 function chunkEducationalContent(htmlContent: string, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
   try {
+    console.log(`🧩 Starting content chunking for: ${lessonTitle}`);
+    console.log(`📄 HTML content length: ${htmlContent.length} characters`);
+    
     const root = parseHtml(htmlContent);
     
     // Remove script tags and non-content elements
@@ -553,11 +568,16 @@ function chunkEducationalContent(htmlContent: string, lessonTitle: string, proce
       mainContent = root.querySelector('body') || root;
     }
     
+    console.log(`🎯 Using content area: ${mainContent.tagName || 'unknown'}`);
+    
     const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
     
     // Strategy 1: Look for clear educational sections with headings
+    console.log(`🔍 Strategy 1: Looking for educational sections...`);
     const sections = identifyEducationalSections(mainContent, lessonTitle);
+    console.log(`📚 Educational sections found: ${sections.length}`);
     if (sections.length > 1) {
+      console.log(`✅ Using educational sections (${sections.length} sections)`);
       return sections.map(section => ({
         title: section.title,
         content: section.content,
@@ -566,18 +586,40 @@ function chunkEducationalContent(htmlContent: string, lessonTitle: string, proce
     }
     
     // Strategy 2: Split by major headings (H2, H3)
+    console.log(`🔍 Strategy 2: Splitting by headings...`);
     const headingSections = splitByHeadings(mainContent, lessonTitle, processedAssets);
+    console.log(`📑 Heading sections found: ${headingSections.length}`);
     if (headingSections.length > 1) {
+      console.log(`✅ Using heading sections (${headingSections.length} sections)`);
       return headingSections;
     }
     
     // Strategy 3: Split long content by paragraphs and natural breaks
+    console.log(`🔍 Strategy 3: Chunking by paragraphs...`);
     const paragraphChunks = chunkByParagraphs(mainContent, lessonTitle, processedAssets);
+    console.log(`📝 Paragraph chunks found: ${paragraphChunks.length}`);
     if (paragraphChunks.length > 1) {
+      console.log(`✅ Using paragraph chunks (${paragraphChunks.length} chunks)`);
       return paragraphChunks;
     }
     
+    // Strategy 4: Force chunk by content length if content is very long
+    console.log(`🔍 Strategy 4: Force chunking by content length...`);
+    const textContent = mainContent.text || '';
+    const wordCount = textContent.split(/\s+/).length;
+    console.log(`📊 Total word count: ${wordCount}`);
+    
+    if (wordCount > 200) {
+      console.log(`📏 Content is long (${wordCount} words), force chunking...`);
+      const forcedChunks = forceChunkLongContent(mainContent, lessonTitle, processedAssets);
+      if (forcedChunks.length > 1) {
+        console.log(`✅ Force chunked into ${forcedChunks.length} pieces`);
+        return forcedChunks;
+      }
+    }
+    
     // Fallback: single chunk
+    console.log(`⚠️  All chunking strategies failed, using single chunk`);
     return [{
       title: lessonTitle,
       content: parseHtmlContent(htmlContent, lessonTitle, processedAssets),
@@ -585,7 +627,7 @@ function chunkEducationalContent(htmlContent: string, lessonTitle: string, proce
     }];
     
   } catch (error) {
-    console.warn('⚠️  Error chunking content:', error);
+    console.error('❌ Error chunking content:', error);
     return [{
       title: lessonTitle,
       content: `<h3>${lessonTitle}</h3><p>Educational content for ${lessonTitle.toLowerCase()}.</p>`,
@@ -673,30 +715,41 @@ function splitByHeadings(element: any, lessonTitle: string, processedAssets: Map
  * Chunk content by paragraphs for long content
  */
 function chunkByParagraphs(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
-  const allParagraphs = element.querySelectorAll('p, ul, ol, div.text-content');
+  const allParagraphs = element.querySelectorAll('p, ul, ol, div.text-content, div');
   
-  if (allParagraphs.length < 4) return [];
+  console.log(`📝 Found ${allParagraphs.length} paragraph elements for chunking`);
+  
+  if (allParagraphs.length < 3) {
+    console.log(`⚠️  Too few paragraphs (${allParagraphs.length}) for chunking`);
+    return [];
+  }
   
   const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
-  const wordsPerChunk = 300; // Target words per slide
+  const wordsPerChunk = 150; // Reduced target words per slide for better chunking
   
   let currentChunk = '';
   let currentWordCount = 0;
   let chunkIndex = 1;
   
+  console.log(`📏 Target words per chunk: ${wordsPerChunk}`);
+  
   for (const para of allParagraphs) {
     const text = para.text.trim();
-    if (text.length < 20) continue; // Skip short paragraphs
+    if (text.length < 15) continue; // Skip very short paragraphs
     
     const wordCount = text.split(/\s+/).length;
+    console.log(`📄 Processing paragraph: "${text.substring(0, 50)}..." (${wordCount} words)`);
     
     if (currentWordCount + wordCount > wordsPerChunk && currentChunk) {
       // Finalize current chunk
+      const chunkTitle = detectChunkTitle(currentChunk, lessonTitle, chunkIndex);
       chunks.push({
-        title: `${lessonTitle} - Part ${chunkIndex}`,
-        content: `<h3>${lessonTitle} - Part ${chunkIndex}</h3>\n${currentChunk}`,
-        type: 'content'
+        title: chunkTitle,
+        content: `<h3>${chunkTitle}</h3>\n${currentChunk}`,
+        type: detectChunkType(currentChunk)
       });
+      
+      console.log(`✂️  Created chunk ${chunkIndex}: "${chunkTitle}" (${currentWordCount} words)`);
       
       currentChunk = '';
       currentWordCount = 0;
@@ -717,23 +770,104 @@ function chunkByParagraphs(element: any, lessonTitle: string, processedAssets: M
         });
         currentChunk += `</${para.tagName.toLowerCase()}>\n`;
       }
-    } else {
+    } else if (text.length > 20) {
       currentChunk += `<p>${text}</p>\n`;
     }
     
     currentWordCount += wordCount;
   }
   
-  // Add final chunk if there's content
-  if (currentChunk.trim()) {
+  // Add final chunk if there's substantial content
+  if (currentChunk.trim() && currentWordCount > 30) {
+    const chunkTitle = detectChunkTitle(currentChunk, lessonTitle, chunkIndex);
     chunks.push({
-      title: `${lessonTitle} - Part ${chunkIndex}`,
-      content: `<h3>${lessonTitle} - Part ${chunkIndex}</h3>\n${currentChunk}`,
-      type: 'content'
+      title: chunkTitle,
+      content: `<h3>${chunkTitle}</h3>\n${currentChunk}`,
+      type: detectChunkType(currentChunk)
     });
+    console.log(`✂️  Created final chunk ${chunkIndex}: "${chunkTitle}" (${currentWordCount} words)`);
   }
   
+  console.log(`📊 Paragraph chunking result: ${chunks.length} chunks created`);
   return chunks.length > 1 ? chunks : [];
+}
+
+/**
+ * Force chunk long content regardless of structure
+ */
+function forceChunkLongContent(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> {
+  console.log(`🔪 Force chunking content for: ${lessonTitle}`);
+  
+  // Get all text content and split it aggressively
+  const textContent = element.text || '';
+  const sentences = textContent.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  
+  console.log(`📝 Found ${sentences.length} sentences to work with`);
+  
+  if (sentences.length < 6) {
+    console.log(`⚠️  Not enough sentences for force chunking`);
+    return [];
+  }
+  
+  const chunks: Array<{title: string, content: string, type: 'content' | 'example' | 'practice' | 'summary'}> = [];
+  const sentencesPerChunk = Math.ceil(sentences.length / 4); // Target 4 chunks
+  
+  for (let i = 0; i < sentences.length; i += sentencesPerChunk) {
+    const chunkSentences = sentences.slice(i, i + sentencesPerChunk);
+    const chunkContent = chunkSentences.map(s => `<p>${s.trim()}.</p>`).join('\n');
+    const chunkIndex = Math.floor(i / sentencesPerChunk) + 1;
+    const chunkTitle = `${lessonTitle} - Part ${chunkIndex}`;
+    
+    if (chunkContent.trim()) {
+      chunks.push({
+        title: chunkTitle,
+        content: `<h3>${chunkTitle}</h3>\n${chunkContent}`,
+        type: 'content'
+      });
+      console.log(`⚡ Force created chunk ${chunkIndex}: ${chunkSentences.length} sentences`);
+    }
+  }
+  
+  console.log(`💪 Force chunking result: ${chunks.length} chunks`);
+  return chunks;
+}
+
+/**
+ * Detect appropriate title for a chunk based on its content
+ */
+function detectChunkTitle(content: string, lessonTitle: string, chunkIndex: number): string {
+  const contentLower = content.toLowerCase();
+  
+  if (contentLower.includes('objective') || contentLower.includes('goal') || contentLower.includes('learn')) {
+    return `${lessonTitle} - Learning Objectives`;
+  } else if (contentLower.includes('introduction') || contentLower.includes('welcome') || contentLower.includes('overview')) {
+    return `${lessonTitle} - Introduction`;
+  } else if (contentLower.includes('example') || contentLower.includes('scenario') || contentLower.includes('case')) {
+    return `${lessonTitle} - Examples`;
+  } else if (contentLower.includes('practice') || contentLower.includes('exercise') || contentLower.includes('activity')) {
+    return `${lessonTitle} - Practice`;
+  } else if (contentLower.includes('summary') || contentLower.includes('conclusion') || contentLower.includes('takeaway')) {
+    return `${lessonTitle} - Summary`;
+  } else {
+    return `${lessonTitle} - Part ${chunkIndex}`;
+  }
+}
+
+/**
+ * Detect appropriate type for a chunk based on its content
+ */
+function detectChunkType(content: string): 'content' | 'example' | 'practice' | 'summary' {
+  const contentLower = content.toLowerCase();
+  
+  if (contentLower.includes('example') || contentLower.includes('scenario') || contentLower.includes('case')) {
+    return 'example';
+  } else if (contentLower.includes('practice') || contentLower.includes('exercise') || contentLower.includes('activity')) {
+    return 'practice';
+  } else if (contentLower.includes('summary') || contentLower.includes('conclusion') || contentLower.includes('takeaway')) {
+    return 'summary';
+  } else {
+    return 'content';
+  }
 }
 
 /**
