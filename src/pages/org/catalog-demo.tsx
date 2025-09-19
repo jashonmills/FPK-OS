@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { RequireRole } from '@/components/guards/RequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
-import { CourseCard } from '@/components/courses/CourseCard';
+import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
+import { EnhancedCourseCardSkeleton } from '@/components/courses/enhanced/EnhancedCourseCardSkeleton';
+import { EmptyState } from '@/components/courses/enhanced/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Search, Building2 } from 'lucide-react';
 import type { CourseCard as CourseCardType } from '@/types/course-card';
+import type { CourseCardModel, CourseCardActions, AssignmentSummary } from '@/types/enhanced-course-card';
 
 export default function CatalogDemoPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<CourseCardType | null>(null);
+  const { toast } = useToast();
 
   const { 
     catalog, 
@@ -20,10 +25,144 @@ export default function CatalogDemoPage() {
     error 
   } = useOrgCatalog();
 
-  const handleAssignCourse = (course: CourseCardType) => {
-    setSelectedCourse(course);
-    console.log('Phase 3 - Assign course:', course);
-    return null; // Return null as ReactNode
+  // Convert course data to enhanced format
+  const convertToEnhancedCourse = (course: CourseCardType): CourseCardModel => ({
+    id: course.id,
+    orgId: course.org_id,
+    title: course.title,
+    description: course.description,
+    thumbnailUrl: course.thumbnail_url,
+    durationMinutes: course.duration_minutes,
+    difficulty: course.difficulty_level as 'introductory' | 'intermediate' | 'advanced',
+    origin: course.source === 'platform' ? 'platform' : 'organization',
+    sourceType: course.source_table === 'courses' ? 'manual' : 'manual', // Simplified for now
+    framework: 'framework1', // Default framework
+    status: course.status === 'published' ? 'published' : 'draft',
+    instructorName: course.instructor_name,
+    route: course.route,
+    tags: course.tags,
+    enrolledCount: 0, // TODO: Get real enrollment count
+    avgCompletionPct: 0, // TODO: Get real completion percentage
+    isFeatured: false,
+    isNew: false,
+  });
+
+  // Course Actions
+  const createCourseActions = (isOrgCourse: boolean): CourseCardActions => ({
+    onPreview: (courseId: string) => {
+      console.log('Preview course:', courseId);
+      toast({
+        title: "Course Preview",
+        description: "Opening course preview...",
+      });
+    },
+    
+    onAssign: (courseId: string) => {
+      const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+      if (course) {
+        setSelectedCourse(course);
+        console.log('Assign course:', course);
+        toast({
+          title: "Assignment Modal",
+          description: "Assignment modal would open here...",
+        });
+      }
+    },
+
+    ...(isOrgCourse && {
+      onEdit: (courseId: string) => {
+        console.log('Edit course:', courseId);
+        toast({
+          title: "Edit Course",
+          description: "Opening course editor...",
+        });
+      },
+
+      onPublish: async (courseId: string): Promise<AssignmentSummary> => {
+        console.log('Publishing course:', courseId);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const impact = { groupCount: 0, studentCount: 0 };
+        toast({
+          title: "Course Published",
+          description: `Published successfully. Impact: ${impact.groupCount} groups, ${impact.studentCount} students.`,
+        });
+        return impact;
+      },
+
+      onUnpublish: async (courseId: string): Promise<AssignmentSummary> => {
+        console.log('Unpublishing course:', courseId);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const impact = { groupCount: 0, studentCount: 0 };
+        toast({
+          title: "Course Unpublished",
+          description: "Unpublished—students keep access until end of day.",
+        });
+        return impact;
+      },
+
+      onDelete: async (courseId: string): Promise<AssignmentSummary> => {
+        console.log('Deleting course:', courseId);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const impact = { groupCount: 0, studentCount: 0 };
+        toast({
+          title: "Course Deleted",
+          description: "Course deleted. Analytics retained.",
+        });
+        return impact;
+      },
+    }),
+
+    ...(!isOrgCourse && {
+      onDuplicateToOrg: (courseId: string) => {
+        console.log('Duplicate to org:', courseId);
+        toast({
+          title: "Course Duplicated",
+          description: "Cloned to your organization. Opening editor...",
+        });
+      },
+    }),
+
+    onViewAnalytics: (courseId: string) => {
+      console.log('View analytics:', courseId);
+      toast({
+        title: "Analytics",
+        description: "Opening course analytics...",
+      });
+    },
+
+    onSharePreview: (courseId: string) => {
+      console.log('Share preview:', courseId);
+      toast({
+        title: "Preview Link Generated",
+        description: "Preview link copied to clipboard.",
+      });
+    },
+
+    onAddToCollection: (courseId: string) => {
+      console.log('Add to collection:', courseId);
+      toast({
+        title: "Add to Collection",
+        description: "Collection selection modal would open...",
+      });
+    },
+  });
+
+  const handleCreateCourse = () => {
+    toast({
+      title: "Create Course",
+      description: "Course builder would open here...",
+    });
+  };
+
+  const handleUploadScorm = () => {
+    toast({
+      title: "Upload SCORM",
+      description: "SCORM upload modal would open here...",
+    });
   };
 
   if (isLoading) {
@@ -33,7 +172,7 @@ export default function CatalogDemoPage() {
           <div className="flex justify-center items-center min-h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading unified catalog...</p>
+              <p className="text-muted-foreground">Loading course catalog...</p>
             </div>
           </div>
         </div>
@@ -58,9 +197,9 @@ export default function CatalogDemoPage() {
       <div className="container mx-auto py-8 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Unified Course Catalog Demo</h1>
+          <h1 className="text-3xl font-bold mb-2">Course Catalog</h1>
           <p className="text-muted-foreground">
-            Phase 2: Testing the unified CourseCard DTO and catalog system
+            Discover and assign courses from our platform and your organization
           </p>
           <div className="flex gap-4 mt-4">
             <Badge variant="secondary">
@@ -97,18 +236,14 @@ export default function CatalogDemoPage() {
           </div>
           
           {platformCourses.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
-              <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">No platform courses available</p>
-            </div>
+            <EmptyState type="platform" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {platformCourses.map((course) => (
-                <CourseCard
+                <EnhancedCourseCard
                   key={course.id}
-                  course={course}
-                  showAssignButton={true}
-                  onAssign={handleAssignCourse}
+                  course={convertToEnhancedCourse(course)}
+                  actions={createCourseActions(false)}
                 />
               ))}
             </div>
@@ -127,18 +262,18 @@ export default function CatalogDemoPage() {
           </div>
           
           {orgCourses.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
-              <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">No organization courses created yet</p>
-            </div>
+            <EmptyState 
+              type="organization" 
+              onCreateCourse={handleCreateCourse}
+              onUploadScorm={handleUploadScorm}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {orgCourses.map((course) => (
-                <CourseCard
+                <EnhancedCourseCard
                   key={course.id}
-                  course={course}
-                  showAssignButton={true}
-                  onAssign={handleAssignCourse}
+                  course={convertToEnhancedCourse(course)}
+                  actions={createCourseActions(true)}
                 />
               ))}
             </div>
