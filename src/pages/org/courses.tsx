@@ -76,7 +76,13 @@ export default function CoursesPage() {
     isUpdating,
     isDeleting,
     isTogglingPublish,
-  } = useOrgCourses();
+  } = useOrgCourses(currentOrg?.organization_id);
+
+  // Debug logging
+  console.log('Debug - Organization ID:', currentOrg?.organization_id);
+  console.log('Debug - Organization courses:', orgCourses);
+  console.log('Debug - Platform courses:', platformCourses);
+  console.log('Debug - Loading states:', { isLoadingOrg, isLoadingPlatform });
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
