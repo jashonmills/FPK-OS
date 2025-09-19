@@ -365,11 +365,19 @@ export default function GoalsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => setSelectedGoal(goal)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.preventDefault();
+                            console.log('View Details clicked for goal:', goal.id);
+                            setSelectedGoal(goal);
+                          }}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditGoal(goal)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.preventDefault();
+                            console.log('Edit Goal clicked for goal:', goal.id);
+                            handleEditGoal(goal);
+                          }}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Goal
                           </DropdownMenuItem>
