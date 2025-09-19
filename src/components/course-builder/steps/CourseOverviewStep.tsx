@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CourseDraft } from '@/types/course-builder';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,16 +18,62 @@ interface CourseOverviewStepProps {
   setBackgroundImageUrl: (url: string) => void;
 }
 
-export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = React.memo(({
+export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
   draft,
   orgId,
   updateCourse,
   setBackgroundImageUrl
 }) => {
-  console.log('🔍 CourseOverviewStep render:', { title: draft.title, timestamp: Date.now() });
+  // Local state to prevent input focus loss
+  const [localTitle, setLocalTitle] = useState(draft.title || '');
+  const [localDescription, setLocalDescription] = useState(draft.description || '');
   const [uploading, setUploading] = useState(false);
   const [newObjective, setNewObjective] = useState('');
   const [newPrerequisite, setNewPrerequisite] = useState('');
+  
+  // Refs for debouncing
+  const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const descriptionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update local state when draft changes externally (but not during typing)
+  useEffect(() => {
+    if (draft.title !== localTitle && !titleTimeoutRef.current) {
+      setLocalTitle(draft.title || '');
+    }
+  }, [draft.title, localTitle]);
+
+  useEffect(() => {
+    if (draft.description !== localDescription && !descriptionTimeoutRef.current) {
+      setLocalDescription(draft.description || '');
+    }
+  }, [draft.description, localDescription]);
+
+  // Debounced update functions
+  const updateTitle = (value: string) => {
+    setLocalTitle(value);
+    
+    if (titleTimeoutRef.current) {
+      clearTimeout(titleTimeoutRef.current);
+    }
+    
+    titleTimeoutRef.current = setTimeout(() => {
+      updateCourse({ title: value });
+      titleTimeoutRef.current = null;
+    }, 300);
+  };
+
+  const updateDescription = (value: string) => {
+    setLocalDescription(value);
+    
+    if (descriptionTimeoutRef.current) {
+      clearTimeout(descriptionTimeoutRef.current);
+    }
+    
+    descriptionTimeoutRef.current = setTimeout(() => {
+      updateCourse({ description: value });
+      descriptionTimeoutRef.current = null;
+    }, 300);
+  };
 
   const handleBackgroundUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -111,13 +157,8 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = React.memo(
             <Label htmlFor="title">Course Title *</Label>
             <Input
               id="title"
-              value={draft.title}
-              onChange={(e) => {
-                console.log('🔍 Input onChange:', e.target.value, 'focused element:', document.activeElement?.id);
-                updateCourse({ title: e.target.value });
-              }}
-              onFocus={() => console.log('🔍 Input focused')}
-              onBlur={() => console.log('🔍 Input blurred')}
+              value={localTitle}
+              onChange={(e) => updateTitle(e.target.value)}
               placeholder="Enter course title..."
               className="mt-1"
             />
@@ -127,8 +168,8 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = React.memo(
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={draft.description || ''}
-              onChange={(e) => updateCourse({ description: e.target.value })}
+              value={localDescription}
+              onChange={(e) => updateDescription(e.target.value)}
               placeholder="Describe what students will learn..."
               rows={4}
               className="mt-1"
@@ -256,6 +297,4 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = React.memo(
       </div>
     </div>
   );
-});
-
-CourseOverviewStep.displayName = 'CourseOverviewStep';
+};
