@@ -625,6 +625,3 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
   // Default fallback response
   return "That's an interesting question! Let's explore it together. What specifically would you like to understand better?";
 }
-
-// Close the main serve function
-});
