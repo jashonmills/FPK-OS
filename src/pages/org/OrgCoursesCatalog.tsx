@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { RequireRole } from '@/components/guards/RequireRole';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
 import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
 import { EmptyState } from '@/components/courses/enhanced/EmptyState';
@@ -118,7 +118,7 @@ export default function OrgCoursesCatalog() {
 
   if (isLoading) {
     return (
-      <RequireRole roles={['instructor', 'owner']}>
+      <OrgRequireRole roles={['instructor', 'owner']}>
         <PageShell>
           <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
             <div className="flex justify-center items-center min-h-64">
@@ -129,13 +129,13 @@ export default function OrgCoursesCatalog() {
             </div>
           </div>
         </PageShell>
-      </RequireRole>
+      </OrgRequireRole>
     );
   }
 
   if (error) {
     return (
-      <RequireRole roles={['instructor', 'owner']}>
+      <OrgRequireRole roles={['instructor', 'owner']}>
         <PageShell>
           <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
             <div className="text-center">
@@ -143,12 +143,12 @@ export default function OrgCoursesCatalog() {
             </div>
           </div>
         </PageShell>
-      </RequireRole>
+      </OrgRequireRole>
     );
   }
 
   return (
-    <RequireRole roles={['instructor', 'owner']}>
+    <OrgRequireRole roles={['instructor', 'owner']}>
       <PageShell>
         <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
           {/* Header */}
@@ -340,6 +340,6 @@ export default function OrgCoursesCatalog() {
           </div>
         )}
       </PageShell>
-    </RequireRole>
+    </OrgRequireRole>
   );
 }
