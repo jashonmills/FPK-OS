@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import PageShell from "@/components/dashboard/PageShell";
 import { Button } from "@/components/ui/button";
 import { useOrgCatalog } from "@/hooks/useOrgCatalog";
+import { useOrganizationCourseAssignments } from "@/hooks/useOrganizationCourseAssignments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Clock, Plus, Star } from "lucide-react";
@@ -12,6 +13,7 @@ import { CourseCard as CourseCardType } from "@/types/course-card";
 export default function CoursesManagementNew() {
   const { orgId } = useParams<{ orgId: string }>();
   const { catalog, isLoading, error, platformCourses, orgCourses } = useOrgCatalog();
+  const { assignCourse, isAssigning, isCourseAssigned } = useOrganizationCourseAssignments(orgId);
   const [showCreateWizard, setShowCreateWizard] = React.useState(false);
 
   const formatDate = (dateString: string) => {
@@ -23,8 +25,7 @@ export default function CoursesManagementNew() {
   };
 
   const handleAssignCourse = (course: CourseCardType) => {
-    console.log('Assign course:', course);
-    // TODO: Implement course assignment
+    assignCourse(course.id);
   };
 
   const renderCourseCard = (course: CourseCardType, showAssignButton = false) => (
@@ -72,8 +73,9 @@ export default function CoursesManagementNew() {
             <Button 
               size="sm" 
               onClick={() => handleAssignCourse(course)}
+              disabled={isAssigning || isCourseAssigned(course.id)}
             >
-              Assign Course
+              {isCourseAssigned(course.id) ? 'Already Assigned' : 'Assign Course'}
             </Button>
           ) : (
             <>
