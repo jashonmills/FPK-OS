@@ -4,6 +4,7 @@ import { OrgProvider } from './OrgContext';
 import OrgHeader from './OrgHeader';
 import { OrgNavigation } from './OrgNavigation';
 import { OrgPageBanner } from './OrgPageBanner';
+import { OrgWelcomeBanner } from './OrgWelcomeBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { EnhancedOrgThemeProvider } from '@/components/theme/EnhancedOrgThemeProvider';
 import { useOrgContext } from './OrgContext';
@@ -55,6 +56,7 @@ function OrgLayoutContent() {
       {/* Main content area - offset for fixed header and nav */}
       <main className="ml-64 pt-16 min-h-screen">
         <div className="p-6">
+          <OrgWelcomeBanner />
           <OrgPageBanner />
           <Outlet />
         </div>

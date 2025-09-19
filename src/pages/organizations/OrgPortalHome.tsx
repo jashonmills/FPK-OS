@@ -103,27 +103,6 @@ export default function OrgPortalHome() {
 
   return (
     <div className="space-y-6">
-      {/* Branded Hero Section */}
-      <Card className="bg-orange-500/65 border-orange-400/50">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <OrgLogo size="lg" />
-              <div>
-                <h1 className="text-2xl font-bold text-white">
-                  Welcome to {currentOrg.organizations.name}
-                </h1>
-                <p className="text-white/80 mt-1">
-                  {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
-                </p>
-              </div>
-            </div>
-            <Badge variant="secondary" className="text-sm bg-white/20 text-white border-white/30">
-              {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
