@@ -151,7 +151,7 @@ export default function OrgBrandingSettings() {
                   <Button
                     variant="outline"
                     onClick={() => logoInputRef.current?.click()}
-                    className="w-full border-white/30 text-white hover:bg-white/20"
+                    className="w-full"
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     {logoFile ? 'Change Logo' : 'Upload Logo'}
