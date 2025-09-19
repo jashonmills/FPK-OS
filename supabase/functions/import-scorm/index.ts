@@ -298,7 +298,7 @@ function mapToFramework2(manifest: ScormManifest, contentFiles: Map<string, stri
     lessons: org.items.map((item, itemIndex) => ({
       id: `lesson_${orgIndex + 1}_${itemIndex + 1}`,
       title: cleanTitle(item.title),
-      description: extractLessonDescription(item),
+      description: extractLessonDescription(item, contentFiles),
       slides: item.children && item.children.length > 0 
         ? item.children.map((child, childIndex) => ({
             id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
@@ -367,19 +367,45 @@ function cleanTitle(title: string): string {
 }
 
 /**
- * Extract meaningful lesson description from SCORM item
+ * Extract meaningful lesson description from SCORM item  
  */
-function extractLessonDescription(item: any): string {
+function extractLessonDescription(item: any, contentFiles?: Map<string, string>): string {
   // Try to get description from various SCORM fields
   if (item.description && typeof item.description === 'string') {
     return cleanTitle(item.description);
   }
   
-  // If no description, create a descriptive one based on the title and content type
+  // Try to extract description from actual content if available
+  if (contentFiles && item.resource) {
+    for (const [filePath, content] of contentFiles) {
+      // Look for content that matches this item
+      if (filePath.toLowerCase().includes(item.title?.toLowerCase()) || 
+          content.toLowerCase().includes(item.title?.toLowerCase())) {
+        
+        // Try to extract a meaningful description from the HTML content
+        const description = extractDescriptionFromHtml(content, item.title);
+        if (description && description.length > 20) {
+          return description;
+        }
+      }
+    }
+  }
+  
+  // If no description found, create a descriptive one based on the title
   if (item.title) {
     const cleanedTitle = cleanTitle(item.title);
-    const contentType = inferSlideType(item.title);
     
+    // Check if the title indicates specific educational content
+    const titleLower = cleanedTitle.toLowerCase();
+    if (titleLower.includes('parent')) {
+      return `Essential guidance and resources for parents regarding ${cleanedTitle.toLowerCase()}`;
+    } else if (titleLower.includes('educator') || titleLower.includes('teacher')) {
+      return `Professional development and instructional strategies for educators on ${cleanedTitle.toLowerCase()}`;
+    } else if (titleLower.includes('iep') || titleLower.includes('individualized')) {
+      return `Comprehensive information about individualized education programs and ${cleanedTitle.toLowerCase()}`;
+    }
+    
+    const contentType = inferSlideType(item.title);
     switch (contentType) {
       case 'practice':
         return `Interactive exercises and practice activities for ${cleanedTitle.toLowerCase()}`;
@@ -388,11 +414,53 @@ function extractLessonDescription(item: any): string {
       case 'summary':
         return `Key takeaways and summary of ${cleanedTitle.toLowerCase()}`;
       default:
-        return `Comprehensive lesson covering ${cleanedTitle.toLowerCase()}`;
+        return `Educational content covering ${cleanedTitle.toLowerCase()} concepts and applications`;
     }
   }
   
   return 'Interactive educational content';
+}
+
+/**
+ * Extract a meaningful description from HTML content
+ */
+function extractDescriptionFromHtml(htmlContent: string, title: string): string {
+  try {
+    const root = parseHtml(htmlContent);
+    
+    // Look for meta description
+    const metaDesc = root.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      const content = metaDesc.getAttribute('content');
+      if (content && content.length > 20) {
+        return content.trim();
+      }
+    }
+    
+    // Look for the first substantial paragraph
+    const paragraphs = root.querySelectorAll('p, .description, .intro, .summary');
+    for (const p of paragraphs) {
+      const text = p.text.trim();
+      if (text && text.length > 30 && text.length < 200) {
+        // Clean up and return the first good paragraph
+        return text.replace(/\s+/g, ' ').trim();
+      }
+    }
+    
+    // Look for any substantial text content
+    const bodyText = root.querySelector('body')?.text.trim();
+    if (bodyText && bodyText.length > 50) {
+      const sentences = bodyText.split('.').filter(s => s.trim().length > 20);
+      if (sentences.length > 0) {
+        return sentences[0].trim() + '.';
+      }
+    }
+    
+    return '';
+  } catch (error) {
+    console.warn('⚠️  Error extracting description from HTML:', error);
+    return '';
+  }
 }
 
 /**
@@ -401,26 +469,84 @@ function extractLessonDescription(item: any): string {
 function generateSlideContent(title: string, resourceRef: string, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): string {
   const cleanedTitle = cleanTitle(title);
   
+  console.log(`🔍 Generating content for: ${cleanedTitle}, resourceRef: ${resourceRef}`);
+  console.log(`📄 Available content files: ${Array.from(contentFiles.keys()).join(', ')}`);
+  
   // Find the associated resource
   const resource = resources.find(r => r.identifier === resourceRef);
   
+  // Try multiple strategies to find content
+  let actualContent = null;
+  
   if (resource && resource.href) {
-    // Try to get actual content from extracted files
-    const actualContent = contentFiles.get(resource.href);
+    // Strategy 1: Direct match
+    actualContent = contentFiles.get(resource.href);
+    console.log(`🔍 Direct match for ${resource.href}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
     
-    if (actualContent) {
-      return parseHtmlContent(actualContent, cleanedTitle, processedAssets);
+    // Strategy 2: Try without leading slash
+    if (!actualContent && resource.href.startsWith('/')) {
+      actualContent = contentFiles.get(resource.href.substring(1));
+      console.log(`🔍 Without leading slash ${resource.href.substring(1)}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
     }
     
-    // Fallback: create structured content with the resource reference
-    return `<h3>${cleanedTitle}</h3>
-<p>This lesson covers key concepts related to ${cleanedTitle.toLowerCase()}.</p>
-<div class="resource-reference" data-href="${resource.href}">
-  <p>Content source: ${resource.href}</p>
-</div>`;
+    // Strategy 3: Try with leading slash
+    if (!actualContent && !resource.href.startsWith('/')) {
+      actualContent = contentFiles.get('/' + resource.href);
+      console.log(`🔍 With leading slash /${resource.href}: ${actualContent ? 'FOUND' : 'NOT FOUND'}`);
+    }
   }
   
-  // Fallback content based on title analysis
+  // Strategy 4: Try to find content by title matching
+  if (!actualContent) {
+    const titleLower = cleanedTitle.toLowerCase();
+    for (const [filePath, content] of contentFiles) {
+      if (filePath.toLowerCase().includes(titleLower) || 
+          filePath.toLowerCase().includes(title.toLowerCase()) ||
+          content.toLowerCase().includes(titleLower)) {
+        actualContent = content;
+        console.log(`🔍 Found content by title matching in: ${filePath}`);
+        break;
+      }
+    }
+  }
+  
+  // Strategy 5: Try common patterns based on title
+  if (!actualContent) {
+    const patterns = [
+      `${cleanedTitle.toLowerCase().replace(/\s+/g, '')}.html`,
+      `${cleanedTitle.toLowerCase().replace(/\s+/g, '_')}.html`,
+      `lesson${cleanedTitle.toLowerCase().replace(/\D/g, '')}.html`,
+      `${cleanedTitle.toLowerCase()}/index.html`
+    ];
+    
+    for (const pattern of patterns) {
+      for (const [filePath, content] of contentFiles) {
+        if (filePath.toLowerCase().includes(pattern) || filePath.toLowerCase().endsWith(pattern)) {
+          actualContent = content;
+          console.log(`🔍 Found content by pattern ${pattern} in: ${filePath}`);
+          break;
+        }
+      }
+      if (actualContent) break;
+    }
+  }
+  
+  // Strategy 6: Use any available content if we still haven't found anything
+  if (!actualContent && contentFiles.size > 0) {
+    const firstContent = Array.from(contentFiles.values())[0];
+    const firstPath = Array.from(contentFiles.keys())[0];
+    actualContent = firstContent;
+    console.log(`🔍 Using first available content from: ${firstPath}`);
+  }
+  
+  // If we found actual content, parse it
+  if (actualContent) {
+    console.log(`✅ Using actual HTML content for ${cleanedTitle}`);
+    return parseHtmlContent(actualContent, cleanedTitle, processedAssets);
+  }
+  
+  // Final fallback - this should rarely happen now
+  console.log(`⚠️  No content found for ${cleanedTitle}, using fallback`);
   const contentType = inferSlideType(title);
   switch (contentType) {
     case 'practice':
