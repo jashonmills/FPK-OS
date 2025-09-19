@@ -8,9 +8,7 @@ export function OrgPageBanner() {
     currentOrg
   } = useOrgContext();
 
-  // Don't show banner on dashboard (main org page)
-  const isDashboard = location.pathname === `/org/${currentOrg?.organization_id}`;
-  if (isDashboard || !currentOrg) {
+  if (!currentOrg) {
     return null;
   }
   return <OrgBanner className="h-40 mb-8 rounded-lg overflow-hidden shadow-lg" overlay={false}>
