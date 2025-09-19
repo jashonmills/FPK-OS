@@ -121,7 +121,10 @@ export default function DraftPreview() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate(`/org/${draft.org_id}/course-builder/${draftId}`)}
+                onClick={() => {
+                  console.log('Back button clicked, navigating to:', `/org/${draft.org_id}/courses/editor/${draftId}`);
+                  navigate(`/org/${draft.org_id}/courses/editor/${draftId}`);
+                }}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -134,7 +137,10 @@ export default function DraftPreview() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate(`/org/${draft.org_id}/course-builder/${draft.id}`)}
+              onClick={() => {
+                console.log('Edit Course button clicked, navigating to:', `/org/${draft.org_id}/courses/editor/${draft.id}`);
+                navigate(`/org/${draft.org_id}/courses/editor/${draft.id}`);
+              }}
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit Course
