@@ -4145,15 +4145,24 @@ export type Database = {
       }
       org_group_members: {
         Row: {
+          added_at: string | null
+          added_by: string | null
           group_id: string
+          id: string | null
           user_id: string
         }
         Insert: {
+          added_at?: string | null
+          added_by?: string | null
           group_id: string
+          id?: string | null
           user_id: string
         }
         Update: {
+          added_at?: string | null
+          added_by?: string | null
           group_id?: string
+          id?: string | null
           user_id?: string
         }
         Relationships: [
