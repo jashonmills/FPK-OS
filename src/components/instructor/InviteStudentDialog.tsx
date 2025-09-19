@@ -170,19 +170,28 @@ export default function InviteStudentDialog({
                       <div className="text-sm text-muted-foreground mb-2">
                         Invitation Code
                       </div>
-                      <div className="flex items-center justify-between">
-                        <code className="text-2xl font-mono font-bold tracking-wider">
-                          {generatedCode}
-                        </code>
+                      <div className="space-y-3">
+                        <div className="p-3 bg-background rounded-md border">
+                          <code className="text-lg font-mono font-bold break-all select-all">
+                            {generatedCode}
+                          </code>
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(generatedCode)}
+                          className="w-full"
                         >
                           {copied ? (
-                            <Check className="h-4 w-4" />
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              Copied!
+                            </>
                           ) : (
-                            <Copy className="h-4 w-4" />
+                            <>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy Code
+                            </>
                           )}
                         </Button>
                       </div>
