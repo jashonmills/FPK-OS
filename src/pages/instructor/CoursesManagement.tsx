@@ -314,7 +314,7 @@ export default function CoursesManagementNew() {
 
   return (
     <PageShell>
-      <div className="p-6">
+      <div className="p-6 bg-orange-500/65 backdrop-blur-sm border border-orange-400/50 rounded-lg">
         <header className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Courses</h1>
           <div className="flex gap-2">
