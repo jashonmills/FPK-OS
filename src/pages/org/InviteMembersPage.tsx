@@ -61,6 +61,7 @@ import { useOrgMembers } from '@/hooks/useOrganization';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 const InviteMembersPage = () => {
   const { orgId } = useParams<{ orgId: string }>();
@@ -222,12 +223,12 @@ const InviteMembersPage = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Header */}
-      <div>
+      <TransparentTile>
         <h1 className="text-3xl font-bold">Invite teammates to your organization</h1>
         <p className="text-muted-foreground mt-2">
           Send an invite or share a join code to give teammates access with the right role.
         </p>
-      </div>
+      </TransparentTile>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Invite Actions */}
