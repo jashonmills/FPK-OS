@@ -37,7 +37,7 @@ import { CollectionSelectionModal } from '@/components/collections/CollectionSel
 interface EnhancedCourseCardProps {
   course: CourseCardModel;
   actions: CourseCardActions;
-  viewType?: 'grid' | 'list';
+  viewType?: 'grid' | 'list' | 'compact';
 }
 
 export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: EnhancedCourseCardProps) {
@@ -123,6 +123,179 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
   const canDelete = isOrgCourse && canManageOrg();
 
   const courseImage = getCourseImage(course.id, course.title);
+
+  // Render compact view
+  if (viewType === 'compact') {
+    return (
+      <>
+        <div className="relative flex items-center px-4 py-2 hover:bg-muted/50 transition-colors border-b border-border/40 last:border-b-0">
+          <StatusRibbon />
+          
+          {/* Status indicator dot */}
+          <div className={`w-2 h-2 rounded-full mr-3 flex-shrink-0 ${getStatusColor(course.status).replace('bg-', 'bg-').split(' ')[0]}`} />
+          
+          {/* Course info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-sm truncate">{course.title}</h3>
+              {course.instructorName && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground truncate">{course.instructorName}</span>
+                </>
+              )}
+              {course.durationMinutes && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground">{course.durationMinutes}min</span>
+                </>
+              )}
+              <div className="flex gap-1 ml-2">
+                {getOriginBadge()}
+                {getFrameworkBadge()}
+              </div>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => actions.onPreview(course.id)}
+              className="h-7 px-2 text-xs"
+            >
+              Preview
+            </Button>
+            <Button
+              size="sm" 
+              onClick={() => actions.onAssign(course.id)}
+              className="h-7 px-2 text-xs"
+            >
+              Assign
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                  <MoreVertical className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {isPlatformCourse && (
+                  <>
+                    {actions.onDuplicateToOrg && (
+                      <DropdownMenuItem onClick={() => actions.onDuplicateToOrg!(course.id)}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Duplicate to Org
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Full Preview
+                    </DropdownMenuItem>
+                    {actions.onViewAnalytics && (
+                      <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Analytics (Read-only)
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
+                {isOrgCourse && (
+                  <>
+                    {canEdit && actions.onEdit && (
+                      <DropdownMenuItem onClick={() => actions.onEdit(course.id)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Course
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Full Preview
+                    </DropdownMenuItem>
+                    {actions.onViewAnalytics && (
+                      <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Analytics (Full)
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
+                {actions.onSharePreview && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => actions.onSharePreview(course.id)}>
+                      <Share className="h-4 w-4 mr-2" />
+                      Share Preview Link
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {actions.onAddToCollection && (
+                  <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
+                    <Tag className="h-4 w-4 mr-2" />
+                    Add to Collection
+                  </DropdownMenuItem>
+                )}
+                {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
+                {canPublish && (
+                  <DropdownMenuItem 
+                    onClick={() => setConfirm({ 
+                      kind: 'publish', 
+                      busy: false, 
+                      courseTitle: course.title,
+                      impactSummary: course.lastAssignment 
+                    })}
+                    className="text-emerald-600 dark:text-emerald-400"
+                  >
+                    <Circle className="h-4 w-4 mr-2" />
+                    Publish
+                  </DropdownMenuItem>
+                )}
+                {canUnpublish && (
+                  <DropdownMenuItem 
+                    onClick={() => setConfirm({ 
+                      kind: 'unpublish', 
+                      busy: false, 
+                      courseTitle: course.title,
+                      impactSummary: course.lastAssignment 
+                    })}
+                    className="text-amber-600 dark:text-amber-400"
+                  >
+                    <Archive className="h-4 w-4 mr-2" />
+                    Unpublish
+                  </DropdownMenuItem>
+                )}
+                {canDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setConfirm({ 
+                        kind: 'delete', 
+                        busy: false, 
+                        courseTitle: course.title,
+                        impactSummary: course.lastAssignment 
+                      })}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <ConfirmModal
+          isOpen={confirm.kind !== null}
+          confirm={confirm}
+          onConfirm={handleConfirmAction}
+          onCancel={() => setConfirm({ kind: null, busy: false })}
+        />
+      </>
+    );
+  }
 
   // Render list view
   if (viewType === 'list') {

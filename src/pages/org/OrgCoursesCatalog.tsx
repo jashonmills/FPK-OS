@@ -19,7 +19,8 @@ import {
   Plus,
   Upload,
   Grid3X3, 
-  List
+  List,
+  AlignJustify
 } from 'lucide-react';
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
@@ -29,7 +30,7 @@ import { useCourseActions } from '@/hooks/useCourseActions';
 import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
 
-type ViewType = 'grid' | 'list';
+type ViewType = 'grid' | 'list' | 'compact';
 
 export default function OrgCoursesCatalog() {
   const { orgId } = useParams<{ orgId: string }>();
@@ -238,6 +239,17 @@ export default function OrgCoursesCatalog() {
                 >
                   <List className="w-4 h-4" />
                 </Button>
+                <Button
+                  size="sm"
+                  variant={viewType === 'compact' ? 'secondary' : 'ghost'}
+                  onClick={() => handleViewTypeChange('compact')}
+                  className={viewType === 'compact' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
+                >
+                  <AlignJustify className="w-4 h-4" />
+                </Button>
               </div>
               <CollectionsDropdown orgId={orgId} />
               <Button 
@@ -339,7 +351,9 @@ export default function OrgCoursesCatalog() {
               <div className={
                 viewType === 'grid' 
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "space-y-4"
+                  : viewType === 'list'
+                  ? "space-y-4"
+                  : "space-y-1"
               }>
                 {filteredPlatformCourses.map((course) => (
                   <EnhancedCourseCard
@@ -378,7 +392,9 @@ export default function OrgCoursesCatalog() {
               <div className={
                 viewType === 'grid' 
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "space-y-4"
+                  : viewType === 'list'
+                  ? "space-y-4"
+                  : "space-y-1"
               }>
                 {filteredOrgCourses.map((course) => (
                   <EnhancedCourseCard
