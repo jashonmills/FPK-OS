@@ -84,6 +84,7 @@ const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSet
 const OrgSettings = lazy(() => import("./pages/dashboard/org/settings"));
 const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
+const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
 const GoalsManagement = lazy(() => import("./pages/instructor/GoalsManagement"));
 const NotesManagement = lazy(() => import("./pages/instructor/NotesManagement"));
@@ -596,6 +597,7 @@ const App: React.FC = () => {
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
+            <Route path=":orgId/catalog-demo" element={<LazyRoute><CatalogDemo /></LazyRoute>} />
             <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
             <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
             <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
