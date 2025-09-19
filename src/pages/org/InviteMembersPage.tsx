@@ -234,7 +234,7 @@ const InviteMembersPage = () => {
         {/* Left Column - Invite Actions */}
         <div className="space-y-6">
           {/* Invite by Email */}
-          <Card>
+          <TransparentTile>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
@@ -346,11 +346,11 @@ const InviteMembersPage = () => {
               >
                 {emailInviteMutation.isPending ? 'Sending...' : 'Send Invite'}
               </Button>
-            </CardContent>
-          </Card>
+             </CardContent>
+           </TransparentTile>
 
           {/* Share Join Code */}
-          <Card>
+          <TransparentTile>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Link2 className="h-5 w-5" />
@@ -402,13 +402,13 @@ const InviteMembersPage = () => {
                 </Button>
               )}
             </CardContent>
-          </Card>
+          </TransparentTile>
         </div>
 
         {/* Right Column - Current State */}
         <div className="space-y-6">
           {/* Pending Invitations */}
-          <Card>
+          <TransparentTile>
             <CardHeader>
               <CardTitle>Pending Invitations</CardTitle>
               <CardDescription>
@@ -460,10 +460,10 @@ const InviteMembersPage = () => {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </TransparentTile>
 
           {/* Members & Roles */}
-          <Card>
+          <TransparentTile>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -516,7 +516,7 @@ const InviteMembersPage = () => {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </TransparentTile>
         </div>
       </div>
 
