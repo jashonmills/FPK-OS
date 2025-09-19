@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgGoals } from '@/hooks/useOrgGoals';
 import { OrgCard, OrgCardContent, OrgCardHeader, OrgCardTitle, OrgCardDescription } from '@/components/organizations/OrgCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Target, Users, TrendingUp, Plus, Filter, Flag, Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Target, Users, TrendingUp, Plus, Filter, Flag, Search, Calendar } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function GoalsManagement() {
   const { currentOrg } = useOrgContext();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'learning',
+    priority: 'medium',
+    student_id: ''
+  });
 
   if (!currentOrg) {
     return (
@@ -41,6 +54,43 @@ export default function GoalsManagement() {
     );
   }
 
+  const handleCreateGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      toast.error('Goal title is required');
+      return;
+    }
+
+    if (!formData.student_id) {
+      toast.error('Student ID is required');
+      return;
+    }
+
+    try {
+      await createGoal({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        student_id: formData.student_id
+      });
+      
+      toast.success('Goal created successfully!');
+      setDialogOpen(false);
+      setFormData({
+        title: '',
+        description: '',
+        category: 'learning',
+        priority: 'medium',
+        student_id: ''
+      });
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      toast.error('Failed to create goal');
+    }
+  };
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'learning': return 'default';
@@ -68,10 +118,97 @@ export default function GoalsManagement() {
             Set and track organizational learning goals for your students
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Goal
-        </Button>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Goal
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Create New Goal</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateGoal} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Enter goal title"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Enter goal description"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="learning">Learning</SelectItem>
+                      <SelectItem value="engagement">Engagement</SelectItem>
+                      <SelectItem value="retention">Retention</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="priority">Priority</Label>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="student_id">Student ID</Label>
+                <Input
+                  id="student_id"
+                  value={formData.student_id}
+                  onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                  placeholder="Enter student ID"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Create Goal
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Cards */}
