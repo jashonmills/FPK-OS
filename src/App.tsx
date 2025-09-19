@@ -117,6 +117,9 @@ const ScormPlayer = lazy(() =>
 const CoursePreview = lazy(() => import("./pages/preview/CoursePreview"));
 const CourseAnalytics = lazy(() => import("./pages/org/CourseAnalytics"));
 
+// Course Builder components
+const CourseCreationWizard = lazy(() => import("./components/course-builder/CourseCreationWizard").then(m => ({ default: m.CourseCreationWizard })));
+
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 
@@ -613,6 +616,7 @@ const App: React.FC = () => {
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
+            <Route path=":orgId/courses/editor/:draftId" element={<LazyRoute><CourseCreationWizard /></LazyRoute>} />
             <Route path=":orgId/collections" element={<LazyRoute><OrgCollections /></LazyRoute>} />
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
