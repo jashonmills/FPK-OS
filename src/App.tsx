@@ -86,6 +86,7 @@ const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagem
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
+const AssignmentsDashboard = lazy(() => import("./pages/student/AssignmentsDashboard"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
 const GoalsManagement = lazy(() => import("./pages/instructor/GoalsManagement"));
 const NotesManagement = lazy(() => import("./pages/instructor/NotesManagement"));

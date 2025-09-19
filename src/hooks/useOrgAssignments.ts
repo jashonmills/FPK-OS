@@ -45,12 +45,20 @@ export function useOrgAssignments() {
   });
 
   const createAssignmentMutation = useMutation({
-    mutationFn: async (assignmentData: { title: string; type: string; resource_id: string; metadata?: any }) => {
+    mutationFn: async (assignmentData: { 
+      title: string; 
+      type: string; 
+      resource_id: string; 
+      metadata?: any;
+      target_members?: string[];
+    }) => {
       // Create assignment using existing table structure
       const { data: assignmentResult, error: assignmentError } = await supabase
         .from('org_assignments')
         .insert({
-          ...assignmentData,
+          title: assignmentData.title,
+          type: assignmentData.type,
+          resource_id: assignmentData.resource_id,
           org_id: orgId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         })
@@ -58,6 +66,25 @@ export function useOrgAssignments() {
         .single();
 
       if (assignmentError) throw assignmentError;
+
+      // Create assignment targets for selected students
+      if (assignmentData.target_members && assignmentData.target_members.length > 0) {
+        const targets = assignmentData.target_members.map(userId => ({
+          assignment_id: assignmentResult.id,
+          target_id: userId,
+          target_type: 'user' as const,
+        }));
+
+        const { error: targetsError } = await supabase
+          .from('org_assignment_targets')
+          .insert(targets);
+
+        if (targetsError) {
+          console.error('Error creating assignment targets:', targetsError);
+          // Don't throw here - assignment was created successfully
+        }
+      }
+
       return assignmentResult;
     },
     onSuccess: () => {

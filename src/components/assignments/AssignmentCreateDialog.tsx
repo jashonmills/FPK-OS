@@ -37,12 +37,11 @@ export function AssignmentCreateDialog({ course, trigger }: AssignmentCreateDial
         title,
         type: 'course',
         resource_id: course.id,
-        // Store additional data in a metadata field if needed
+        target_members: selectedMembers,
         metadata: {
           instructions,
           due_date: dueDate || null,
           required,
-          target_members: selectedMembers,
           course_title: course.title
         }
       });
