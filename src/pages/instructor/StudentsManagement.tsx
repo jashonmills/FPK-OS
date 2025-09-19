@@ -7,38 +7,31 @@ import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Search, Filter, MoreHorizontal } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgMembers } from '@/hooks/useOrgMembers';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 export default function StudentsManagement() {
-  const { currentOrg } = useOrgContext();
+  const {
+    currentOrg
+  } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { members, isLoading } = useOrgMembers(searchQuery, 'student');
-  
+  const {
+    members,
+    isLoading
+  } = useOrgMembers(searchQuery, 'student');
   const students = members.filter(m => m.role === 'student');
-
   if (!currentOrg) {
-    return (
-      <div className="container max-w-6xl mx-auto py-8">
+    return <div className="container max-w-6xl mx-auto py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
             <p className="text-purple-200">No organization selected</p>
           </OrgCardContent>
         </OrgCard>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="container max-w-6xl mx-auto py-8 space-y-6">
+  return <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Students</h1>
-          <p className="text-white/80 mt-2 drop-shadow">
+          <h1 className="font-bold tracking-tight text-white drop-shadow-lg text-5xl">Students</h1>
+          <p className="mt-2 drop-shadow text-lg text-[#a2571a]/80 font-semibold">
             Manage and monitor your organization's students
           </p>
         </div>
@@ -81,9 +74,7 @@ export default function StudentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Average Progress</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(
-              students.reduce((acc, s) => acc + (s.progress || 0), 0) / students.length
-            ) : 0}%</div>
+            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(students.reduce((acc, s) => acc + (s.progress || 0), 0) / students.length) : 0}%</div>
           </OrgCardContent>
         </OrgCard>
         
@@ -92,9 +83,7 @@ export default function StudentsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Completion Rate</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(
-              students.filter(s => (s.courses_completed || 0) > 0).length / students.length * 100
-            ) : 0}%</div>
+            <div className="text-2xl font-bold mt-2 text-white">{students.length > 0 ? Math.round(students.filter(s => (s.courses_completed || 0) > 0).length / students.length * 100) : 0}%</div>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -105,12 +94,7 @@ export default function StudentsManagement() {
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
-              <Input 
-                placeholder="Search students..." 
-                className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <Input placeholder="Search students..." className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             </div>
             <Button variant="outline" className="border-border text-foreground hover:bg-accent">
               <Filter className="w-4 h-4 mr-2" />
@@ -130,16 +114,11 @@ export default function StudentsManagement() {
         </OrgCardHeader>
         <OrgCardContent>
           <div className="space-y-4">
-            {students.map((student) => (
-              <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg border-white/20 bg-white/10">
+            {students.map(student => <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg border-white/20 bg-white/10">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                     <span className="text-sm font-semibold text-white">
-                      {(student.full_name || student.display_name || 'User')
-                        .split(' ')
-                        .map(n => n[0])
-                        .join('')
-                        .toUpperCase()}
+                      {(student.full_name || student.display_name || 'User').split(' ').map(n => n[0]).join('').toUpperCase()}
                     </span>
                   </div>
                   <div>
@@ -180,11 +159,9 @@ export default function StudentsManagement() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </div>
-            ))}
+              </div>)}
             
-            {students.length === 0 && !isLoading && (
-              <div className="text-center py-8">
+            {students.length === 0 && !isLoading && <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-white/70 mb-4" />
                 <h3 className="text-lg font-semibold mb-2 text-white">No Students Found</h3>
                 <p className="text-white/80 mb-4">
@@ -194,11 +171,9 @@ export default function StudentsManagement() {
                   <UserPlus className="w-4 h-4 mr-2" />
                   Invite Students
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
         </OrgCardContent>
       </OrgCard>
-    </div>
-  );
+    </div>;
 }
