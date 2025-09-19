@@ -1211,15 +1211,18 @@ export type Database = {
           created_by: string | null
           description: string | null
           difficulty_level: string | null
+          discoverable: boolean | null
           duration_minutes: number | null
           featured: boolean | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
+          org_id: string | null
           organization_id: string | null
           price: number | null
           published_at: string | null
           slug: string | null
+          source: string | null
           status: string | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -1233,15 +1236,18 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           difficulty_level?: string | null
+          discoverable?: boolean | null
           duration_minutes?: number | null
           featured?: boolean | null
           id: string
           instructor_name?: string | null
           is_free?: boolean | null
+          org_id?: string | null
           organization_id?: string | null
           price?: number | null
           published_at?: string | null
           slug?: string | null
+          source?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -1255,15 +1261,18 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           difficulty_level?: string | null
+          discoverable?: boolean | null
           duration_minutes?: number | null
           featured?: boolean | null
           id?: string
           instructor_name?: string | null
           is_free?: boolean | null
+          org_id?: string | null
           organization_id?: string | null
           price?: number | null
           published_at?: string | null
           slug?: string | null
+          source?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -3414,10 +3423,14 @@ export type Database = {
           cover_url: string | null
           created_at: string
           created_by: string | null
+          discoverable: boolean | null
           est_minutes: number | null
           id: string
+          org_id: string | null
           organization_id: string | null
           slug: string
+          source: string | null
+          status: string | null
           summary: string | null
           title: string
           updated_at: string
@@ -3428,10 +3441,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          discoverable?: boolean | null
           est_minutes?: number | null
           id?: string
+          org_id?: string | null
           organization_id?: string | null
           slug: string
+          source?: string | null
+          status?: string | null
           summary?: string | null
           title: string
           updated_at?: string
@@ -3442,10 +3459,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          discoverable?: boolean | null
           est_minutes?: number | null
           id?: string
+          org_id?: string | null
           organization_id?: string | null
           slug?: string
+          source?: string | null
+          status?: string | null
           summary?: string | null
           title?: string
           updated_at?: string
@@ -3816,6 +3837,117 @@ export type Database = {
           },
         ]
       }
+      org_course_assignments_new: {
+        Row: {
+          assignee_id: string
+          assignee_type: string
+          course_id: string
+          course_table: string
+          created_at: string | null
+          created_by: string
+          due_at: string | null
+          id: string
+          instructions: string | null
+          org_id: string
+          required: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          assignee_id: string
+          assignee_type: string
+          course_id: string
+          course_table: string
+          created_at?: string | null
+          created_by: string
+          due_at?: string | null
+          id?: string
+          instructions?: string | null
+          org_id: string
+          required?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          assignee_id?: string
+          assignee_type?: string
+          course_id?: string
+          course_table?: string
+          created_at?: string | null
+          created_by?: string
+          due_at?: string | null
+          id?: string
+          instructions?: string | null
+          org_id?: string
+          required?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      org_course_imports: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          file_name: string
+          file_url: string
+          id: string
+          log: Json | null
+          org_id: string
+          output_org_course_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          file_name: string
+          file_url: string
+          id?: string
+          log?: Json | null
+          org_id: string
+          output_org_course_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          log?: Json | null
+          org_id?: string
+          output_org_course_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      org_course_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          org_course_id: string
+          snapshot_json: Json
+          version: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          org_course_id: string
+          snapshot_json: Json
+          version: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          org_course_id?: string
+          snapshot_json?: Json
+          version?: number
+        }
+        Relationships: []
+      }
       org_courses: {
         Row: {
           background_image_url: string | null
@@ -3823,6 +3955,7 @@ export type Database = {
           created_by: string
           deleted_at: string | null
           description: string | null
+          discoverable: boolean | null
           duration_estimate_mins: number | null
           framework: string | null
           id: string
@@ -3833,6 +3966,8 @@ export type Database = {
           org_id: string
           prerequisites: Json | null
           published: boolean | null
+          source: string | null
+          status: string | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
@@ -3843,6 +3978,7 @@ export type Database = {
           created_by: string
           deleted_at?: string | null
           description?: string | null
+          discoverable?: boolean | null
           duration_estimate_mins?: number | null
           framework?: string | null
           id?: string
@@ -3853,6 +3989,8 @@ export type Database = {
           org_id: string
           prerequisites?: Json | null
           published?: boolean | null
+          source?: string | null
+          status?: string | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
@@ -3863,6 +4001,7 @@ export type Database = {
           created_by?: string
           deleted_at?: string | null
           description?: string | null
+          discoverable?: boolean | null
           duration_estimate_mins?: number | null
           framework?: string | null
           id?: string
@@ -3873,6 +4012,8 @@ export type Database = {
           org_id?: string
           prerequisites?: Json | null
           published?: boolean | null
+          source?: string | null
+          status?: string | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
@@ -7312,6 +7453,39 @@ export type Database = {
           event_value?: number
           id?: string
           metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xp_events_new: {
+        Row: {
+          id: string
+          metadata: Json | null
+          occurred_at: string | null
+          org_id: string | null
+          points: number
+          scope: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string | null
+          org_id?: string | null
+          points: number
+          scope: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string | null
+          org_id?: string | null
+          points?: number
+          scope?: string
+          source?: string
           user_id?: string
         }
         Relationships: []
