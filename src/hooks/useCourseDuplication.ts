@@ -56,7 +56,8 @@ export function useCourseDuplication(orgId?: string) {
       return { 
         duplication: data, 
         duplicatedCourseId,
-        editUrl: `/org/${orgId}/courses/edit/${duplicatedCourseId}?cloned=true`
+        // Navigate back to courses catalog instead of non-existent edit page
+        catalogUrl: `/org/${orgId}/courses`
       };
     },
     onSuccess: (result) => {
@@ -68,9 +69,9 @@ export function useCourseDuplication(orgId?: string) {
         description: "Course has been cloned to your organization with proper attribution.",
       });
       
-      // Navigate to the edit page for the duplicated course
-      if (result.editUrl) {
-        window.open(result.editUrl, '_blank');
+      // Navigate back to courses catalog to see the duplicated course
+      if (result.catalogUrl) {
+        window.location.href = result.catalogUrl;
       }
     },
     onError: (error) => {

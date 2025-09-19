@@ -22,15 +22,10 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
 
   const preview = useCallback((courseId: string, route?: string) => {
     console.log('Preview course:', courseId);
-    if (route) {
-      window.open(route, '_blank');
-    } else {
-      toast({
-        title: "Course Preview",
-        description: "Opening course preview...",
-      });
-    }
-  }, [toast]);
+    // Create proper preview URL - either use the full preview page or navigate to course route
+    const previewUrl = `${window.location.origin}/preview/${courseId}`;
+    window.open(previewUrl, '_blank');
+  }, []);
 
   const assign = useCallback(async (courseId: string, options?: { groups?: string[]; students?: string[] }) => {
     try {

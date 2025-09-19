@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
+import { CollectionSelectionModal } from '@/components/collections/CollectionSelectionModal';
 import { useCourseActions } from '@/hooks/useCourseActions';
 import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
@@ -329,6 +330,14 @@ export default function OrgCoursesCatalog() {
             orgId={orgId}
           />
         )}
+
+        {/* Collection Selection Modal */}
+        <CollectionSelectionModal
+          isOpen={courseActions.showCollectionModal}
+          onClose={() => courseActions.setShowCollectionModal(false)}
+          courseId={courseActions.selectedCourse?.id || ''}
+          courseTitle={courseActions.selectedCourse?.title || ''}
+        />
 
         {/* Debug Info - Remove in production */}
         {process.env.NODE_ENV === 'development' && (
