@@ -55,8 +55,7 @@ export function OrgBanner({
   return (
     <div 
       className={cn(
-        'relative bg-center bg-no-repeat',
-        'bg-contain sm:bg-cover', // contain on mobile, cover on larger screens
+        'relative bg-center bg-no-repeat bg-contain',
         className
       )}
       style={{ 
