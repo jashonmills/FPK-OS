@@ -35,32 +35,32 @@ export default function GroupsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-orange-200 mb-2">
+        <div className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-orange-100 mb-2">
             <Users className="w-5 h-5" />
             <h3 className="font-medium">Total Groups</h3>
           </div>
           <p className="text-2xl font-bold text-white">{totalGroups}</p>
         </div>
 
-        <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-orange-200 mb-2">
+        <div className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-orange-100 mb-2">
             <Users className="w-5 h-5" />
             <h3 className="font-medium">Active Groups</h3>
           </div>
           <p className="text-2xl font-bold text-white">{totalGroups}</p>
         </div>
 
-        <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-orange-200 mb-2">
+        <div className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-orange-100 mb-2">
             <Users className="w-5 h-5" />
             <h3 className="font-medium">Total Members</h3>
           </div>
           <p className="text-2xl font-bold text-white">{totalMembers}</p>
         </div>
 
-        <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-orange-200 mb-2">
+        <div className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-orange-100 mb-2">
             <Users className="w-5 h-5" />
             <h3 className="font-medium">Avg Group Size</h3>
           </div>
@@ -68,12 +68,12 @@ export default function GroupsPage() {
         </div>
       </div>
 
-      <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-orange-200 mb-2">
+      <div className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 rounded-lg p-4">
+        <div className="flex items-center gap-2 text-orange-100 mb-2">
           <Users className="w-5 h-5" />
           <h3 className="font-medium">Group Management</h3>
         </div>
-        <p className="text-orange-100/90 text-sm">
+        <p className="text-orange-50/90 text-sm">
           Create and manage student groups to streamline course assignments and track progress more effectively.
         </p>
       </div>
