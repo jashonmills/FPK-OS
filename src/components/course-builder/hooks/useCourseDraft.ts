@@ -51,7 +51,11 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
     }
   }, [storageKey]);
 
-  // Update course metadata
+  // Store storage key in ref to stabilize updateCourse callback
+  const storageKeyRef = useRef(storageKey);
+  storageKeyRef.current = storageKey;
+
+  // Update course metadata - STABLE callback (no dependencies)
   const updateCourse = useCallback((updates: Partial<CourseDraft>) => {
     setDraft(prevDraft => {
       if (!prevDraft) return prevDraft;
@@ -66,16 +70,16 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
       // Debounce the localStorage save to avoid constant writes
       saveTimeoutRef.current = setTimeout(() => {
         try {
-          localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+          localStorage.setItem(storageKeyRef.current, JSON.stringify(updatedDraft));
         } catch (error) {
           console.error('Error saving course draft:', error);
           toast.error('Failed to save draft');
         }
-      }, 300);
+      }, 800);
       
       return updatedDraft;
     });
-  }, [storageKey]);
+  }, []); // No dependencies - completely stable
 
   // Add module
   const addModule = useCallback((title: string) => {

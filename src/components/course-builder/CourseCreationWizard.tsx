@@ -38,28 +38,9 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   const orgId = propOrgId || paramOrgId;
   
   const courseDraftHook = useCourseDraft({ orgId: orgId! });
-  const { draft, isLoading } = courseDraftHook;
-  
-  // Memoize the entire hook result to prevent child components from re-rendering
-  const stableHookData = useMemo(() => ({
-    draft,
-    updateCourse: courseDraftHook.updateCourse,
-    addModule: courseDraftHook.addModule,
-    addLesson: courseDraftHook.addLesson,
-    addSlide: courseDraftHook.addSlide,
-    setBackgroundImageUrl: courseDraftHook.setBackgroundImageUrl,
-    clearDraft: courseDraftHook.clearDraft
-  }), [
-    draft,
-    courseDraftHook.updateCourse,
-    courseDraftHook.addModule,
-    courseDraftHook.addLesson,
-    courseDraftHook.addSlide,
-    courseDraftHook.setBackgroundImageUrl,
-    courseDraftHook.clearDraft
-  ]);
+  const { draft, isLoading, updateCourse, addModule, addLesson, addSlide, setBackgroundImageUrl, clearDraft } = courseDraftHook;
 
-  if (isLoading || !stableHookData.draft || !orgId) {
+  if (isLoading || !draft || !orgId) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
@@ -67,7 +48,6 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const canProceed = () => {
-    const { draft } = stableHookData;
     switch (currentStep) {
       case 'overview':
         return draft.title?.trim().length > 0;
@@ -107,7 +87,7 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
   };
 
   const handlePublish = () => {
-    stableHookData.clearDraft();
+    clearDraft();
     if (onOpenChange) {
       onOpenChange(false);
     } else {
@@ -167,39 +147,35 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
         <CardContent className="p-6">
           {currentStep === 'overview' && (
             <CourseOverviewStep
-              key={`overview-${stableHookData.draft.id}`}
-              draft={stableHookData.draft}
+              draft={draft}
               orgId={orgId}
-              updateCourse={stableHookData.updateCourse}
-              setBackgroundImageUrl={stableHookData.setBackgroundImageUrl}
+              updateCourse={updateCourse}
+              setBackgroundImageUrl={setBackgroundImageUrl}
             />
           )}
           
           {currentStep === 'planning' && (
             <LessonPlanningStep
-              key={`planning-${stableHookData.draft.id}`}
-              draft={stableHookData.draft}
+              draft={draft}
               orgId={orgId}
-              updateCourse={stableHookData.updateCourse}
-              addModule={stableHookData.addModule}
-              addLesson={stableHookData.addLesson}
+              updateCourse={updateCourse}
+              addModule={addModule}
+              addLesson={addLesson}
             />
           )}
           
           {currentStep === 'design' && (
             <MicroLessonDesignStep
-              key={`design-${stableHookData.draft.id}`}
-              draft={stableHookData.draft}
+              draft={draft}
               orgId={orgId}
-              updateCourse={stableHookData.updateCourse}
-              addSlide={stableHookData.addSlide}
+              updateCourse={updateCourse}
+              addSlide={addSlide}
             />
           )}
           
           {currentStep === 'review' && (
             <ReviewStep
-              key={`review-${stableHookData.draft.id}`}
-              draft={stableHookData.draft}
+              draft={draft}
               orgId={orgId}
               onPublish={handlePublish}
             />

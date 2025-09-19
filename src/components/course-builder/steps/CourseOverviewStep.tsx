@@ -48,18 +48,18 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
   const isUserTypingTitle = useRef(false);
   const isUserTypingDescription = useRef(false);
 
-  // Sync local state with draft when not actively typing
+  // Initialize local state only once when draft changes significantly
   useEffect(() => {
-    if (!isUserTypingTitle.current && draft.title !== localTitle) {
+    if (!isUserTypingTitle.current && draft.title !== undefined) {
       setLocalTitle(draft.title || '');
     }
-  }, [draft.title, localTitle]);
+  }, [draft.title]);
 
   useEffect(() => {
-    if (!isUserTypingDescription.current && draft.description !== localDescription) {
+    if (!isUserTypingDescription.current && draft.description !== undefined) {
       setLocalDescription(draft.description || '');
     }
-  }, [draft.description, localDescription]);
+  }, [draft.description]);
 
   // Debounced update functions with focus protection
   const updateTitle = (value: string) => {
