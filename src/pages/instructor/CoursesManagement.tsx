@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Users, Clock, Plus, Star, Grid3X3, List, Loader2 } from "lucide-react";
+import { BookOpen, Users, Clock, Plus, Star, Grid3X3, List, Loader2, Upload } from "lucide-react";
 import { CourseCreationWizard } from "@/components/course-builder/CourseCreationWizard";
 import { CourseCard as CourseCardType } from "@/types/course-card";
 
@@ -25,6 +25,8 @@ export default function CoursesManagementNew() {
     return (saved as ViewType) || 'grid';
   });
   const [assigningCourses, setAssigningCourses] = React.useState<Set<string>>(new Set());
+  const [showImportDialog, setShowImportDialog] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -66,6 +68,96 @@ export default function CoursesManagementNew() {
       });
     }
   }, [assignCourse, assigningCourses, isCourseAssigned, toast]);
+
+  const handleImportClick = () => {
+    setShowImportDialog(true);
+  };
+
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Handle different file types
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    switch (fileExtension) {
+      case 'json':
+        handleJSONImport(file);
+        break;
+      case 'csv':
+        handleCSVImport(file);
+        break;
+      case 'zip':
+        handleSCORMImport(file);
+        break;
+      default:
+        toast({
+          title: "Unsupported File Type",
+          description: "Please upload a JSON, CSV, or ZIP (SCORM) file.",
+          variant: "destructive",
+        });
+    }
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setShowImportDialog(false);
+  };
+
+  const handleJSONImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      
+      toast({
+        title: "JSON Import",
+        description: `Processing ${Array.isArray(data) ? data.length : 1} course(s)...`,
+      });
+      
+      // TODO: Implement actual JSON course import logic
+      console.log('JSON import data:', data);
+      
+    } catch (error) {
+      toast({
+        title: "Import Failed",
+        description: "Invalid JSON file format.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCSVImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      toast({
+        title: "CSV Import",
+        description: `Processing ${lines.length - 1} course(s)...`,
+      });
+      
+      // TODO: Implement actual CSV course import logic
+      console.log('CSV import data:', lines);
+      
+    } catch (error) {
+      toast({
+        title: "Import Failed", 
+        description: "Failed to process CSV file.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSCORMImport = async (file: File) => {
+    toast({
+      title: "SCORM Import",
+      description: "Processing SCORM package...",
+    });
+    
+    // TODO: Implement SCORM package import
+    console.log('SCORM import file:', file);
+  };
 
   const renderCourseCard = (course: CourseCardType, showAssignButton = false) => (
     <Card key={course.id} className="h-56 hover:shadow-md transition-shadow">
@@ -237,7 +329,10 @@ export default function CoursesManagementNew() {
               <Plus className="w-4 h-4 mr-2" />
               New Course
             </Button>
-            <Button variant="outline">Import</Button>
+            <Button variant="outline" onClick={handleImportClick}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
           </div>
         </header>
 
@@ -429,6 +524,47 @@ export default function CoursesManagementNew() {
         onOpenChange={setShowCreateWizard}
         orgId={orgId || ''}
       />
+
+      {/* Import Dialog */}
+      {showImportDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card rounded-lg p-6 w-96 mx-4">
+            <h3 className="text-lg font-semibold mb-4">Import Courses</h3>
+            <p className="text-muted-foreground mb-4">
+              Select a file to import courses. Supported formats:
+            </p>
+            <ul className="text-sm text-muted-foreground mb-6 space-y-1">
+              <li>• JSON - Course data export</li>
+              <li>• CSV - Course list with metadata</li>
+              <li>• ZIP - SCORM packages</li>
+            </ul>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json,.csv,.zip"
+              onChange={handleFileImport}
+              className="hidden"
+            />
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Choose File
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowImportDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }
