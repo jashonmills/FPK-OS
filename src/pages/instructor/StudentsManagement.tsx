@@ -8,11 +8,14 @@ import { Users, UserPlus, Search, Filter, MoreHorizontal } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgMembers } from '@/hooks/useOrgMembers';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import InviteStudentDialog from '@/components/instructor/InviteStudentDialog';
+
 export default function StudentsManagement() {
   const {
     currentOrg
   } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const {
     members,
     isLoading
@@ -35,7 +38,7 @@ export default function StudentsManagement() {
             Manage and monitor your organization's students
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setInviteDialogOpen(true)}>
           <UserPlus className="w-4 h-4 mr-2" />
           Invite Students
         </Button>
@@ -167,7 +170,7 @@ export default function StudentsManagement() {
                 <p className="text-white/80 mb-4">
                   Invite students to join your organization.
                 </p>
-                <Button className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                <Button onClick={() => setInviteDialogOpen(true)}>
                   <UserPlus className="w-4 h-4 mr-2" />
                   Invite Students
                 </Button>
@@ -175,5 +178,11 @@ export default function StudentsManagement() {
           </div>
         </OrgCardContent>
       </OrgCard>
+
+      <InviteStudentDialog 
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
+        organizationId={currentOrg?.organization_id || ''}
+      />
     </div>;
 }
