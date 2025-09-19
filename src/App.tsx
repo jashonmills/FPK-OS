@@ -228,7 +228,7 @@ const App: React.FC = () => {
             <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />
             <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
-            <Route path="learner/live-hub" element={<LazyRoute><LiveLearningHub /></LazyRoute>} />
+            <Route path="learner/assignments" element={<LazyRoute><AssignmentsDashboard /></LazyRoute>} />
             <Route path="learner/course/:courseId" element={<LazyRoute><DynamicCourse /></LazyRoute>} />
             <Route path="learner/learning-state/:courseId" element={<LazyRoute><LearningStateCourse /></LazyRoute>} />
             <Route path="learner/learning-state-embed/:moduleId" element={<LazyRoute><LearningStateEmbed /></LazyRoute>} />

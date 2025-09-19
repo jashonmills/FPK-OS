@@ -68,8 +68,8 @@ export function useStudentAssignments(orgId?: string) {
         throw error;
       }
 
-      // Transform the data to match our interface
-      return data.map(item => ({
+      // Transform the data to match our interface - using explicit typing for new columns
+      return (data as any[]).map((item: any) => ({
         id: item.org_assignments.id,
         assignment_id: item.assignment_id,
         title: item.org_assignments.title,

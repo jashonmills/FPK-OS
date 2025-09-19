@@ -2,12 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssignmentsList } from '@/components/assignments/AssignmentsList';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
+import { useOrgAssignments } from '@/hooks/useOrgAssignments';
+import { useAssignmentTargetCounts } from '@/hooks/useAssignmentTargetCounts';
 import { CourseCard } from '@/components/courses/CourseCard';
 import { AssignmentCreateDialog } from '@/components/assignments/AssignmentCreateDialog';
+import { AssignmentProgress } from '@/components/assignments/AssignmentProgress';
 import { BookOpen, Users, TrendingUp } from 'lucide-react';
 
 export default function AssignmentsPage() {
   const { catalog: catalogData, isLoading } = useOrgCatalog();
+  const { getCountsForAssignment } = useAssignmentTargetCounts();
+  const { assignments } = useOrgAssignments();
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -75,6 +80,18 @@ export default function AssignmentsPage() {
         </TabsList>
 
         <TabsContent value="assignments" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+            {assignments.slice(0, 3).map((assignment) => {
+              const targetCounts = getCountsForAssignment(assignment.id);
+              return (
+                <AssignmentProgress
+                  key={assignment.id}
+                  assignment={assignment}
+                  targetCounts={targetCounts}
+                />
+              );
+            })}
+          </div>
           <AssignmentsList />
         </TabsContent>
 

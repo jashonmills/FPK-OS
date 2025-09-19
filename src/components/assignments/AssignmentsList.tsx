@@ -2,8 +2,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
+import { useAssignmentTargetCounts } from '@/hooks/useAssignmentTargetCounts';
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, Users, BookOpen, MoreHorizontal } from 'lucide-react';
+import { Calendar, Users, BookOpen, MoreHorizontal, TrendingUp } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
 
 export function AssignmentsList() {
   const { assignments, isLoading } = useOrgAssignments();
+  const { getCountsForAssignment } = useAssignmentTargetCounts();
 
   if (isLoading) {
     return (
@@ -54,6 +56,10 @@ export function AssignmentsList() {
         const metadata = assignment.metadata as any || {};
         const dueDate = metadata.due_date ? new Date(metadata.due_date) : null;
         const isOverdue = dueDate && dueDate < new Date();
+        const targetCounts = getCountsForAssignment(assignment.id);
+        const completionRate = targetCounts.total_targets > 0 
+          ? Math.round((targetCounts.completed_count / targetCounts.total_targets) * 100)
+          : 0;
         
         return (
           <Card key={assignment.id}>
@@ -68,7 +74,11 @@ export function AssignmentsList() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {metadata.target_members?.length || 0} students
+                      {targetCounts.total_targets} students assigned
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4" />
+                      {completionRate}% completed
                     </span>
                     {dueDate && (
                       <span className="flex items-center gap-1">

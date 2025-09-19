@@ -15,9 +15,9 @@ export function useAssignmentActions() {
       const { error } = await supabase
         .from('org_assignment_targets')
         .update({
-          status: 'started',
+          status: 'started' as any,
           started_at: new Date().toISOString(),
-        })
+        } as any)
         .eq('assignment_id', assignmentId)
         .eq('target_id', user.id);
 
@@ -47,9 +47,9 @@ export function useAssignmentActions() {
       const { error } = await supabase
         .from('org_assignment_targets')
         .update({
-          status: 'completed',
+          status: 'completed' as any,
           completed_at: new Date().toISOString(),
-        })
+        } as any)
         .eq('assignment_id', assignmentId)
         .eq('target_id', user.id);
 
@@ -80,10 +80,10 @@ export function useAssignmentActions() {
       const { error } = await supabase
         .from('org_assignment_targets')
         .update({
-          status: progress >= 100 ? 'completed' : 'started',
+          status: (progress >= 100 ? 'completed' : 'started') as any,
           started_at: new Date().toISOString(), // Ensure started_at is set
           completed_at: progress >= 100 ? new Date().toISOString() : null,
-        })
+        } as any)
         .eq('assignment_id', assignmentId)
         .eq('target_id', user.id);
 

@@ -3675,19 +3675,37 @@ export type Database = {
       }
       org_assignment_targets: {
         Row: {
+          assigned_at: string | null
           assignment_id: string
+          completed_at: string | null
+          due_at: string | null
+          started_at: string | null
+          status: string | null
           target_id: string
           target_type: string
+          updated_at: string | null
         }
         Insert: {
+          assigned_at?: string | null
           assignment_id: string
+          completed_at?: string | null
+          due_at?: string | null
+          started_at?: string | null
+          status?: string | null
           target_id: string
           target_type: string
+          updated_at?: string | null
         }
         Update: {
+          assigned_at?: string | null
           assignment_id?: string
+          completed_at?: string | null
+          due_at?: string | null
+          started_at?: string | null
+          status?: string | null
           target_id?: string
           target_type?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
