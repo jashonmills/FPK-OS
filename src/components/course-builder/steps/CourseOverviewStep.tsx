@@ -315,7 +315,7 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
             <div className="space-y-2">
               <Label>Background Preview</Label>
               <div 
-                className="w-full h-32 rounded-lg bg-cover bg-center bg-no-repeat border"
+                className="w-full h-64 rounded-lg bg-cover bg-center bg-no-repeat border"
                 style={{ backgroundImage: `url(${draft.backgroundImageUrl})` }}
               />
             </div>
