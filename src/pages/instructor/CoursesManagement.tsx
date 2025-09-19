@@ -3,7 +3,8 @@ import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitl
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock, ChevronDown, Edit, Trash2, Eye, Globe } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock, ChevronDown, Edit, Trash2, Eye, Globe, FileText, Play } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgCourses } from '@/hooks/useOrgCourses';
 import { getCourseImage } from '@/utils/courseImages';
@@ -21,6 +22,8 @@ export default function CoursesManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isDraftSectionOpen, setIsDraftSectionOpen] = useState(false);
+  const [previewCourse, setPreviewCourse] = useState<any>(null);
+  const [previewMode, setPreviewMode] = useState<'outline' | 'published'>('outline');
   const { courses: allCourses, isLoading, togglePublish, deleteCourse, isTogglingPublish, isDeleting } = useOrgCourses(currentOrg?.organization_id);
 
   if (!currentOrg) {
@@ -125,30 +128,6 @@ export default function CoursesManagement() {
         </OrgCardHeader>
       </OrgCard>
 
-      {/* Published Courses */}
-      {publishedCourses.length > 0 && (
-        <>
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Published Courses</h2>
-            <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
-              {publishedCourses.length} Live
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publishedCourses.map((course) => (
-              <CourseCard 
-                key={course.id} 
-                course={course} 
-                onTogglePublish={() => togglePublish({ courseId: course.id, published: !course.published })}
-                onDelete={() => deleteCourse(course.id)}
-                isTogglingPublish={isTogglingPublish}
-                isDeleting={isDeleting}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
       {/* Content Development Hub - Collapsible Draft Courses */}
       {draftCourses.length > 0 && (
         <Collapsible open={isDraftSectionOpen} onOpenChange={setIsDraftSectionOpen}>
@@ -175,19 +154,45 @@ export default function CoursesManagement() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {draftCourses.map((course) => (
-                <CourseCard 
-                  key={course.id} 
-                  course={course} 
-                  onTogglePublish={() => togglePublish({ courseId: course.id, published: !course.published })}
-                  onDelete={() => deleteCourse(course.id)}
-                  isTogglingPublish={isTogglingPublish}
-                  isDeleting={isDeleting}
-                  isDraft={true}
-                />
+              <CourseCard 
+                key={course.id} 
+                course={course} 
+                onTogglePublish={() => togglePublish({ courseId: course.id, published: !course.published })}
+                onDelete={() => deleteCourse(course.id)}
+                onPreview={setPreviewCourse}
+                isTogglingPublish={isTogglingPublish}
+                isDeleting={isDeleting}
+                isDraft={true}
+              />
               ))}
             </div>
           </CollapsibleContent>
         </Collapsible>
+      )}
+
+      {/* Published Courses */}
+      {publishedCourses.length > 0 && (
+        <>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">Published Courses</h2>
+            <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
+              {publishedCourses.length} Live
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {publishedCourses.map((course) => (
+              <CourseCard 
+                key={course.id} 
+                course={course} 
+                onTogglePublish={() => togglePublish({ courseId: course.id, published: !course.published })}
+                onDelete={() => deleteCourse(course.id)}
+                onPreview={setPreviewCourse}
+                isTogglingPublish={isTogglingPublish}
+                isDeleting={isDeleting}
+              />
+            ))}
+          </div>
+        </>
       )}
       
       {/* Empty state */}
@@ -212,6 +217,39 @@ export default function CoursesManagement() {
         onOpenChange={setIsWizardOpen}
         orgId={currentOrg.organization_id}
       />
+
+      {/* Course Preview Modal */}
+      <Dialog open={!!previewCourse} onOpenChange={() => setPreviewCourse(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {previewMode === 'outline' ? <FileText className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              {previewCourse?.title} - {previewMode === 'outline' ? 'Course Outline' : 'Published Preview'}
+            </DialogTitle>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                variant={previewMode === 'outline' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setPreviewMode('outline')}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Outline View
+              </Button>
+              <Button 
+                variant={previewMode === 'published' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setPreviewMode('published')}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Published View
+              </Button>
+            </div>
+          </DialogHeader>
+          {previewCourse && (
+            <CoursePreviewContent course={previewCourse} mode={previewMode} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -221,12 +259,13 @@ interface CourseCardProps {
   course: any;
   onTogglePublish: () => void;
   onDelete: () => void;
+  onPreview: (course: any) => void;
   isTogglingPublish: boolean;
   isDeleting: boolean;
   isDraft?: boolean;
 }
 
-function CourseCard({ course, onTogglePublish, onDelete, isTogglingPublish, isDeleting, isDraft = false }: CourseCardProps) {
+function CourseCard({ course, onTogglePublish, onDelete, onPreview, isTogglingPublish, isDeleting, isDraft = false }: CourseCardProps) {
   return (
     <OrgCard className="overflow-hidden bg-orange-500/65 border-orange-400/50 flex flex-col">
       <div className="aspect-video relative overflow-hidden">
@@ -250,12 +289,12 @@ function CourseCard({ course, onTogglePublish, onDelete, isTogglingPublish, isDe
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-background border-border shadow-lg z-50">
               <DropdownMenuItem onClick={onTogglePublish} disabled={isTogglingPublish}>
                 <Globe className="w-4 h-4 mr-2" />
                 {course.published ? 'Unpublish Course' : 'Publish Course'}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onPreview(course)}>
                 <Eye className="w-4 h-4 mr-2" />
                 Preview Course
               </DropdownMenuItem>
@@ -318,5 +357,192 @@ function CourseCard({ course, onTogglePublish, onDelete, isTogglingPublish, isDe
         </Button>
       </OrgCardContent>
     </OrgCard>
+  );
+}
+
+// Course Preview Content Component
+interface CoursePreviewContentProps {
+  course: any;
+  mode: 'outline' | 'published';
+}
+
+function CoursePreviewContent({ course, mode }: CoursePreviewContentProps) {
+  if (mode === 'outline') {
+    return (
+      <div className="space-y-6">
+        <div className="bg-muted/50 p-4 rounded-lg">
+          <h3 className="font-semibold text-lg mb-2">Course Overview</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium">Framework:</span> {course.framework || 'Standard'}
+            </div>
+            <div>
+              <span className="font-medium">Duration:</span> {course.duration_estimate_mins || 'Not set'}min
+            </div>
+            <div>
+              <span className="font-medium">Level:</span> {course.level || 'Not specified'}
+            </div>
+            <div>
+              <span className="font-medium">Status:</span> {course.published ? 'Published' : 'Draft'}
+            </div>
+          </div>
+          {course.description && (
+            <div className="mt-3">
+              <span className="font-medium">Description:</span>
+              <p className="text-muted-foreground mt-1">{course.description}</p>
+            </div>
+          )}
+        </div>
+
+        {course.objectives && course.objectives.length > 0 && (
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-2">Learning Objectives</h3>
+            <ul className="list-disc list-inside space-y-1">
+              {course.objectives.map((objective: string, index: number) => (
+                <li key={index} className="text-sm">{objective}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {course.prerequisites && course.prerequisites.length > 0 && (
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-2">Prerequisites</h3>
+            <ul className="list-disc list-inside space-y-1">
+              {course.prerequisites.map((prereq: string, index: number) => (
+                <li key={index} className="text-sm">{prereq}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {course.lesson_structure && (
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-2">Course Structure</h3>
+            <div className="space-y-2">
+              {Array.isArray(course.lesson_structure) ? (
+                course.lesson_structure.map((lesson: any, index: number) => (
+                  <div key={index} className="flex items-center gap-2 p-2 bg-background rounded border">
+                    <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                      {index + 1}
+                    </div>
+                    <span className="font-medium">{lesson.title || lesson.name || `Lesson ${index + 1}`}</span>
+                    {lesson.description && (
+                      <span className="text-muted-foreground text-sm">- {lesson.description}</span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">Course structure data is not in expected format</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {course.micro_lesson_data && (
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-2">Micro-Lesson Content</h3>
+            <p className="text-sm text-muted-foreground">Interactive micro-lesson content is configured for this course.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Published view - simulates how the course would look when live
+  return (
+    <div className="space-y-6">
+      <div className="relative">
+        <div 
+          className="w-full h-48 bg-cover bg-center rounded-lg"
+          style={{ backgroundImage: `url(${getCourseImage(course.id, course.title)})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
+          <div className="absolute bottom-4 left-4 text-white">
+            <h1 className="text-2xl font-bold">{course.title}</h1>
+            <p className="text-white/90">{course.description}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <div className="bg-muted/50 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">What You'll Learn</h2>
+            {course.objectives && course.objectives.length > 0 ? (
+              <ul className="space-y-2">
+                {course.objectives.map((objective: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <div className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs mt-0.5">
+                      ✓
+                    </div>
+                    <span>{objective}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">Learning objectives will be displayed here once configured.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h3 className="font-semibold mb-3">Course Info</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Duration:</span>
+                <span className="font-medium">{course.duration_estimate_mins || 'TBD'}min</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Level:</span>
+                <span className="font-medium">{course.level || 'All levels'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Framework:</span>
+                <span className="font-medium">{course.framework || 'Standard'}</span>
+              </div>
+            </div>
+          </div>
+
+          {course.prerequisites && course.prerequisites.length > 0 && (
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="font-semibold mb-3">Prerequisites</h3>
+              <ul className="text-sm space-y-1">
+                {course.prerequisites.map((prereq: string, index: number) => (
+                  <li key={index}>• {prereq}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Course Content</h2>
+        {course.lesson_structure && Array.isArray(course.lesson_structure) ? (
+          <div className="space-y-3">
+            {course.lesson_structure.map((lesson: any, index: number) => (
+              <div key={index} className="flex items-center gap-3 p-3 bg-background rounded border">
+                <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+                  {index + 1}
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium">{lesson.title || lesson.name || `Lesson ${index + 1}`}</h4>
+                  {lesson.description && (
+                    <p className="text-muted-foreground text-sm">{lesson.description}</p>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {lesson.duration || '~5'} min
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">Course content will be displayed here once lessons are configured.</p>
+        )}
+      </div>
+    </div>
   );
 }
