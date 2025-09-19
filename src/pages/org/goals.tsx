@@ -88,6 +88,15 @@ export default function GoalsPage() {
     isUpdating 
   } = useOrgGoals(currentOrg?.organization_id);
 
+  // Debug logging
+  console.log('Debug - Goals Page:', {
+    currentOrgId: currentOrg?.organization_id,
+    goalsCount: goals.length,
+    goals: goals,
+    isLoading,
+    error
+  });
+
   const form = useForm<GoalFormData>({
     resolver: zodResolver(goalSchema),
     defaultValues: {
@@ -123,6 +132,9 @@ export default function GoalsPage() {
   });
 
   const handleCreateGoal = async (data: GoalFormData) => {
+    console.log('Creating goal with data:', data);
+    console.log('Current org ID:', currentOrg?.organization_id);
+    
     try {
       await createGoal({
         title: data.title || '',
@@ -131,10 +143,17 @@ export default function GoalsPage() {
         student_id: data.student_id || '',
         priority: data.priority || 'medium',
       });
+      
+      console.log('Goal created successfully');
       form.reset();
       setShowCreateDialog(false);
     } catch (error) {
       console.error('Error creating goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create goal. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

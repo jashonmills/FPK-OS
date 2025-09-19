@@ -48,8 +48,11 @@ export function useOrgGoals(organizationId?: string) {
   const { data: goals = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-goals', orgId],
     queryFn: async () => {
+      console.log('useOrgGoals - Fetching goals for org:', orgId);
+      
       // Return empty array if no organization ID
       if (!orgId) {
+        console.log('useOrgGoals - No orgId provided, returning empty array');
         return [];
       }
 
@@ -64,6 +67,7 @@ export function useOrgGoals(organizationId?: string) {
         throw error;
       }
 
+      console.log('useOrgGoals - Fetched goals:', data);
       return data as OrgGoal[];
     },
     staleTime: 1000 * 60 * 5,
