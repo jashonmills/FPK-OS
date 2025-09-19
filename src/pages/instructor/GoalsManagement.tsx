@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
+import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgGoals } from '@/hooks/useOrgGoals';
+import { OrgCard, OrgCardContent, OrgCardHeader, OrgCardTitle, OrgCardDescription } from '@/components/organizations/OrgCard';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Flag, Plus, Search, Filter, Target, TrendingUp } from 'lucide-react';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { Target, Users, TrendingUp, Plus, Filter, Flag, Search } from 'lucide-react';
 
 export default function GoalsManagement() {
   const { currentOrg } = useOrgContext();
@@ -22,45 +22,24 @@ export default function GoalsManagement() {
     );
   }
 
-  // Mock goals data for demonstration
-  const mockGoals = [
-    {
-      id: '1',
-      title: 'Improve Organization-wide Learning Completion Rate',
-      description: 'Increase course completion rate to 90% across all students',
-      targetValue: 90,
-      currentValue: 78,
-      category: 'learning',
-      priority: 'high',
-      dueDate: '2024-03-31',
-      assignedStudents: 15,
-      status: 'active'
-    },
-    {
-      id: '2',
-      title: 'Enhance Student Engagement Metrics',
-      description: 'Achieve 95% weekly active student participation',
-      targetValue: 95,
-      currentValue: 82,
-      category: 'engagement',
-      priority: 'medium',
-      dueDate: '2024-02-29',
-      assignedStudents: 12,
-      status: 'active'
-    },
-    {
-      id: '3',
-      title: 'Reduce Course Dropout Rate',
-      description: 'Maintain course dropout rate below 10%',
-      targetValue: 10,
-      currentValue: 8,
-      category: 'retention',
-      priority: 'high',
-      dueDate: '2024-06-30',
-      assignedStudents: 20,
-      status: 'achieved'
-    }
-  ];
+  // Use real goals from useOrgGoals hook
+  const { 
+    goals, 
+    isLoading,
+    createGoal,
+    updateGoal 
+  } = useOrgGoals(currentOrg?.organization_id);
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto p-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="ml-3 text-gray-500">Loading goals...</div>
+        </div>
+      </div>
+    );
+  }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -103,7 +82,7 @@ export default function GoalsManagement() {
               <Flag className="w-4 h-4 text-white/70" />
               <span className="text-sm font-medium text-white">Total Goals</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-white">3</div>
+            <div className="text-2xl font-bold mt-2 text-white">{goals.length}</div>
           </OrgCardContent>
         </OrgCard>
         
@@ -113,7 +92,7 @@ export default function GoalsManagement() {
               <Target className="w-4 h-4 text-white/70" />
               <span className="text-sm font-medium text-white">Active Goals</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-300">2</div>
+            <div className="text-2xl font-bold mt-2 text-blue-300">{goals.filter(g => g.status === 'active').length}</div>
           </OrgCardContent>
         </OrgCard>
         
@@ -123,7 +102,7 @@ export default function GoalsManagement() {
               <TrendingUp className="w-4 h-4 text-white/70" />
               <span className="text-sm font-medium text-white">Achieved</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-300">1</div>
+            <div className="text-2xl font-bold mt-2 text-green-300">{goals.filter(g => g.status === 'completed').length}</div>
           </OrgCardContent>
         </OrgCard>
         
@@ -132,7 +111,9 @@ export default function GoalsManagement() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Avg Progress</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-white">83%</div>
+            <div className="text-2xl font-bold mt-2 text-white">
+              {goals.length > 0 ? Math.round(goals.reduce((sum, goal) => sum + (goal.progress_percentage || 0), 0) / goals.length) : 0}%
+            </div>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -158,85 +139,66 @@ export default function GoalsManagement() {
 
       {/* Goals List */}
       <div className="space-y-4">
-        {mockGoals.map((goal) => {
-          const progressPercentage = goal.category === 'retention' 
-            ? Math.max(0, 100 - (goal.currentValue / goal.targetValue * 100))
-            : (goal.currentValue / goal.targetValue) * 100;
-          
-          return (
-            <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50">
-              <OrgCardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <OrgCardTitle className="text-lg text-white">{goal.title}</OrgCardTitle>
-                    <OrgCardDescription className="text-white/80">{goal.description}</OrgCardDescription>
-                    <div className="flex gap-2">
-                      <Badge variant={getCategoryColor(goal.category) as any} className="bg-white/20 text-white border-white/30">
-                        {goal.category}
-                      </Badge>
-                      <Badge variant={getPriorityColor(goal.priority) as any} className="bg-white/20 text-white border-white/30">
-                        {goal.priority} priority
-                      </Badge>
-                      <Badge variant={goal.status === 'achieved' ? 'default' : 'secondary'} className="bg-white/20 text-white border-white/30">
-                        {goal.status}
-                      </Badge>
+        {goals.length === 0 ? (
+          <OrgCard className="bg-purple-600/80 border-purple-500/50">
+            <OrgCardContent className="p-8 text-center">
+              <Target className="h-12 w-12 text-purple-200 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No Goals Set</h3>
+              <p className="text-purple-200">Create organizational goals to track progress and performance metrics.</p>
+            </OrgCardContent>
+          </OrgCard>
+        ) : (
+          goals.map((goal) => {
+            const progressPercentage = goal.progress_percentage || 0;
+            
+            return (
+              <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50">
+                <OrgCardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <OrgCardTitle className="text-white text-lg">{goal.title}</OrgCardTitle>
+                      <OrgCardDescription className="text-orange-100">
+                        {goal.description}
+                      </OrgCardDescription>
+                      <div className="flex gap-2">
+                        <Badge variant="secondary" className="text-xs">{goal.category}</Badge>
+                        <Badge variant={goal.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
+                          {goal.priority}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-white">
+                        {progressPercentage}%
+                      </div>
+                      <div className="text-xs text-orange-200">Progress</div>
                     </div>
                   </div>
-                </div>
-              </OrgCardHeader>
-              <OrgCardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <div className="text-sm font-medium text-white">Target</div>
-                    <div className="text-lg font-bold text-white">
-                      {goal.targetValue}{goal.category === 'retention' ? '% max' : '%'}
+                </OrgCardHeader>
+                <OrgCardContent className="pt-3">
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-orange-200">Current Progress</span>
+                        <span className="text-white font-medium">{progressPercentage}%</span>
+                      </div>
+                      <div className="w-full bg-orange-800/40 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-orange-300 to-orange-100 h-2 rounded-full transition-all"
+                          style={{ width: `${progressPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-xs text-orange-200">
+                      <span>Target Date: {new Date(goal.target_date).toLocaleDateString()}</span>
+                      <span>Status: {goal.status}</span>
                     </div>
                   </div>
-                  
-                  <div>
-                    <div className="text-sm font-medium text-white">Current</div>
-                    <div className="text-lg font-bold text-white">
-                      {goal.currentValue}{goal.category === 'retention' ? '% current' : '%'}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-sm font-medium text-white">Progress</div>
-                    <div className="text-lg font-bold mb-1 text-white">
-                      {Math.round(progressPercentage)}%
-                    </div>
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${
-                          progressPercentage >= 100 ? 'bg-green-300' : 
-                          progressPercentage >= 75 ? 'bg-blue-300' : 
-                          progressPercentage >= 50 ? 'bg-yellow-300' : 'bg-red-300'
-                        }`}
-                        style={{ width: `${Math.min(100, progressPercentage)}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/20">
-                      View Details
-                    </Button>
-                    <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
-                      Edit Goal
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between">
-                  <div className="text-sm text-white/80">
-                    Due: {new Date(goal.dueDate).toLocaleDateString()} • 
-                    Assigned to {goal.assignedStudents} students
-                  </div>
-                </div>
-              </OrgCardContent>
-            </OrgCard>
-          );
-        })}
+                </OrgCardContent>
+              </OrgCard>
+            );
+          })
+        )}
       </div>
     </div>
   );

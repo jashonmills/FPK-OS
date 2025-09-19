@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
 // Card imports removed - using OrgCard components
@@ -68,6 +69,7 @@ const categories = [
 ];
 
 export default function GoalsPage() {
+  const { user, loading: authLoading } = useAuth();
   const { currentOrg, getUserRole } = useOrgContext();
   const { toast } = useToast();
   const userRole = getUserRole();
@@ -88,14 +90,34 @@ export default function GoalsPage() {
     isUpdating 
   } = useOrgGoals(currentOrg?.organization_id);
 
-  // Debug logging
-  console.log('Debug - Goals Page:', {
-    currentOrgId: currentOrg?.organization_id,
-    goalsCount: goals.length,
-    goals: goals,
-    isLoading,
-    error
-  });
+  // Authentication check first
+  if (authLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="text-center py-12">
+          <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+          <p className="text-muted-foreground mb-4">
+            Please log in to access organizational goals.
+          </p>
+          <Button onClick={() => window.location.href = '/auth'}>
+            Log In
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const form = useForm<GoalFormData>({
     resolver: zodResolver(goalSchema),
@@ -132,8 +154,14 @@ export default function GoalsPage() {
   });
 
   const handleCreateGoal = async (data: GoalFormData) => {
-    console.log('Creating goal with data:', data);
-    console.log('Current org ID:', currentOrg?.organization_id);
+    if (!currentOrg?.organization_id) {
+      toast({
+        title: "Error",
+        description: "No organization selected. Please select an organization first.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       await createGoal({
@@ -144,7 +172,10 @@ export default function GoalsPage() {
         priority: data.priority || 'medium',
       });
       
-      console.log('Goal created successfully');
+      toast({
+        title: "Success",
+        description: "Goal created successfully.",
+      });
       form.reset();
       setShowCreateDialog(false);
     } catch (error) {
@@ -413,7 +444,7 @@ export default function GoalsPage() {
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          <span>Student assigned</span>
+                          <span>Student: {goal.student_id}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3 text-green-400" />
