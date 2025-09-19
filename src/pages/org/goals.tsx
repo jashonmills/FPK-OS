@@ -127,6 +127,8 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
+  console.log('🏗️ GoalsPage component rendering...', { currentOrg: !!currentOrg, userRole });
+
   const form = useForm<GoalFormData>({
     resolver: zodResolver(goalSchema),
     defaultValues: {
@@ -225,6 +227,20 @@ export default function GoalsPage() {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
+      {/* DEBUG: Simple test button */}
+      <div className="bg-red-100 p-4 border border-red-300 rounded">
+        <button 
+          onClick={() => {
+            console.log('🚨 TEST BUTTON CLICKED - This proves buttons can work!');
+            alert('Test button works!');
+          }}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          🚨 TEST BUTTON - CLICK ME
+        </button>
+        <p className="text-sm mt-2">If this button works, then the issue is with specific button implementations.</p>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
