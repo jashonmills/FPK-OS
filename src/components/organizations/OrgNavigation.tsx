@@ -97,7 +97,7 @@ export function OrgNavigation() {
   });
 
   return (
-    <nav className="w-64 bg-purple-900/65 backdrop-blur-sm border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto z-40">
+    <nav className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40">
       <div className="p-4">
         <div className="space-y-2">
           {filteredNavItems.map((item) => (

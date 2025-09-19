@@ -45,21 +45,18 @@ function OrgLayoutContent() {
       {/* Background overlay */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none" />
       
-      {/* Header - Sticky at top */}
+      {/* Fixed Header */}
       <OrgHeader />
       
-      {/* Main layout container with proper height for sticky context */}
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        {/* Navigation - Sticky to left side */}
-        <OrgNavigation />
-        
-        {/* Main content area - scrollable */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            <Outlet />
-          </div>
-        </main>
-      </div>
+      {/* Fixed Navigation */}
+      <OrgNavigation />
+      
+      {/* Main content area - offset for fixed header and nav */}
+      <main className="ml-64 pt-16 min-h-screen">
+        <div className="p-6">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 }
