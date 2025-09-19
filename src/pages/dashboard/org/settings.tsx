@@ -93,7 +93,7 @@ export default function OrgSettingsPage() {
 
   if (!currentOrg) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
           <p className="text-muted-foreground">Please select an organization to view settings.</p>
@@ -106,7 +106,7 @@ export default function OrgSettingsPage() {
   const canEdit = isOwner;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center gap-2">
         <Settings className="h-8 w-8" />
         <div>

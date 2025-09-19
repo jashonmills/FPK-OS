@@ -19,7 +19,7 @@ export default function OrgInstructorDashboard() {
 
   if (!currentOrg) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
         <Card>
           <CardHeader>
             <CardTitle>Organization Required</CardTitle>
@@ -34,7 +34,7 @@ export default function OrgInstructorDashboard() {
 
   if (!['owner', 'instructor'].includes(currentOrg.role)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
         <Card>
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>

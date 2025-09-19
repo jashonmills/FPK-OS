@@ -136,6 +136,16 @@
     max-width: 100vw !important;
   }
 
+  /* Organization layout specific overflow control */
+  .org-main-container {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .org-main-container * {
+    max-width: 100% !important;
+  }
+
   html {
     font-size: var(--mobile-base-font-size);
     overflow-x: hidden;

@@ -139,7 +139,7 @@ export default function GoalsPage() {
 
   if (!currentOrg) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
           <p className="text-muted-foreground">Please select an organization to view goals.</p>
@@ -222,7 +222,7 @@ export default function GoalsPage() {
   const totalProgress = mockGoals.reduce((sum, goal) => sum + goal.progress, 0) / mockGoals.length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

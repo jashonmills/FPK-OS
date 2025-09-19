@@ -75,7 +75,7 @@ export default function OrgSubscriptionPage() {
 
   if (!currentOrg) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
           <p className="text-muted-foreground">Please select an organization to view subscription details.</p>
@@ -88,7 +88,7 @@ export default function OrgSubscriptionPage() {
   const isOwner = userRole === 'owner';
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Subscription</h1>

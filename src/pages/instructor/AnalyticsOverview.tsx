@@ -11,7 +11,7 @@ export default function AnalyticsOverview() {
 
   if (!currentOrg) {
     return (
-      <div className="container max-w-6xl mx-auto py-8">
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
             <p className="text-purple-200">No organization selected</p>
@@ -38,7 +38,7 @@ export default function AnalyticsOverview() {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto py-8 space-y-6">
+    <div className="w-full max-w-6xl mx-auto px-6 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Analytics</h1>
