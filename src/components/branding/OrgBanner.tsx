@@ -54,8 +54,15 @@ export function OrgBanner({
 
   return (
     <div 
-      className={cn('relative bg-cover bg-center bg-no-repeat', className)}
-      style={{ backgroundImage: `url(${branding.banner_url})` }}
+      className={cn(
+        'relative bg-center bg-no-repeat',
+        'bg-contain sm:bg-cover', // contain on mobile, cover on larger screens
+        className
+      )}
+      style={{ 
+        backgroundImage: `url(${branding.banner_url})`,
+        backgroundPosition: 'center'
+      }}
     >
       {overlay && (
         <div 
