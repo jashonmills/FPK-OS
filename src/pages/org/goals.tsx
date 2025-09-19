@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
 // Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,8 @@ import {
   Users,
   TrendingUp,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
@@ -52,62 +54,10 @@ const goalSchema = z.object({
   description: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   priority: z.enum(['low', 'medium', 'high']),
+  student_id: z.string().min(1, 'Student is required'),
 });
 
 type GoalFormData = z.infer<typeof goalSchema>;
-
-interface Goal {
-  id: string;
-  title: string;
-  description?: string;
-  category: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'active' | 'completed' | 'paused';
-  progress: number;
-  assigned_count: number;
-  completed_count: number;
-  created_at: Date;
-}
-
-// Mock data for demonstration
-const mockGoals: Goal[] = [
-  {
-    id: '1',
-    title: 'Complete Programming Fundamentals',
-    description: 'Master the basics of programming including variables, loops, and functions.',
-    category: 'Technical Skills',
-    priority: 'high',
-    status: 'active',
-    progress: 75,
-    assigned_count: 12,
-    completed_count: 9,
-    created_at: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    title: 'Improve Communication Skills',
-    description: 'Develop better written and verbal communication abilities.',
-    category: 'Soft Skills',
-    priority: 'medium',
-    status: 'active',
-    progress: 45,
-    assigned_count: 8,
-    completed_count: 3,
-    created_at: new Date('2024-02-01'),
-  },
-  {
-    id: '3',
-    title: 'Data Analysis Certification',
-    description: 'Complete the data analysis course and obtain certification.',
-    category: 'Professional Development',
-    priority: 'high',
-    status: 'completed',
-    progress: 100,
-    assigned_count: 5,
-    completed_count: 5,
-    created_at: new Date('2024-01-10'),
-  },
-];
 
 const categories = [
   'Technical Skills',
@@ -123,11 +73,20 @@ export default function GoalsPage() {
   const userRole = getUserRole();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<OrgGoal | null>(null);
+  const [editingGoal, setEditingGoal] = useState<OrgGoal | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  console.log('🏗️ GoalsPage component rendering...', { currentOrg: !!currentOrg, userRole });
+  // Use the real goals hook
+  const { 
+    goals, 
+    isLoading, 
+    error, 
+    createGoal, 
+    updateGoal, 
+    isCreating, 
+    isUpdating 
+  } = useOrgGoals(currentOrg?.organization_id);
 
   const form = useForm<GoalFormData>({
     resolver: zodResolver(goalSchema),
@@ -136,6 +95,7 @@ export default function GoalsPage() {
       description: '',
       category: '',
       priority: 'medium',
+      student_id: '',
     },
   });
 
@@ -151,9 +111,8 @@ export default function GoalsPage() {
   }
 
   const canManageGoals = userRole === 'owner' || userRole === 'instructor';
-  console.log('🔐 Goals permissions:', { userRole, canManageGoals, hasOrg: !!currentOrg });
   
-  const filteredGoals = mockGoals.filter(goal => {
+  const filteredGoals = goals.filter(goal => {
     const matchesSearch = goal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          goal.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          goal.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -163,40 +122,46 @@ export default function GoalsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleCreateGoal = (data: GoalFormData) => {
-    // This would normally call an API
-    console.log('🎯 Creating goal:', data);
-    toast({
-      title: "Success",
-      description: "Goal created successfully.",
-    });
-    
-    form.reset();
-    setShowCreateDialog(false);
+  const handleCreateGoal = async (data: GoalFormData) => {
+    try {
+      await createGoal({
+        title: data.title || '',
+        description: data.description || '',
+        category: data.category || '',
+        student_id: data.student_id || '',
+        priority: data.priority || 'medium',
+      });
+      form.reset();
+      setShowCreateDialog(false);
+    } catch (error) {
+      console.error('Error creating goal:', error);
+    }
   };
 
-  const handleEditGoal = (goal: Goal) => {
-    console.log('✏️ Edit goal clicked:', goal.id, goal.title);
+  const handleEditGoal = (goal: OrgGoal) => {
     setEditingGoal(goal);
     form.reset({
       title: goal.title,
       description: goal.description || '',
       category: goal.category,
-      priority: goal.priority,
+      priority: goal.priority as 'low' | 'medium' | 'high',
+      student_id: goal.student_id,
     });
   };
 
-  const handleUpdateGoal = (data: GoalFormData) => {
+  const handleUpdateGoal = async (data: GoalFormData) => {
     if (!editingGoal) return;
     
-    console.log('Updating goal:', editingGoal.id, data);
-    toast({
-      title: "Success",
-      description: "Goal updated successfully.",
-    });
-    
-    form.reset();
-    setEditingGoal(null);
+    try {
+      await updateGoal({
+        id: editingGoal.id,
+        ...data,
+      });
+      form.reset();
+      setEditingGoal(null);
+    } catch (error) {
+      console.error('Error updating goal:', error);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -221,25 +186,36 @@ export default function GoalsPage() {
     }
   };
 
-  const activeGoals = mockGoals.filter(g => g.status === 'active');
-  const completedGoals = mockGoals.filter(g => g.status === 'completed');
-  const totalProgress = mockGoals.reduce((sum, goal) => sum + goal.progress, 0) / mockGoals.length;
+  const activeGoals = goals.filter(g => g.status === 'active');
+  const completedGoals = goals.filter(g => g.status === 'completed');
+  const totalProgress = goals.length > 0 
+    ? goals.reduce((sum, goal) => sum + (goal.progress_percentage || 0), 0) / goals.length 
+    : 0;
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading goals...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="text-center py-12">
+          <div className="text-red-500 mb-2">Failed to load goals</div>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
-      {/* DEBUG: Simple test button */}
-      <div className="bg-red-100 p-4 border border-red-300 rounded">
-        <button 
-          onClick={() => {
-            console.log('🚨 TEST BUTTON CLICKED - This proves buttons can work!');
-            alert('Test button works!');
-          }}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          🚨 TEST BUTTON - CLICK ME
-        </button>
-        <p className="text-sm mt-2">If this button works, then the issue is with specific button implementations.</p>
-      </div>
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -254,11 +230,12 @@ export default function GoalsPage() {
         </div>
         
         {canManageGoals && (
-          <Button onClick={() => {
-            console.log('➕ Create Goal button clicked');
-            setShowCreateDialog(true);
-          }} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
+          <Button 
+            onClick={() => setShowCreateDialog(true)} 
+            className="flex items-center gap-2"
+            disabled={isCreating}
+          >
+            {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Create Goal
           </Button>
         )}
@@ -386,19 +363,11 @@ export default function GoalsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.preventDefault();
-                            console.log('👁️ View Details clicked for goal:', goal.id);
-                            setSelectedGoal(goal);
-                          }}>
+                          <DropdownMenuItem onClick={() => setSelectedGoal(goal)}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.preventDefault();
-                            console.log('✏️ Edit Goal clicked for goal:', goal.id);
-                            handleEditGoal(goal);
-                          }}>
+                          <DropdownMenuItem onClick={() => handleEditGoal(goal)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Goal
                           </DropdownMenuItem>
@@ -416,25 +385,25 @@ export default function GoalsPage() {
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-purple-100">Progress</span>
-                        <span className="text-white">{goal.progress}%</span>
+                        <span className="text-white">{goal.progress_percentage || 0}%</span>
                       </div>
-                      <Progress value={goal.progress} className="h-2" />
+                      <Progress value={goal.progress_percentage || 0} className="h-2" />
                     </div>
                     
                     <div className="flex items-center justify-between text-sm text-purple-200">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          <span>{goal.assigned_count} assigned</span>
+                          <span>Student assigned</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3 text-green-400" />
-                          <span>{goal.completed_count} completed</span>
+                          <span>{goal.status}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        <span>{goal.created_at.toLocaleDateString()}</span>
+                        <span>{new Date(goal.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
@@ -478,7 +447,7 @@ export default function GoalsPage() {
                   <FormItem>
                     <FormLabel>Goal Title</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter goal title" />
+                      <Input {...field} placeholder="Enter goal title" disabled={isCreating || isUpdating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -505,11 +474,34 @@ export default function GoalsPage() {
 
               <FormField
                 control={form.control}
+                name="student_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assign to Student</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select student" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="student1">Student 1</SelectItem>
+                        <SelectItem value="student2">Student 2</SelectItem>
+                        <SelectItem value="student3">Student 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="category"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
@@ -534,7 +526,7 @@ export default function GoalsPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Priority</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
@@ -560,11 +552,19 @@ export default function GoalsPage() {
                     setEditingGoal(null);
                     form.reset();
                   }}
+                  disabled={isCreating || isUpdating}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingGoal ? 'Update Goal' : 'Create Goal'}
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {editingGoal ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    editingGoal ? 'Update Goal' : 'Create Goal'
+                  )}
                 </Button>
               </div>
             </form>
@@ -616,7 +616,7 @@ export default function GoalsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Created:</span>
-                    <span>{selectedGoal.created_at.toLocaleDateString()}</span>
+                    <span>{new Date(selectedGoal.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -627,18 +627,18 @@ export default function GoalsPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Overall Progress</span>
-                      <span>{selectedGoal.progress}%</span>
+                      <span>{selectedGoal.progress_percentage || 0}%</span>
                     </div>
-                    <Progress value={selectedGoal.progress} className="h-2" />
+                    <Progress value={selectedGoal.progress_percentage || 0} className="h-2" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="text-center p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold">{selectedGoal.assigned_count}</div>
+                      <div className="text-2xl font-bold">1</div>
                       <div className="text-muted-foreground">Assigned</div>
                     </div>
                     <div className="text-center p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-green-500">{selectedGoal.completed_count}</div>
+                      <div className="text-2xl font-bold text-green-500">0</div>
                       <div className="text-muted-foreground">Completed</div>
                     </div>
                   </div>
