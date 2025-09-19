@@ -32,13 +32,16 @@ import {
   Users,
   Play,
   Pause,
-  BarChart
+  BarChart,
+  Sparkles
 } from 'lucide-react';
 import { useOrgCourses, OrgCourse } from '@/hooks/useOrgCourses';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
+import { featureFlagService } from '@/services/FeatureFlagService';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -54,6 +57,9 @@ export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<OrgCourse | null>(null);
+  const [showCourseWizard, setShowCourseWizard] = useState(false);
+
+  const isWizardEnabled = featureFlagService.isEnabled('orgCourseWizard');
 
   const {
     courses,
@@ -152,10 +158,25 @@ export default function CoursesPage() {
         </div>
         
         {canManageCourses && (
-          <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Course
-          </Button>
+          <div className="flex items-center gap-2">
+            {isWizardEnabled && (
+              <Button 
+                onClick={() => setShowCourseWizard(true)} 
+                className="flex items-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Create Interactive Course
+              </Button>
+            )}
+            <Button 
+              onClick={() => setShowCreateDialog(true)} 
+              variant={isWizardEnabled ? "outline" : "default"}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Quick Course
+            </Button>
+          </div>
         )}
       </div>
 
@@ -229,10 +250,18 @@ export default function CoursesPage() {
               {searchQuery ? 'No courses match your search.' : 'Start by creating your first course.'}
             </p>
             {canManageCourses && !searchQuery && (
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Course
-              </Button>
+              <div className="flex items-center gap-2">
+                {isWizardEnabled && (
+                  <Button onClick={() => setShowCourseWizard(true)}>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Create Interactive Course
+                  </Button>
+                )}
+                <Button onClick={() => setShowCreateDialog(true)} variant={isWizardEnabled ? "outline" : "default"}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Quick Course
+                </Button>
+              </div>
             )}
           </div>
         ) : (
@@ -418,6 +447,15 @@ export default function CoursesPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Course Creation Wizard */}
+      {isWizardEnabled && currentOrg && (
+        <CourseCreationWizard
+          open={showCourseWizard}
+          onOpenChange={setShowCourseWizard}
+          orgId={currentOrg.organization_id}
+        />
+      )}
     </div>
   );
 }

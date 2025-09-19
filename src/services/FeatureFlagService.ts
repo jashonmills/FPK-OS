@@ -185,6 +185,14 @@ export class FeatureFlagService {
         description: 'Enable standardized additional resources sections across all course frameworks',
         enabled: true,
         rolloutPercentage: 100
+      },
+      // Course Creation Wizard feature flag
+      {
+        id: 'orgCourseWizard',
+        name: 'Organization Course Creation Wizard',
+        description: 'Enable the advanced course creation wizard for organizations',
+        enabled: true,
+        rolloutPercentage: 100
       }
     ];
 
