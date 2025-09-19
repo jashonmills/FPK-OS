@@ -121,7 +121,7 @@ export default function DraftPreview() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(`/org/${draft.org_id}/course-builder/${draftId}`)}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
