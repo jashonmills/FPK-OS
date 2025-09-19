@@ -8,6 +8,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useCourses } from '@/hooks/useCourses';
 import { useOrganizationCourseAssignments } from '@/hooks/useOrganizationCourseAssignments';
 import { getCourseImage } from '@/utils/courseImages';
+import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
 export default function CoursesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const { courses: allCourses, isLoading } = useCourses({ status: 'published' });
   const { assignedCourses, assignCourse, unassignCourse, isCourseAssigned } = useOrganizationCourseAssignments(currentOrg?.organization_id);
 
@@ -54,7 +56,7 @@ export default function CoursesManagement() {
             Manage and monitor your organization's learning content
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setIsWizardOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Create Course
         </Button>
@@ -220,13 +222,19 @@ export default function CoursesManagement() {
             <p className="text-white/80 mb-4">
               {searchQuery ? 'No courses match your search.' : 'Create your first course to get started.'}
             </p>
-            <Button className="bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60">
+            <Button className="bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60" onClick={() => setIsWizardOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Course
             </Button>
           </OrgCardContent>
         </OrgCard>
       )}
+      
+      <CourseCreationWizard
+        open={isWizardOpen}
+        onOpenChange={setIsWizardOpen}
+        orgId={currentOrg.organization_id}
+      />
     </div>
   );
 }
