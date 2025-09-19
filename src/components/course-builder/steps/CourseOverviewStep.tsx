@@ -10,6 +10,10 @@ import { Upload, X, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { courseBackgroundPath } from '@/utils/storagePaths';
 import { toast } from 'sonner';
+import { StartFromSelector, type StartFromOption } from '../import/StartFromSelector';
+import { FileDropzone } from '../import/FileDropzone';
+import { ImportProcessingScreen } from '../import/ImportProcessingScreen';
+import { ImportReviewScreen } from '../import/ImportReviewScreen';
 
 interface CourseOverviewStepProps {
   draft: CourseDraft;
@@ -30,6 +34,13 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
   const [uploading, setUploading] = useState(false);
   const [newObjective, setNewObjective] = useState('');
   const [newPrerequisite, setNewPrerequisite] = useState('');
+  
+  // Import state
+  const [startFrom, setStartFrom] = useState<StartFromOption>('manual');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [importId, setImportId] = useState<string | null>(null);
+  const [importData, setImportData] = useState<any>(null);
+  const [isImporting, setIsImporting] = useState(false);
   
   // Refs for debouncing
   const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -138,18 +149,138 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
     });
   };
 
+  const handleStartImport = async () => {
+    if (!selectedFile) return;
+    
+    setIsImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('scorm_package', selectedFile);
+      formData.append('org_id', orgId);
+      if (draft.backgroundImageUrl) {
+        formData.append('background_image_url', draft.backgroundImageUrl);
+      }
+
+      const { data, error } = await supabase.functions.invoke('import-scorm', {
+        body: formData
+      });
+
+      if (error) throw error;
+      setImportId(data.importId);
+    } catch (error) {
+      console.error('Import failed:', error);
+      toast.error('Failed to start import');
+      setIsImporting(false);
+    }
+  };
+
+  const handleImportComplete = (result: any) => {
+    setImportData(result);
+    setIsImporting(false);
+  };
+
+  const handleImportError = (error: string) => {
+    toast.error(error);
+    setIsImporting(false);
+    setImportId(null);
+  };
+
+  // Show processing screen during import
+  if (importId && isImporting) {
+    return (
+      <ImportProcessingScreen
+        importId={importId}
+        onComplete={handleImportComplete}
+        onError={handleImportError}
+      />
+    );
+  }
+
+  // Show review screen after successful import
+  if (importData) {
+    return (
+      <ImportReviewScreen
+        importData={importData}
+        onPublish={(overrides) => {
+          // Apply import data to course draft
+          updateCourse({
+            title: overrides.title,
+            description: overrides.description,
+            level: overrides.level,
+            durationEstimateMins: overrides.durationEstimateMins,
+            // The actual course structure would be applied elsewhere
+          });
+          toast.success('Course imported successfully!');
+          setImportData(null);
+        }}
+        onEdit={() => {
+          // Reset to manual mode with imported data
+          setStartFrom('manual');
+          setImportData(null);
+        }}
+        onReImport={() => {
+          // Reset import state
+          setImportData(null);
+          setImportId(null);
+          setSelectedFile(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Background Preview */}
-      {draft.backgroundImageUrl && (
-        <div className="space-y-2">
-          <Label>Background Preview</Label>
-          <div 
-            className="w-full h-32 rounded-lg bg-cover bg-center bg-no-repeat border"
-            style={{ backgroundImage: `url(${draft.backgroundImageUrl})` }}
+      {/* Start From Selector */}
+      <StartFromSelector
+        value={startFrom}
+        onChange={setStartFrom}
+      />
+
+      {/* Import File Section */}
+      {startFrom === 'scorm' && (
+        <div className="space-y-4">
+          <FileDropzone
+            onFileSelect={setSelectedFile}
+            onFileRemove={() => setSelectedFile(null)}
+            selectedFile={selectedFile}
+            acceptedFileTypes={['.zip']}
+            disabled={isImporting}
           />
+          
+          {selectedFile && (
+            <div className="flex justify-center">
+              <Button 
+                onClick={handleStartImport}
+                disabled={!selectedFile || isImporting}
+                className="min-w-[150px]"
+              >
+                {isImporting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  'Import & Process'
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Manual Course Creation Fields */}
+      {startFrom === 'manual' && (
+        <>
+          {/* Background Preview */}
+          {draft.backgroundImageUrl && (
+            <div className="space-y-2">
+              <Label>Background Preview</Label>
+              <div 
+                className="w-full h-32 rounded-lg bg-cover bg-center bg-no-repeat border"
+                style={{ backgroundImage: `url(${draft.backgroundImageUrl})` }}
+              />
+            </div>
+          )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -294,7 +425,37 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
             </div>
           </div>
         </div>
-      </div>
+        </>
+      )}
+
+      {/* Background Image Upload - Show for both manual and import */}
+      {startFrom !== 'json' && (
+        <div className="space-y-2">
+          <Label>Background Image {startFrom === 'scorm' && <span className="text-xs text-muted-foreground">(Optional Override)</span>}</Label>
+          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleBackgroundUpload}
+              disabled={uploading}
+              className="hidden"
+              id="background-upload"
+            />
+            <label 
+              htmlFor="background-upload"
+              className="cursor-pointer flex flex-col items-center space-y-2"
+            >
+              <Upload className="w-8 h-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {uploading ? 'Uploading...' : startFrom === 'scorm' 
+                  ? 'Upload to override SCORM background' 
+                  : 'Click to upload background image'
+                }
+              </span>
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4072,12 +4072,14 @@ export type Database = {
           duration_estimate_mins: number | null
           framework: string | null
           id: string
+          import_id: string | null
           lesson_structure: Json | null
           level: string | null
           micro_lesson_data: Json | null
           objectives: Json | null
           org_id: string
           prerequisites: Json | null
+          processing_status: string | null
           published: boolean | null
           source: string | null
           status: string | null
@@ -4095,12 +4097,14 @@ export type Database = {
           duration_estimate_mins?: number | null
           framework?: string | null
           id?: string
+          import_id?: string | null
           lesson_structure?: Json | null
           level?: string | null
           micro_lesson_data?: Json | null
           objectives?: Json | null
           org_id: string
           prerequisites?: Json | null
+          processing_status?: string | null
           published?: boolean | null
           source?: string | null
           status?: string | null
@@ -4118,12 +4122,14 @@ export type Database = {
           duration_estimate_mins?: number | null
           framework?: string | null
           id?: string
+          import_id?: string | null
           lesson_structure?: Json | null
           level?: string | null
           micro_lesson_data?: Json | null
           objectives?: Json | null
           org_id?: string
           prerequisites?: Json | null
+          processing_status?: string | null
           published?: boolean | null
           source?: string | null
           status?: string | null
@@ -4132,6 +4138,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "org_courses_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "scorm_imports"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "org_courses_org_id_fkey"
             columns: ["org_id"]
@@ -5547,6 +5560,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scorm_imports: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          manifest_data: Json | null
+          mapped_structure: Json | null
+          org_id: string
+          progress_percentage: number | null
+          status: string
+          steps_log: Json
+          user_id: string
+          warnings_json: Json | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          manifest_data?: Json | null
+          mapped_structure?: Json | null
+          org_id: string
+          progress_percentage?: number | null
+          status?: string
+          steps_log?: Json
+          user_id: string
+          warnings_json?: Json | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          manifest_data?: Json | null
+          mapped_structure?: Json | null
+          org_id?: string
+          progress_percentage?: number | null
+          status?: string
+          steps_log?: Json
+          user_id?: string
+          warnings_json?: Json | null
+        }
+        Relationships: []
       }
       scorm_interactions: {
         Row: {
