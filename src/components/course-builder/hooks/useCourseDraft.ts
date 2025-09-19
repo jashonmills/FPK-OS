@@ -52,96 +52,143 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
 
   // Update course metadata
   const updateCourse = useCallback((updates: Partial<CourseDraft>) => {
-    if (!draft) return;
+    setDraft(prevDraft => {
+      if (!prevDraft) return prevDraft;
+      
+      const updatedDraft = { ...prevDraft, ...updates };
+      
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      // Debounce the localStorage save to avoid constant writes
+      saveTimeoutRef.current = setTimeout(() => {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+        } catch (error) {
+          console.error('Error saving course draft:', error);
+          toast.error('Failed to save draft');
+        }
+      }, 300);
+      
+      return updatedDraft;
+    });
+  }, [storageKey]);
+
+  // Add module
+  const addModule = useCallback((title: string) => {
+    let moduleId: string | undefined;
     
-    const updatedDraft = { ...draft, ...updates };
-    // Update state immediately for responsive UI
-    setDraft(updatedDraft);
-    
-    // Clear existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    
-    // Debounce the localStorage save to avoid constant writes
-    saveTimeoutRef.current = setTimeout(() => {
+    setDraft(prevDraft => {
+      if (!prevDraft) return prevDraft;
+      
+      const newModule: ModuleDraft = {
+        id: `module-${Date.now()}`,
+        title,
+        lessons: []
+      };
+      moduleId = newModule.id;
+      
+      const updatedDraft = {
+        ...prevDraft,
+        modules: [...prevDraft.modules, newModule]
+      };
+      
+      // Save to localStorage
       try {
         localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
       } catch (error) {
         console.error('Error saving course draft:', error);
         toast.error('Failed to save draft');
       }
-    }, 300);
-  }, [draft, storageKey]);
-
-  // Add module
-  const addModule = useCallback((title: string) => {
-    if (!draft) return;
+      
+      return updatedDraft;
+    });
     
-    const newModule: ModuleDraft = {
-      id: `module-${Date.now()}`,
-      title,
-      lessons: []
-    };
-    
-    const updatedDraft = {
-      ...draft,
-      modules: [...draft.modules, newModule]
-    };
-    saveDraft(updatedDraft);
-    return newModule.id;
-  }, [draft, saveDraft]);
+    return moduleId;
+  }, [storageKey]);
 
   // Add lesson to module
   const addLesson = useCallback((moduleId: string, title: string, description?: string) => {
-    if (!draft) return;
+    let lessonId: string | undefined;
     
-    const newLesson: LessonDraft = {
-      id: `lesson-${Date.now()}`,
-      title,
-      description,
-      slides: []
-    };
+    setDraft(prevDraft => {
+      if (!prevDraft) return prevDraft;
+      
+      const newLesson: LessonDraft = {
+        id: `lesson-${Date.now()}`,
+        title,
+        description,
+        slides: []
+      };
+      lessonId = newLesson.id;
+      
+      const updatedDraft = {
+        ...prevDraft,
+        modules: prevDraft.modules.map(module =>
+          module.id === moduleId
+            ? { ...module, lessons: [...module.lessons, newLesson] }
+            : module
+        )
+      };
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+      } catch (error) {
+        console.error('Error saving course draft:', error);
+        toast.error('Failed to save draft');
+      }
+      
+      return updatedDraft;
+    });
     
-    const updatedDraft = {
-      ...draft,
-      modules: draft.modules.map(module =>
-        module.id === moduleId
-          ? { ...module, lessons: [...module.lessons, newLesson] }
-          : module
-      )
-    };
-    saveDraft(updatedDraft);
-    return newLesson.id;
-  }, [draft, saveDraft]);
+    return lessonId;
+  }, [storageKey]);
 
   // Add slide to lesson
   const addSlide = useCallback((moduleId: string, lessonId: string, slide: Omit<SlideDraft, 'id'>) => {
-    if (!draft) return;
+    let slideId: string | undefined;
     
-    const newSlide: SlideDraft = {
-      ...slide,
-      id: `slide-${Date.now()}`
-    };
+    setDraft(prevDraft => {
+      if (!prevDraft) return prevDraft;
+      
+      const newSlide: SlideDraft = {
+        ...slide,
+        id: `slide-${Date.now()}`
+      };
+      slideId = newSlide.id;
+      
+      const updatedDraft = {
+        ...prevDraft,
+        modules: prevDraft.modules.map(module =>
+          module.id === moduleId
+            ? {
+                ...module,
+                lessons: module.lessons.map(lesson =>
+                  lesson.id === lessonId
+                    ? { ...lesson, slides: [...lesson.slides, newSlide] }
+                    : lesson
+                )
+              }
+            : module
+        )
+      };
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+      } catch (error) {
+        console.error('Error saving course draft:', error);
+        toast.error('Failed to save draft');
+      }
+      
+      return updatedDraft;
+    });
     
-    const updatedDraft = {
-      ...draft,
-      modules: draft.modules.map(module =>
-        module.id === moduleId
-          ? {
-              ...module,
-              lessons: module.lessons.map(lesson =>
-                lesson.id === lessonId
-                  ? { ...lesson, slides: [...lesson.slides, newSlide] }
-                  : lesson
-              )
-            }
-          : module
-      )
-    };
-    saveDraft(updatedDraft);
-    return newSlide.id;
-  }, [draft, saveDraft]);
+    return slideId;
+  }, [storageKey]);
 
   // Set background image URL
   const setBackgroundImageUrl = useCallback((url: string) => {
