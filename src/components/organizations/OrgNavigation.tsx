@@ -31,6 +31,13 @@ export function OrgNavigation() {
 
   if (!currentOrg) return null;
 
+  // Debug logging for navigation
+  console.log('🔍 OrgNavigation Debug:', {
+    currentOrgId: currentOrg.organization_id,
+    currentPath: window.location.pathname,
+    coursesHref: `/org/${currentOrg.organization_id}/courses`
+  });
+
   const navItems: NavItem[] = [
     {
       href: `/org/${currentOrg.organization_id}`,
@@ -169,6 +176,14 @@ export function OrgNavigation() {
               key={item.href}
               to={item.href}
               end={item.href === `/org/${currentOrg.organization_id}`}
+              onClick={(e) => {
+                console.log('🔗 Navigation click:', {
+                  href: item.href,
+                  label: item.label,
+                  currentPath: window.location.pathname,
+                  event: e
+                });
+              }}
               className={({ isActive }) =>
                 cn(
                   'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
