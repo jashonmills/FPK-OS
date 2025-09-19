@@ -268,170 +268,14 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
         </div>
       )}
 
-      {/* Manual Course Creation Fields */}
-      {startFrom === 'manual' && (
-        <>
-          {/* Background Preview */}
-          {draft.backgroundImageUrl && (
-            <div className="space-y-2">
-              <Label>Background Preview</Label>
-              <div 
-                className="w-full h-32 rounded-lg bg-cover bg-center bg-no-repeat border"
-                style={{ backgroundImage: `url(${draft.backgroundImageUrl})` }}
-              />
-            </div>
-          )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="title">Course Title *</Label>
-            <Input
-              id="title"
-              value={localTitle}
-              onChange={(e) => updateTitle(e.target.value)}
-              placeholder="Enter course title..."
-              className="mt-1"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={localDescription}
-              onChange={(e) => updateDescription(e.target.value)}
-              placeholder="Describe what students will learn..."
-              rows={4}
-              className="mt-1"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="level">Difficulty Level</Label>
-              <Select 
-                value={draft.level || 'intro'} 
-                onValueChange={(value) => updateCourse({ level: value as any })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="intro">Introductory</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="duration">Duration (minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={draft.durationEstimateMins || ''}
-                onChange={(e) => updateCourse({ durationEstimateMins: parseInt(e.target.value) || undefined })}
-                placeholder="60"
-                className="mt-1"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label>Background Image</Label>
-            <div className="mt-1 border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleBackgroundUpload}
-                disabled={uploading}
-                className="hidden"
-                id="background-upload"
-              />
-              <label 
-                htmlFor="background-upload"
-                className="cursor-pointer flex flex-col items-center space-y-2"
-              >
-                <Upload className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {uploading ? 'Uploading...' : 'Click to upload background image'}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <Label>Learning Objectives</Label>
-            <div className="space-y-2 mt-1">
-              <div className="flex space-x-2">
-                <Input
-                  value={newObjective}
-                  onChange={(e) => setNewObjective(e.target.value)}
-                  placeholder="Add learning objective..."
-                  onKeyPress={(e) => e.key === 'Enter' && addObjective()}
-                />
-                <Button type="button" size="sm" onClick={addObjective}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              {draft.objectives?.map((objective, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center justify-between">
-                  <span className="flex-1">{objective}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeObjective(index)}
-                    className="ml-2 p-0 h-4 w-4"
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label>Prerequisites</Label>
-            <div className="space-y-2 mt-1">
-              <div className="flex space-x-2">
-                <Input
-                  value={newPrerequisite}
-                  onChange={(e) => setNewPrerequisite(e.target.value)}
-                  placeholder="Add prerequisite..."
-                  onKeyPress={(e) => e.key === 'Enter' && addPrerequisite()}
-                />
-                <Button type="button" size="sm" onClick={addPrerequisite}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              {draft.prerequisites?.map((prerequisite, index) => (
-                <Badge key={index} variant="outline" className="flex items-center justify-between">
-                  <span className="flex-1">{prerequisite}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removePrerequisite(index)}
-                    className="ml-2 p-0 h-4 w-4"
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </div>
-        </>
-      )}
-
       {/* Background Image Upload - Show for both manual and import */}
       {startFrom !== 'json' && (
         <div className="space-y-2">
-          <Label>Background Image {startFrom === 'scorm' && <span className="text-xs text-muted-foreground">(Optional Override)</span>}</Label>
+          <Label>
+            Background Image {startFrom === 'scorm' && (
+              <span className="text-xs text-muted-foreground">(Optional Override)</span>
+            )}
+          </Label>
           <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
             <input
               type="file"
@@ -455,6 +299,144 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
             </label>
           </div>
         </div>
+      )}
+
+      {/* Manual Course Creation Fields */}
+      {startFrom === 'manual' && (
+        <>
+          {/* Background Preview */}
+          {draft.backgroundImageUrl && (
+            <div className="space-y-2">
+              <Label>Background Preview</Label>
+              <div 
+                className="w-full h-32 rounded-lg bg-cover bg-center bg-no-repeat border"
+                style={{ backgroundImage: `url(${draft.backgroundImageUrl})` }}
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Course Title *</Label>
+                <Input
+                  id="title"
+                  value={localTitle}
+                  onChange={(e) => updateTitle(e.target.value)}
+                  placeholder="Enter course title..."
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={localDescription}
+                  onChange={(e) => updateDescription(e.target.value)}
+                  placeholder="Describe what students will learn..."
+                  rows={4}
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="level">Difficulty Level</Label>
+                  <Select 
+                    value={draft.level || 'intro'} 
+                    onValueChange={(value) => updateCourse({ level: value as any })}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="intro">Introductory</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="duration">Duration (minutes)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={draft.durationEstimateMins || ''}
+                    onChange={(e) => updateCourse({ durationEstimateMins: parseInt(e.target.value) || undefined })}
+                    placeholder="60"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Learning Objectives</Label>
+                <div className="space-y-2 mt-1">
+                  <div className="flex space-x-2">
+                    <Input
+                      value={newObjective}
+                      onChange={(e) => setNewObjective(e.target.value)}
+                      placeholder="Add learning objective..."
+                      onKeyPress={(e) => e.key === 'Enter' && addObjective()}
+                    />
+                    <Button type="button" size="sm" onClick={addObjective}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {draft.objectives?.map((objective, index) => (
+                    <Badge key={index} variant="secondary" className="flex items-center justify-between">
+                      <span className="flex-1">{objective}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeObjective(index)}
+                        className="ml-2 p-0 h-4 w-4"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Prerequisites</Label>
+                <div className="space-y-2 mt-1">
+                  <div className="flex space-x-2">
+                    <Input
+                      value={newPrerequisite}
+                      onChange={(e) => setNewPrerequisite(e.target.value)}
+                      placeholder="Add prerequisite..."
+                      onKeyPress={(e) => e.key === 'Enter' && addPrerequisite()}
+                    />
+                    <Button type="button" size="sm" onClick={addPrerequisite}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {draft.prerequisites?.map((prerequisite, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center justify-between">
+                      <span className="flex-1">{prerequisite}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removePrerequisite(index)}
+                        className="ml-2 p-0 h-4 w-4"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

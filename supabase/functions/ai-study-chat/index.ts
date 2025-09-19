@@ -621,3 +621,10 @@ function getContextualResponse(message: string, chatMode: string, errorType: str
       return "Clouds are fascinating! ☁️ Rather than explaining everything at once, let's explore together. What have you observed about clouds that makes you curious?";
     }
   }
+
+  // Default fallback response
+  return "That's an interesting question! Let's explore it together. What specifically would you like to understand better?";
+}
+
+// Close the main serve function
+});
