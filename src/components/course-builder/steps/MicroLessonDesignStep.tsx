@@ -12,6 +12,7 @@ import { Plus, Upload, FileText, Image, Video, FileIcon, X, SidebarOpen, Sidebar
 import { supabase } from '@/integrations/supabase/client';
 import { slideAssetPath } from '@/utils/storagePaths';
 import { toast } from 'sonner';
+import { htmlToText, cleanScormContent, extractContentSummary } from '@/utils/htmlToText';
 import { ProgressOverviewCard } from '../progress/ProgressOverviewCard';
 import { ProgressSidebar } from '../progress/ProgressSidebar';
 import { EnhancedSelectDropdowns } from '../progress/EnhancedSelectDropdowns';
@@ -222,18 +223,9 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
               </Button>
               <div>
                 <h3 className="text-lg font-semibold">Design Your Content</h3>
-                <p className="text-muted-foreground text-sm">
-                  Create interactive slides for each lesson. Mix content types for engaging micro-learning experiences.
-                </p>
-                {/* Show import indicator if content was imported */}
-                {draft.modules.length > 0 && draft.modules[0]?.lessons?.[0]?.slides?.length > 0 && (
-                  <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-green-700 text-sm font-medium">
-                      Content imported from SCORM - Review and edit as needed
-                    </span>
-                  </div>
-                )}
+                 <p className="text-muted-foreground text-sm">
+                   Create interactive slides for each lesson. Mix content types for engaging micro-learning experiences.
+                 </p>
               </div>
             </div>
           </div>
@@ -307,13 +299,13 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
                 {newSlide.kind === 'content' && (
                   <div>
                     <Label>Content</Label>
-                    <Textarea
-                      value={newSlide.html || ''}
-                      onChange={(e) => setNewSlide(prev => ({ ...prev, html: e.target.value }))}
-                      placeholder="Enter slide content (supports basic HTML)..."
-                      rows={6}
-                      className="mt-1"
-                    />
+                     <Textarea
+                       value={htmlToText(newSlide.html || '')}
+                       onChange={(e) => setNewSlide(prev => ({ ...prev, html: e.target.value }))}
+                       placeholder="Enter slide content..."
+                       rows={6}
+                       className="mt-1"
+                     />
                   </div>
                 )}
 
@@ -414,12 +406,12 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
                           />
                           
                           {slide.kind === 'content' && (
-                            <Textarea
-                              value={slide.html || ''}
-                              onChange={(e) => updateSlide(selectedModule, selectedLesson, slide.id, { html: e.target.value })}
-                              placeholder="Slide content..."
-                              rows={3}
-                            />
+                             <Textarea
+                               value={htmlToText(slide.html || '')}
+                               onChange={(e) => updateSlide(selectedModule, selectedLesson, slide.id, { html: e.target.value })}
+                               placeholder="Slide content..."
+                               rows={3}
+                             />
                           )}
                           
                           {slide.assets && slide.assets.length > 0 && (

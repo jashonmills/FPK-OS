@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, GripVertical, X, Book, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { cleanScormContent, extractContentSummary } from '@/utils/htmlToText';
 
 interface LessonPlanningStepProps {
   draft: CourseDraft;
@@ -176,13 +177,13 @@ export const LessonPlanningStep: React.FC<LessonPlanningStepProps> = ({
                       placeholder="Lesson title..."
                       className="font-medium bg-background"
                     />
-                    <Textarea
-                      value={lesson.description || ''}
-                      onChange={(e) => updateLessonDescription(module.id, lesson.id, e.target.value)}
-                      placeholder="Lesson description (optional)..."
-                      rows={2}
-                      className="bg-background"
-                    />
+                     <Textarea
+                       value={cleanScormContent(lesson.description || '')}
+                       onChange={(e) => updateLessonDescription(module.id, lesson.id, e.target.value)}
+                       placeholder="Lesson description (optional)..."
+                       rows={2}
+                       className="bg-background"
+                     />
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>{lesson.slides.length} slides</span>
                       <Badge variant="secondary">Lesson {lessonIndex + 1}</Badge>

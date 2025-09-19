@@ -289,23 +289,23 @@ function parseManifest(manifestData: any): ScormManifest {
 function mapToFramework2(manifest: ScormManifest, backgroundImageOverride?: string) {
   const modules = manifest.organizations.map((org, orgIndex) => ({
     id: `module_${orgIndex + 1}`,
-    title: org.title,
+    title: cleanTitle(org.title),
     lessons: org.items.map((item, itemIndex) => ({
       id: `lesson_${orgIndex + 1}_${itemIndex + 1}`,
-      title: item.title,
-      description: `Imported from SCORM: ${item.title}`,
+      title: cleanTitle(item.title),
+      description: extractLessonDescription(item),
       slides: item.children && item.children.length > 0 
         ? item.children.map((child, childIndex) => ({
             id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
             kind: inferSlideType(child.title),
-            title: child.title,
-            html: `<div class="scorm-content"><h3>${child.title}</h3><p>Content imported from SCORM package</p></div>`
+            title: cleanTitle(child.title),
+            html: generateSlideContent(child.title, item.resource, manifest.resources)
           }))
         : [{
             id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
             kind: 'content' as const,
-            title: item.title,
-            html: `<div class="scorm-content"><h3>${item.title}</h3><p>Content imported from SCORM package</p></div>`
+            title: cleanTitle(item.title),
+            html: generateSlideContent(item.title, item.resource, manifest.resources)
           }]
     }))
   }));
@@ -346,4 +346,86 @@ function estimateDuration(modules: any[]): number {
     acc + module.lessons.reduce((lessonAcc: number, lesson: any) => 
       lessonAcc + lesson.slides.length, 0), 0);
   return Math.max(30, totalSlides * 3); // Minimum 30 minutes, 3 minutes per slide
+}
+
+/**
+ * Clean up titles by removing HTML and common prefixes
+ */
+function cleanTitle(title: string): string {
+  if (!title) return '';
+  
+  return title
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'") // Decode entities
+    .replace(/^(lesson|module|chapter|unit|topic)\s*\d*:?\s*/i, '') // Remove common prefixes
+    .trim();
+}
+
+/**
+ * Extract meaningful lesson description from SCORM item
+ */
+function extractLessonDescription(item: any): string {
+  // Try to get description from various SCORM fields
+  if (item.description && typeof item.description === 'string') {
+    return cleanTitle(item.description);
+  }
+  
+  // If no description, create a basic one from the title
+  if (item.title) {
+    return `Learn about ${cleanTitle(item.title).toLowerCase()}`;
+  }
+  
+  return '';
+}
+
+/**
+ * Generate meaningful slide content based on SCORM resource
+ */
+function generateSlideContent(title: string, resourceRef: string, resources: any[]): string {
+  const cleanedTitle = cleanTitle(title);
+  
+  // Find the associated resource
+  const resource = resources.find(r => r.identifier === resourceRef);
+  
+  if (resource && resource.href) {
+    // For now, create structured content with the resource reference
+    // In a full implementation, you would parse the actual HTML file
+    return `<h3>${cleanedTitle}</h3>
+<p>This lesson covers key concepts related to ${cleanedTitle.toLowerCase()}.</p>
+<div class="resource-reference" data-href="${resource.href}">
+  <p>Content source: ${resource.href}</p>
+</div>`;
+  }
+  
+  // Fallback content based on title analysis
+  const contentType = inferSlideType(title);
+  switch (contentType) {
+    case 'practice':
+      return `<h3>${cleanedTitle}</h3>
+<p>Practice exercises and activities for ${cleanedTitle.toLowerCase()}.</p>
+<ul>
+  <li>Review key concepts</li>
+  <li>Complete practice questions</li>
+  <li>Apply what you've learned</li>
+</ul>`;
+    
+    case 'example':
+      return `<h3>${cleanedTitle}</h3>
+<p>Examples and demonstrations of ${cleanedTitle.toLowerCase()}.</p>
+<p>Study the following examples to understand the concepts better:</p>`;
+    
+    case 'summary':
+      return `<h3>${cleanedTitle}</h3>
+<p>Summary and review of ${cleanedTitle.toLowerCase()}.</p>
+<ul>
+  <li>Key takeaways</li>
+  <li>Important concepts to remember</li>
+  <li>Next steps</li>
+</ul>`;
+    
+    default:
+      return `<h3>${cleanedTitle}</h3>
+<p>Explore the fundamentals of ${cleanedTitle.toLowerCase()} in this comprehensive lesson.</p>
+<p>You will learn the essential concepts and practical applications.</p>`;
+  }
 }
