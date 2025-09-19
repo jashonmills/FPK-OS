@@ -60,13 +60,35 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
         return isFromImport || (draft.modules.length > 0 && draft.modules.every(m => m.lessons.length > 0));
       case 'design':
         // Allow proceeding if imported from SCORM or has slides
-        return isFromImport || draft.modules.every(m => 
-          m.lessons.every(l => l.slides.length > 0)
+        return isFromImport || draft.modules.some(m => 
+          m.lessons.some(l => l.slides.length > 0)
         );
       case 'review':
         return true;
       default:
         return false;
+    }
+  };
+
+  // For imported content, allow navigation to any step since content is pre-populated
+  const canNavigateToStep = (stepKey: WizardStep) => {
+    if (isFromImport) return true;
+    
+    const stepIndex = steps.findIndex(s => s.key === stepKey);
+    const currentIndex = steps.findIndex(s => s.key === currentStep);
+    return stepIndex <= currentIndex;
+  };
+
+  const handleStepClick = (stepKey: WizardStep) => {
+    if (canNavigateToStep(stepKey)) {
+      setCurrentStep(stepKey);
+      
+      // Update URL if using draftId routing
+      if (draftId) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('step', stepKey);
+        window.history.pushState({}, '', url.toString());
+      }
     }
   };
 
@@ -138,21 +160,30 @@ export const CourseCreationWizard: React.FC<CourseCreationWizardProps> = React.m
           {steps.map((step, index) => {
             const isActive = step.key === currentStep;
             const isCompleted = steps.findIndex(s => s.key === currentStep) > index;
+            const isClickable = canNavigateToStep(step.key);
             
             return (
               <div key={step.key} className="flex flex-col items-center space-y-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  isCompleted 
-                    ? 'bg-primary text-primary-foreground' 
-                    : isActive 
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                    isCompleted 
                       ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted text-muted-foreground'
-                }`}>
+                      : isActive 
+                        ? 'bg-primary text-primary-foreground' 
+                        : isClickable 
+                          ? 'bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer'
+                          : 'bg-muted text-muted-foreground'
+                  } ${isFromImport && isClickable ? 'ring-2 ring-green-500/20' : ''}`}
+                  onClick={() => isClickable && handleStepClick(step.key)}
+                >
                   {isCompleted ? <Check className="w-4 h-4" /> : index + 1}
                 </div>
                 <div className={`text-xs text-center ${isActive ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
                   <div>{step.title}</div>
                   <div className="hidden sm:block">{step.description}</div>
+                  {isFromImport && step.key !== 'overview' && (
+                    <div className="text-green-600 text-xs mt-1">✓ Imported</div>
+                  )}
                 </div>
               </div>
             );

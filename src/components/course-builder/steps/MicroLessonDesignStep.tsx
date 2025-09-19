@@ -225,6 +225,15 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
                 <p className="text-muted-foreground text-sm">
                   Create interactive slides for each lesson. Mix content types for engaging micro-learning experiences.
                 </p>
+                {/* Show import indicator if content was imported */}
+                {draft.modules.length > 0 && draft.modules[0]?.lessons?.[0]?.slides?.length > 0 && (
+                  <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-green-700 text-sm font-medium">
+                      Content imported from SCORM - Review and edit as needed
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -243,10 +252,13 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
         />
 
       {currentLesson && (
-        <Tabs defaultValue="create" className="space-y-4">
+        <Tabs defaultValue={currentLesson.slides.length > 0 ? "existing" : "create"} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="create">Create New Slide</TabsTrigger>
-            <TabsTrigger value="existing">Manage Existing ({currentLesson.slides.length})</TabsTrigger>
+            <TabsTrigger value="existing" className={currentLesson.slides.length > 0 ? "bg-green-50 text-green-700 border-green-200" : ""}>
+              Manage Existing ({currentLesson.slides.length})
+              {currentLesson.slides.length > 0 && <span className="ml-1 text-green-600">•</span>}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="create" className="space-y-4">

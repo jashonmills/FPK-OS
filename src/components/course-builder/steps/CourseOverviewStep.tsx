@@ -230,8 +230,8 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
             );
             
             if (draftId) {
-              // Navigate to editor with persistent draft
-              window.location.href = `/org/${orgId}/courses/editor/${draftId}?step=review`;
+              // Navigate to editor with persistent draft - go directly to design step for content editing
+              window.location.href = `/org/${orgId}/courses/editor/${draftId}?step=design`;
             } else {
               toast.error('Failed to create course draft');
             }
