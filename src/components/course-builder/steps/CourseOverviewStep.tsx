@@ -51,13 +51,13 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
     if (draft.title !== localTitle && !titleTimeoutRef.current) {
       setLocalTitle(draft.title || '');
     }
-  }, [draft.title, localTitle]);
+  }, [draft.title]);
 
   useEffect(() => {
     if (draft.description !== localDescription && !descriptionTimeoutRef.current) {
       setLocalDescription(draft.description || '');
     }
-  }, [draft.description, localDescription]);
+  }, [draft.description]);
 
   // Debounced update functions
   const updateTitle = (value: string) => {
