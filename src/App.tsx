@@ -31,7 +31,8 @@ const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
 const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
-const OrgInvitationsPage = lazy(() => import("./pages/organizations/OrgInvitationsPage"));
+const ReceivedInvitationsPage = lazy(() => import("./pages/organizations/ReceivedInvitationsPage"));
+const InviteMembersPage = lazy(() => import("./pages/org/InviteMembersPage"));
 const OrgPageLayout = lazy(() => import("./components/organizations/OrgPageLayout").then(module => ({ default: module.OrgPageLayout })));
 
 // Dashboard pages - lazy loaded for optimal performance
@@ -583,7 +584,7 @@ const App: React.FC = () => {
             <RouteProtector>
               <LazyRoute>
                 <OrgPageLayout>
-                  <OrgInvitationsPage />
+                  <ReceivedInvitationsPage />
                 </OrgPageLayout>
               </LazyRoute>
             </RouteProtector>
@@ -606,7 +607,7 @@ const App: React.FC = () => {
             <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
             <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
             <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
-            <Route path=":orgId/invite" element={<LazyRoute><OrgInvitationsPage /></LazyRoute>} />
+            <Route path=":orgId/invite" element={<LazyRoute><InviteMembersPage /></LazyRoute>} />
             <Route path=":orgId/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />
           </Route>
