@@ -81,11 +81,23 @@ export function OrgNavigation() {
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true;
-    return item.roles.includes(currentOrg.role);
+    const hasPermission = item.roles.includes(currentOrg.role);
+    
+    // Debug logging for Settings button
+    if (item.label === 'Settings') {
+      console.log('Settings button debug:', {
+        userRole: currentOrg.role,
+        requiredRoles: item.roles,
+        hasPermission,
+        orgData: currentOrg
+      });
+    }
+    
+    return hasPermission;
   });
 
   return (
-    <nav className="w-64 bg-purple-900/65 backdrop-blur-sm border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+    <nav className="w-64 bg-purple-900/65 backdrop-blur-sm border-r sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto z-40">
       <div className="p-4">
         <div className="space-y-2">
           {filteredNavItems.map((item) => (

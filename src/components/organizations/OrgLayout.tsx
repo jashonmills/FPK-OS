@@ -51,15 +51,15 @@ function OrgLayoutContent() {
       </div>
       
       {/* Main layout - Navigation and Content */}
-      <div className="relative z-10 flex org-main-container">
-        {/* Navigation - Fixed to left side */}
-        <div className="relative z-10">
-          <OrgNavigation />
-        </div>
+      <div className="flex">
+        {/* Navigation - Sticky to left side */}
+        <OrgNavigation />
         
-        {/* Main content - No overflow control, let body handle scrolling */}
-        <main className="flex-1 p-6" style={{ minHeight: 'calc(100vh - 4rem)', paddingTop: '1.5rem' }}>
-          <Outlet />
+        {/* Main content area with proper overflow */}
+        <main className="flex-1 min-h-screen pt-0">
+          <div className="p-6">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
