@@ -18,12 +18,13 @@ interface CourseOverviewStepProps {
   setBackgroundImageUrl: (url: string) => void;
 }
 
-export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
+export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = React.memo(({
   draft,
   orgId,
   updateCourse,
   setBackgroundImageUrl
 }) => {
+  console.log('🔍 CourseOverviewStep render:', { title: draft.title, timestamp: Date.now() });
   const [uploading, setUploading] = useState(false);
   const [newObjective, setNewObjective] = useState('');
   const [newPrerequisite, setNewPrerequisite] = useState('');
@@ -111,7 +112,12 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
             <Input
               id="title"
               value={draft.title}
-              onChange={(e) => updateCourse({ title: e.target.value })}
+              onChange={(e) => {
+                console.log('🔍 Input onChange:', e.target.value, 'focused element:', document.activeElement?.id);
+                updateCourse({ title: e.target.value });
+              }}
+              onFocus={() => console.log('🔍 Input focused')}
+              onBlur={() => console.log('🔍 Input blurred')}
               placeholder="Enter course title..."
               className="mt-1"
             />
@@ -250,4 +256,6 @@ export const CourseOverviewStep: React.FC<CourseOverviewStepProps> = ({
       </div>
     </div>
   );
-};
+});
+
+CourseOverviewStep.displayName = 'CourseOverviewStep';

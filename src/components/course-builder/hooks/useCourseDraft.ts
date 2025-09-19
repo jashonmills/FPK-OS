@@ -52,10 +52,12 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
 
   // Update course metadata
   const updateCourse = useCallback((updates: Partial<CourseDraft>) => {
+    console.log('🔍 updateCourse called:', updates, 'current draft title:', draft?.title);
     setDraft(prevDraft => {
       if (!prevDraft) return prevDraft;
       
       const updatedDraft = { ...prevDraft, ...updates };
+      console.log('🔍 updateCourse setting new draft:', updatedDraft.title);
       
       // Clear existing timeout
       if (saveTimeoutRef.current) {
@@ -66,6 +68,7 @@ export const useCourseDraft = ({ orgId, draftId }: UseCourseDraftProps) => {
       saveTimeoutRef.current = setTimeout(() => {
         try {
           localStorage.setItem(storageKey, JSON.stringify(updatedDraft));
+          console.log('🔍 Saved to localStorage:', updatedDraft.title);
         } catch (error) {
           console.error('Error saving course draft:', error);
           toast.error('Failed to save draft');
