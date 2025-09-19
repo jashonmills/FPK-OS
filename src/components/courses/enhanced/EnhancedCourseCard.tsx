@@ -31,6 +31,7 @@ import {
 import { ConfirmModal } from './ConfirmModal';
 import type { CourseCardModel, CourseCardActions, ConfirmModalData } from '@/types/enhanced-course-card';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
+import { getCourseImage } from '@/utils/courseImages';
 
 interface EnhancedCourseCardProps {
   course: CourseCardModel;
@@ -75,7 +76,7 @@ export function EnhancedCourseCard({ course, actions }: EnhancedCourseCardProps)
       : course.status.replace('_', ' ');
       
     return (
-      <div className={`absolute top-3 right-3 rounded px-2 py-1 text-xs font-medium ${getStatusColor(course.status)}`}>
+      <div className={`absolute top-3 right-3 rounded px-2 py-1 text-xs font-medium backdrop-blur-sm z-10 ${getStatusColor(course.status)}`}>
         {course.status === 'processing' && (
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-current rounded-full animate-pulse" />
@@ -119,49 +120,54 @@ export function EnhancedCourseCard({ course, actions }: EnhancedCourseCardProps)
   const canUnpublish = isOrgCourse && canManageOrg() && course.status === 'published';
   const canDelete = isOrgCourse && canManageOrg();
 
+  const courseImage = getCourseImage(course.id, course.title);
+
   return (
     <>
-      <Card className="relative h-full flex flex-col hover:shadow-lg transition-shadow">
+      <Card className="relative h-full flex flex-col hover:shadow-lg transition-shadow overflow-hidden">
         <StatusRibbon />
         
-        <CardHeader className="pb-3">
-          {/* Thumbnail */}
-          <div className="aspect-video w-full overflow-hidden rounded-md mb-3">
-            {course.thumbnailUrl ? (
-              <img 
-                src={course.thumbnailUrl} 
-                alt={course.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                <BookOpen className="h-8 w-8 text-muted-foreground" />
+        {/* Course Image Header */}
+        <div 
+          className="relative h-40 bg-cover bg-center"
+          style={{ backgroundImage: `url(${courseImage})` }}
+        >
+          {/* Dark overlay for text contrast */}
+          <div className="absolute inset-0 bg-black/40" />
+          
+          {/* Header content */}
+          <div className="relative z-10 p-4 h-full flex flex-col justify-between">
+            {/* Top badges */}
+            <div className="flex justify-between items-start">
+              <div className="flex flex-wrap gap-1">
+                {getOriginBadge()}
+                {getFrameworkBadge()}
+                {course.difficulty && (
+                  <Badge variant="outline" className="text-xs capitalize bg-black/20 text-white border-white/30 backdrop-blur-sm">
+                    {course.difficulty}
+                  </Badge>
+                )}
               </div>
-            )}
+              <div className="flex flex-wrap gap-1">
+                {course.isFeatured && (
+                  <Badge variant="secondary" className="text-xs bg-amber-500/90 text-white backdrop-blur-sm border-0">Featured</Badge>
+                )}
+                {course.isNew && (
+                  <Badge variant="secondary" className="text-xs bg-emerald-500/90 text-white backdrop-blur-sm border-0">New</Badge>
+                )}
+              </div>
+            </div>
+            
+            {/* Course title */}
+            <div className="flex-1 flex items-end">
+              <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg line-clamp-2">
+                {course.title}
+              </h3>
+            </div>
           </div>
+        </div>
 
-          {/* Badges */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {getOriginBadge()}
-            {getFrameworkBadge()}
-            {course.difficulty && (
-              <Badge variant="outline" className="text-xs capitalize">
-                {course.difficulty}
-              </Badge>
-            )}
-            {course.isFeatured && (
-              <Badge variant="secondary" className="text-xs">Featured</Badge>
-            )}
-            {course.isNew && (
-              <Badge variant="secondary" className="text-xs">New</Badge>
-            )}
-          </div>
-
-          {/* Title */}
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-2">
-            {course.title}
-          </h3>
-
+        <CardHeader className="pb-3">
           {/* Description */}
           {course.description && (
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
