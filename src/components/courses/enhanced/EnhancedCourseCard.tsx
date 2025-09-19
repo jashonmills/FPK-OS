@@ -129,8 +129,6 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
     return (
       <>
         <div className="relative flex items-center px-4 py-2 hover:bg-muted/50 transition-colors border-b border-border/40 last:border-b-0">
-          <StatusRibbon />
-          
           {/* Status indicator dot */}
           <div className={`w-2 h-2 rounded-full mr-3 flex-shrink-0 ${getStatusColor(course.status).replace('bg-', 'bg-').split(' ')[0]}`} />
           
@@ -159,6 +157,13 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
           
           {/* Actions */}
           <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+            {/* Status badge before Preview button */}
+            <div className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(course.status)} mr-1`}>
+              {course.status === 'processing' && course.processingStage
+                ? `Processing • ${course.processingStage}`
+                : course.status.replace('_', ' ')
+              }
+            </div>
             <Button
               variant="ghost"
               size="sm"
