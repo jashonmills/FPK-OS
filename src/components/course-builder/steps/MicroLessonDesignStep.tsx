@@ -8,10 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Upload, FileText, Image, Video, FileIcon, X } from 'lucide-react';
+import { Plus, Upload, FileText, Image, Video, FileIcon, X, SidebarOpen, SidebarClose } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { slideAssetPath } from '@/utils/storagePaths';
 import { toast } from 'sonner';
+import { ProgressOverviewCard } from '../progress/ProgressOverviewCard';
+import { ProgressSidebar } from '../progress/ProgressSidebar';
+import { EnhancedSelectDropdowns } from '../progress/EnhancedSelectDropdowns';
 
 interface MicroLessonDesignStepProps {
   draft: CourseDraft;
@@ -55,6 +58,7 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
     assets: []
   });
   const [uploading, setUploading] = useState(false);
+  const [showProgressSidebar, setShowProgressSidebar] = useState(true);
 
   const currentModule = draft.modules.find(m => m.id === selectedModule);
   const currentLesson = currentModule?.lessons.find(l => l.id === selectedLesson);
@@ -64,6 +68,11 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
       setSelectedLesson(currentModule.lessons[0].id);
     }
   }, [currentModule, selectedLesson]);
+
+  const handleSelectLesson = (moduleId: string, lessonId: string) => {
+    setSelectedModule(moduleId);
+    setSelectedLesson(lessonId);
+  };
 
   const handleAddSlide = () => {
     if (!selectedModule || !selectedLesson || !newSlide.title.trim()) {
@@ -180,52 +189,53 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold mb-2">Design Your Content</h3>
-        <p className="text-muted-foreground">
-          Create interactive slides for each lesson. Mix content types for engaging micro-learning experiences.
-        </p>
-      </div>
+    <div className="flex gap-6 min-h-[600px]">
+      {/* Progress Sidebar */}
+      {showProgressSidebar && (
+        <ProgressSidebar
+          draft={draft}
+          selectedModule={selectedModule}
+          selectedLesson={selectedLesson}
+          onSelectLesson={handleSelectLesson}
+          className="flex-shrink-0"
+        />
+      )}
 
-      {/* Module/Lesson Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>Select Module</Label>
-          <Select value={selectedModule} onValueChange={setSelectedModule}>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Choose a module..." />
-            </SelectTrigger>
-            <SelectContent>
-              {draft.modules.map(module => (
-                <SelectItem key={module.id} value={module.id}>
-                  {module.title} ({module.lessons.length} lessons)
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Main Content */}
+      <div className="flex-1 space-y-6">
+        {/* Header with Progress Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowProgressSidebar(!showProgressSidebar)}
+                className="flex-shrink-0"
+              >
+                {showProgressSidebar ? <SidebarClose className="w-4 h-4" /> : <SidebarOpen className="w-4 h-4" />}
+              </Button>
+              <div>
+                <h3 className="text-lg font-semibold">Design Your Content</h3>
+                <p className="text-muted-foreground text-sm">
+                  Create interactive slides for each lesson. Mix content types for engaging micro-learning experiences.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <Label>Select Lesson</Label>
-          <Select 
-            value={selectedLesson} 
-            onValueChange={setSelectedLesson}
-            disabled={!currentModule}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Choose a lesson..." />
-            </SelectTrigger>
-            <SelectContent>
-              {currentModule?.lessons.map(lesson => (
-                <SelectItem key={lesson.id} value={lesson.id}>
-                  {lesson.title} ({lesson.slides.length} slides)
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+        {/* Progress Overview */}
+        <ProgressOverviewCard draft={draft} />
+
+        {/* Enhanced Module/Lesson Selection */}
+        <EnhancedSelectDropdowns
+          draft={draft}
+          selectedModule={selectedModule}
+          selectedLesson={selectedLesson}
+          onModuleChange={setSelectedModule}
+          onLessonChange={setSelectedLesson}
+        />
 
       {currentLesson && (
         <Tabs defaultValue="create" className="space-y-4">
@@ -426,13 +436,14 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
         </div>
       )}
 
-      {draft.modules.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>Create modules and lessons first</p>
-          <p className="text-sm">Go back to the Lesson Planning step</p>
-        </div>
-      )}
+        {draft.modules.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>Create modules and lessons first</p>
+            <p className="text-sm">Go back to the Lesson Planning step</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
