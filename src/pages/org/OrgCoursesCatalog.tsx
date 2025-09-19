@@ -85,7 +85,9 @@ export default function OrgCoursesCatalog() {
 
     onViewAnalytics: courseActions.viewAnalytics,
     onSharePreview: courseActions.sharePreview,
-    onAddToCollection: courseActions.addToCollection,
+        onAddToCollection: (courseId: string, courseTitle?: string) => {
+          courseActions.addToCollection(courseId, courseTitle);
+        },
   });
 
   const handleCreateCourse = () => {

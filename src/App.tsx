@@ -87,6 +87,7 @@ const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagem
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
+const OrgCollections = lazy(() => import("./pages/org/OrgCollections"));
 const LegacyRedirect = lazy(() => import("./components/redirect/LegacyRedirect"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
 const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
@@ -612,6 +613,7 @@ const App: React.FC = () => {
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
+            <Route path=":orgId/collections" element={<LazyRoute><OrgCollections /></LazyRoute>} />
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />

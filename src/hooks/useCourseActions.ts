@@ -22,10 +22,9 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
 
   const preview = useCallback((courseId: string, route?: string) => {
     console.log('Preview course:', courseId);
-    // Create proper preview URL - either use the full preview page or navigate to course route
-    const previewUrl = `${window.location.origin}/preview/${courseId}`;
-    window.open(previewUrl, '_blank');
-  }, []);
+    // Navigate to preview page within same tab to avoid popup blocking
+    navigate(`/preview/${courseId}`);
+  }, [navigate]);
 
   const assign = useCallback(async (courseId: string, options?: { groups?: string[]; students?: string[] }) => {
     try {

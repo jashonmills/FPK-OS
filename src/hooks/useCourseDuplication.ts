@@ -29,6 +29,39 @@ export function useCourseDuplication(orgId?: string) {
       const timestamp = Date.now();
       const duplicatedCourseId = `${courseId}-copy-${timestamp}`;
 
+      // First get the original course data
+      const { data: originalCourse, error: fetchError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Create the duplicated course entry
+      const { data: newCourse, error: courseError } = await supabase
+        .from('courses')
+        .insert({
+          id: duplicatedCourseId,
+          title: `${originalCourse.title} (Copy)`,
+          description: originalCourse.description,
+          instructor_name: originalCourse.instructor_name,
+          duration_minutes: originalCourse.duration_minutes,
+          difficulty_level: originalCourse.difficulty_level,
+          tags: originalCourse.tags,
+          thumbnail_url: originalCourse.thumbnail_url,
+          status: 'draft', // Start as draft for organization
+          source: 'duplicated',
+          org_id: orgId,
+          organization_id: orgId,
+          created_by: user.data.user.id,
+          course_visibility: 'organization_only'
+        })
+        .select()
+        .single();
+
+      if (courseError) throw courseError;
+
       // Record the duplication in our tracking table
       const { data, error } = await supabase
         .from('course_duplicates')
@@ -64,15 +97,14 @@ export function useCourseDuplication(orgId?: string) {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
       queryClient.invalidateQueries({ queryKey: ['course-duplicates'] });
       
+      const attributionInfo = result.duplication.attribution_info as any;
       toast({
-        title: "Course Duplicated",
-        description: "Course has been cloned to your organization with proper attribution.",
+        title: "Course Cloned Successfully",
+        description: `"${attributionInfo?.original_title || 'Course'} (Copy)" has been added to your organization.`,
       });
       
-      // Navigate back to courses catalog to see the duplicated course
-      if (result.catalogUrl) {
-        window.location.href = result.catalogUrl;
-      }
+      // Refresh the page to show the new course
+      window.location.reload();
     },
     onError: (error) => {
       console.error('Duplication error:', error);
