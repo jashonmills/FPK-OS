@@ -170,11 +170,11 @@ export default function CoursesManagementNew() {
   };
 
   const renderCourseCard = (course: CourseCardType, showAssignButton = false) => (
-    <Card key={course.id} className="h-56 hover:shadow-md transition-shadow bg-orange-500/65 border-orange-400/50">
-      <CardHeader className="pb-2">
+    <Card key={course.id} className="h-full flex flex-col hover:shadow-md transition-shadow bg-orange-500/65 border-orange-400/50">
+      <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg line-clamp-2 text-white">{course.title}</CardTitle>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-shrink-0">
             {course.badges.map((badge, index) => (
               <Badge 
                 key={index}
@@ -187,12 +187,13 @@ export default function CoursesManagementNew() {
           </div>
         </div>
         {course.description && (
-          <p className="text-sm text-white/80 line-clamp-2">
+          <p className="text-sm text-white/80 line-clamp-3 mt-2">
             {course.description}
           </p>
         )}
       </CardHeader>
-      <CardContent className="pt-0">
+      
+      <CardContent className="flex-grow pb-3">
         <div className="flex items-center gap-4 text-xs text-white/70 mb-4">
           <div className="flex items-center gap-1">
             <BookOpen className="w-3 h-3" />
@@ -209,7 +210,10 @@ export default function CoursesManagementNew() {
             <span>0 students</span>
           </div>
         </div>
-        <div className="flex gap-2">
+      </CardContent>
+      
+      <CardContent className="pt-0">
+        <div className="flex gap-2 mb-3">
           {showAssignButton ? (
             <Button 
               size="sm" 
@@ -235,9 +239,11 @@ export default function CoursesManagementNew() {
             </>
           )}
         </div>
-        <div className="mt-2 text-xs text-white/70">
-          {course.instructor_name && `Instructor: ${course.instructor_name}`}
-        </div>
+        {course.instructor_name && (
+          <div className="text-xs text-white/70">
+            Instructor: {course.instructor_name}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
