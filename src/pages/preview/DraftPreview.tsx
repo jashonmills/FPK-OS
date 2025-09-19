@@ -28,6 +28,14 @@ export default function DraftPreview() {
 
   const loadDraft = async () => {
     try {
+      // Get current user to ensure authentication
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setError('Please log in to view this draft');
+        return;
+      }
+
       const { data: draft, error } = await supabase
         .from('course_drafts')
         .select('*')
@@ -72,23 +80,28 @@ export default function DraftPreview() {
     );
   }
 
-  if (error || !draft) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Draft Not Available</h1>
-          <p className="text-muted-foreground mb-6">
-            {error || 'This course draft is not available for preview.'}
-          </p>
-          <Button onClick={() => navigate(-1)} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
-        </div>
-      </div>
-    );
-  }
+      if (error || !draft) {
+        return (
+          <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="text-center max-w-md mx-auto p-6">
+              <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-2">Authentication Required</h1>
+              <p className="text-muted-foreground mb-6">
+                Please log in to view this course draft.
+              </p>
+              <div className="space-y-2">
+                <Button onClick={() => navigate('/login')} className="w-full">
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate(-1)} variant="outline" className="w-full">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Go Back
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
   if (showPlayer) {
     return <DraftCoursePlayer draft={draft} onExit={() => setShowPlayer(false)} />;

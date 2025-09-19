@@ -334,9 +334,7 @@ const App: React.FC = () => {
           
           {/* Draft Preview Route - Authenticated */}
           <Route path="/draft-preview/:draftId" element={
-            <RouteProtector>
-              <LazyRoute><DraftPreview /></LazyRoute>
-            </RouteProtector>
+            <LazyRoute><DraftPreview /></LazyRoute>
           } />
           
           {/* SCORM Player Routes - Admin only for full-screen experience */}
