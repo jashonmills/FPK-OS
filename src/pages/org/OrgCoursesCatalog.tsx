@@ -396,8 +396,8 @@ export default function OrgCoursesCatalog() {
 
         {/* Import Dialog */}
         {showImportDialog && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-card rounded-lg p-6 w-96 mx-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-card rounded-lg p-6 w-96 max-w-full mx-auto my-auto shadow-xl">
               <h3 className="text-lg font-semibold mb-4">Import Courses</h3>
               <p className="text-muted-foreground mb-4">
                 Upload a SCORM package (.zip) or course definition (.json) file to import courses.
