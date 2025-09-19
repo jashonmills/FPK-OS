@@ -86,6 +86,7 @@ const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagem
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
+const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
 const AssignmentsDashboard = lazy(() => import("./pages/student/AssignmentsDashboard"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
 const GoalsManagement = lazy(() => import("./pages/instructor/GoalsManagement"));
@@ -601,6 +602,7 @@ const App: React.FC = () => {
             <Route path=":orgId/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
             <Route path=":orgId/catalog-demo" element={<LazyRoute><CatalogDemo /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
+            <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
             <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
             <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
             <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />

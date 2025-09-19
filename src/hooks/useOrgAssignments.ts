@@ -51,6 +51,7 @@ export function useOrgAssignments() {
       resource_id: string; 
       metadata?: any;
       target_members?: string[];
+      target_groups?: string[];
     }) => {
       // Create assignment using existing table structure
       const { data: assignmentResult, error: assignmentError } = await supabase
@@ -67,7 +68,7 @@ export function useOrgAssignments() {
 
       if (assignmentError) throw assignmentError;
 
-      // Create assignment targets for selected students
+      // Create assignment targets for selected students or groups
       if (assignmentData.target_members && assignmentData.target_members.length > 0) {
         const targets = assignmentData.target_members.map(userId => ({
           assignment_id: assignmentResult.id,
@@ -81,6 +82,24 @@ export function useOrgAssignments() {
 
         if (targetsError) {
           console.error('Error creating assignment targets:', targetsError);
+          // Don't throw here - assignment was created successfully
+        }
+      }
+
+      // Create assignment targets for selected groups
+      if (assignmentData.target_groups && assignmentData.target_groups.length > 0) {
+        const targets = assignmentData.target_groups.map(groupId => ({
+          assignment_id: assignmentResult.id,
+          target_id: groupId,
+          target_type: 'group' as const,
+        }));
+
+        const { error: targetsError } = await supabase
+          .from('org_assignment_targets')
+          .insert(targets);
+
+        if (targetsError) {
+          console.error('Error creating group assignment targets:', targetsError);
           // Don't throw here - assignment was created successfully
         }
       }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock, ChevronDown, Edit, Trash2, Eye, Globe, FileText, Play } from 'lucide-react';
+import { BookOpen, Plus, Search, Filter, MoreHorizontal, Users, Clock, ChevronDown, Edit, Trash2, Eye, Globe, FileText, Play, Send } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgCourses } from '@/hooks/useOrgCourses';
 import { getCourseImage } from '@/utils/courseImages';
@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AssignmentCreateDialog } from '@/components/assignments/AssignmentCreateDialog';
 
 export default function CoursesManagement() {
   const { currentOrg } = useOrgContext();
@@ -302,6 +303,28 @@ function CourseCard({ course, onTogglePublish, onDelete, onPreview, isTogglingPu
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Course
               </DropdownMenuItem>
+              <AssignmentCreateDialog 
+                course={{
+                  id: course.id,
+                  title: course.title,
+                  description: course.description,
+                  thumbnail_url: getCourseImage(course.id, course.title),
+                  instructor_name: course.instructor_name,
+                  source: 'builder',
+                  status: course.published ? 'published' : 'draft',
+                  discoverable: course.published,
+                  source_table: 'org_courses',
+                  org_id: course.org_id,
+                  badges: [],
+                  route: `/courses/${course.id}`
+                }}
+                trigger={
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Send className="w-4 h-4 mr-2" />
+                    Assign Course
+                  </DropdownMenuItem>
+                }
+              />
               <DropdownMenuItem onClick={onDelete} disabled={isDeleting} className="text-destructive">
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Course
