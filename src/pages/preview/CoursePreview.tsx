@@ -80,12 +80,33 @@ export default function CoursePreview() {
         }
 
         if (nativeCourse) {
-          // Map native_courses fields to Course interface
+          // Map native_courses fields to Course interface safely with type casting
+          const courseData = nativeCourse as any;
           course = {
-            ...nativeCourse,
+            id: courseData.id,
+            title: courseData.title,
+            description: courseData.description || courseData.title || '',
+            instructor_name: courseData.instructor_name || undefined,
+            duration_minutes: courseData.est_minutes || undefined,
+            difficulty_level: courseData.difficulty_level || 'beginner',
+            tags: courseData.tags || [],
+            thumbnail_url: courseData.cover_url || '',
             status: 'published',
-            difficulty_level: nativeCourse.difficulty_level || 'beginner',
-            duration_minutes: nativeCourse.est_minutes || null,
+            // Optional fields with safe access
+            asset_path: '',
+            course_visibility: courseData.course_visibility || 'published',
+            created_at: courseData.created_at,
+            created_by: courseData.created_by,
+            discoverable: courseData.discoverable || false,
+            featured: false,
+            is_free: true,
+            price: 0,
+            published_at: courseData.updated_at,
+            slug: courseData.slug,
+            source: 'native',
+            updated_at: courseData.updated_at,
+            organization_id: courseData.organization_id,
+            org_id: courseData.org_id,
           };
         }
       }

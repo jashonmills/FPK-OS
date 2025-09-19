@@ -112,6 +112,10 @@ const ScormPlayer = lazy(() =>
   })
 );
 
+// Course Preview and Analytics
+const CoursePreview = lazy(() => import("./pages/preview/CoursePreview"));
+const CourseAnalytics = lazy(() => import("./pages/org/CourseAnalytics"));
+
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 

@@ -56,29 +56,46 @@ export default function CourseAnalytics() {
         .from('courses')
         .select('id, title, description, instructor_name, duration_minutes, difficulty_level, status')
         .eq('id', courseId)
-        .single();
+        .maybeSingle();
 
       if (courseError) {
-        // Try org_courses if not found in courses
+        throw courseError;
+      }
+
+      if (!courseData) {
+        // Try org_courses if not found in courses (note: org_courses may have limited fields)
         const { data: orgCourseData, error: orgCourseError } = await supabase
           .from('org_courses')
-          .select('id, title, description, instructor_name, duration_minutes, difficulty_level, status')
+          .select('id, title, description, status')
           .eq('id', courseId)
           .eq('org_id', orgId)
-          .single();
+          .maybeSingle();
 
         if (orgCourseError) {
+          throw orgCourseError;
+        }
+
+        if (!orgCourseData) {
           throw new Error('Course not found');
         }
-        setCourse(orgCourseData);
+        
+        setCourse({
+          id: orgCourseData.id,
+          title: orgCourseData.title,
+          description: orgCourseData.description,
+          duration_minutes: undefined, // not available in org_courses
+          difficulty_level: 'beginner', // default
+          status: orgCourseData.status,
+          instructor_name: undefined, // not available in org_courses
+        });
       } else {
         setCourse(courseData);
       }
 
-      // Load analytics data
+      // Load analytics data - using course_progress instead of enrollments
       const { data: enrollmentData, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('user_id, completion_percentage, enrolled_at, last_accessed')
+        .from('course_progress')
+        .select('user_id, percent, updated_at')
         .eq('course_id', courseId);
 
       if (enrollmentError) {
@@ -100,7 +117,7 @@ export default function CourseAnalytics() {
       const lessons = lessonData || [];
 
       const totalEnrollments = enrollments.length;
-      const completedEnrollments = enrollments.filter(e => e.completion_percentage >= 100).length;
+      const completedEnrollments = enrollments.filter(e => (e as any).percent >= 100).length;
       const completionRate = totalEnrollments > 0 ? (completedEnrollments / totalEnrollments) * 100 : 0;
       
       const totalTimeSpent = lessons.reduce((sum, lesson) => sum + (lesson.time_spent_seconds || 0), 0);
