@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CourseDraft } from '@/types/course-builder';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 }) => {
   const [isPublishing, setIsPublishing] = useState(false);
   const { createCourse } = useOrgCourses(orgId);
+  const navigate = useNavigate();
 
   const totalLessons = draft.modules.reduce((acc, module) => acc + module.lessons.length, 0);
   const totalSlides = draft.modules.reduce((acc, module) => 
@@ -211,7 +213,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         </CardHeader>
         <CardContent className="space-y-3">
           <Button 
-            onClick={() => window.open(`/draft-preview/${draft.id}`, '_blank')}
+            onClick={() => navigate(`/draft-preview/${draft.id}`)}
             variant="outline"
             size="lg"
             className="w-full"
@@ -219,7 +221,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           >
             <Eye className="w-4 h-4 mr-2" />
             Preview Course
-            <ExternalLink className="w-3 h-3 ml-2" />
           </Button>
           
           <Button 

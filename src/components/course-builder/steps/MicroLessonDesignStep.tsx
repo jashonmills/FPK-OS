@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CourseDraft, SlideDraft, SlideKind } from '@/types/course-builder';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,6 +51,7 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
   updateCourse,
   addSlide
 }) => {
+  const navigate = useNavigate();
   const [selectedModule, setSelectedModule] = useState(draft.modules[0]?.id || '');
   const [selectedLesson, setSelectedLesson] = useState('');
   const [newSlide, setNewSlide] = useState<Omit<SlideDraft, 'id'>>({
@@ -449,7 +451,7 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
       <div className="mt-6 flex justify-center">
         <Button 
           variant="outline"
-          onClick={() => window.open(`/draft-preview/${draft.id}`, '_blank')}
+          onClick={() => navigate(`/draft-preview/${draft.id}`)}
           className="w-full max-w-sm"
         >
           <Eye className="w-4 h-4 mr-2" />
