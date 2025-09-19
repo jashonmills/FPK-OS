@@ -86,6 +86,8 @@ const OrgSettings = lazy(() => import("./pages/dashboard/org/settings"));
 const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
+const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
+const LegacyRedirect = lazy(() => import("./components/redirect/LegacyRedirect"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
 const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
 const AssignmentsDashboard = lazy(() => import("./pages/student/AssignmentsDashboard"));
@@ -243,7 +245,7 @@ const App: React.FC = () => {
             <Route path="instructor/students/:studentId/progress" element={<LazyRoute><StudentProgress /></LazyRoute>} />
             <Route path="instructor/organization" element={<LazyRoute><OrgSettings /></LazyRoute>} />
             <Route path="instructor/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
-            <Route path="instructor/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
+            <Route path="instructor/courses" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path="instructor/assignments" element={<LazyRoute><AssignmentsManagement /></LazyRoute>} />
             <Route path="instructor/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
             <Route path="instructor/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
@@ -600,8 +602,8 @@ const App: React.FC = () => {
             <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
-            <Route path=":orgId/courses" element={<LazyRoute><CoursesManagement /></LazyRoute>} />
-            <Route path=":orgId/catalog-demo" element={<LazyRoute><CatalogDemo /></LazyRoute>} />
+            <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
+            <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
             <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
