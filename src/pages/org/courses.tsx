@@ -36,7 +36,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useOrgCourses, OrgCourse } from '@/hooks/useOrgCourses';
-import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
+import { usePlatformCourses } from '@/hooks/usePlatformCourses';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -62,12 +62,12 @@ export default function CoursesPage() {
 
   const isWizardEnabled = featureFlagService.isEnabled('orgCourseWizard');
 
-  // Fetch both platform and organization courses
-  const { data: organizationCoursesData, isLoading: isLoadingOrgCourses } = useOrganizationCourses(currentOrg?.organization_id || '');
+  // Fetch platform and organization courses separately
+  const { courses: platformCourses, isLoading: isLoadingPlatform } = usePlatformCourses();
   
   const {
     courses: orgCourses,
-    isLoading: isLoadingOrgOnly,
+    isLoading: isLoadingOrg,
     createCourse,
     updateCourse,
     deleteCourse,
@@ -100,41 +100,28 @@ export default function CoursesPage() {
 
   const canManageCourses = userRole === 'owner' || userRole === 'instructor';
   
-  // Combine platform courses and organization courses
-  const platformCourses = [
-    ...(organizationCoursesData?.globalCourses || []),
-    ...(organizationCoursesData?.nativeCourses || []),
-    ...(organizationCoursesData?.assignedCourses || []),
-    ...(organizationCoursesData?.assignedNativeCourses || [])
-  ];
-  
-  const organizationOwnedCourses = [
-    ...(organizationCoursesData?.organizationOwnedCourses || []),
-    ...(organizationCoursesData?.organizationOwnedNativeCourses || []),
-    ...orgCourses // Include org_courses table data
-  ];
-
+  // Filter courses based on search
   const filteredPlatformCourses = platformCourses.filter(course => {
     const title = course.title || '';
-    const description = (course as any).description || '';
+    const description = course.description || '';
     return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
            description.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const filteredOrgCourses = organizationOwnedCourses.filter(course => {
+  const filteredOrgCourses = orgCourses.filter(course => {
     const title = course.title || '';
-    const description = (course as any).description || '';
+    const description = course.description || '';
     return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
            description.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const isLoading = isLoadingOrgCourses || isLoadingOrgOnly;
-  const totalCourses = platformCourses.length + organizationOwnedCourses.length;
+  const isLoading = isLoadingPlatform || isLoadingOrg;
+  const totalCourses = platformCourses.length + orgCourses.length;
   
   // Helper functions to safely get course properties
   const getCourseDescription = (course: any) => course.description || 'No description provided';
   const getCourseDifficulty = (course: any) => course.difficulty_level || course.level;
-  const isCoursePublished = (course: any) => course.published || course.status === 'published';
+  const isCoursePublished = (course: any) => course.published === true;
   const isOrgCourse = (course: any): course is OrgCourse => 'org_id' in course;
 
   const handleCreateCourse = (data: CourseFormData) => {
@@ -243,7 +230,7 @@ export default function CoursesPage() {
             <OrgCardTitle className="text-sm font-medium text-purple-100">Organization Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{organizationOwnedCourses.length}</div>
+            <div className="text-2xl font-bold text-white">{orgCourses.length}</div>
             <p className="text-xs text-purple-200">Created by organization</p>
           </OrgCardContent>
         </OrgCard>
@@ -253,7 +240,7 @@ export default function CoursesPage() {
             <OrgCardTitle className="text-sm font-medium text-purple-100">Published Org Courses</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{organizationOwnedCourses.filter(c => isCoursePublished(c)).length}</div>
+            <div className="text-2xl font-bold text-white">{orgCourses.filter(c => isCoursePublished(c)).length}</div>
             <p className="text-xs text-purple-200">Ready for students</p>
           </OrgCardContent>
         </OrgCard>
@@ -341,10 +328,10 @@ export default function CoursesPage() {
             {/* Organization Courses Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-semibold">Organization Courses</h2>
-                  <Badge variant="outline">{filteredOrgCourses.length}</Badge>
-                </div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold">Organization Courses</h2>
+                <Badge variant="outline">{filteredOrgCourses.length}</Badge>
+              </div>
                 {canManageCourses && (
                   <div className="flex items-center gap-2">
                     {isWizardEnabled && (
