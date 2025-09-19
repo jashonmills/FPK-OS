@@ -64,8 +64,13 @@ export const MicroLessonDesignStep: React.FC<MicroLessonDesignStepProps> = ({
   const currentLesson = currentModule?.lessons.find(l => l.id === selectedLesson);
 
   React.useEffect(() => {
-    if (currentModule && !selectedLesson && currentModule.lessons.length > 0) {
-      setSelectedLesson(currentModule.lessons[0].id);
+    // Only auto-select first lesson if no lesson is selected and we have a valid module with lessons
+    if (currentModule && currentModule.lessons.length > 0) {
+      // Check if the currently selected lesson exists in the current module
+      const lessonExists = currentModule.lessons.some(l => l.id === selectedLesson);
+      if (!selectedLesson || !lessonExists) {
+        setSelectedLesson(currentModule.lessons[0].id);
+      }
     }
   }, [currentModule, selectedLesson]);
 
