@@ -53,9 +53,9 @@ function OrgLayoutContent() {
       {/* Fixed Navigation */}
       <OrgNavigation />
       
-      {/* Main content area - offset for fixed header and nav */}
-      <main className="ml-64 pt-16 min-h-screen">
-        <div className="p-6">
+      {/* Main content area - responsive margins */}
+      <main className="lg:ml-64 pt-16 min-h-screen">
+        <div className="p-4 lg:p-6">
           <OrgWelcomeBanner />
           <OrgPageBanner />
           <Outlet />
