@@ -44,6 +44,12 @@ export function OrgNavigation() {
       roles: ['owner', 'instructor'],
     },
     {
+      href: `/org/${currentOrg.organization_id}/groups`,
+      label: 'Groups',
+      icon: Users,
+      roles: ['owner', 'instructor'],
+    },
+    {
       href: `/org/${currentOrg.organization_id}/courses`,
       label: 'Courses',
       icon: BookOpen,

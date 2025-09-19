@@ -10,7 +10,7 @@ export default function GroupsPage() {
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6">
           <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Student Groups</h1>
           <p className="text-white/80 mt-2 drop-shadow">
             Organize students into groups for better course management and assignments
@@ -28,12 +28,12 @@ export default function GroupsPage() {
         />
       </div>
 
-      <div className="bg-orange-500/10 border border-orange-400/20 rounded-lg p-4">
+      <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4">
         <div className="flex items-center gap-2 text-orange-200 mb-2">
           <Users className="w-5 h-5" />
           <h3 className="font-medium">Group Management</h3>
         </div>
-        <p className="text-orange-100/80 text-sm">
+        <p className="text-orange-100/90 text-sm">
           Create and manage student groups to streamline course assignments and track progress more effectively.
         </p>
       </div>
