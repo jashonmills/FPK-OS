@@ -3,11 +3,17 @@ import React from 'react';
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, TrendingUp, Users, BookOpen, Clock, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, BookOpen, Clock, Target, Loader2 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgStatistics } from '@/hooks/useOrgStatistics';
+import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 
 export default function AnalyticsOverview() {
   const { currentOrg } = useOrgContext();
+  
+  // Fetch real analytics data
+  const { data: orgStatistics, isLoading: statsLoading, error: statsError } = useOrgStatistics(currentOrg?.organizations?.id);
+  const { analytics: orgAnalytics, isLoading: analyticsLoading, error: analyticsError } = useOrgAnalytics(currentOrg?.organizations?.id);
 
   if (!currentOrg) {
     return (
@@ -21,20 +27,44 @@ export default function AnalyticsOverview() {
     );
   }
 
-  // Mock analytics data for demonstration
+  // Show loading state
+  if (statsLoading || analyticsLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-white" />
+            <p className="text-white">Loading analytics...</p>
+          </OrgCardContent>
+        </OrgCard>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (statsError || analyticsError) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
+        <OrgCard>
+          <OrgCardContent className="p-8 text-center">
+            <p className="text-red-300">Error loading analytics data</p>
+            <p className="text-white/70 text-sm mt-2">Please try refreshing the page</p>
+          </OrgCardContent>
+        </OrgCard>
+      </div>
+    );
+  }
+
+  // Use real data from hooks, with fallbacks for empty states
   const analyticsData = {
-    totalStudents: 12,
-    activeStudents: 10,
-    totalCourses: 3,
-    completionRate: 78,
-    avgSessionTime: 32,
-    weeklyEngagement: 85,
-    monthlyProgress: [65, 72, 78, 85, 82, 78],
-    topCourses: [
-      { title: 'Introduction to Learning State', enrollments: 12, completion: 85 },
-      { title: 'Emotional Intelligence Basics', enrollments: 8, completion: 70 },
-      { title: 'Advanced Study Techniques', enrollments: 0, completion: 0 }
-    ]
+    totalStudents: orgStatistics?.studentCount || 0,
+    activeStudents: orgStatistics?.activeMembers || 0,
+    totalCourses: orgStatistics?.totalCourses || 0,
+    completionRate: orgStatistics?.completionRate || 0,
+    avgSessionTime: 0, // No session time data available yet
+    weeklyEngagement: Math.round(orgStatistics?.averageProgress) || 0,
+    monthlyProgress: [0, 0, 0, 0, 0, Math.round(orgStatistics?.averageProgress || 0)], // Simplified for now
+    topCourses: [] // Will be populated from actual course data in future enhancement
   };
 
   return (
@@ -72,9 +102,15 @@ export default function AnalyticsOverview() {
               <div>
                 <p className="text-sm font-medium text-white">Active This Week</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.activeStudents}</p>
-                <p className="text-xs text-green-300">
-                  +12% from last week
-                </p>
+                {analyticsData.activeStudents > 0 ? (
+                  <p className="text-xs text-green-300">
+                    Students active this week
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/70">
+                    No activity this week
+                  </p>
+                )}
               </div>
               <TrendingUp className="w-8 h-8 text-green-300" />
             </div>
@@ -87,9 +123,15 @@ export default function AnalyticsOverview() {
               <div>
                 <p className="text-sm font-medium text-white">Completion Rate</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.completionRate}%</p>
-                <p className="text-xs text-blue-300">
-                  +5% from last month
-                </p>
+                {analyticsData.completionRate > 0 ? (
+                  <p className="text-xs text-blue-300">
+                    Overall completion rate
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/70">
+                    No completions yet
+                  </p>
+                )}
               </div>
               <Target className="w-8 h-8 text-blue-300" />
             </div>
@@ -102,9 +144,15 @@ export default function AnalyticsOverview() {
               <div>
                 <p className="text-sm font-medium text-white">Avg Session Time</p>
                 <p className="text-2xl font-bold text-white">{analyticsData.avgSessionTime}m</p>
-                <p className="text-xs text-white/70">
-                  +3m from last week
-                </p>
+                {analyticsData.avgSessionTime > 0 ? (
+                  <p className="text-xs text-white/70">
+                    Average session time
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/70">
+                    No sessions yet
+                  </p>
+                )}
               </div>
               <Clock className="w-8 h-8 text-white/70" />
             </div>
@@ -127,23 +175,32 @@ export default function AnalyticsOverview() {
                 <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
                   <div className="text-center text-white/70">
                     <BarChart3 className="w-12 h-12 mx-auto mb-2" />
-                    <p className="text-sm">Progress Chart Placeholder</p>
-                    <p className="text-xs">Monthly trend: {analyticsData.monthlyProgress.join('% → ')}%</p>
+                    {analyticsData.totalStudents > 0 ? (
+                      <>
+                        <p className="text-sm">Progress Tracking</p>
+                        <p className="text-xs">Current progress: {analyticsData.weeklyEngagement}%</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm">No Progress Data</p>
+                        <p className="text-xs">Invite students to see progress trends</p>
+                      </>
+                    )}
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-sm text-white/70">This Month</div>
-                    <div className="text-xl font-bold text-white">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 1]}%</div>
+                    <div className="text-sm text-white/70">Current Progress</div>
+                    <div className="text-xl font-bold text-white">{analyticsData.weeklyEngagement}%</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white/70">Last Month</div>
-                    <div className="text-xl font-bold text-white">{analyticsData.monthlyProgress[analyticsData.monthlyProgress.length - 2]}%</div>
+                    <div className="text-sm text-white/70">Active Students</div>
+                    <div className="text-xl font-bold text-white">{analyticsData.activeStudents}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white/70">Avg Growth</div>
-                    <div className="text-xl font-bold text-green-300">+3.2%</div>
+                    <div className="text-sm text-white/70">Total Students</div>
+                    <div className="text-xl font-bold text-white">{analyticsData.totalStudents}</div>
                   </div>
                 </div>
               </div>
@@ -186,18 +243,18 @@ export default function AnalyticsOverview() {
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-white">Assignment Submission</span>
-                    <Badge variant="outline" className="bg-white/20 text-white border-white/30">74%</Badge>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white">Assignment Submission</span>
+                      <Badge variant="outline" className="bg-white/20 text-white border-white/30">0%</Badge>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2">
+                      <div 
+                        className="bg-blue-400 h-2 rounded-full"
+                        style={{ width: '0%' }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
-                    <div 
-                      className="bg-blue-400 h-2 rounded-full"
-                      style={{ width: '74%' }}
-                    />
-                  </div>
-                </div>
               </div>
           </OrgCardContent>
         </OrgCard>
@@ -215,35 +272,24 @@ export default function AnalyticsOverview() {
             </OrgCardDescription>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="space-y-4">
-              {analyticsData.topCourses.map((course, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/10">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-white">{course.title}</h4>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-white/70">
-                      <span>{course.enrollments} enrollments</span>
-                      <span>{course.completion}% completion rate</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-white">{course.completion}%</div>
-                      <div className="w-24 bg-white/20 rounded-full h-2 mt-1">
-                        <div 
-                          className="bg-purple-400 h-2 rounded-full"
-                          style={{ width: `${course.completion}%` }}
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
-                      View Details
-                    </Button>
-                  </div>
+            {analyticsData.totalCourses > 0 ? (
+              <div className="space-y-4">
+                <div className="text-center p-8 text-white/70">
+                  <BookOpen className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-sm">Course performance data will appear here</p>
+                  <p className="text-xs">when students start engaging with courses</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center p-8 text-white/70">
+                <BookOpen className="w-12 h-12 mx-auto mb-4" />
+                <p className="text-sm">No courses assigned yet</p>
+                <p className="text-xs">Assign courses to students to see performance metrics</p>
+                <Button variant="outline" className="mt-4 bg-white/10 text-white border-white/30 hover:bg-white/20">
+                  Go to Courses
+                </Button>
+              </div>
+            )}
         </OrgCardContent>
       </OrgCard>
 
