@@ -125,7 +125,7 @@ export default function CoursesManagement() {
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
-          <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50">
+          <OrgCard key={course.id} className="overflow-hidden bg-orange-500/65 border-orange-400/50 flex flex-col">
                 <div className="aspect-video relative overflow-hidden">
                   <div 
                     className="w-full h-full bg-cover bg-center"
@@ -172,8 +172,8 @@ export default function CoursesManagement() {
                 {course.description}
               </OrgCardDescription>
             </OrgCardHeader>
-            <OrgCardContent className="pt-0">
-              <div className="space-y-3">
+            <OrgCardContent className="pt-0 flex-1 flex flex-col">
+              <div className="space-y-3 flex-1">
                 <div className="flex items-center justify-between">
                   <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="bg-orange-600/80 text-white border-orange-500/60">
                     {course.status === 'published' ? 'Published' : 'Draft'}
@@ -194,18 +194,18 @@ export default function CoursesManagement() {
                     <div className="text-white/70">Completed</div>
                   </div>
                 </div>
-                
-                <Button 
-                  className="w-full bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60" 
-                  size="sm"
-                  onClick={() => isCourseAssigned(course.id) 
-                    ? unassignCourse(course.id) 
-                    : assignCourse(course.id)
-                  }
-                >
-                  {isCourseAssigned(course.id) ? 'Remove Assignment' : 'Assign to Students'}
-                </Button>
               </div>
+              
+              <Button 
+                className="w-full bg-orange-600/80 hover:bg-orange-600 text-white border-orange-500/60 mt-auto" 
+                size="sm"
+                onClick={() => isCourseAssigned(course.id) 
+                  ? unassignCourse(course.id) 
+                  : assignCourse(course.id)
+                }
+              >
+                {isCourseAssigned(course.id) ? 'Remove Assignment' : 'Assign to Students'}
+              </Button>
             </OrgCardContent>
           </OrgCard>
         ))}
