@@ -9,7 +9,7 @@ import { CheckCircle2, Clock, Target, TrendingUp, AlertTriangle } from 'lucide-r
 interface AssignmentProgressTrackerProps {
   assignmentId: string;
   currentProgress: number;
-  status: 'not_started' | 'in_progress' | 'completed';
+  status: 'pending' | 'started' | 'completed';
   dueDate?: string;
   courseId: string;
 }
@@ -23,8 +23,9 @@ export function AssignmentProgressTracker({
 }: AssignmentProgressTrackerProps) {
   const { completeAssignment, updateAssignmentProgress, isCompleting, isUpdatingProgress } = useAssignmentActions();
 
-  const isOverdue = dueDate && new Date(dueDate) < new Date() && status !== 'completed';
-  const canComplete = currentProgress >= 100 && status === 'in_progress';
+  const isCompleted = status === 'completed';
+  const isOverdue = dueDate && new Date(dueDate) < new Date() && !isCompleted;
+  const canComplete = currentProgress >= 100 && status === 'started';
 
   const handleComplete = () => {
     if (canComplete) {
@@ -33,7 +34,7 @@ export function AssignmentProgressTracker({
   };
 
   const getStatusBadge = () => {
-    if (status === 'completed') {
+    if (isCompleted) {
       return (
         <Badge className="bg-success/10 text-success border-success/20">
           <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -51,7 +52,7 @@ export function AssignmentProgressTracker({
       );
     }
 
-    if (status === 'in_progress') {
+    if (status === 'started') {
       return (
         <Badge className="bg-primary/10 text-primary border-primary/20">
           <Clock className="h-3 w-3 mr-1" />
@@ -63,7 +64,7 @@ export function AssignmentProgressTracker({
     return (
       <Badge variant="outline">
         <Target className="h-3 w-3 mr-1" />
-        Not Started
+        Pending
       </Badge>
     );
   };
@@ -87,11 +88,11 @@ export function AssignmentProgressTracker({
           </div>
           <Progress 
             value={currentProgress} 
-            className={`h-3 ${isOverdue && status !== 'completed' ? 'bg-destructive/20' : ''}`}
+            className={`h-3 ${isOverdue ? 'bg-destructive/20' : ''}`}
           />
         </div>
 
-        {dueDate && status !== 'completed' && (
+        {dueDate && !isCompleted && (
           <div className="text-sm">
             <span className="text-muted-foreground">Due: </span>
             <span className={isOverdue ? 'text-destructive font-medium' : ''}>
@@ -119,13 +120,13 @@ export function AssignmentProgressTracker({
           )}
         </div>
 
-        {status === 'completed' && (
+        {isCompleted && (
           <div className="text-center text-sm text-success">
             🎉 Great job! You completed this assignment.
           </div>
         )}
 
-        {isOverdue && status !== 'completed' && (
+        {isOverdue && (
           <div className="text-center text-sm text-destructive">
             ⚠️ This assignment is overdue. Complete it as soon as possible.
           </div>
