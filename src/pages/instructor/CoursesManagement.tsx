@@ -6,15 +6,25 @@ import { useOrgCatalog } from "@/hooks/useOrgCatalog";
 import { useOrganizationCourseAssignments } from "@/hooks/useOrganizationCourseAssignments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Clock, Plus, Star } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { BookOpen, Users, Clock, Plus, Star, Grid3X3, List, Loader2 } from "lucide-react";
 import { CourseCreationWizard } from "@/components/course-builder/CourseCreationWizard";
 import { CourseCard as CourseCardType } from "@/types/course-card";
+
+type ViewType = 'grid' | 'list';
 
 export default function CoursesManagementNew() {
   const { orgId } = useParams<{ orgId: string }>();
   const { catalog, isLoading, error, platformCourses, orgCourses } = useOrgCatalog();
   const { assignCourse, isAssigning, isCourseAssigned } = useOrganizationCourseAssignments(orgId);
+  const { toast } = useToast();
   const [showCreateWizard, setShowCreateWizard] = React.useState(false);
+  const [viewType, setViewType] = React.useState<ViewType>(() => {
+    const saved = localStorage.getItem('courses-view-type');
+    return (saved as ViewType) || 'grid';
+  });
+  const [assigningCourses, setAssigningCourses] = React.useState<Set<string>>(new Set());
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -24,9 +34,38 @@ export default function CoursesManagementNew() {
     });
   };
 
-  const handleAssignCourse = (course: CourseCardType) => {
-    assignCourse(course.id);
+  const handleViewTypeChange = (type: ViewType) => {
+    setViewType(type);
+    localStorage.setItem('courses-view-type', type);
   };
+
+  const handleAssignCourse = React.useCallback(async (course: CourseCardType) => {
+    if (assigningCourses.has(course.id) || isCourseAssigned(course.id)) {
+      return;
+    }
+
+    setAssigningCourses(prev => new Set(prev).add(course.id));
+    
+    try {
+      await assignCourse(course.id);
+      toast({
+        title: "Course Assigned",
+        description: `${course.title} has been assigned to your organization.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Assignment Failed", 
+        description: "Failed to assign course. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAssigningCourses(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(course.id);
+        return newSet;
+      });
+    }
+  }, [assignCourse, assigningCourses, isCourseAssigned, toast]);
 
   const renderCourseCard = (course: CourseCardType, showAssignButton = false) => (
     <Card key={course.id} className="h-56 hover:shadow-md transition-shadow">
@@ -73,9 +112,18 @@ export default function CoursesManagementNew() {
             <Button 
               size="sm" 
               onClick={() => handleAssignCourse(course)}
-              disabled={isAssigning || isCourseAssigned(course.id)}
+              disabled={assigningCourses.has(course.id) || isCourseAssigned(course.id)}
             >
-              {isCourseAssigned(course.id) ? 'Already Assigned' : 'Assign Course'}
+              {assigningCourses.has(course.id) ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Assigning...
+                </>
+              ) : isCourseAssigned(course.id) ? (
+                'Already Assigned'
+              ) : (
+                'Assign Course'
+              )}
             </Button>
           ) : (
             <>
@@ -91,6 +139,71 @@ export default function CoursesManagementNew() {
     </Card>
   );
 
+  const renderCourseListItem = (course: CourseCardType, showAssignButton = false) => (
+    <TableRow key={course.id}>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="font-medium">{course.title}</p>
+            <p className="text-sm text-muted-foreground line-clamp-1">{course.description}</p>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex gap-1 flex-wrap">
+          {course.badges.map((badge, index) => (
+            <Badge 
+              key={index}
+              variant={badge.variant as any}
+              className="text-xs"
+            >
+              {badge.label}
+            </Badge>
+          ))}
+        </div>
+      </TableCell>
+      <TableCell className="text-sm">
+        {course.instructor_name || 'N/A'}
+      </TableCell>
+      <TableCell className="text-sm">
+        {course.duration_minutes ? `${course.duration_minutes}min` : 'N/A'}
+      </TableCell>
+      <TableCell className="text-sm">
+        {course.difficulty_level || 'All levels'}
+      </TableCell>
+      <TableCell>
+        <div className="flex gap-2">
+          {showAssignButton ? (
+            <Button 
+              size="sm" 
+              onClick={() => handleAssignCourse(course)}
+              disabled={assigningCourses.has(course.id) || isCourseAssigned(course.id)}
+            >
+              {assigningCourses.has(course.id) ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Assigning...
+                </>
+              ) : isCourseAssigned(course.id) ? (
+                'Already Assigned'
+              ) : (
+                'Assign Course'
+              )}
+            </Button>
+          ) : (
+            <>
+              <Button size="sm" variant="outline">Edit</Button>
+              <Button size="sm" variant="outline">View</Button>
+            </>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+
   const totalCourses = platformCourses.length + orgCourses.length;
   const publishedCourses = [...platformCourses, ...orgCourses].filter(
     course => course.status === 'published'
@@ -102,6 +215,24 @@ export default function CoursesManagementNew() {
         <header className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Courses</h1>
           <div className="flex gap-2">
+            <div className="flex items-center gap-1 border rounded-lg p-1">
+              <Button
+                size="sm"
+                variant={viewType === 'grid' ? 'default' : 'ghost'}
+                onClick={() => handleViewTypeChange('grid')}
+                className="h-8 w-8 p-0"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant={viewType === 'list' ? 'default' : 'ghost'}
+                onClick={() => handleViewTypeChange('list')}
+                className="h-8 w-8 p-0"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
             <Button onClick={() => setShowCreateWizard(true)}>
               <Plus className="w-4 h-4 mr-2" />
               New Course
@@ -187,9 +318,29 @@ export default function CoursesManagementNew() {
                   <h2 className="text-lg font-semibold">Platform Courses</h2>
                   <Badge variant="secondary">{platformCourses.length}</Badge>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {platformCourses.map((course) => renderCourseCard(course, true))}
-                </div>
+                {viewType === 'grid' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {platformCourses.map((course) => renderCourseCard(course, true))}
+                  </div>
+                ) : (
+                  <div className="border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Course</TableHead>
+                          <TableHead>Tags</TableHead>
+                          <TableHead>Instructor</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Level</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {platformCourses.map((course) => renderCourseListItem(course, true))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             )}
 
@@ -200,21 +351,53 @@ export default function CoursesManagementNew() {
                 <h2 className="text-lg font-semibold">Organization Courses</h2>
                 <Badge variant="secondary">{orgCourses.length}</Badge>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {orgCourses.map((course) => renderCourseCard(course, false))}
-                
-                {/* Add course card */}
-                <Card 
-                  className="h-56 grid place-items-center border-2 border-dashed border-muted hover:border-primary/50 transition-colors cursor-pointer"
-                  onClick={() => setShowCreateWizard(true)}
-                >
-                  <div className="text-center">
-                    <Plus className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="font-medium">Create Course</p>
-                    <p className="text-sm text-muted-foreground">Start building your course</p>
+              {viewType === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {orgCourses.map((course) => renderCourseCard(course, false))}
+                  
+                  {/* Add course card */}
+                  <Card 
+                    className="h-56 grid place-items-center border-2 border-dashed border-muted hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => setShowCreateWizard(true)}
+                  >
+                    <div className="text-center">
+                      <Plus className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="font-medium">Create Course</p>
+                      <p className="text-sm text-muted-foreground">Start building your course</p>
+                    </div>
+                  </Card>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Course</TableHead>
+                          <TableHead>Tags</TableHead>
+                          <TableHead>Instructor</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Level</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {orgCourses.map((course) => renderCourseListItem(course, false))}
+                      </TableBody>
+                    </Table>
                   </div>
-                </Card>
-              </div>
+                  
+                  {/* Add course button for list view */}
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-16 border-2 border-dashed"
+                    onClick={() => setShowCreateWizard(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New Course
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* No courses message */}
