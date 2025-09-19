@@ -12,7 +12,7 @@ export function OrgPageBanner() {
   
   return (
     <OrgBanner 
-      className="h-40 mb-8 rounded-lg overflow-hidden shadow-lg" 
+      className="h-32 sm:h-40 mb-4 sm:mb-8 rounded-lg overflow-hidden shadow-lg" 
       overlay={false}
     />
   );
