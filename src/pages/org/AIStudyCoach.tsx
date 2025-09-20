@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrgAIChat } from '@/hooks/useOrgAIChat';
+import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StudyTip {
   id: string;
@@ -59,6 +61,7 @@ export default function AIStudyCoach() {
   const { user } = useAuth();
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   const { 
     messages, 
@@ -95,52 +98,64 @@ export default function AIStudyCoach() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="p-3 bg-primary/10 rounded-lg">
-            <Brain className="h-8 w-8 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">AI Study Coach</h1>
-            <p className="text-muted-foreground">Your personal learning companion and study guide</p>
-          </div>
-        </div>
-      </div>
+    <MobilePageLayout className="min-h-screen">
+      <MobileSectionHeader
+        title="AI Study Coach"
+        subtitle="Your personal learning companion and study guide"
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
-        {/* Chat Interface */}
-        <div className="lg:col-span-2 flex flex-col min-h-0">
-          <Card className="flex-1 flex flex-col min-h-0">
-            <CardHeader className="pb-4 flex-shrink-0">
-              <CardTitle className="flex items-center space-x-2">
-                <MessageCircle className="h-5 w-5" />
-                <span>Chat with AI Study Coach</span>
+      <div className={`
+        flex flex-col gap-4
+        ${isMobile 
+          ? 'h-[calc(100vh-8rem)]' 
+          : 'grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]'
+        }
+      `}>
+        {/* Chat Interface - Mobile First */}
+        <div className={`
+          flex flex-col min-h-0
+          ${isMobile 
+            ? 'flex-[3] min-h-[70vh]' 
+            : 'lg:col-span-2'
+          }
+        `}>
+          <Card className="flex-1 flex flex-col min-h-0 mobile-card">
+            <CardHeader className="mobile-card-compact flex-shrink-0">
+              <CardTitle className="flex items-center space-x-2 mobile-heading-md">
+                <MessageCircle className={`${isMobile ? 'h-6 w-6' : 'h-5 w-5'}`} />
+                <span className="mobile-safe-text">Chat with AI Study Coach</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col min-h-0 pb-4">
+            <CardContent className="flex-1 flex flex-col min-h-0 mobile-card-compact">
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0">
+              <div className={`
+                flex-1 overflow-y-auto mb-4 pr-2 min-h-0 mobile-scroll-container
+                ${isMobile ? 'space-y-3' : 'space-y-4'}
+              `}>
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="flex items-end space-x-2 max-w-[80%] min-w-0">
+                    <div className={`flex items-end space-x-2 min-w-0 ${isMobile ? 'max-w-[90%]' : 'max-w-[80%]'}`}>
                       {message.role === 'assistant' && (
-                        <div className="p-2 bg-primary/10 rounded-full flex-shrink-0">
-                          <Brain className="h-4 w-4 text-primary" />
+                        <div className={`bg-primary/10 rounded-full flex-shrink-0 ${isMobile ? 'p-1.5' : 'p-2'}`}>
+                          <Brain className={`text-primary ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
                         </div>
                       )}
                       <div
-                        className={`p-3 rounded-lg min-w-0 flex-1 ${
+                        className={`rounded-lg min-w-0 flex-1 mobile-safe-text ${
+                          isMobile ? 'p-2.5' : 'p-3'
+                        } ${
                           message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
                       >
-                        <p className="text-sm break-words whitespace-pre-wrap overflow-wrap-anywhere">{message.content}</p>
-                        <p className="text-xs opacity-70 mt-1">
+                        <p className={`break-words whitespace-pre-wrap overflow-wrap-anywhere mobile-text-overflow-safe ${isMobile ? 'text-sm' : 'text-sm'}`}>
+                          {message.content}
+                        </p>
+                        <p className={`opacity-70 mt-1 ${isMobile ? 'text-xs' : 'text-xs'}`}>
                           {formatTime(message.timestamp)}
                         </p>
                       </div>
@@ -169,13 +184,22 @@ export default function AIStudyCoach() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
-              <div className="flex space-x-2 flex-shrink-0">
+              {/* Input - Mobile Optimized */}
+              <div className={`flex gap-2 flex-shrink-0 ${isMobile ? 'mobile-form-row' : 'space-x-2'}`}>
                 <Textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Ask me about study strategies, learning techniques, or any academic questions..."
-                  className="flex-1 min-h-[60px] max-h-[120px] resize-none"
+                  placeholder={isMobile 
+                    ? "Ask me about study strategies..." 
+                    : "Ask me about study strategies, learning techniques, or any academic questions..."
+                  }
+                  className={`
+                    flex-1 resize-none mobile-input mobile-safe-text
+                    ${isMobile 
+                      ? 'min-h-[50px] max-h-[100px] text-base' 
+                      : 'min-h-[60px] max-h-[120px]'
+                    }
+                  `}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -186,43 +210,58 @@ export default function AIStudyCoach() {
                 <Button
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim() || isSending}
-                  size="lg"
-                  className="px-4"
+                  size={isMobile ? "default" : "lg"}
+                  className={`
+                    mobile-touch-target
+                    ${isMobile ? 'min-w-[52px]' : 'px-4'}
+                  `}
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Study Tips Sidebar */}
-        <div className="space-y-6 flex flex-col min-h-0 overflow-y-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Lightbulb className="h-5 w-5" />
-                <span>Study Tips</span>
+        {/* Study Tips - Mobile Responsive */}
+        <div className={`
+          flex flex-col min-h-0
+          ${isMobile 
+            ? 'flex-1 max-h-[30vh] overflow-y-auto' 
+            : 'space-y-6 overflow-y-auto'
+          }
+        `}>
+          <Card className={isMobile ? 'mobile-card' : ''}>
+            <CardHeader className={isMobile ? 'mobile-card-compact' : ''}>
+              <CardTitle className={`flex items-center space-x-2 ${isMobile ? 'mobile-heading-md' : ''}`}>
+                <Lightbulb className={`${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
+                <span className="mobile-safe-text">Study Tips</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className={`${isMobile ? 'mobile-card-compact space-y-3' : 'space-y-4'}`}>
               {studyTips.map((tip) => (
-                <div key={tip.id} className="border rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <tip.icon className="h-4 w-4 text-primary" />
+                <div key={tip.id} className={`border rounded-lg mobile-safe-text ${isMobile ? 'p-3' : 'p-4'}`}>
+                  <div className={`flex items-start ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
+                    <div className={`bg-primary/10 rounded-lg ${isMobile ? 'p-1.5' : 'p-2'}`}>
+                      <tip.icon className={`text-primary ${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="font-semibold text-sm">{tip.title}</h4>
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${categoryColors[tip.category]}`}
-                        >
-                          {tip.category.replace('-', ' ')}
-                        </Badge>
+                    <div className="flex-1 min-w-0">
+                      <div className={`flex items-center space-x-2 ${isMobile ? 'mb-1.5' : 'mb-2'}`}>
+                        <h4 className={`font-semibold mobile-safe-text ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                          {tip.title}
+                        </h4>
+                        {!isMobile && (
+                          <Badge 
+                            variant="secondary" 
+                            className={`text-xs ${categoryColors[tip.category]}`}
+                          >
+                            {tip.category.replace('-', ' ')}
+                          </Badge>
+                        )}
                       </div>
-                      <p className="text-xs text-muted-foreground">{tip.description}</p>
+                      <p className={`text-muted-foreground mobile-safe-text ${isMobile ? 'text-xs leading-tight' : 'text-xs'}`}>
+                        {tip.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -230,51 +269,53 @@ export default function AIStudyCoach() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => setNewMessage("How can I improve my focus while studying?")}
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                Improve Focus
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => setNewMessage("What are the best memory techniques for studying?")}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Memory Techniques
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => setNewMessage("How do I create an effective study schedule?")}
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                Study Schedule
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => setNewMessage("How can I stay motivated while learning?")}
-              >
-                <Target className="h-4 w-4 mr-2" />
-                Stay Motivated
-              </Button>
-            </CardContent>
-          </Card>
+          {!isMobile && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start mobile-safe-text"
+                  onClick={() => setNewMessage("How can I improve my focus while studying?")}
+                >
+                  <Brain className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Improve Focus</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start mobile-safe-text"
+                  onClick={() => setNewMessage("What are the best memory techniques for studying?")}
+                >
+                  <BookOpen className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Memory Techniques</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start mobile-safe-text"
+                  onClick={() => setNewMessage("How do I create an effective study schedule?")}
+                >
+                  <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Study Schedule</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start mobile-safe-text"
+                  onClick={() => setNewMessage("How can I stay motivated while learning?")}
+                >
+                  <Target className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Stay Motivated</span>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
-    </div>
+    </MobilePageLayout>
   );
 }
