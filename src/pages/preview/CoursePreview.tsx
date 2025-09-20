@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BookOpen, Clock, User, Star } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, User, Star, Play } from 'lucide-react';
 import { getCourseImage } from '@/utils/courseImages';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Course {
   id: string;
@@ -38,6 +39,7 @@ interface Course {
 export default function CoursePreview() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -243,18 +245,31 @@ export default function CoursePreview() {
                 <div className="bg-muted/50 rounded-lg p-6 text-center">
                   <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">Ready to Start Learning?</h3>
-                  <p className="text-muted-foreground mb-4">
-                    This is a preview of the course. To access the full content and track your progress, 
-                    you'll need to enroll or sign in.
-                  </p>
-                  <div className="flex justify-center space-x-3">
-                    <Button onClick={() => navigate('/auth/signup')}>
-                      Get Started
-                    </Button>
-                    <Button variant="outline" onClick={() => navigate('/auth/signin')}>
-                      Sign In
-                    </Button>
-                  </div>
+                  {user ? (
+                    <>
+                      <p className="text-muted-foreground mb-4">
+                        You're ready to start this course! Click below to begin your learning journey.
+                      </p>
+                      <div className="flex justify-center">
+                        <Button onClick={() => navigate(`/courses/${courseId}`)}>
+                          <Play className="w-4 h-4 mr-2" />
+                          Start Course
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-muted-foreground mb-4">
+                        This is a preview of the course. To access the full content and track your progress, 
+                        you'll need to sign in.
+                      </p>
+                      <div className="flex justify-center">
+                        <Button onClick={() => navigate('/login')}>
+                          Sign In to Start
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>
