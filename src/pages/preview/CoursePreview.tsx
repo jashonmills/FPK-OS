@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -39,6 +39,7 @@ interface Course {
 export default function CoursePreview() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -157,6 +158,28 @@ export default function CoursePreview() {
 
   const courseImage = getCourseImage(course.id, course.title);
 
+  const handleBackNavigation = () => {
+    // Check if user came from an organization context
+    const referrer = document.referrer;
+    const orgMatch = referrer.match(/\/org\/([^\/]+)/);
+    
+    if (orgMatch) {
+      // User came from an organization, go back to org courses
+      const orgId = orgMatch[1];
+      navigate(`/org/${orgId}/courses`);
+    } else if (course?.organization_id || course?.org_id) {
+      // Course belongs to an organization, go to that org's catalog
+      const orgId = course.organization_id || course.org_id;
+      navigate(`/org/${orgId}/courses`);
+    } else if (referrer.includes('/dashboard')) {
+      // User came from personal dashboard
+      navigate('/dashboard/learner/courses');
+    } else {
+      // Fallback to home
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -166,10 +189,10 @@ export default function CoursePreview() {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => navigate('/')}
+              onClick={handleBackNavigation}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Back to Courses
             </Button>
             <Badge variant="secondary">Course Preview</Badge>
           </div>
