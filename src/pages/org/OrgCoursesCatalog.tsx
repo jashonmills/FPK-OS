@@ -36,6 +36,8 @@ import { CollectionsDropdown } from '@/components/collections/CollectionsDropdow
 import { useCourseActions } from '@/hooks/useCourseActions';
 import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 type ViewType = 'grid' | 'list' | 'compact';
 
@@ -45,11 +47,31 @@ export default function OrgCoursesCatalog() {
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
   const [viewType, setViewType] = useState<ViewType>(() => {
     const saved = localStorage.getItem('courses-view-type');
-    return (saved as ViewType) || 'grid';
+    return (saved as ViewType) || (isMobile ? 'list' : 'grid');
   });
   const { toast } = useToast();
+
+  // Responsive grid classes for different screen sizes and view types
+  const getResponsiveGridClasses = (type: ViewType) => {
+    if (type === 'list') return "space-y-4";
+    if (type === 'compact') return "space-y-1";
+    
+    // Optimized grid layout for better course card display
+    if (isMobile) {
+      return "grid grid-cols-1 gap-4"; // Single column on mobile
+    }
+    
+    return cn(
+      "grid gap-4 sm:gap-5 md:gap-6",
+      "grid-cols-1",           // 1 column on xs (< 640px)
+      "sm:grid-cols-2",        // 2 columns on sm (640px - 768px)  
+      "lg:grid-cols-3",        // 3 columns on lg (1024px - 1280px)
+      "2xl:grid-cols-4"        // 4 columns on 2xl (1536px+)
+    );
+  };
 
   const { isOrgStudent } = useOrgPermissions();
   const { 
@@ -526,13 +548,7 @@ export default function OrgCoursesCatalog() {
                     <Badge variant="secondary">{assignments.length}</Badge>
                   </div>
                   
-                  <div className={
-                    viewType === 'grid' 
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      : viewType === 'list'
-                      ? "space-y-4"
-                      : "space-y-1"
-                  }>
+                  <div className={getResponsiveGridClasses(viewType)}>
                     {assignments.map((assignment) => {
                       // Find the course data from our catalog
                       const course = [...platformCourses, ...orgCourses].find(c => c.id === assignment.resource_id);
@@ -603,13 +619,7 @@ export default function OrgCoursesCatalog() {
                 ) : filteredPlatformCourses.length === 0 ? (
                   <EmptyState type="platform" />
                 ) : (
-                  <div className={
-                    viewType === 'grid' 
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      : viewType === 'list'
-                      ? "space-y-4"
-                      : "space-y-1"
-                  }>
+                  <div className={getResponsiveGridClasses(viewType)}>
                     {filteredPlatformCourses.map((course) => (
                       <EnhancedCourseCard
                         key={course.id}
@@ -644,13 +654,7 @@ export default function OrgCoursesCatalog() {
                     onUploadScorm={handleUploadScorm}
                   />
                 ) : (
-                  <div className={
-                    viewType === 'grid' 
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      : viewType === 'list'
-                      ? "space-y-4"
-                      : "space-y-1"
-                  }>
+                  <div className={getResponsiveGridClasses(viewType)}>
                     {filteredOrgCourses.map((course) => (
                       <EnhancedCourseCard
                         key={course.id}

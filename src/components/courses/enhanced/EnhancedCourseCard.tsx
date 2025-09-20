@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -711,23 +712,31 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
     );
   }
 
-  // Render grid view (original layout)
-
+  // Render grid view with mobile optimization
   return (
     <>
-      <Card className="relative h-full flex flex-col hover:shadow-lg transition-shadow overflow-hidden">
+      <Card className={cn(
+        "relative h-full flex flex-col hover:shadow-lg transition-shadow overflow-hidden",
+        isMobile ? "min-h-[280px]" : "min-h-[320px]"
+      )}>
         <StatusRibbon />
         
         {/* Course Image Header */}
         <div 
-          className="relative h-40 bg-cover bg-center"
+          className={cn(
+            "relative bg-cover bg-center",
+            isMobile ? "h-32" : "h-40"
+          )}
           style={{ backgroundImage: `url(${courseImage})` }}
         >
           {/* Dark overlay for text contrast */}
           <div className="absolute inset-0 bg-black/40" />
           
           {/* Header content */}
-          <div className="relative z-10 p-4 h-full flex flex-col justify-between">
+          <div className={cn(
+            "relative z-10 h-full flex flex-col justify-between",
+            isMobile ? "p-3" : "p-4"
+          )}>
             {/* Top badges */}
             <div className="flex justify-between items-start">
               <div className="flex flex-wrap gap-1">
@@ -751,47 +760,59 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
             
             {/* Course title */}
             <div className="flex-1 flex items-end">
-              <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg line-clamp-2">
+              <h3 className={cn(
+                "text-white font-bold leading-tight drop-shadow-lg line-clamp-2",
+                isMobile ? "text-base" : "text-lg"
+              )}>
                 {course.title}
               </h3>
             </div>
           </div>
         </div>
 
-        <CardHeader className="pb-3">
+        <CardHeader className={cn(
+          "flex-1 pb-2",
+          isMobile ? "p-3" : "pb-3"
+        )}>
           {/* Description */}
           {course.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+            <p className={cn(
+              "text-muted-foreground line-clamp-2 mb-3",
+              isMobile ? "text-xs" : "text-sm"
+            )}>
               {course.description}
             </p>
           )}
 
           {/* Metadata */}
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <div className={cn(
+            "flex flex-wrap gap-2 text-muted-foreground",
+            isMobile ? "text-xs gap-2" : "text-xs gap-3"
+          )}>
             {course.instructorName && (
               <div className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                <span>{course.instructorName}</span>
+                <Users className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{course.instructorName}</span>
               </div>
             )}
             
             {course.durationMinutes && (
               <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+                <Clock className="h-3 w-3 flex-shrink-0" />
                 <span>{course.durationMinutes} min</span>
               </div>
             )}
             
             {typeof course.enrolledCount === 'number' && (
               <div className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
+                <Users className="h-3 w-3 flex-shrink-0" />
                 <span>{course.enrolledCount} enrolled</span>
               </div>
             )}
             
             {typeof course.avgCompletionPct === 'number' && (
               <div className="flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" />
+                <CheckCircle className="h-3 w-3 flex-shrink-0" />
                 <span>{course.avgCompletionPct}% avg completion</span>
               </div>
             )}
@@ -799,15 +820,15 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
 
           {/* Tags */}
           {course.tags && course.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {course.tags.slice(0, 3).map((tag, index) => (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {course.tags.slice(0, isMobile ? 2 : 3).map((tag, index) => (
                 <Badge key={index} variant="outline" className="text-xs">
                   {tag}
                 </Badge>
               ))}
-              {course.tags.length > 3 && (
+              {course.tags.length > (isMobile ? 2 : 3) && (
                 <Badge variant="outline" className="text-xs">
-                  +{course.tags.length - 3}
+                  +{course.tags.length - (isMobile ? 2 : 3)}
                 </Badge>
               )}
             </div>
@@ -817,32 +838,53 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
         <CardContent className="flex-grow" />
 
         {/* Actions */}
-        <div className="border-t p-3 flex items-center gap-2">
+        <div className={cn(
+          "border-t flex items-center gap-2",
+          isMobile ? "p-2" : "p-3"
+        )}>
           {/* Primary Actions */}
           <Button
             variant="outline"
-            size="sm"
+            size={isMobile ? "sm" : "sm"}
             onClick={() => actions.onPreview(course.id)}
-            className="flex-1"
+            className={cn(
+              "flex-1",
+              isMobile ? "h-8 px-2 text-xs" : ""
+            )}
           >
-            <Eye className="h-4 w-4 mr-1" />
+            <Eye className={cn(
+              "mr-1",
+              isMobile ? "h-3 w-3" : "h-4 w-4"
+            )} />
             Preview
           </Button>
 
           <Button
             onClick={() => actions.onStart(course.id)}
-            size="sm"
-            className="flex-1"
+            size={isMobile ? "sm" : "sm"}
+            className={cn(
+              "flex-1",
+              isMobile ? "h-8 px-2 text-xs" : ""
+            )}
           >
-            <Play className="h-4 w-4 mr-1" />
+            <Play className={cn(
+              "mr-1",
+              isMobile ? "h-3 w-3" : "h-4 w-4"
+            )} />
             Start Course
           </Button>
 
           {/* Secondary Actions Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <MoreVertical className="h-4 w-4" />
+              <Button 
+                variant="outline" 
+                size={isMobile ? "sm" : "sm"}
+                className={isMobile ? "h-8 w-8 p-0" : ""}
+              >
+                <MoreVertical className={cn(
+                  isMobile ? "h-3 w-3" : "h-4 w-4"
+                )} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
