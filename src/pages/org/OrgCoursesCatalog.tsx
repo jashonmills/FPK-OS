@@ -181,7 +181,7 @@ export default function OrgCoursesCatalog() {
 
   if (isLoading) {
     return (
-      <OrgRequireRole roles={['instructor', 'owner']}>
+      <OrgRequireRole roles={['instructor', 'owner', 'student']}>
         <PageShell>
           <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
             <div className="flex justify-center items-center min-h-64">
@@ -198,7 +198,7 @@ export default function OrgCoursesCatalog() {
 
   if (error) {
     return (
-      <OrgRequireRole roles={['instructor', 'owner']}>
+      <OrgRequireRole roles={['instructor', 'owner', 'student']}>
         <PageShell>
           <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
             <div className="text-center">
@@ -211,7 +211,7 @@ export default function OrgCoursesCatalog() {
   }
 
   return (
-    <OrgRequireRole roles={['instructor', 'owner']}>
+    <OrgRequireRole roles={['instructor', 'owner', 'student']}>
       <PageShell>
         <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
           {/* Header */}
