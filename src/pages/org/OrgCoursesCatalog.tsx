@@ -548,7 +548,10 @@ export default function OrgCoursesCatalog() {
                     <Badge variant="secondary">{assignments.length}</Badge>
                   </div>
                   
-                  <div className={getResponsiveGridClasses(viewType)}>
+                  <div className={cn(
+                    getResponsiveGridClasses(viewType),
+                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                  )}>
                     {assignments.map((assignment) => {
                       // Find the course data from our catalog
                       const course = [...platformCourses, ...orgCourses].find(c => c.id === assignment.resource_id);
@@ -583,13 +586,14 @@ export default function OrgCoursesCatalog() {
                     <p className="text-muted-foreground">No platform courses available.</p>
                   </div>
                 ) : (
-                  <div className={
+                  <div className={cn(
                     viewType === 'grid' 
                       ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                       : viewType === 'list'
                       ? "space-y-4"
-                      : "space-y-1"
-                  }>
+                      : "space-y-1",
+                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                  )}>
                     {filteredPlatformCourses.map((course) => (
                       <EnhancedCourseCard
                         key={course.id}
@@ -619,7 +623,10 @@ export default function OrgCoursesCatalog() {
                 ) : filteredPlatformCourses.length === 0 ? (
                   <EmptyState type="platform" />
                 ) : (
-                  <div className={getResponsiveGridClasses(viewType)}>
+                  <div className={cn(
+                    getResponsiveGridClasses(viewType),
+                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                  )}>
                     {filteredPlatformCourses.map((course) => (
                       <EnhancedCourseCard
                         key={course.id}
@@ -654,7 +661,10 @@ export default function OrgCoursesCatalog() {
                     onUploadScorm={handleUploadScorm}
                   />
                 ) : (
-                  <div className={getResponsiveGridClasses(viewType)}>
+                  <div className={cn(
+                    getResponsiveGridClasses(viewType),
+                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                  )}>
                     {filteredOrgCourses.map((course) => (
                       <EnhancedCourseCard
                         key={course.id}

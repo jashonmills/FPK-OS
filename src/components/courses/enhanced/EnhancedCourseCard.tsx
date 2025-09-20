@@ -742,11 +742,6 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               <div className="flex flex-wrap gap-1">
                 {getOriginBadge()}
                 {getFrameworkBadge()}
-                {course.difficulty && (
-                  <Badge variant="outline" className="text-xs capitalize bg-black/20 text-white border-white/30 backdrop-blur-sm">
-                    {course.difficulty}
-                  </Badge>
-                )}
               </div>
               <div className="flex flex-wrap gap-1">
                 {course.isFeatured && (
@@ -803,6 +798,12 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               </div>
             )}
             
+            {course.difficulty && (
+              <Badge variant="outline" className="text-xs capitalize">
+                {course.difficulty}
+              </Badge>
+            )}
+            
             {typeof course.enrolledCount === 'number' && (
               <div className="flex items-center gap-1">
                 <Users className="h-3 w-3 flex-shrink-0" />
@@ -839,7 +840,7 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
 
         {/* Actions */}
         <div className={cn(
-          "border-t flex items-center gap-2",
+          "border-t flex items-center gap-2 bg-card/50 backdrop-blur-sm",
           isMobile ? "p-2" : "p-3"
         )}>
           {/* Primary Actions */}
@@ -848,30 +849,30 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
             size={isMobile ? "sm" : "sm"}
             onClick={() => actions.onPreview(course.id)}
             className={cn(
-              "flex-1",
-              isMobile ? "h-8 px-2 text-xs" : ""
+              "flex-1 min-w-0",
+              isMobile ? "h-8 px-2 text-xs" : "h-9"
             )}
           >
             <Eye className={cn(
-              "mr-1",
+              "mr-1 flex-shrink-0",
               isMobile ? "h-3 w-3" : "h-4 w-4"
             )} />
-            Preview
+            <span className="truncate">Preview</span>
           </Button>
 
           <Button
             onClick={() => actions.onStart(course.id)}
             size={isMobile ? "sm" : "sm"}
             className={cn(
-              "flex-1",
-              isMobile ? "h-8 px-2 text-xs" : ""
+              "flex-1 min-w-0",
+              isMobile ? "h-8 px-2 text-xs" : "h-9"
             )}
           >
             <Play className={cn(
-              "mr-1",
+              "mr-1 flex-shrink-0",
               isMobile ? "h-3 w-3" : "h-4 w-4"
             )} />
-            Start Course
+            <span className="truncate">Start Course</span>
           </Button>
 
           {/* Secondary Actions Menu */}
@@ -880,7 +881,10 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               <Button 
                 variant="outline" 
                 size={isMobile ? "sm" : "sm"}
-                className={isMobile ? "h-8 w-8 p-0" : ""}
+                className={cn(
+                  "flex-shrink-0",
+                  isMobile ? "h-8 w-8 p-0" : "h-9 w-9 p-0"
+                )}
               >
                 <MoreVertical className={cn(
                   isMobile ? "h-3 w-3" : "h-4 w-4"
