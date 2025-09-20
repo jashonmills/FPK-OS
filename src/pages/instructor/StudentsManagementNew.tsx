@@ -82,7 +82,7 @@ export default function StudentsManagementNew() {
 
   return (
     <PageShell>
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 org-background">
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Students</h1>
@@ -108,7 +108,7 @@ export default function StudentsManagementNew() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
+          <Card className="org-tile">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Students</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -120,7 +120,7 @@ export default function StudentsManagementNew() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="org-tile">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Accounts</CardTitle>
               <UserPlus className="h-4 w-4 text-muted-foreground" />
@@ -132,7 +132,7 @@ export default function StudentsManagementNew() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="org-tile">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Activation Rate</CardTitle>
               <Badge variant="outline" className="px-2 py-1">
@@ -149,7 +149,7 @@ export default function StudentsManagementNew() {
         </div>
 
         {/* Filters */}
-        <Card>
+        <Card className="org-tile">
           <CardHeader>
             <CardTitle className="text-lg">Student Roster</CardTitle>
             <CardDescription>

@@ -80,6 +80,12 @@
 
     /* FPK Homepage Colors */
     --fpk-orange: 18 100% 54%;
+    
+    /* Organization Theme Colors */
+    --org-bg-orange: 18 100% 54%;
+    --org-tile-bg: var(--org-bg-orange);
+    --org-tile-border: var(--org-bg-orange);
+    --org-tile-text: 0 0% 20%;
 
     /* Enhanced Branding Variables */
     --brand-accent: var(--accent);
@@ -264,6 +270,17 @@
   
   .fpk-card {
     background-color: #FBF6F0;
+  }
+  
+  /* Organization theme utilities */
+  .org-tile {
+    background-color: hsl(var(--org-tile-bg) / 0.65);
+    border: 1px solid hsl(var(--org-tile-border) / 0.2);
+    color: hsl(var(--org-tile-text));
+  }
+  
+  .org-background {
+    background-color: hsl(var(--org-bg-orange) / 0.65);
   }
   
   .fpk-text-gradient {
