@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Target, 
   Stethoscope, 
@@ -17,6 +18,7 @@ interface IEPOverviewCardProps {
 }
 
 export function IEPOverviewCard({ iepData }: IEPOverviewCardProps) {
+  const isMobile = useIsMobile();
   return (
     <Card>
       <CardHeader>
@@ -51,28 +53,28 @@ export function IEPOverviewCard({ iepData }: IEPOverviewCardProps) {
 
         <Separator />
 
-        {/* Goals Summary */}
-        <div className="flex items-center gap-2">
-          <Target className="h-4 w-4 text-primary" />
-          <span className="font-medium text-sm">
-            {iepData.goals?.length || 0} Active Goals
-          </span>
-        </div>
+        {/* Summary Grid */}
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-primary" />
+            <span className="font-medium text-sm">
+              {iepData.goals?.length || 0} Active Goals
+            </span>
+          </div>
 
-        {/* Services Summary */}
-        <div className="flex items-center gap-2">
-          <Stethoscope className="h-4 w-4 text-primary" />
-          <span className="font-medium text-sm">
-            {iepData.services?.length || 0} Services
-          </span>
-        </div>
+          <div className="flex items-center gap-2">
+            <Stethoscope className="h-4 w-4 text-primary" />
+            <span className="font-medium text-sm">
+              {iepData.services?.length || 0} Services
+            </span>
+          </div>
 
-        {/* Accommodations Summary */}
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-primary" />
-          <span className="font-medium text-sm">
-            {iepData.accommodations?.length || 0} Accommodations
-          </span>
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="font-medium text-sm">
+              {iepData.accommodations?.length || 0} Accommodations
+            </span>
+          </div>
         </div>
 
         <Separator />

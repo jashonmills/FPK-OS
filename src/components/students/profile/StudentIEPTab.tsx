@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentIEP } from '@/hooks/useStudentIEP';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { OrgStudent } from '@/hooks/useOrgStudents';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ interface StudentIEPTabProps {
 
 export function StudentIEPTab({ student, orgId }: StudentIEPTabProps) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { iepData, isLoading, status, hasDocuments, currentStep, completionPercentage, documents } = useStudentIEP(orgId, student.id);
 
   if (isLoading) {
@@ -72,7 +74,7 @@ export function StudentIEPTab({ student, orgId }: StudentIEPTabProps) {
   return (
     <div className="space-y-6">
       {/* IEP Status and Quick Info */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
         <IEPStatusCard 
           iepData={iepData!}
           status={status}
@@ -120,7 +122,7 @@ export function StudentIEPTab({ student, orgId }: StudentIEPTabProps) {
           <CardTitle>IEP Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
+          <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'flex-wrap'}`}>
             {status === 'in_progress' && (
               <Button 
                 onClick={() => navigate(`/org/${orgId}/iep/wizard?studentId=${student.id}&step=${currentStep}`)}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Shield, MapPin, CheckCircle } from 'lucide-react';
 import { IEPAccommodation } from '@/hooks/useStudentIEP';
 
@@ -10,6 +11,7 @@ interface IEPAccommodationsCardProps {
 }
 
 export function IEPAccommodationsCard({ accommodations }: IEPAccommodationsCardProps) {
+  const isMobile = useIsMobile();
   if (!accommodations || accommodations.length === 0) {
     return (
       <Card>

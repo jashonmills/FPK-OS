@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Target, Calendar, BarChart3 } from 'lucide-react';
 import { IEPGoal } from '@/hooks/useStudentIEP';
 
@@ -10,6 +11,7 @@ interface IEPGoalsCardProps {
 }
 
 export function IEPGoalsCard({ goals }: IEPGoalsCardProps) {
+  const isMobile = useIsMobile();
   if (!goals || goals.length === 0) {
     return (
       <Card>
@@ -71,7 +73,7 @@ export function IEPGoalsCard({ goals }: IEPGoalsCardProps) {
                     <p className="text-sm text-muted-foreground">{goal.baseline}</p>
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
                     <div className="flex items-center gap-2">
                       <BarChart3 className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">

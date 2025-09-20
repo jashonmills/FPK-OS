@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Stethoscope, Clock, MapPin, User, Calendar } from 'lucide-react';
 import { IEPService } from '@/hooks/useStudentIEP';
 
@@ -10,6 +11,7 @@ interface IEPServicesCardProps {
 }
 
 export function IEPServicesCard({ services }: IEPServicesCardProps) {
+  const isMobile = useIsMobile();
   if (!services || services.length === 0) {
     return (
       <Card>
@@ -63,7 +65,7 @@ export function IEPServicesCard({ services }: IEPServicesCardProps) {
                     </div>
                   )}
                   
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
                     {service.minutes_per_week && (
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
@@ -83,7 +85,7 @@ export function IEPServicesCard({ services }: IEPServicesCardProps) {
                     )}
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
                     {service.setting_type && (
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -102,7 +104,7 @@ export function IEPServicesCard({ services }: IEPServicesCardProps) {
                   </div>
                   
                   {(service.start_date || service.end_date) && (
-                    <div className="flex items-center gap-4">
+                    <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'items-center'}`}>
                       {service.start_date && (
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />

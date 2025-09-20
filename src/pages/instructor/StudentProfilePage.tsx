@@ -5,7 +5,9 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TransparentTile } from '@/components/ui/transparent-tile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText, ClipboardList } from 'lucide-react';
 import { StudentOverviewTab } from '@/components/students/profile/StudentOverviewTab';
 import { StudentCoursesTab } from '@/components/students/profile/StudentCoursesTab';
@@ -19,6 +21,7 @@ export default function StudentProfilePage() {
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const [activeTab, setActiveTab] = useState('overview');
+  const isMobile = useIsMobile();
 
   const { students, isLoading } = useOrgStudents(orgId!);
   const student = students.find(s => s.id === studentId);
@@ -76,32 +79,64 @@ export default function StudentProfilePage() {
         {/* Main Content */}
         <TransparentTile className="org-tile">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="courses" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Courses
-              </TabsTrigger>
-              <TabsTrigger value="performance" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Performance
-              </TabsTrigger>
-              <TabsTrigger value="communication" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Communication
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Documents
-              </TabsTrigger>
-              <TabsTrigger value="iep" className="flex items-center gap-2">
-                <ClipboardList className="h-4 w-4" />
-                IEP
-              </TabsTrigger>
-            </TabsList>
+            {isMobile ? (
+              <ScrollArea className="w-full">
+                <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max">
+                  <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
+                    <User className="h-4 w-4" />
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="courses" className="flex items-center gap-2 whitespace-nowrap">
+                    <BookOpen className="h-4 w-4" />
+                    Courses
+                  </TabsTrigger>
+                  <TabsTrigger value="performance" className="flex items-center gap-2 whitespace-nowrap">
+                    <BarChart3 className="h-4 w-4" />
+                    Performance
+                  </TabsTrigger>
+                  <TabsTrigger value="communication" className="flex items-center gap-2 whitespace-nowrap">
+                    <MessageSquare className="h-4 w-4" />
+                    Communication
+                  </TabsTrigger>
+                  <TabsTrigger value="documents" className="flex items-center gap-2 whitespace-nowrap">
+                    <FileText className="h-4 w-4" />
+                    Documents
+                  </TabsTrigger>
+                  <TabsTrigger value="iep" className="flex items-center gap-2 whitespace-nowrap">
+                    <ClipboardList className="h-4 w-4" />
+                    IEP
+                  </TabsTrigger>
+                </TabsList>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            ) : (
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="courses" className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Courses
+                </TabsTrigger>
+                <TabsTrigger value="performance" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Performance
+                </TabsTrigger>
+                <TabsTrigger value="communication" className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Communication
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Documents
+                </TabsTrigger>
+                <TabsTrigger value="iep" className="flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4" />
+                  IEP
+                </TabsTrigger>
+              </TabsList>
+            )}
 
             <div className="mt-6">
               <TabsContent value="overview" className="space-y-6">
