@@ -3,11 +3,54 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export interface IEPGoal {
+  id: string;
+  iep_plan_id: string;
+  domain: string;
+  goal_type: string;
+  baseline: string;
+  annual_goal: string;
+  measurement_method: string;
+  success_criterion: string;
+  progress_schedule: string;
+  curriculum_mapping: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IEPService {
+  id: string;
+  iep_plan_id: string;
+  service_type: string;
+  provider_role: string;
+  minutes_per_week: number | null;
+  setting_type: string | null;
+  frequency: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface IEPAccommodation {
+  id: string;
+  iep_plan_id: string;
+  accommodation_type: string;
+  context: string;
+  description: string;
+  is_modification: boolean | null;
+  notes: string | null;
+  created_at: string;
+}
+
 export interface StudentIEPData {
   id: string;
   student_id: string;
   org_id: string;
+  jurisdiction: string;
   status: string;
+  referral_reason: string | null;
+  suspected_disability_categories: string[] | null;
   completion_percentage: number | null;
   current_step: number | null;
   cycle_start_date: string | null;
@@ -15,6 +58,9 @@ export interface StudentIEPData {
   created_at: string;
   updated_at: string;
   documents?: IEPDocument[];
+  goals?: IEPGoal[];
+  services?: IEPService[];
+  accommodations?: IEPAccommodation[];
 }
 
 export interface IEPDocument {
@@ -67,9 +113,45 @@ export function useStudentIEP(orgId: string, studentId: string) {
         // Don't throw here, just log the error
       }
 
+      // Get goals for this IEP plan
+      const { data: goals, error: goalsError } = await supabase
+        .from('iep_goals')
+        .select('*')
+        .eq('iep_plan_id', mostRecentIEP.id)
+        .order('domain', { ascending: true });
+
+      if (goalsError) {
+        console.error('Error fetching IEP goals:', goalsError);
+      }
+
+      // Get services for this IEP plan
+      const { data: services, error: servicesError } = await supabase
+        .from('iep_services')
+        .select('*')
+        .eq('iep_plan_id', mostRecentIEP.id)
+        .order('service_type', { ascending: true });
+
+      if (servicesError) {
+        console.error('Error fetching IEP services:', servicesError);
+      }
+
+      // Get accommodations for this IEP plan
+      const { data: accommodations, error: accommodationsError } = await supabase
+        .from('iep_accommodations')
+        .select('*')
+        .eq('iep_plan_id', mostRecentIEP.id)
+        .order('accommodation_type', { ascending: true });
+
+      if (accommodationsError) {
+        console.error('Error fetching IEP accommodations:', accommodationsError);
+      }
+
       return {
         ...mostRecentIEP,
-        documents: documents || []
+        documents: documents || [],
+        goals: goals || [],
+        services: services || [],
+        accommodations: accommodations || []
       } as StudentIEPData;
     },
     enabled: !!(orgId && studentId),

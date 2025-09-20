@@ -18,6 +18,10 @@ import {
 } from 'lucide-react';
 import { IEPDocumentViewer } from './IEPDocumentViewer';
 import { IEPStatusCard } from './IEPStatusCard';
+import { IEPOverviewCard } from './IEPOverviewCard';
+import { IEPGoalsCard } from './IEPGoalsCard';
+import { IEPServicesCard } from './IEPServicesCard';
+import { IEPAccommodationsCard } from './IEPAccommodationsCard';
 
 interface StudentIEPTabProps {
   student: OrgStudent;
@@ -153,6 +157,18 @@ export function StudentIEPTab({ student, orgId }: StudentIEPTabProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* IEP Overview */}
+      <IEPOverviewCard iepData={iepData!} />
+
+      {/* Goals Section */}
+      <IEPGoalsCard goals={iepData?.goals || []} />
+
+      {/* Services Section */}
+      <IEPServicesCard services={iepData?.services || []} />
+
+      {/* Accommodations Section */}
+      <IEPAccommodationsCard accommodations={iepData?.accommodations || []} />
 
       {/* Documents Section */}
       {hasDocuments && (
