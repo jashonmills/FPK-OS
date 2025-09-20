@@ -3,13 +3,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building2, Users, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+
+// Safe hook that works with or without OrgProvider
+function useSafeOrgContext() {
+  try {
+    const { useOrgContext } = require('@/components/organizations/OrgContext');
+    return useOrgContext();
+  } catch (error) {
+    // Return safe defaults when OrgProvider is not available (personal mode)
+    return {
+      organizations: [],
+      isPersonalMode: true
+    };
+  }
+}
+
 const OrgBanner = () => {
   const navigate = useNavigate();
   const {
     organizations,
     isPersonalMode
-  } = useOrgContext();
+  } = useSafeOrgContext();
 
   // Don't show banner if user has organizations
   if (!isPersonalMode || organizations.length > 0) {
