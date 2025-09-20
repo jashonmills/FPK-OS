@@ -6,12 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TransparentTile } from '@/components/ui/transparent-tile';
-import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText } from 'lucide-react';
+import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText, ClipboardList } from 'lucide-react';
 import { StudentOverviewTab } from '@/components/students/profile/StudentOverviewTab';
 import { StudentCoursesTab } from '@/components/students/profile/StudentCoursesTab';
 import { StudentPerformanceTab } from '@/components/students/profile/StudentPerformanceTab';
 import { StudentCommunicationTab } from '@/components/students/profile/StudentCommunicationTab';
 import { StudentDocumentsTab } from '@/components/students/profile/StudentDocumentsTab';
+import { StudentIEPTab } from '@/components/students/profile/StudentIEPTab';
 
 export default function StudentProfilePage() {
   const { orgId, studentId } = useParams<{ orgId: string; studentId: string }>();
@@ -75,7 +76,7 @@ export default function StudentProfilePage() {
         {/* Main Content */}
         <TransparentTile className="org-tile">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Overview
@@ -95,6 +96,10 @@ export default function StudentProfilePage() {
               <TabsTrigger value="documents" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 Documents
+              </TabsTrigger>
+              <TabsTrigger value="iep" className="flex items-center gap-2">
+                <ClipboardList className="h-4 w-4" />
+                IEP
               </TabsTrigger>
             </TabsList>
 
@@ -117,6 +122,10 @@ export default function StudentProfilePage() {
 
               <TabsContent value="documents" className="space-y-6">
                 <StudentDocumentsTab student={student} orgId={orgId!} />
+              </TabsContent>
+
+              <TabsContent value="iep" className="space-y-6">
+                <StudentIEPTab student={student} orgId={orgId!} />
               </TabsContent>
             </div>
           </Tabs>
