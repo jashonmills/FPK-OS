@@ -31,9 +31,13 @@ export function PersonalDashboardLayout() {
               <div className="flex-1 flex flex-col">
                 <PersonalGlobalHeader />
                 <main 
-                  className="flex-1 overflow-y-auto bg-cover bg-center bg-no-repeat"
+                  className="flex-1 overflow-y-auto"
                   style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/lovable-uploads/96c1eb71-eb9e-463d-bacd-5fcdfb5e1e65.png')`
+                    backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed'
                   }}
                 >
                   <div className="w-full h-full p-4 sm:p-6 lg:p-8">

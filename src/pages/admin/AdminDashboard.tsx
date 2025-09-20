@@ -116,7 +116,7 @@ const AdminDashboard = () => {
         {adminSections.map((section) => {
           const IconComponent = section.icon;
           return (
-            <Card key={section.path} className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={section.path} className="hover:shadow-lg transition-shadow cursor-pointer bg-white/60 backdrop-blur-sm border-white/30">
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center gap-3 text-base sm:text-lg">
                   <IconComponent className={`h-6 w-6 ${section.color} flex-shrink-0`} />
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      <Card>
+      <Card className="bg-white/60 backdrop-blur-sm border-white/30">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 justify-between">
             <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ const AdminDashboard = () => {
         <CardContent className="p-4 sm:p-6 pt-0">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/user-management')}
             >
               <div className="text-2xl font-bold text-blue-600">
@@ -170,7 +170,7 @@ const AdminDashboard = () => {
             </div>
             
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/organizations')}
             >
               <div className="text-2xl font-bold text-orange-600">
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
             </div>
             
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/instructor-console')}
             >
               <div className="text-2xl font-bold text-purple-600">
@@ -190,7 +190,7 @@ const AdminDashboard = () => {
             </div>
             
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/organizations')}
             >
               <div className="text-2xl font-bold text-green-600">
@@ -200,7 +200,7 @@ const AdminDashboard = () => {
             </div>
             
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/course-manager')}
             >
               <div className="text-2xl font-bold text-indigo-600">
@@ -210,7 +210,7 @@ const AdminDashboard = () => {
             </div>
             
             <div 
-              className="text-center cursor-pointer hover:bg-gray-50 rounded-lg p-3 transition-colors"
+              className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
               onClick={() => navigate('/dashboard/admin/epub-storage')}
             >
               <div className="text-2xl font-bold text-pink-600">
