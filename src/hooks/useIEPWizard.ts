@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { mapStudentToIEPData } from '@/utils/iepDataMapping';
+import { jaceMillsMockData, mapMockDataToIEPWizard } from '@/utils/iepMockData';
 
 interface WizardStep {
   id: number;
@@ -84,10 +85,14 @@ export function useIEPWizard(orgId: string, studentId?: string) {
           setJurisdiction(savedData.jurisdiction || 'US_IDEA');
         }
 
-        // Pre-populate Step 1 with student data if available and Step 1 is empty
-        if (studentData && (!initialFormData[1] || Object.keys(initialFormData[1]).length === 0)) {
-          const mappedData = mapStudentToIEPData(studentData);
-          initialFormData[1] = mappedData;
+        // Pre-populate with comprehensive mock data if student data is available
+        if (studentData && (!saved || Object.keys(initialFormData).length === 0)) {
+          // Use comprehensive mock data for Jace Mills
+          const mockFormData = mapMockDataToIEPWizard(jaceMillsMockData);
+          // Override with actual student data for Step 1
+          const studentMappedData = mapStudentToIEPData(studentData);
+          mockFormData[1] = { ...mockFormData[1], ...studentMappedData };
+          initialFormData = mockFormData;
         }
 
         setFormData(initialFormData);
