@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useIEPWizard } from '@/hooks/useIEPWizard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,9 @@ import { ReviewFinalizeStep } from '@/components/iep-wizard/ReviewFinalizeStep';
 export function IEPWizard() {
   const { orgId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('studentId');
+  
   const {
     currentStep,
     formData,
@@ -36,7 +39,7 @@ export function IEPWizard() {
     progress,
     saveProgress,
     isSaving
-  } = useIEPWizard(orgId!);
+  } = useIEPWizard(orgId!, studentId || undefined);
 
   const renderCurrentStep = () => {
     const stepProps = {

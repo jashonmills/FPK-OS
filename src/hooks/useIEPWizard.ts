@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useOrgStudents } from '@/hooks/useOrgStudents';
+import { mapStudentToIEPData } from '@/utils/iepDataMapping';
 
 interface WizardStep {
   id: number;
@@ -12,13 +14,17 @@ interface WizardStep {
 
 type JurisdictionType = 'US_IDEA' | 'IE_EPSEN';
 
-export function useIEPWizard(orgId: string) {
+export function useIEPWizard(orgId: string, studentId?: string) {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Record<number, any>>({});
   const [jurisdiction, setJurisdiction] = useState<JurisdictionType>('US_IDEA');
   const [isSaving, setIsSaving] = useState(false);
   const [wizardId, setWizardId] = useState<string | null>(null);
+
+  // Fetch student data if studentId is provided
+  const { students } = useOrgStudents(orgId, undefined);
+  const studentData = studentId ? students.find(s => s.id === studentId) : null;
 
   // Get steps based on jurisdiction
   const [steps, setSteps] = useState<WizardStep[]>([]);
@@ -64,17 +70,27 @@ export function useIEPWizard(orgId: string) {
     setSteps(getStepsForJurisdiction(jurisdiction));
   }, [jurisdiction]);
 
-  // Load existing wizard data from localStorage
+  // Load existing wizard data from localStorage and pre-populate with student data
   useEffect(() => {
     const loadWizardData = () => {
       try {
         const saved = localStorage.getItem(`iep-wizard-${orgId}`);
+        let initialFormData = {};
+        
         if (saved) {
           const savedData = JSON.parse(saved);
           setCurrentStep(savedData.currentStep || 1);
-          setFormData(savedData.formData || {});
+          initialFormData = savedData.formData || {};
           setJurisdiction(savedData.jurisdiction || 'US_IDEA');
         }
+
+        // Pre-populate Step 1 with student data if available and Step 1 is empty
+        if (studentData && (!initialFormData[1] || Object.keys(initialFormData[1]).length === 0)) {
+          const mappedData = mapStudentToIEPData(studentData);
+          initialFormData[1] = mappedData;
+        }
+
+        setFormData(initialFormData);
         setWizardId(`wizard-${orgId}-${Date.now()}`);
       } catch (error) {
         console.error('Error loading wizard data:', error);
@@ -83,7 +99,7 @@ export function useIEPWizard(orgId: string) {
     };
 
     loadWizardData();
-  }, [orgId]);
+  }, [orgId, studentData]);
 
   // Remove the createNewWizard function as we're using localStorage
 
@@ -137,7 +153,13 @@ export function useIEPWizard(orgId: string) {
     try {
       localStorage.removeItem(`iep-wizard-${orgId}`);
       toast.success('IEP Builder completed successfully!');
-      navigate(`/org/${orgId}/iep`);
+      
+      // Return to student profile if studentId was provided, otherwise go to IEP module
+      if (studentId) {
+        navigate(`/org/${orgId}/students/${studentId}`);
+      } else {
+        navigate(`/org/${orgId}/iep`);
+      }
     } catch (error) {
       console.error('Error completing wizard:', error);
       toast.error('Failed to complete IEP wizard');
