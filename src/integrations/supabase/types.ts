@@ -5329,6 +5329,65 @@ export type Database = {
           },
         ]
       }
+      org_students: {
+        Row: {
+          created_at: string
+          created_by: string
+          date_of_birth: string | null
+          emergency_contact: Json | null
+          full_name: string
+          grade_level: string | null
+          id: string
+          linked_user_id: string | null
+          notes: string | null
+          org_id: string
+          parent_email: string | null
+          status: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          full_name: string
+          grade_level?: string | null
+          id?: string
+          linked_user_id?: string | null
+          notes?: string | null
+          org_id: string
+          parent_email?: string | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          full_name?: string
+          grade_level?: string | null
+          id?: string
+          linked_user_id?: string | null
+          notes?: string | null
+          org_id?: string
+          parent_email?: string | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_students_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_course_assignments: {
         Row: {
           assigned_at: string
