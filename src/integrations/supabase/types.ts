@@ -7536,6 +7536,297 @@ export type Database = {
         }
         Relationships: []
       }
+      student_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          org_id: string
+          session_id: string | null
+          student_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          org_id: string
+          session_id?: string | null
+          student_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          org_id?: string
+          session_id?: string | null
+          student_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      student_attachments: {
+        Row: {
+          attachment_type: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_public: boolean
+          mime_type: string | null
+          org_id: string
+          student_id: string
+          tags: string[] | null
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          attachment_type?: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_public?: boolean
+          mime_type?: string | null
+          org_id: string
+          student_id: string
+          tags?: string[] | null
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          attachment_type?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_public?: boolean
+          mime_type?: string | null
+          org_id?: string
+          student_id?: string
+          tags?: string[] | null
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
+      student_course_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          completion_date: string | null
+          course_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+          last_accessed_at: string | null
+          notes: string | null
+          org_id: string
+          progress_percentage: number | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          completion_date?: string | null
+          course_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          notes?: string | null
+          org_id: string
+          progress_percentage?: number | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          completion_date?: string | null
+          course_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          notes?: string | null
+          org_id?: string
+          progress_percentage?: number | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_messages: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message_type: string
+          org_id: string
+          parent_message_id: string | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+          student_id: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          org_id: string
+          parent_message_id?: string | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+          student_id: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          org_id?: string
+          parent_message_id?: string | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+          student_id?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          is_private: boolean
+          note_type: string
+          org_id: string
+          priority: string
+          student_id: string
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          note_type?: string
+          org_id: string
+          priority?: string
+          student_id: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          note_type?: string
+          org_id?: string
+          priority?: string
+          student_id?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_performance_metrics: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          id: string
+          max_value: number | null
+          metric_name: string
+          metric_type: string
+          notes: string | null
+          org_id: string
+          period_end: string | null
+          period_start: string | null
+          recorded_by: string | null
+          student_id: string
+          unit: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          metric_name: string
+          metric_type: string
+          notes?: string | null
+          org_id: string
+          period_end?: string | null
+          period_start?: string | null
+          recorded_by?: string | null
+          student_id: string
+          unit?: string | null
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          metric_name?: string
+          metric_type?: string
+          notes?: string | null
+          org_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          recorded_by?: string | null
+          student_id?: string
+          unit?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       student_profiles: {
         Row: {
           adaptive_metrics: Json

@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MoreHorizontal, Mail, Edit, Trash2, UserCheck } from 'lucide-react';
+import { MoreHorizontal, Mail, Edit, Trash2, UserCheck, Eye } from 'lucide-react';
 import { OrgStudent } from '@/hooks/useOrgStudents';
 import { format, parseISO } from 'date-fns';
 
@@ -126,11 +126,15 @@ export function StudentsTable({
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEditStudent(student)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Profile
-                    </DropdownMenuItem>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => window.location.href = `/org/${student.org_id}/students/${student.id}`}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEditStudent(student)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </DropdownMenuItem>
                     {student.parent_email && !student.linked_user_id && (
                       <DropdownMenuItem onClick={() => onSendInvite(student)}>
                         <Mail className="h-4 w-4 mr-2" />

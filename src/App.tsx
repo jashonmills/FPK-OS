@@ -86,6 +86,7 @@ const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSet
 const OrgSettings = lazy(() => import("./pages/dashboard/org/settings"));
 const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
 const StudentsManagementNew = lazy(() => import("./pages/instructor/StudentsManagementNew"));
+const StudentProfilePage = lazy(() => import("./pages/instructor/StudentProfilePage"));
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
