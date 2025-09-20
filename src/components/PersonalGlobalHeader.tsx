@@ -17,7 +17,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
-import { ContextSwitcher } from '@/components/navigation/ContextSwitcher';
+import { PersonalOrgSwitcher } from '@/components/organizations/PersonalOrgSwitcher';
 
 /**
  * Personal Global Header - For personal dashboard routes without OrgProvider
@@ -64,9 +64,9 @@ const PersonalGlobalHeader = () => {
           </div>
         </div>
 
-        {/* Center - Context Switcher */}
+        {/* Center - Organization Switcher */}
         <div className="flex-1 flex justify-center max-w-md mx-4">
-          <ContextSwitcher />
+          <PersonalOrgSwitcher />
         </div>
 
         {/* Search Bar - Hidden on mobile when context switcher is present */}
