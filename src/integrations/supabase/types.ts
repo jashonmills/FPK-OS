@@ -4573,7 +4573,7 @@ export type Database = {
           is_private: boolean
           metadata: Json | null
           organization_id: string
-          student_id: string
+          student_id: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -4589,7 +4589,7 @@ export type Database = {
           is_private?: boolean
           metadata?: Json | null
           organization_id: string
-          student_id: string
+          student_id?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -4605,7 +4605,7 @@ export type Database = {
           is_private?: boolean
           metadata?: Json | null
           organization_id?: string
-          student_id?: string
+          student_id?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string

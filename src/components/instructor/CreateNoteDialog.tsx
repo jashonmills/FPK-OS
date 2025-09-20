@@ -82,7 +82,7 @@ export default function CreateNoteDialog({ children, organizationId }: CreateNot
       title: data.title,
       content: data.content,
       category: data.category,
-      student_id: '', // This will need to be handled properly - for now using empty string
+      student_id: data.student_id || undefined, // Pass undefined if no student is selected
       folder_path: data.folder_id || '/',
     };
     

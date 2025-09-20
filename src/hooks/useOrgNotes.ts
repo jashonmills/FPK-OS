@@ -16,7 +16,7 @@ export interface OrgNote {
   id: string;
   organization_id: string;
   created_by: string;
-  student_id: string;
+  student_id: string | null;
   title: string;
   content: string;
   category: string;
@@ -151,20 +151,28 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
   });
 
   const createNoteMutation = useMutation({
-    mutationFn: async (noteData: { title: string; content: string; category: string; student_id: string; folder_path?: string }) => {
+    mutationFn: async (noteData: { title: string; content: string; category: string; student_id?: string; folder_path?: string }) => {
       if (!orgId) {
         throw new Error('Organization ID is required to create notes');
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User must be authenticated');
       }
 
       // Create note using existing table structure
       const { data: noteResult, error: noteError } = await supabase
         .from('org_notes')
         .insert({
-          ...noteData,
+          title: noteData.title,
+          content: noteData.content,
+          category: noteData.category,
           organization_id: orgId,
-          created_by: (await supabase.auth.getUser()).data.user?.id,
+          created_by: user.id,
+          student_id: noteData.student_id || null,
           folder_path: noteData.folder_path || '/',
-          visibility_scope: 'org-public' as const,
+          visibility_scope: 'instructor-visible' as const,
           is_private: false,
           tags: [],
           metadata: {},

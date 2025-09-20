@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Notebook, Plus, Search, Filter, FileText, Users } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgNotes } from '@/hooks/useOrgNotes';
+import { useOrgNotes, useOrgNoteFolders } from '@/hooks/useOrgNotes';
 import CreateNoteDialog from '@/components/instructor/CreateNoteDialog';
 import CreateFolderDialog from '@/components/instructor/CreateFolderDialog';
 
@@ -14,6 +14,7 @@ export default function NotesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
   const { notes: allNotes, isLoading } = useOrgNotes(currentOrg?.organization_id);
+  const { folders, isLoading: foldersLoading } = useOrgNoteFolders(currentOrg?.organization_id);
   
   // Filter notes based on search query
   const notes = allNotes.filter(note => 
@@ -135,6 +136,27 @@ export default function NotesManagement() {
           </div>
         </OrgCardHeader>
       </OrgCard>
+
+      {/* Folders Section */}
+      {folders.length > 0 && (
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader>
+            <OrgCardTitle className="text-white flex items-center gap-2">
+              <span>📁 Folders ({folders.length})</span>
+            </OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {folders.map((folder) => (
+                <div key={folder.id} className="flex items-center gap-2 p-2 bg-white/20 rounded text-sm text-white">
+                  <span>📁</span>
+                  <span className="truncate">{folder.name}</span>
+                </div>
+              ))}
+            </div>
+          </OrgCardContent>
+        </OrgCard>
+      )}
 
       {/* Notes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

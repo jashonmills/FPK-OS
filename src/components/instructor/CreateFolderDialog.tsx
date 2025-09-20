@@ -68,7 +68,6 @@ export default function CreateFolderDialog({ children, organizationId }: CreateF
     
     createFolder({
       name: data.name,
-      parent_folder_id: data.parent_folder_id,
     });
     form.reset();
     setOpen(false);
