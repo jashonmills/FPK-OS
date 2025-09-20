@@ -47,7 +47,7 @@ export const MobileOptimizedTabs: React.FC<MobileOptimizedTabsProps> = ({
       className={cn('w-full', className)}
     >
       {isMobile ? (
-        <ScrollArea className="w-full">
+        <ScrollArea className="w-full relative z-20">
           <TabsList className="inline-flex h-12 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max mobile-tab-list">
             {tabs.map((tab) => (
               <TabsTrigger
