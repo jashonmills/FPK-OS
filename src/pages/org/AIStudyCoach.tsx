@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Brain, Send, MessageCircle, Lightbulb, BookOpen, Target, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,6 +58,7 @@ export default function AIStudyCoach() {
   const { currentOrg } = useOrgContext();
   const { user } = useAuth();
   const [newMessage, setNewMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { 
     messages, 
@@ -75,6 +76,11 @@ export default function AIStudyCoach() {
   useEffect(() => {
     initializeChat(user?.user_metadata?.full_name);
   }, [initializeChat, user?.user_metadata?.full_name]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isSending]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || isSending) return;
@@ -102,19 +108,19 @@ export default function AIStudyCoach() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
         {/* Chat Interface */}
-        <div className="lg:col-span-2">
-          <Card className="h-[600px] flex flex-col">
-            <CardHeader className="pb-4">
+        <div className="lg:col-span-2 flex flex-col min-h-0">
+          <Card className="flex-1 flex flex-col min-h-0">
+            <CardHeader className="pb-4 flex-shrink-0">
               <CardTitle className="flex items-center space-x-2">
                 <MessageCircle className="h-5 w-5" />
                 <span>Chat with AI Study Coach</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col">
+            <CardContent className="flex-1 flex flex-col min-h-0 pb-4">
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
+              <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -145,7 +151,7 @@ export default function AIStudyCoach() {
                 {isSending && (
                   <div className="flex justify-start">
                     <div className="flex items-end space-x-2">
-                      <div className="p-2 bg-primary/10 rounded-full">
+                      <div className="p-2 bg-primary/10 rounded-full flex-shrink-0">
                         <Brain className="h-4 w-4 text-primary" />
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
@@ -158,15 +164,18 @@ export default function AIStudyCoach() {
                     </div>
                   </div>
                 )}
+                
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input */}
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 flex-shrink-0">
                 <Textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Ask me about study strategies, learning techniques, or any academic questions..."
-                  className="flex-1 min-h-[60px] max-h-[120px]"
+                  className="flex-1 min-h-[60px] max-h-[120px] resize-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -188,7 +197,7 @@ export default function AIStudyCoach() {
         </div>
 
         {/* Study Tips Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-6 flex flex-col min-h-0 overflow-y-auto">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
