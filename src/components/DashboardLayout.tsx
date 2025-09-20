@@ -42,14 +42,19 @@ const DashboardLayout: React.FC = () => {
                 >
                   <AppSidebar />
                   <div className={cn(
-                    "flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300",
+                    "flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300 viewport-constrain",
                     isMobile && isChatOpen && "brightness-50 pointer-events-none"
                   )}>
                     <GlobalHeader />
-                    <main className="flex-1 mobile-scroll-container">
-                      <div className="w-full h-full mobile-container pb-28 sm:pb-0 pr-16 sm:pr-0 py-3 sm:py-4 md:py-6 lg:py-8">
+                    <main className="flex-1 mobile-scroll-container overflow-x-hidden">
+                      <div className={cn(
+                        "w-full h-full mobile-container viewport-constrain",
+                        isMobile ? "px-3 py-3 pb-20" : "px-4 sm:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8 pr-16 sm:pr-0"
+                      )}>
                         <ErrorBoundaryUnified resetOnPropsChange={true}>
-                          <Outlet />
+                          <div className="mobile-content-width">
+                            <Outlet />
+                          </div>
                         </ErrorBoundaryUnified>
                       </div>
                     </main>

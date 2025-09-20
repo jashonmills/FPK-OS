@@ -1,8 +1,8 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import AppProviders from '@/components/AppProviders';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import BetaUpdateListener from '@/components/notifications/BetaUpdateListener';
@@ -13,6 +13,8 @@ import { OnboardingFlowManager } from '@/components/OnboardingFlowManager';
 import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
+import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
+import "@/styles/mobile-responsive.css";
 import "./App.css";
 
 // Non-critical imports for better bundle splitting
@@ -187,6 +189,9 @@ const App: React.FC = () => {
   React.useEffect(() => {
     logger.performance('App component mounted');
     
+    // Setup global scroll restoration for smart redirects
+    const cleanupScrollManager = setupGlobalScrollRestoration();
+    
     // Use cleanupManager for safe timer management
     import('./utils/cleanupManager').then(({ cleanupManager }) => {
       const cleanup = cleanupManager.setInterval(() => {
@@ -204,6 +209,7 @@ const App: React.FC = () => {
       
       return () => {
         cleanupManager.cleanup(cleanup);
+        cleanupScrollManager?.();
         logger.performance('App component unmounted');
       };
     });

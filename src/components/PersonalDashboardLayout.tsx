@@ -8,6 +8,8 @@ import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { initializeNavigation } from '@/utils/navigation';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 /**
  * Personal Dashboard Layout - For personal/learner dashboard routes
@@ -15,6 +17,7 @@ import { initializeNavigation } from '@/utils/navigation';
  */
 export function PersonalDashboardLayout() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Initialize global navigation for class components
   useEffect(() => {
@@ -26,22 +29,27 @@ export function PersonalDashboardLayout() {
       <VoiceSettingsProvider>
         <GamificationProvider>
           <SidebarProvider>
-            <div className="min-h-screen flex w-full">
+            <div className="min-h-screen flex w-full viewport-constrain">
               <AppSidebar />
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
                 <PersonalGlobalHeader />
                 <main 
-                  className="flex-1 overflow-y-auto"
+                  className="flex-1 mobile-scroll-container overflow-x-hidden"
                   style={{
                     backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    backgroundAttachment: 'fixed'
+                    backgroundAttachment: isMobile ? 'scroll' : 'fixed'
                   }}
                 >
-                  <div className="w-full h-full p-4 sm:p-6 lg:p-8">
-                    <Outlet />
+                  <div className={cn(
+                    "w-full h-full mobile-container viewport-constrain",
+                    isMobile ? "p-3 pb-20" : "p-4 sm:p-6 lg:p-8"
+                  )}>
+                    <div className="mobile-content-width">
+                      <Outlet />
+                    </div>
                   </div>
                 </main>
               </div>
