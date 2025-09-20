@@ -75,7 +75,7 @@ export default function IEPModulePage() {
       </div>
 
       {/* Preparation Video */}
-      <Card className="mb-6">
+      <Card className="mb-6 org-tile">
         <CardHeader>
           <CardTitle>Preparing for the IEP Builder</CardTitle>
           <CardDescription>
@@ -100,7 +100,7 @@ export default function IEPModulePage() {
       </Card>
 
       {/* IEP Builder Section */}
-      <Card className="mb-6 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+      <Card className="mb-6 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 org-tile">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
             <FileText className="h-6 w-6" />
@@ -136,7 +136,7 @@ export default function IEPModulePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Invite Generation */}
-        <Card>
+        <Card className="org-tile">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Send className="h-5 w-5" />
@@ -169,7 +169,7 @@ export default function IEPModulePage() {
         </Card>
 
         {/* Active Invites */}
-        <Card>
+        <Card className="org-tile">
           <CardHeader>
             <CardTitle>Active Invite Codes</CardTitle>
             <CardDescription>
@@ -218,7 +218,7 @@ export default function IEPModulePage() {
         </Card>
 
         {/* Parent Responses */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 org-tile">
           <CardHeader>
             <CardTitle>Parent Responses</CardTitle>
             <CardDescription>
