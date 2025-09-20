@@ -35,7 +35,7 @@ const noteSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
   student_id: z.string().optional(),
-  visibility_scope: z.enum(['private', 'organization', 'student']).default('private'),
+  visibility_scope: z.enum(['student-only', 'instructor-visible', 'org-public']).default('instructor-visible'),
   category: z.string().default('general'),
   tags: z.string().optional(),
   folder_id: z.string().optional(),
@@ -69,7 +69,7 @@ export default function CreateNoteDialog({ children, organizationId }: CreateNot
     defaultValues: {
       title: '',
       content: '',
-      visibility_scope: 'private',
+      visibility_scope: 'instructor-visible',
       category: 'general',
       tags: '',
     },
@@ -81,13 +81,11 @@ export default function CreateNoteDialog({ children, organizationId }: CreateNot
     const noteData = {
       title: data.title,
       content: data.content,
-      student_id: data.student_id || '',
-      visibility_scope: data.visibility_scope,
       category: data.category,
-      tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-      folder_path: data.folder_id, // Using folder_id as folder_path for now
-      created_by: '', // Will be set by the hook
+      student_id: '', // This will need to be handled properly - for now using empty string
+      folder_path: data.folder_id || '/',
     };
+    
     createNote(noteData);
     form.reset();
     setOpen(false);
@@ -185,9 +183,9 @@ export default function CreateNoteDialog({ children, organizationId }: CreateNot
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="private">Private</SelectItem>
-                        <SelectItem value="organization">Organization</SelectItem>
-                        <SelectItem value="student">Shared with Students</SelectItem>
+                        <SelectItem value="student-only">Private (Student Only)</SelectItem>
+                        <SelectItem value="instructor-visible">Instructors</SelectItem>
+                        <SelectItem value="org-public">Organization</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

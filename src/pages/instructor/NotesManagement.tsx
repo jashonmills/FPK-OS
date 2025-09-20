@@ -13,7 +13,14 @@ import CreateFolderDialog from '@/components/instructor/CreateFolderDialog';
 export default function NotesManagement() {
   const { currentOrg } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const { notes, isLoading } = useOrgNotes(searchQuery);
+  const { notes: allNotes, isLoading } = useOrgNotes(currentOrg?.organization_id);
+  
+  // Filter notes based on search query
+  const notes = allNotes.filter(note => 
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!currentOrg) {
     return (
@@ -56,8 +63,8 @@ export default function NotesManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <CreateNoteDialog />
-          <CreateFolderDialog />
+          <CreateNoteDialog organizationId={currentOrg?.organization_id} />
+          <CreateFolderDialog organizationId={currentOrg?.organization_id} />
         </div>
       </div>
 
@@ -197,7 +204,7 @@ export default function NotesManagement() {
             <p className="text-white/80 mb-4">
               Create instructional notes to organize your teaching materials.
             </p>
-            <CreateNoteDialog />
+            <CreateNoteDialog organizationId={currentOrg?.organization_id} />
           </OrgCardContent>
         </OrgCard>
       )}

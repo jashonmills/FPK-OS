@@ -49,11 +49,12 @@ interface FlattenedFolder {
 
 interface CreateFolderDialogProps {
   children?: React.ReactNode;
+  organizationId?: string;
 }
 
-export default function CreateFolderDialog({ children }: CreateFolderDialogProps) {
+export default function CreateFolderDialog({ children, organizationId }: CreateFolderDialogProps) {
   const [open, setOpen] = React.useState(false);
-  const { createFolder, folders } = useOrgNoteFolders();
+  const { createFolder, folders } = useOrgNoteFolders(organizationId);
 
   const form = useForm<FolderFormData>({
     resolver: zodResolver(folderSchema),
