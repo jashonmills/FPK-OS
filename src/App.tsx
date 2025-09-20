@@ -90,6 +90,7 @@ const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
 const OrgCollections = lazy(() => import("./pages/org/OrgCollections"));
 const IEPModulePage = lazy(() => import("./pages/org/IEPModulePage"));
+const IEPWizard = lazy(() => import("./pages/org/IEPWizard"));
 const ParentIEPAccess = lazy(() => import("./pages/ParentIEPAccess"));
 const LegacyRedirect = lazy(() => import("./components/redirect/LegacyRedirect"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
@@ -631,6 +632,7 @@ const App: React.FC = () => {
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
             <Route path=":orgId/iep" element={<LazyRoute><IEPModulePage /></LazyRoute>} />
+            <Route path=":orgId/iep/wizard" element={<LazyRoute><IEPWizard /></LazyRoute>} />
             <Route path=":orgId/courses/editor/:draftId" element={<LazyRoute><CourseCreationWizard /></LazyRoute>} />
             <Route path=":orgId/collections" element={<LazyRoute><OrgCollections /></LazyRoute>} />
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />

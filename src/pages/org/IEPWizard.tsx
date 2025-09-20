@@ -165,3 +165,5 @@ export function IEPWizard() {
     </div>
   );
 }
+
+export default IEPWizard;

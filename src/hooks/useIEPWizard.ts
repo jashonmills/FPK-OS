@@ -24,18 +24,26 @@ export function useIEPWizard(orgId: string) {
   const [steps, setSteps] = useState<WizardStep[]>([]);
 
   useEffect(() => {
-    const fetchSteps = async () => {
-      try {
-        const { data, error } = await supabase.rpc('get_iep_wizard_steps', {
-          p_jurisdiction: jurisdiction
-        });
-
-        if (error) throw error;
-        setSteps(data || []);
-      } catch (error) {
-        console.error('Error fetching wizard steps:', error);
-        // Fallback steps
-        setSteps([
+    // Use hardcoded steps for now - can be enhanced later with database storage
+    const getStepsForJurisdiction = (jurisdiction: JurisdictionType): WizardStep[] => {
+      if (jurisdiction === 'IE_EPSEN') {
+        return [
+          { id: 1, title: "Student Profile", description: "Basic student information and demographics", required: true },
+          { id: 2, title: "Jurisdiction & Consent", description: "EPSEN framework and required consents", required: true },
+          { id: 3, title: "Concerns & Referral", description: "Primary concerns and referral reasons", required: true },
+          { id: 4, title: "SEN Determination", description: "Special Educational Need assessment", required: true },
+          { id: 5, title: "Present Levels", description: "Current performance across all domains", required: true },
+          { id: 6, title: "Learning Targets", description: "Individual learning objectives", required: true },
+          { id: 7, title: "Support Allocation", description: "SET/SNA and therapeutic supports", required: true },
+          { id: 8, title: "Continuum of Support", description: "Support model and resource allocation", required: true },
+          { id: 9, title: "Transition Planning", description: "Junior/Senior Cycle planning", required: false },
+          { id: 10, title: "Assessment Participation", description: "RACE/SEC accommodations", required: true },
+          { id: 11, title: "Family & Student Input", description: "Family priorities and student voice", required: true },
+          { id: 12, title: "Progress Monitoring", description: "Data collection and reporting plan", required: true },
+          { id: 13, title: "Review & Finalize", description: "Final review and decision letter", required: true }
+        ];
+      } else {
+        return [
           { id: 1, title: "Student Profile", description: "Basic student information and demographics", required: true },
           { id: 2, title: "Jurisdiction & Consent", description: "Legal framework and required consents", required: true },
           { id: 3, title: "Concerns & Referral", description: "Primary concerns and referral reasons", required: true },
@@ -49,63 +57,35 @@ export function useIEPWizard(orgId: string) {
           { id: 11, title: "Parent & Student Input", description: "Family priorities and student voice", required: true },
           { id: 12, title: "Progress Monitoring", description: "Data collection and reporting plan", required: true },
           { id: 13, title: "Review & Finalize", description: "Final review and signatures", required: true }
-        ]);
+        ];
       }
     };
 
-    fetchSteps();
+    setSteps(getStepsForJurisdiction(jurisdiction));
   }, [jurisdiction]);
 
-  // Load existing wizard data
+  // Load existing wizard data from localStorage
   useEffect(() => {
-    const loadWizardData = async () => {
+    const loadWizardData = () => {
       try {
-        const { data, error } = await supabase
-          .from('iep_wizards')
-          .select('*')
-          .eq('org_id', orgId)
-          .eq('status', 'in_progress')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (data && !error) {
-          setWizardId(data.id);
-          setCurrentStep(data.current_step);
-          setFormData(data.form_data || {});
-          setJurisdiction(data.jurisdiction as JurisdictionType);
+        const saved = localStorage.getItem(`iep-wizard-${orgId}`);
+        if (saved) {
+          const savedData = JSON.parse(saved);
+          setCurrentStep(savedData.currentStep || 1);
+          setFormData(savedData.formData || {});
+          setJurisdiction(savedData.jurisdiction || 'US_IDEA');
         }
+        setWizardId(`wizard-${orgId}-${Date.now()}`);
       } catch (error) {
         console.error('Error loading wizard data:', error);
-        // Create new wizard
-        createNewWizard();
+        setWizardId(`wizard-${orgId}-${Date.now()}`);
       }
     };
 
     loadWizardData();
   }, [orgId]);
 
-  const createNewWizard = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('iep_wizards')
-        .insert({
-          org_id: orgId,
-          current_step: 1,
-          jurisdiction,
-          form_data: {},
-          status: 'in_progress'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      setWizardId(data.id);
-    } catch (error) {
-      console.error('Error creating wizard:', error);
-      toast.error('Failed to initialize IEP wizard');
-    }
-  };
+  // Remove the createNewWizard function as we're using localStorage
 
   const updateFormData = useCallback((step: number, data: any) => {
     setFormData(prev => ({
@@ -119,17 +99,11 @@ export function useIEPWizard(orgId: string) {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('iep_wizards')
-        .update({
-          current_step: currentStep,
-          form_data: formData,
-          jurisdiction,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', wizardId);
-
-      if (error) throw error;
+      localStorage.setItem(`iep-wizard-${orgId}`, JSON.stringify({
+        currentStep,
+        formData,
+        jurisdiction
+      }));
       toast.success('Progress saved');
     } catch (error) {
       console.error('Error saving progress:', error);
@@ -137,7 +111,7 @@ export function useIEPWizard(orgId: string) {
     } finally {
       setIsSaving(false);
     }
-  }, [wizardId, currentStep, formData, jurisdiction]);
+  }, [wizardId, currentStep, formData, jurisdiction, orgId]);
 
   const nextStep = useCallback(async () => {
     // Auto-save before moving to next step
@@ -161,17 +135,7 @@ export function useIEPWizard(orgId: string) {
     if (!wizardId) return;
 
     try {
-      const { error } = await supabase
-        .from('iep_wizards')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          form_data: formData
-        })
-        .eq('id', wizardId);
-
-      if (error) throw error;
-
+      localStorage.removeItem(`iep-wizard-${orgId}`);
       toast.success('IEP Builder completed successfully!');
       navigate(`/org/${orgId}/iep`);
     } catch (error) {
