@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Copy, Send, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Copy, Send, Clock, CheckCircle, XCircle, FileText, Plus } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useIEPInvites } from '@/hooks/useIEPInvites';
 import { useIEPData } from '@/hooks/useIEPData';
@@ -13,6 +13,7 @@ import { useIEPData } from '@/hooks/useIEPData';
 export default function IEPModulePage() {
   const { orgId } = useParams<{ orgId: string }>();
   const { currentOrg } = useOrgContext();
+  const navigate = useNavigate();
   const [inviteEmail, setInviteEmail] = useState('');
   
   const { 
@@ -47,6 +48,10 @@ export default function IEPModulePage() {
     toast.success('Invite code copied to clipboard');
   };
 
+  const handleStartIEPBuilder = () => {
+    navigate(`/org/${orgId}/iep/wizard`);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
@@ -65,9 +70,44 @@ export default function IEPModulePage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Interactive IEP Module</h1>
         <p className="text-muted-foreground mt-2">
-          Send secure invites to parents to collect IEP preparation information
+          Create comprehensive IEPs and collect parent preparation information
         </p>
       </div>
+
+      {/* IEP Builder Section */}
+      <Card className="mb-6 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary">
+            <FileText className="h-6 w-6" />
+            Interactive IEP Builder
+          </CardTitle>
+          <CardDescription>
+            Start creating a comprehensive IEP using our step-by-step guided wizard
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground mb-2">
+                Our guided 13-step process supports both US (IDEA) and Ireland (EPSEN) frameworks
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Student profile and assessment data</li>
+                <li>• Present levels and goal development</li>
+                <li>• Service planning and transition support</li>
+              </ul>
+            </div>
+            <Button 
+              onClick={handleStartIEPBuilder}
+              size="lg"
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Start Interactive IEP Builder
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Invite Generation */}
