@@ -13,7 +13,8 @@ import {
   Palette,
   Menu,
   X,
-  Brain
+  Brain,
+  Clipboard
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -54,6 +55,12 @@ export function OrgNavigation() {
       href: `/org/${currentOrg.organization_id}/courses`,
       label: 'Courses',
       icon: BookOpen,
+    },
+    {
+      href: `/org/${currentOrg.organization_id}/iep`,
+      label: 'Interactive IEP',
+      icon: Clipboard,
+      roles: ['owner', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/goals`,

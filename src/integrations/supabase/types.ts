@@ -2648,6 +2648,94 @@ export type Database = {
         }
         Relationships: []
       }
+      iep_forms: {
+        Row: {
+          created_at: string
+          created_by: string
+          form_name: string
+          form_sections: Json
+          id: string
+          is_active: boolean
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          form_name: string
+          form_sections?: Json
+          id?: string
+          is_active?: boolean
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          form_name?: string
+          form_sections?: Json
+          id?: string
+          is_active?: boolean
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_forms_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_invites: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          current_uses: number
+          expires_at: string
+          id: string
+          max_uses: number
+          metadata: Json | null
+          org_id: string
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          current_uses?: number
+          expires_at?: string
+          id?: string
+          max_uses?: number
+          metadata?: Json | null
+          org_id: string
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          current_uses?: number
+          expires_at?: string
+          id?: string
+          max_uses?: number
+          metadata?: Json | null
+          org_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       imagination_sessions: {
         Row: {
           assembled_prompt: string | null
@@ -4888,6 +4976,99 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      parent_iep_data: {
+        Row: {
+          form_data: Json
+          form_section: string
+          id: string
+          org_id: string
+          session_id: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          form_data?: Json
+          form_section: string
+          id?: string
+          org_id: string
+          session_id: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          form_data?: Json
+          form_section?: string
+          id?: string
+          org_id?: string
+          session_id?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_iep_data_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_iep_data_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "parent_iep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_iep_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          invite_code: string
+          last_activity: string | null
+          org_id: string
+          session_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_code: string
+          last_activity?: string | null
+          org_id: string
+          session_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_code?: string
+          last_activity?: string | null
+          org_id?: string
+          session_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_iep_sessions_invite_code_fkey"
+            columns: ["invite_code"]
+            isOneToOne: false
+            referencedRelation: "iep_invites"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "parent_iep_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       podcast_episodes: {
         Row: {
@@ -7933,6 +8114,10 @@ export type Database = {
           table_name: string
         }[]
       }
+      cleanup_expired_iep_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_data_subject_request: {
         Args: {
           p_data_categories?: string[]
@@ -7996,6 +8181,10 @@ export type Database = {
       extract_chat_topics: {
         Args: { session_id: string }
         Returns: Json
+      }
+      generate_iep_invite_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_invitation_code: {
         Args: Record<PropertyKey, never>

@@ -89,6 +89,8 @@ const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagemen
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
 const OrgCollections = lazy(() => import("./pages/org/OrgCollections"));
+const IEPModulePage = lazy(() => import("./pages/org/IEPModulePage"));
+const ParentIEPAccess = lazy(() => import("./pages/ParentIEPAccess"));
 const LegacyRedirect = lazy(() => import("./components/redirect/LegacyRedirect"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
 const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
@@ -226,6 +228,9 @@ const App: React.FC = () => {
               <StandaloneAIStudyCoachChat />
             </LazyRoute>
           } />
+
+          {/* Parent IEP Access Route - Separate from org structure */}
+          <Route path="/iep/parent/:code" element={<LazyRoute><ParentIEPAccess /></LazyRoute>} />
 
           {/* Dashboard Routes */}
           <Route path="/dashboard/*" element={
@@ -625,6 +630,7 @@ const App: React.FC = () => {
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
+            <Route path=":orgId/iep" element={<LazyRoute><IEPModulePage /></LazyRoute>} />
             <Route path=":orgId/courses/editor/:draftId" element={<LazyRoute><CourseCreationWizard /></LazyRoute>} />
             <Route path=":orgId/collections" element={<LazyRoute><OrgCollections /></LazyRoute>} />
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
