@@ -34,9 +34,26 @@ export function useOrganizationInvitation() {
     setIsJoining(true);
     
     try {
+      // First check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to join an organization.",
+          variant: "destructive",
+        });
+        return { success: false, error: "User not authenticated" };
+      }
+
+      console.log('Attempting to join organization with code:', inviteCode.trim());
+      console.log('User ID:', user.id);
+
       const { data, error } = await supabase.rpc('accept_invite', {
         p_code: inviteCode.trim()
       });
+
+      console.log('Accept invite response:', { data, error });
 
       if (error) {
         console.error('Database error joining organization:', error);
@@ -64,7 +81,16 @@ export function useOrganizationInvitation() {
       }
     } catch (error: any) {
       console.error('Error joining organization:', error);
-      const errorMessage = error.message || "Please check your invitation code and try again.";
+      let errorMessage = error.message || "Please check your invitation code and try again.";
+      
+      // Provide more specific error messages
+      if (error.message?.includes('null value in column "user_id"')) {
+        errorMessage = "Authentication error. Please refresh the page and try again.";
+      } else if (error.message?.includes('Invalid or expired invite code')) {
+        errorMessage = "This invitation code is invalid or has expired.";
+      } else if (error.message?.includes('already a member')) {
+        errorMessage = "You are already a member of this organization.";
+      }
       
       toast({
         title: "Failed to Join",
