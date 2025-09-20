@@ -174,10 +174,10 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
             </Button>
             <Button
               size="sm" 
-              onClick={() => actions.onAssign(course.id)}
+              onClick={() => actions.onStart(course.id)}
               className="h-7 px-2 text-xs"
             >
-              Assign
+              Start Course
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -406,11 +406,11 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               </Button>
 
               <Button
-                onClick={() => actions.onAssign(course.id)}
+                onClick={() => actions.onStart(course.id)}
                 size="sm"
               >
-                <UserPlus className="h-4 w-4 mr-1" />
-                Assign
+                <Play className="h-4 w-4 mr-1" />
+                Start Course
               </Button>
 
               <DropdownMenu>
@@ -664,12 +664,12 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
           </Button>
 
           <Button
-            onClick={() => actions.onAssign(course.id)}
+            onClick={() => actions.onStart(course.id)}
             size="sm"
             className="flex-1"
           >
-            <UserPlus className="h-4 w-4 mr-1" />
-            Assign
+            <Play className="h-4 w-4 mr-1" />
+            Start Course
           </Button>
 
           {/* Secondary Actions Menu */}

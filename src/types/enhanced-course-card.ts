@@ -43,7 +43,7 @@ export interface CourseCardModel {
 
 export interface CourseCardActions {
   onPreview: (courseId: string) => void;
-  onAssign: (courseId: string) => void;
+  onStart: (courseId: string) => void;
   onEdit?: (courseId: string) => void;
   onDuplicateToOrg?: (courseId: string) => void;     // platform only
   onPublish?: (courseId: string) => Promise<AssignmentSummary | void>;

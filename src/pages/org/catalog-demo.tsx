@@ -57,11 +57,11 @@ export default function CatalogDemoPage() {
       });
     },
     
-    onAssign: (courseId: string) => {
+    onStart: (courseId: string) => {
       const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
       if (course) {
         setSelectedCourse(course);
-        console.log('Assign course:', course);
+        console.log('Start course:', course);
         toast({
           title: "Assignment Modal",
           description: "Assignment modal would open here...",

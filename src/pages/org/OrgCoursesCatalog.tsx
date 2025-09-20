@@ -91,8 +91,8 @@ export default function OrgCoursesCatalog() {
           const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
           courseActions.preview(courseId, course?.route);
         },
-        onAssign: (courseId: string) => {
-          // For students, "Assign" becomes "Start Course"
+        onStart: (courseId: string) => {
+          // For students, "Start Course" navigates to course
           const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
           courseActions.preview(courseId, course?.route);
         }
@@ -106,7 +106,7 @@ export default function OrgCoursesCatalog() {
         courseActions.preview(courseId, course?.route);
       },
       
-      onAssign: courseActions.assign,
+      onStart: courseActions.assign,
 
       ...(isOrgCourse && {
         onEdit: courseActions.edit,
