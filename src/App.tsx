@@ -20,6 +20,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
+const PersonalDashboardLayout = lazy(() => import("./components/PersonalDashboardLayout").then(module => ({ default: module.PersonalDashboardLayout })));
 const BetaAccessGate = lazy(() => import('@/components/beta/BetaAccessGate'));
 
 // Organization public pages
@@ -228,7 +229,7 @@ const App: React.FC = () => {
           {/* Dashboard Routes */}
           <Route path="/dashboard/*" element={
             <RouteProtector>
-              <LazyRoute><DashboardLayout /></LazyRoute>
+              <LazyRoute><PersonalDashboardLayout /></LazyRoute>
             </RouteProtector>
           }>
             <Route path="learner" element={<LazyRoute><LearnerHome /></LazyRoute>} />

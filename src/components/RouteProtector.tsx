@@ -39,15 +39,21 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     if (user && currentPath === '/login') {
       setHasNavigated(true);
       
+      // Check for navigation intent from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const intentParam = urlParams.get('intent');
+      
       // Check if user has an active organization
       const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
         fallbackValue: null,
         logErrors: false
       });
-      if (activeOrgId) {
-        navigate(`/org/${activeOrgId}`, { replace: true });
-      } else {
+      
+      // Respect user's intent or preference
+      if (intentParam === 'personal' || !activeOrgId) {
         navigate('/dashboard/learner', { replace: true });
+      } else {
+        navigate(`/org/${activeOrgId}`, { replace: true });
       }
       return;
     }
@@ -75,20 +81,27 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     if (user && !subscriptionLoading && hasAccess && currentPath === '/choose-plan') {
       setHasNavigated(true);
       
+      // Check for navigation intent from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const intentParam = urlParams.get('intent');
+      
       // Check if user has an active organization
       const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
         fallbackValue: null,
         logErrors: false
       });
-      if (activeOrgId) {
-        navigate(`/org/${activeOrgId}`, { replace: true });
-      } else {
+      
+      // Respect user's intent or preference
+      if (intentParam === 'personal' || !activeOrgId) {
         navigate('/dashboard/learner', { replace: true });
+      } else {
+        navigate(`/org/${activeOrgId}`, { replace: true });
       }
       return;
     }
 
-    // PRIORITY 6: Auto-redirect to correct context (org vs personal)
+    // PRIORITY 6: REMOVED AGGRESSIVE AUTO-REDIRECT
+    // Only redirect if user explicitly lands on org route without org or dashboard route without org access
     if (user && !subscriptionLoading && hasAccess) {
       const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
         fallbackValue: null,
@@ -101,25 +114,21 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
           currentPath,
           activeOrgId,
           isDashboardRoute,
-          isOrgRoute
+          isOrgRoute,
+          message: 'Allowing user to stay on intended route'
         });
       }
       
-      // If user has active org but is on dashboard route, redirect to org
-      if (activeOrgId && activeOrgId !== 'null' && isDashboardRoute) {
-        console.log('Redirecting to org route:', `/org/${activeOrgId}`);
-        setHasNavigated(true);
-        navigate(`/org/${activeOrgId}`, { replace: true });
-        return;
-      }
-      
-      // If user has no active org but is on org route, redirect to dashboard
+      // Only redirect if user is on org route but has no active org
       if (!activeOrgId && isOrgRoute) {
-        console.log('Redirecting to personal dashboard');
+        console.log('Redirecting to personal dashboard - no active org');
         setHasNavigated(true);
         navigate('/dashboard/learner', { replace: true });
         return;
       }
+      
+      // Only redirect if user is on a generic org route but doesn't have access to that specific org
+      // We'll let individual org pages handle their own access control
     }
 
   }, [authLoading, subscriptionLoading, user, hasAccess, currentPath, hasNavigated, navigate, isDashboardRoute, isOrgRoute]);
