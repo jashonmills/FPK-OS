@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useQueryClient } from '@tanstack/react-query';
+
+// Import for use within safe wrapper
+import { useOrgContext } from '@/components/organizations/OrgContext';
 
 interface JoinOrganizationResult {
   success: boolean;
@@ -15,10 +17,25 @@ interface JoinOrganizationResult {
  * Unified organization invitation service
  * Handles joining organizations and properly updating context
  */
+// Safe org context hook that works with or without OrgProvider
+const useSafeOrgContext = () => {
+  try {
+    return useOrgContext();
+  } catch (error) {
+    // Fallback when not in org context (personal dashboard)
+    return {
+      switchOrganization: (orgId: string) => {
+        // Navigate to org route with proper context
+        window.location.href = `/org/${orgId}`;
+      }
+    };
+  }
+};
+
 export function useOrganizationInvitation() {
   const [isJoining, setIsJoining] = useState(false);
   const { toast } = useToast();
-  const { switchOrganization } = useOrgContext();
+  const { switchOrganization } = useSafeOrgContext();
   const queryClient = useQueryClient();
 
   const joinWithCode = async (inviteCode: string): Promise<JoinOrganizationResult> => {
