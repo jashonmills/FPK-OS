@@ -561,16 +561,33 @@ function extractOriginalTopic(clientHistory: any[], currentMessage: string): str
 }
 
 function extractTopicFromMessage(message: string): string | null {
-  // Simple topic extraction patterns
+  const trimmed = message.toLowerCase().trim();
+  
+  // Filter out greetings and social interactions that aren't learning topics
+  const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'sup', 'what\'s up', 'how are you', 'ok', 'okay', 'yes', 'no', 'yeah', 'yep', 'sure', 'alright'];
+  if (greetings.some(greeting => trimmed === greeting || trimmed === greeting + '!')) {
+    return null;
+  }
+  
+  // Single words or very short phrases aren't usually learning topics
+  if (trimmed.length <= 3 || !trimmed.includes(' ') && !trimmed.includes('?')) {
+    return null;
+  }
+  
+  // Extract topics from explicit learning requests
   const topicPatterns = [
-    /(?:learn about|tell me about|explain|what (?:is|are)|how (?:does|do))\s+(.+?)(?:\?|$)/i,
-    /^(.+?)(?:\?|$)/i  // Fallback: take the whole message as topic
+    /(?:learn about|tell me about|explain|teach me about|what (?:is|are)|how (?:does|do|to))\s+(.+?)(?:\?|$)/i,
+    /^(.+?\?)/i  // Questions only
   ];
   
   for (const pattern of topicPatterns) {
     const match = message.match(pattern);
     if (match && match[1]) {
-      return match[1].trim();
+      const topic = match[1].trim();
+      // Validate topic has some substance
+      if (topic.length > 2 && !greetings.includes(topic.toLowerCase())) {
+        return topic;
+      }
     }
   }
   
@@ -580,10 +597,13 @@ function extractTopicFromMessage(message: string): string | null {
 function buildConversationSummary(clientHistory: any[]): string {
   if (clientHistory.length === 0) return '';
   
-  // Take last 4 messages to provide recent context
-  const recentHistory = clientHistory.slice(-4);
+  // Take last 3 messages and compress them
+  const recentHistory = clientHistory.slice(-3);
   return recentHistory
-    .map(msg => `${msg.role}: ${msg.content}`)
+    .map(msg => {
+      const content = msg.content.length > 80 ? msg.content.substring(0, 80) + '...' : msg.content;
+      return `${msg.role}: ${content}`;
+    })
     .join('\n');
 }
 

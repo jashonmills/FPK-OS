@@ -44,9 +44,9 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
 `;
   }
 
-  // Add original topic context if available
-  if (context.originalTopic) {
-    prompt += `## ORIGINAL LEARNING TOPIC\nThe user originally wanted to learn about: "${context.originalTopic}"\nSTAY FOCUSED on this topic throughout the conversation.\n\n`;
+  // Only add topic context if it's a legitimate learning topic (not greetings)
+  if (context.originalTopic && isLegitimateTopicContext(context.originalTopic)) {
+    prompt += `## LEARNING TOPIC\nFocus: "${context.originalTopic}"\n\n`;
   }
 
   // Add conversation history context if available
@@ -92,7 +92,7 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       break;
     case 'evaluate_answer':
       prompt += `## CONTEXT\nUser's response: "${context.userInput || ''}"\n`;
-      if (context.originalTopic) {
+      if (context.originalTopic && isLegitimateTopicContext(context.originalTopic)) {
         prompt += `IMPORTANT: Keep the discussion focused on "${context.originalTopic}". If the user's response is off-topic, acknowledge it briefly and redirect back to the original topic.\n`;
       }
       break;
@@ -106,4 +106,17 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
   }
 
   return prompt;
+}
+
+function isLegitimateTopicContext(topic: string): boolean {
+  const lowercaseTopic = topic.toLowerCase().trim();
+  const greetings = ['hi', 'hello', 'hey', 'ok', 'okay', 'yes', 'no', 'yeah', 'yep', 'sure'];
+  
+  // Filter out greetings and very short topics
+  if (greetings.includes(lowercaseTopic) || lowercaseTopic.length <= 3) {
+    return false;
+  }
+  
+  // Require topics to have some substance
+  return lowercaseTopic.length > 3 && (lowercaseTopic.includes(' ') || lowercaseTopic.includes('?'));
 }
