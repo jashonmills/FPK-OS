@@ -27,6 +27,38 @@ interface ImportStep {
   timestamp: string;
 }
 
+// Helper function to find manifest file with flexible search
+function findManifestFile(zipContent: JSZip): JSZip.JSZipObject | null {
+  const possibleNames = [
+    'imsmanifest.xml',
+    'IMSmanifest.xml', 
+    'imsManifest.xml',
+    'IMSMANIFEST.XML',
+    'manifest.xml'
+  ];
+
+  // First, try exact matches at root level
+  for (const name of possibleNames) {
+    const file = zipContent.file(name);
+    if (file) return file;
+  }
+
+  // If not found at root, search through all files (case-insensitive)
+  const allFiles = Object.keys(zipContent.files);
+  for (const filePath of allFiles) {
+    const fileName = filePath.toLowerCase();
+    if (fileName.endsWith('imsmanifest.xml') || fileName.endsWith('manifest.xml')) {
+      const file = zipContent.file(filePath);
+      if (file && !zipContent.files[filePath].dir) { // Make sure it's not a directory
+        console.log(`🔍 Found manifest at: ${filePath}`);
+        return file;
+      }
+    }
+  }
+
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -165,11 +197,14 @@ serve(async (req) => {
       const zip = new JSZip();
       const zipContent = await zip.loadAsync(arrayBuffer);
 
-      // Look for imsmanifest.xml
-      const manifestFile = zipContent.file('imsmanifest.xml');
+      // Look for imsmanifest.xml (case-insensitive and in any directory)
+      const manifestFile = findManifestFile(zipContent);
       if (!manifestFile) {
-        throw new Error('Invalid SCORM package: imsmanifest.xml not found');
+        console.log('📁 Available files in package:', Object.keys(zipContent.files));
+        throw new Error('Invalid SCORM package: imsmanifest.xml not found. Available files: ' + Object.keys(zipContent.files).slice(0, 10).join(', '));
       }
+      
+      console.log('✅ Found manifest file:', manifestFile.name);
 
       // Step 3: Extract structure
       await updateProgress('extracting', 'extracting', 'Extracting SCORM structure', 40);
