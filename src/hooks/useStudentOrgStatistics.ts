@@ -1,0 +1,96 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
+interface ActivityLogEntry {
+  event: string;
+  created_at: string;
+  metadata: any;
+}
+
+interface StudentOrgStatistics {
+  myEnrollments: number;
+  myProgress: number;
+  myGoals: number;
+  studyTime: number;
+  completedCourses: number;
+  recentActivity: ActivityLogEntry[];
+}
+
+export function useStudentOrgStatistics(organizationId?: string) {
+  const { user } = useAuth();
+  
+  const { data: statistics, isLoading, error } = useQuery({
+    queryKey: ['student-org-statistics', organizationId, user?.id],
+    queryFn: async () => {
+      if (!organizationId || !user?.id) {
+        return {
+          myEnrollments: 0,
+          myProgress: 0,
+          myGoals: 0,
+          studyTime: 0,
+          completedCourses: 0,
+          recentActivity: []
+        };
+      }
+
+      try {
+        // Get student's course enrollments in the organization
+        const { data: enrollments } = await supabase
+          .from('course_progress')
+          .select('course_id, percent')
+          .eq('user_id', user.id)
+          .eq('org_id', organizationId);
+
+        // Get student's recent activity
+        const { data: activity } = await supabase
+          .from('activity_log')
+          .select('event, created_at, metadata')
+          .eq('user_id', user.id)
+          .eq('org_id', organizationId)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        const myEnrollments = enrollments?.length || 0;
+        const myProgress = enrollments?.length > 0 
+          ? Math.round(enrollments.reduce((sum, e) => sum + (e.percent || 0), 0) / enrollments.length)
+          : 0;
+        const completedCourses = enrollments?.filter(e => (e.percent || 0) >= 100).length || 0;
+
+        return {
+          myEnrollments,
+          myProgress,
+          myGoals: 0, // TODO: Add goals support when goals table is available
+          studyTime: 0, // TODO: Add study time tracking
+          completedCourses,
+          recentActivity: activity || []
+        };
+      } catch (error) {
+        console.error('Failed to fetch student organization statistics:', error);
+        return {
+          myEnrollments: 0,
+          myProgress: 0,
+          myGoals: 0,
+          studyTime: 0,
+          completedCourses: 0,
+          recentActivity: []
+        };
+      }
+    },
+    enabled: !!organizationId && !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  return {
+    data: statistics || {
+      myEnrollments: 0,
+      myProgress: 0,
+      myGoals: 0,
+      studyTime: 0,
+      completedCourses: 0,
+      recentActivity: []
+    },
+    isLoading,
+    error,
+  };
+}

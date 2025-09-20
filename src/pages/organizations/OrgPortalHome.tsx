@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgStatistics } from '@/hooks/useOrgStatistics';
+import { useStudentOrgStatistics } from '@/hooks/useStudentOrgStatistics';
 import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
@@ -25,8 +26,21 @@ export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
-  const { data: statistics, isLoading: statsLoading, error: statsError } = useOrgStatistics();
+  
+  // Role-based statistics loading
+  const isStudent = currentOrg?.role === 'student';
+  const { data: adminStats, isLoading: adminStatsLoading, error: adminStatsError } = useOrgStatistics(
+    isStudent ? undefined : currentOrg?.organization_id
+  );
+  const { data: studentStats, isLoading: studentStatsLoading, error: studentStatsError } = useStudentOrgStatistics(
+    isStudent ? currentOrg?.organization_id : undefined
+  );
   const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
+
+  // Use appropriate statistics based on role
+  const statistics = isStudent ? studentStats : adminStats;
+  const statsLoading = isStudent ? studentStatsLoading : adminStatsLoading;
+  const statsError = isStudent ? studentStatsError : adminStatsError;
 
   if (!currentOrg) {
     return (
@@ -72,34 +86,60 @@ export default function OrgPortalHome() {
     );
   }
 
-  const stats = [
+  // Role-based statistics cards
+  const stats = isStudent ? [
+    { 
+      label: 'My Enrollments', 
+      value: (studentStats?.myEnrollments || 0).toString(), 
+      icon: BookOpen, 
+      color: 'text-blue-600' 
+    },
+    { 
+      label: 'My Progress', 
+      value: `${studentStats?.myProgress || 0}%`, 
+      icon: TrendingUp, 
+      color: 'text-green-600' 
+    },
+    { 
+      label: 'My Goals', 
+      value: (studentStats?.myGoals || 0).toString(), 
+      icon: Target, 
+      color: 'text-purple-600' 
+    },
+    { 
+      label: 'Completed Courses', 
+      value: (studentStats?.completedCourses || 0).toString(), 
+      icon: Award, 
+      color: 'text-orange-600' 
+    },
+  ] : [
     { 
       label: 'Active Students', 
-      value: statistics?.studentCount?.toString() || '0', 
+      value: (adminStats?.studentCount || 0).toString(), 
       icon: Users, 
       color: 'text-blue-600' 
     },
     { 
       label: 'Course Assignments', 
-      value: statistics?.courseAssignments?.toString() || '0', 
+      value: (adminStats?.courseAssignments || 0).toString(), 
       icon: BookOpen, 
       color: 'text-green-600' 
     },
     { 
       label: 'Active Goals', 
-      value: statistics?.activeGoals?.toString() || '0', 
+      value: (adminStats?.activeGoals || 0).toString(), 
       icon: Target, 
       color: 'text-purple-600' 
     },
     { 
       label: 'Completion Rate', 
-      value: `${statistics?.completionRate || 0}%`, 
+      value: `${adminStats?.completionRate || 0}%`, 
       icon: TrendingUp, 
       color: 'text-orange-600' 
     },
   ];
 
-  const recentActivity: any[] = [];
+  const recentActivity = isStudent ? (studentStats?.recentActivity || []) : [];
 
   return (
     <div className="space-y-6">
@@ -125,17 +165,42 @@ export default function OrgPortalHome() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-white">
               <TrendingUp className="h-5 w-5 text-white/70" />
-              <span>Progress Overview</span>
+              <span>{isStudent ? 'My Progress' : 'Progress Overview'}</span>
             </CardTitle>
             <CardDescription className="text-white/80">
-              Current completion rates across all courses
+              {isStudent 
+                ? 'Your personal learning progress in this organization'
+                : 'Current completion rates across all courses'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-center py-8">
-              <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-              <p className="text-sm text-white/80">No progress data available yet</p>
-            </div>
+            {isStudent && studentStats?.myProgress ? (
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm text-white/80">
+                  <span>Overall Progress</span>
+                  <span>{studentStats.myProgress}%</span>
+                </div>
+                <Progress value={studentStats.myProgress} className="h-2" />
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
+                    <div className="text-xs text-white/80">Enrolled</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
+                    <div className="text-xs text-white/80">Completed</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                <p className="text-sm text-white/80">
+                  {isStudent ? 'No courses enrolled yet' : 'No progress data available yet'}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -147,7 +212,10 @@ export default function OrgPortalHome() {
               <span>Recent Activity</span>
             </CardTitle>
             <CardDescription className="text-white/80">
-              Latest updates from your organization
+              {isStudent 
+                ? 'Your recent learning activity'
+                : 'Latest updates from your organization'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -156,21 +224,23 @@ export default function OrgPortalHome() {
                 recentActivity.map((activity, index) => (
                   <div key={index} className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-white/70 rounded-full mt-2" />
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none text-white">
-                        {activity.student_name}: {activity.activity}
-                      </p>
-                      <p className="text-sm text-white/80">
-                        {new Date(activity.timestamp).toLocaleString()}
-                      </p>
-                    </div>
+                     <div className="flex-1 space-y-1">
+                       <p className="text-sm font-medium leading-none text-white">
+                         {activity.event}
+                       </p>
+                       <p className="text-sm text-white/80">
+                         {new Date(activity.created_at).toLocaleString()}
+                       </p>
+                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                  <p className="text-sm text-white/80">No recent activity</p>
-                </div>
+                 <div className="text-center py-8">
+                   <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                   <p className="text-sm text-white/80">
+                     {isStudent ? 'No recent activity' : 'No recent activity'}
+                   </p>
+                 </div>
               )}
             </div>
           </CardContent>
@@ -182,42 +252,83 @@ export default function OrgPortalHome() {
         <CardHeader>
           <CardTitle className="text-white">Quick Actions</CardTitle>
           <CardDescription className="text-white/80">
-            Common tasks for organization management
+            {isStudent 
+              ? 'Common tasks for your learning'
+              : 'Common tasks for organization management'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <Button 
-              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
-              onClick={() => navigate(`/org/${currentOrg?.organization_id}/invite`)}
-            >
-              <Users className="h-4 w-4" />
-              <span>Invite Members</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-              onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>Assign Course</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-              onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
-            >
-              <Target className="h-4 w-4" />
-              <span>Create Goal</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-              onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
-            >
-              <Award className="h-4 w-4" />
-              <span>View Reports</span>
-            </Button>
+            {isStudent ? (
+              <>
+                <Button 
+                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span>View My Courses</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
+                >
+                  <Target className="h-4 w-4" />
+                  <span>My Goals</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  <span>My Progress</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate('/study')}
+                >
+                  <Award className="h-4 w-4" />
+                  <span>Study Hub</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/invite`)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Invite Members</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span>Assign Course</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
+                >
+                  <Target className="h-4 w-4" />
+                  <span>Create Goal</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
+                >
+                  <Award className="h-4 w-4" />
+                  <span>View Reports</span>
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
