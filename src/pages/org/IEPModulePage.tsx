@@ -74,6 +74,31 @@ export default function IEPModulePage() {
         </p>
       </div>
 
+      {/* Preparation Video */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Preparing for the IEP Builder</CardTitle>
+          <CardDescription>
+            Watch this video to understand how to effectively use the IEP Builder system
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <video 
+              controls 
+              className="w-full max-w-2xl h-auto rounded-lg"
+              poster=""
+            >
+              <source 
+                src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/fpk-iep/Preparing_for_the_IEP_Builder%20(1).mp4" 
+                type="video/mp4" 
+              />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* IEP Builder Section */}
       <Card className="mb-6 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
         <CardHeader>
