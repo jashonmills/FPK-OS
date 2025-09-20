@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, Send, MessageCircle, Lightbulb, BookOpen, Target, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,13 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useAuth } from '@/hooks/useAuth';
-
-interface Message {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-}
+import { useOrgAIChat } from '@/hooks/useOrgAIChat';
 
 interface StudyTip {
   id: string;
@@ -63,65 +57,31 @@ const categoryColors = {
 export default function AIStudyCoach() {
   const { currentOrg } = useOrgContext();
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: `Hello ${user?.user_metadata?.full_name || 'there'}! I'm your AI Study Coach. I'm here to help you with study strategies, learning techniques, and academic support. How can I assist you today?`,
-      timestamp: new Date()
-    }
-  ]);
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  
+  const { 
+    messages, 
+    isSending, 
+    sendMessage, 
+    clearAllMessages, 
+    initializeChat 
+  } = useOrgAIChat({
+    userId: user?.id,
+    orgId: currentOrg?.organization_id,
+    orgName: currentOrg?.organizations?.name
+  });
+
+  // Initialize chat when component mounts
+  useEffect(() => {
+    initializeChat(user?.user_metadata?.full_name);
+  }, [initializeChat, user?.user_metadata?.full_name]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: newMessage,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    if (!newMessage.trim() || isSending) return;
+    
+    const messageToSend = newMessage;
     setNewMessage('');
-    setIsTyping(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: generateAIResponse(newMessage),
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, aiResponse]);
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateAIResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('study') || input.includes('learn')) {
-      return "Great question! Effective studying involves active engagement with the material. Try the Pomodoro Technique for time management, use active recall to test your knowledge, and implement spaced repetition for better retention. What specific subject or topic are you working on?";
-    }
-    
-    if (input.includes('focus') || input.includes('concentration')) {
-      return "Improving focus is crucial for effective learning! Try these strategies: eliminate distractions, use the Pomodoro Technique, take regular breaks, ensure good lighting and comfortable seating, and consider background white noise or instrumental music. What's your biggest distraction right now?";
-    }
-    
-    if (input.includes('memory') || input.includes('remember')) {
-      return "Memory enhancement is key to successful learning! Use techniques like: creating mental associations, teaching the material to someone else, using mnemonics, practicing retrieval, and getting adequate sleep. Visual learners might benefit from mind maps or diagrams. What type of information are you trying to remember?";
-    }
-    
-    if (input.includes('motivation') || input.includes('procrastination')) {
-      return "Motivation challenges are common! Try setting small, achievable goals, rewarding yourself for completed tasks, finding a study buddy for accountability, and connecting your studies to your personal interests or career goals. Remember why you started this learning journey. What motivates you most?";
-    }
-    
-    return "That's an interesting question! I'd love to help you with your studies. Could you tell me more about what specific challenge you're facing? Whether it's time management, understanding difficult concepts, staying motivated, or developing better study habits, I'm here to support your learning journey.";
+    await sendMessage(messageToSend);
   };
 
   const formatTime = (date: Date) => {
@@ -158,22 +118,22 @@ export default function AIStudyCoach() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className="flex items-end space-x-2 max-w-[80%]">
-                      {message.type === 'ai' && (
+                      {message.role === 'assistant' && (
                         <div className="p-2 bg-primary/10 rounded-full">
                           <Brain className="h-4 w-4 text-primary" />
                         </div>
                       )}
                       <div
                         className={`p-3 rounded-lg ${
-                          message.type === 'user'
+                          message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
                           {formatTime(message.timestamp)}
                         </p>
@@ -182,7 +142,7 @@ export default function AIStudyCoach() {
                   </div>
                 ))}
                 
-                {isTyping && (
+                {isSending && (
                   <div className="flex justify-start">
                     <div className="flex items-end space-x-2">
                       <div className="p-2 bg-primary/10 rounded-full">
@@ -216,7 +176,7 @@ export default function AIStudyCoach() {
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || isTyping}
+                  disabled={!newMessage.trim() || isSending}
                   size="lg"
                   className="px-4"
                 >
