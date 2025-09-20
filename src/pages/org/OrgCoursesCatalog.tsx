@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   BookOpen, 
   Search, 
@@ -161,10 +162,70 @@ export default function OrgCoursesCatalog() {
   };
 
   const handleSCORMImport = async (file: File) => {
-    toast({
-      title: "SCORM Import",
-      description: "SCORM import functionality coming soon!",
-    });
+    try {
+      // First, check if this is a native course format
+      const JSZip = (await import('jszip')).default;
+      const arrayBuffer = await file.arrayBuffer();
+      const zip = new JSZip();
+      const zipContent = await zip.loadAsync(arrayBuffer);
+      
+      const fileNames = Object.keys(zipContent.files);
+      const hasManifest = fileNames.some(name => name.toLowerCase().includes('imsmanifest.xml'));
+      const hasCourseJson = fileNames.some(name => name.endsWith('course.json'));
+      
+      if (hasCourseJson && !hasManifest) {
+        // Native course format
+        toast({
+          title: "Importing Course",
+          description: "Processing native course format...",
+        });
+        
+        const formData = new FormData();
+        formData.append('course_package', file);
+        formData.append('org_id', orgId!);
+        formData.append('framework', 'Framework2'); // Default to Framework2
+        
+        const { data, error } = await supabase.functions.invoke('import-native-course', {
+          body: formData,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Import Started",
+          description: `${data.courseStructure?.title || 'Course'} import initiated successfully!`,
+        });
+      } else {
+        // SCORM format
+        toast({
+          title: "Importing SCORM",
+          description: "Processing SCORM package...",
+        });
+        
+        const formData = new FormData();
+        formData.append('scorm_package', file);
+        formData.append('org_id', orgId!);
+        
+        const { data, error } = await supabase.functions.invoke('import-scorm', {
+          body: formData,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Import Started",
+          description: "SCORM package import initiated successfully!",
+        });
+      }
+      
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import Failed",
+        description: error.message || "Failed to process the uploaded file.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleJSONImport = async (file: File) => {
@@ -628,13 +689,13 @@ export default function OrgCoursesCatalog() {
             <div className="bg-card rounded-lg p-6 w-96 max-w-full mx-4 shadow-xl">
               <h3 className="text-lg font-semibold mb-4">Import Courses</h3>
               <p className="text-muted-foreground mb-4">
-                Upload a SCORM package (.zip) or course definition (.json) file to import courses.
+                Upload a ZIP file containing either a SCORM package or native course structure.
               </p>
               
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".zip,.json"
+                accept=".zip"
                 onChange={handleFileImport}
                 className="hidden"
               />
