@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -43,6 +44,7 @@ interface EnhancedCourseCardProps {
 export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: EnhancedCourseCardProps) {
   const { canManageOrg } = useOrgPermissions();
   const [confirm, setConfirm] = useState<ConfirmModalData>({ kind: null, busy: false });
+  const isMobile = useIsMobile();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,172 +126,337 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
 
   const courseImage = getCourseImage(course.id, course.title);
 
-  // Render compact view
+  // Render compact view with mobile optimization
   if (viewType === 'compact') {
     return (
       <>
-        <div className="relative flex items-center px-4 py-2 hover:bg-muted/50 transition-colors border-b border-border/40 last:border-b-0">
-          {/* Status indicator dot */}
-          <div className={`w-2 h-2 rounded-full mr-3 flex-shrink-0 ${getStatusColor(course.status).replace('bg-', 'bg-').split(' ')[0]}`} />
-          
-          {/* Course info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-medium text-sm truncate">{course.title}</h3>
-              {course.instructorName && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground truncate">{course.instructorName}</span>
-                </>
-              )}
-              {course.durationMinutes && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">{course.durationMinutes}min</span>
-                </>
-              )}
-              <div className="flex gap-1 ml-2">
-                {getOriginBadge()}
-                {getFrameworkBadge()}
+        <div className={`relative ${isMobile ? 'flex flex-col space-y-3 px-3 py-3' : 'flex items-center px-4 py-2'} hover:bg-muted/50 transition-colors border-b border-border/40 last:border-b-0`}>
+          {isMobile ? (
+            // Mobile: Stacked layout
+            <>
+              {/* Top row: Status dot, title, and badges */}
+              <div className="flex items-start gap-3">
+                <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${getStatusColor(course.status).replace('bg-', 'bg-').split(' ')[0]}`} />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm leading-tight mb-1">{course.title}</h3>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    {course.instructorName && (
+                      <span className="truncate max-w-24">{course.instructorName}</span>
+                    )}
+                    {course.durationMinutes && (
+                      <span>{course.durationMinutes}min</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {getOriginBadge()}
+                    {getFrameworkBadge()}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          {/* Actions */}
-          <div className="flex items-center gap-1 ml-4 flex-shrink-0">
-            {/* Status badge before Preview button */}
-            <div className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(course.status)} mr-1`}>
-              {course.status === 'processing' && course.processingStage
-                ? `Processing • ${course.processingStage}`
-                : course.status.replace('_', ' ')
-              }
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => actions.onPreview(course.id)}
-              className="h-7 px-2 text-xs"
-            >
-              Preview
-            </Button>
-            <Button
-              size="sm" 
-              onClick={() => actions.onStart(course.id)}
-              className="h-7 px-2 text-xs"
-            >
-              Start Course
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                  <MoreVertical className="h-3 w-3" />
+
+              {/* Bottom row: Status and Actions */}
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/20">
+                <div className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(course.status)} flex-shrink-0`}>
+                  {course.status === 'processing' && course.processingStage
+                    ? `Processing • ${course.processingStage}`
+                    : course.status.replace('_', ' ')
+                  }
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => actions.onPreview(course.id)}
+                    className="h-8 px-3 text-xs"
+                  >
+                    Preview
+                  </Button>
+                  <Button
+                    size="sm" 
+                    onClick={() => actions.onStart(course.id)}
+                    className="h-8 px-3 text-xs"
+                  >
+                    Start
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {isPlatformCourse && (
+                        <>
+                          {actions.onDuplicateToOrg && (
+                            <DropdownMenuItem onClick={() => actions.onDuplicateToOrg!(course.id)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate to Org
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                            <Play className="h-4 w-4 mr-2" />
+                            Full Preview
+                          </DropdownMenuItem>
+                          {actions.onViewAnalytics && (
+                            <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                              <BarChart3 className="h-4 w-4 mr-2" />
+                              Analytics (Read-only)
+                            </DropdownMenuItem>
+                          )}
+                        </>
+                      )}
+                      {isOrgCourse && (
+                        <>
+                          {canEdit && actions.onEdit && (
+                            <DropdownMenuItem onClick={() => actions.onEdit(course.id)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Course
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                            <Play className="h-4 w-4 mr-2" />
+                            Full Preview
+                          </DropdownMenuItem>
+                          {actions.onViewAnalytics && (
+                            <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                              <BarChart3 className="h-4 w-4 mr-2" />
+                              Analytics (Full)
+                            </DropdownMenuItem>
+                          )}
+                        </>
+                      )}
+                      {actions.onSharePreview && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => actions.onSharePreview(course.id)}>
+                            <Share className="h-4 w-4 mr-2" />
+                            Share Preview Link
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      {actions.onAddToCollection && (
+                        <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
+                          <Tag className="h-4 w-4 mr-2" />
+                          Add to Collection
+                        </DropdownMenuItem>
+                      )}
+                      {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
+                      {canPublish && (
+                        <DropdownMenuItem 
+                          onClick={() => setConfirm({ 
+                            kind: 'publish', 
+                            busy: false, 
+                            courseTitle: course.title,
+                            impactSummary: course.lastAssignment 
+                          })}
+                          className="text-emerald-600 dark:text-emerald-400"
+                        >
+                          <Circle className="h-4 w-4 mr-2" />
+                          Publish
+                        </DropdownMenuItem>
+                      )}
+                      {canUnpublish && (
+                        <DropdownMenuItem 
+                          onClick={() => setConfirm({ 
+                            kind: 'unpublish', 
+                            busy: false, 
+                            courseTitle: course.title,
+                            impactSummary: course.lastAssignment 
+                          })}
+                          className="text-amber-600 dark:text-amber-400"
+                        >
+                          <Archive className="h-4 w-4 mr-2" />
+                          Unpublish
+                        </DropdownMenuItem>
+                      )}
+                      {canDelete && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => setConfirm({ 
+                              kind: 'delete', 
+                              busy: false, 
+                              courseTitle: course.title,
+                              impactSummary: course.lastAssignment 
+                            })}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </>
+          ) : (
+            // Desktop: Original horizontal layout
+            <>
+              {/* Status indicator dot */}
+              <div className={`w-2 h-2 rounded-full mr-3 flex-shrink-0 ${getStatusColor(course.status).replace('bg-', 'bg-').split(' ')[0]}`} />
+              
+              {/* Course info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-sm truncate">{course.title}</h3>
+                  {course.instructorName && (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground truncate">{course.instructorName}</span>
+                    </>
+                  )}
+                  {course.durationMinutes && (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">{course.durationMinutes}min</span>
+                    </>
+                  )}
+                  <div className="flex gap-1 ml-2">
+                    {getOriginBadge()}
+                    {getFrameworkBadge()}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+                {/* Status badge before Preview button */}
+                <div className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(course.status)} mr-1`}>
+                  {course.status === 'processing' && course.processingStage
+                    ? `Processing • ${course.processingStage}`
+                    : course.status.replace('_', ' ')
+                  }
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => actions.onPreview(course.id)}
+                  className="h-7 px-2 text-xs"
+                >
+                  Preview
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {isPlatformCourse && (
-                  <>
-                    {actions.onDuplicateToOrg && (
-                      <DropdownMenuItem onClick={() => actions.onDuplicateToOrg!(course.id)}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Duplicate to Org
+                <Button
+                  size="sm" 
+                  onClick={() => actions.onStart(course.id)}
+                  className="h-7 px-2 text-xs"
+                >
+                  Start Course
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <MoreVertical className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {isPlatformCourse && (
+                      <>
+                        {actions.onDuplicateToOrg && (
+                          <DropdownMenuItem onClick={() => actions.onDuplicateToOrg!(course.id)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Duplicate to Org
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                          <Play className="h-4 w-4 mr-2" />
+                          Full Preview
+                        </DropdownMenuItem>
+                        {actions.onViewAnalytics && (
+                          <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                            <BarChart3 className="h-4 w-4 mr-2" />
+                            Analytics (Read-only)
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                    {isOrgCourse && (
+                      <>
+                        {canEdit && actions.onEdit && (
+                          <DropdownMenuItem onClick={() => actions.onEdit(course.id)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Course
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
+                          <Play className="h-4 w-4 mr-2" />
+                          Full Preview
+                        </DropdownMenuItem>
+                        {actions.onViewAnalytics && (
+                          <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
+                            <BarChart3 className="h-4 w-4 mr-2" />
+                            Analytics (Full)
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                    {actions.onSharePreview && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => actions.onSharePreview(course.id)}>
+                          <Share className="h-4 w-4 mr-2" />
+                          Share Preview Link
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {actions.onAddToCollection && (
+                      <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
+                        <Tag className="h-4 w-4 mr-2" />
+                        Add to Collection
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Full Preview
-                    </DropdownMenuItem>
-                    {actions.onViewAnalytics && (
-                      <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Analytics (Read-only)
+                    {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
+                    {canPublish && (
+                      <DropdownMenuItem 
+                        onClick={() => setConfirm({ 
+                          kind: 'publish', 
+                          busy: false, 
+                          courseTitle: course.title,
+                          impactSummary: course.lastAssignment 
+                        })}
+                        className="text-emerald-600 dark:text-emerald-400"
+                      >
+                        <Circle className="h-4 w-4 mr-2" />
+                        Publish
                       </DropdownMenuItem>
                     )}
-                  </>
-                )}
-                {isOrgCourse && (
-                  <>
-                    {canEdit && actions.onEdit && (
-                      <DropdownMenuItem onClick={() => actions.onEdit(course.id)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Course
+                    {canUnpublish && (
+                      <DropdownMenuItem 
+                        onClick={() => setConfirm({ 
+                          kind: 'unpublish', 
+                          busy: false, 
+                          courseTitle: course.title,
+                          impactSummary: course.lastAssignment 
+                        })}
+                        className="text-amber-600 dark:text-amber-400"
+                      >
+                        <Archive className="h-4 w-4 mr-2" />
+                        Unpublish
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={() => actions.onPreview(course.id)}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Full Preview
-                    </DropdownMenuItem>
-                    {actions.onViewAnalytics && (
-                      <DropdownMenuItem onClick={() => actions.onViewAnalytics(course.id)}>
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Analytics (Full)
-                      </DropdownMenuItem>
+                    {canDelete && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => setConfirm({ 
+                            kind: 'delete', 
+                            busy: false, 
+                            courseTitle: course.title,
+                            impactSummary: course.lastAssignment 
+                          })}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </>
                     )}
-                  </>
-                )}
-                {actions.onSharePreview && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => actions.onSharePreview(course.id)}>
-                      <Share className="h-4 w-4 mr-2" />
-                      Share Preview Link
-                    </DropdownMenuItem>
-                  </>
-                )}
-                {actions.onAddToCollection && (
-                  <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
-                    <Tag className="h-4 w-4 mr-2" />
-                    Add to Collection
-                  </DropdownMenuItem>
-                )}
-                {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
-                {canPublish && (
-                  <DropdownMenuItem 
-                    onClick={() => setConfirm({ 
-                      kind: 'publish', 
-                      busy: false, 
-                      courseTitle: course.title,
-                      impactSummary: course.lastAssignment 
-                    })}
-                    className="text-emerald-600 dark:text-emerald-400"
-                  >
-                    <Circle className="h-4 w-4 mr-2" />
-                    Publish
-                  </DropdownMenuItem>
-                )}
-                {canUnpublish && (
-                  <DropdownMenuItem 
-                    onClick={() => setConfirm({ 
-                      kind: 'unpublish', 
-                      busy: false, 
-                      courseTitle: course.title,
-                      impactSummary: course.lastAssignment 
-                    })}
-                    className="text-amber-600 dark:text-amber-400"
-                  >
-                    <Archive className="h-4 w-4 mr-2" />
-                    Unpublish
-                  </DropdownMenuItem>
-                )}
-                {canDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => setConfirm({ 
-                        kind: 'delete', 
-                        busy: false, 
-                        courseTitle: course.title,
-                        impactSummary: course.lastAssignment 
-                      })}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </>
+          )}
         </div>
 
         <ConfirmModal
@@ -301,7 +468,6 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
       </>
     );
   }
-
   // Render list view
   if (viewType === 'list') {
     return (

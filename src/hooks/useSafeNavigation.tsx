@@ -11,6 +11,13 @@ export const useSafeNavigation = () => {
   const { user } = useAuth();
 
   /**
+   * Scroll to top of page - used for smart redirects
+   */
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
+  /**
    * Safe back navigation that checks authentication before navigating
    * If the user is not authenticated, redirects to login instead of following browser history
    */
@@ -36,9 +43,9 @@ export const useSafeNavigation = () => {
   };
 
   /**
-   * Navigate to a specific route with authentication checks
+   * Navigate to a specific route with authentication checks and auto scroll-to-top
    */
-  const safeNavigate = (to: string, options?: { replace?: boolean; state?: any }) => {
+  const safeNavigate = (to: string, options?: { replace?: boolean; state?: any; scrollToTop?: boolean }) => {
     // If trying to navigate to protected routes without authentication, redirect to login
     const protectedRoutes = ['/dashboard', '/profile', '/settings'];
     const isProtectedRoute = protectedRoutes.some(route => to.startsWith(route));
@@ -49,6 +56,11 @@ export const useSafeNavigation = () => {
     }
 
     navigate(to, options);
+    
+    // Auto scroll to top unless explicitly disabled
+    if (options?.scrollToTop !== false) {
+      setTimeout(scrollToTop, 50); // Small delay to ensure page has rendered
+    }
   };
 
   /**
@@ -66,6 +78,7 @@ export const useSafeNavigation = () => {
     navigateBack,
     safeNavigate,
     navigateToLegal,
+    scrollToTop,
     navigate, // Keep original navigate for cases where we need it
   };
 };

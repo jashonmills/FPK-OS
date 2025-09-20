@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Search, Settings, User } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,6 +28,7 @@ const GlobalHeader = () => {
   const { profile } = useUserProfile();
   const { isPersonalMode, currentOrg } = useOrgContext();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
@@ -47,60 +49,64 @@ const GlobalHeader = () => {
 
   return (
     <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className={`flex items-center justify-between ${isMobile ? 'h-14 px-3' : 'h-16 px-4'}`}>
         {/* Left side - Sidebar trigger and brand */}
-        <div className="flex items-center gap-3">
-          <SidebarTrigger className="hover:text-primary" />
-          <div className="hidden sm:flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              <img 
-                src="/assets/fpk-character-logo.png" 
-                alt="FPK University"
-                className="w-8 h-8 object-contain rounded-lg"
-              />
+        <div className="flex items-center gap-2 min-w-0">
+          <SidebarTrigger className="hover:text-primary flex-shrink-0" />
+          {!isMobile && (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                <img 
+                  src="/assets/fpk-character-logo.png" 
+                  alt="FPK University"
+                  className="w-8 h-8 object-contain rounded-lg"
+                />
+              </div>
+              <span className="font-semibold text-lg">
+                FPK University
+              </span>
             </div>
-            <span className="font-semibold text-lg">
-              FPK University
-            </span>
-          </div>
+          )}
           <OrgBrandingBadge />
         </div>
 
-        {/* Center - Organization Switcher */}
-        <div className="flex-1 flex justify-center max-w-md mx-4">
+        {/* Center - Organization Switcher (mobile: takes remaining space) */}
+        <div className={`flex ${isMobile ? 'flex-1 justify-center px-2' : 'flex-1 justify-center max-w-md mx-4'}`}>
           <OrgSwitcher />
         </div>
 
-        {/* Search Bar - Hidden on mobile when org switcher is present */}
-        <div className="flex-1 max-w-md mx-4 hidden lg:block">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search courses, notes, and more..."
-              className="pl-10 bg-muted/50"
-            />
+        {/* Search Bar - Hidden on mobile */}
+        {!isMobile && (
+          <div className="flex-1 max-w-md mx-4 hidden lg:block">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search courses, notes, and more..."
+                className="pl-10 bg-muted/50"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-2">
-          {/* Language Switcher */}
-          <LanguageSwitcher />
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Language Switcher - Hide on mobile */}
+          {!isMobile && <LanguageSwitcher />}
 
-          {/* Notifications - Using the actual notification system */}
+          {/* Notifications */}
           <NotificationDropdown />
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <Avatar className="h-8 w-8">
+              <Button variant="ghost" className={`flex items-center gap-2 ${isMobile ? 'px-1' : 'px-2'}`}>
+                <Avatar className={isMobile ? "h-7 w-7" : "h-8 w-8"}>
                   <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
                   <AvatarFallback className="fpk-gradient text-white text-sm">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:block font-medium">{getDisplayName()}</span>
+                {!isMobile && <span className="hidden sm:block font-medium">{getDisplayName()}</span>}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
