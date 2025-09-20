@@ -66,18 +66,17 @@ export const MobileOptimizedTabs: React.FC<MobileOptimizedTabsProps> = ({
         </ScrollArea>
       ) : (
         <TabsList className={cn(
-          effectiveOrientation === 'vertical' 
-            ? 'flex flex-col h-auto w-full space-y-1'
-            : `grid w-full grid-cols-${tabs.length}`
+          'flex flex-wrap w-full gap-1 h-auto p-2',
+          effectiveOrientation === 'vertical' && 'flex-col'
         )}>
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="flex items-center gap-2 mobile-safe-text"
+              className="flex items-center gap-2 mobile-safe-text flex-1 min-w-[120px] h-12 px-4"
             >
               {tab.icon && <span className="flex-shrink-0">{tab.icon}</span>}
-              <span>{tab.label}</span>
+              <span className="truncate">{tab.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>

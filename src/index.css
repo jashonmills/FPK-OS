@@ -395,7 +395,7 @@
   }
 
   .mobile-tab-trigger {
-    @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors mobile-touch-target whitespace-nowrap;
+    @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors mobile-touch-target whitespace-nowrap z-10 relative;
   }
 
   /* Mobile Content Utilities */
