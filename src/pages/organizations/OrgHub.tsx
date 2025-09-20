@@ -215,19 +215,31 @@ const OrgHub = () => {
 
         {/* Invitations */}
         <Card className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate('/org/invitations')}>
+              onClick={() => {
+                // Navigate to correct invitations page based on context
+                if (switchOrganization && organizations.length > 0) {
+                  // If user has orgs, show org invitations
+                  navigate('/org/invitations');
+                } else {
+                  // For personal mode, show join organization functionality
+                  navigate('/join');
+                }
+              }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Pending Invitations
+              {organizations.length > 0 ? 'Pending Invitations' : 'Join Organization'}
             </CardTitle>
             <CardDescription>
-              View and manage your pending organization invitations
+              {organizations.length > 0 
+                ? 'View and manage your pending organization invitations'
+                : 'Join an organization with an invitation code'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" className="w-full">
-              View Invitations
+              {organizations.length > 0 ? 'View Invitations' : 'Join Organization'}
             </Button>
           </CardContent>
         </Card>
