@@ -22,75 +22,32 @@ import {
   Send
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgInvitations } from '@/hooks/useOrgInvitations';
 import { useNavigate } from 'react-router-dom';
+import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const OrgHub = () => {
-  const { organizations, isLoading } = useOrgContext();
+  const { organizations, isLoading, switchOrganization } = useOrgContext();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [inviteCode, setInviteCode] = useState('');
-  const [isJoining, setIsJoining] = useState(false);
 
   const handleJoinWithCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteCode.trim()) {
-      toast({
-        title: "Invalid Code",
-        description: "Please enter a valid invitation code.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsJoining(true);
-    try {
-      const { data, error } = await supabase.rpc('accept_invite', {
-        p_code: inviteCode.trim()
-      });
-
-      if (error) throw error;
-
-      const result = data as any;
-      if (result?.success) {
-        toast({
-          title: "Successfully Joined!",
-          description: "You have been added to the organization.",
-        });
-        
-        // Route based on role
-        const role = result.role;
-        if (role === 'owner' || role === 'instructor') {
-          navigate(`/dashboard/instructor?org=${result.org_id}`);
-        } else {
-          navigate(`/dashboard/learner?org=${result.org_id}`);
-        }
-      } else {
-        throw new Error(result?.error || 'Failed to join organization');
-      }
-    } catch (error: any) {
-      console.error('Error joining organization:', error);
-      toast({
-        title: "Failed to Join",
-        description: error.message || "Please check your invitation code and try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsJoining(false);
+    const result = await joinWithCode(inviteCode);
+    
+    if (result.success) {
       setInviteCode('');
+      // Organization switching and navigation is handled by the hook
     }
   };
 
   const handleOpenOrganization = (org: any) => {
-    const role = org.role;
-    if (role === 'owner' || role === 'instructor') {
-      navigate(`/dashboard/instructor?org=${org.organization_id}`);
-    } else {
-      navigate(`/dashboard/learner?org=${org.organization_id}`);
-    }
+    // Use the context switching function to properly update state and navigate
+    switchOrganization(org.organization_id);
   };
+
+  const { toast } = useToast();
 
   const handleLeaveOrganization = async (orgId: string) => {
     // This would need to be implemented in the backend

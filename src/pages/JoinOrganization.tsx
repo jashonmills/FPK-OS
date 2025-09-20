@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useOrgInvitations } from '@/hooks/useOrgInvitations';
+import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ export function JoinOrganization() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { processInvitation, isProcessing } = useOrgInvitations();
+  const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'ready'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -41,19 +41,16 @@ export function JoinOrganization() {
   }, [code, user, navigate]);
 
   const handleAcceptInvitation = async () => {
-    if (!code) return;
-
-    try {
-      await processInvitation({ code });
+    const result = await joinWithCode(code || '');
+    
+    if (result.success) {
       setStatus('success');
-      
-      // Redirect to dashboard after 3 seconds
+      // Navigation is handled by the hook
       setTimeout(() => {
         navigate('/dashboard/learner');
-      }, 3000);
-    } catch (error: any) {
+      }, 2000);
+    } else {
       setStatus('error');
-      setErrorMessage(error.message || 'Failed to accept invitation');
     }
   };
 
@@ -146,10 +143,10 @@ export function JoinOrganization() {
           
           <Button 
             onClick={handleAcceptInvitation}
-            disabled={isProcessing}
+            disabled={isJoining}
             className="w-full"
           >
-            {isProcessing ? (
+            {isJoining ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Accepting Invitation...

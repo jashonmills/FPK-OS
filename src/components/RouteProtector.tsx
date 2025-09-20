@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
+import { safeLocalStorage } from '@/utils/safeStorage';
 
 interface RouteProtectorProps {
   children: React.ReactNode;
@@ -39,7 +40,10 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       setHasNavigated(true);
       
       // Check if user has an active organization
-      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
+        fallbackValue: null,
+        logErrors: false
+      });
       if (activeOrgId) {
         navigate(`/org/${activeOrgId}`, { replace: true });
       } else {
@@ -72,7 +76,10 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       setHasNavigated(true);
       
       // Check if user has an active organization
-      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
+        fallbackValue: null,
+        logErrors: false
+      });
       if (activeOrgId) {
         navigate(`/org/${activeOrgId}`, { replace: true });
       } else {
@@ -83,7 +90,10 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
     // PRIORITY 6: Auto-redirect to correct context (org vs personal)
     if (user && !subscriptionLoading && hasAccess) {
-      const activeOrgId = localStorage.getItem('fpk.activeOrgId');
+      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
+        fallbackValue: null,
+        logErrors: false
+      });
       
       // Debug logging in development
       if (process.env.NODE_ENV === 'development') {
@@ -96,7 +106,7 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       }
       
       // If user has active org but is on dashboard route, redirect to org
-      if (activeOrgId && isDashboardRoute) {
+      if (activeOrgId && activeOrgId !== 'null' && isDashboardRoute) {
         console.log('Redirecting to org route:', `/org/${activeOrgId}`);
         setHasNavigated(true);
         navigate(`/org/${activeOrgId}`, { replace: true });
