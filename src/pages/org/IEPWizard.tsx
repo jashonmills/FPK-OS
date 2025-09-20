@@ -38,7 +38,8 @@ export function IEPWizard() {
     isLastStep,
     progress,
     saveProgress,
-    isSaving
+    isSaving,
+    completeWizard
   } = useIEPWizard(orgId!, studentId || undefined);
 
   const renderCurrentStep = () => {
@@ -77,11 +78,17 @@ export function IEPWizard() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/org/${orgId}/iep`)}
+              onClick={() => {
+                if (studentId) {
+                  navigate(`/org/${orgId}/students/${studentId}`);
+                } else {
+                  navigate(`/org/${orgId}/iep`);
+                }
+              }}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to IEP Module
+              {studentId ? 'Back to Student Profile' : 'Back to IEP Module'}
             </Button>
           </div>
           
@@ -147,7 +154,7 @@ export function IEPWizard() {
             </Button>
 
             <Button
-              onClick={nextStep}
+              onClick={isLastStep ? completeWizard : nextStep}
               className="flex items-center gap-2"
             >
               {isLastStep ? (

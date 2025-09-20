@@ -183,6 +183,7 @@ export function useIEPWizard(orgId: string, studentId?: string) {
     isLastStep,
     progress,
     saveProgress,
-    isSaving
+    isSaving,
+    completeWizard
   };
 }
