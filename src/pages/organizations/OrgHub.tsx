@@ -26,8 +26,25 @@ import { useNavigate } from 'react-router-dom';
 import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useToast } from '@/hooks/use-toast';
 
+// Safe org context hook that works with or without OrgProvider
+const useSafeOrgContext = () => {
+  try {
+    return useOrgContext();
+  } catch (error) {
+    // Fallback when not in org context (personal dashboard)
+    return {
+      organizations: [],
+      isLoading: false,
+      switchOrganization: (orgId: string) => {
+        // Navigate to org route with proper context
+        window.location.href = `/org/${orgId}`;
+      }
+    };
+  }
+};
+
 const OrgHub = () => {
-  const { organizations, isLoading, switchOrganization } = useOrgContext();
+  const { organizations, isLoading, switchOrganization } = useSafeOrgContext();
   const navigate = useNavigate();
   const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [inviteCode, setInviteCode] = useState('');
