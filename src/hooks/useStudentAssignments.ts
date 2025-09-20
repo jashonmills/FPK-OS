@@ -50,8 +50,7 @@ export function useStudentAssignments(orgId?: string) {
             type,
             resource_id,
             org_id,
-            created_at,
-            metadata
+            created_at
           )
         `)
         .eq('target_id', user.id)
@@ -77,7 +76,6 @@ export function useStudentAssignments(orgId?: string) {
         resource_id: item.org_assignments.resource_id,
         created_at: item.org_assignments.created_at,
         org_id: item.org_assignments.org_id,
-        metadata: item.org_assignments.metadata,
         target: {
           assignment_id: item.assignment_id,
           target_id: item.target_id,
