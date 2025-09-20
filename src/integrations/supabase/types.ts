@@ -2648,6 +2648,168 @@ export type Database = {
         }
         Relationships: []
       }
+      iep_accommodations: {
+        Row: {
+          accommodation_type: string
+          context: string
+          created_at: string
+          description: string
+          id: string
+          iep_plan_id: string
+          is_modification: boolean | null
+          notes: string | null
+        }
+        Insert: {
+          accommodation_type: string
+          context: string
+          created_at?: string
+          description: string
+          id?: string
+          iep_plan_id: string
+          is_modification?: boolean | null
+          notes?: string | null
+        }
+        Update: {
+          accommodation_type?: string
+          context?: string
+          created_at?: string
+          description?: string
+          id?: string
+          iep_plan_id?: string
+          is_modification?: boolean | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_accommodations_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_behavior_plans: {
+        Row: {
+          behavior_targets: string[] | null
+          created_at: string
+          crisis_plan: string | null
+          fba_reference: string | null
+          fba_status: string | null
+          id: string
+          iep_plan_id: string
+          intervention_strategies: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          behavior_targets?: string[] | null
+          created_at?: string
+          crisis_plan?: string | null
+          fba_reference?: string | null
+          fba_status?: string | null
+          id?: string
+          iep_plan_id: string
+          intervention_strategies?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          behavior_targets?: string[] | null
+          created_at?: string
+          crisis_plan?: string | null
+          fba_reference?: string | null
+          fba_status?: string | null
+          id?: string
+          iep_plan_id?: string
+          intervention_strategies?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_behavior_plans_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_consents: {
+        Row: {
+          consent_type: string
+          created_at: string
+          date_given: string | null
+          id: string
+          jurisdiction_details: Json | null
+          provider_name: string | null
+          status: string
+          student_id: string
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          date_given?: string | null
+          id?: string
+          jurisdiction_details?: Json | null
+          provider_name?: string | null
+          status?: string
+          student_id: string
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          date_given?: string | null
+          id?: string
+          jurisdiction_details?: Json | null
+          provider_name?: string | null
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_consents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "iep_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_documents: {
+        Row: {
+          document_category: string | null
+          entity_id: string
+          entity_type: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          upload_date: string
+          uploaded_by: string
+        }
+        Insert: {
+          document_category?: string | null
+          entity_id: string
+          entity_type: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id?: string
+          upload_date?: string
+          uploaded_by: string
+        }
+        Update: {
+          document_category?: string | null
+          entity_id?: string
+          entity_type?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          upload_date?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
       iep_forms: {
         Row: {
           created_at: string
@@ -2685,6 +2847,100 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_goals: {
+        Row: {
+          annual_goal: string
+          baseline: string
+          created_at: string
+          curriculum_mapping: string[] | null
+          domain: string
+          goal_type: string
+          id: string
+          iep_plan_id: string
+          measurement_method: string
+          progress_schedule: string
+          success_criterion: string
+          updated_at: string
+        }
+        Insert: {
+          annual_goal: string
+          baseline: string
+          created_at?: string
+          curriculum_mapping?: string[] | null
+          domain: string
+          goal_type: string
+          id?: string
+          iep_plan_id: string
+          measurement_method: string
+          progress_schedule: string
+          success_criterion: string
+          updated_at?: string
+        }
+        Update: {
+          annual_goal?: string
+          baseline?: string
+          created_at?: string
+          curriculum_mapping?: string[] | null
+          domain?: string
+          goal_type?: string
+          id?: string
+          iep_plan_id?: string
+          measurement_method?: string
+          progress_schedule?: string
+          success_criterion?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_goals_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_guardians: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          phone: string | null
+          relationship: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          phone?: string | null
+          relationship: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          phone?: string | null
+          relationship?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_guardians_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "iep_students"
             referencedColumns: ["id"]
           },
         ]
@@ -2732,6 +2988,338 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_objectives: {
+        Row: {
+          created_at: string
+          description: string
+          goal_id: string
+          id: string
+          is_alternate_assessment_required: boolean | null
+          order_index: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          goal_id: string
+          id?: string
+          is_alternate_assessment_required?: boolean | null
+          order_index: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          goal_id?: string
+          id?: string
+          is_alternate_assessment_required?: boolean | null
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_objectives_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "iep_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_plans: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string
+          created_by: string
+          current_step: number | null
+          cycle_end_date: string | null
+          cycle_start_date: string | null
+          id: string
+          jurisdiction: string
+          org_id: string
+          referral_reason: string | null
+          status: string
+          student_id: string
+          suspected_disability_categories: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string
+          created_by: string
+          current_step?: number | null
+          cycle_end_date?: string | null
+          cycle_start_date?: string | null
+          id?: string
+          jurisdiction?: string
+          org_id: string
+          referral_reason?: string | null
+          status?: string
+          student_id: string
+          suspected_disability_categories?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string
+          created_by?: string
+          current_step?: number | null
+          cycle_end_date?: string | null
+          cycle_start_date?: string | null
+          id?: string
+          jurisdiction?: string
+          org_id?: string
+          referral_reason?: string | null
+          status?: string
+          student_id?: string
+          suspected_disability_categories?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_plans_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_present_levels: {
+        Row: {
+          assessment_data: Json | null
+          baseline: string
+          created_at: string
+          domain: string
+          environmental_factors: string | null
+          id: string
+          iep_plan_id: string
+          motivation_interests: string | null
+          strengths: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          assessment_data?: Json | null
+          baseline: string
+          created_at?: string
+          domain: string
+          environmental_factors?: string | null
+          id?: string
+          iep_plan_id: string
+          motivation_interests?: string | null
+          strengths?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          assessment_data?: Json | null
+          baseline?: string
+          created_at?: string
+          domain?: string
+          environmental_factors?: string | null
+          id?: string
+          iep_plan_id?: string
+          motivation_interests?: string | null
+          strengths?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_present_levels_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_progress_entries: {
+        Row: {
+          artifact_url: string | null
+          comment: string | null
+          created_at: string
+          goal_id: string
+          id: string
+          measure_type: string
+          measurement_date: string
+          recorded_by: string
+          value: number | null
+        }
+        Insert: {
+          artifact_url?: string | null
+          comment?: string | null
+          created_at?: string
+          goal_id: string
+          id?: string
+          measure_type: string
+          measurement_date: string
+          recorded_by: string
+          value?: number | null
+        }
+        Update: {
+          artifact_url?: string | null
+          comment?: string | null
+          created_at?: string
+          goal_id?: string
+          id?: string
+          measure_type?: string
+          measurement_date?: string
+          recorded_by?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_progress_entries_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "iep_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_services: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          frequency: string | null
+          id: string
+          iep_plan_id: string
+          minutes_per_week: number | null
+          notes: string | null
+          provider_role: string
+          service_type: string
+          setting_type: string | null
+          start_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          iep_plan_id: string
+          minutes_per_week?: number | null
+          notes?: string | null
+          provider_role: string
+          service_type: string
+          setting_type?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          iep_plan_id?: string
+          minutes_per_week?: number | null
+          notes?: string | null
+          provider_role?: string
+          service_type?: string
+          setting_type?: string | null
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_services_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_students: {
+        Row: {
+          class_year: string | null
+          created_at: string
+          created_by: string
+          current_school: string | null
+          date_of_birth: string
+          first_name: string
+          id: string
+          languages_at_home: string[] | null
+          last_name: string
+          org_id: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          class_year?: string | null
+          created_at?: string
+          created_by: string
+          current_school?: string | null
+          date_of_birth: string
+          first_name: string
+          id?: string
+          languages_at_home?: string[] | null
+          last_name: string
+          org_id: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          class_year?: string | null
+          created_at?: string
+          created_by?: string
+          current_school?: string | null
+          date_of_birth?: string
+          first_name?: string
+          id?: string
+          languages_at_home?: string[] | null
+          last_name?: string
+          org_id?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_students_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iep_transition_plans: {
+        Row: {
+          activities_this_year: Json | null
+          agency_linkages: Json | null
+          created_at: string
+          id: string
+          iep_plan_id: string
+          postsecondary_goals: string[] | null
+          student_age: number
+          student_interests: string | null
+          updated_at: string
+        }
+        Insert: {
+          activities_this_year?: Json | null
+          agency_linkages?: Json | null
+          created_at?: string
+          id?: string
+          iep_plan_id: string
+          postsecondary_goals?: string[] | null
+          student_age: number
+          student_interests?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activities_this_year?: Json | null
+          agency_linkages?: Json | null
+          created_at?: string
+          id?: string
+          iep_plan_id?: string
+          postsecondary_goals?: string[] | null
+          student_age?: number
+          student_interests?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_transition_plans_iep_plan_id_fkey"
+            columns: ["iep_plan_id"]
+            isOneToOne: false
+            referencedRelation: "iep_plans"
             referencedColumns: ["id"]
           },
         ]
@@ -8236,6 +8824,10 @@ export type Database = {
         Returns: {
           completion_rate: number
         }[]
+      }
+      get_iep_wizard_steps: {
+        Args: { p_jurisdiction?: string }
+        Returns: Json
       }
       get_organization_analytics: {
         Args: { p_org_id: string }
