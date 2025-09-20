@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Link, Copy, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEmailInvitation } from '@/hooks/useInvitationSystem';
+import { useOrgInvites } from '@/hooks/useOrgInvites';
 
 interface SimpleModalProps {
   open: boolean;
@@ -13,9 +15,10 @@ interface SimpleModalProps {
 export function SimpleModal({ open, onOpenChange, organizationId }: SimpleModalProps) {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
-  const [inviteLink, setInviteLink] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [copied, setCopied] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const emailInviteMutation = useEmailInvitation();
+  const { createInvite, generateInviteUrl } = useOrgInvites();
 
   console.log('SimpleModal - open:', open);
 
@@ -29,49 +32,65 @@ export function SimpleModal({ open, onOpenChange, organizationId }: SimpleModalP
       return;
     }
 
-    setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      toast({
-        title: 'Success!',
-        description: `Invitation sent to ${email}`,
+      await emailInviteMutation.mutateAsync({
+        orgId: organizationId,
+        email: email.trim(),
+        role: 'student'
       });
       setEmail('');
+      onOpenChange(false);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to send invitation',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
+      // Error handled by mutation
     }
   };
 
-  const generateInviteLink = () => {
-    const code = Math.random().toString(36).substring(2, 10);
-    const link = `${window.location.origin}/invite/${code}`;
-    setInviteLink(link);
-    
-    toast({
-      title: 'Link Generated!',
-      description: 'Share this link with students.',
-    });
+  const generateInviteCode = async () => {
+    try {
+      const code = await createInvite({
+        role: 'student',
+        max_uses: 100,
+        expires_days: 30
+      });
+      setInviteCode(code);
+      toast({
+        title: 'Invitation code generated',
+        description: 'Share this code with your student to join your organization.',
+      });
+    } catch (error) {
+      // Error handled by mutation
+    }
   };
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(inviteLink);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(inviteCode);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = inviteCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
       setCopied(true);
       toast({
         title: 'Copied!',
-        description: 'Link copied to clipboard',
+        description: 'Invitation code copied to clipboard',
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
+      console.error('Copy failed:', error);
       toast({
         title: 'Failed',
-        description: 'Could not copy link',
+        description: 'Please manually copy the code from above.',
         variant: 'destructive',
       });
     }
@@ -125,10 +144,10 @@ export function SimpleModal({ open, onOpenChange, organizationId }: SimpleModalP
             
             <Button 
               onClick={handleEmailInvite} 
-              disabled={isLoading || !email.trim()}
+              disabled={emailInviteMutation.isPending || !email.trim()}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {isLoading ? 'Sending...' : 'Send Invitation'}
+              {emailInviteMutation.isPending ? 'Sending...' : 'Send Invitation'}
             </Button>
           </div>
 
@@ -142,25 +161,27 @@ export function SimpleModal({ open, onOpenChange, organizationId }: SimpleModalP
             </div>
           </div>
 
-          {/* Link Section */}
+          {/* Code Section */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Link className="h-4 w-4 text-green-600" />
-              <span className="font-medium text-gray-700">Generate Invite Link</span>
+              <span className="font-medium text-gray-700">Generate Invite Code</span>
             </div>
             
-            {!inviteLink ? (
+            {!inviteCode ? (
               <Button 
-                onClick={generateInviteLink} 
+                onClick={generateInviteCode} 
                 variant="outline"
                 className="w-full"
               >
-                Generate Link
+                Generate Code
               </Button>
             ) : (
               <div className="space-y-2">
-                <div className="p-2 bg-gray-50 rounded border text-sm break-all">
-                  {inviteLink}
+                <div className="p-3 bg-gray-50 rounded border">
+                  <code className="text-lg font-mono font-bold break-all select-all">
+                    {inviteCode}
+                  </code>
                 </div>
                 <div className="flex gap-2">
                   <Button 
@@ -176,12 +197,12 @@ export function SimpleModal({ open, onOpenChange, organizationId }: SimpleModalP
                     ) : (
                       <>
                         <Copy className="h-4 w-4 mr-1" />
-                        Copy
+                        Copy Code
                       </>
                     )}
                   </Button>
                   <Button 
-                    onClick={generateInviteLink} 
+                    onClick={generateInviteCode} 
                     variant="outline"
                   >
                     New

@@ -78,7 +78,22 @@ export default function InviteStudentDialog({
 
   const copyToClipboard = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
       setCopied(true);
       cleanup.setTimeout(() => setCopied(false), 2000);
       toast({
@@ -86,9 +101,10 @@ export default function InviteStudentDialog({
         description: 'The invitation code has been copied to your clipboard.',
       });
     } catch (error) {
+      console.error('Copy failed:', error);
       toast({
         title: 'Failed to copy',
-        description: 'Please copy the code manually.',
+        description: 'Please manually copy the code from above.',
         variant: 'destructive',
       });
     }
