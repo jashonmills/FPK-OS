@@ -85,6 +85,7 @@ const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"))
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const OrgSettings = lazy(() => import("./pages/dashboard/org/settings"));
 const StudentsManagement = lazy(() => import("./pages/instructor/StudentsManagement"));
+const StudentsManagementNew = lazy(() => import("./pages/instructor/StudentsManagementNew"));
 const CoursesManagement = lazy(() => import("./pages/instructor/CoursesManagement"));
 const CatalogDemo = lazy(() => import("./pages/org/catalog-demo"));
 const OrgCoursesCatalog = lazy(() => import("./pages/org/OrgCoursesCatalog"));
@@ -629,7 +630,7 @@ const App: React.FC = () => {
           }>
             <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
-            <Route path=":orgId/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
+            <Route path=":orgId/students" element={<LazyRoute><StudentsManagementNew /></LazyRoute>} />
             <Route path=":orgId/courses" element={<LazyRoute><OrgCoursesCatalog /></LazyRoute>} />
             <Route path=":orgId/iep" element={<LazyRoute><IEPModulePage /></LazyRoute>} />
             <Route path=":orgId/iep/wizard" element={<LazyRoute><IEPWizard /></LazyRoute>} />
