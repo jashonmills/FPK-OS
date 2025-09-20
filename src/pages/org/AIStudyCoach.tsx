@@ -120,20 +120,20 @@ export default function AIStudyCoach() {
                     key={message.id}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="flex items-end space-x-2 max-w-[80%]">
+                    <div className="flex items-end space-x-2 max-w-[80%] min-w-0">
                       {message.role === 'assistant' && (
-                        <div className="p-2 bg-primary/10 rounded-full">
+                        <div className="p-2 bg-primary/10 rounded-full flex-shrink-0">
                           <Brain className="h-4 w-4 text-primary" />
                         </div>
                       )}
                       <div
-                        className={`p-3 rounded-lg ${
+                        className={`p-3 rounded-lg min-w-0 flex-1 ${
                           message.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-sm break-words whitespace-pre-wrap overflow-wrap-anywhere">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
                           {formatTime(message.timestamp)}
                         </p>
