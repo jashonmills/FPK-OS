@@ -47,6 +47,26 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
+
+// Safe hook that works with or without OrgProvider
+function useSafeOrgContext() {
+  try {
+    return useOrgContext();
+  } catch (error) {
+    // Return safe defaults when OrgProvider is not available
+    return {
+      activeOrgId: null,
+      getNavigationContext: () => ({ basePath: '/dashboard', role: 'learner' }),
+      isPersonalMode: true,
+      currentOrg: null,
+      organizations: [],
+      isLoading: false,
+      switchOrganization: () => {},
+      switchToPersonal: () => {},
+      getUserRole: () => 'learner'
+    };
+  }
+}
 import { navPersonal, navOrgStudent, navOrgInstructor, injectOrgId } from "@/config/nav";
 
 export function AppSidebar() {
@@ -57,7 +77,7 @@ export function AppSidebar() {
   const { isAdmin } = useAppUser();
   const { isInstructor, isLearner } = useUserRole();
   const { t, tString } = useGlobalTranslation();
-  const { activeOrgId, getNavigationContext, isPersonalMode } = useOrgContext();
+  const { activeOrgId, getNavigationContext, isPersonalMode } = useSafeOrgContext();
 
   const learnerMenuItems = [
     {

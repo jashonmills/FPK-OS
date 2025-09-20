@@ -22,7 +22,7 @@ export function ContextSwitcher() {
   const isPersonalMode = location.pathname.startsWith('/dashboard');
   const isOrgMode = location.pathname.startsWith('/org/');
   
-  // Get active org from localStorage
+  // Get active org from localStorage (safe fallback)
   const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
     fallbackValue: null,
     logErrors: false
@@ -42,7 +42,7 @@ export function ContextSwitcher() {
     }
   };
 
-  // Don't show switcher if user has no org context available
+  // Don't show switcher if user has no org context available (only show in personal mode if they have an org)
   if (!activeOrgId && isPersonalMode) {
     return null;
   }
