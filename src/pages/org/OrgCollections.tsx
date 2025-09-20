@@ -33,7 +33,14 @@ export default function OrgCollections() {
   });
 
   if (!orgId) {
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground text-sm">Loading organization...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleCreateCollection = async () => {
