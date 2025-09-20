@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Calendar
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { CourseCardModel, CourseCardActions } from '@/types/enhanced-course-card';
 import type { StudentAssignment } from '@/hooks/useStudentAssignments';
 import { getCourseImage } from '@/utils/courseImages';
@@ -30,6 +31,7 @@ export function StudentEnhancedCourseCard({
   assignment 
 }: StudentEnhancedCourseCardProps) {
   const courseImage = getCourseImage(course.id, course.title);
+  const navigate = useNavigate();
   
   const getStatusBadge = () => {
     if (!assignment) {
@@ -77,7 +79,7 @@ export function StudentEnhancedCourseCard({
       case 'started':
         return (
           <Button
-            onClick={() => actions.onAssign(course.id)}
+            onClick={() => navigate(course.route)}
             size="sm"
           >
             <Play className="h-4 w-4 mr-1" />
@@ -87,7 +89,7 @@ export function StudentEnhancedCourseCard({
       case 'pending':
         return (
           <Button
-            onClick={() => actions.onAssign(course.id)}
+            onClick={() => navigate(course.route)}
             size="sm"
           >
             <Play className="h-4 w-4 mr-1" />
