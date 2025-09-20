@@ -234,7 +234,7 @@ const InviteMembersPage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
+    <div className="mobile-page-container mobile-section-spacing">
       {/* Header */}
       <TransparentTile>
         <h1 className="text-3xl font-bold">Invite teammates to your organization</h1>
@@ -243,9 +243,9 @@ const InviteMembersPage = () => {
         </p>
       </TransparentTile>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
         {/* Left Column - Invite Actions */}
-        <div className="space-y-6">
+        <div className="mobile-section-spacing">
           {/* Invite by Email */}
           <TransparentTile>
             <CardHeader>
@@ -257,8 +257,8 @@ const InviteMembersPage = () => {
                 Send personalized invitations directly to email addresses.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
+            <CardContent className="mobile-section-spacing">
+              <div className="mobile-stack">
                 <Label>Email addresses</Label>
                 {emails.map((email, index) => (
                   <div key={index} className="flex gap-2">
@@ -283,11 +283,11 @@ const InviteMembersPage = () => {
                 <Button
                   variant="outline"
                   onClick={handleAddEmail}
-                  className="w-full"
+                  className="w-full mobile-safe-text"
                   size="sm"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Another Email
+                  <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Add Another Email</span>
                 </Button>
               </div>
 
@@ -355,9 +355,11 @@ const InviteMembersPage = () => {
               <Button
                 onClick={handleSendInvites}
                 disabled={emailInviteMutation.isPending}
-                className="w-full"
+                className="w-full mobile-safe-text"
               >
-                {emailInviteMutation.isPending ? 'Sending...' : 'Send Invite'}
+                <span className="truncate">
+                  {emailInviteMutation.isPending ? 'Sending...' : 'Send Invite'}
+                </span>
               </Button>
              </CardContent>
            </TransparentTile>
@@ -419,7 +421,7 @@ const InviteMembersPage = () => {
         </div>
 
         {/* Right Column - Current State */}
-        <div className="space-y-6">
+        <div className="mobile-section-spacing">
           {/* Pending Invitations */}
           <TransparentTile>
             <CardHeader>

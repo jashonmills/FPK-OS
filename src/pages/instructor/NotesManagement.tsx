@@ -9,6 +9,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgNotes, useOrgNoteFolders } from '@/hooks/useOrgNotes';
 import CreateNoteDialog from '@/components/instructor/CreateNoteDialog';
 import CreateFolderDialog from '@/components/instructor/CreateFolderDialog';
+import { MobilePageLayout, MobileSectionHeader, MobileButtonGroup } from '@/components/layout/MobilePageLayout';
 
 export default function NotesManagement() {
   const { currentOrg } = useOrgContext();
@@ -55,22 +56,20 @@ export default function NotesManagement() {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Notes</h1>
-          <p className="text-white/80 mt-2 drop-shadow">
-            Manage instructional notes and resources for your organization
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <CreateNoteDialog organizationId={currentOrg?.organization_id} />
-          <CreateFolderDialog organizationId={currentOrg?.organization_id} />
-        </div>
-      </div>
+    <MobilePageLayout>
+      <MobileSectionHeader
+        title="Notes"
+        subtitle="Manage instructional notes and resources for your organization"
+        actions={
+          <MobileButtonGroup>
+            <CreateNoteDialog organizationId={currentOrg?.organization_id} />
+            <CreateFolderDialog organizationId={currentOrg?.organization_id} />
+          </MobileButtonGroup>
+        }
+      />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="mobile-analytics-grid">
         <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
@@ -159,7 +158,7 @@ export default function NotesManagement() {
       )}
 
       {/* Notes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="mobile-grid">
         {notes.map((note) => (
           <OrgCard key={note.id} className="flex flex-col bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader className="pb-3">
@@ -203,11 +202,11 @@ export default function NotesManagement() {
                   </div>
                 )}
                 
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 border-white/30 text-white hover:bg-white/20">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button variant="outline" size="sm" className="flex-1 border-white/30 text-white hover:bg-white/20 mobile-safe-text">
                     Edit
                   </Button>
-                  <Button size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border-white/30">
+                  <Button size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border-white/30 mobile-safe-text">
                     View
                   </Button>
                 </div>
@@ -230,6 +229,6 @@ export default function NotesManagement() {
           </OrgCardContent>
         </OrgCard>
       )}
-    </div>
+    </MobilePageLayout>
   );
 }

@@ -4,11 +4,10 @@ import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { TransparentTile } from '@/components/ui/transparent-tile';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText, ClipboardList } from 'lucide-react';
+import { TransparentTile } from '@/components/ui/transparent-tile';
+import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
+import { MobileOptimizedTabs } from '@/components/layout/MobileOptimizedTabs';
 import { StudentOverviewTab } from '@/components/students/profile/StudentOverviewTab';
 import { StudentCoursesTab } from '@/components/students/profile/StudentCoursesTab';
 import { StudentPerformanceTab } from '@/components/students/profile/StudentPerformanceTab';
@@ -21,7 +20,6 @@ export default function StudentProfilePage() {
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const [activeTab, setActiveTab] = useState('overview');
-  const isMobile = useIsMobile();
 
   const { students, isLoading } = useOrgStudents(orgId!);
   const student = students.find(s => s.id === studentId);
@@ -53,119 +51,72 @@ export default function StudentProfilePage() {
     );
   }
 
+  const tabsData = [
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <User className="h-4 w-4" />,
+      content: <StudentOverviewTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'courses',
+      label: 'Courses', 
+      icon: <BookOpen className="h-4 w-4" />,
+      content: <StudentCoursesTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'performance',
+      label: 'Performance',
+      icon: <BarChart3 className="h-4 w-4" />,
+      content: <StudentPerformanceTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'communication',
+      label: 'Communication',
+      icon: <MessageSquare className="h-4 w-4" />,
+      content: <StudentCommunicationTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'documents',
+      label: 'Documents',
+      icon: <FileText className="h-4 w-4" />,
+      content: <StudentDocumentsTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'iep',
+      label: 'IEP',
+      icon: <ClipboardList className="h-4 w-4" />,
+      content: <StudentIEPTab student={student} orgId={orgId!} />
+    }
+  ];
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/org/${orgId}/students`)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Students
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">{student.full_name}</h1>
-              <p className="text-muted-foreground">
-                Student ID: {student.student_id} • {student.grade_level || 'Grade not specified'} • {student.status}
-              </p>
-            </div>
-          </div>
-        </div>
+    <MobilePageLayout>
+      <MobileSectionHeader
+        title={student.full_name}
+        subtitle={`Student ID: ${student.student_id} • ${student.grade_level || 'Grade not specified'} • ${student.status}`}
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/org/${orgId}/students`)}
+            className="mobile-safe-text"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">Back to Students</span>
+          </Button>
+        }
+      />
 
-        {/* Main Content */}
-        <TransparentTile className="org-tile">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {isMobile ? (
-              <ScrollArea className="w-full">
-                <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max">
-                  <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
-                    <User className="h-4 w-4" />
-                    Overview
-                  </TabsTrigger>
-                  <TabsTrigger value="courses" className="flex items-center gap-2 whitespace-nowrap">
-                    <BookOpen className="h-4 w-4" />
-                    Courses
-                  </TabsTrigger>
-                  <TabsTrigger value="performance" className="flex items-center gap-2 whitespace-nowrap">
-                    <BarChart3 className="h-4 w-4" />
-                    Performance
-                  </TabsTrigger>
-                  <TabsTrigger value="communication" className="flex items-center gap-2 whitespace-nowrap">
-                    <MessageSquare className="h-4 w-4" />
-                    Communication
-                  </TabsTrigger>
-                  <TabsTrigger value="documents" className="flex items-center gap-2 whitespace-nowrap">
-                    <FileText className="h-4 w-4" />
-                    Documents
-                  </TabsTrigger>
-                  <TabsTrigger value="iep" className="flex items-center gap-2 whitespace-nowrap">
-                    <ClipboardList className="h-4 w-4" />
-                    IEP
-                  </TabsTrigger>
-                </TabsList>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            ) : (
-              <TabsList className="grid w-full grid-cols-6">
-                <TabsTrigger value="overview" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="courses" className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  Courses
-                </TabsTrigger>
-                <TabsTrigger value="performance" className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  Performance
-                </TabsTrigger>
-                <TabsTrigger value="communication" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Communication
-                </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Documents
-                </TabsTrigger>
-                <TabsTrigger value="iep" className="flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4" />
-                  IEP
-                </TabsTrigger>
-              </TabsList>
-            )}
-
-            <div className="mt-6">
-              <TabsContent value="overview" className="space-y-6">
-                <StudentOverviewTab student={student} orgId={orgId!} />
-              </TabsContent>
-
-              <TabsContent value="courses" className="space-y-6">
-                <StudentCoursesTab student={student} orgId={orgId!} />
-              </TabsContent>
-
-              <TabsContent value="performance" className="space-y-6">
-                <StudentPerformanceTab student={student} orgId={orgId!} />
-              </TabsContent>
-
-              <TabsContent value="communication" className="space-y-6">
-                <StudentCommunicationTab student={student} orgId={orgId!} />
-              </TabsContent>
-
-              <TabsContent value="documents" className="space-y-6">
-                <StudentDocumentsTab student={student} orgId={orgId!} />
-              </TabsContent>
-
-              <TabsContent value="iep" className="space-y-6">
-                <StudentIEPTab student={student} orgId={orgId!} />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </TransparentTile>
-      </div>
-    </div>
+      {/* Main Content */}
+      <TransparentTile className="org-tile">
+        <MobileOptimizedTabs
+          tabs={tabsData}
+          defaultValue="overview"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        />
+      </TransparentTile>
+    </MobilePageLayout>
   );
 }

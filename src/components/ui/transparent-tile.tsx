@@ -10,7 +10,8 @@ export function TransparentTile({ children, className }: TransparentTileProps) {
   return (
     <div
       className={cn(
-        "bg-orange-500/70 backdrop-blur-sm rounded-lg p-4 border border-orange-200/50",
+        // Use semantic tokens and mobile-first responsive design
+        "org-tile backdrop-blur-sm rounded-lg border mobile-card-padding mobile-safe-text",
         className
       )}
     >

@@ -495,9 +495,51 @@
     @apply text-foreground/90 leading-relaxed;
   }
 
-  /* Remove debug styles in production */
-  .no-debug .dev-only,
-  .no-debug [data-debug],
+  /* Mobile-First Button Group Utilities */
+  .mobile-button-group-vertical {
+    @apply flex flex-col gap-2 w-full;
+  }
+
+  .mobile-button-group-horizontal {
+    @apply flex flex-col gap-2 sm:flex-row sm:gap-3;
+  }
+
+  .mobile-button-group-equal {
+    @apply mobile-button-group-horizontal [&>*]:flex-1;
+  }
+
+  /* Mobile-safe overflow handling */
+  .mobile-overflow-safe {
+    @apply max-w-full overflow-hidden;
+  }
+
+  .mobile-text-overflow-safe {
+    @apply mobile-safe-text break-words hyphens-auto;
+    word-wrap: anywhere;
+    overflow-wrap: anywhere;
+  }
+
+  /* Enhanced mobile button utilities */
+  .mobile-icon-button {
+    @apply mobile-touch-target flex items-center justify-center gap-2 rounded-lg transition-colors;
+  }
+
+  .mobile-action-button {
+    @apply mobile-button text-center justify-center;
+  }
+
+  /* Mobile form utilities */  
+  .mobile-form-group {
+    @apply mobile-stack;
+  }
+
+  .mobile-form-row {
+    @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3;
+  }
+
+  .mobile-form-actions {
+    @apply mobile-button-group-equal pt-4 border-t border-border;
+  }
   .no-debug [data-dev-only] {
     @apply hidden;
   }
