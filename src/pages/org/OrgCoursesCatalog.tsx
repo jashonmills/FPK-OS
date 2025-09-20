@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
+import { useOrgPermissions } from '@/hooks/useOrgPermissions';
+import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
 import { EmptyState } from '@/components/courses/enhanced/EmptyState';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +22,11 @@ import {
   Upload,
   Grid3X3, 
   List,
-  AlignJustify
+  AlignJustify,
+  GraduationCap,
+  Target,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
@@ -44,6 +50,7 @@ export default function OrgCoursesCatalog() {
   });
   const { toast } = useToast();
 
+  const { isOrgStudent } = useOrgPermissions();
   const { 
     catalog, 
     isLoading, 
@@ -51,6 +58,8 @@ export default function OrgCoursesCatalog() {
     orgCourses,
     error 
   } = useOrgCatalog();
+  
+  const { assignments, isLoading: assignmentsLoading } = useStudentAssignments(orgId);
 
   const courseActions = useCourseActions({
     onCourseCreated: (course) => {
@@ -74,31 +83,49 @@ export default function OrgCoursesCatalog() {
   }
 
   // Course Actions for Enhanced Cards
-  const createCourseActions = (isOrgCourse: boolean): CourseCardActions => ({
-    onPreview: (courseId: string) => {
-      const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-      courseActions.preview(courseId, course?.route);
-    },
-    
-    onAssign: courseActions.assign,
-
-    ...(isOrgCourse && {
-      onEdit: courseActions.edit,
-      onPublish: courseActions.publish,
-      onUnpublish: courseActions.unpublish,
-      onDelete: courseActions.remove,
-    }),
-
-    ...(!isOrgCourse && {
-      onDuplicateToOrg: courseActions.duplicate,
-    }),
-
-    onViewAnalytics: courseActions.viewAnalytics,
-    onSharePreview: courseActions.sharePreview,
-        onAddToCollection: (courseId: string, courseTitle?: string) => {
-          courseActions.addToCollection(courseId, courseTitle);
+  const createCourseActions = (isOrgCourse: boolean): CourseCardActions => {
+    if (isOrgStudent()) {
+      // Student actions - limited to preview and start/continue
+      return {
+        onPreview: (courseId: string) => {
+          const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+          courseActions.preview(courseId, course?.route);
         },
-  });
+        onAssign: (courseId: string) => {
+          // For students, "Assign" becomes "Start Course"
+          const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+          courseActions.preview(courseId, course?.route);
+        }
+      };
+    }
+    
+    // Instructor/Owner actions - full functionality
+    return {
+      onPreview: (courseId: string) => {
+        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+        courseActions.preview(courseId, course?.route);
+      },
+      
+      onAssign: courseActions.assign,
+
+      ...(isOrgCourse && {
+        onEdit: courseActions.edit,
+        onPublish: courseActions.publish,
+        onUnpublish: courseActions.unpublish,
+        onDelete: courseActions.remove,
+      }),
+
+      ...(!isOrgCourse && {
+        onDuplicateToOrg: courseActions.duplicate,
+      }),
+
+      onViewAnalytics: courseActions.viewAnalytics,
+      onSharePreview: courseActions.sharePreview,
+      onAddToCollection: (courseId: string, courseTitle?: string) => {
+        courseActions.addToCollection(courseId, courseTitle);
+      },
+    };
+  };
 
   const handleCreateCourse = () => {
     setShowCreateWizard(true);
@@ -174,10 +201,37 @@ export default function OrgCoursesCatalog() {
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalCourses = platformCourses.length + orgCourses.length;
-  const publishedCourses = [...platformCourses, ...orgCourses].filter(
-    course => course.status === 'published'
-  ).length;
+  // Calculate statistics based on user role
+  const getStatistics = () => {
+    if (isOrgStudent()) {
+      const assignedCourses = assignments.length;
+      const completedAssignments = assignments.filter(a => a.target.status === 'completed').length;
+      const pendingAssignments = assignments.filter(a => a.target.status === 'pending').length;
+      const inProgressAssignments = assignments.filter(a => a.target.status === 'started').length;
+      
+      return {
+        assignedCourses,
+        completedAssignments,
+        pendingAssignments,
+        inProgressAssignments,
+        progressPercentage: assignedCourses > 0 ? Math.round((completedAssignments / assignedCourses) * 100) : 0
+      };
+    } else {
+      const totalCourses = platformCourses.length + orgCourses.length;
+      const publishedCourses = [...platformCourses, ...orgCourses].filter(
+        course => course.status === 'published'
+      ).length;
+      
+      return {
+        totalCourses,
+        platformCoursesCount: platformCourses.length,
+        orgCoursesCount: orgCourses.length,
+        publishedCourses
+      };
+    }
+  };
+
+  const statistics = getStatistics();
 
   if (isLoading) {
     return (
@@ -217,9 +271,14 @@ export default function OrgCoursesCatalog() {
           {/* Header */}
           <header className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-white mb-2">Course Catalog</h1>
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
+              </h1>
               <p className="text-white/80">
-                Discover and assign courses from our platform and your organization
+                {isOrgStudent() 
+                  ? 'View your assigned courses and explore available content'
+                  : 'Discover and assign courses from our platform and your organization'
+                }
               </p>
             </div>
             <div className="flex gap-2">
@@ -258,71 +317,126 @@ export default function OrgCoursesCatalog() {
                   <AlignJustify className="w-4 h-4" />
                 </Button>
               </div>
-              <CollectionsDropdown orgId={orgId} />
-              <Button 
-                onClick={handleCreateCourse}
-                className="bg-white/20 text-white border-white/30 hover:bg-white/30"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Course
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleUploadScorm}
-                className="bg-white/10 text-white border-white/30 hover:bg-white/20"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Import
-              </Button>
+              {!isOrgStudent() && (
+                <>
+                  <CollectionsDropdown orgId={orgId} />
+                  <Button 
+                    onClick={handleCreateCourse}
+                    className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Course
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleUploadScorm}
+                    className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Import
+                  </Button>
+                </>
+              )}
             </div>
           </header>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-orange-500/65 border-orange-400/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-white" />
-                  <div>
-                    <p className="text-sm font-medium text-white">Total Courses</p>
-                    <p className="text-2xl font-semibold text-white">{totalCourses}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-orange-500/65 border-orange-400/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-white" />
-                  <div>
-                    <p className="text-sm font-medium text-white">Platform Courses</p>
-                    <p className="text-2xl font-semibold text-white">{platformCourses.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-orange-500/65 border-orange-400/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-white" />
-                  <div>
-                    <p className="text-sm font-medium text-white">Organization Courses</p>
-                    <p className="text-2xl font-semibold text-white">{orgCourses.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-orange-500/65 border-orange-400/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-white" />
-                  <div>
-                    <p className="text-sm font-medium text-white">Published</p>
-                    <p className="text-2xl font-semibold text-white">{publishedCourses}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {isOrgStudent() ? (
+              <>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">My Assigned Courses</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.assignedCourses}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">My Progress</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.progressPercentage}%</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Pending Assignments</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.pendingAssignments}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Completed</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.completedAssignments}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Total Courses</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.totalCourses}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Platform Courses</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.platformCoursesCount}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Organization Courses</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.orgCoursesCount}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-white" />
+                      <div>
+                        <p className="text-sm font-medium text-white">Published</p>
+                        <p className="text-2xl font-semibold text-white">{statistics.publishedCourses}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
 
           {/* Search */}
@@ -340,84 +454,159 @@ export default function OrgCoursesCatalog() {
         </div>
 
         <div className="mt-6 space-y-8">
-          {/* Platform Courses */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-semibold">Platform Courses</h2>
-              <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
-            </div>
-            
-            {filteredPlatformCourses.length === 0 && platformCourses.length > 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No platform courses match your search.</p>
+          {isOrgStudent() ? (
+            <>
+              {/* My Assigned Courses */}
+              {assignments.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <GraduationCap className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-semibold">My Assigned Courses</h2>
+                    <Badge variant="secondary">{assignments.length}</Badge>
+                  </div>
+                  
+                  <div className={
+                    viewType === 'grid' 
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      : viewType === 'list'
+                      ? "space-y-4"
+                      : "space-y-1"
+                  }>
+                    {assignments.map((assignment) => {
+                      // Find the course data from our catalog
+                      const course = [...platformCourses, ...orgCourses].find(c => c.id === assignment.resource_id);
+                      if (!course) return null;
+                      
+                      return (
+                        <EnhancedCourseCard
+                          key={assignment.id}
+                          course={toCourseCardModel(course)}
+                          actions={createCourseActions(false)}
+                          viewType={viewType}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Separator */}
+              {assignments.length > 0 && <Separator />}
+              
+              {/* Available Platform Courses */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Available Platform Courses</h2>
+                  <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
+                </div>
+                
+                {filteredPlatformCourses.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No platform courses available.</p>
+                  </div>
+                ) : (
+                  <div className={
+                    viewType === 'grid' 
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      : viewType === 'list'
+                      ? "space-y-4"
+                      : "space-y-1"
+                  }>
+                    {filteredPlatformCourses.map((course) => (
+                      <EnhancedCourseCard
+                        key={course.id}
+                        course={toCourseCardModel(course)}
+                        actions={createCourseActions(false)}
+                        viewType={viewType}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : filteredPlatformCourses.length === 0 ? (
-              <EmptyState type="platform" />
-            ) : (
-              <div className={
-                viewType === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : viewType === 'list'
-                  ? "space-y-4"
-                  : "space-y-1"
-              }>
-                {filteredPlatformCourses.map((course) => (
-                  <EnhancedCourseCard
-                    key={course.id}
-                    course={toCourseCardModel(course)}
-                    actions={createCourseActions(false)}
-                    viewType={viewType}
-                  />
-                ))}
+            </>
+          ) : (
+            <>
+              {/* Platform Courses */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Platform Courses</h2>
+                  <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
+                </div>
+                
+                {filteredPlatformCourses.length === 0 && platformCourses.length > 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No platform courses match your search.</p>
+                  </div>
+                ) : filteredPlatformCourses.length === 0 ? (
+                  <EmptyState type="platform" />
+                ) : (
+                  <div className={
+                    viewType === 'grid' 
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      : viewType === 'list'
+                      ? "space-y-4"
+                      : "space-y-1"
+                  }>
+                    {filteredPlatformCourses.map((course) => (
+                      <EnhancedCourseCard
+                        key={course.id}
+                        course={toCourseCardModel(course)}
+                        actions={createCourseActions(false)}
+                        viewType={viewType}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Divider */}
-          <Separator />
+              {/* Divider */}
+              <Separator />
 
-          {/* Organization Courses */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Building2 className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-semibold">Organization Courses</h2>
-              <Badge variant="default">{filteredOrgCourses.length}</Badge>
-            </div>
-            
-            {filteredOrgCourses.length === 0 && orgCourses.length > 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No organization courses match your search.</p>
-              </div>
-            ) : filteredOrgCourses.length === 0 ? (
-              <EmptyState 
-                type="organization" 
-                onCreateCourse={handleCreateCourse}
-                onUploadScorm={handleUploadScorm}
-              />
-            ) : (
-              <div className={
-                viewType === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : viewType === 'list'
-                  ? "space-y-4"
-                  : "space-y-1"
-              }>
-                {filteredOrgCourses.map((course) => (
-                  <EnhancedCourseCard
-                    key={course.id}
-                    course={toCourseCardModel(course)}
-                    actions={createCourseActions(true)}
-                    viewType={viewType}
+              {/* Organization Courses */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Organization Courses</h2>
+                  <Badge variant="default">{filteredOrgCourses.length}</Badge>
+                </div>
+                
+                {filteredOrgCourses.length === 0 && orgCourses.length > 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No organization courses match your search.</p>
+                  </div>
+                ) : filteredOrgCourses.length === 0 ? (
+                  <EmptyState 
+                    type="organization" 
+                    onCreateCourse={handleCreateCourse}
+                    onUploadScorm={handleUploadScorm}
                   />
-                ))}
+                ) : (
+                  <div className={
+                    viewType === 'grid' 
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      : viewType === 'list'
+                      ? "space-y-4"
+                      : "space-y-1"
+                  }>
+                    {filteredOrgCourses.map((course) => (
+                      <EnhancedCourseCard
+                        key={course.id}
+                        course={toCourseCardModel(course)}
+                        actions={createCourseActions(true)}
+                        viewType={viewType}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         {/* Course Creation Wizard */}
-        {showCreateWizard && (
+        {showCreateWizard && !isOrgStudent() && (
           <CourseCreationWizard
             open={showCreateWizard}
             onOpenChange={setShowCreateWizard}
@@ -434,7 +623,7 @@ export default function OrgCoursesCatalog() {
         />
 
         {/* Import Dialog */}
-        {showImportDialog && (
+        {showImportDialog && !isOrgStudent() && (
           <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-20">
             <div className="bg-card rounded-lg p-6 w-96 max-w-full mx-4 shadow-xl">
               <h3 className="text-lg font-semibold mb-4">Import Courses</h3>
@@ -474,7 +663,8 @@ export default function OrgCoursesCatalog() {
           <div className="mt-8 p-4 bg-muted rounded-lg">
             <h3 className="font-semibold mb-2">Debug - Course Statistics:</h3>
             <p className="text-sm text-muted-foreground">
-              Platform: {platformCourses.length} | Organization: {orgCourses.length} | Total: {totalCourses}
+              Platform: {platformCourses.length} | Organization: {orgCourses.length} | Total: {platformCourses.length + orgCourses.length}
+              {isOrgStudent() && ` | Assignments: ${assignments.length}`}
             </p>
           </div>
         )}
