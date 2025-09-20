@@ -12,7 +12,8 @@ import {
   UserPlus,
   Palette,
   Menu,
-  X
+  X,
+  Brain
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -63,6 +64,11 @@ export function OrgNavigation() {
       href: `/org/${currentOrg.organization_id}/notes`,
       label: 'Notes',
       icon: FileText,
+    },
+    {
+      href: `/org/${currentOrg.organization_id}/ai-coach`,
+      label: 'AI Study Coach',
+      icon: Brain,
     },
     {
       href: `/org/${currentOrg.organization_id}/analytics`,
