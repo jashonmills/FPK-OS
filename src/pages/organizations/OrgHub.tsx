@@ -21,33 +21,21 @@ import {
   Calendar,
   Send
 } from 'lucide-react';
-import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useToast } from '@/hooks/use-toast';
-
-// Safe org context hook that works with or without OrgProvider
-const useSafeOrgContext = () => {
-  try {
-    return useOrgContext();
-  } catch (error) {
-    // Fallback when not in org context (personal dashboard)
-    return {
-      organizations: [],
-      isLoading: false,
-      switchOrganization: (orgId: string) => {
-        // Navigate to org route with proper context
-        window.location.href = `/org/${orgId}`;
-      }
-    };
-  }
-};
+import { useUserOrganizations } from '@/hooks/useUserOrganization';
 
 const OrgHub = () => {
-  const { organizations, isLoading, switchOrganization } = useSafeOrgContext();
+  const { data: organizations = [], isLoading } = useUserOrganizations();
   const navigate = useNavigate();
   const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [inviteCode, setInviteCode] = useState('');
+
+  const switchOrganization = (orgId: string) => {
+    // Navigate to org route with proper context
+    window.location.href = `/org/${orgId}`;
+  };
 
   const handleJoinWithCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -234,7 +222,7 @@ const OrgHub = () => {
         <Card className="cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => {
                 // Navigate to correct invitations page based on context
-                if (switchOrganization && organizations.length > 0) {
+                if (organizations.length > 0) {
                   // If user has orgs, show org invitations
                   navigate('/org/invitations');
                 } else {
