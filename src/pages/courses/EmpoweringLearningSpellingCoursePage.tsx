@@ -213,13 +213,13 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
         // Navigate back to course overview after a short delay
         setTimeout(() => {
-          navigate('/courses/el-spelling-reading');
+          navigate('/courses/empowering-learning-spelling');
         }, 2000);
       } catch (error) {
         console.error('Failed to complete course:', error);
         // Still navigate back even if tracking failed
         setTimeout(() => {
-          navigate('/courses/el-spelling-reading');
+          navigate('/courses/empowering-learning-spelling');
         }, 2000);
       }
     }
