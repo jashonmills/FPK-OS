@@ -235,13 +235,19 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                           </DropdownMenuItem>
                         </>
                       )}
-                      {actions.onAddToCollection && (
-                        <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
-                          <Tag className="h-4 w-4 mr-2" />
-                          Add to Collection
-                        </DropdownMenuItem>
-                      )}
-                      {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
+                    {actions.onAddToCollection && (
+                      <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
+                        <Tag className="h-4 w-4 mr-2" />
+                        Add to Collection
+                      </DropdownMenuItem>
+                    )}
+                    {canManageOrg() && (
+                      <DropdownMenuItem onClick={() => actions.onAssignToStudents?.(course.id, course.title)}>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Assign to Students
+                      </DropdownMenuItem>
+                    )}
+                    {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
                       {canPublish && (
                         <DropdownMenuItem 
                           onClick={() => setConfirm({ 
@@ -405,6 +411,12 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                       <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
                         <Tag className="h-4 w-4 mr-2" />
                         Add to Collection
+                      </DropdownMenuItem>
+                    )}
+                    {canManageOrg() && (
+                      <DropdownMenuItem onClick={() => actions.onAssignToStudents?.(course.id, course.title)}>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Assign to Students
                       </DropdownMenuItem>
                     )}
                     {(canPublish || canUnpublish) && <DropdownMenuSeparator />}

@@ -14,10 +14,21 @@ import { Users, Calendar, FileText } from 'lucide-react';
 interface AssignmentCreateDialogProps {
   course: CourseCard;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AssignmentCreateDialog({ course, trigger }: AssignmentCreateDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, onOpenChange }: AssignmentCreateDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (newOpen: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
+  };
   const [title, setTitle] = useState(`${course.title} Assignment`);
   const [instructions, setInstructions] = useState('');
   const [dueDate, setDueDate] = useState('');

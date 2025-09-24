@@ -151,6 +151,13 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
     setShowCollectionModal(true);
   }, []);
 
+  const assignToStudents = useCallback((courseId: string, courseTitle?: string) => {
+    setSelectedCourse({ id: courseId, title: courseTitle || 'Unknown Course' });
+    setShowAssignmentModal(true);
+  }, []);
+
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+
   return {
     preview,
     assign,
@@ -162,9 +169,12 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
     viewAnalytics,
     sharePreview,
     addToCollection,
-    // Collection modal state
+    assignToStudents,
+    // Modal state
     showCollectionModal,
     setShowCollectionModal,
+    showAssignmentModal,
+    setShowAssignmentModal,
     selectedCourse,
   };
 }

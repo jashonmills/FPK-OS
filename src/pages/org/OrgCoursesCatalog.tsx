@@ -37,6 +37,8 @@ import { useCourseActions } from '@/hooks/useCourseActions';
 import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { AssignmentCreateDialog } from '@/components/assignments/AssignmentCreateDialog';
+import { convertEnhancedCourseToCard } from '@/utils/courseConversion';
 import { cn } from '@/lib/utils';
 
 type ViewType = 'grid' | 'list' | 'compact';
@@ -146,6 +148,9 @@ export default function OrgCoursesCatalog() {
       onSharePreview: courseActions.sharePreview,
       onAddToCollection: (courseId: string, courseTitle?: string) => {
         courseActions.addToCollection(courseId, courseTitle);
+      },
+      onAssignToStudents: (courseId: string, courseTitle?: string) => {
+        courseActions.assignToStudents(courseId, courseTitle);
       },
     };
   };
@@ -707,6 +712,28 @@ export default function OrgCoursesCatalog() {
           courseId={courseActions.selectedCourse?.id || ''}
           courseTitle={courseActions.selectedCourse?.title || ''}
         />
+
+        {/* Assignment Modal */}
+        {courseActions.selectedCourse && (
+          <AssignmentCreateDialog
+            course={convertEnhancedCourseToCard({
+              id: courseActions.selectedCourse.id,
+              title: courseActions.selectedCourse.title,
+              orgId: orgId,
+              thumbnailUrl: null,
+              durationMinutes: null,
+              difficulty: 'intermediate',
+              origin: 'organization',
+              sourceType: 'manual',
+              framework: 'framework1',
+              status: 'published',
+              route: '',
+              tags: []
+            })}
+            open={courseActions.showAssignmentModal}
+            onOpenChange={courseActions.setShowAssignmentModal}
+          />
+        )}
 
         {/* Import Dialog */}
         {showImportDialog && !isOrgStudent() && (

@@ -52,6 +52,7 @@ export interface CourseCardActions {
   onSharePreview?: (courseId: string) => void;
   onViewAnalytics?: (courseId: string) => void;
   onAddToCollection?: (courseId: string) => void;
+  onAssignToStudents?: (courseId: string, courseTitle?: string) => void;
 }
 
 export interface ConfirmModalData {
