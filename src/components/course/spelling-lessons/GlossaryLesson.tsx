@@ -73,7 +73,7 @@ export const GlossaryLesson: React.FC = () => {
                 <CardContent className="pt-4">
                   <h5 className="font-semibold text-indigo-900 mb-2">Reverse Spelling</h5>
                   <p className="text-gray-700">
-                    Spelling a word backwards (from right to left) to confirm that it has been stored as a visual image 
+                    Spelling a word in reverse (from right to left) to confirm that it has been stored as a visual image 
                     rather than just phonetic memory. Proves true visual mastery of the word.
                   </p>
                 </CardContent>
@@ -138,7 +138,7 @@ export const GlossaryLesson: React.FC = () => {
                       <li>4. Visualize spelling word</li>
                       <li>5. See letters clearly</li>
                       <li>6. Add colors</li>
-                      <li>7. Spell forward and backward</li>
+                      <li>7. Spell forward and in reverse</li>
                     </ol>
                   </div>
                   <div>
