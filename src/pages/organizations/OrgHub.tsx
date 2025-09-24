@@ -25,12 +25,14 @@ import { useNavigate } from 'react-router-dom';
 import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useToast } from '@/hooks/use-toast';
 import { useUserOrganizations } from '@/hooks/useUserOrganization';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const OrgHub = () => {
   const { data: organizations = [], isLoading } = useUserOrganizations();
   const navigate = useNavigate();
   const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [inviteCode, setInviteCode] = useState('');
+  const isMobile = useIsMobile();
 
   const switchOrganization = (orgId: string) => {
     // Navigate to org route with proper context
@@ -85,9 +87,9 @@ const OrgHub = () => {
       </div>
 
       {/* Action Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* My Organizations */}
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
@@ -108,7 +110,55 @@ const OrgHub = () => {
                   Create Your First Organization
                 </Button>
               </div>
+            ) : isMobile ? (
+              // Mobile: Card layout
+              <div className="space-y-4">
+                {organizations.map((org) => (
+                  <Card key={org.organization_id} className="p-4">
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-base line-clamp-2">
+                            {org.organizations.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant={
+                              org.role === 'owner' ? 'default' : 
+                              org.role === 'instructor' ? 'secondary' : 'outline'
+                            } className="text-xs">
+                              {org.role}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {org.organizations.plan}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenOrganization(org)}
+                          className="flex-1"
+                        >
+                          <ArrowUpRight className="h-4 w-4 mr-1" />
+                          Open
+                        </Button>
+                        {org.role !== 'owner' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleLeaveOrganization(org.organization_id)}
+                          >
+                            <UserMinus className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             ) : (
+              // Desktop: Table layout
               <Table>
                 <TableHeader>
                   <TableRow>
