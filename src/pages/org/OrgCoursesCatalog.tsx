@@ -350,123 +350,134 @@ export default function OrgCoursesCatalog() {
   return (
     <OrgRequireRole roles={['instructor', 'owner', 'student']}>
       <PageShell>
-        <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
+        <div className="p-4 md:p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
           {/* Header */}
-          <header className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-white mb-2">
-                {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
-              </h1>
-              <p className="text-white/80">
-                {isOrgStudent() 
-                  ? 'View your assigned courses and explore available content'
-                  : 'Discover and assign courses from our platform and your organization'
-                }
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex items-center gap-1 border border-white/20 rounded-lg p-1">
-                <Button
-                  size="sm"
-                  variant={viewType === 'grid' ? 'secondary' : 'ghost'}
-                  onClick={() => handleViewTypeChange('grid')}
-                  className={viewType === 'grid' 
-                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+          <header className="mb-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-white mb-2">
+                  {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
+                </h1>
+                <p className="text-white/80 text-sm md:text-base">
+                  {isOrgStudent() 
+                    ? 'View your assigned courses and explore available content'
+                    : 'Discover and assign courses from our platform and your organization'
                   }
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewType === 'list' ? 'secondary' : 'ghost'}
-                  onClick={() => handleViewTypeChange('list')}
-                  className={viewType === 'list' 
-                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
-                  }
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewType === 'compact' ? 'secondary' : 'ghost'}
-                  onClick={() => handleViewTypeChange('compact')}
-                  className={viewType === 'compact' 
-                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
-                  }
-                >
-                  <AlignJustify className="w-4 h-4" />
-                </Button>
+                </p>
               </div>
-              {!isOrgStudent() && (
-                <>
-                  <CollectionsDropdown orgId={orgId} />
-                  <Button 
-                    onClick={handleCreateCourse}
-                    className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+              
+              {/* Mobile-optimized controls */}
+              <div className="flex flex-col gap-3 md:flex-row md:gap-2">
+                {/* View type controls */}
+                <div className="flex items-center gap-1 border border-white/20 rounded-lg p-1 self-start">
+                  <Button
+                    size="sm"
+                    variant={viewType === 'grid' ? 'secondary' : 'ghost'}
+                    onClick={() => handleViewTypeChange('grid')}
+                    className={viewType === 'grid' 
+                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                    }
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Course
+                    <Grid3X3 className="w-4 h-4" />
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleUploadScorm}
-                    className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+                  <Button
+                    size="sm"
+                    variant={viewType === 'list' ? 'secondary' : 'ghost'}
+                    onClick={() => handleViewTypeChange('list')}
+                    className={viewType === 'list' 
+                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                    }
                   >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Import
+                    <List className="w-4 h-4" />
                   </Button>
-                </>
-              )}
+                  <Button
+                    size="sm"
+                    variant={viewType === 'compact' ? 'secondary' : 'ghost'}
+                    onClick={() => handleViewTypeChange('compact')}
+                    className={viewType === 'compact' 
+                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                    }
+                  >
+                    <AlignJustify className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Action buttons for instructors/owners */}
+                {!isOrgStudent() && (
+                  <div className="flex flex-col gap-2 md:flex-row md:gap-2">
+                    <CollectionsDropdown orgId={orgId} />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleCreateCourse}
+                        className="bg-white/20 text-white border-white/30 hover:bg-white/30 flex-1 md:flex-none"
+                        size={isMobile ? "default" : "default"}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        {isMobile ? 'New' : 'New Course'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleUploadScorm}
+                        className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
+                        size={isMobile ? "default" : "default"}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Import
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             {isOrgStudent() ? (
               <>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">My Assigned Courses</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.assignedCourses}</p>
+                      <GraduationCap className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Assigned</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.assignedCourses}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">My Progress</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.progressPercentage}%</p>
+                      <Target className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Progress</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.progressPercentage}%</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Pending Assignments</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.pendingAssignments}</p>
+                      <Clock className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Pending</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.pendingAssignments}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Completed</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.completedAssignments}</p>
+                      <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Complete</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.completedAssignments}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -475,45 +486,45 @@ export default function OrgCoursesCatalog() {
             ) : (
               <>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Total Courses</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.totalCourses}</p>
+                      <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Total Courses</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.totalCourses}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Star className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Platform Courses</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.platformCoursesCount}</p>
+                      <Star className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Platform</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.platformCoursesCount}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Building2 className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Organization Courses</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.orgCoursesCount}</p>
+                      <Building2 className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Organization</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.orgCoursesCount}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-white" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Published</p>
-                        <p className="text-2xl font-semibold text-white">{statistics.publishedCourses}</p>
+                      <Users className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Published</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.publishedCourses}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -523,8 +534,8 @@ export default function OrgCoursesCatalog() {
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-4 max-w-md mb-6">
-            <div className="relative flex-1">
+          <div className="mb-6">
+            <div className="relative max-w-md">
               <Search className="absolute left-3 top-3 h-4 w-4 text-white/60" />
               <Input
                 placeholder="Search courses..."
