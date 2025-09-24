@@ -47,7 +47,7 @@ export const QuizLesson: React.FC = () => {
                 <CardContent className="pt-4">
                   <div className="space-y-3">
                     <h5 className="font-semibold text-purple-900">Question 3:</h5>
-                    <p className="text-gray-700">What is the purpose of asking someone to spell a word backwards?</p>
+                    <p className="text-gray-700">What is the purpose of asking someone to spell a word in reverse?</p>
                     <div className="bg-purple-50 p-3 rounded-md">
                       <p className="text-sm text-purple-700"><strong>Answer:</strong> It proves they truly "see" the word as a visual image rather than just remembering the sound, confirming the word is stored in visual memory.</p>
                     </div>
