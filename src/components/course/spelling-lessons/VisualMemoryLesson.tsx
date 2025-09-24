@@ -68,7 +68,7 @@ export const VisualMemoryLesson: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 text-purple-700">
-                    <p>Spelling words backwards proves you truly "see" the word because:</p>
+                    <p>Spelling words in reverse proves you truly "see" the word because:</p>
                     <ul className="space-y-1 ml-4">
                       <li>• It requires visual memory, not just phonetic memory</li>
                       <li>• It confirms the word is stored as a complete image</li>
@@ -86,7 +86,7 @@ export const VisualMemoryLesson: React.FC = () => {
                   <h5 className="font-semibold mb-2 text-yellow-900">Practice Exercise</h5>
                   <p className="text-yellow-700">
                     Try visualizing the word "ELEPHANT" in bright blue letters. Can you see each letter clearly? 
-                    Now try spelling it backwards: T-N-A-H-P-E-L-E
+                    Now try spelling it in reverse: T-N-A-H-P-E-L-E
                   </p>
                 </div>
               </CardContent>
