@@ -11,7 +11,7 @@ import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
 import interactiveGeometryBg from '@/assets/interactive-geometry-fundamentals-bg.jpg';
 import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
-import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-new-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 import eltBackground from '@/assets/elt-background.jpg';
 
