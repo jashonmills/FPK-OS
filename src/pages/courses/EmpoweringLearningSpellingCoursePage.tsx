@@ -16,6 +16,8 @@ import { SpellingCourseWrapper } from '@/components/course/SpellingCourseWrapper
 import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
 import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAudioButtons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useProgressTracking } from '@/hooks/useProgressTracking';
+import { toast } from '@/components/ui/use-toast';
 
 // Import lesson components
 import { IntroductionLesson } from '@/components/course/spelling-lessons/IntroductionLesson';
@@ -55,6 +57,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [inProgressLessons, setInProgressLessons] = useState<number[]>([]);
   const [currentActiveLessonId, setCurrentActiveLessonId] = useState<number>(1);
+  const { currentProgress, updateProgress } = useProgressTracking('empowering-learning-spelling');
 
   // Load progress from localStorage on mount
   useEffect(() => {
@@ -167,7 +170,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     navigate(`/courses/empowering-learning-spelling/${lessonId}`);
   }, [getLessonState, inProgressLessons, navigate]);
 
-  const handleLessonComplete = useCallback((lessonId: number) => {
+  const handleLessonComplete = useCallback(async (lessonId: number) => {
     // Move from in-progress to completed
     if (!completedLessons.includes(lessonId)) {
       setCompletedLessons(prev => [...prev, lessonId]);
@@ -181,8 +184,48 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
       setCurrentActiveLessonId(lessonId + 1);
     }
     
+    // Update Supabase progress tracking
+    try {
+      await updateProgress({
+        type: 'module_complete',
+        moduleId: `lesson-${lessonId}`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to update progress:', error);
+    }
+
+    // Check if this is the final lesson (lesson 12 - Glossary)
+    if (lessonId === 12) {
+      try {
+        // Mark course as completed
+        await updateProgress({
+          type: 'course_complete',
+          completionPercentage: 100,
+          completed: true,
+          completedAt: new Date().toISOString()
+        });
+        
+        toast({
+          title: "🎉 Course Completed!",
+          description: "Congratulations! You've completed the Empowering Learning for Spelling course.",
+        });
+
+        // Navigate back to course overview after a short delay
+        setTimeout(() => {
+          navigate('/courses/empowering-learning-spelling');
+        }, 2000);
+      } catch (error) {
+        console.error('Failed to complete course:', error);
+        // Still navigate back even if tracking failed
+        setTimeout(() => {
+          navigate('/courses/empowering-learning-spelling');
+        }, 2000);
+      }
+    }
+    
     console.log('✅ Lesson completed:', lessonId);
-  }, [completedLessons, currentActiveLessonId]);
+  }, [completedLessons, currentActiveLessonId, updateProgress, navigate]);
 
   // Memoize navigation handlers to prevent unnecessary re-renders
   const handleNextLesson = useCallback(() => {
@@ -525,7 +568,14 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
                 hasNext={hasNext}
                 totalLessons={lessons.length}
               >
-                <LessonComponent />
+                {currentLesson === 12 ? (
+                  React.createElement(LessonComponent as React.ComponentType<any>, {
+                    onComplete: () => handleLessonComplete(currentLesson),
+                    isCompleted: completedLessons.includes(currentLesson)
+                  })
+                ) : (
+                  <LessonComponent />
+                )}
               </InteractiveLessonWrapper>
             </div>
           </div>
