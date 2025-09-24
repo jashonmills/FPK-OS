@@ -89,20 +89,8 @@ export const EmpoweringLearningNounsLesson: React.FC = () => {
                     <div className="bg-muted/50 p-4 rounded-lg">
                       <p><strong>12.</strong> Ask them to spell the word in reverse.</p>
                     </div>
-                    <div className="bg-muted/50 p-4 rounded-lg">
-                      <p><strong>13.</strong> Use the swan to find their Whiteboard.</p>
-                    </div>
-                    <div className="bg-muted/50 p-4 rounded-lg">
-                      <p><strong>14.</strong> Write the word on a Post-it.</p>
-                    </div>
-                    <div className="bg-muted/50 p-4 rounded-lg">
-                      <p><strong>15.</strong> Repeat steps 6-11.</p>
-                    </div>
                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-                      <p><strong>16.</strong> Practice for 10 minutes EVERY day for 28 days.</p>
-                    </div>
-                    <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-                      <p><strong>17.</strong> REMEMBER - it should be fun so be creative with words.</p>
+                      <p><strong>13.</strong> REMEMBER - it should be fun so be creative with words.</p>
                     </div>
                   </div>
                 </div>
