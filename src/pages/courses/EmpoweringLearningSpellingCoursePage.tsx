@@ -57,7 +57,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [inProgressLessons, setInProgressLessons] = useState<number[]>([]);
   const [currentActiveLessonId, setCurrentActiveLessonId] = useState<number>(1);
-  const { currentProgress, updateProgress } = useProgressTracking('empowering-learning-spelling');
+  const { currentProgress, updateProgress } = useProgressTracking('el-spelling-reading');
 
   // Load progress from localStorage on mount
   useEffect(() => {
@@ -213,13 +213,13 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
         // Navigate back to course overview after a short delay
         setTimeout(() => {
-          navigate('/courses/empowering-learning-spelling');
+          navigate('/courses/el-spelling-reading');
         }, 2000);
       } catch (error) {
         console.error('Failed to complete course:', error);
         // Still navigate back even if tracking failed
         setTimeout(() => {
-          navigate('/courses/empowering-learning-spelling');
+          navigate('/courses/el-spelling-reading');
         }, 2000);
       }
     }
