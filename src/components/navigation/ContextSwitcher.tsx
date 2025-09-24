@@ -65,7 +65,14 @@ export function ContextSwitcher() {
           <ArrowLeftRight className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent 
+        align="end" 
+        className="w-56 mobile-dropdown-content" 
+        sideOffset={5}
+        avoidCollisions={true}
+        sticky="always"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <DropdownMenuLabel>Switch Context</DropdownMenuLabel>
         <DropdownMenuSeparator />
         

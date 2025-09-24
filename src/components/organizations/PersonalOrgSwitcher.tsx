@@ -64,7 +64,14 @@ export function PersonalOrgSwitcher() {
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[250px]">
+      <DropdownMenuContent 
+        align="start" 
+        className="w-[250px] mobile-dropdown-content" 
+        sideOffset={5}
+        avoidCollisions={true}
+        sticky="always"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <DropdownMenuLabel>Switch Context</DropdownMenuLabel>
         <DropdownMenuSeparator />
         

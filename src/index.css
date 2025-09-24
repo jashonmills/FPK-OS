@@ -398,6 +398,40 @@
     @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors mobile-touch-target whitespace-nowrap z-10 relative;
   }
 
+  /* Mobile Dropdown Fixes */
+  .mobile-dropdown-content {
+    @apply z-[9999] bg-background/95 backdrop-blur-sm border shadow-lg;
+    position: fixed !important;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .mobile-dropdown-portal {
+    @apply z-[9999];
+  }
+
+  /* Prevent viewport jumping on mobile */
+  @media (max-width: 768px) {
+    body:has([data-radix-popper-content-wrapper]) {
+      position: relative;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    [data-radix-popper-content-wrapper] {
+      z-index: 9999 !important;
+      position: fixed !important;
+    }
+    
+    [data-radix-dropdown-content] {
+      z-index: 9999 !important;
+      position: fixed !important;
+      background: hsl(var(--background)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      box-shadow: 0 10px 38px -10px hsla(206, 22%, 7%, .35), 0 10px 20px -15px hsla(206, 22%, 7%, .2) !important;
+    }
+  }
+
   /* Mobile Content Utilities */
   .mobile-scroll-container {
     @apply overflow-y-auto;

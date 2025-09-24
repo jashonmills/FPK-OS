@@ -45,8 +45,8 @@ const PersonalGlobalHeader = () => {
   };
 
   return (
-    <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4">
+    <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
+      <div className="flex h-16 items-center justify-between px-4 relative overflow-visible">
         {/* Left side - Sidebar trigger and brand */}
         <div className="flex items-center gap-3">
           <SidebarTrigger className="hover:text-primary" />
@@ -65,7 +65,7 @@ const PersonalGlobalHeader = () => {
         </div>
 
         {/* Center - Organization Switcher */}
-        <div className="flex-1 flex justify-center max-w-md mx-4">
+        <div className="flex-1 flex justify-center max-w-md mx-4 relative z-50 overflow-visible">
           <PersonalOrgSwitcher />
         </div>
 
@@ -101,7 +101,14 @@ const PersonalGlobalHeader = () => {
                 <span className="hidden sm:block font-medium">{getDisplayName()}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent 
+              align="end" 
+              className="w-56 mobile-dropdown-content" 
+              sideOffset={5}
+              avoidCollisions={true}
+              sticky="always"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
               <DropdownMenuLabel>
                 My Account
               </DropdownMenuLabel>
