@@ -55,7 +55,7 @@ export const FinalTipsLesson: React.FC = () => {
                       1
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Write the word on the post-it note if you are unsure of spelling</p>
+                      <p className="text-black">Write the word on the post-it note if you are unsure of spelling</p>
                     </div>
                   </div>
                 </CardContent>
@@ -68,7 +68,7 @@ export const FinalTipsLesson: React.FC = () => {
                       2
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Always make sure they can see the letters clearly</p>
+                      <p className="text-black">Always make sure they can see the letters clearly</p>
                     </div>
                   </div>
                 </CardContent>
@@ -81,7 +81,7 @@ export const FinalTipsLesson: React.FC = () => {
                       3
                     </div>
                     <div>
-                      <p className="text-muted-foreground">If they are having problems seeing the letters, encourage them to make the letters bigger</p>
+                      <p className="text-black">If they are having problems seeing the letters, encourage them to make the letters bigger</p>
                     </div>
                   </div>
                 </CardContent>
@@ -94,7 +94,7 @@ export const FinalTipsLesson: React.FC = () => {
                       4
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Always ask them to make the letters a different colour</p>
+                      <p className="text-black">Always ask them to make the letters a different colour</p>
                     </div>
                   </div>
                 </CardContent>
@@ -107,7 +107,7 @@ export const FinalTipsLesson: React.FC = () => {
                       5
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Always ask them to spell backwards</p>
+                      <p className="text-black">Always ask them to spell in reverse</p>
                     </div>
                   </div>
                 </CardContent>
@@ -120,7 +120,7 @@ export const FinalTipsLesson: React.FC = () => {
                       6
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Use the whiteboard once they have mastered the post-it technique</p>
+                      <p className="text-black">Use the whiteboard once they have mastered the post-it technique</p>
                     </div>
                   </div>
                 </CardContent>
@@ -133,7 +133,7 @@ export const FinalTipsLesson: React.FC = () => {
                       7
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Practice for 10 minutes EVERY day for 28 days</p>
+                      <p className="text-black">Practice for 10 minutes EVERY day for 28 days</p>
                     </div>
                   </div>
                 </CardContent>
@@ -146,7 +146,7 @@ export const FinalTipsLesson: React.FC = () => {
                       8
                     </div>
                     <div>
-                      <p className="text-muted-foreground">REMEMBER: it should be fun so be creative with words</p>
+                      <p className="text-black">REMEMBER: it should be fun so be creative with words</p>
                     </div>
                   </div>
                 </CardContent>
@@ -159,7 +159,7 @@ export const FinalTipsLesson: React.FC = () => {
                       9
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Good Luck!</p>
+                      <p className="text-black">Good Luck!</p>
                     </div>
                   </div>
                 </CardContent>
@@ -171,7 +171,7 @@ export const FinalTipsLesson: React.FC = () => {
                 <div className="text-center">
                   <CheckCircle className="h-8 w-8 text-primary mx-auto mb-2" />
                   <h5 className="font-semibold mb-2">Course Complete!</h5>
-                  <p className="text-muted-foreground">
+                  <p className="text-black">
                     You now have all the tools needed to master spelling through visual learning techniques.
                   </p>
                 </div>
