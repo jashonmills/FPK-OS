@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSpellingCoursePerformance } from '@/hooks/useSpellingCoursePerformance';
-import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
+import empoweringSpellingBg from '@/assets/empowering-spelling-new-bg.jpg';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { useCleanup } from '@/utils/cleanupManager';
 
