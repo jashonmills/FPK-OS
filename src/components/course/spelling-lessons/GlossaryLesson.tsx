@@ -1,8 +1,17 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Search, Key } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Search, Key, CheckCircle } from 'lucide-react';
 
-export const GlossaryLesson: React.FC = () => {
+interface GlossaryLessonProps {
+  onComplete?: () => void;
+  isCompleted?: boolean;
+}
+
+export const GlossaryLesson: React.FC<GlossaryLessonProps> = ({ 
+  onComplete,
+  isCompleted = false 
+}) => {
   return (
     <div className="space-y-6">
       <Card>
@@ -157,6 +166,36 @@ export const GlossaryLesson: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Complete Lesson Button */}
+      {onComplete && !isCompleted && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex justify-center">
+              <Button 
+                onClick={onComplete}
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
+              >
+                <CheckCircle className="mr-2 h-5 w-5" />
+                Complete Lesson
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Lesson Completed Message */}
+      {isCompleted && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="pt-6">
+            <div className="flex justify-center items-center text-green-700">
+              <CheckCircle className="mr-2 h-5 w-5" />
+              <span className="font-medium">Lesson Completed!</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
