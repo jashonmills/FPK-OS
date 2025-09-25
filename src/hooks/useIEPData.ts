@@ -15,11 +15,13 @@ interface ParentIEPResponse {
 export function useIEPData(orgId?: string) {
   const [parentResponses, setParentResponses] = useState<ParentIEPResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchParentResponses = async () => {
     if (!orgId) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const { data, error } = await supabase
         .from('parent_iep_data')
@@ -31,7 +33,9 @@ export function useIEPData(orgId?: string) {
       setParentResponses(data || []);
     } catch (error) {
       console.error('Error fetching parent IEP responses:', error);
-      toast.error('Failed to load parent responses');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load parent responses';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +48,7 @@ export function useIEPData(orgId?: string) {
   return {
     parentResponses,
     isLoading,
+    error,
     refetch: fetchParentResponses
   };
 }

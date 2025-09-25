@@ -16,6 +16,17 @@ export default function IEPModulePage() {
   const navigate = useNavigate();
   const [inviteEmail, setInviteEmail] = useState('');
   
+  // Add safety check for orgId
+  if (!orgId) {
+    return (
+      <div className="container mx-auto p-6 max-w-6xl">
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">Organization not found</p>
+        </div>
+      </div>
+    );
+  }
+  
   const { 
     invites, 
     createInvite, 

@@ -18,11 +18,13 @@ interface IEPInvite {
 export function useIEPInvites(orgId?: string) {
   const [invites, setInvites] = useState<IEPInvite[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchInvites = async () => {
     if (!orgId) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const { data, error } = await supabase
         .from('iep_invites')
@@ -34,7 +36,9 @@ export function useIEPInvites(orgId?: string) {
       setInvites(data || []);
     } catch (error) {
       console.error('Error fetching IEP invites:', error);
-      toast.error('Failed to load invites');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load invites';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +102,7 @@ export function useIEPInvites(orgId?: string) {
     createInvite,
     deleteInvite,
     isLoading,
+    error,
     refetch: fetchInvites
   };
 }
