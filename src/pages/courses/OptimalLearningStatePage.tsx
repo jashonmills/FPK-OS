@@ -387,4 +387,6 @@ export const OptimalLearningStatePage: React.FC = () => {
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
+};
+
 export default OptimalLearningStatePage;
