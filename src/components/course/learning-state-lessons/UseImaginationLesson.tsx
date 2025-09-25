@@ -11,7 +11,7 @@ export const UseImaginationLesson: React.FC = () => {
         type="video"
         title="Use Their Imagination"
         mediaId="use-imagination-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="13"
       />
 

@@ -11,7 +11,7 @@ export const PhoenixBreathLesson: React.FC = () => {
         type="video"
         title="Phoenix Flames Breath"
         mediaId="phoenix-breath-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="8"
       />
 

@@ -12,7 +12,7 @@ export const LabyrinthLesson: React.FC = () => {
         type="video"
         title="Labyrinths for Learning Focus"
         mediaId="labyrinth-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="6"
       />
 

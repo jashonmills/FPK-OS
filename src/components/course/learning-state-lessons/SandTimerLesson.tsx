@@ -12,7 +12,7 @@ export const SandTimerLesson: React.FC = () => {
         type="video"
         title="Sand Timer Technique"
         mediaId="sand-timer-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="9"
       />
 

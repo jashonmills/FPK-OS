@@ -11,7 +11,7 @@ export const WorkingTimeLimitsLesson: React.FC = () => {
         type="video"
         title="Working Time Limits"
         mediaId="working-time-limits-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="12"
       />
 

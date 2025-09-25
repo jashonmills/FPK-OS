@@ -348,9 +348,9 @@ const EL_SPELLING_READING_COURSE = {
   status: 'published'
 };
 
-const EMPOWERING_LEARNING_STATE_COURSE = {
-  id: 'empowering-learning-state',
-  title: 'Empowering Learning State',
+const OPTIMAL_LEARNING_STATE_COURSE = {
+  id: 'optimal-learning-state',
+  title: 'Optimal Learning State Course',
   description: 'Master the optimal learning state through calming techniques and brain integration methods. Learn essential techniques to achieve the most effective learning state.',
   instructor_name: 'FPK University',
   duration_minutes: 180,
@@ -367,7 +367,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
   const allAvailableCourses = [
     EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
     EL_SPELLING_READING_COURSE, // Add the primary EL Spelling & Reading course
-    EMPOWERING_LEARNING_STATE_COURSE, // Add the new Learning State course
+    OPTIMAL_LEARNING_STATE_COURSE, // Add the new Learning State course
     ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
     ...courses,
     ...(orgCourses?.assignedCourses || []),
@@ -420,7 +420,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
       // Empowering Learning courses should be first
-      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'empowering-learning-state'];
+      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'optimal-learning-state'];
       const aIsEmpowering = empoweringLearningIds.includes(a.id);
       const bIsEmpowering = empoweringLearningIds.includes(b.id);
       
@@ -471,7 +471,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
-    const isEmpoweringLearningState = course.id === 'empowering-learning-state';
+    const isOptimalLearningState = course.id === 'optimal-learning-state';
     const isEmpoweringLearningSpelling = course.id === 'el-spelling-reading';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
@@ -517,7 +517,7 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
     // Get course type for styling
     const getCourseType = () => {
-      if (isEmpoweringLearningState) return 'Learning Skills Course';
+      if (isOptimalLearningState) return 'Learning Skills Course';
       if (isEmpoweringLearningSpelling) return 'Spelling Course';
       if (isEmpoweringLearningReading) return 'Reading Course';
       if (isEmpoweringLearningNumeracy) return 'Mathematics Course';
@@ -536,8 +536,8 @@ const EMPOWERING_LEARNING_STATE_COURSE = {
 
     // Fixed course route logic
     const getCourseRoute = () => {
-      if (isEmpoweringLearningState) {
-        return '/courses/empowering-learning-state';
+      if (isOptimalLearningState) {
+        return '/courses/optimal-learning-state';
       }
       
       if (isEmpoweringLearningSpelling) {

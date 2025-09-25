@@ -11,7 +11,7 @@ export const FiveFourThreeTwoOneLesson: React.FC = () => {
         type="video"
         title="5, 4, 3, 2, 1 Grounding Technique"
         mediaId="five-four-three-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="5"
       />
 

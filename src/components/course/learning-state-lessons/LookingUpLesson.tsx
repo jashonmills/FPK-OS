@@ -11,7 +11,7 @@ export const LookingUpLesson: React.FC = () => {
         type="video"
         title="Looking Up Technique"
         mediaId="looking-up-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="11"
       />
 

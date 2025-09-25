@@ -11,7 +11,7 @@ export const TechniquesLesson: React.FC = () => {
         type="video"
         title="Learning Techniques Overview"
         mediaId="learning-techniques-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="2"
       />
 

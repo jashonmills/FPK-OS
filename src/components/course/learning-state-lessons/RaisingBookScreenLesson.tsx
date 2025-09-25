@@ -11,7 +11,7 @@ export const RaisingBookScreenLesson: React.FC = () => {
         type="video"
         title="Raising Up Book/Screen Technique"
         mediaId="raising-book-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="10"
       />
 
