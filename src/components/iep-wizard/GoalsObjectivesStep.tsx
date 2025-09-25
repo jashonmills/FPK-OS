@@ -34,7 +34,8 @@ interface GoalsObjectivesStepProps {
 export function GoalsObjectivesStep({ data, onUpdate, jurisdiction }: GoalsObjectivesStepProps) {
   const [isGeneratingGoals, setIsGeneratingGoals] = useState(false);
   
-  const goals: Goal[] = data.goals || [];
+  // Add safety checks for data structure
+  const goals: Goal[] = Array.isArray(data.goals) ? data.goals : [];
 
   const updateData = (field: string, value: any) => {
     onUpdate({ [field]: value });
@@ -87,7 +88,7 @@ export function GoalsObjectivesStep({ data, onUpdate, jurisdiction }: GoalsObjec
     
     const updatedGoals = goals.map(goal => 
       goal.id === goalId 
-        ? { ...goal, objectives: [...goal.objectives, newObjective] }
+        ? { ...goal, objectives: [...(goal.objectives || []), newObjective] }
         : goal
     );
     updateData('goals', updatedGoals);
@@ -98,7 +99,7 @@ export function GoalsObjectivesStep({ data, onUpdate, jurisdiction }: GoalsObjec
       goal.id === goalId 
         ? {
             ...goal,
-            objectives: goal.objectives.map(obj => 
+            objectives: (goal.objectives || []).map(obj => 
               obj.id === objectiveId ? { ...obj, [field]: value } : obj
             )
           }
@@ -112,7 +113,7 @@ export function GoalsObjectivesStep({ data, onUpdate, jurisdiction }: GoalsObjec
       goal.id === goalId 
         ? {
             ...goal,
-            objectives: goal.objectives.filter(obj => obj.id !== objectiveId)
+            objectives: (goal.objectives || []).filter(obj => obj.id !== objectiveId)
           }
         : goal
     );
@@ -232,7 +233,7 @@ export function GoalsObjectivesStep({ data, onUpdate, jurisdiction }: GoalsObjec
                   </Button>
                 </div>
                 
-                {goal.objectives.map((objective, objIndex) => (
+                {(goal.objectives || []).map((objective, objIndex) => (
                   <Card key={objective.id} className="p-4 mb-3">
                     <div className="flex items-center justify-between mb-3">
                       <h5 className="font-medium">Objective {objIndex + 1}</h5>

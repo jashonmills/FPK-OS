@@ -555,8 +555,21 @@ export function mapMockDataToIEPWizard(mockData: IEPMockData): Record<number, an
     5: { // Present Levels
       ...mockData.presentLevels
     },
-    6: { // Goals & Objectives
-      ...mockData.goalsObjectives
+    6: { // Goals & Objectives - Transform structure to match component expectations
+      goals: mockData.goalsObjectives.goals.map(goal => ({
+        id: goal.id,
+        domain: goal.area, // Map 'area' to 'domain'
+        measurableGoal: goal.description, // Map 'description' to 'measurableGoal'
+        objectives: goal.shortTermObjectives.map(obj => ({ // Map 'shortTermObjectives' to 'objectives'
+          id: obj.id,
+          description: obj.description,
+          criteria: obj.criteria,
+          timeline: obj.timeline
+        })),
+        evaluationCriteria: goal.criteria || '', // Use existing criteria or default
+        evaluationSchedule: goal.timeline || '', // Use timeline as schedule or default
+        responsiblePersons: 'Resource Specialist, General Education Teacher' // Default value
+      }))
     },
     7: { // Services & Supports
       ...mockData.servicesSupports
