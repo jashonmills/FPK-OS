@@ -145,7 +145,7 @@ const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/
 const EmpoweringLearningReadingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningReadingCoursePage"));
 const EmpoweringLearningNumeracyCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningNumeracyCoursePage"));
 const EmpoweringLearningHandwritingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningHandwritingCoursePage"));
-const EmpoweringLearningStatePage = lazy(() => import("./pages/courses/EmpoweringLearningStatePage"));
+const OptimalLearningStatePage = lazy(() => import("./pages/courses/OptimalLearningStatePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
 const InteractiveELTCoursePage = lazy(() => import("./pages/courses/InteractiveELTCoursePage"));
@@ -530,15 +530,15 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          <Route path="/courses/empowering-learning-state" element={
+          <Route path="/courses/optimal-learning-state" element={
             <RouteProtector>
-              <LazyRoute><EmpoweringLearningStatePage /></LazyRoute>
+              <LazyRoute><OptimalLearningStatePage /></LazyRoute>
             </RouteProtector>
           } />
           
-          <Route path="/courses/empowering-learning-state/:lessonId" element={
+          <Route path="/courses/optimal-learning-state/:lessonId" element={
             <RouteProtector>
-              <LazyRoute><EmpoweringLearningStatePage /></LazyRoute>
+              <LazyRoute><OptimalLearningStatePage /></LazyRoute>
             </RouteProtector>
           } />
           

@@ -43,7 +43,7 @@ const lessons: CourseLesson[] = [
   { id: 13, title: "Use Their Imagination", description: "Developing visualization and creative thinking", component: UseImaginationLesson, unit: "Creativity Tools", unitColor: "bg-pink-100 text-pink-700" }
 ];
 
-export const EmpoweringLearningStatePage: React.FC = () => {
+export const OptimalLearningStatePage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
@@ -52,9 +52,9 @@ export const EmpoweringLearningStatePage: React.FC = () => {
   const [currentActiveLessonId, setCurrentActiveLessonId] = useState<number>(1);
 
   useEffect(() => {
-    const completedKey = 'learning-state-completed-lessons';
-    const inProgressKey = 'learning-state-in-progress-lessons';
-    const activeKey = 'learning-state-active-lesson';
+    const completedKey = 'optimal-learning-state-completed-lessons';
+    const inProgressKey = 'optimal-learning-state-in-progress-lessons';
+    const activeKey = 'optimal-learning-state-active-lesson';
     
     const storedCompleted = localStorage.getItem(completedKey);
     const storedInProgress = localStorage.getItem(inProgressKey);
@@ -86,9 +86,9 @@ export const EmpoweringLearningStatePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('learning-state-completed-lessons', JSON.stringify(completedLessons));
-    localStorage.setItem('learning-state-in-progress-lessons', JSON.stringify(inProgressLessons));
-    localStorage.setItem('learning-state-active-lesson', currentActiveLessonId.toString());
+    localStorage.setItem('optimal-learning-state-completed-lessons', JSON.stringify(completedLessons));
+    localStorage.setItem('optimal-learning-state-in-progress-lessons', JSON.stringify(inProgressLessons));
+    localStorage.setItem('optimal-learning-state-active-lesson', currentActiveLessonId.toString());
   }, [completedLessons, inProgressLessons, currentActiveLessonId]);
 
   useEffect(() => {
@@ -171,7 +171,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/empowering-learning-state/${nextLesson}`);
+      navigate(`/courses/optimal-learning-state/${nextLesson}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
@@ -180,7 +180,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/empowering-learning-state/${prevLesson}`);
+      navigate(`/courses/optimal-learning-state/${prevLesson}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);
@@ -196,8 +196,8 @@ export const EmpoweringLearningStatePage: React.FC = () => {
     return (
       <VoiceSettingsProvider>
         <InteractiveCourseWrapper
-          courseId="empowering-learning-state"
-          courseTitle="Empowering Learning State"
+          courseId="optimal-learning-state"
+          courseTitle="Optimal Learning State Course"
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
@@ -212,13 +212,13 @@ export const EmpoweringLearningStatePage: React.FC = () => {
             <CourseHeader 
               onDashboard={() => navigate('/dashboard/learner')} 
               onBackToCourses={handleBackToCourses}
-              courseTitle="Empowering Learning State"
+              courseTitle="Optimal Learning State Course"
             />
           
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Hero Section */}
               <div className="text-center space-y-6 text-purple-900">
-                <h1 className="text-5xl md:text-6xl font-bold">Empowering Learning State</h1>
+                <h1 className="text-5xl md:text-6xl font-bold">Optimal Learning State Course</h1>
                 <p className="text-lg md:text-xl max-w-4xl mx-auto leading-relaxed">
                   Master techniques to achieve optimal learning states and create calm, focused
                   <br />
@@ -335,8 +335,8 @@ export const EmpoweringLearningStatePage: React.FC = () => {
   return (
     <VoiceSettingsProvider>
       <InteractiveCourseWrapper 
-        courseId="empowering-learning-state"
-        courseTitle="Empowering Learning State"
+        courseId="optimal-learning-state"
+        courseTitle="Optimal Learning State Course"
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
@@ -351,7 +351,7 @@ export const EmpoweringLearningStatePage: React.FC = () => {
           <CourseHeader 
             onBackToCourses={handleBackToCourses}
             onDashboard={() => navigate('/dashboard/learner')}
-            courseTitle="Empowering Learning State"
+            courseTitle="Optimal Learning State Course"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -364,22 +364,27 @@ export const EmpoweringLearningStatePage: React.FC = () => {
                   <ChevronLeft className="h-4 w-4" /> Previous
                 </Button>
               </div>
-              <span className="text-sm text-muted-foreground">
-                Lesson {currentLesson} of {lessons.length}
-              </span>
-              <Button variant="outline" onClick={handleNextLesson} disabled={!hasNext}>
-                Next <ChevronRight className="h-4 w-4" />
-              </Button>
+              
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-gray-900">Lesson {currentLesson}</h2>
+                <p className="text-sm text-gray-600">{currentLessonData.title}</p>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleNextLesson} disabled={!hasNext}>
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
-              <LessonComponent onComplete={() => handleLessonComplete(currentLesson)} />
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg">
+              <LessonComponent 
+                onComplete={() => handleLessonComplete(currentLesson)}
+              />
             </div>
           </div>
         </div>
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
-};
-
-export default EmpoweringLearningStatePage;
+export default OptimalLearningStatePage;

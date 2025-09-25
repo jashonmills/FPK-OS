@@ -11,7 +11,7 @@ export const BreathingLesson: React.FC = () => {
         type="video"
         title="Box Breathing Technique"
         mediaId="box-breathing-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="7"
       />
 

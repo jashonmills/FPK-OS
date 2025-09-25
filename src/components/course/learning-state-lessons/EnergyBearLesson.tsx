@@ -11,7 +11,7 @@ export const EnergyBearLesson: React.FC = () => {
         type="video"
         title="Your Energy Bear"
         mediaId="energy-bear-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="4"
       />
 

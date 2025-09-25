@@ -42,8 +42,8 @@ interface Course {
 
 const courses: Course[] = [
   {
-    id: 'empowering-learning-state',
-    title: 'Empowering Learning State',
+    id: 'optimal-learning-state',
+    title: 'Optimal Learning State Course',
     description: 'Master the optimal learning state through calming techniques and brain integration methods.',
     summary: 'Learn essential techniques to achieve the most effective learning state, including breathing exercises, grounding methods, and brain integration activities designed to enhance focus and memory retention.',
     duration: '~3 Hours',
@@ -57,7 +57,7 @@ const courses: Course[] = [
       'Apply brain integration methods for enhanced focus',
       'Build confidence and reduce learning anxiety'
     ],
-    route: '/courses/empowering-learning-state'
+    route: '/courses/optimal-learning-state'
   },
   {
     id: 'empowering-learning-spelling',

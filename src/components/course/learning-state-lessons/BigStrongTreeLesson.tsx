@@ -11,7 +11,7 @@ export const BigStrongTreeLesson: React.FC = () => {
         type="video"
         title="Big Strong Tree - Planting (Grounding)"
         mediaId="big-strong-tree-video"
-        courseId="empowering-learning-state"
+        courseId="optimal-learning-state"
         moduleId="3"
       />
 
