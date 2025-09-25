@@ -9179,6 +9179,21 @@ export type Database = {
         Args: { p_jurisdiction?: string }
         Returns: Json
       }
+      get_org_student_activity_heatmap: {
+        Args: { p_org_id: string }
+        Returns: {
+          activity_status: string
+          avatar_url: string
+          current_lesson_id: string
+          engagement_score: number
+          last_activity_at: string
+          progress_velocity: number
+          student_email: string
+          student_id: string
+          student_name: string
+          time_spent_today_minutes: number
+        }[]
+      }
       get_organization_analytics: {
         Args: { p_org_id: string }
         Returns: Json

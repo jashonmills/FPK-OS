@@ -11,6 +11,7 @@ import { useOrgStudents } from "@/hooks/useOrgStudents";
 import { useOrgMembers } from "@/hooks/useOrgMembers";
 import { AddStudentDialog } from "@/components/students/AddStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
+import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -127,6 +128,9 @@ export default function StudentsManagementNew() {
             </Button>
           </div>
         </header>
+
+        {/* Student Activity Heatmap */}
+        <StudentActivityHeatmap orgId={orgId} className="mb-6" />
 
         {/* Stats Cards */}
         <div className={cn(
