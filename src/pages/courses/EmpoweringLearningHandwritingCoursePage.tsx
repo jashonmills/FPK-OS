@@ -85,6 +85,13 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
   const handleLessonComplete = (lessonId: number) => {
     if (!completedLessons.includes(lessonId)) {
       setCompletedLessons(prev => [...prev, lessonId]);
+      
+      // Auto-advance to next lesson if available
+      if (currentLesson !== null && currentLesson < lessons.length) {
+        setTimeout(() => {
+          handleNextLesson();
+        }, 500); // Small delay for better UX
+      }
     }
   };
 
