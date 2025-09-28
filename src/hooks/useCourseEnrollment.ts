@@ -9,15 +9,10 @@ export function useCourseEnrollment() {
 
   const enrollInCourse = useMutation({
     mutationFn: async (courseId: string) => {
-      console.log('🔐 useCourseEnrollment: Starting enrollment for:', courseId);
-      console.log('👤 User ID:', user?.id);
-      
       if (!user?.id) {
-        console.error('❌ No user ID found');
         throw new Error('User must be authenticated to enroll in courses');
       }
 
-      console.log('🔍 Checking for existing enrollment...');
       // Check if already enrolled
       const { data: existingEnrollment, error: checkError } = await supabase
         .from('enrollments')
@@ -27,16 +22,13 @@ export function useCourseEnrollment() {
         .maybeSingle();
 
       if (checkError) {
-        console.error('❌ Error checking existing enrollment:', checkError);
         throw checkError;
       }
 
       if (existingEnrollment) {
-        console.log('ℹ️ Already enrolled in course:', courseId);
         throw new Error('Already enrolled in this course');
       }
 
-      console.log('📝 Creating new enrollment...');
       // Create new enrollment
       const { data, error } = await supabase
         .from('enrollments')
@@ -54,11 +46,9 @@ export function useCourseEnrollment() {
         .single();
 
       if (error) {
-        console.error('❌ Error creating enrollment:', error);
         throw error;
       }
 
-      console.log('✅ Enrollment created successfully:', data);
       return data;
     },
     onSuccess: (data, courseId) => {
