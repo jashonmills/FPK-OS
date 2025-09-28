@@ -27,6 +27,7 @@ import courseMoneyManagement from '@/assets/course-money-management.jpg';
 import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
 import courseAlgebra from '@/assets/course-algebra.jpg';
 import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
+import elHandwritingBg from '@/assets/el-handwriting-bg.jpg';
 import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
@@ -261,6 +262,21 @@ const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
   status: 'published'
 };
 
+const EL_HANDWRITING_COURSE = {
+  id: 'el-handwriting',
+  title: 'EL Handwriting',
+  description: 'Master handwriting through visual emulation techniques and optimal learning states. Includes deep dive modules exploring the neuroscience behind handwriting development.',
+  instructor_name: 'FPK University',
+  duration_minutes: 240,
+  difficulty_level: 'beginner',
+  featured: true,
+  is_free: true,
+  price: 0,
+  tags: ['Writing Skills', 'Handwriting', 'Emulation Technique', 'Visual Learning', 'Neuroscience'],
+  thumbnail_url: elHandwritingBg,
+  status: 'published'
+};
+
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
@@ -365,7 +381,8 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
 
   // Combine global and organization courses - ensuring handwriting course is prioritized
   const allAvailableCourses = [
-    EMPOWERING_LEARNING_HANDWRITING_COURSE, // Prioritize handwriting course at the top
+    EL_HANDWRITING_COURSE, // New EL Handwriting course
+    EMPOWERING_LEARNING_HANDWRITING_COURSE, // Original handwriting course
     EL_SPELLING_READING_COURSE, // Add the primary EL Spelling & Reading course
     OPTIMAL_LEARNING_STATE_COURSE, // Add the new Learning State course
     ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
@@ -420,7 +437,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
       // Empowering Learning courses should be first
-      const empoweringLearningIds = ['empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'optimal-learning-state'];
+      const empoweringLearningIds = ['el-handwriting', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'optimal-learning-state'];
       const aIsEmpowering = empoweringLearningIds.includes(a.id);
       const bIsEmpowering = empoweringLearningIds.includes(b.id);
       
