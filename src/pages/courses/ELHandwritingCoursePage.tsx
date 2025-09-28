@@ -38,7 +38,7 @@ const lessons: CourseLesson[] = [
   { id: 9, title: "Final Test", description: "Comprehensive assessment of core principles", component: ELHandwritingFinalTestLesson, unit: "Assessment", unitColor: "bg-gray-100 text-gray-700" }
 ];
 
-export const ELHandwritingCoursePage: React.FC = () => {
+const ELHandwritingCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
@@ -333,3 +333,5 @@ export const ELHandwritingCoursePage: React.FC = () => {
     </VoiceSettingsProvider>
   );
 };
+
+export default ELHandwritingCoursePage;

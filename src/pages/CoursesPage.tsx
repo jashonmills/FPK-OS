@@ -278,6 +278,25 @@ const courses: Course[] = [
       'Create sustainable lifelong learning habits'
     ],
     route: '/courses/elt-empowering-learning-techniques'
+  },
+  {
+    id: 'el-handwriting',
+    title: 'EL Handwriting',
+    description: 'Master handwriting through visual emulation techniques and optimal learning states.',
+    summary: 'A comprehensive program using the emulation technique to improve handwriting through observation, practice, and optimal learning states. Includes deep dive modules exploring the neuroscience behind handwriting development.',
+    duration: '~4 Hours',
+    level: 'Beginner',
+    lessons: 9,
+    category: 'Language Arts',
+    features: ['Emulation Technique', 'Visual Learning', 'Interactive Activities', 'Deep Dive Modules', 'Neuroscience Content'],
+    learningOutcomes: [
+      'Master the emulation technique for handwriting improvement',
+      'Understand the neuroscience behind handwriting development',
+      'Apply optimal learning states for effective practice',
+      'Build confidence through systematic observation and practice',
+      'Transfer skills to other learning areas'
+    ],
+    route: '/courses/el-handwriting'
   }
 ];
 

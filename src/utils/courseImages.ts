@@ -8,6 +8,7 @@ import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
 import scienceCourseBg from '@/assets/science-course-background.jpg';
 import moneyManagementBg from '@/assets/money-management-background.jpg';
 import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
+import elHandwritingBg from '@/assets/el-handwriting-bg.jpg';
 import interactiveGeometryBg from '@/assets/interactive-geometry-fundamentals-bg.jpg';
 import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
@@ -28,6 +29,7 @@ export const courseImageMap: Record<string, string> = {
   'empowering-learning-reading': empoweringReadingBg,
   'empowering-learning-numeracy': empoweringNumeracyBg,
   'empowering-learning-handwriting': empoweringHandwritingBg,
+  'el-handwriting': elHandwritingBg,
   'empowering-learning-spelling': empoweringSpellingBg,
   'optimal-learning-state': learningStateBg,
   'neurodiversity-strengths-based-approach': neurodiversityBackground,
