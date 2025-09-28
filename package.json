@@ -47,6 +47,7 @@
     "@supabase/supabase-js": "^2.50.0",
     "@tanstack/react-query": "^5.56.2",
     "@types/tinycolor2": "^1.4.6",
+    "@vitejs/plugin-react": "^4.7.0",
     "@xmldom/xmldom": "^0.8.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
