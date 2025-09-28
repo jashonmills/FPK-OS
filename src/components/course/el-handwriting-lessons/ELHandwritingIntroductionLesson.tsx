@@ -5,13 +5,23 @@ import MediaPlayer from '@/components/course/MediaPlayer';
 import { PenTool } from 'lucide-react';
 import { LessonProps } from '@/types/course';
 
-export const ELHandwritingIntroductionLesson: React.FC<LessonProps> = ({ onComplete }) => {
+export const ELHandwritingIntroductionLesson: React.FC<LessonProps> = ({ 
+  onComplete, 
+  onNext, 
+  hasNext, 
+  lessonId, 
+  lessonTitle, 
+  totalLessons 
+}) => {
   return (
     <InteractiveLessonWrapper
       courseId="el-handwriting"
-      lessonTitle="Introduction"
-      lessonId={1}
+      lessonTitle={lessonTitle || "Introduction"}
+      lessonId={lessonId || 1}
       onComplete={onComplete}
+      onNext={onNext}
+      hasNext={hasNext}
+      totalLessons={totalLessons}
     >
       <div className="space-y-6">
         <MediaPlayer

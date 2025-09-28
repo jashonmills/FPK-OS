@@ -62,18 +62,35 @@ export const useMediaAnalytics = ({ mediaId, courseId, moduleId }: UseMediaAnaly
       }
 
       // Store in localStorage for offline analytics queue
-      const queue = JSON.parse(safeLocalStorage.getItem<string>('media-analytics-queue', {
-        fallbackValue: '[]',
-        logErrors: false
-      }) || '[]');
-      queue.push(analyticsEvent);
-      
-      // Keep only last 100 events
-      if (queue.length > 100) {
-        queue.splice(0, queue.length - 100);
+      try {
+        const queueData = safeLocalStorage.getItem<string>('media-analytics-queue', {
+          fallbackValue: '[]',
+          logErrors: false
+        }) || '[]';
+        
+        let queue: MediaAnalyticsEvent[] = [];
+        try {
+          queue = JSON.parse(queueData);
+          // Validate it's an array
+          if (!Array.isArray(queue)) {
+            queue = [];
+          }
+        } catch (parseError) {
+          console.warn('Analytics queue corrupted, resetting:', parseError);
+          queue = [];
+        }
+        
+        queue.push(analyticsEvent);
+        
+        // Keep only last 100 events
+        if (queue.length > 100) {
+          queue.splice(0, queue.length - 100);
+        }
+        
+        safeLocalStorage.setItem('media-analytics-queue', JSON.stringify(queue));
+      } catch (storageError) {
+        console.warn('Failed to manage analytics queue:', storageError);
       }
-      
-      safeLocalStorage.setItem('media-analytics-queue', JSON.stringify(queue));
       
     } catch (error) {
       console.warn('Error tracking analytics event:', error);

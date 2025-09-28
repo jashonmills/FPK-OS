@@ -15,7 +15,14 @@ const steps = [
 
 const correctOrder = ['step-1', 'step-2', 'step-3', 'step-4'];
 
-export const ELHandwritingTechniqueLesson: React.FC<LessonProps> = ({ onComplete }) => {
+export const ELHandwritingTechniqueLesson: React.FC<LessonProps> = ({ 
+  onComplete, 
+  onNext, 
+  hasNext, 
+  lessonId, 
+  lessonTitle, 
+  totalLessons 
+}) => {
   const [draggedItems, setDraggedItems] = useState(steps);
   const [attempts, setAttempts] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -66,9 +73,12 @@ export const ELHandwritingTechniqueLesson: React.FC<LessonProps> = ({ onComplete
   return (
     <InteractiveLessonWrapper
       courseId="el-handwriting"
-      lessonTitle="The Technique"
-      lessonId={3}
+      lessonTitle={lessonTitle || "The Technique"}
+      lessonId={lessonId || 3}
       onComplete={onComplete}
+      onNext={onNext}
+      hasNext={hasNext}
+      totalLessons={totalLessons}
     >
       <div className="space-y-6">
         <MediaPlayer

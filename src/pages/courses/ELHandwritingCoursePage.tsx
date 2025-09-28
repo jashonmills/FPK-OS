@@ -328,6 +328,11 @@ const ELHandwritingCoursePage: React.FC = () => {
       >
         <LessonComponent 
           onComplete={() => handleLessonComplete(currentLesson)}
+          onNext={hasNext ? handleNextLesson : undefined}
+          hasNext={hasNext}
+          lessonId={currentLesson}
+          lessonTitle={currentLessonData.title}
+          totalLessons={lessons.length}
         />
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>

@@ -5,13 +5,23 @@ import MediaPlayer from '@/components/course/MediaPlayer';
 import { Brain } from 'lucide-react';
 import { LessonProps } from '@/types/course';
 
-export const ELHandwritingOptimalStateLesson: React.FC<LessonProps> = ({ onComplete }) => {
+export const ELHandwritingOptimalStateLesson: React.FC<LessonProps> = ({ 
+  onComplete, 
+  onNext, 
+  hasNext, 
+  lessonId, 
+  lessonTitle, 
+  totalLessons 
+}) => {
   return (
     <InteractiveLessonWrapper
       courseId="el-handwriting"
-      lessonTitle="The Optimal Learning State"
-      lessonId={2}
+      lessonTitle={lessonTitle || "The Optimal Learning State"}
+      lessonId={lessonId || 2}
       onComplete={onComplete}
+      onNext={onNext}
+      hasNext={hasNext}
+      totalLessons={totalLessons}
     >
       <div className="space-y-6">
         <MediaPlayer

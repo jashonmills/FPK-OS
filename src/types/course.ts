@@ -17,6 +17,11 @@ export interface LessonProps {
   onComplete?: () => void;
   onProgress?: (progress: number) => void;
   trackInteraction?: (event: string, details: InteractionDetails) => void;
+  onNext?: () => void;
+  hasNext?: boolean;
+  lessonId?: number;
+  lessonTitle?: string;
+  totalLessons?: number;
 }
 
 export interface InteractionDetails {
