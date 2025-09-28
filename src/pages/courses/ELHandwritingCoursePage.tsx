@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, Users, Award, PenTool } from 'lucide-react';
+import { BookOpen, Clock, Users, Award, PenTool, ChevronLeft, ChevronRight } from 'lucide-react';
+import elHandwritingBg from '@/assets/el-handwriting-bg.jpg';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
@@ -141,7 +142,15 @@ const ELHandwritingCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div 
+            className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+            style={{
+              backgroundImage: `url(${elHandwritingBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed'
+            }}
+          >
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
             
             <CourseHeader 
@@ -326,14 +335,80 @@ const ELHandwritingCoursePage: React.FC = () => {
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <LessonComponent 
-          onComplete={() => handleLessonComplete(currentLesson)}
-          onNext={hasNext ? handleNextLesson : undefined}
-          hasNext={hasNext}
-          lessonId={currentLesson}
-          lessonTitle={currentLessonData.title}
-          totalLessons={lessons.length}
-        />
+        <div 
+          className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+          style={{
+            backgroundImage: `url(${elHandwritingBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          {/* Background overlay */}
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+          
+          <CourseHeader 
+            onBackToCourses={handleBackToCourses}
+            onDashboard={handleDashboard}
+            courseTitle="EL Handwriting"
+          />
+          
+          <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBackToCourseOverview}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Overview
+              </Button>
+              <Badge className={currentLessonData.unitColor}>
+                {currentLessonData.unit}
+              </Badge>
+            </div>
+
+            {/* Navigation */}
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                variant="outline"
+                onClick={handlePrevLesson}
+                disabled={!hasPrev}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous Lesson
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Lesson {currentLesson} of {lessons.length}
+                </span>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={handleNextLesson}
+                disabled={!hasNext}
+                className="flex items-center gap-2"
+              >
+                Next Lesson
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Lesson Content */}
+            <LessonComponent 
+              onComplete={() => handleLessonComplete(currentLesson)}
+              onNext={hasNext ? handleNextLesson : undefined}
+              hasNext={hasNext}
+              lessonId={currentLesson}
+              lessonTitle={currentLessonData.title}
+              totalLessons={lessons.length}
+            />
+          </div>
+        </div>
       </InteractiveCourseWrapper>
     </VoiceSettingsProvider>
   );
