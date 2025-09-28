@@ -63,21 +63,29 @@ export const useMediaAnalytics = ({ mediaId, courseId, moduleId }: UseMediaAnaly
 
       // Store in localStorage for offline analytics queue
       try {
-        const queueData = safeLocalStorage.getItem<string>('media-analytics-queue', {
-          fallbackValue: '[]',
-          logErrors: false
-        }) || '[]';
+        const queueData = safeLocalStorage.getItem('media-analytics-queue') || '[]';
         
         let queue: MediaAnalyticsEvent[] = [];
         try {
-          queue = JSON.parse(queueData);
+          // Handle case where queueData might be an object or string
+          const queueString = typeof queueData === 'string' ? queueData : JSON.stringify(queueData);
+          
+          // Only parse if it's actually a string that looks like JSON
+          if (queueString && queueString.startsWith('[')) {
+            queue = JSON.parse(queueString);
+          } else {
+            queue = [];
+          }
+          
           // Validate it's an array
           if (!Array.isArray(queue)) {
             queue = [];
           }
         } catch (parseError) {
-          console.warn('Analytics queue corrupted, resetting:', parseError);
+          console.warn('Analytics queue corrupted, resetting. Clearing localStorage.');
           queue = [];
+          // Clear the corrupted data
+          safeLocalStorage.removeItem('media-analytics-queue');
         }
         
         queue.push(analyticsEvent);
