@@ -1,6 +1,7 @@
 import React from 'react';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MediaPlayer from '@/components/course/MediaPlayer';
 import { Brain } from 'lucide-react';
 import { LessonProps } from '@/types/course';
 
@@ -13,6 +14,15 @@ export const ELHandwritingOptimalStateLesson: React.FC<LessonProps> = ({ onCompl
       onComplete={onComplete}
     >
       <div className="space-y-6">
+        <MediaPlayer
+          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/Module%202%20-%20The%20Optimal%20Learning%20State%20(3).mp4"
+          type="video"
+          title="Module 2 - The Optimal Learning State"
+          mediaId="el-handwriting-optimal-state-video"
+          courseId="el-handwriting"
+          moduleId="2"
+        />
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MediaPlayer from '@/components/course/MediaPlayer';
 import { PenTool } from 'lucide-react';
 import { LessonProps } from '@/types/course';
 
@@ -13,6 +14,15 @@ export const ELHandwritingIntroductionLesson: React.FC<LessonProps> = ({ onCompl
       onComplete={onComplete}
     >
       <div className="space-y-6">
+        <MediaPlayer
+          src="https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/Module%201%20-%20Introduction%20(3).mp4"
+          type="video"
+          title="Module 1 - Introduction"
+          mediaId="el-handwriting-intro-video"
+          courseId="el-handwriting"
+          moduleId="1"
+        />
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
