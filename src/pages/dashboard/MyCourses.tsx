@@ -300,6 +300,31 @@ const MyCourses = () => {
   // Track enrollment state per course
   const [enrollingCourseIds, setEnrollingCourseIds] = useState<Set<string>>(new Set());
   
+  // Handle course enrollment with per-course state tracking
+  const handleCourseEnroll = async (courseId: string) => {
+    setEnrollingCourseIds(prev => new Set([...prev, courseId]));
+    try {
+      await enrollInInteractiveCourse.mutateAsync(courseId);
+      
+      // After successful enrollment, switch to My Courses tab
+      setTimeout(() => {
+        const enrolledTab = document.querySelector('[data-state="inactive"][value="enrolled"]') as HTMLElement;
+        if (enrolledTab) {
+          enrolledTab.click();
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to enroll in course:', courseId, error);
+      toast.error(`Failed to enroll in course`);
+    } finally {
+      setEnrollingCourseIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(courseId);
+        return newSet;
+      });
+    }
+  };
+  
   // Handle native course enrollment with per-course state tracking
   const handleNativeCourseEnroll = async (courseId: string) => {
     setEnrollingCourseIds(prev => new Set([...prev, courseId]));
@@ -506,21 +531,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
       if (!isEnrolled) {
-        try {
-          console.log('Enrolling in course:', course.id);
-          await enrollInInteractiveCourse.mutateAsync(course.id);
-          
-          // After successful enrollment, switch to My Courses tab
-          setTimeout(() => {
-            const enrolledTab = document.querySelector('[data-state="inactive"][value="enrolled"]') as HTMLElement;
-            if (enrolledTab) {
-              enrolledTab.click();
-            }
-          }, 1000);
-        } catch (error) {
-          console.error('Failed to enroll in course:', course.id, error);
-          toast.error(`Failed to enroll in ${course.title}`);
-        }
+        await handleCourseEnroll(course.id);
       }
     };
 
@@ -630,7 +641,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
         route={isEnrolled ? getCourseRoute() : undefined}
         isCompleted={progress?.completed || false}
         onEnroll={!isEnrolled ? handleEnrollment : undefined}
-        isEnrolling={!isEnrolled ? isCourseEnrolling : false}
+        isEnrolling={!isEnrolled ? enrollingCourseIds.has(course.id) : false}
       />
     );
   };
