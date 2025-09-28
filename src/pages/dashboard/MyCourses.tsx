@@ -302,9 +302,12 @@ const MyCourses = () => {
   
   // Handle course enrollment with per-course state tracking
   const handleCourseEnroll = async (courseId: string) => {
+    console.log('🔄 Starting enrollment for course:', courseId);
     setEnrollingCourseIds(prev => new Set([...prev, courseId]));
     try {
+      console.log('📞 Calling enrollment mutation for:', courseId);
       await enrollInInteractiveCourse.mutateAsync(courseId);
+      console.log('✅ Enrollment successful for:', courseId);
       
       // After successful enrollment, switch to My Courses tab
       setTimeout(() => {
@@ -314,9 +317,10 @@ const MyCourses = () => {
         }
       }, 1000);
     } catch (error) {
-      console.error('Failed to enroll in course:', courseId, error);
-      toast.error(`Failed to enroll in course`);
+      console.error('❌ Failed to enroll in course:', courseId, error);
+      toast.error(`Failed to enroll in course: ${error.message}`);
     } finally {
+      console.log('🧹 Cleaning up enrollment state for:', courseId);
       setEnrollingCourseIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(courseId);
