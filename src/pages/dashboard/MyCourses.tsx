@@ -530,7 +530,6 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
-      console.log('🎯 Button clicked - handleEnrollment called for course:', course.id);
       if (!isEnrolled) {
         await handleCourseEnroll(course.id);
       }
@@ -623,6 +622,10 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
       
       if (isELTEmpoweringLearning) {
         return '/courses/elt-empowering-learning-techniques';
+      }
+      
+      if (course.id === 'el-handwriting') {
+        return '/courses/el-handwriting';
       }
       
       const identifier = course.slug || course.id;
