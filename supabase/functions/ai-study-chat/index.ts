@@ -13,7 +13,7 @@ const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
 // Your custom OpenAI Assistant ID
-const OPENAI_ASSISTANT_ID = 'asst_nY5Rf0GmnzGv3RX6hJC2BFp1';
+const OPENAI_ASSISTANT_ID = 'asst_ZHsH0kICjxcNCKmRvd8ZUtsM';
 
 // Log API key availability
 console.log('🔐 API Key Status:', {
