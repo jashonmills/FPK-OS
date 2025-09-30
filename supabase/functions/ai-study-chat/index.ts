@@ -227,9 +227,13 @@ serve(async (req) => {
         );
 
       } catch (error: any) {
-        console.error('❌ OpenAI Assistant error:', error);
+        console.error('❌ OpenAI Assistant error - FULL DETAILS:', {
+          message: error.message,
+          stack: error.stack,
+          error: JSON.stringify(error, null, 2)
+        });
         // Fall back to Gemini if OpenAI fails
-        console.log('⚠️ Falling back to Gemini...');
+        console.log('⚠️ Falling back to Gemini due to OpenAI error...');
       }
     }
 
