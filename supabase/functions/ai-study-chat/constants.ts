@@ -60,7 +60,7 @@ export interface SocraticRubric {
 // This eliminates the architectural conflict that was causing meta-conversations and confusion.
 
 // Model Configuration
-export const GEMINI_MODEL = 'gemini-1.5-pro';
+export const GEMINI_MODEL = 'google/gemini-2.5-flash'; // Use Lovable AI gateway format
 export const MAX_TOKENS = 4000;
 export const TIMEOUT_MS = 45000; // Increased from 30s to 45s for better reliability
 

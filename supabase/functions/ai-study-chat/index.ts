@@ -182,28 +182,35 @@ serve(async (req) => {
       });
 
       try {
-        // Create Gemini call wrapper
-        const geminiCall = async (prompt: string) => {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
+        // Create Lovable AI call wrapper using Socratic prompt
+        const lovableAICall = async (prompt: string) => {
+          if (!lovableApiKey) {
+            throw new Error('Lovable API key not configured');
+          }
+
+          const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              systemInstruction: { parts: [{ text: SOCRATIC_BLUEPRINT_V8 }] },
-              generationConfig: {
-                maxOutputTokens: MAX_TOKENS,
-                temperature: 0.7,
-                topP: 0.9
-              }
+              model: GEMINI_MODEL,
+              messages: [
+                { role: 'system', content: SOCRATIC_BLUEPRINT_V8 },
+                { role: 'user', content: prompt }
+              ]
             })
           });
 
           if (!response.ok) {
-            throw new Error(`Gemini API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Lovable AI error response:', errorText);
+            throw new Error(`Lovable AI error: ${response.status} - ${errorText}`);
           }
 
           const data = await response.json();
-          return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          return data.choices?.[0]?.message?.content || '';
         };
 
         const socraticRequest: SocraticRequest = {
@@ -216,13 +223,13 @@ serve(async (req) => {
           studentResponse: message
         };
 
-        const socraticResponse = await handleSocraticSession(socraticRequest, geminiCall);
+        const socraticResponse = await handleSocraticSession(socraticRequest, lovableAICall);
 
         return new Response(
           JSON.stringify({
             ...socraticResponse,
-            source: 'socratic_session',
-            blueprintVersion: 'v8.0'
+            source: 'socratic_session_lovable_ai',
+            blueprintVersion: BLUEPRINT_VERSION
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
