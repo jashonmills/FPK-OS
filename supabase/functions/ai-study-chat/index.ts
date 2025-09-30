@@ -161,10 +161,10 @@ serve(async (req) => {
         const runId = runData.id;
         console.log('✅ Created run:', runId);
 
-        // Poll for completion
+        // Poll for completion with shorter timeout
         let runStatus = runData.status;
         let attempts = 0;
-        const maxAttempts = 60; // 60 seconds max wait
+        const maxAttempts = 12; // 12 seconds max wait (less than frontend timeout)
 
         while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
