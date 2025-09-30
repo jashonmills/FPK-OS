@@ -171,7 +171,6 @@ serve(async (req) => {
           dataSource,
           systemPromptLength: systemPrompt.length
         });
-        });
 
         // Call Lovable AI with Gemini model (free until Oct 6, 2025)
         const lovableResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
