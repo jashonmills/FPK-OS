@@ -32,10 +32,12 @@ import {
   Calendar,
   BookOpen,
   Target,
-  Filter
+  Filter,
+  Upload
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
+import { ImportStudentsCSV } from '@/components/students/ImportStudentsCSV';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -65,6 +67,7 @@ export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<OrgMember | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [showImportCSV, setShowImportCSV] = useState(false);
 
   // Fetch organization members
   const { data: members = [], isLoading } = useQuery({
@@ -169,18 +172,32 @@ export default function StudentsPage() {
         </div>
         
         {canManageMembers && (
-          <Button 
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Invite button clicked, setting showInviteDialog to true');
-              setShowInviteDialog(true);
-            }}
-          >
-            <UserPlus className="h-4 w-4" />
-            Invite Students
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-transparent z-50 relative pointer-events-auto"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowImportCSV(true);
+              }}
+            >
+              <Upload className="h-4 w-4" />
+              Import CSV
+            </Button>
+            <Button 
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Invite button clicked, setting showInviteDialog to true');
+                setShowInviteDialog(true);
+              }}
+            >
+              <UserPlus className="h-4 w-4" />
+              Invite Students
+            </Button>
+          </div>
         )}
       </div>
 
@@ -429,6 +446,13 @@ export default function StudentsPage() {
         open={showInviteDialog}
         onOpenChange={setShowInviteDialog}
         organizationId={orgId}
+      />
+
+      {/* Import CSV Modal */}
+      <ImportStudentsCSV
+        open={showImportCSV}
+        onOpenChange={setShowImportCSV}
+        orgId={orgId}
       />
     </div>
   );
