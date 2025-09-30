@@ -88,42 +88,62 @@ serve(async (req) => {
 
     const requestParseTime = performance.now() - requestParseStart;
 
+    // Build conversation history summary
+    const conversationSummary = buildConversationSummary(clientHistory);
+    
+    // Extract original topic
+    const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
+    
+    // Auto-detect promptType if missing
+    let detectedPromptType = promptType;
+    if (!promptType || typeof promptType !== 'string') {
+      detectedPromptType = autoDetectPromptType(message, clientHistory);
+    }
+    
+    // Build simple prompt using existing Blueprint system
+    const promptContext: SimplePromptContext = {
+      chatMode,
+      voiceActive,
+      userInput: message,
+      quizTopic: contextData.quizTopic,
+      teachingHistory: contextData.teachingHistory,
+      incorrectCount: contextData.incorrectCount,
+      originalTopic: detectedOriginalTopic,
+      conversationHistory: conversationSummary,
+      lessonContent: lessonContext?.lessonContent,
+      lessonTitle: lessonContext?.lessonTitle,
+      courseId: lessonContext?.courseId,
+      lessonId: lessonContext?.lessonId,
+    };
+
+    const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
+    
+    // Select the appropriate prompt based on mode and data source
+    // This logic is unified for ALL user types (personal and organization)
+    let systemPrompt: string;
+    let promptMode: string;
+    
+    if (isStructuredMode || socraticMode) {
+      // Structured Mode (Socratic Coach) - Prompt C
+      systemPrompt = SOCRATIC_STRUCTURED_PROMPT;
+      promptMode = 'structured_socratic';
+    } else if (chatMode === 'personal' && dataSource === 'mydata') {
+      // Free Chat + My Data (Personalized RAG) - Prompt B
+      systemPrompt = MY_DATA_PROMPT;
+      promptMode = 'personal_mydata';
+      // TODO: Implement RAG retrieval here to add user's personal data to context
+    } else {
+      // Free Chat + General & Platform Guide - Prompt A (default)
+      systemPrompt = GENERAL_KNOWLEDGE_PROMPT;
+      promptMode = 'general_knowledge';
+    }
+
     // Try Lovable AI first for non-Socratic mode (preferred method)
     if (!socraticMode && lovableApiKey) {
       console.log('🤖 Using Lovable AI for study coaching');
-
-      try {
-        // Build conversation history summary
-        const conversationSummary = buildConversationSummary(clientHistory);
-        
-        // Extract original topic
-        const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
-        
-        // Auto-detect promptType if missing
-        let detectedPromptType = promptType;
-        if (!promptType || typeof promptType !== 'string') {
-          detectedPromptType = autoDetectPromptType(message, clientHistory);
-        }
-        
-        // Build simple prompt using existing Blueprint system
-        const promptContext: SimplePromptContext = {
-          chatMode,
-          voiceActive,
-          userInput: message,
-          quizTopic: contextData.quizTopic,
-          teachingHistory: contextData.teachingHistory,
-          incorrectCount: contextData.incorrectCount,
-          originalTopic: detectedOriginalTopic,
-          conversationHistory: conversationSummary,
-          lessonContent: lessonContext?.lessonContent,
-          lessonTitle: lessonContext?.lessonTitle,
-          courseId: lessonContext?.courseId,
-          lessonId: lessonContext?.lessonId,
-        };
-
-        const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
         
         // Select the appropriate prompt based on mode and data source
+        // This logic is unified for ALL user types (personal and organization)
         let systemPrompt: string;
         let promptMode: string;
         
@@ -142,12 +162,15 @@ serve(async (req) => {
           promptMode = 'general_knowledge';
         }
         
+        
         console.log('📝 Lovable AI prompt:', { 
           type: detectedPromptType, 
           promptLength: contextPrompt.length,
           messageLength: message.length,
           promptMode,
-          dataSource
+          dataSource,
+          systemPromptLength: systemPrompt.length
+        });
         });
 
         // Call Lovable AI with Gemini model (free until Oct 6, 2025)
@@ -388,10 +411,13 @@ serve(async (req) => {
     console.log('📝 Simple prompt generated:', { 
       type: detectedPromptType, 
       length: contextPrompt.length,
+      promptMode,
+      systemPromptLength: systemPrompt.length,
       context: {
         hasUserInput: !!message,
         voiceActive,
         chatMode,
+        dataSource,
         contextDataKeys: Object.keys(contextData)
       }
     });
@@ -432,7 +458,7 @@ serve(async (req) => {
               parts: [{ text: contextPrompt }]
             }],
             systemInstruction: {
-              parts: [{ text: SOCRATIC_BLUEPRINT_V8 }]
+              parts: [{ text: systemPrompt }] // Use unified prompt selection
             },
             generationConfig: {
               maxOutputTokens: MAX_TOKENS,
