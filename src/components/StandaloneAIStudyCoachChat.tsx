@@ -50,6 +50,7 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
   const [sessionId] = useState(() => uuidv4());
+  const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
@@ -143,7 +144,7 @@ What would you like to learn about today?`
         timestamp: m.timestamp
       }));
       
-      // Call AI function with enhanced context
+      // Call AI function with enhanced context using OpenAI Assistant
       const { data, error } = await withTimeout(
         supabase.functions.invoke('ai-study-chat', {
           body: {
@@ -153,6 +154,8 @@ What would you like to learn about today?`
             promptType: analyzedState.promptType,
             chatMode: 'general',
             voiceActive: false,
+            useOpenAIAssistant: true,
+            threadId: threadId,
             contextData,
             clientHistory
           }
@@ -163,6 +166,11 @@ What would you like to learn about today?`
       
       if (error) {
         throw error;
+      }
+
+      // Store thread ID for conversation continuity
+      if (data?.threadId) {
+        setThreadId(data.threadId);
       }
 
       if (!data?.response) {

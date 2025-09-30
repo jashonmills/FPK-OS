@@ -119,6 +119,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
   const [sessionId] = useState(() => uuidv4());
+  const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
@@ -267,7 +268,7 @@ What would you like to learn about today?`;
         }
       });
 
-      // Call AI function with progressive timeout and cancellation
+      // Call AI function with progressive timeout and cancellation using OpenAI Assistant
       const { data, error } = await withProgressiveTimeout(
         supabase.functions.invoke('ai-study-chat', {
           body: {
@@ -277,6 +278,8 @@ What would you like to learn about today?`;
             promptType: analyzedState.promptType,
             chatMode,
             voiceActive: false,
+            useOpenAIAssistant: true,
+            threadId: threadId,
             contextData,
             clientHistory
           }
@@ -296,6 +299,11 @@ What would you like to learn about today?`;
         throw error;
       }
 
+      // Store thread ID for conversation continuity
+      if (data?.threadId) {
+        setThreadId(data.threadId);
+      }
+
       if (!data?.response) {
         console.warn('⚠️ AI Study Chat: No response data received');
         throw new Error('No response received from AI');
@@ -304,7 +312,8 @@ What would you like to learn about today?`;
       console.log('✅ AI Study Chat response received:', {
         source: data.source,
         blueprintVersion: data.blueprintVersion,
-        promptType: data.metadata?.promptType
+        promptType: data.metadata?.promptType,
+        threadId: data?.threadId
       });
 
       const aiResponse = {
@@ -445,6 +454,7 @@ What specific aspect would you like to focus on?`;
     clearAllMessages();
     stop();
     setLastSpokenMessageId(null);
+    setThreadId(null); // Reset OpenAI thread
     // Reset conversation state
     updateState({
       promptType: 'initiate_session',

@@ -16,6 +16,7 @@ export const useChatMessages = (sessionId: string | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const { analyzeConversation } = useConversationState();
@@ -159,7 +160,7 @@ export const useChatMessages = (sessionId: string | null) => {
         contextData.incorrectCount = conversationState.incorrectAnswersCount;
       }
 
-      // Call simplified AI function with backend-determined prompt type
+      // Call simplified AI function with backend-determined prompt type using OpenAI Assistant
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
@@ -168,7 +169,9 @@ export const useChatMessages = (sessionId: string | null) => {
           promptType: conversationState.promptType,
           contextData: contextData,
           chatMode: chatMode,
-          voiceActive: false
+          voiceActive: false,
+          useOpenAIAssistant: true,
+          threadId: threadId
         }
       });
 
@@ -177,11 +180,17 @@ export const useChatMessages = (sessionId: string | null) => {
         throw error;
       }
 
+      // Store thread ID for conversation continuity
+      if (data?.threadId) {
+        setThreadId(data.threadId);
+      }
+
       console.log('✅ Hybrid response received:', {
         promptType: conversationState.promptType,
         hasResponse: !!data?.response,
         source: data?.source,
-        error: data?.error
+        error: data?.error,
+        threadId: data?.threadId
       });
 
       // Better error handling and contextual responses

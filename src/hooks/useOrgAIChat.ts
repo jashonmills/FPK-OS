@@ -18,6 +18,7 @@ interface UseOrgAIChatProps {
 export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
   const [messages, setMessages] = useState<OrgChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const addMessage = useCallback((message: Omit<OrgChatMessage, 'id' | 'timestamp'>) => {
@@ -49,7 +50,7 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
         timestamp: m.timestamp.toISOString()
       }));
 
-      // Call AI function with organization context
+      // Call AI function with organization context using OpenAI Assistant
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: { 
           message: content,
@@ -57,6 +58,8 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
           sessionId: `org-coach-${orgId}-${userId}`,
           chatMode: 'general',
           voiceActive: false,
+          useOpenAIAssistant: true,
+          threadId: threadId,
           contextData: {
             context: 'org_study_coach',
             orgId: orgId,
@@ -68,6 +71,11 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       });
 
       if (error) throw error;
+
+      // Store thread ID for conversation continuity
+      if (data.threadId) {
+        setThreadId(data.threadId);
+      }
 
       // Add AI response
       addMessage({
@@ -96,6 +104,7 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
 
   const clearAllMessages = useCallback(() => {
     setMessages([]);
+    setThreadId(null); // Reset thread when clearing messages
   }, []);
 
   const initializeChat = useCallback((userName?: string) => {
