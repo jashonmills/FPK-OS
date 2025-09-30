@@ -24,6 +24,7 @@ export function SocraticSessionView({
   const [input, setInput] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     if (!isInputFocused) {
@@ -32,9 +33,13 @@ export function SocraticSessionView({
   }, [turns, isInputFocused]);
 
   const handleSend = () => {
-    if (input.trim() && !loading) {
+    if (input.trim() && !loading && !isSubmittingRef.current) {
+      isSubmittingRef.current = true;
       onSendResponse(input.trim());
       setInput('');
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 500);
     }
   };
 
@@ -169,10 +174,8 @@ export function SocraticSessionView({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                onFocus={(e) => {
-                  // Prevent viewport jump
+                onFocus={() => {
                   setIsInputFocused(true);
-                  e.preventDefault();
                 }}
                 onBlur={() => {
                   setIsInputFocused(false);

@@ -145,6 +145,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const cleanup = useCleanup('AIStudyChatInterface');
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   // Auto scroll when messages change (but not when input is focused)
   useEffect(() => {
@@ -207,7 +208,9 @@ What would you like to learn about today?`;
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const sendMessage = async (messageText: string) => {
-    if (!messageText.trim() || isLoading) return;
+    if (!messageText.trim() || isLoading || isSubmittingRef.current) return;
+    
+    isSubmittingRef.current = true;
 
     // Cancel any existing request
     if (abortControllerRef.current) {
@@ -381,6 +384,9 @@ What would you like to learn about today?`;
       setIsLoading(false);
       setProgressMessage(null);
       abortControllerRef.current = null;
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 500);
     }
   };
 
