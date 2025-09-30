@@ -12,6 +12,7 @@ import { useOrgMembers } from "@/hooks/useOrgMembers";
 import { AddStudentDialog } from "@/components/students/AddStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
+import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ export default function StudentsManagementNew() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showImportCSV, setShowImportCSV] = useState(false);
   const isMobile = useIsMobile();
 
   const {
@@ -68,8 +70,7 @@ export default function StudentsManagementNew() {
   };
 
   const handleBulkImport = () => {
-    // TODO: Implement CSV bulk import
-    toast.info("Bulk import functionality coming soon");
+    setShowImportCSV(true);
   };
 
   if (!orgId) {
@@ -260,6 +261,12 @@ export default function StudentsManagementNew() {
           onOpenChange={setShowAddDialog}
           onSubmit={handleAddStudent}
           isLoading={isCreating}
+        />
+
+        <ImportStudentsCSV
+          open={showImportCSV}
+          onOpenChange={setShowImportCSV}
+          orgId={orgId!}
         />
       </div>
     </PageShell>
