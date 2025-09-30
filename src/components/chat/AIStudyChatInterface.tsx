@@ -123,7 +123,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const [chatMode, setChatMode] = useState(initialChatMode);
   const { toast } = useToast();
   const anonymousId = useState(() => `anonymous_${Date.now()}`)[0];
-  const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(currentUserId || anonymousId);
+  const { messages, addMessage, clearAllMessages, isLoaded } = useWidgetChatStorage(currentUserId || anonymousId);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { state: conversationState, analyzeConversation, updateState } = useConversationState();
   const [isLoading, setIsLoading] = useState(false);
@@ -160,8 +160,10 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
     }
   }, [messages, cleanup, isInputFocused]);
 
-  // Add welcome message with dashboard data
+  // Add welcome message with dashboard data (only after storage is loaded)
   useEffect(() => {
+    if (!isLoaded) return; // Wait for storage to load
+    
     if (messages.length === 0) {
       const welcomeContent = chatMode === 'personal' 
         ? `Hello! I'm your personalized AI Learning Coach. I have access to your study data and can help you with:
@@ -193,7 +195,7 @@ What would you like to learn about today?`;
       
       addMessage(welcomeMessage);
     }
-  }, [messages.length, addMessage, chatMode, completedSessions?.length, flashcards?.length]);
+  }, [isLoaded, messages.length, addMessage, chatMode, completedSessions?.length, flashcards?.length]);
 
   // Convert widget messages to conversation format for analysis
   const convertToConversationHistory = useCallback((widgetMessages: typeof messages): ConversationMessage[] => {

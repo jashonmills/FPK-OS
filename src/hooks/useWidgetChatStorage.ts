@@ -12,12 +12,11 @@ interface WidgetMessage {
 
 export const useWidgetChatStorage = (userId?: string) => {
   const [messages, setMessages] = useState<WidgetMessage[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const storageKey = `widgetChatHistory_${userId || 'anonymous'}`;
 
   // Load messages from localStorage on mount
   useEffect(() => {
-    if (!userId) return;
-    
     try {
       const stored = safeLocalStorage.getItem<string>(storageKey, { fallbackValue: null });
       if (stored) {
@@ -26,19 +25,21 @@ export const useWidgetChatStorage = (userId?: string) => {
       }
     } catch (error) {
       logger.warn('Error loading widget chat history', 'STORAGE', error);
+    } finally {
+      setIsLoaded(true);
     }
-  }, [storageKey, userId]);
+  }, [storageKey]);
 
   // Save messages to localStorage whenever messages change
   useEffect(() => {
-    if (!userId) return;
+    if (!isLoaded) return; // Don't save during initial load
     
     try {
       safeLocalStorage.setItem(storageKey, JSON.stringify(messages));
     } catch (error) {
       logger.warn('Error saving widget chat history', 'STORAGE', error);
     }
-  }, [messages, storageKey, userId]);
+  }, [messages, storageKey, isLoaded]);
 
   const addMessage = (message: Omit<WidgetMessage, 'id' | 'timestamp'>) => {
     const newMessage: WidgetMessage = {
@@ -63,5 +64,6 @@ export const useWidgetChatStorage = (userId?: string) => {
     addMessage,
     deleteMessage,
     clearAllMessages,
+    isLoaded,
   };
 };
