@@ -3,7 +3,18 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SOCRATIC_BLUEPRINT_V8, GENERAL_CHAT_PROMPT, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
+import { 
+  corsHeaders, 
+  SOCRATIC_BLUEPRINT_V8, 
+  GENERAL_CHAT_PROMPT,
+  GENERAL_KNOWLEDGE_PROMPT,
+  MY_DATA_PROMPT,
+  SOCRATIC_STRUCTURED_PROMPT,
+  GEMINI_MODEL, 
+  MAX_TOKENS, 
+  TIMEOUT_MS, 
+  BLUEPRINT_VERSION 
+} from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
@@ -60,6 +71,7 @@ serve(async (req) => {
       promptType,
       contextData = {},
       chatMode = 'general',
+      dataSource = 'general', // For Personal AI Coach tri-modal system
       voiceActive = false,
       clientHistory = [],
       originalTopic,
@@ -111,14 +123,31 @@ serve(async (req) => {
 
         const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
         
-        // Select the appropriate prompt based on mode
-        const systemPrompt = isStructuredMode ? SOCRATIC_BLUEPRINT_V8 : GENERAL_CHAT_PROMPT;
+        // Select the appropriate prompt based on mode and data source
+        let systemPrompt: string;
+        let promptMode: string;
+        
+        if (isStructuredMode || socraticMode) {
+          // Structured Mode (Socratic Coach) - Prompt C
+          systemPrompt = SOCRATIC_STRUCTURED_PROMPT;
+          promptMode = 'structured_socratic';
+        } else if (chatMode === 'personal' && dataSource === 'mydata') {
+          // Free Chat + My Data (Personalized RAG) - Prompt B
+          systemPrompt = MY_DATA_PROMPT;
+          promptMode = 'personal_mydata';
+          // TODO: Implement RAG retrieval here to add user's personal data to context
+        } else {
+          // Free Chat + General & Platform Guide - Prompt A (default)
+          systemPrompt = GENERAL_KNOWLEDGE_PROMPT;
+          promptMode = 'general_knowledge';
+        }
         
         console.log('📝 Lovable AI prompt:', { 
           type: detectedPromptType, 
           promptLength: contextPrompt.length,
           messageLength: message.length,
-          mode: isStructuredMode ? 'structured' : 'general'
+          promptMode,
+          dataSource
         });
 
         // Call Lovable AI with Gemini model (free until Oct 6, 2025)
@@ -149,7 +178,8 @@ serve(async (req) => {
         
         console.log('✅ Lovable AI response received:', {
           responseLength: aiResponse.length,
-          source: 'lovable_ai'
+          source: 'lovable_ai',
+          promptMode
         });
 
         return new Response(
@@ -157,7 +187,8 @@ serve(async (req) => {
             response: aiResponse,
             source: 'lovable_ai',
             model: 'google/gemini-2.5-flash',
-            blueprintVersion: BLUEPRINT_VERSION
+            blueprintVersion: BLUEPRINT_VERSION,
+            promptMode
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

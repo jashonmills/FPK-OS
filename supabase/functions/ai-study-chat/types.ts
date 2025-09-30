@@ -10,6 +10,7 @@ export interface ChatRequest {
   userId: string;
   sessionId?: string;
   chatMode?: 'personal' | 'general';
+  dataSource?: 'general' | 'mydata'; // For Personal AI Coach: which data source to use in Free Chat mode
   voiceActive?: boolean;
   metadata?: {
     hasInteracted?: boolean;
@@ -31,3 +32,4 @@ export interface ChatRequest {
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed';
+export type DataSource = 'general' | 'mydata';

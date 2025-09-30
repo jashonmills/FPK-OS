@@ -56,9 +56,12 @@ interface InsightData {
 
 interface AIStudyChatInterfaceProps {
   chatMode?: 'personal' | 'general';
+  dataSource?: 'general' | 'mydata'; // For Personal AI Coach tri-modal system
   showHeader?: boolean;
   placeholder?: string;
   // Dashboard-specific props
+  userId?: string;
+  orgId?: string;
   user?: User;
   completedSessions?: SessionData[];
   flashcards?: FlashcardData[];
@@ -102,8 +105,11 @@ const withProgressiveTimeout = <T,>(
 
 export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   chatMode: initialChatMode = 'general',
+  dataSource = 'general',
   showHeader = true,
   placeholder = "Ask me anything about your studies...",
+  userId,
+  orgId,
   user,
   completedSessions = [],
   flashcards = [],
@@ -112,10 +118,11 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
 }) => {
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
+  const currentUserId = userId || currentUser?.id;
   const [chatMode, setChatMode] = useState(initialChatMode);
   const { toast } = useToast();
   const anonymousId = useState(() => `anonymous_${Date.now()}`)[0];
-  const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(currentUser?.id || anonymousId);
+  const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(currentUserId || anonymousId);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { state: conversationState, analyzeConversation, updateState } = useConversationState();
   const [isLoading, setIsLoading] = useState(false);
@@ -276,10 +283,11 @@ What would you like to learn about today?`;
         supabase.functions.invoke('ai-study-chat', {
           body: {
             message: messageText,
-            userId: currentUser?.id || anonymousId,
+            userId: currentUserId || anonymousId,
             sessionId,
             promptType: analyzedState.promptType,
             chatMode,
+            dataSource, // For Personal AI Coach tri-modal system
             voiceActive: false,
             useOpenAIAssistant: true,
             threadId: threadId,

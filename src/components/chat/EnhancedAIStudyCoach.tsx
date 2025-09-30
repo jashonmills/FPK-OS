@@ -4,6 +4,7 @@ import { SocraticModeToggle } from './SocraticModeToggle';
 import { SocraticSessionPanel } from './SocraticSessionPanel';
 import { SocraticSessionView } from './SocraticSessionView';
 import { ModeOnboarding } from './ModeOnboarding';
+import { DataSourceToggle, type DataSource } from '@/components/ai-coach/DataSourceToggle';
 import { useSocraticSession } from '@/hooks/useSocraticSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
@@ -22,11 +23,15 @@ interface EnhancedAIStudyCoachProps {
 }
 
 export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
-  const { userId, orgId } = props;
+  const { userId, orgId, chatMode } = props;
   const [socraticMode, setSocraticMode] = useState(false);
   const [showSessionPanel, setShowSessionPanel] = useState(false);
+  const [dataSource, setDataSource] = useState<DataSource>('general');
   const [orgSettings, setOrgSettings] = useState<any>(null);
   const { currentOrg } = useOrgContext();
+  
+  // Personal mode uses the tri-modal system, org mode uses the legacy system
+  const isPersonalMode = chatMode === 'personal' && !orgId;
   
   const { 
     session, 
@@ -166,13 +171,27 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       {/* Onboarding for first-time users */}
       <ModeOnboarding onComplete={() => {}} />
       
-      {/* Mode Toggle */}
-      <div className="flex justify-end px-4">
+      {/* Mode Toggle and Data Source Selector */}
+      <div className="flex justify-between items-center px-4 gap-2">
+        {/* Data Source Toggle - Only show in Personal Mode and Free Chat */}
+        {isPersonalMode && !socraticMode && (
+          <DataSourceToggle
+            dataSource={dataSource}
+            onDataSourceChange={setDataSource}
+          />
+        )}
+        
+        {/* Spacer for org mode or when in structured mode */}
+        {(!isPersonalMode || socraticMode) && <div className="flex-1" />}
+        
+        {/* Organization restriction message */}
         {orgSettings?.restrict_general_chat && (
           <div className="text-xs text-muted-foreground mr-4 self-center">
             Your organization has enabled Structured Mode for focused learning
           </div>
         )}
+        
+        {/* Socratic Mode Toggle */}
         <SocraticModeToggle
           enabled={socraticMode}
           onToggle={toggleSocraticMode}
@@ -214,7 +233,8 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
         </>
       ) : (
         <AIStudyChatInterface 
-          {...props} 
+          {...props}
+          dataSource={isPersonalMode ? dataSource : undefined}
           isStructuredMode={socraticMode}
           onStartStructuredSession={(topic: string) => {
             setSocraticMode(true);
