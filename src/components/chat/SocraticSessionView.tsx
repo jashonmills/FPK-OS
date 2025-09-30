@@ -53,9 +53,9 @@ export function SocraticSessionView({
   const isComplete = session.state === 'COMPLETED';
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full max-h-full overflow-hidden">
       {/* Session Header */}
-      <Card className="mb-4">
+      <Card className="mb-4 flex-shrink-0">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="space-y-1 flex-1">
@@ -98,8 +98,8 @@ export function SocraticSessionView({
       </Card>
 
       {/* Chat Messages */}
-      <Card className="flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1 p-4">
+      <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <ScrollArea className="flex-1 p-4" style={{ maxHeight: 'calc(100vh - 300px)' }}>
           <div className="space-y-4">
             {turns.map((turn) => (
               <div
