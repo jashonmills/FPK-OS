@@ -125,10 +125,9 @@ serve(async (req) => {
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash',
             messages: [
-              { role: 'system', content: SOCRATIC_BLUEPRINT_V8 + '\n\n' + contextPrompt },
-              { role: 'user', content: message }
+              { role: 'system', content: SOCRATIC_BLUEPRINT_V8 },
+              { role: 'user', content: contextPrompt + '\n\nStudent: ' + message }
             ],
-            temperature: 0.7,
             max_tokens: 4000
           })
         });

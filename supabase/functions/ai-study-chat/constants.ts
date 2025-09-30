@@ -47,11 +47,11 @@ export interface SocraticRubric {
 // This eliminates the architectural conflict that was causing meta-conversations and confusion.
 
 // Model Configuration
-export const GEMINI_MODEL = 'gemini-1.5-pro-latest';
+export const GEMINI_MODEL = 'gemini-1.5-pro';
 export const MAX_TOKENS = 4000;
 export const TIMEOUT_MS = 45000; // Increased from 30s to 45s for better reliability
 
-export const BLUEPRINT_VERSION = 'v4.4';
+export const BLUEPRINT_VERSION = 'v8.0';
 
 // Legacy constants for compatibility
 export const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
