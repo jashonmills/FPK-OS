@@ -586,11 +586,6 @@ serve(async (req) => {
 function autoDetectPromptType(message: string, history: any[]): string {
   const trimmed = message.toLowerCase().trim();
   
-  // Direct answer command
-  if (trimmed.startsWith('/answer')) {
-    return 'direct_answer';
-  }
-  
   // Session ending signals
   if (isSessionEndingSignal(trimmed)) {
     return 'end_session';
@@ -609,12 +604,6 @@ function autoDetectPromptType(message: string, history: any[]): string {
   // Quiz requests
   if (trimmed.includes('quiz me') || trimmed.includes('test me') || trimmed.includes('give me a quiz')) {
     return 'initiate_quiz';
-  }
-  
-  // Detect simple, foundational questions that need direct teaching first
-  const isSimpleFoundational = isSimpleFoundationalQuestion(trimmed);
-  if (isSimpleFoundational && (!history || history.length === 0)) {
-    return 'direct_teaching';
   }
   
   // Struggle indicators
@@ -690,18 +679,6 @@ function isGratitudeExpression(message: string): boolean {
   if (message.length > 50) return false;
   
   return gratitudePatterns.some(pattern => message.includes(pattern));
-}
-
-function isSimpleFoundationalQuestion(message: string): boolean {
-  const simplePatterns = [
-  /^\s*\d+\s*[+\-*/]\s*\d+\s*$/,  // Basic math like "2+2"
-    /^what\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What is water?"
-    /^how\s+much\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "How much is 5+5?"
-    /^what\s+color\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "What color is the sky?"
-    /^where\s+(is|are)\s+\w+(\s+\w+){0,3}\??$/i,  // "Where is Paris?"
-  ];
-  
-  return simplePatterns.some(pattern => pattern.test(message.trim()));
 }
 
 function extractOriginalTopic(clientHistory: any[], currentMessage: string): string | null {

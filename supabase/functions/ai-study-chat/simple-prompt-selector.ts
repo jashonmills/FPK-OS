@@ -8,8 +8,6 @@ export type PromptType =
   | 'evaluate_quiz_answer'
   | 'proactive_help'
   | 'evaluate_refresher'
-  | 'direct_answer'
-  | 'direct_teaching'
   | 'end_session'
   | 'topic_transition'
   | 'acknowledgment'
@@ -56,12 +54,6 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
 
   // Add minimal context based on conversation state  
   switch (promptType) {
-    case 'direct_answer':
-      prompt += `## CONTEXT\nUser is asking for a direct answer to: "${context.userInput || ''}"\n`;
-      break;
-    case 'direct_teaching':
-      prompt += `## CONTEXT\nUser asked a simple, foundational question: "${context.userInput || ''}"\nThis requires direct teaching followed by Socratic follow-up.\n`;
-      break;
     case 'proactive_help':
       prompt += `## CONTEXT\nUser may need encouragement or guidance.\n`;
       break;
@@ -87,7 +79,7 @@ export function buildSimplePrompt(promptType: PromptType, context: SimplePromptC
       if (context.lessonContent) {
         prompt += `Lesson Content:\n${context.lessonContent}\n\n`;
       }
-      prompt += `## INSTRUCTIONS\nYou are a Socratic tutor for this specific lesson. Use ONLY the provided lesson content as your knowledge base. Guide the student through questioning rather than direct answers. If the user types "/answer", then provide a direct answer using only the lesson content.\n\n`;
+      prompt += `## INSTRUCTIONS\nYou are a Socratic tutor for this specific lesson. Use ONLY the provided lesson content as your knowledge base. Guide the student through questioning. Remember the Golden Rule: NEVER provide direct answers, even if explicitly requested.\n\n`;
       prompt += `## USER QUERY\n"${context.userInput || ''}"\n`;
       break;
     case 'evaluate_answer':
