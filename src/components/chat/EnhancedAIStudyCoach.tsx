@@ -150,16 +150,36 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     }
   };
 
-  const toggleSocraticMode = () => {
+  const toggleSocraticMode = async () => {
     // Don't allow toggling if organization restricts general chat
     if (orgSettings?.restrict_general_chat && socraticMode) {
       return;
     }
     
+    // If switching TO Structured Mode, check if we can extract a topic from recent chat
     if (!socraticMode && !session) {
-      setShowSessionPanel(true);
+      // Try to extract topic from recent conversation
+      const extractedTopic = await extractTopicFromChat();
+      
+      if (extractedTopic) {
+        // Automatically start a Socratic session with the extracted topic
+        setSocraticMode(true);
+        handleStartSocraticSession(extractedTopic, `Deep understanding of ${extractedTopic}`);
+      } else {
+        // No topic found, show the session panel to let user choose
+        setShowSessionPanel(true);
+        setSocraticMode(true);
+      }
+    } else {
+      setSocraticMode(!socraticMode);
     }
-    setSocraticMode(!socraticMode);
+  };
+
+  const extractTopicFromChat = async (): Promise<string | null> => {
+    // This function will be called to extract the topic from recent chat history
+    // For now, return null to show the session panel
+    // TODO: Implement AI-based topic extraction from chat history
+    return null;
   };
 
   const averageScore = session?.score_history?.length 
@@ -236,12 +256,6 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           {...props}
           dataSource={isPersonalMode ? dataSource : undefined}
           isStructuredMode={socraticMode}
-          onStartStructuredSession={(topic: string) => {
-            setSocraticMode(true);
-            setShowSessionPanel(false);
-            // Start a new structured session with the extracted topic
-            handleStartSocraticSession(topic, `Deep understanding of ${topic}`);
-          }}
         />
       )}
     </div>

@@ -68,7 +68,8 @@ interface AIStudyChatInterfaceProps {
   insights?: InsightData[];
   fixedHeight?: boolean;
   isStructuredMode?: boolean;
-  onStartStructuredSession?: (topic: string) => void;
+  // Expose method to get recent chat messages for topic extraction
+  getChatMessages?: () => ChatMessage[];
 }
 
 const withProgressiveTimeout = <T,>(
