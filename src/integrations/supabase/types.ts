@@ -5554,6 +5554,7 @@ export type Database = {
           name: string
           owner_id: string
           plan: string
+          restrict_general_chat: boolean | null
           seat_cap: number
           seats_used: number | null
           slug: string | null
@@ -5582,6 +5583,7 @@ export type Database = {
           name: string
           owner_id: string
           plan?: string
+          restrict_general_chat?: boolean | null
           seat_cap?: number
           seats_used?: number | null
           slug?: string | null
@@ -5610,6 +5612,7 @@ export type Database = {
           name?: string
           owner_id?: string
           plan?: string
+          restrict_general_chat?: boolean | null
           seat_cap?: number
           seats_used?: number | null
           slug?: string | null

@@ -7,13 +7,15 @@ interface SocraticModeToggleProps {
   onToggle: () => void;
   sessionActive?: boolean;
   averageScore?: number;
+  disabled?: boolean;
 }
 
 export function SocraticModeToggle({ 
   enabled, 
   onToggle, 
   sessionActive, 
-  averageScore 
+  averageScore,
+  disabled 
 }: SocraticModeToggleProps) {
   return (
     <div className="flex items-center gap-2">
@@ -21,6 +23,7 @@ export function SocraticModeToggle({
         variant={enabled ? "default" : "outline"}
         size="sm"
         onClick={onToggle}
+        disabled={disabled}
         className="gap-2"
       >
         {enabled ? <Target className="h-4 w-4" /> : <MessageSquare className="h-4 w-4" />}

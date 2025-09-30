@@ -64,6 +64,8 @@ interface AIStudyChatInterfaceProps {
   flashcards?: FlashcardData[];
   insights?: InsightData[];
   fixedHeight?: boolean;
+  isStructuredMode?: boolean;
+  onStartStructuredSession?: (topic: string) => void;
 }
 
 const withProgressiveTimeout = <T,>(
