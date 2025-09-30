@@ -70,16 +70,16 @@ export default function AIStudyCoach() {
       <div className={`
         flex flex-col gap-4
         ${isMobile 
-          ? 'h-[calc(100vh-8rem)]' 
-          : 'grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]'
+          ? 'pb-4' 
+          : 'grid grid-cols-1 lg:grid-cols-3 gap-6'
         }
       `}>
         {/* Enhanced AI Study Coach with Socratic Mode */}
         <div className={`
-          flex flex-col min-h-0
+          flex flex-col
           ${isMobile 
-            ? 'flex-[3] min-h-[70vh]' 
-            : 'lg:col-span-2'
+            ? 'min-h-[70vh]' 
+            : 'lg:col-span-2 h-[calc(100vh-12rem)]'
           }
         `}>
           <EnhancedAIStudyCoach
@@ -93,10 +93,10 @@ export default function AIStudyCoach() {
 
         {/* Study Tips - Mobile Responsive */}
         <div className={`
-          flex flex-col min-h-0
+          flex flex-col
           ${isMobile 
-            ? 'flex-1 max-h-[30vh] overflow-y-auto' 
-            : 'space-y-6 overflow-y-auto'
+            ? 'max-h-[40vh] overflow-y-auto' 
+            : 'space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto'
           }
         `}>
           <Card className={isMobile ? 'mobile-card' : ''}>

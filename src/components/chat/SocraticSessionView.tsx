@@ -52,7 +52,7 @@ export function SocraticSessionView({
   const isComplete = session.state === 'COMPLETED';
 
   return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden">
+    <div className="flex flex-col h-full">
       {/* Session Header */}
       <Card className="mb-4 flex-shrink-0">
         <CardHeader className="pb-3">
@@ -97,8 +97,9 @@ export function SocraticSessionView({
       </Card>
 
       {/* Chat Messages */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-        <div className="p-4 space-y-4">
+      <Card className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="space-y-4">
             {turns.map((turn) => (
               <div
                 key={turn.id}
@@ -146,9 +147,10 @@ export function SocraticSessionView({
             )}
             <div ref={scrollRef} />
           </div>
+        </div>
 
         {/* Input Area - Fixed at bottom */}
-        <div className="border-t p-4 flex-shrink-0" style={{
+        <div className="border-t p-4 bg-card" style={{
           position: 'sticky',
           bottom: 0,
           backgroundColor: 'hsl(var(--background))',
@@ -198,7 +200,7 @@ export function SocraticSessionView({
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
