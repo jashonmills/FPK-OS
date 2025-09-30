@@ -80,7 +80,7 @@ export function StudentCoursesTab({ student, orgId }: StudentCoursesTabProps) {
         </div>
         <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="text-white">
               <Plus className="h-4 w-4 mr-2" />
               Assign Course
             </Button>
