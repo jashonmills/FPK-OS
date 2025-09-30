@@ -162,6 +162,11 @@ export function SocraticSessionView({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
+                onFocus={(e) => {
+                  // Prevent viewport jump on focus
+                  e.preventDefault();
+                  e.target.focus({ preventScroll: true });
+                }}
                 placeholder="Type your response..."
                 className="resize-none"
                 rows={2}

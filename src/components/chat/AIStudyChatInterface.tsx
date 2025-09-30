@@ -667,6 +667,11 @@ What specific aspect would you like to focus on?`;
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
+                onFocus={(e) => {
+                  // Prevent viewport jump on focus
+                  e.preventDefault();
+                  e.target.focus({ preventScroll: true });
+                }}
                 placeholder={placeholder}
                 disabled={isLoading}
                 className="flex-1"

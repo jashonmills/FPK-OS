@@ -497,6 +497,11 @@ What specific topic would you like to focus on?`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
+              onFocus={(e) => {
+                // Prevent viewport jump on focus
+                e.preventDefault();
+                e.target.focus({ preventScroll: true });
+              }}
               placeholder="Ask me anything about learning..."
               disabled={isLoading}
               className="min-h-[44px] pr-12"
