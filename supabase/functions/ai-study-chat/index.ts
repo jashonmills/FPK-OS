@@ -10,13 +10,18 @@ import { handleSocraticSession, type SocraticRequest } from './socratic-handler.
 
 // AI Study Coach v8.0 - Enhanced Socratic Method
 const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
+const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+// Your custom OpenAI Assistant ID
+const OPENAI_ASSISTANT_ID = 'asst_nY5Rf0GmnzGv3RX6hJC2BFp1';
 
 // Log API key availability
-console.log('🔐 Gemini API Key Status:', {
-  hasKey: !!geminiApiKey,
-  keyLength: geminiApiKey?.length || 0,
-  keyPrefix: geminiApiKey?.substring(0, 10) + '...' || 'N/A',
-  isValidFormat: geminiApiKey?.length > 30 || false
+console.log('🔐 API Key Status:', {
+  hasGemini: !!geminiApiKey,
+  hasOpenAI: !!openaiApiKey,
+  geminiKeyLength: geminiApiKey?.length || 0,
+  openaiKeyLength: openaiApiKey?.length || 0,
+  assistantId: OPENAI_ASSISTANT_ID
 });
 
 serve(async (req) => {
@@ -68,10 +73,165 @@ serve(async (req) => {
       socraticIntent,
       socraticTopic,
       socraticObjective,
-      socraticSessionId
+      socraticSessionId,
+      // OpenAI Assistant parameters
+      useOpenAIAssistant = true, // Default to using OpenAI Assistant
+      threadId // Optional thread ID for conversation continuity
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
+
+    // Handle OpenAI Assistant requests (non-Socratic mode)
+    if (useOpenAIAssistant && openaiApiKey && !socraticMode) {
+      console.log('🤖 Using OpenAI Assistant:', {
+        assistantId: OPENAI_ASSISTANT_ID,
+        hasThreadId: !!threadId,
+        messageLength: message?.length || 0,
+        userId
+      });
+
+      try {
+        // Create or use existing thread
+        let currentThreadId = threadId;
+        
+        if (!currentThreadId) {
+          console.log('📝 Creating new OpenAI thread...');
+          const threadResponse = await fetch('https://api.openai.com/v1/threads', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${openaiApiKey}`,
+              'Content-Type': 'application/json',
+              'OpenAI-Beta': 'assistants=v2'
+            }
+          });
+
+          if (!threadResponse.ok) {
+            const errorText = await threadResponse.text();
+            console.error('❌ Failed to create thread:', errorText);
+            throw new Error(`Failed to create thread: ${threadResponse.status}`);
+          }
+
+          const threadData = await threadResponse.json();
+          currentThreadId = threadData.id;
+          console.log('✅ Created thread:', currentThreadId);
+        }
+
+        // Add message to thread
+        console.log('💬 Adding message to thread:', currentThreadId);
+        const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2'
+          },
+          body: JSON.stringify({
+            role: 'user',
+            content: message
+          })
+        });
+
+        if (!messageResponse.ok) {
+          const errorText = await messageResponse.text();
+          console.error('❌ Failed to add message:', errorText);
+          throw new Error(`Failed to add message: ${messageResponse.status}`);
+        }
+
+        // Create run
+        console.log('🏃 Creating run with assistant:', OPENAI_ASSISTANT_ID);
+        const runResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2'
+          },
+          body: JSON.stringify({
+            assistant_id: OPENAI_ASSISTANT_ID
+          })
+        });
+
+        if (!runResponse.ok) {
+          const errorText = await runResponse.text();
+          console.error('❌ Failed to create run:', errorText);
+          throw new Error(`Failed to create run: ${runResponse.status}`);
+        }
+
+        const runData = await runResponse.json();
+        const runId = runData.id;
+        console.log('✅ Created run:', runId);
+
+        // Poll for completion
+        let runStatus = runData.status;
+        let attempts = 0;
+        const maxAttempts = 60; // 60 seconds max wait
+
+        while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+          attempts++;
+
+          const statusResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs/${runId}`, {
+            headers: {
+              'Authorization': `Bearer ${openaiApiKey}`,
+              'OpenAI-Beta': 'assistants=v2'
+            }
+          });
+
+          if (!statusResponse.ok) {
+            console.error('❌ Failed to check run status');
+            break;
+          }
+
+          const statusData = await statusResponse.json();
+          runStatus = statusData.status;
+          console.log(`⏳ Run status (attempt ${attempts}):`, runStatus);
+        }
+
+        if (runStatus !== 'completed') {
+          throw new Error(`Run did not complete successfully. Final status: ${runStatus}`);
+        }
+
+        // Retrieve messages
+        console.log('📥 Retrieving messages from thread...');
+        const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages?limit=1&order=desc`, {
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'OpenAI-Beta': 'assistants=v2'
+          }
+        });
+
+        if (!messagesResponse.ok) {
+          const errorText = await messagesResponse.text();
+          console.error('❌ Failed to retrieve messages:', errorText);
+          throw new Error(`Failed to retrieve messages: ${messagesResponse.status}`);
+        }
+
+        const messagesData = await messagesResponse.json();
+        const assistantMessage = messagesData.data[0];
+        const responseText = assistantMessage.content[0]?.text?.value || 'I apologize, but I encountered an issue. Please try again.';
+
+        console.log('✅ OpenAI Assistant response received:', {
+          threadId: currentThreadId,
+          responseLength: responseText.length
+        });
+
+        return new Response(
+          JSON.stringify({
+            response: responseText,
+            threadId: currentThreadId,
+            source: 'openai_assistant',
+            assistantId: OPENAI_ASSISTANT_ID,
+            blueprintVersion: 'openai-assistant'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (error: any) {
+        console.error('❌ OpenAI Assistant error:', error);
+        // Fall back to Gemini if OpenAI fails
+        console.log('⚠️ Falling back to Gemini...');
+      }
+    }
 
     // Handle Socratic session requests
     if (socraticMode && socraticIntent) {
