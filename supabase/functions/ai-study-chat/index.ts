@@ -141,7 +141,8 @@ serve(async (req) => {
     // Try Lovable AI first for non-Socratic mode (preferred method)
     if (!socraticMode && lovableApiKey) {
       console.log('🤖 Using Lovable AI for study coaching');
-        
+      
+      try {
         // Select the appropriate prompt based on mode and data source
         // This logic is unified for ALL user types (personal and organization)
         let systemPrompt: string;
