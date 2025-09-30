@@ -3,11 +3,12 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SOCRATIC_BLUEPRINT_V42, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
+import { corsHeaders, SOCRATIC_BLUEPRINT_V8, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
+import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
 
-// AI Study Coach v7.0 - Google Gemini Implementation
+// AI Study Coach v8.0 - Enhanced Socratic Method
 const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
 
 // Log API key availability
@@ -61,10 +62,83 @@ serve(async (req) => {
       voiceActive = false,
       clientHistory = [],
       originalTopic,
-      lessonContext
+      lessonContext,
+      // Socratic session parameters
+      socraticMode,
+      socraticIntent,
+      socraticTopic,
+      socraticObjective,
+      socraticSessionId
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
+
+    // Handle Socratic session requests
+    if (socraticMode && socraticIntent) {
+      console.log('🎓 Socratic session request detected:', {
+        intent: socraticIntent,
+        sessionId: socraticSessionId,
+        userId,
+        hasTopic: !!socraticTopic,
+        hasObjective: !!socraticObjective
+      });
+
+      try {
+        // Create Gemini call wrapper
+        const geminiCall = async (prompt: string) => {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              systemInstruction: { parts: [{ text: SOCRATIC_BLUEPRINT_V8 }] },
+              generationConfig: {
+                maxOutputTokens: MAX_TOKENS,
+                temperature: 0.7,
+                topP: 0.9
+              }
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Gemini API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        };
+
+        const socraticRequest: SocraticRequest = {
+          sessionId: socraticSessionId,
+          userId,
+          orgId: contextData.orgId,
+          intent: socraticIntent,
+          topic: socraticTopic,
+          objective: socraticObjective,
+          studentResponse: message
+        };
+
+        const socraticResponse = await handleSocraticSession(socraticRequest, geminiCall);
+
+        return new Response(
+          JSON.stringify({
+            ...socraticResponse,
+            source: 'socratic_session',
+            blueprintVersion: 'v8.0'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error: any) {
+        console.error('❌ Socratic session error:', error);
+        return new Response(
+          JSON.stringify({
+            error: error.message || 'Socratic session failed',
+            details: error.toString()
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     // Extract or detect original topic from conversation
     const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
@@ -222,7 +296,7 @@ serve(async (req) => {
               parts: [{ text: contextPrompt }]
             }],
             systemInstruction: {
-              parts: [{ text: SOCRATIC_BLUEPRINT_V42 }]
+              parts: [{ text: SOCRATIC_BLUEPRINT_V8 }]
             },
             generationConfig: {
               maxOutputTokens: MAX_TOKENS,

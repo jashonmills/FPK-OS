@@ -57,7 +57,7 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
           sessionId: `org-coach-${orgId}-${userId}`,
           chatMode: 'general',
           voiceActive: false,
-          metadata: {
+          contextData: {
             context: 'org_study_coach',
             orgId: orgId,
             orgName: orgName,

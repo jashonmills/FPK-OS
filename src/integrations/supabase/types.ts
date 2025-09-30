@@ -7458,6 +7458,98 @@ export type Database = {
         }
         Relationships: []
       }
+      socratic_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_question: string | null
+          id: string
+          nudge_count: number
+          objective: string
+          org_id: string | null
+          rubric: Json
+          score_history: number[]
+          started_at: string
+          state: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_question?: string | null
+          id?: string
+          nudge_count?: number
+          objective: string
+          org_id?: string | null
+          rubric?: Json
+          score_history?: number[]
+          started_at?: string
+          state?: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_question?: string | null
+          id?: string
+          nudge_count?: number
+          objective?: string
+          org_id?: string | null
+          rubric?: Json
+          score_history?: number[]
+          started_at?: string
+          state?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      socratic_turns: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          misconception: string | null
+          role: string
+          score: number | null
+          session_id: string
+          tag: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          misconception?: string | null
+          role: string
+          score?: number | null
+          session_id: string
+          tag?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          misconception?: string | null
+          role?: string
+          score?: number | null
+          session_id?: string
+          tag?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "socratic_turns_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "socratic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategies: {
         Row: {
           ai_prompt: string | null
