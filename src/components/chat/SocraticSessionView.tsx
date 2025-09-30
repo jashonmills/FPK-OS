@@ -23,11 +23,14 @@ export function SocraticSessionView({
   onEndSession
 }: SocraticSessionViewProps) {
   const [input, setInput] = useState('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [turns]);
+    if (!isInputFocused) {
+      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [turns, isInputFocused]);
 
   const handleSend = () => {
     if (input.trim() && !loading) {
@@ -147,8 +150,13 @@ export function SocraticSessionView({
           </div>
         </ScrollArea>
 
-        {/* Input Area */}
-        <CardContent className="border-t p-4">
+        {/* Input Area - Fixed at bottom */}
+        <CardContent className="border-t p-4" style={{ 
+          position: 'sticky',
+          bottom: 0,
+          backgroundColor: 'hsl(var(--background))',
+          zIndex: 10
+        }}>
           {isComplete ? (
             <div className="text-center space-y-3">
               <p className="text-sm text-muted-foreground">
@@ -163,14 +171,20 @@ export function SocraticSessionView({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 onFocus={(e) => {
-                  // Prevent viewport jump on focus
+                  // Prevent viewport jump
+                  setIsInputFocused(true);
                   e.preventDefault();
-                  e.target.focus({ preventScroll: true });
+                }}
+                onBlur={() => {
+                  setIsInputFocused(false);
                 }}
                 placeholder="Type your response..."
                 className="resize-none"
                 rows={2}
                 disabled={loading}
+                style={{ 
+                  fontSize: '16px' // Prevent zoom on iOS
+                }}
               />
               <Button
                 onClick={handleSend}

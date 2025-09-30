@@ -66,10 +66,11 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   const voiceInput = useEnhancedVoiceInput();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
-  // Auto scroll when messages change
+  // Auto scroll when messages change (but not when input is focused)
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && !isInputFocused) {
       cleanup.setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth',
@@ -78,7 +79,7 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
         });
       }, 100);
     }
-  }, [messages, cleanup]);
+  }, [messages, cleanup, isInputFocused]);
 
   // Add welcome message if no messages exist
   useEffect(() => {
@@ -437,7 +438,12 @@ What specific topic would you like to focus on?`;
       </div>
 
       {/* Fixed Bottom Controls Container */}
-      <div className="flex-shrink-0 p-4 max-w-4xl mx-auto w-full">
+      <div className="flex-shrink-0 p-4 max-w-4xl mx-auto w-full" style={{ 
+        position: 'sticky',
+        bottom: 0,
+        backgroundColor: 'hsl(var(--background))',
+        zIndex: 10
+      }}>
         {/* Voice Controls Row */}
         {settings.enabled && (
           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
@@ -498,13 +504,19 @@ What specific topic would you like to focus on?`;
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               onFocus={(e) => {
-                // Prevent viewport jump on focus
+                // Prevent viewport jump and disable auto-scroll
+                setIsInputFocused(true);
                 e.preventDefault();
-                e.target.focus({ preventScroll: true });
+              }}
+              onBlur={() => {
+                setIsInputFocused(false);
               }}
               placeholder="Ask me anything about learning..."
               disabled={isLoading}
               className="min-h-[44px] pr-12"
+              style={{ 
+                fontSize: '16px' // Prevent zoom on iOS
+              }}
             />
             {settings.enabled && (
               <div className="absolute right-2 top-1/2 -translate-y-1/2">

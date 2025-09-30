@@ -134,10 +134,11 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const voiceInput = useEnhancedVoiceInput();
   const inputRef = useRef<HTMLInputElement>(null);
   const cleanup = useCleanup('AIStudyChatInterface');
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
-  // Auto scroll when messages change
+  // Auto scroll when messages change (but not when input is focused)
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && !isInputFocused) {
       cleanup.setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth',
@@ -146,7 +147,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
         });
       }, 100);
     }
-  }, [messages, cleanup]);
+  }, [messages, cleanup, isInputFocused]);
 
   // Add welcome message with dashboard data
   useEffect(() => {
@@ -658,8 +659,13 @@ What specific aspect would you like to focus on?`;
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Form */}
-        <div className="flex-shrink-0 p-6 border-t border-border">
+        {/* Input Form - Fixed at bottom */}
+        <div className="flex-shrink-0 p-6 border-t border-border" style={{ 
+          position: 'sticky',
+          bottom: 0,
+          backgroundColor: 'hsl(var(--background))',
+          zIndex: 10
+        }}>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex gap-2">
               <Input
@@ -668,13 +674,21 @@ What specific aspect would you like to focus on?`;
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 onFocus={(e) => {
-                  // Prevent viewport jump on focus
+                  // Prevent viewport jump and disable auto-scroll
+                  setIsInputFocused(true);
                   e.preventDefault();
-                  e.target.focus({ preventScroll: true });
+                  // Don't call focus again, we're already in focus
+                }}
+                onBlur={() => {
+                  setIsInputFocused(false);
                 }}
                 placeholder={placeholder}
                 disabled={isLoading}
                 className="flex-1"
+                style={{ 
+                  // Prevent zoom on iOS
+                  fontSize: '16px'
+                }}
               />
               <VoiceInputButton
                 onTranscription={handleVoiceInput}
