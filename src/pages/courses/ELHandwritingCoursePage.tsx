@@ -75,6 +75,8 @@ const ELHandwritingCoursePage: React.FC = () => {
       if (lesson >= 1 && lesson <= lessons.length) {
         setCurrentLesson(lesson);
       }
+    } else {
+      setCurrentLesson(null);
     }
   }, [lessonId]);
 
