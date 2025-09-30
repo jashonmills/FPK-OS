@@ -121,6 +121,7 @@ const ELHandwritingCoursePage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToCourseOverview = useCallback(() => {
+    setCurrentLesson(null);
     navigate('/courses/el-handwriting');
   }, [navigate]);
 
