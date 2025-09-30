@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Brain, Send, MessageCircle, Lightbulb, BookOpen, Target, Clock } from 'lucide-react';
+import React from 'react';
+import { Lightbulb, BookOpen, Target, Clock, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrgAIChat } from '@/hooks/useOrgAIChat';
 import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { EnhancedAIStudyCoach } from '@/components/chat/EnhancedAIStudyCoach';
 
 interface StudyTip {
   id: string;
@@ -59,43 +58,7 @@ const categoryColors = {
 export default function AIStudyCoach() {
   const { currentOrg } = useOrgContext();
   const { user } = useAuth();
-  const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  
-  const { 
-    messages, 
-    isSending, 
-    sendMessage, 
-    clearAllMessages, 
-    initializeChat 
-  } = useOrgAIChat({
-    userId: user?.id,
-    orgId: currentOrg?.organization_id,
-    orgName: currentOrg?.organizations?.name
-  });
-
-  // Initialize chat when component mounts
-  useEffect(() => {
-    initializeChat(user?.user_metadata?.full_name);
-  }, [initializeChat, user?.user_metadata?.full_name]);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isSending]);
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || isSending) return;
-    
-    const messageToSend = newMessage;
-    setNewMessage('');
-    await sendMessage(messageToSend);
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
 
   return (
     <MobilePageLayout className="min-h-screen">
@@ -111,7 +74,7 @@ export default function AIStudyCoach() {
           : 'grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]'
         }
       `}>
-        {/* Chat Interface - Mobile First */}
+        {/* Enhanced AI Study Coach with Socratic Mode */}
         <div className={`
           flex flex-col min-h-0
           ${isMobile 
@@ -119,108 +82,13 @@ export default function AIStudyCoach() {
             : 'lg:col-span-2'
           }
         `}>
-          <Card className="flex-1 flex flex-col min-h-0 mobile-card">
-            <CardHeader className="mobile-card-compact flex-shrink-0">
-              <CardTitle className="flex items-center space-x-2 mobile-heading-md">
-                <MessageCircle className={`${isMobile ? 'h-6 w-6' : 'h-5 w-5'}`} />
-                <span className="mobile-safe-text">Chat with AI Study Coach</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col min-h-0 mobile-card-compact">
-              {/* Messages */}
-              <div className={`
-                flex-1 overflow-y-auto mb-4 pr-2 min-h-0 mobile-scroll-container
-                ${isMobile ? 'space-y-3' : 'space-y-4'}
-              `}>
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div className={`flex items-end space-x-2 min-w-0 ${isMobile ? 'max-w-[90%]' : 'max-w-[80%]'}`}>
-                      {message.role === 'assistant' && (
-                        <div className={`bg-primary/10 rounded-full flex-shrink-0 ${isMobile ? 'p-1.5' : 'p-2'}`}>
-                          <Brain className={`text-primary ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
-                        </div>
-                      )}
-                      <div
-                        className={`rounded-lg min-w-0 flex-1 mobile-safe-text ${
-                          isMobile ? 'p-2.5' : 'p-3'
-                        } ${
-                          message.role === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
-                      >
-                        <p className={`break-words whitespace-pre-wrap overflow-wrap-anywhere mobile-text-overflow-safe ${isMobile ? 'text-sm' : 'text-sm'}`}>
-                          {message.content}
-                        </p>
-                        <p className={`opacity-70 mt-1 ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                          {formatTime(message.timestamp)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {isSending && (
-                  <div className="flex justify-start">
-                    <div className="flex items-end space-x-2">
-                      <div className="p-2 bg-primary/10 rounded-full flex-shrink-0">
-                        <Brain className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="bg-muted p-3 rounded-lg">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Scroll anchor */}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input - Mobile Optimized */}
-              <div className={`flex gap-2 flex-shrink-0 ${isMobile ? 'mobile-form-row' : 'space-x-2'}`}>
-                <Textarea
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={isMobile 
-                    ? "Ask me about study strategies..." 
-                    : "Ask me about study strategies, learning techniques, or any academic questions..."
-                  }
-                  className={`
-                    flex-1 resize-none mobile-input mobile-safe-text
-                    ${isMobile 
-                      ? 'min-h-[50px] max-h-[100px] text-base' 
-                      : 'min-h-[60px] max-h-[120px]'
-                    }
-                  `}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || isSending}
-                  size={isMobile ? "default" : "lg"}
-                  className={`
-                    mobile-touch-target
-                    ${isMobile ? 'min-w-[52px]' : 'px-4'}
-                  `}
-                >
-                  <Send className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedAIStudyCoach
+            userId={user?.id}
+            orgId={currentOrg?.organization_id}
+            chatMode="general"
+            showHeader={true}
+            fixedHeight={true}
+          />
         </div>
 
         {/* Study Tips - Mobile Responsive */}
@@ -272,45 +140,11 @@ export default function AIStudyCoach() {
           {!isMobile && (
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle>Learning Resources</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start mobile-safe-text"
-                  onClick={() => setNewMessage("How can I improve my focus while studying?")}
-                >
-                  <Brain className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Improve Focus</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start mobile-safe-text"
-                  onClick={() => setNewMessage("What are the best memory techniques for studying?")}
-                >
-                  <BookOpen className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Memory Techniques</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start mobile-safe-text"
-                  onClick={() => setNewMessage("How do I create an effective study schedule?")}
-                >
-                  <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Study Schedule</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start mobile-safe-text"
-                  onClick={() => setNewMessage("How can I stay motivated while learning?")}
-                >
-                  <Target className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Stay Motivated</span>
-                </Button>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p>Use the Structured Mode toggle to start a focused Socratic learning session with guided questions and progress tracking.</p>
+                <p>Or continue with Free Chat mode for open-ended study support and questions.</p>
               </CardContent>
             </Card>
           )}
