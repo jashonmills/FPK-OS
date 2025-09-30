@@ -8,20 +8,16 @@ import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-pro
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
 
-// AI Study Coach v8.0 - Enhanced Socratic Method
+// AI Study Coach v8.0 - Enhanced Socratic Method with Lovable AI
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
-const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-
-// Your custom OpenAI Assistant ID
-const OPENAI_ASSISTANT_ID = 'asst_ZHsH0kICjxcNCKmRvd8ZUtsM';
 
 // Log API key availability
 console.log('🔐 API Key Status:', {
+  hasLovableAI: !!lovableApiKey,
   hasGemini: !!geminiApiKey,
-  hasOpenAI: !!openaiApiKey,
-  geminiKeyLength: geminiApiKey?.length || 0,
-  openaiKeyLength: openaiApiKey?.length || 0,
-  assistantId: OPENAI_ASSISTANT_ID
+  lovableKeyLength: lovableApiKey?.length || 0,
+  geminiKeyLength: geminiApiKey?.length || 0
 });
 
 serve(async (req) => {
@@ -73,167 +69,100 @@ serve(async (req) => {
       socraticIntent,
       socraticTopic,
       socraticObjective,
-      socraticSessionId,
-      // OpenAI Assistant parameters
-      useOpenAIAssistant = true, // Default to using OpenAI Assistant
-      threadId // Optional thread ID for conversation continuity
+      socraticSessionId
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
 
-    // Handle OpenAI Assistant requests (non-Socratic mode)
-    if (useOpenAIAssistant && openaiApiKey && !socraticMode) {
-      console.log('🤖 Using OpenAI Assistant:', {
-        assistantId: OPENAI_ASSISTANT_ID,
-        hasThreadId: !!threadId,
-        messageLength: message?.length || 0,
-        userId
-      });
+    // Try Lovable AI first for non-Socratic mode (preferred method)
+    if (!socraticMode && lovableApiKey) {
+      console.log('🤖 Using Lovable AI for study coaching');
 
       try {
-        // Create or use existing thread
-        let currentThreadId = threadId;
+        // Build conversation history summary
+        const conversationSummary = buildConversationSummary(clientHistory);
         
-        if (!currentThreadId) {
-          console.log('📝 Creating new OpenAI thread...');
-          const threadResponse = await fetch('https://api.openai.com/v1/threads', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${openaiApiKey}`,
-              'Content-Type': 'application/json',
-              'OpenAI-Beta': 'assistants=v2'
-            }
-          });
-
-          if (!threadResponse.ok) {
-            const errorText = await threadResponse.text();
-            console.error('❌ Failed to create thread:', errorText);
-            throw new Error(`Failed to create thread: ${threadResponse.status}`);
-          }
-
-          const threadData = await threadResponse.json();
-          currentThreadId = threadData.id;
-          console.log('✅ Created thread:', currentThreadId);
+        // Extract original topic
+        const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
+        
+        // Auto-detect promptType if missing
+        let detectedPromptType = promptType;
+        if (!promptType || typeof promptType !== 'string') {
+          detectedPromptType = autoDetectPromptType(message, clientHistory);
         }
+        
+        // Build simple prompt using existing Blueprint system
+        const promptContext: SimplePromptContext = {
+          chatMode,
+          voiceActive,
+          userInput: message,
+          quizTopic: contextData.quizTopic,
+          teachingHistory: contextData.teachingHistory,
+          incorrectCount: contextData.incorrectCount,
+          originalTopic: detectedOriginalTopic,
+          conversationHistory: conversationSummary,
+          lessonContent: lessonContext?.lessonContent,
+          lessonTitle: lessonContext?.lessonTitle,
+          courseId: lessonContext?.courseId,
+          lessonId: lessonContext?.lessonId,
+        };
 
-        // Add message to thread
-        console.log('💬 Adding message to thread:', currentThreadId);
-        const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
+        const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
+        
+        console.log('📝 Lovable AI prompt:', { 
+          type: detectedPromptType, 
+          promptLength: contextPrompt.length,
+          messageLength: message.length
+        });
+
+        // Call Lovable AI with Gemini model (free until Oct 6, 2025)
+        const lovableResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
+            'Authorization': `Bearer ${lovableApiKey}`,
             'Content-Type': 'application/json',
-            'OpenAI-Beta': 'assistants=v2'
           },
           body: JSON.stringify({
-            role: 'user',
-            content: message
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: SOCRATIC_BLUEPRINT_V8 + '\n\n' + contextPrompt },
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 4000
           })
         });
 
-        if (!messageResponse.ok) {
-          const errorText = await messageResponse.text();
-          console.error('❌ Failed to add message:', errorText);
-          throw new Error(`Failed to add message: ${messageResponse.status}`);
+        if (!lovableResponse.ok) {
+          const errorText = await lovableResponse.text();
+          console.error('❌ Lovable AI error:', lovableResponse.status, errorText);
+          throw new Error(`Lovable AI error: ${lovableResponse.status}`);
         }
 
-        // Create run
-        console.log('🏃 Creating run with assistant:', OPENAI_ASSISTANT_ID);
-        const runResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-            'OpenAI-Beta': 'assistants=v2'
-          },
-          body: JSON.stringify({
-            assistant_id: OPENAI_ASSISTANT_ID
-          })
-        });
-
-        if (!runResponse.ok) {
-          const errorText = await runResponse.text();
-          console.error('❌ Failed to create run:', errorText);
-          throw new Error(`Failed to create run: ${runResponse.status}`);
-        }
-
-        const runData = await runResponse.json();
-        const runId = runData.id;
-        console.log('✅ Created run:', runId);
-
-        // Poll for completion with shorter timeout
-        let runStatus = runData.status;
-        let attempts = 0;
-        const maxAttempts = 12; // 12 seconds max wait (less than frontend timeout)
-
-        while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-          attempts++;
-
-          const statusResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs/${runId}`, {
-            headers: {
-              'Authorization': `Bearer ${openaiApiKey}`,
-              'OpenAI-Beta': 'assistants=v2'
-            }
-          });
-
-          if (!statusResponse.ok) {
-            console.error('❌ Failed to check run status');
-            break;
-          }
-
-          const statusData = await statusResponse.json();
-          runStatus = statusData.status;
-          console.log(`⏳ Run status (attempt ${attempts}):`, runStatus);
-        }
-
-        if (runStatus !== 'completed') {
-          throw new Error(`Run did not complete successfully. Final status: ${runStatus}`);
-        }
-
-        // Retrieve messages
-        console.log('📥 Retrieving messages from thread...');
-        const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages?limit=1&order=desc`, {
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'OpenAI-Beta': 'assistants=v2'
-          }
-        });
-
-        if (!messagesResponse.ok) {
-          const errorText = await messagesResponse.text();
-          console.error('❌ Failed to retrieve messages:', errorText);
-          throw new Error(`Failed to retrieve messages: ${messagesResponse.status}`);
-        }
-
-        const messagesData = await messagesResponse.json();
-        const assistantMessage = messagesData.data[0];
-        const responseText = assistantMessage.content[0]?.text?.value || 'I apologize, but I encountered an issue. Please try again.';
-
-        console.log('✅ OpenAI Assistant response received:', {
-          threadId: currentThreadId,
-          responseLength: responseText.length
+        const lovableData = await lovableResponse.json();
+        const aiResponse = lovableData.choices?.[0]?.message?.content || "I'm here to help with your learning!";
+        
+        console.log('✅ Lovable AI response received:', {
+          responseLength: aiResponse.length,
+          source: 'lovable_ai'
         });
 
         return new Response(
           JSON.stringify({
-            response: responseText,
-            threadId: currentThreadId,
-            source: 'openai_assistant',
-            assistantId: OPENAI_ASSISTANT_ID,
-            blueprintVersion: 'openai-assistant'
+            response: aiResponse,
+            source: 'lovable_ai',
+            model: 'google/gemini-2.5-flash',
+            blueprintVersion: BLUEPRINT_VERSION
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
       } catch (error: any) {
-        console.error('❌ OpenAI Assistant error - FULL DETAILS:', {
+        console.error('❌ Lovable AI error - falling back to direct Gemini:', {
           message: error.message,
-          stack: error.stack,
-          error: JSON.stringify(error, null, 2)
+          error: error.toString()
         });
-        // Fall back to Gemini if OpenAI fails
-        console.log('⚠️ Falling back to Gemini due to OpenAI error...');
+        // Continue to fallback logic below
       }
     }
 
