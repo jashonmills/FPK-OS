@@ -3,7 +3,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, SOCRATIC_BLUEPRINT_V8, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
+import { corsHeaders, SOCRATIC_BLUEPRINT_V8, GENERAL_CHAT_PROMPT, GEMINI_MODEL, MAX_TOKENS, TIMEOUT_MS, BLUEPRINT_VERSION } from './constants.ts';
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
@@ -69,7 +69,9 @@ serve(async (req) => {
       socraticIntent,
       socraticTopic,
       socraticObjective,
-      socraticSessionId
+      socraticSessionId,
+      // Mode selection for prompt
+      isStructuredMode = false
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
@@ -109,10 +111,14 @@ serve(async (req) => {
 
         const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
         
+        // Select the appropriate prompt based on mode
+        const systemPrompt = isStructuredMode ? SOCRATIC_BLUEPRINT_V8 : GENERAL_CHAT_PROMPT;
+        
         console.log('📝 Lovable AI prompt:', { 
           type: detectedPromptType, 
           promptLength: contextPrompt.length,
-          messageLength: message.length
+          messageLength: message.length,
+          mode: isStructuredMode ? 'structured' : 'general'
         });
 
         // Call Lovable AI with Gemini model (free until Oct 6, 2025)
@@ -125,7 +131,7 @@ serve(async (req) => {
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash',
             messages: [
-              { role: 'system', content: SOCRATIC_BLUEPRINT_V8 },
+              { role: 'system', content: systemPrompt },
               { role: 'user', content: contextPrompt + '\n\nStudent: ' + message }
             ],
             max_tokens: 4000

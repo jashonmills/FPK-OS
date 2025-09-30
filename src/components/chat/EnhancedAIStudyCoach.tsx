@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AIStudyChatInterface } from './AIStudyChatInterface';
 import { SocraticModeToggle } from './SocraticModeToggle';
 import { SocraticSessionPanel } from './SocraticSessionPanel';
 import { SocraticSessionView } from './SocraticSessionView';
+import { ModeOnboarding } from './ModeOnboarding';
 import { useSocraticSession } from '@/hooks/useSocraticSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { useOrgContext } from '@/components/organizations/OrgContext';
 
 interface EnhancedAIStudyCoachProps {
   userId?: string;
@@ -23,6 +25,8 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   const { userId, orgId } = props;
   const [socraticMode, setSocraticMode] = useState(false);
   const [showSessionPanel, setShowSessionPanel] = useState(false);
+  const [orgSettings, setOrgSettings] = useState<any>(null);
+  const { currentOrg } = useOrgContext();
   
   const { 
     session, 
@@ -33,6 +37,28 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     updateSession,
     completeSession
   } = useSocraticSession(userId, orgId);
+
+  // Fetch organization settings to check if General Chat is restricted
+  useEffect(() => {
+    if (orgId || currentOrg?.organization_id) {
+      const fetchOrgSettings = async () => {
+        const { data } = await supabase
+          .from('organizations')
+          .select('restrict_general_chat')
+          .eq('id', orgId || currentOrg?.organization_id)
+          .single();
+        
+        if (data) {
+          setOrgSettings(data);
+          // If general chat is restricted, force structured mode
+          if (data.restrict_general_chat) {
+            setSocraticMode(true);
+          }
+        }
+      };
+      fetchOrgSettings();
+    }
+  }, [orgId, currentOrg]);
 
   const handleStartSocraticSession = async (topic: string, objective: string) => {
     const sessionId = await startSession(topic, objective);
@@ -120,6 +146,11 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   };
 
   const toggleSocraticMode = () => {
+    // Don't allow toggling if organization restricts general chat
+    if (orgSettings?.restrict_general_chat && socraticMode) {
+      return;
+    }
+    
     if (!socraticMode && !session) {
       setShowSessionPanel(true);
     }
@@ -132,13 +163,22 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
 
   return (
     <div className="flex flex-col h-full gap-4">
+      {/* Onboarding for first-time users */}
+      <ModeOnboarding onComplete={() => {}} />
+      
       {/* Mode Toggle */}
       <div className="flex justify-end px-4">
+        {orgSettings?.restrict_general_chat && (
+          <div className="text-xs text-muted-foreground mr-4 self-center">
+            Your organization has enabled Structured Mode for focused learning
+          </div>
+        )}
         <SocraticModeToggle
           enabled={socraticMode}
           onToggle={toggleSocraticMode}
           sessionActive={!!session && session.state !== 'COMPLETED'}
           averageScore={averageScore}
+          disabled={orgSettings?.restrict_general_chat}
         />
       </div>
 
@@ -173,7 +213,16 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           )}
         </>
       ) : (
-        <AIStudyChatInterface {...props} />
+        <AIStudyChatInterface 
+          {...props} 
+          isStructuredMode={socraticMode}
+          onStartStructuredSession={(topic: string) => {
+            setSocraticMode(true);
+            setShowSessionPanel(false);
+            // Start a new structured session with the extracted topic
+            handleStartSocraticSession(topic, `Deep understanding of ${topic}`);
+          }}
+        />
       )}
     </div>
   );
