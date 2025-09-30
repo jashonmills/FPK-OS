@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Send, Target, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
 import type { SocraticSession, SocraticTurn } from '@/hooks/useSocraticSession';
@@ -98,9 +97,8 @@ export function SocraticSessionView({
       </Card>
 
       {/* Chat Messages */}
-      <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <ScrollArea className="flex-1 p-4" style={{ maxHeight: 'calc(100vh - 300px)' }}>
-          <div className="space-y-4">
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+        <div className="p-4 space-y-4">
             {turns.map((turn) => (
               <div
                 key={turn.id}
@@ -148,10 +146,9 @@ export function SocraticSessionView({
             )}
             <div ref={scrollRef} />
           </div>
-        </ScrollArea>
 
         {/* Input Area - Fixed at bottom */}
-        <CardContent className="border-t p-4" style={{ 
+        <div className="border-t p-4 flex-shrink-0" style={{
           position: 'sticky',
           bottom: 0,
           backgroundColor: 'hsl(var(--background))',
@@ -200,8 +197,8 @@ export function SocraticSessionView({
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
