@@ -601,7 +601,8 @@ Topic:`;
           
           // If this is the last attempt, return timeout response
           if (attempt === maxRetries) {
-            const timeoutResponse = getContextualResponse(message, chatMode, 'timeout');
+            const safeChatMode = typeof chatMode === 'string' ? chatMode : 'general';
+            const timeoutResponse = getContextualResponse(message, safeChatMode, 'timeout');
             
             return new Response(JSON.stringify({
               response: timeoutResponse,
@@ -641,18 +642,22 @@ Topic:`;
   } catch (error) {
     console.error('❌ Error in ai-study-chat function:', error);
     
+    // Safely access chatMode with fallback
+    const safeChatMode = typeof chatMode === 'string' ? chatMode : 'general';
+    const safeMessage = typeof message === 'string' ? message : 'No message';
+    
     // Enhanced error logging
     console.error('❌ Full error details:', {
       message: error.message,
       stack: error.stack,
       name: error.name,
-      chatMode: chatMode || 'general',
+      chatMode: safeChatMode,
       promptType,
-      messageLength: message?.length || 0
+      messageLength: safeMessage.length
     });
 
     // Provide contextual error response
-    const errorResponse = getContextualResponse(message, chatMode || 'general', 'system_error');
+    const errorResponse = getContextualResponse(safeMessage, safeChatMode, 'system_error');
     
     return new Response(JSON.stringify({
       response: errorResponse,

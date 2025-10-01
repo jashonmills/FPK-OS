@@ -205,42 +205,84 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
         return;
       }
       
-      // Get first question from AI with warm handoff context
+      // Get first question from AI with warm handoff context (with retry logic)
       console.log('🤖 Requesting warm handoff from AI...');
-      const { data, error } = await supabase.functions.invoke('ai-study-chat', {
-        body: {
-          userId,
-          socraticMode: true,
-          socraticIntent: 'start',
-          socraticTopic: extractedTopic,
-          socraticObjective: `Deep understanding of ${extractedTopic}`,
-          socraticSessionId: sessionId,
-          promotedFromFreeChat: true, // Flag for warm handoff
-          contextData: { 
-            orgId,
-            promotedFromFreeChat: true
+      
+      let warmHandoffMessage: string | null = null;
+      let aiError: any = null;
+      
+      // Try up to 3 times to get the AI-generated warm handoff
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(`🔄 AI request attempt ${attempt}/3`);
+          
+          const { data, error } = await supabase.functions.invoke('ai-study-chat', {
+            body: {
+              userId,
+              socraticMode: true,
+              socraticIntent: 'start',
+              socraticTopic: extractedTopic,
+              socraticObjective: `Deep understanding of ${extractedTopic}`,
+              socraticSessionId: sessionId,
+              promotedFromFreeChat: true, // Flag for warm handoff
+              contextData: { 
+                orgId,
+                promotedFromFreeChat: true
+              }
+            }
+          });
+
+          if (error) {
+            console.error(`❌ AI request error (attempt ${attempt}):`, error);
+            aiError = error;
+            
+            // Wait before retry (exponential backoff)
+            if (attempt < 3) {
+              await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+              continue;
+            }
+          } else if (data?.question) {
+            console.log('✅ AI response received:', data);
+            warmHandoffMessage = data.question;
+            break; // Success!
+          } else {
+            console.warn('⚠️ AI response missing question field:', data);
+            aiError = new Error('AI response missing question field');
+            if (attempt < 3) {
+              await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+              continue;
+            }
+          }
+        } catch (err) {
+          console.error(`❌ Exception during AI call (attempt ${attempt}):`, err);
+          aiError = err;
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+            continue;
           }
         }
-      });
-
-      if (error) {
-        console.error('❌ AI request error:', error);
-        throw error;
       }
 
-      console.log('✅ AI response received:', data);
-
-      // Use the AI's complete "Overview and Orient" message directly - don't modify it
-      const warmHandoffMessage = data.question || "Let's begin exploring this topic together.";
+      // Use AI-generated message if we got it, otherwise use a thoughtful fallback
+      const finalMessage = warmHandoffMessage || 
+        `Perfect! I can see we've been discussing **${extractedTopic}**. Let's transition into a more structured exploration of this topic.\n\n` +
+        `I'll guide you through understanding ${extractedTopic} using the Socratic method - asking questions that help you discover insights on your own.\n\n` +
+        `**Let's start with this:** What do you already know about ${extractedTopic}? Share your current understanding, even if it feels incomplete.`;
       
-      console.log('💬 Adding AI-generated warm handoff message to session');
+      if (!warmHandoffMessage) {
+        console.warn('⚠️ Using fallback warm handoff message after AI call failures:', aiError?.message);
+      } else {
+        console.log('✅ Using AI-generated warm handoff message');
+      }
+      
+      console.log('💬 Adding warm handoff message to session');
       addTurn({
         role: 'coach',
-        content: warmHandoffMessage
+        content: finalMessage
       });
       
       updateSession({
-        current_question: warmHandoffMessage,
+        current_question: finalMessage,
         state: 'WAIT'
       });
       
