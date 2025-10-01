@@ -14,9 +14,9 @@ export default function OrgWebsitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background lg:ml-64">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-6 border-b border-border">
+    <div className="min-h-screen bg-background">
+      {/* Header with navigation offset */}
+      <div className="flex items-center justify-between px-6 py-6 border-b border-border lg:ml-64">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Organization Website</h1>
           <p className="text-muted-foreground mt-1">
@@ -33,8 +33,8 @@ export default function OrgWebsitePage() {
         </Button>
       </div>
 
-      {/* Website Embed - Full Width */}
-      <div className="w-full h-full">
+      {/* Website Embed - Full Width from nav panel to screen edge */}
+      <div className="lg:ml-64">
         {iframeError ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
