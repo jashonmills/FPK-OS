@@ -37,10 +37,19 @@ export default function OrgSettingsPage() {
   const queryClient = useQueryClient();
   const userRole = getUserRole();
 
+  // Sanitize organization name for display
+  const sanitizeOrgName = (name: string) => {
+    const firstLine = name.split(/\n|at |https?:\/\//)[0].trim();
+    return firstLine;
+  };
+
+  const currentOrgName = currentOrg?.organizations?.name || '';
+  const sanitizedName = sanitizeOrgName(currentOrgName);
+
   const form = useForm<OrgSettingsFormData>({
     resolver: zodResolver(orgSettingsSchema),
     defaultValues: {
-      name: currentOrg?.organizations?.name || '',
+      name: sanitizedName,
       description: '',
       logo_url: '',
       plan: (currentOrg?.organizations?.plan as any) || 'basic',
@@ -136,8 +145,13 @@ export default function OrgSettingsPage() {
                   <FormItem>
                     <FormLabel className="text-white">Organization Name</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={!canEdit} className="bg-white/20 border-white/30 text-white placeholder:text-white/70" />
+                      <Input {...field} disabled={!canEdit} className="bg-white/20 border-white/30 text-white placeholder:text-white/70" placeholder="Enter organization name" />
                     </FormControl>
+                    {currentOrgName !== sanitizedName && (
+                      <FormDescription className="text-amber-200">
+                        Current name contains error text. Please update to the correct name.
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
