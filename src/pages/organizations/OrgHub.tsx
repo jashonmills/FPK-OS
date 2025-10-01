@@ -262,7 +262,7 @@ const OrgHub = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => navigate('/org/create')}>
               Create New Organization
             </Button>
           </CardContent>
