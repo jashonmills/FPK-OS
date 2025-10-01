@@ -1,10 +1,25 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserOrganizations } from '@/hooks/useUserOrganization';
 import type { UserOrganizationMembership } from '@/hooks/useUserOrganization';
 import { useNavigate } from 'react-router-dom';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { safeLocalStorage } from '@/utils/safeStorage';
+
+// Utility to sanitize organization names that may contain error text
+const sanitizeOrgName = (name: string): string => {
+  if (!name) return '';
+  
+  // Extract first line before any error markers
+  const firstLine = name.split(/\n|at |https?:\/\//)[0].trim();
+  
+  // If the first line looks like an error (contains common error patterns), return a fallback
+  if (firstLine.includes('Error') || firstLine.includes('Provider') || firstLine.length > 200) {
+    return 'Organization';
+  }
+  
+  return firstLine || 'Organization';
+};
 
 interface OrgContextType {
   currentOrg: UserOrganizationMembership | null;
@@ -23,10 +38,21 @@ const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
 export function OrgProvider({ children, orgId }: { children: React.ReactNode; orgId?: string }) {
   const { user } = useAuth();
-  const { data: organizations = [], isLoading } = useUserOrganizations();
+  const { data: rawOrganizations = [], isLoading } = useUserOrganizations();
   const navigate = useNavigate();
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
+
+  // Sanitize organization names to remove any error text
+  const organizations = useMemo(() => {
+    return rawOrganizations.map(org => ({
+      ...org,
+      organizations: {
+        ...org.organizations,
+        name: sanitizeOrgName(org.organizations.name)
+      }
+    }));
+  }, [rawOrganizations]);
 
   // Initialize activeOrgId from props or localStorage (safe)
   useEffect(() => {
