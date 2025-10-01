@@ -29,6 +29,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   const [isPromoting, setIsPromoting] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>('general');
   const [orgSettings, setOrgSettings] = useState<any>(null);
+  const [currentMessages, setCurrentMessages] = useState<any[]>([]);
   const { currentOrg } = useOrgContext();
   
   // Personal mode uses the tri-modal system, org mode uses the legacy system
@@ -256,13 +257,29 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
 
   const extractTopicFromChat = async (): Promise<string | null> => {
     try {
+      // Need conversation history to extract topic
+      if (!currentMessages || currentMessages.length < 2) {
+        console.warn('⚠️ Not enough messages for topic extraction');
+        return null;
+      }
+
+      // Format messages for edge function
+      const clientHistory = currentMessages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+
+      console.log('📨 Sending conversation history for topic extraction:', clientHistory.length, 'messages');
+
       // Call edge function to extract topic from chat using AI
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: {
           extractTopicOnly: true,
           userId,
           sessionId: 'topic-extraction',
-          message: 'Extract topic from conversation'
+          message: 'Extract topic from conversation',
+          clientHistory
         }
       });
 
@@ -367,6 +384,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           dataSource={isPersonalMode ? dataSource : undefined}
           isStructuredMode={false}
           onPromoteToStructured={handlePromoteToStructured}
+          onMessagesChange={setCurrentMessages}
         />
       )}
     </div>

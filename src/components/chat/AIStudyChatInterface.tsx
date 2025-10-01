@@ -70,6 +70,8 @@ interface AIStudyChatInterfaceProps {
   isStructuredMode?: boolean;
   // Callback to promote to structured mode
   onPromoteToStructured?: () => void;
+  // Callback to expose messages to parent
+  onMessagesChange?: (messages: ChatMessage[]) => void;
 }
 
 const withProgressiveTimeout = <T,>(
@@ -117,7 +119,8 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   insights,
   fixedHeight = false,
   isStructuredMode = false,
-  onPromoteToStructured
+  onPromoteToStructured,
+  onMessagesChange
 }) => {
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
@@ -148,6 +151,13 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   const cleanup = useCleanup('AIStudyChatInterface');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const isSubmittingRef = useRef(false);
+
+  // Expose messages to parent component
+  useEffect(() => {
+    if (onMessagesChange) {
+      onMessagesChange(messages);
+    }
+  }, [messages, onMessagesChange]);
 
   // Auto scroll when messages change (but not when input is focused)
   useEffect(() => {
