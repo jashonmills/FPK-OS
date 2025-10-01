@@ -34,7 +34,7 @@ export default function OrgWebsitePage() {
       </div>
 
       {/* Website Embed - Full Width from nav panel to screen edge */}
-      <div className="lg:ml-64">
+      <div className="lg:ml-64 overflow-hidden">
         {iframeError ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
@@ -51,14 +51,21 @@ export default function OrgWebsitePage() {
             </Button>
           </div>
         ) : (
-          <iframe
-            src={websiteUrl}
-            className="w-full border-0"
-            style={{ height: 'calc(100vh - 120px)', minHeight: '600px' }}
-            title="Organization Website"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            onError={() => setIframeError(true)}
-          />
+          <div className="relative w-full" style={{ height: 'calc(100vh - 120px)', minHeight: '600px' }}>
+            <iframe
+              src={websiteUrl}
+              className="border-0 origin-top-left"
+              style={{ 
+                width: '100%',
+                height: '100%',
+                transform: 'scale(1.5)',
+                transformOrigin: 'top left'
+              }}
+              title="Organization Website"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              onError={() => setIframeError(true)}
+            />
+          </div>
         )}
       </div>
     </div>
