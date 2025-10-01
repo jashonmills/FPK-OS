@@ -346,7 +346,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   return (
     <div className="flex flex-col h-full max-h-full overflow-hidden gap-4">
       {/* Onboarding for first-time users */}
-      <ModeOnboarding onComplete={() => {}} />
+      <ModeOnboarding onComplete={() => {}} userRole={currentOrg?.role} />
       
       {/* Mode Toggle and Data Source Selector */}
       <div className="flex justify-between items-center px-4 gap-2">
