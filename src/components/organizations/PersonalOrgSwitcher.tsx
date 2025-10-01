@@ -90,26 +90,35 @@ export function PersonalOrgSwitcher() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Organizations</DropdownMenuLabel>
-            {organizations.map((org) => (
-              <DropdownMenuItem
-                key={org.organization_id}
-                onClick={() => switchToOrganization(org.organization_id)}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    <div className="flex flex-col">
-                      <span className="truncate max-w-[150px]">
-                        {org.organizations.name}
-                      </span>
-                      <Badge variant="outline" className="text-xs h-4 px-1 w-fit">
-                        {org.role}
-                      </Badge>
+            {organizations.map((org) => {
+              // Sanitize org name - take only first line before error patterns
+              const sanitizedName = org.organizations.name.split(/\n|at |https?:\/\//)[0].trim();
+              const displayName = sanitizedName.length > 30 
+                ? sanitizedName.substring(0, 30) + '...' 
+                : sanitizedName;
+              
+              return (
+                <DropdownMenuItem
+                  key={org.organization_id}
+                  onClick={() => switchToOrganization(org.organization_id)}
+                  title={sanitizedName}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      <div className="flex flex-col">
+                        <span className="truncate max-w-[150px]">
+                          {displayName}
+                        </span>
+                        <Badge variant="outline" className="text-xs h-4 px-1 w-fit">
+                          {org.role}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </DropdownMenuItem>
-            ))}
+                </DropdownMenuItem>
+              );
+            })}
           </>
         )}
 

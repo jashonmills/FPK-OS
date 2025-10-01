@@ -13,6 +13,16 @@ export function OrgWelcomeBanner() {
     return null;
   }
 
+  // Sanitize organization name - take only the first line and limit length
+  const sanitizeOrgName = (name: string) => {
+    // Take only the first line (split by newline or common error patterns)
+    const firstLine = name.split(/\n|at |https?:\/\//)[0].trim();
+    // Limit to 100 characters max
+    return firstLine.length > 100 ? firstLine.substring(0, 100) + '...' : firstLine;
+  };
+
+  const displayName = sanitizeOrgName(currentOrg.organizations.name);
+
   return (
     <Card className="bg-orange-500/65 border-orange-400/50 mb-4 sm:mb-6">
       <CardContent className={isMobile ? "p-4" : "p-6"}>
@@ -29,8 +39,8 @@ export function OrgWelcomeBanner() {
             
             {/* Content below */}
             <div className="space-y-2">
-              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">
-                Welcome to {currentOrg.organizations.name}
+              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight break-words">
+                Welcome to {displayName}
               </h1>
               <p className="text-white/80 text-sm leading-relaxed">
                 {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
@@ -43,8 +53,8 @@ export function OrgWelcomeBanner() {
             <div className="flex items-center gap-4">
               <OrgLogo size="lg" />
               <div>
-                <h1 className="text-2xl font-bold text-white">
-                  Welcome to {currentOrg.organizations.name}
+                <h1 className="text-2xl font-bold text-white break-words">
+                  Welcome to {displayName}
                 </h1>
                 <p className="text-white/80 mt-1">
                   {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
