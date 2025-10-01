@@ -62,11 +62,11 @@ export default function OrgWebsitePage() {
               src={websiteUrl}
               className="border-0"
               style={{ 
-                width: '150%',
+                width: '300%',
                 height: '100%',
-                marginLeft: '-15%',
-                transform: 'scale(1.15)',
-                transformOrigin: 'center center'
+                marginLeft: '-50%',
+                transform: 'scaleX(2.0) scaleY(1.0)',
+                transformOrigin: 'left center'
               }}
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
