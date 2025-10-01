@@ -60,13 +60,14 @@ export default function OrgWebsitePage() {
           >
             <iframe
               src={websiteUrl}
-              className="border-0 block absolute top-0"
+              className="border-0 block absolute top-0 left-0"
               style={{ 
-                width: '1920px',
-                height: '200%',
-                left: '-180px',
-                transform: 'scale(0.75)',
-                transformOrigin: 'left top'
+                width: '1600px',
+                height: '180%',
+                transform: 'scale(0.8)',
+                transformOrigin: 'left top',
+                clipPath: 'inset(0 0 0 240px)',
+                marginLeft: '-240px'
               }}
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
