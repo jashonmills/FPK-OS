@@ -541,7 +541,7 @@ What specific aspect would you like to focus on?`;
   return (
     <Card className={cn("w-full flex flex-col bg-white/35 backdrop-blur-sm border-white/20 overflow-hidden", fixedHeight ? "h-full max-h-full" : "min-h-[600px]")}>
       {showHeader && (
-        <CardHeader className="flex-shrink-0 pb-4">
+        <CardHeader className="flex-shrink-0 pb-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 flex-wrap">
               <Brain className="h-6 w-6 text-purple-600" />
@@ -620,7 +620,7 @@ What specific aspect would you like to focus on?`;
         <div 
           ref={messagesContainerRef}
           className={cn(
-            "flex-1 overflow-y-auto px-6 py-4 space-y-4 overscroll-contain",
+            "flex-1 overflow-y-auto px-4 py-3 space-y-3 overscroll-contain",
             fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
           )}
         >
@@ -705,7 +705,7 @@ What specific aspect would you like to focus on?`;
         </div>
 
         {/* Input Form - Fixed at bottom */}
-        <div className="flex-shrink-0 p-6 border-t border-border" style={{ 
+        <div className="flex-shrink-0 p-4 border-t border-border" style={{ 
           position: 'sticky',
           bottom: 0,
           backgroundColor: 'hsl(var(--background))',
