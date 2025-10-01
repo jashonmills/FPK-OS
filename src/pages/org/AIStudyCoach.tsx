@@ -67,20 +67,55 @@ export default function AIStudyCoach() {
         subtitle="Your personal learning companion and study guide"
       />
 
-      <div className={`
-        flex flex-col gap-4
-        ${isMobile 
-          ? 'pb-4' 
-          : 'grid grid-cols-1 lg:grid-cols-3 gap-6'
-        }
-      `}>
-        {/* Enhanced AI Study Coach with Socratic Mode */}
+      <div className="flex flex-col gap-6 pb-4">
+        {/* Study Tips - Horizontal Scroll Row */}
+        <div className="w-full">
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-lg">Study Tips</h3>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {studyTips.map((tip) => (
+              <Card 
+                key={tip.id} 
+                className="flex-shrink-0 w-[280px] sm:w-[320px]"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-primary/10 rounded-lg p-2 flex-shrink-0">
+                      <tip.icon className="text-primary h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="font-semibold text-sm">
+                          {tip.title}
+                        </h4>
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs ${categoryColors[tip.category]}`}
+                        >
+                          {tip.category.replace('-', ' ')}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground text-xs leading-relaxed">
+                        {tip.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Enhanced AI Study Coach - Full Width */}
         <div className={`
           flex flex-col overflow-hidden
           ${isMobile 
-            ? 'h-[70vh]' 
-            : 'lg:col-span-2 h-[calc(100vh-12rem)]'
+            ? 'h-[60vh]' 
+            : 'h-[calc(100vh-16rem)]'
           }
+          max-w-7xl mx-auto w-full px-2 sm:px-4
         `}>
           <EnhancedAIStudyCoach
             userId={user?.id}
@@ -89,65 +124,6 @@ export default function AIStudyCoach() {
             showHeader={true}
             fixedHeight={true}
           />
-        </div>
-
-        {/* Study Tips - Mobile Responsive */}
-        <div className={`
-          flex flex-col
-          ${isMobile 
-            ? 'max-h-[40vh] overflow-y-auto' 
-            : 'space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto'
-          }
-        `}>
-          <Card className={isMobile ? 'mobile-card' : ''}>
-            <CardHeader className={isMobile ? 'mobile-card-compact' : ''}>
-              <CardTitle className={`flex items-center space-x-2 ${isMobile ? 'mobile-heading-md' : ''}`}>
-                <Lightbulb className={`${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
-                <span className="mobile-safe-text">Study Tips</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={`${isMobile ? 'mobile-card-compact space-y-3' : 'space-y-4'}`}>
-              {studyTips.map((tip) => (
-                <div key={tip.id} className={`border rounded-lg mobile-safe-text ${isMobile ? 'p-3' : 'p-4'}`}>
-                  <div className={`flex items-start ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
-                    <div className={`bg-primary/10 rounded-lg ${isMobile ? 'p-1.5' : 'p-2'}`}>
-                      <tip.icon className={`text-primary ${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`flex items-center space-x-2 ${isMobile ? 'mb-1.5' : 'mb-2'}`}>
-                        <h4 className={`font-semibold mobile-safe-text ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                          {tip.title}
-                        </h4>
-                        {!isMobile && (
-                          <Badge 
-                            variant="secondary" 
-                            className={`text-xs ${categoryColors[tip.category]}`}
-                          >
-                            {tip.category.replace('-', ' ')}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className={`text-muted-foreground mobile-safe-text ${isMobile ? 'text-xs leading-tight' : 'text-xs'}`}>
-                        {tip.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {!isMobile && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Learning Resources</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>Use the Structured Mode toggle to start a focused Socratic learning session with guided questions and progress tracking.</p>
-                <p>Or continue with Free Chat mode for open-ended study support and questions.</p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </MobilePageLayout>
