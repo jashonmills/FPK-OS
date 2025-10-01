@@ -214,10 +214,11 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           socraticIntent: 'start',
           socraticTopic: extractedTopic,
           socraticObjective: `Deep understanding of ${extractedTopic}`,
+          socraticSessionId: sessionId,
+          promotedFromFreeChat: true, // Flag for warm handoff
           contextData: { 
             orgId,
-            promotedFromFreeChat: true,
-            warmHandoff: true
+            promotedFromFreeChat: true
           }
         }
       });
@@ -229,17 +230,17 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
 
       console.log('✅ AI response received:', data);
 
-      // Add warm handoff message that acknowledges the ongoing conversation
-      const warmHandoffMessage = `Great! I can see we've been discussing ${extractedTopic}. Let's dive deeper using the Socratic method. ${data.question || "What aspect would you like to explore first?"}`;
+      // Use the AI's complete "Overview and Orient" message directly - don't modify it
+      const warmHandoffMessage = data.question || "Let's begin exploring this topic together.";
       
-      console.log('💬 Adding warm handoff message to session');
+      console.log('💬 Adding AI-generated warm handoff message to session');
       addTurn({
         role: 'coach',
         content: warmHandoffMessage
       });
       
       updateSession({
-        current_question: data.question || warmHandoffMessage,
+        current_question: warmHandoffMessage,
         state: 'WAIT'
       });
       

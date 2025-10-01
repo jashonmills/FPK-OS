@@ -82,6 +82,7 @@ serve(async (req) => {
       socraticTopic,
       socraticObjective,
       socraticSessionId,
+      promotedFromFreeChat = false,
       // Mode selection for prompt
       isStructuredMode = false,
       // Topic extraction flag
@@ -318,7 +319,8 @@ Topic:`;
           intent: socraticIntent,
           topic: socraticTopic,
           objective: socraticObjective,
-          studentResponse: message
+          studentResponse: message,
+          promotedFromFreeChat
         };
 
         const socraticResponse = await handleSocraticSession(socraticRequest, lovableAICall);

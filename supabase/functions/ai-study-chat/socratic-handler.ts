@@ -9,6 +9,7 @@ export interface SocraticRequest {
   topic?: string;
   objective?: string;
   studentResponse?: string;
+  promotedFromFreeChat?: boolean; // Flag for warm handoff
 }
 
 export interface SocraticResponse {
@@ -52,13 +53,11 @@ export async function handleSocraticSession(
 
     if (error) throw error;
 
-    // Generate first diagnostic question
-    const questionPrompt = `As a Socratic coach, generate ONE diagnostic question (max 20 words) to assess the student's current understanding of this topic:
-
-Topic: ${topic}
-Objective: ${objective}
-
-Generate only the question, no explanations.`;
+    // Generate first message using the Socratic v3 prompt structure
+    // The system prompt (SOCRATIC_STRUCTURED_PROMPT) already contains the IF/THEN logic
+    const questionPrompt = request.promotedFromFreeChat
+      ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}". Generate your "Overview and Orient" message following the instructions in BLOCK 3.`
+      : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}". Generate your opening message following the instructions in BLOCK 3.`;
 
     const question = await geminiCall(questionPrompt);
 
