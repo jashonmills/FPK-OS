@@ -160,7 +160,8 @@
     overflow-x: hidden !important;
   }
 
-  .org-main-container * {
+  /* Only constrain direct container children, not all descendants */
+  .org-main-container > * {
     max-width: 100% !important;
   }
 

@@ -549,11 +549,11 @@ What specific aspect would you like to focus on?`;
       {showHeader && (
         <CardHeader className="flex-shrink-0 pb-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Brain className="h-6 w-6 text-purple-600" />
-              <h2 className="font-semibold text-lg">AI Learning Coach</h2>
+            <div className="flex items-center gap-2 min-w-0">
+              <Brain className="h-6 w-6 text-purple-600 flex-shrink-0" />
+              <h2 className="font-semibold text-lg whitespace-nowrap">AI Learning Coach</h2>
               {(completedSessions?.length > 0 || flashcards?.length > 0) && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs whitespace-nowrap flex-shrink-0">
                   {completedSessions?.length || 0} Sessions • {flashcards?.length || 0} Cards
                 </Badge>
               )}
