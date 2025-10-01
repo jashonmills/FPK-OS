@@ -34,7 +34,7 @@ export default function OrgWebsitePage() {
       </div>
 
       {/* Website Embed - Full Width from nav panel to screen edge */}
-      <div className="lg:ml-64 overflow-hidden relative m-0 p-0">
+      <div className="lg:ml-64">
         {iframeError ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
@@ -52,27 +52,18 @@ export default function OrgWebsitePage() {
           </div>
         ) : (
           <div 
-            className="relative w-full m-0 p-0 overflow-hidden" 
-            style={{ 
-              height: 'calc(100vh - 120px)',
-              minHeight: '600px'
-            }}
+            className="relative w-full overflow-hidden"
+            style={{ paddingTop: '75%' }}
           >
             <iframe
               src={websiteUrl}
-              className="border-0 block absolute top-0 left-0"
-              style={{ 
-                width: '1600px',
-                height: '180%',
-                transform: 'scale(0.8)',
-                transformOrigin: 'left top',
-                clipPath: 'inset(0 0 0 240px)',
-                marginLeft: '-240px'
-              }}
+              className="absolute top-0 left-0 w-full h-full border-0"
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               onError={() => setIframeError(true)}
-            />
+            >
+              <p>Your browser does not support iframes. Please <a href={websiteUrl} target="_blank" rel="noopener noreferrer">visit the site directly</a>.</p>
+            </iframe>
           </div>
         )}
       </div>
