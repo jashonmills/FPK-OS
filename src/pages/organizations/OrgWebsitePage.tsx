@@ -34,7 +34,7 @@ export default function OrgWebsitePage() {
       </div>
 
       {/* Website Embed - Full Width from nav panel to screen edge */}
-      <div className="lg:ml-64 overflow-x-hidden relative m-0 p-0">
+      <div className="lg:ml-64 overflow-hidden relative m-0 p-0">
         {iframeError ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
@@ -60,15 +60,13 @@ export default function OrgWebsitePage() {
           >
             <iframe
               src={websiteUrl}
-              className="border-0 block"
+              className="border-0 block absolute top-0"
               style={{ 
-                width: '300%',
-                height: '300%',
-                margin: 0,
-                padding: 0,
-                transform: 'scale(0.6) translateX(-35%)',
-                transformOrigin: 'left top',
-                marginLeft: '-20%'
+                width: '1920px',
+                height: '200%',
+                left: '-180px',
+                transform: 'scale(0.75)',
+                transformOrigin: 'left top'
               }}
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
