@@ -1,13 +1,14 @@
 import React from 'react';
 import { Lightbulb, BookOpen, Target, Clock, Brain } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EnhancedAIStudyCoach } from '@/components/chat/EnhancedAIStudyCoach';
+import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
 
 interface StudyTip {
   id: string;
@@ -59,17 +60,31 @@ export default function AIStudyCoach() {
   const { currentOrg } = useOrgContext();
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
+
+  // Check if user is admin (owner or instructor)
+  const isAdmin = isOrgOwner() || isOrgInstructor();
 
   return (
     <MobilePageLayout className="min-h-screen">
       <MobileSectionHeader
-        title="AI Study Coach"
-        subtitle="Your personal learning companion and study guide"
+        title={isAdmin ? "AI Assistant" : "AI Study Coach"}
+        subtitle={isAdmin 
+          ? "Your administrative and educational support tool" 
+          : "Your personal learning companion and study guide"}
       />
 
       <div className="flex flex-col gap-6 pb-4">
-        {/* Study Tips - Responsive Grid */}
-        <div className="w-full">
+        {isAdmin ? (
+          /* Admin AI Assistant */
+          <AdminAIAssistant
+            userId={user?.id}
+            orgId={currentOrg?.organization_id}
+          />
+        ) : (
+          <>
+            {/* Study Tips - Responsive Grid for Students */}
+            <div className="w-full">
           <div className="flex items-center gap-2 mb-4">
             <Lightbulb className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-lg">Study Tips</h3>
@@ -130,7 +145,9 @@ export default function AIStudyCoach() {
             showHeader={true}
             fixedHeight={true}
           />
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </MobilePageLayout>
   );
