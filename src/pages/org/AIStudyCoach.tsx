@@ -68,17 +68,23 @@ export default function AIStudyCoach() {
       />
 
       <div className="flex flex-col gap-6 pb-4">
-        {/* Study Tips - Horizontal Scroll Row */}
+        {/* Study Tips - Responsive Grid */}
         <div className="w-full">
           <div className="flex items-center gap-2 mb-4">
             <Lightbulb className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-lg">Study Tips</h3>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className={`
+            grid gap-4
+            ${isMobile 
+              ? 'grid-cols-1' 
+              : 'grid-cols-2 lg:grid-cols-4'
+            }
+          `}>
             {studyTips.map((tip) => (
               <Card 
                 key={tip.id} 
-                className="flex-shrink-0 w-[280px] sm:w-[320px]"
+                className="flex-1"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
@@ -86,7 +92,7 @@ export default function AIStudyCoach() {
                       <tip.icon className="text-primary h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <h4 className="font-semibold text-sm">
                           {tip.title}
                         </h4>
