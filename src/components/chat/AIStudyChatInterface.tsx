@@ -539,7 +539,7 @@ What specific aspect would you like to focus on?`;
   }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
-    <Card className={cn("w-full h-full flex flex-col bg-white/35 backdrop-blur-sm border-white/20", fixedHeight ? "h-full" : "min-h-[600px]")}>
+    <Card className={cn("w-full flex flex-col bg-white/35 backdrop-blur-sm border-white/20 overflow-hidden", fixedHeight ? "h-full max-h-full" : "min-h-[600px]")}>
       {showHeader && (
         <CardHeader className="flex-shrink-0 pb-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -620,7 +620,7 @@ What specific aspect would you like to focus on?`;
         <div 
           ref={messagesContainerRef}
           className={cn(
-            "flex-1 overflow-y-auto px-6 py-4 space-y-4",
+            "flex-1 overflow-y-auto px-6 py-4 space-y-4 overscroll-contain",
             fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
           )}
         >

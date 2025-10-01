@@ -76,9 +76,9 @@ export default function AIStudyCoach() {
       `}>
         {/* Enhanced AI Study Coach with Socratic Mode */}
         <div className={`
-          flex flex-col
+          flex flex-col overflow-hidden
           ${isMobile 
-            ? 'min-h-[70vh]' 
+            ? 'h-[70vh]' 
             : 'lg:col-span-2 h-[calc(100vh-12rem)]'
           }
         `}>

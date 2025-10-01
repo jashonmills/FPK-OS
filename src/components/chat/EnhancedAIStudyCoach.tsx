@@ -301,7 +301,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     : undefined;
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full max-h-full overflow-hidden gap-4">
       {/* Onboarding for first-time users */}
       <ModeOnboarding onComplete={() => {}} />
       
@@ -365,7 +365,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           )}
 
           {session && (
-            <div className="flex-1">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <SocraticSessionView
                 session={session}
                 turns={turns}
