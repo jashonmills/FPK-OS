@@ -56,8 +56,8 @@ export async function handleSocraticSession(
     // Generate first message using the Socratic v3 prompt structure
     // The system prompt (SOCRATIC_STRUCTURED_PROMPT) already contains the IF/THEN logic
     const questionPrompt = request.promotedFromFreeChat
-      ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}". Generate your "Overview and Orient" message following the instructions in BLOCK 3.`
-      : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}". Generate your opening message following the instructions in BLOCK 3.`;
+      ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}". You MUST generate a complete "Overview and Orient" message with these two parts: (1) Acknowledge the session start and provide a 1-2 sentence, high-level overview of "${topic}". (2) Ask the user to choose a specific direction or sub-topic to explore first, providing 2-3 concrete examples. Follow the exact format specified in BLOCK 3 for promoted sessions.`
+      : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}". Acknowledge both and begin with a broad opening question about "${topic}". Follow the instructions in BLOCK 3 for manual starts.`;
 
     const question = await geminiCall(questionPrompt);
 

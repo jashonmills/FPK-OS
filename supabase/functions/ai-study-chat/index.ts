@@ -296,7 +296,7 @@ Topic:`;
             body: JSON.stringify({
               model: GEMINI_MODEL,
               messages: [
-                { role: 'system', content: SOCRATIC_BLUEPRINT_V8 },
+                { role: 'system', content: SOCRATIC_STRUCTURED_PROMPT },
                 { role: 'user', content: prompt }
               ]
             })
