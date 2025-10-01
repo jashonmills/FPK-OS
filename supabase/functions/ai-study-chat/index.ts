@@ -83,10 +83,75 @@ serve(async (req) => {
       socraticObjective,
       socraticSessionId,
       // Mode selection for prompt
-      isStructuredMode = false
+      isStructuredMode = false,
+      // Topic extraction flag
+      extractTopicOnly = false
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
+
+    // Handle topic extraction request
+    if (extractTopicOnly) {
+      console.log('🎯 Topic extraction requested from chat history');
+      
+      if (!clientHistory || clientHistory.length < 2) {
+        return new Response(JSON.stringify({ 
+          extractedTopic: null,
+          error: 'Insufficient conversation history'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const topicExtractionPrompt = `Analyze the following conversation and extract the main topic being discussed. Return ONLY the topic as a concise phrase (2-5 words maximum), nothing else.
+
+Conversation:
+${clientHistory.map((msg: any) => `${msg.role}: ${msg.content}`).join('\n\n')}
+
+Topic:`;
+
+        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${lovableApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: GEMINI_MODEL,
+            messages: [
+              { role: 'user', content: topicExtractionPrompt }
+            ],
+            max_tokens: 50
+          }),
+          signal: AbortSignal.timeout(10000)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Lovable AI error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const extractedTopic = data.choices[0]?.message?.content?.trim() || null;
+
+        console.log('✅ Topic extracted:', extractedTopic);
+
+        return new Response(JSON.stringify({ 
+          extractedTopic,
+          source: 'lovable-ai-topic-extraction'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.error('❌ Topic extraction error:', error);
+        return new Response(JSON.stringify({ 
+          extractedTopic: null,
+          error: 'Failed to extract topic'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
 
     // Build conversation history summary
     const conversationSummary = buildConversationSummary(clientHistory);

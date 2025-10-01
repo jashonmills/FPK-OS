@@ -29,6 +29,7 @@ export interface ChatRequest {
     lessonTitle: string;
     lessonContent: string;
   };
+  extractTopicOnly?: boolean; // Flag to request topic extraction from chat history
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed';

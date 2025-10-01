@@ -68,8 +68,8 @@ interface AIStudyChatInterfaceProps {
   insights?: InsightData[];
   fixedHeight?: boolean;
   isStructuredMode?: boolean;
-  // Expose method to get recent chat messages for topic extraction
-  getChatMessages?: () => ChatMessage[];
+  // Callback to promote to structured mode
+  onPromoteToStructured?: () => void;
 }
 
 const withProgressiveTimeout = <T,>(
@@ -115,7 +115,8 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   completedSessions = [],
   flashcards = [],
   insights,
-  fixedHeight = false
+  fixedHeight = false,
+  onPromoteToStructured
 }) => {
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
@@ -542,6 +543,20 @@ What specific aspect would you like to focus on?`;
             </div>
             
             <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+              {/* Promote to Structured button - only show when there's chat history */}
+              {onPromoteToStructured && messages.length > 2 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onPromoteToStructured}
+                  className="h-8 px-3 text-xs font-medium bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 hover:from-purple-100 hover:to-blue-100"
+                  title="Continue this conversation in Structured Mode"
+                >
+                  <Brain className="h-3 w-3 mr-1.5" />
+                  Promote to Structured
+                </Button>
+              )}
+              
               <ChatModeToggle 
                 mode={chatMode} 
                 onModeChange={setChatMode}

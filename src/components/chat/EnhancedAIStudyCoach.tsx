@@ -150,7 +150,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     }
   };
 
-  const toggleSocraticMode = async () => {
+  const toggleSocraticMode = async (promotedTopic?: string) => {
     // Don't allow toggling if organization restricts general chat
     if (orgSettings?.restrict_general_chat && socraticMode) {
       return;
@@ -158,13 +158,17 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     
     // If switching TO Structured Mode, check if we can extract a topic from recent chat
     if (!socraticMode && !session) {
-      // Try to extract topic from recent conversation
-      const extractedTopic = await extractTopicFromChat();
+      let topicToUse = promotedTopic;
       
-      if (extractedTopic) {
-        // Automatically start a Socratic session with the extracted topic
+      // If no promoted topic provided, try to extract from chat
+      if (!topicToUse) {
+        topicToUse = await extractTopicFromChat();
+      }
+      
+      if (topicToUse) {
+        // Automatically start a Socratic session with the extracted/promoted topic
         setSocraticMode(true);
-        handleStartSocraticSession(extractedTopic, `Deep understanding of ${extractedTopic}`);
+        handleStartSocraticSession(topicToUse, `Deep understanding of ${topicToUse}`);
       } else {
         // No topic found, show the session panel to let user choose
         setShowSessionPanel(true);
@@ -175,11 +179,34 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     }
   };
 
+  const handlePromoteToStructured = async () => {
+    // Extract topic and transition to structured mode
+    const extractedTopic = await extractTopicFromChat();
+    await toggleSocraticMode(extractedTopic || undefined);
+  };
+
   const extractTopicFromChat = async (): Promise<string | null> => {
-    // This function will be called to extract the topic from recent chat history
-    // For now, return null to show the session panel
-    // TODO: Implement AI-based topic extraction from chat history
-    return null;
+    try {
+      // Call edge function to extract topic from chat using AI
+      const { data, error } = await supabase.functions.invoke('ai-study-chat', {
+        body: {
+          extractTopicOnly: true,
+          userId,
+          sessionId: 'topic-extraction',
+          message: 'Extract topic from conversation'
+        }
+      });
+
+      if (error) {
+        console.error('Error extracting topic:', error);
+        return null;
+      }
+
+      return data?.extractedTopic || null;
+    } catch (error) {
+      console.error('Error in extractTopicFromChat:', error);
+      return null;
+    }
   };
 
   const averageScore = session?.score_history?.length 
@@ -256,6 +283,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           {...props}
           dataSource={isPersonalMode ? dataSource : undefined}
           isStructuredMode={socraticMode}
+          onPromoteToStructured={handlePromoteToStructured}
         />
       )}
     </div>
