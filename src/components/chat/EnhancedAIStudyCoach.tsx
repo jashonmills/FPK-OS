@@ -13,7 +13,8 @@ import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 interface EnhancedAIStudyCoachProps {
   userId?: string;
   orgId?: string;
-  chatMode?: 'personal' | 'general';
+  chatMode?: 'personal' | 'general' | 'org_admin';
+  adminMode?: 'educational' | 'org_data';
   showHeader?: boolean;
   user?: any;
   completedSessions?: any[];

@@ -9,8 +9,9 @@ export interface ChatRequest {
   message: string;
   userId: string;
   sessionId?: string;
-  chatMode?: 'personal' | 'general';
+  chatMode?: 'personal' | 'general' | 'org_admin';
   dataSource?: 'general' | 'mydata'; // For Personal AI Coach: which data source to use in Free Chat mode
+  adminMode?: 'educational' | 'org_data'; // For Org Admin: which admin mode
   voiceActive?: boolean;
   metadata?: {
     hasInteracted?: boolean;
@@ -32,5 +33,6 @@ export interface ChatRequest {
   extractTopicOnly?: boolean; // Flag to request topic extraction from chat history
 }
 
-export type QueryMode = 'personal' | 'general' | 'mixed';
+export type QueryMode = 'personal' | 'general' | 'mixed' | 'org_admin';
 export type DataSource = 'general' | 'mydata';
+export type AdminMode = 'educational' | 'org_data';

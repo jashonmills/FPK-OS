@@ -8,7 +8,7 @@ import { Lock, Globe, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-export type ChatMode = 'personal' | 'general';
+export type ChatMode = 'personal' | 'general' | 'org_admin';
 
 interface ChatModeToggleProps {
   mode: ChatMode;

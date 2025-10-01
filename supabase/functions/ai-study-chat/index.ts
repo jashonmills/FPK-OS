@@ -10,6 +10,8 @@ import {
   GENERAL_KNOWLEDGE_PROMPT,
   MY_DATA_PROMPT,
   SOCRATIC_STRUCTURED_PROMPT,
+  EDUCATIONAL_ASSISTANT_PROMPT,
+  ORG_ASSISTANT_PROMPT,
   GEMINI_MODEL, 
   MAX_TOKENS, 
   TIMEOUT_MS, 
@@ -18,6 +20,7 @@ import {
 import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-prompt-selector.ts';
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
+import { fetchOrgData } from './org-data-fetcher.ts';
 
 // AI Study Coach v8.1 - Enhanced Socratic Method with Lovable AI (Fixed duplicate declarations)
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
@@ -72,6 +75,7 @@ serve(async (req) => {
       contextData = {},
       chatMode = 'general',
       dataSource = 'general', // For Personal AI Coach tri-modal system
+      adminMode = 'educational', // For Org Admin: educational or org_data
       voiceActive = false,
       clientHistory = [],
       originalTopic,
@@ -188,11 +192,25 @@ Topic:`;
     // This logic is unified for ALL user types (personal and organization)
     let systemPrompt: string;
     let promptMode: string;
+    let orgData: any = null;
     
     if (isStructuredMode || socraticMode) {
       // Structured Mode (Socratic Coach) - Prompt C
       systemPrompt = SOCRATIC_STRUCTURED_PROMPT;
       promptMode = 'structured_socratic';
+    } else if (chatMode === 'org_admin') {
+      // Organization Admin Mode
+      if (adminMode === 'org_data') {
+        // Org Assistant with RAG
+        systemPrompt = ORG_ASSISTANT_PROMPT;
+        promptMode = 'org_assistant_rag';
+        // Fetch organization data for RAG
+        orgData = await fetchOrgData(userId, contextData.orgId, message);
+      } else {
+        // Educational Assistant (general knowledge)
+        systemPrompt = EDUCATIONAL_ASSISTANT_PROMPT;
+        promptMode = 'educational_assistant';
+      }
     } else if (chatMode === 'personal' && dataSource === 'mydata') {
       // Free Chat + My Data (Personalized RAG) - Prompt B
       systemPrompt = MY_DATA_PROMPT;
@@ -218,6 +236,12 @@ Topic:`;
           systemPromptLength: systemPrompt.length
         });
 
+        // Build user message with optional org data context
+        let userMessage = contextPrompt + '\n\nStudent: ' + message;
+        if (orgData && promptMode === 'org_assistant_rag') {
+          userMessage = `Context Data Retrieved:\n${JSON.stringify(orgData, null, 2)}\n\nAdmin Question: ${message}`;
+        }
+
         // Call Lovable AI with Gemini model (free until Oct 6, 2025)
         const lovableResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
@@ -229,7 +253,7 @@ Topic:`;
             model: 'google/gemini-2.5-flash',
             messages: [
               { role: 'system', content: systemPrompt },
-              { role: 'user', content: contextPrompt + '\n\nStudent: ' + message }
+              { role: 'user', content: userMessage }
             ],
             max_tokens: 4000
           })

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { safeLocalStorage } from '@/utils/safeStorage';
 
-export type ChatMode = 'personal' | 'general';
+export type ChatMode = 'personal' | 'general' | 'org_admin';
 
 export interface ChatModeAnalytics {
   mode: ChatMode;

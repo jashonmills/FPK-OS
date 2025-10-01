@@ -55,8 +55,9 @@ interface InsightData {
 }
 
 interface AIStudyChatInterfaceProps {
-  chatMode?: 'personal' | 'general';
+  chatMode?: 'personal' | 'general' | 'org_admin';
   dataSource?: 'general' | 'mydata'; // For Personal AI Coach tri-modal system
+  adminMode?: 'educational' | 'org_data'; // For Org Admin
   showHeader?: boolean;
   placeholder?: string;
   // Dashboard-specific props
@@ -109,6 +110,7 @@ const withProgressiveTimeout = <T,>(
 export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   chatMode: initialChatMode = 'general',
   dataSource = 'general',
+  adminMode = 'educational',
   showHeader = true,
   placeholder = "Ask me anything about your studies...",
   userId,
@@ -306,10 +308,14 @@ What would you like to learn about today?`;
             promptType: analyzedState.promptType,
             chatMode,
             dataSource, // For Personal AI Coach tri-modal system
+            adminMode, // For Org Admin: educational or org_data
             voiceActive: false,
             useOpenAIAssistant: true,
             threadId: threadId,
-            contextData,
+            contextData: {
+              ...contextData,
+              orgId // Include orgId for org admin context
+            },
             clientHistory
           }
         }),

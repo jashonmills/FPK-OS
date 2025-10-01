@@ -59,7 +59,8 @@ export function AdminAIAssistant({ userId, orgId }: AdminAIAssistantProps) {
           <EnhancedAIStudyCoach
             userId={userId}
             orgId={orgId}
-            chatMode={adminMode === 'educational' ? 'general' : 'personal'}
+            chatMode="org_admin"
+            adminMode={adminMode}
             showHeader={false}
             fixedHeight={true}
           />
