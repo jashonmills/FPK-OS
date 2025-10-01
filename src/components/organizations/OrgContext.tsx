@@ -117,3 +117,9 @@ export function useOrgContext() {
   }
   return context;
 }
+
+// Safe version that returns null instead of throwing when used outside OrgProvider
+export function useOptionalOrgContext() {
+  const context = useContext(OrgContext);
+  return context || null;
+}

@@ -8,7 +8,7 @@ import { DataSourceToggle, type DataSource } from '@/components/ai-coach/DataSou
 import { useSocraticSession } from '@/hooks/useSocraticSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 
 interface EnhancedAIStudyCoachProps {
   userId?: string;
@@ -30,7 +30,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   const [dataSource, setDataSource] = useState<DataSource>('general');
   const [orgSettings, setOrgSettings] = useState<any>(null);
   const [currentMessages, setCurrentMessages] = useState<any[]>([]);
-  const { currentOrg } = useOrgContext();
+  const currentOrg = useOptionalOrgContext()?.currentOrg || null;
   
   // Personal mode uses the tri-modal system, org mode uses the legacy system
   const isPersonalMode = chatMode === 'personal' && !orgId;
