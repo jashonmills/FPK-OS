@@ -116,6 +116,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
   flashcards = [],
   insights,
   fixedHeight = false,
+  isStructuredMode = false,
   onPromoteToStructured
 }) => {
   const { user: authUser } = useAuth();
@@ -543,8 +544,8 @@ What specific aspect would you like to focus on?`;
             </div>
             
             <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-              {/* Promote to Structured button - only show when there's chat history */}
-              {onPromoteToStructured && messages.length > 2 && (
+              {/* Promote to Structured button - only show in Free Chat with sufficient history */}
+              {onPromoteToStructured && !isStructuredMode && messages.length > 2 && (
                 <Button
                   variant="outline"
                   size="sm"

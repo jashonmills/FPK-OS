@@ -150,39 +150,75 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     }
   };
 
-  const toggleSocraticMode = async (promotedTopic?: string) => {
+  const toggleSocraticMode = () => {
     // Don't allow toggling if organization restricts general chat
     if (orgSettings?.restrict_general_chat && socraticMode) {
       return;
     }
     
-    // If switching TO Structured Mode, check if we can extract a topic from recent chat
+    // Manual toggle: If switching TO Structured Mode, show session setup panel
     if (!socraticMode && !session) {
-      let topicToUse = promotedTopic;
-      
-      // If no promoted topic provided, try to extract from chat
-      if (!topicToUse) {
-        topicToUse = await extractTopicFromChat();
-      }
-      
-      if (topicToUse) {
-        // Automatically start a Socratic session with the extracted/promoted topic
-        setSocraticMode(true);
-        handleStartSocraticSession(topicToUse, `Deep understanding of ${topicToUse}`);
-      } else {
-        // No topic found, show the session panel to let user choose
-        setShowSessionPanel(true);
-        setSocraticMode(true);
-      }
+      setShowSessionPanel(true);
+      setSocraticMode(true);
     } else {
+      // Switching back to Free Chat
       setSocraticMode(!socraticMode);
     }
   };
 
   const handlePromoteToStructured = async () => {
-    // Extract topic and transition to structured mode
+    // Extract topic from ongoing conversation
     const extractedTopic = await extractTopicFromChat();
-    await toggleSocraticMode(extractedTopic || undefined);
+    
+    if (extractedTopic) {
+      // Seamlessly transition to Structured Mode with the extracted topic
+      setSocraticMode(true);
+      
+      // Start session with warm handoff message
+      const sessionId = await startSession(extractedTopic, `Deep understanding of ${extractedTopic}`);
+      
+      if (sessionId) {
+        try {
+          const { data, error } = await supabase.functions.invoke('ai-study-chat', {
+            body: {
+              userId,
+              socraticMode: true,
+              socraticIntent: 'start',
+              socraticTopic: extractedTopic,
+              socraticObjective: `Deep understanding of ${extractedTopic}`,
+              contextData: { 
+                orgId,
+                promotedFromFreeChat: true,
+                warmHandoff: true
+              }
+            }
+          });
+
+          if (error) throw error;
+
+          // Add warm handoff message that acknowledges the ongoing conversation
+          const warmHandoffMessage = `Great! I can see we've been discussing ${extractedTopic}. Let's dive deeper using the Socratic method. ${data.question || "What aspect would you like to explore first?"}`;
+          
+          addTurn({
+            role: 'coach',
+            content: warmHandoffMessage
+          });
+          
+          updateSession({
+            current_question: data.question || warmHandoffMessage,
+            state: 'WAIT'
+          });
+        } catch (error) {
+          console.error('Error promoting to Structured Mode:', error);
+          // Fallback: show session panel
+          setShowSessionPanel(true);
+        }
+      }
+    } else {
+      // Couldn't extract topic, fall back to manual setup
+      setShowSessionPanel(true);
+      setSocraticMode(true);
+    }
   };
 
   const extractTopicFromChat = async (): Promise<string | null> => {
@@ -282,7 +318,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
         <AIStudyChatInterface 
           {...props}
           dataSource={isPersonalMode ? dataSource : undefined}
-          isStructuredMode={socraticMode}
+          isStructuredMode={false}
           onPromoteToStructured={handlePromoteToStructured}
         />
       )}
