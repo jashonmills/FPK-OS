@@ -1,13 +1,32 @@
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card } from '@/components/ui/card';
 import { ExternalLink, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 
 export default function OrgWebsitePage() {
   const { currentOrg } = useOrgContext();
   const [iframeError, setIframeError] = useState(false);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
   const websiteUrl = 'https://www.mellns.ie/';
+  
+  // Target width that the website naturally renders at
+  const websiteNaturalWidth = 1200;
+
+  useEffect(() => {
+    const calculateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const calculatedScale = containerWidth / websiteNaturalWidth;
+        setScale(calculatedScale);
+      }
+    };
+
+    calculateScale();
+    window.addEventListener('resize', calculateScale);
+    return () => window.removeEventListener('resize', calculateScale);
+  }, []);
 
   if (!currentOrg) {
     return null;
@@ -34,7 +53,7 @@ export default function OrgWebsitePage() {
       </div>
 
       {/* Website Embed - Full Width from nav panel to screen edge */}
-      <div className="lg:ml-64 overflow-hidden">
+      <div ref={containerRef} className="lg:ml-64 overflow-hidden">
         {iframeError ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive" />
@@ -51,15 +70,21 @@ export default function OrgWebsitePage() {
             </Button>
           </div>
         ) : (
-          <div className="relative w-full" style={{ height: 'calc(100vh - 120px)', minHeight: '600px' }}>
+          <div 
+            className="relative w-full origin-top-left" 
+            style={{ 
+              height: `calc((100vh - 120px) / ${scale})`,
+              minHeight: `${600 / scale}px`,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left'
+            }}
+          >
             <iframe
               src={websiteUrl}
-              className="border-0 origin-top-left"
+              className="border-0 w-full h-full"
               style={{ 
-                width: '100%',
-                height: '100%',
-                transform: 'scale(1.5)',
-                transformOrigin: 'top left'
+                width: `${websiteNaturalWidth}px`,
+                height: '100%'
               }}
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
