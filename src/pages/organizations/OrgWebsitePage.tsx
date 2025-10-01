@@ -14,10 +14,10 @@ export default function OrgWebsitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-6 lg:ml-64">
+    <div className="min-h-screen bg-background py-6 lg:ml-64">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Organization Website</h1>
             <p className="text-muted-foreground mt-1">
@@ -35,7 +35,7 @@ export default function OrgWebsitePage() {
         </div>
 
         {/* Website Embed */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden mx-0 rounded-none border-x-0">
           {iframeError ? (
             <div className="flex flex-col items-center justify-center p-12 space-y-4">
               <AlertCircle className="h-12 w-12 text-destructive" />
