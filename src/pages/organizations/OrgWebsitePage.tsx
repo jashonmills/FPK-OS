@@ -35,7 +35,7 @@ export default function OrgWebsitePage() {
       </div>
 
       {/* Iframe Container - fills remaining space */}
-      <div className="flex-grow relative overflow-hidden rounded-lg border bg-background">
+      <div className="flex-grow relative overflow-x-hidden overflow-y-auto rounded-lg border bg-background">
         {iframeError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -55,6 +55,7 @@ export default function OrgWebsitePage() {
           <iframe
             src={websiteUrl}
             title="Organization Website"
+            scrolling="no"
             className="absolute top-0 left-0 w-full h-full border-0"
             onError={() => setIframeError(true)}
           />
