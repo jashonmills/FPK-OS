@@ -168,13 +168,18 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   };
 
   const handlePromoteToStructured = async () => {
+    console.log('🚀 Starting promotion to Structured Mode');
     setIsPromoting(true);
+    setShowSessionPanel(false); // Explicitly hide panel during promotion
     
     try {
       // Extract topic from ongoing conversation
+      console.log('📝 Extracting topic from conversation...');
       const extractedTopic = await extractTopicFromChat();
+      console.log('✅ Topic extracted:', extractedTopic);
       
       if (!extractedTopic) {
+        console.warn('⚠️ No topic extracted, falling back to manual setup');
         // Couldn't extract topic, fall back to manual setup
         setShowSessionPanel(true);
         setSocraticMode(true);
@@ -183,12 +188,16 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       }
       
       // Seamlessly transition to Structured Mode with the extracted topic
+      console.log('🎯 Switching to Structured Mode with topic:', extractedTopic);
       setSocraticMode(true);
       
       // Start session with warm handoff message
+      console.log('📚 Starting Socratic session...');
       const sessionId = await startSession(extractedTopic, `Deep understanding of ${extractedTopic}`);
+      console.log('✅ Session created:', sessionId);
       
       if (!sessionId) {
+        console.error('❌ Session creation failed');
         // Session creation failed, fall back to manual setup
         setShowSessionPanel(true);
         setIsPromoting(false);
@@ -196,6 +205,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       }
       
       // Get first question from AI with warm handoff context
+      console.log('🤖 Requesting warm handoff from AI...');
       const { data, error } = await supabase.functions.invoke('ai-study-chat', {
         body: {
           userId,
@@ -211,11 +221,17 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ AI request error:', error);
+        throw error;
+      }
+
+      console.log('✅ AI response received:', data);
 
       // Add warm handoff message that acknowledges the ongoing conversation
       const warmHandoffMessage = `Great! I can see we've been discussing ${extractedTopic}. Let's dive deeper using the Socratic method. ${data.question || "What aspect would you like to explore first?"}`;
       
+      console.log('💬 Adding warm handoff message to session');
       addTurn({
         role: 'coach',
         content: warmHandoffMessage
@@ -226,8 +242,10 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
         state: 'WAIT'
       });
       
+      console.log('✅ Promotion complete - session active');
+      
     } catch (error) {
-      console.error('Error promoting to Structured Mode:', error);
+      console.error('❌ Error promoting to Structured Mode:', error);
       // Fallback: show session panel
       setShowSessionPanel(true);
       setSocraticMode(true);
