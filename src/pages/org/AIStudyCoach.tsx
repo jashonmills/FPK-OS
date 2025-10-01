@@ -118,8 +118,8 @@ export default function AIStudyCoach() {
         <div className={`
           flex flex-col overflow-hidden
           ${isMobile 
-            ? 'h-[60vh]' 
-            : 'h-[calc(100vh-16rem)]'
+            ? 'h-[calc(60vh+100px)]' 
+            : 'h-[calc(100vh-16rem+100px)]'
           }
           max-w-7xl mx-auto w-full px-2 sm:px-4
         `}>
