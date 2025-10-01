@@ -53,7 +53,10 @@ export default function OrgWebsitePage() {
         ) : (
           <div 
             className="relative w-full overflow-hidden"
-            style={{ paddingTop: '75%' }}
+            style={{ 
+              height: 'calc(100vh - 120px)',
+              minHeight: '600px'
+            }}
           >
             <iframe
               src={websiteUrl}
