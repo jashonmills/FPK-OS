@@ -34,6 +34,14 @@ export default function OrgBrandingSettings() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
+  // Sanitize organization name - take only the first line and limit length
+  const sanitizeOrgName = (name: string) => {
+    const firstLine = name.split(/\n|at |https?:\/\//)[0].trim();
+    return firstLine.length > 50 ? firstLine.substring(0, 50) + '...' : firstLine;
+  };
+
+  const displayName = currentOrg ? sanitizeOrgName(currentOrg.organizations.name) : '';
+
   if (!currentOrg) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
@@ -324,7 +332,7 @@ export default function OrgBrandingSettings() {
                       className="w-8 h-8 object-contain rounded-lg"
                     />
                   </div>
-                  <span className="font-semibold text-lg text-white">{currentOrg.organizations.name}</span>
+                  <span className="font-semibold text-lg text-white">{displayName}</span>
                 </div>
                 
                 {/* Org Badge Preview */}
@@ -340,7 +348,7 @@ export default function OrgBrandingSettings() {
                       <Palette className="w-3 h-3 text-white/70" />
                     </div>
                   )}
-                  <span className="text-sm font-medium text-white">{currentOrg.organizations.name}</span>
+                  <span className="text-sm font-medium text-white">{displayName}</span>
                   <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-white border-white/30">
                     Org mode
                   </Badge>
