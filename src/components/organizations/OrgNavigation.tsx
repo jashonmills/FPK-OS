@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   Brain,
-  Clipboard
+  Clipboard,
+  ExternalLink
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -93,6 +94,12 @@ export function OrgNavigation() {
       href: `/org/${currentOrg.organization_id}/branding`,
       label: 'Branding',
       icon: Palette,
+      roles: ['owner', 'instructor'],
+    },
+    {
+      href: `/org/${currentOrg.organization_id}/website`,
+      label: 'Website',
+      icon: ExternalLink,
       roles: ['owner', 'instructor'],
     },
     {
