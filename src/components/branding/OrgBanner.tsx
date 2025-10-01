@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 import { cn } from '@/lib/utils';
 
 interface OrgBannerProps {
@@ -16,7 +16,9 @@ export function OrgBanner({
   overlay = true, 
   overlayOpacity = 0.6 
 }: OrgBannerProps) {
-  const { currentOrg, isPersonalMode } = useOrgContext();
+  const orgContext = useOptionalOrgContext();
+  const currentOrg = orgContext?.currentOrg;
+  const isPersonalMode = orgContext?.isPersonalMode ?? true;
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
 
   if (isPersonalMode || !currentOrg) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Building2 } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 import { cn } from '@/lib/utils';
 
 interface OrgLogoProps {
@@ -18,7 +18,9 @@ export function OrgLogo({
   variant = 'auto', 
   fallback 
 }: OrgLogoProps) {
-  const { currentOrg, isPersonalMode } = useOrgContext();
+  const orgContext = useOptionalOrgContext();
+  const currentOrg = orgContext?.currentOrg;
+  const isPersonalMode = orgContext?.isPersonalMode ?? true;
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
 
