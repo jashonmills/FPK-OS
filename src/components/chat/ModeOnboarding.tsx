@@ -43,12 +43,12 @@ export function ModeOnboarding({ onComplete }: ModeOnboardingProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl">
-            {step === 1 ? 'Welcome to AI Study Coach!' : 'Two Powerful Modes'}
+            {step === 1 ? 'Welcome to AI Org Assistant!' : 'Two Powerful Modes'}
           </DialogTitle>
           <DialogDescription className="text-base">
             {step === 1 
-              ? 'Choose the learning experience that works best for you'
-              : 'Switch between modes anytime based on your learning goals'
+              ? 'Choose the assistance mode that works best for your organization'
+              : 'Switch between modes anytime based on your administrative needs'
             }
           </DialogDescription>
         </DialogHeader>
@@ -63,10 +63,10 @@ export function ModeOnboarding({ onComplete }: ModeOnboardingProps) {
                 <div className="flex-1 space-y-2">
                   <h3 className="font-semibold text-lg">General Chat Mode</h3>
                   <p className="text-sm text-muted-foreground">
-                    <strong>Quick answers when you need them.</strong> Ask me anything! Use me as your go-to resource for direct answers, research help, and study tips.
+                    <strong>Quick answers when you need them.</strong> Ask me anything! Get administrative support, teaching strategies, educational resources, and organizational guidance.
                   </p>
                   <div className="text-xs text-muted-foreground mt-2">
-                    💡 Perfect for: Quick questions, research, study strategies
+                    💡 Perfect for: Quick questions, administrative tasks, teaching strategies
                   </div>
                 </div>
               </div>
@@ -78,10 +78,10 @@ export function ModeOnboarding({ onComplete }: ModeOnboardingProps) {
                 <div className="flex-1 space-y-2">
                   <h3 className="font-semibold text-lg">Structured Mode</h3>
                   <p className="text-sm text-muted-foreground">
-                    <strong>Deep learning through guided questions.</strong> Ready for a deep dive? I'll guide you with questions to help you master topics yourself. It's a workout for your brain!
+                    <strong>Deep guidance through structured support.</strong> Ready for comprehensive assistance? I'll guide you through complex topics with detailed, step-by-step support for your organization's needs.
                   </p>
                   <div className="text-xs text-muted-foreground mt-2">
-                    🎯 Perfect for: Mastering concepts, exam prep, deep understanding
+                    🎯 Perfect for: Professional development, curriculum planning, strategic guidance
                   </div>
                 </div>
               </div>
@@ -96,14 +96,14 @@ export function ModeOnboarding({ onComplete }: ModeOnboardingProps) {
                   Seamless Transitions
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Start in General Chat for quick questions, then click <strong>"Start Structured Session"</strong> when you're ready for deep learning on that topic.
+                  Start in General Chat for quick questions, then click <strong>"Start Structured Session"</strong> when you need comprehensive guidance on organizational topics.
                 </p>
               </div>
 
               <div className="bg-muted p-4 rounded-lg">
                 <h3 className="font-semibold mb-2">💡 Pro Tip</h3>
                 <p className="text-sm text-muted-foreground">
-                  Use the toggle at the top to switch between modes anytime. The mode you choose determines how I'll help you learn!
+                  Use the toggle at the top to switch between modes anytime. The mode you choose determines how I'll assist your organization!
                 </p>
               </div>
             </div>

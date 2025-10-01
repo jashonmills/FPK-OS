@@ -75,7 +75,7 @@ export function OrgNavigation() {
     },
     {
       href: `/org/${currentOrg.organization_id}/ai-coach`,
-      label: 'AI Study Coach',
+      label: 'AI Org Assistant',
       icon: Brain,
     },
     {
