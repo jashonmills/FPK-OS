@@ -19,7 +19,7 @@ import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-pro
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
 
-// AI Study Coach v8.0 - Enhanced Socratic Method with Lovable AI
+// AI Study Coach v8.1 - Enhanced Socratic Method with Lovable AI (Fixed duplicate declarations)
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
 
