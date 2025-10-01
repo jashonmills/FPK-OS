@@ -52,7 +52,7 @@ export default function OrgWebsitePage() {
           </div>
         ) : (
           <div 
-            className="relative w-full m-0 p-0" 
+            className="relative w-full m-0 p-0 overflow-hidden" 
             style={{ 
               height: 'calc(100vh - 120px)',
               minHeight: '600px'
@@ -62,10 +62,12 @@ export default function OrgWebsitePage() {
               src={websiteUrl}
               className="border-0 block"
               style={{ 
-                width: '100%',
+                width: '150%',
                 height: '100%',
                 margin: 0,
-                padding: 0
+                padding: 0,
+                transform: 'translateX(-16%)',
+                transformOrigin: 'left top'
               }}
               title="Organization Website"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
