@@ -15,10 +15,12 @@ import { Building2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 const OrgCreatePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -63,13 +65,16 @@ const OrgCreatePage = () => {
 
       if (error) throw error;
 
+      // Invalidate user organizations cache to update the dropdown
+      await queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+
       toast({
         title: "Organization Created!",
         description: "Your organization has been created successfully.",
       });
 
-      // Navigate to instructor dashboard with the new org
-      navigate(`/dashboard/instructor?org=${data}`);
+      // Navigate to organization dashboard
+      navigate(`/org/${data}`);
       
     } catch (error: any) {
       console.error('Error creating organization:', error);
