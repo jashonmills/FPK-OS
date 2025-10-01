@@ -208,28 +208,7 @@ Topic:`;
       console.log('🤖 Using Lovable AI for study coaching');
       
       try {
-        // Select the appropriate prompt based on mode and data source
-        // This logic is unified for ALL user types (personal and organization)
-        let systemPrompt: string;
-        let promptMode: string;
-        
-        if (isStructuredMode || socraticMode) {
-          // Structured Mode (Socratic Coach) - Prompt C
-          systemPrompt = SOCRATIC_STRUCTURED_PROMPT;
-          promptMode = 'structured_socratic';
-        } else if (chatMode === 'personal' && dataSource === 'mydata') {
-          // Free Chat + My Data (Personalized RAG) - Prompt B
-          systemPrompt = MY_DATA_PROMPT;
-          promptMode = 'personal_mydata';
-          // TODO: Implement RAG retrieval here to add user's personal data to context
-        } else {
-          // Free Chat + General & Platform Guide - Prompt A (default)
-          systemPrompt = GENERAL_KNOWLEDGE_PROMPT;
-          promptMode = 'general_knowledge';
-        }
-        
-        
-        console.log('📝 Lovable AI prompt:', { 
+        console.log('📝 Lovable AI prompt:', {
           type: detectedPromptType, 
           promptLength: contextPrompt.length,
           messageLength: message.length,
@@ -363,9 +342,6 @@ Topic:`;
         );
       }
     }
-
-    // Extract or detect original topic from conversation
-    const detectedOriginalTopic = originalTopic || extractOriginalTopic(clientHistory, message);
     
     console.log('🎯 Gemini AI Processing (Enhanced Timing):', {
       messageLength: message?.length || 0,
@@ -403,14 +379,6 @@ Topic:`;
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    }
-
-    // Auto-detect promptType if missing
-    let detectedPromptType = promptType;
-    if (!promptType || typeof promptType !== 'string') {
-      console.log('🔍 Auto-detecting promptType from message and history...');
-      detectedPromptType = autoDetectPromptType(message, clientHistory);
-      console.log(`🎯 Auto-detected promptType: ${detectedPromptType}`);
     }
 
     // Handle missing API key gracefully
@@ -452,28 +420,7 @@ Topic:`;
       );
     }
 
-    // Build conversation history summary
-    const conversationSummary = buildConversationSummary(clientHistory);
-    
-    // Build simple prompt using Blueprint v4.2 system
-    const promptContext: SimplePromptContext = {
-      chatMode,
-      voiceActive,
-      userInput: message,
-      quizTopic: contextData.quizTopic,
-      teachingHistory: contextData.teachingHistory,
-      incorrectCount: contextData.incorrectCount,
-      originalTopic: detectedOriginalTopic,
-      conversationHistory: conversationSummary,
-      lessonContent: lessonContext?.lessonContent,
-      lessonTitle: lessonContext?.lessonTitle,
-      courseId: lessonContext?.courseId,
-      lessonId: lessonContext?.lessonId,
-    };
-
-    const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
-
-    console.log('📝 Simple prompt generated:', { 
+    console.log('📝 Simple prompt generated:', {
       type: detectedPromptType, 
       length: contextPrompt.length,
       promptMode,
