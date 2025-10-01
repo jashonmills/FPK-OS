@@ -615,12 +615,12 @@ What specific aspect would you like to focus on?`;
         </CardHeader>
       )}
 
-      <CardContent className={cn("flex-1 flex flex-col overflow-hidden p-0", fixedHeight ? "min-h-0" : "")}>
+      <CardContent className={cn("flex-1 flex flex-col overflow-hidden pb-0", fixedHeight ? "min-h-0" : "")}>
         {/* Messages Area */}
         <div 
           ref={messagesContainerRef}
           className={cn(
-            "flex-1 overflow-y-auto px-4 py-3 space-y-3 overscroll-contain",
+            "flex-1 overflow-y-auto px-4 pb-1 space-y-3 overscroll-contain",
             fixedHeight ? "min-h-0" : "min-h-[400px] max-h-[400px]"
           )}
         >
@@ -705,11 +705,8 @@ What specific aspect would you like to focus on?`;
         </div>
 
         {/* Input Form - Fixed at bottom */}
-        <div className="flex-shrink-0 p-4 border-t border-border" style={{ 
-          position: 'sticky',
-          bottom: 0,
-          backgroundColor: 'hsl(var(--background))',
-          zIndex: 10
+        <div className="flex-shrink-0 px-4 pt-[5px] pb-4 border-t border-border" style={{ 
+          backgroundColor: 'hsl(var(--background))'
         }}>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex gap-2">
