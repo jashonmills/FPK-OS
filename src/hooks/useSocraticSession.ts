@@ -27,56 +27,6 @@ export function useSocraticSession(userId?: string, orgId?: string) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const startSession = useCallback(async (topic: string, objective: string) => {
-    if (!userId) {
-      console.error('Cannot start session: userId is missing');
-      toast({ 
-        title: 'Authentication Required', 
-        description: 'Please log in to start a learning session', 
-        variant: 'destructive' 
-      });
-      return null;
-    }
-
-    console.log('Starting Socratic session:', { userId, orgId, topic, objective });
-    setLoading(true);
-    
-    try {
-      const { data: newSession, error } = await supabase
-        .from('socratic_sessions')
-        .insert({
-          user_id: userId,
-          org_id: orgId || null,
-          topic,
-          objective,
-          state: 'ASK'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Supabase error creating session:', error);
-        throw error;
-      }
-
-      console.log('Session created successfully:', newSession);
-      setSession(newSession as SocraticSession);
-      setTurns([]);
-      
-      return newSession.id;
-    } catch (error: any) {
-      console.error('Error starting Socratic session:', error);
-      toast({ 
-        title: 'Session Error', 
-        description: error.message || 'Failed to start learning session. Please try again.', 
-        variant: 'destructive' 
-      });
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, orgId, toast]);
-
   const loadSession = useCallback(async (sessionId: string) => {
     setLoading(true);
     try {
@@ -109,6 +59,58 @@ export function useSocraticSession(userId?: string, orgId?: string) {
       setLoading(false);
     }
   }, [toast]);
+
+  const startSession = useCallback(async (topic: string, objective: string) => {
+    if (!userId) {
+      console.error('Cannot start session: userId is missing');
+      toast({ 
+        title: 'Authentication Required', 
+        description: 'Please log in to start a learning session', 
+        variant: 'destructive' 
+      });
+      return null;
+    }
+
+    console.log('Starting Socratic session:', { userId, orgId, topic, objective });
+    setLoading(true);
+    
+    try {
+      // Call edge function to create session AND generate first AI message
+      const { data: responseData, error: functionError } = await supabase.functions.invoke('ai-study-chat', {
+        body: {
+          intent: 'start',
+          userId,
+          orgId: orgId || null,
+          topic,
+          objective
+        }
+      });
+
+      if (functionError) {
+        console.error('Edge function error:', functionError);
+        throw functionError;
+      }
+
+      console.log('Session started with AI response:', responseData);
+      
+      const sessionId = responseData.sessionId;
+      
+      // Load the session and its turns (including the AI's first message)
+      await loadSession(sessionId);
+      
+      return sessionId;
+    } catch (error: any) {
+      console.error('Error starting Socratic session:', error);
+      toast({ 
+        title: 'Session Error', 
+        description: error.message || 'Failed to start learning session. Please try again.', 
+        variant: 'destructive' 
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, orgId, toast, loadSession]);
 
   const addTurn = useCallback((turn: Omit<SocraticTurn, 'id' | 'created_at'>) => {
     const newTurn: SocraticTurn = {
