@@ -69,12 +69,22 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   }, [orgId, currentOrg]);
 
   const handleStartSocraticSession = async (topic: string, objective: string) => {
+    console.log('handleStartSocraticSession called with:', { topic, objective, userId, orgId });
+    
+    if (!userId) {
+      console.error('Cannot start session: userId is missing in EnhancedAIStudyCoach');
+      return;
+    }
+    
     const sessionId = await startSession(topic, objective);
+    console.log('Session ID returned from startSession:', sessionId);
+    
     if (sessionId) {
       setShowSessionPanel(false);
       
       // Get first question from AI
       try {
+        console.log('Invoking AI for first question...');
         const { data, error } = await supabase.functions.invoke('ai-study-chat', {
           body: {
             userId,
@@ -86,7 +96,12 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('AI invocation error:', error);
+          throw error;
+        }
+
+        console.log('AI response:', data);
 
         if (data.question) {
           addTurn({
@@ -99,8 +114,10 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           });
         }
       } catch (error) {
-        console.error('Error starting Socratic session:', error);
+        console.error('Error getting first question from AI:', error);
       }
+    } else {
+      console.error('Session creation failed - no session ID returned');
     }
   };
 

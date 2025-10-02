@@ -29,11 +29,18 @@ export function useSocraticSession(userId?: string, orgId?: string) {
 
   const startSession = useCallback(async (topic: string, objective: string) => {
     if (!userId) {
-      toast({ title: 'Error', description: 'User ID required', variant: 'destructive' });
+      console.error('Cannot start session: userId is missing');
+      toast({ 
+        title: 'Authentication Required', 
+        description: 'Please log in to start a learning session', 
+        variant: 'destructive' 
+      });
       return null;
     }
 
+    console.log('Starting Socratic session:', { userId, orgId, topic, objective });
     setLoading(true);
+    
     try {
       const { data: newSession, error } = await supabase
         .from('socratic_sessions')
@@ -47,8 +54,12 @@ export function useSocraticSession(userId?: string, orgId?: string) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating session:', error);
+        throw error;
+      }
 
+      console.log('Session created successfully:', newSession);
       setSession(newSession as SocraticSession);
       setTurns([]);
       
@@ -56,8 +67,8 @@ export function useSocraticSession(userId?: string, orgId?: string) {
     } catch (error: any) {
       console.error('Error starting Socratic session:', error);
       toast({ 
-        title: 'Error', 
-        description: 'Failed to start learning session', 
+        title: 'Session Error', 
+        description: error.message || 'Failed to start learning session. Please try again.', 
         variant: 'destructive' 
       });
       return null;
