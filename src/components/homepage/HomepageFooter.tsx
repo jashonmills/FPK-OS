@@ -8,6 +8,9 @@ const HomepageFooter = () => {
     label: 'Terms',
     href: '/terms'
   }, {
+    label: 'GDPR/HIPAA',
+    href: '/compliance'
+  }, {
     label: 'Contact',
     href: '/contact'
   }];
@@ -27,7 +30,17 @@ const HomepageFooter = () => {
             </div>
             
             {/* Footer Links */}
-            
+            <div className="flex gap-6">
+              {footerLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-sm text-slate-700 hover:text-slate-900 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
           
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">

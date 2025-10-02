@@ -544,6 +544,9 @@ export function AppSidebar() {
           <a href="/terms-of-service" className="hover:text-sidebar-foreground/80 underline">
             Terms
           </a>
+          <a href="/gdpr-hipaa-compliance" className="hover:text-sidebar-foreground/80 underline">
+            GDPR/HIPAA
+          </a>
         </div>
       </SidebarFooter>
     </Sidebar>

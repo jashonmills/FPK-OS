@@ -158,6 +158,7 @@ const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIS
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const GDPRHIPAACompliance = lazy(() => import("./pages/GDPRHIPAACompliance"));
 const EmailConfirm = lazy(() => import("./pages/EmailConfirm").then(module => ({ default: module.EmailConfirm })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Forbidden = lazy(() => import("./pages/system/Forbidden"));
@@ -698,8 +699,10 @@ const App: React.FC = () => {
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
           <Route path="/terms-of-service" element={<LazyRoute><TermsOfService /></LazyRoute>} />
+          <Route path="/gdpr-hipaa-compliance" element={<LazyRoute><GDPRHIPAACompliance /></LazyRoute>} />
           <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
           <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
+          <Route path="/compliance" element={<Navigate to="/gdpr-hipaa-compliance" replace />} />
           
           {/* 404 Route */}
           <Route path="*" element={<LazyRoute><NotFound /></LazyRoute>} />
