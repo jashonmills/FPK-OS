@@ -13,6 +13,7 @@ import { AddStudentDialog } from "@/components/students/AddStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
+import InviteStudentDialog from "@/components/instructor/InviteStudentDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export default function StudentsManagementNew() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const isMobile = useIsMobile();
 
   const {
@@ -73,6 +75,10 @@ export default function StudentsManagementNew() {
     setShowImportCSV(true);
   };
 
+  const handleInviteStudents = () => {
+    setShowInviteDialog(true);
+  };
+
   if (!orgId) {
     return (
       <PageShell>
@@ -115,6 +121,7 @@ export default function StudentsManagementNew() {
             </Button>
             <Button 
               variant="outline"
+              onClick={handleInviteStudents}
               className={cn(isMobile && "flex-1 min-w-0")}
             >
               <UserPlus className="h-4 w-4 mr-1 sm:mr-2" />
@@ -267,6 +274,12 @@ export default function StudentsManagementNew() {
           open={showImportCSV}
           onOpenChange={setShowImportCSV}
           orgId={orgId!}
+        />
+
+        <InviteStudentDialog
+          open={showInviteDialog}
+          onOpenChange={setShowInviteDialog}
+          organizationId={orgId!}
         />
       </div>
     </PageShell>
