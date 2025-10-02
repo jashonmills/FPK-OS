@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUp } from "lucide-react";
 import { useSafeNavigation } from "@/hooks/useSafeNavigation";
 
 export default function GDPRHIPAACompliance() {
@@ -356,6 +356,18 @@ export default function GDPRHIPAACompliance() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Back to Top Button */}
+          <div className="flex justify-center mt-12 mb-8">
+            <Button
+              variant="outline"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-2"
+            >
+              <ArrowUp className="h-4 w-4" />
+              Back to Top
+            </Button>
+          </div>
         </div>
       </div>
     </div>
