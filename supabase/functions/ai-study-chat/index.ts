@@ -90,10 +90,90 @@ serve(async (req) => {
       // Mode selection for prompt
       isStructuredMode = false,
       // Topic extraction flag
-      extractTopicOnly = false
+      extractTopicOnly = false,
+      // NEW: Direct Socratic intent parameters
+      intent,
+      topic,
+      objective,
+      orgId,
+      studentResponse
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
+
+    // Handle Socratic session requests FIRST (before regular chat processing)
+    if (intent && ['start', 'respond', 'complete'].includes(intent)) {
+      console.log('🎓 Socratic session request detected:', {
+        intent,
+        userId,
+        sessionId,
+        hasTopic: !!topic,
+        hasObjective: !!objective
+      });
+
+      try {
+        // Helper function to call Gemini for Socratic prompts
+        const geminiCall = async (prompt: string): Promise<string> => {
+          const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: GEMINI_MODEL,
+              messages: [
+                { role: 'system', content: SOCRATIC_STRUCTURED_PROMPT },
+                { role: 'user', content: prompt }
+              ],
+              max_tokens: MAX_TOKENS
+            }),
+            signal: AbortSignal.timeout(TIMEOUT_MS)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Gemini API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data.choices[0]?.message?.content || '';
+        };
+
+        // Build Socratic request
+        const socraticRequest: SocraticRequest = {
+          intent,
+          userId,
+          orgId,
+          sessionId,
+          topic,
+          objective,
+          studentResponse,
+          promotedFromFreeChat
+        };
+
+        // Call Socratic handler
+        const socraticResponse = await handleSocraticSession(socraticRequest, geminiCall);
+
+        console.log('✅ Socratic session handled:', {
+          sessionId: socraticResponse.sessionId,
+          state: socraticResponse.state,
+          isComplete: socraticResponse.isComplete
+        });
+
+        return new Response(JSON.stringify(socraticResponse), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.error('❌ Socratic session error:', error);
+        return new Response(JSON.stringify({
+          error: error.message || 'Failed to process Socratic session',
+          intent
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
 
     // Handle topic extraction request
     if (extractTopicOnly) {
