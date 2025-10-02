@@ -236,8 +236,8 @@ export default function PrivacyPolicy() {
             <div className="space-y-2">
               <p>For any questions about this Privacy Policy or to exercise your data protection rights, please contact:</p>
               <p><strong>Data Protection Officer:</strong> privacy@fpkuniversity.com</p>
-              <p><strong>General Support:</strong> support@fpkuniversity.com</p>
-              <p><strong>Compliance Office:</strong> compliance@fpkuniversity.edu</p>
+              <p><strong>General Support:</strong> customerservice@fpkuniversity.com</p>
+              <p><strong>Legal Affairs:</strong> legal@fpkuniversity.com</p>
               <p className="mt-4 text-sm text-muted-foreground">
                 <strong>Supervisory Authority:</strong> You have the right to lodge a complaint with your local data protection authority.
               </p>

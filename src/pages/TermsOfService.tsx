@@ -166,8 +166,8 @@ export default function TermsOfService() {
             <div className="space-y-2">
               <p>For any questions regarding these Terms of Use, please contact:</p>
               <p><strong>FPK University Office of Legal Affairs:</strong> legal@fpkuniversity.com</p>
-              <p><strong>General Support:</strong> support@fpkuniversity.com</p>
-              <p><strong>IT Department (Security Issues):</strong> support@fpkuniversity.com</p>
+              <p><strong>General Support:</strong> customerservice@fpkuniversity.com</p>
+              <p><strong>IT Department (Security Issues):</strong> customerservice@fpkuniversity.com</p>
               <p className="mt-4 text-sm text-muted-foreground">
                 For data protection and compliance information, see our <a href="/gdpr-hipaa-compliance" className="text-primary hover:underline">GDPR/HIPAA Compliance Statement</a>.
               </p>

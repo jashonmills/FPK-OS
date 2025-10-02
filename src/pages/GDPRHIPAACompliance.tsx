@@ -347,9 +347,9 @@ export default function GDPRHIPAACompliance() {
               <div className="space-y-2">
                 <p>For questions specific to GDPR or HIPAA compliance, please contact:</p>
                 <p><strong>Data Protection Officer (GDPR):</strong> privacy@fpkuniversity.com</p>
-                <p><strong>HIPAA Privacy Officer:</strong> compliance@fpkuniversity.edu</p>
-                <p><strong>HIPAA Security Officer:</strong> compliance@fpkuniversity.edu</p>
-                <p><strong>FPK University Compliance Office:</strong> compliance@fpkuniversity.edu</p>
+                <p><strong>HIPAA Privacy Officer:</strong> legal@fpkuniversity.com</p>
+                <p><strong>HIPAA Security Officer:</strong> legal@fpkuniversity.com</p>
+                <p><strong>FPK University Legal Affairs:</strong> legal@fpkuniversity.com</p>
                 <p className="mt-4 text-sm text-muted-foreground">
                   To file a complaint regarding potential GDPR violations, you may contact your local data protection supervisory authority. To file a complaint regarding potential HIPAA violations, you may contact the U.S. Department of Health and Human Services Office for Civil Rights.
                 </p>
