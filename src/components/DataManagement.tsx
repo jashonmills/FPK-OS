@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuditLog } from "@/hooks/useAuditLog";
@@ -11,107 +13,75 @@ import { Download, Trash2, FileText, Shield, Clock, AlertTriangle } from "lucide
 import { logger } from '@/utils/logger';
 import { DataRetentionNotice } from "@/components/compliance/DataRetentionNotice";
 
+const SUPABASE_URL = "https://zgcegkmqfgznbpdplscz.supabase.co";
+
 export function DataManagement() {
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { logDataExport, logDataAccess, logDataDeletion } = useAuditLog();
   const navigate = useNavigate();
+  
+  const isDeleteConfirmValid = deleteConfirmText === "DELETE";
 
   const handleExportData = async () => {
     if (!user) return;
     
     setIsExporting(true);
+    setExportError(null);
+    
     try {
-      // Log data access for audit purposes
-      await logDataAccess('user_data_export', user.id, 'GDPR Article 20 - Data Portability Request');
+      // Get current user's JWT token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('User not authenticated');
+      }
 
-      // Fetch all user data comprehensively
-      const [
-        { data: profile },
-        { data: goals },
-        { data: flashcards },
-        { data: enrollments },
-        { data: progress },
-        { data: activities },
-        { data: chatSessions },
-        { data: consentRecords },
-        { data: auditLogs }
-      ] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('goals').select('*').eq('user_id', user.id),
-        supabase.from('flashcards').select('*').eq('user_id', user.id),
-        supabase.from('enrollments').select('*').eq('user_id', user.id),
-        supabase.from('lesson_progress').select('*').eq('user_id', user.id),
-        supabase.from('daily_activities').select('*').eq('user_id', user.id),
-        supabase.from('chat_sessions').select('*').eq('user_id', user.id),
-        supabase.from('user_consent').select('*').eq('user_id', user.id),
-        supabase.from('audit_log').select('*').eq('user_id', user.id).limit(100)
-      ]);
-
-      // Compile comprehensive export data
-      const exportData = {
-        metadata: {
-          export_date: new Date().toISOString(),
-          export_type: 'GDPR_Data_Export',
-          user_id: user.id,
-          email: user.email,
-          legal_basis: 'GDPR Article 20 - Right to Data Portability',
-          data_controller: 'Learning Platform',
-          retention_notice: 'This export contains all personal data we have collected about you.'
+      // Call the deployed Edge Function
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/export-user-data`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
         },
-        personal_data: {
-          profile,
-          goals: goals || [],
-          flashcards: flashcards || [],
-          enrollments: enrollments || [],
-          lesson_progress: progress || [],
-          daily_activities: activities || [],
-          chat_sessions: chatSessions || [],
-          consent_records: consentRecords || [],
-          recent_audit_log: auditLogs || []
-        },
-        data_summary: {
-          total_records: [
-            goals?.length || 0,
-            flashcards?.length || 0,
-            enrollments?.length || 0,
-            progress?.length || 0,
-            activities?.length || 0,
-            chatSessions?.length || 0
-          ].reduce((a, b) => a + b, 0),
-          export_format: 'JSON',
-          data_categories: ['identification_data', 'contact_data', 'usage_data', 'performance_data']
-        }
-      };
-
-      // Log the export for audit trail
-      const totalRecords = exportData.data_summary.total_records;
-      await logDataExport(exportData.data_summary.data_categories, totalRecords);
-
-      // Create and download JSON file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
-        type: 'application/json' 
       });
-      const url = URL.createObjectURL(blob);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to export data');
+      }
+
+      // Download the JSON file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
-      a.download = `gdpr-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `fpk-university-data-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
+      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
+      
+      // Log data access for audit purposes (client-side tracking)
+      await logDataAccess('user_data_export', user.id, 'GDPR Article 20 - Data Portability Request');
+      
       toast({
         title: "Data exported successfully",
-        description: `${totalRecords} records exported. Download includes all your personal data.`,
+        description: "Your complete data export has been downloaded. This includes all your personal information, learning progress, and activity history.",
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       logger.error('Export error', 'DATA_EXPORT', error);
+      setExportError(errorMessage);
       toast({
         title: "Export failed",
-        description: "There was an error exporting your data. Please try again.",
+        description: "There was an error exporting your data. Please try again or contact support if the issue persists.",
         variant: "destructive",
       });
     } finally {
@@ -123,46 +93,61 @@ export function DataManagement() {
     if (!user) return;
     
     setIsDeleting(true);
+    setDeleteError(null);
+    
     try {
-      // Log the account deletion request for audit purposes
+      // Get current user's JWT token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('User not authenticated');
+      }
+
+      // Log the account deletion request for audit purposes (client-side tracking)
       await logDataDeletion('user_account', user.id, 'GDPR Article 17 - Right to Erasure - User requested account deletion');
 
-      // Delete all user data in correct order (respecting foreign keys)
-      const deletionTasks = [
-        supabase.from('daily_activities').delete().eq('user_id', user.id),
-        supabase.from('lesson_progress').delete().eq('user_id', user.id),
-        supabase.from('enrollments').delete().eq('user_id', user.id),
-        supabase.from('flashcards').delete().eq('user_id', user.id),
-        supabase.from('goals').delete().eq('user_id', user.id),
-        supabase.from('achievements').delete().eq('user_id', user.id),
-        supabase.from('analytics_metrics').delete().eq('user_id', user.id),
-        supabase.from('chat_sessions').delete().eq('user_id', user.id),
-        supabase.from('user_consent').delete().eq('user_id', user.id),
-        // Note: audit_log entries are retained for legal compliance
-        // and profiles table is deleted last
-      ];
-
-      await Promise.all(deletionTasks);
-      
-      // Delete profile last
-      await supabase.from('profiles').delete().eq('id', user.id);
-
-      // Sign out user
-      await signOut();
-
-      toast({
-        title: "Account deleted",
-        description: "Your account and all personal data have been permanently deleted. Audit logs are retained for legal compliance.",
+      // Call the deployed Edge Function
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/delete-user-data`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete data');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Account deleted successfully",
+          description: "Your account and all personal data have been permanently deleted. You will be redirected to the homepage.",
+        });
+        
+        // Sign out and redirect after 3 seconds
+        setTimeout(async () => {
+          await signOut();
+          window.location.href = '/';
+        }, 3000);
+      } else {
+        throw new Error(result.error || 'Deletion failed');
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       logger.error('Delete error', 'DATA_DELETE', error);
+      setDeleteError(errorMessage);
       toast({
         title: "Deletion failed",
-        description: "There was an error deleting your account. Please contact support.",
+        description: "There was an error deleting your account. Please contact support if the issue persists.",
         variant: "destructive",
       });
     } finally {
       setIsDeleting(false);
+      setDeleteConfirmText(""); // Reset confirmation text
     }
   };
 
@@ -207,8 +192,13 @@ export function DataManagement() {
                 className="w-full"
               >
                 <Download className="mr-2 h-4 w-4" />
-                {isExporting ? "Exporting..." : "Export My Data"}
+                {isExporting ? "Preparing Export..." : "Export My Data"}
               </Button>
+              {exportError && (
+                <p className="text-xs text-destructive bg-destructive/10 p-2 rounded mt-2">
+                  Error: {exportError}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -285,21 +275,60 @@ export function DataManagement() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your account
-                    and remove all your data from our servers. You will not be able to recover
-                    your learning progress, notes, or any other information.
+                  <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="h-5 w-5" />
+                    Are you absolutely sure?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-4">
+                    <p>
+                      This action <strong>cannot be undone</strong>. This will permanently delete your account
+                      and remove all your data from our servers, including:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                      <li>All course progress and completions</li>
+                      <li>IEP documents and therapy notes</li>
+                      <li>Personal profile information</li>
+                      <li>Learning analytics and achievements</li>
+                      <li>All flashcards and study materials</li>
+                    </ul>
+                    <p className="text-xs text-muted-foreground">
+                      Note: Audit logs will be retained for 7 years for legal compliance (GDPR Article 17(3)(b)).
+                    </p>
+                    <div className="space-y-2 pt-2">
+                      <Label htmlFor="delete-confirm" className="text-sm font-semibold text-destructive">
+                        To confirm deletion, type <span className="font-mono bg-destructive/10 px-1 rounded">DELETE</span> below:
+                      </Label>
+                      <Input
+                        id="delete-confirm"
+                        type="text"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder="Type DELETE to confirm"
+                        className="font-mono"
+                      />
+                    </div>
+                    {deleteError && (
+                      <p className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+                        Error: {deleteError}
+                      </p>
+                    )}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel 
+                    onClick={() => {
+                      setDeleteConfirmText("");
+                      setDeleteError(null);
+                    }}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleDeleteAccount}
-                    disabled={isDeleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={!isDeleteConfirmValid || isDeleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
                   >
-                    {isDeleting ? "Deleting..." : "Yes, delete my account"}
+                    {isDeleting ? "Deleting..." : "Confirm Deletion"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
