@@ -15,10 +15,19 @@ import {
   X,
   Brain,
   Clipboard,
-  ExternalLink
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NavItem {
   href: string;
@@ -31,8 +40,13 @@ export function OrgNavigation() {
   const { currentOrg } = useOrgContext();
   const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
 
   if (!currentOrg) return null;
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   const navItems: NavItem[] = [
     {
@@ -182,29 +196,70 @@ export function OrgNavigation() {
 
   // Desktop Navigation - Shows on tablets and up (768px+)
   return (
-    <nav className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40 hidden md:block">
-      <div className="p-4">
-        <div className="space-y-2">
-          {filteredNavItems.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              end={item.href === `/org/${currentOrg.organization_id}`}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-orange-500/70 text-white'
-                    : 'text-white/80 hover:text-white hover:bg-orange-500/40'
-                )
+    <TooltipProvider>
+      <nav className={cn(
+        "fixed top-16 left-0 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40 hidden md:flex flex-col transition-all duration-300",
+        isCollapsed ? "w-16" : "w-64"
+      )}>
+        <div className={cn("p-4 flex-1", isCollapsed && "px-2")}>
+          <div className="space-y-2">
+            {filteredNavItems.map((item) => {
+              const navContent = (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  end={item.href === `/org/${currentOrg.organization_id}`}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center rounded-md text-sm font-medium transition-colors',
+                      isCollapsed ? 'justify-center px-3 py-2' : 'space-x-3 px-3 py-2',
+                      isActive
+                        ? 'bg-orange-500/70 text-white'
+                        : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                    )
+                  }
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {!isCollapsed && <span className="transition-opacity duration-300">{item.label}</span>}
+                </NavLink>
+              );
+
+              if (isCollapsed) {
+                return (
+                  <Tooltip key={item.href} delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      {navContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-purple-900 text-white border-purple-700">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
               }
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+
+              return navContent;
+            })}
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* Collapse Toggle Button */}
+        <div className={cn("p-2 border-t border-white/10", isCollapsed && "px-1")}>
+          <button
+            onClick={toggleCollapse}
+            className="w-full flex items-center justify-center px-3 py-2 rounded-md text-white/80 hover:text-white hover:bg-orange-500/40 transition-colors"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Collapse</span>
+              </>
+            )}
+          </button>
+        </div>
+      </nav>
+    </TooltipProvider>
   );
 }

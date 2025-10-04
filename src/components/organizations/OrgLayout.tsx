@@ -8,6 +8,7 @@ import { OrgWelcomeBanner } from './OrgWelcomeBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { EnhancedOrgThemeProvider } from '@/components/theme/EnhancedOrgThemeProvider';
 import { useOrgContext } from './OrgContext';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Loader2 } from 'lucide-react';
 import aiGeneratedOrgBg from '@/assets/ai-generated-org-bg.jpg';
 import stOliversCommunityCollegeBg from '@/assets/st-olivers-community-college-bg.jpg';
@@ -16,6 +17,7 @@ import waterfordWexfordEducationBg from '@/assets/waterford-wexford-education-bg
 // Background selection component that needs access to org context
 function OrgLayoutContent() {
   const { currentOrg } = useOrgContext();
+  const [isCollapsed] = useLocalStorage('orgNavCollapsed', false);
 
   // Determine background image to use - each organization gets its own unique background
   const getBackgroundImage = () => {
@@ -53,8 +55,8 @@ function OrgLayoutContent() {
       {/* Fixed Navigation */}
       <OrgNavigation />
       
-      {/* Main content area - responsive margins */}
-      <main className="md:ml-64 pt-16 min-h-screen">
+      {/* Main content area - responsive margins with transition */}
+      <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>
         <div className="p-4 md:p-6">
           <OrgWelcomeBanner />
           <OrgPageBanner />
