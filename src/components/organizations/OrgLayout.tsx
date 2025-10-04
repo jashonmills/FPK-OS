@@ -17,7 +17,29 @@ import waterfordWexfordEducationBg from '@/assets/waterford-wexford-education-bg
 // Background selection component that needs access to org context
 function OrgLayoutContent() {
   const { currentOrg } = useOrgContext();
-  const [isCollapsed] = useLocalStorage('orgNavCollapsed', false);
+  const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
+
+  // Listen for storage changes to sync collapse state across components
+  React.useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'orgNavCollapsed' && e.newValue !== null) {
+        setIsCollapsed(JSON.parse(e.newValue));
+      }
+    };
+
+    // Listen for custom event from same window (localStorage doesn't fire storage event in same window)
+    const handleCustomEvent = (e: CustomEvent) => {
+      setIsCollapsed(e.detail);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('orgNavCollapsedChange' as any, handleCustomEvent);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('orgNavCollapsedChange' as any, handleCustomEvent);
+    };
+  }, [setIsCollapsed]);
 
   // Determine background image to use - each organization gets its own unique background
   const getBackgroundImage = () => {

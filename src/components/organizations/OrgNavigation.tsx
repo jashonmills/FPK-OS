@@ -45,7 +45,10 @@ export function OrgNavigation() {
   if (!currentOrg) return null;
 
   const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
+    const newValue = !isCollapsed;
+    setIsCollapsed(newValue);
+    // Dispatch custom event to sync with OrgLayout
+    window.dispatchEvent(new CustomEvent('orgNavCollapsedChange', { detail: newValue }));
   };
 
   const navItems: NavItem[] = [
