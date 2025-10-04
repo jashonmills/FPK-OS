@@ -606,8 +606,8 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          {/* Organization Routes - Authenticated */}
-          <Route path="/org" element={
+          {/* Organization Hub & Management Routes - Authenticated */}
+          <Route path="/org/hub" element={
             <RouteProtector>
               <LazyRoute>
                 <OrgPageLayout>
@@ -644,8 +644,7 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          {/* Organization Portal Routes */}
-          <Route path="/org/join" element={<LazyRoute><OrgJoin /></LazyRoute>} />
+          {/* Organization Portal Routes with nested structure */}
           <Route path="/org" element={
             <RouteProtector>
               <LazyRoute><OrgLayout /></LazyRoute>
