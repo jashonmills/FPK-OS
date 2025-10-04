@@ -152,6 +152,7 @@
     overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100vw !important;
+    scroll-behavior: smooth;
   }
 
   /* Organization layout specific overflow control */
@@ -168,6 +169,7 @@
   html {
     font-size: var(--mobile-base-font-size);
     overflow-x: hidden;
+    height: 100%;
   }
 
   @media (min-width: 768px) {
@@ -180,6 +182,8 @@
     @apply bg-background text-foreground overflow-x-hidden;
     transition: all 0.2s ease;
     line-height: var(--mobile-line-height);
+    height: 100%;
+    overflow-y: hidden;
   }
 
   @media (min-width: 768px) {
@@ -410,7 +414,11 @@
     @apply z-[9999];
   }
 
-  /* Prevent viewport jumping on mobile */
+  /* Prevent viewport jumping when dropdowns open */
+  body:has([data-radix-popper-content-wrapper]) {
+    overflow: hidden;
+  }
+  
   @media (max-width: 768px) {
     body:has([data-radix-popper-content-wrapper]) {
       position: relative;
@@ -419,13 +427,11 @@
     }
     
     [data-radix-popper-content-wrapper] {
-      z-index: 9999 !important;
-      position: fixed !important;
+      z-index: 100 !important;
     }
     
     [data-radix-dropdown-content] {
-      z-index: 9999 !important;
-      position: fixed !important;
+      z-index: 100 !important;
       background: hsl(var(--background)) !important;
       border: 1px solid hsl(var(--border)) !important;
       box-shadow: 0 10px 38px -10px hsla(206, 22%, 7%, .35), 0 10px 20px -15px hsla(206, 22%, 7%, .2) !important;

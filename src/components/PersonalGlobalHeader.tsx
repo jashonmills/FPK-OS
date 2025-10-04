@@ -45,7 +45,7 @@ const PersonalGlobalHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+    <header className="fixed top-0 left-0 right-0 w-full border-b bg-background backdrop-blur-sm z-50">
       <div className="flex h-16 items-center justify-between px-4">
         {/* Left side - Sidebar trigger and brand */}
         <div className="flex items-center gap-3">

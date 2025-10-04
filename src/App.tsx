@@ -192,8 +192,10 @@ const App: React.FC = () => {
   React.useEffect(() => {
     logger.performance('App component mounted');
     
-    // Setup global scroll restoration for smart redirects
-    const cleanupScrollManager = setupGlobalScrollRestoration();
+    // Disable scroll restoration to prevent page jumping
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
     
     // Use cleanupManager for safe timer management
     import('./utils/cleanupManager').then(({ cleanupManager }) => {
@@ -212,7 +214,6 @@ const App: React.FC = () => {
       
       return () => {
         cleanupManager.cleanup(cleanup);
-        cleanupScrollManager?.();
         logger.performance('App component unmounted');
       };
     });

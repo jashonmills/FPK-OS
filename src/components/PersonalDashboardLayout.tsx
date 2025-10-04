@@ -29,12 +29,12 @@ export function PersonalDashboardLayout() {
       <VoiceSettingsProvider>
         <GamificationProvider>
           <SidebarProvider>
-            <div className="min-h-screen flex w-full viewport-constrain">
+            <div className="h-screen flex w-full viewport-constrain overflow-hidden">
               <AppSidebar />
-              <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                 <PersonalGlobalHeader />
                 <main 
-                  className="flex-1 mobile-scroll-container overflow-x-hidden"
+                  className="flex-1 overflow-y-auto overflow-x-hidden"
                   style={{
                     backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
                     backgroundSize: 'cover',
@@ -44,8 +44,8 @@ export function PersonalDashboardLayout() {
                   }}
                 >
                   <div className={cn(
-                    "w-full h-full mobile-container viewport-constrain",
-                    isMobile ? "p-3 pb-20" : "p-4 sm:p-6 lg:p-8"
+                    "w-full min-h-full mobile-container",
+                    isMobile ? "p-3 pb-20 pt-20" : "p-4 sm:p-6 lg:p-8 pt-20"
                   )}>
                     <div className="mobile-content-width">
                       <Outlet />
