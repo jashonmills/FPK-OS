@@ -133,7 +133,8 @@ export function OrgNavigation() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="fixed top-4 left-4 z-50 p-2 bg-purple-900/80 backdrop-blur-sm rounded-md text-white lg:hidden"
+          className="fixed top-20 left-4 z-50 p-3 bg-purple-900/90 backdrop-blur-sm rounded-lg text-white shadow-lg md:hidden hover:bg-purple-800/90 transition-colors"
+          aria-label="Toggle navigation menu"
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -141,14 +142,14 @@ export function OrgNavigation() {
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
 
         {/* Mobile Navigation */}
         <nav className={cn(
-          "fixed top-0 left-0 w-80 h-full bg-purple-900/95 backdrop-blur-sm transform transition-transform duration-300 z-50 lg:hidden",
+          "fixed top-0 left-0 w-80 h-full bg-purple-900/95 backdrop-blur-sm transform transition-transform duration-300 z-50 md:hidden",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="pt-16 p-4 overflow-y-auto h-full">
@@ -179,9 +180,9 @@ export function OrgNavigation() {
     );
   }
 
-  // Desktop Navigation
+  // Desktop Navigation - Shows on tablets and up (768px+)
   return (
-    <nav className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40 hidden lg:block">
+    <nav className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40 hidden md:block">
       <div className="p-4">
         <div className="space-y-2">
           {filteredNavItems.map((item) => (
