@@ -198,10 +198,28 @@ export function OrgNavigation() {
   return (
     <TooltipProvider>
       <nav className={cn(
-        "fixed top-16 left-0 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r overflow-y-auto z-40 hidden md:flex flex-col transition-all duration-300",
+        "fixed top-16 left-0 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r z-40 hidden md:flex flex-col transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}>
-        <div className={cn("p-4 flex-1", isCollapsed && "px-2")}>
+        {/* Collapse Toggle Button - Always visible at top */}
+        <div className={cn("p-2 border-b border-white/10 flex-shrink-0", isCollapsed && "px-1")}>
+          <button
+            onClick={toggleCollapse}
+            className="w-full flex items-center justify-center px-3 py-2 rounded-md text-white/80 hover:text-white hover:bg-orange-500/40 transition-colors"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Collapse</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className={cn("p-4 flex-1 overflow-y-auto", isCollapsed && "px-2")}>
           <div className="space-y-2">
             {filteredNavItems.map((item) => {
               const navContent = (
@@ -240,24 +258,6 @@ export function OrgNavigation() {
               return navContent;
             })}
           </div>
-        </div>
-
-        {/* Collapse Toggle Button */}
-        <div className={cn("p-2 border-t border-white/10", isCollapsed && "px-1")}>
-          <button
-            onClick={toggleCollapse}
-            className="w-full flex items-center justify-center px-3 py-2 rounded-md text-white/80 hover:text-white hover:bg-orange-500/40 transition-colors"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Collapse</span>
-              </>
-            )}
-          </button>
         </div>
       </nav>
     </TooltipProvider>
