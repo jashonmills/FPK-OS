@@ -65,11 +65,11 @@ export function PersonalOrgSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        align="start" 
-        className="w-[250px] mobile-dropdown-content" 
-        sideOffset={5}
-        avoidCollisions={true}
-        sticky="always"
+        align="center" 
+        className="w-[250px] mobile-dropdown-content z-[100]" 
+        sideOffset={8}
+        alignOffset={0}
+        collisionPadding={8}
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <DropdownMenuLabel>Switch Context</DropdownMenuLabel>

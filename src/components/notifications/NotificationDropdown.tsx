@@ -89,7 +89,13 @@ const NotificationDropdown = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 z-[100]"
+        sideOffset={8}
+        alignOffset={0}
+        collisionPadding={8}
+      >
         <div className="flex items-center justify-between p-3 border-b">
           <h3 className="font-semibold">Notifications</h3>
           {unreadCount > 0 && (

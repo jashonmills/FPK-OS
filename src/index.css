@@ -401,9 +401,8 @@
 
   /* Mobile Dropdown Fixes */
   .mobile-dropdown-content {
-    @apply z-[9999] bg-background/95 backdrop-blur-sm border shadow-lg;
-    position: fixed !important;
-    max-height: 50vh;
+    @apply z-[100] bg-background border shadow-lg;
+    max-height: 80vh;
     overflow-y: auto;
   }
 
