@@ -78,8 +78,8 @@ function OrgLayoutContent() {
       <OrgNavigation />
       
       {/* Main content area - responsive margins with transition */}
-      <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>
-        <div className="p-4 md:p-6">
+      <main className={`pt-16 min-h-screen transition-all duration-300 overflow-x-hidden ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>
+        <div className="p-4 md:p-6 w-full max-w-full">
           <OrgWelcomeBanner />
           <OrgPageBanner />
           <Outlet />
