@@ -29,23 +29,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get Supabase client with JWT in global headers for RLS
+    // Get Supabase client for auth verification (uses anon key)
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { 
-        headers: { 
-          Authorization: authHeader 
-        } 
-      }
-    });
-
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    
     // Extract JWT from "Bearer <token>"
     const jwt = authHeader.replace('Bearer ', '');
     
-    // Verify user is authenticated by passing JWT to getUser
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication error:", userError);
       return new Response(
@@ -56,6 +51,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Generate invite code request from user: ${user.id}`);
 
+    // Use service role client for admin operations (bypasses RLS)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     // Parse request body
     const { orgId, role, maxUses = 100, expiresDays = 30 }: GenerateCodeRequest = await req.json();
 
