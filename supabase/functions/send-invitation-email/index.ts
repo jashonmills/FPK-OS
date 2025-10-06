@@ -82,8 +82,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const inviteCode = inviteData as string;
     
-    // Generate invitation link with the code
-    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://fpkuniversity.com';
+    // Generate invitation link with the code - use the production URL
+    const baseUrl = 'https://fpkuniversity.com';
     const inviteUrl = `${baseUrl}/join?code=${inviteCode}`;
 
     const emailResponse = await resend.emails.send({
