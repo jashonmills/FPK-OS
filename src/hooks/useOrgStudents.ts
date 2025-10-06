@@ -57,52 +57,60 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         throw orgStudentsError;
       }
 
-      // Fetch students with active accounts from org_members + profiles
-      let orgMembersQuery = supabase
+      // Fetch students with active accounts from org_members
+      const { data: orgMembersData, error: orgMembersError } = await supabase
         .from('org_members')
-        .select(`
-          id,
-          user_id,
-          org_id,
-          role,
-          status,
-          joined_at,
-          profiles:user_id (
-            id,
-            full_name,
-            display_name
-          )
-        `)
+        .select('id, user_id, org_id, role, status, joined_at')
         .eq('org_id', orgId)
         .eq('role', 'student')
         .order('joined_at', { ascending: false });
-
-      const { data: orgMembersData, error: orgMembersError } = await orgMembersQuery;
 
       if (orgMembersError) {
         console.error('Error fetching org members:', orgMembersError);
         throw orgMembersError;
       }
 
+      // Fetch profiles for all member user IDs
+      const memberUserIds = (orgMembersData || []).map((m: any) => m.user_id);
+      let profilesData: any[] = [];
+      
+      if (memberUserIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, display_name')
+          .in('id', memberUserIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
+      }
+
+      // Create a map of user_id to profile
+      const profileMap = new Map(profilesData.map((p: any) => [p.id, p]));
+
       // Map org_members to OrgStudent format
       const memberStudents: OrgStudent[] = (orgMembersData || [])
-        .filter((member: any) => member.profiles) // Only include if profile exists
-        .map((member: any) => ({
-          id: member.id,
-          org_id: member.org_id,
-          full_name: member.profiles.full_name || member.profiles.display_name || 'Unknown Student',
-          grade_level: undefined,
-          student_id: undefined,
-          date_of_birth: undefined,
-          parent_email: undefined,
-          emergency_contact: undefined,
-          notes: undefined,
-          status: member.status === 'active' ? 'active' : 'inactive',
-          linked_user_id: member.user_id, // Mark as linked
-          created_by: member.user_id,
-          created_at: member.joined_at,
-          updated_at: member.joined_at,
-        }));
+        .map((member: any) => {
+          const profile = profileMap.get(member.user_id);
+          return {
+            id: member.id,
+            org_id: member.org_id,
+            full_name: profile?.full_name || profile?.display_name || 'Unknown Student',
+            grade_level: undefined,
+            student_id: undefined,
+            date_of_birth: undefined,
+            parent_email: undefined,
+            emergency_contact: undefined,
+            notes: undefined,
+            status: member.status === 'active' ? 'active' : 'inactive',
+            linked_user_id: member.user_id, // Mark as linked
+            created_by: member.user_id,
+            created_at: member.joined_at,
+            updated_at: member.joined_at,
+          };
+        });
 
       // Filter member students by search query if provided
       const filteredMemberStudents = searchQuery
