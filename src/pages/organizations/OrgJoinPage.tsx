@@ -21,10 +21,17 @@ const OrgJoinPage = () => {
 
   // Handle authentication and invitation detection
   useEffect(() => {
+    // Load invitation from URL
+    const tokenFromUrl = searchParams.get('token');
+    const codeFromUrl = searchParams.get('code');
+    
+    if (tokenFromUrl || codeFromUrl) {
+      setInviteValue(tokenFromUrl || codeFromUrl || '');
+      setIsFromEmail(!!tokenFromUrl);
+    }
+
+    // If not loading and not authenticated, store invite and redirect to login
     if (!loading && !user) {
-      // Store the invite value and redirect to login
-      const tokenFromUrl = searchParams.get('token');
-      const codeFromUrl = searchParams.get('code');
       const invite = tokenFromUrl || codeFromUrl;
       
       if (invite) {
@@ -32,20 +39,14 @@ const OrgJoinPage = () => {
         localStorage.setItem('pendingInviteSource', tokenFromUrl ? 'email' : 'code');
       }
       
-      navigate('/auth', { 
+      navigate('/login', { 
         state: { returnUrl: `/org/join${invite ? `?${tokenFromUrl ? 'token' : 'code'}=${invite}` : ''}` } 
       });
       return;
     }
 
-    // Load invitation from URL or localStorage
-    const tokenFromUrl = searchParams.get('token');
-    const codeFromUrl = searchParams.get('code');
-    
-    if (tokenFromUrl || codeFromUrl) {
-      setInviteValue(tokenFromUrl || codeFromUrl || '');
-      setIsFromEmail(!!tokenFromUrl);
-    } else {
+    // If authenticated, check for pending invite from localStorage
+    if (user && !tokenFromUrl && !codeFromUrl) {
       const pending = localStorage.getItem('pendingInvite');
       const source = localStorage.getItem('pendingInviteSource');
       

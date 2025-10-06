@@ -629,13 +629,11 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           <Route path="/org/join" element={
-            <RouteProtector>
-              <LazyRoute>
-                <OrgPageLayout>
-                  <OrgJoinPage />
-                </OrgPageLayout>
-              </LazyRoute>
-            </RouteProtector>
+            <LazyRoute>
+              <OrgPageLayout>
+                <OrgJoinPage />
+              </OrgPageLayout>
+            </LazyRoute>
           } />
           <Route path="/org/invitations" element={
             <RouteProtector>
