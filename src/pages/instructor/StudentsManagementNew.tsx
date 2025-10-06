@@ -10,6 +10,7 @@ import { Plus, Users, UserPlus, Download } from "lucide-react";
 import { useOrgStudents } from "@/hooks/useOrgStudents";
 import { useOrgMembers } from "@/hooks/useOrgMembers";
 import { AddStudentDialog } from "@/components/students/AddStudentDialog";
+import { EditStudentDialog } from "@/components/students/EditStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
@@ -17,12 +18,15 @@ import InviteStudentDialog from "@/components/instructor/InviteStudentDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { OrgStudent } from "@/hooks/useOrgStudents";
 
 export default function StudentsManagementNew() {
   const { orgId } = useParams<{ orgId: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
   const [showImportCSV, setShowImportCSV] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const isMobile = useIsMobile();
@@ -34,6 +38,7 @@ export default function StudentsManagementNew() {
     updateStudent,
     deleteStudent,
     isCreating,
+    isUpdating,
   } = useOrgStudents(orgId!, searchQuery);
 
   const { members } = useOrgMembers();
@@ -55,9 +60,13 @@ export default function StudentsManagementNew() {
     createStudent(studentData);
   };
 
-  const handleEditStudent = (student: any) => {
-    // TODO: Implement edit dialog
-    toast.info("Edit functionality coming soon");
+  const handleEditStudent = (student: OrgStudent) => {
+    setSelectedStudent(student);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateStudent = (data: Partial<OrgStudent> & { id: string }) => {
+    updateStudent(data);
   };
 
   const handleDeleteStudent = (studentId: string) => {
@@ -268,6 +277,14 @@ export default function StudentsManagementNew() {
           onOpenChange={setShowAddDialog}
           onSubmit={handleAddStudent}
           isLoading={isCreating}
+        />
+
+        <EditStudentDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          onSubmit={handleUpdateStudent}
+          student={selectedStudent}
+          isLoading={isUpdating}
         />
 
         <ImportStudentsCSV
