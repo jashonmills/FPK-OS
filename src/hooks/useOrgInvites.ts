@@ -41,11 +41,10 @@ export function useOrgInvites() {
 
   const createInviteMutation = useMutation({
     mutationFn: async (inviteData: { role: 'student' | 'instructor'; max_uses?: number; expires_days?: number }) => {
-      // Use new token-based edge function
-      const { data, error } = await supabase.functions.invoke('generate-org-invite', {
+      // Use new code-based edge function (no email required)
+      const { data, error } = await supabase.functions.invoke('generate-org-invite-code', {
         body: {
           orgId: orgId,
-          email: null, // No email for code-based invites
           role: inviteData.role,
           maxUses: inviteData.max_uses || 100,
           expiresDays: inviteData.expires_days || 30
@@ -57,7 +56,7 @@ export function useOrgInvites() {
         throw new Error(data?.error || 'Failed to create invitation');
       }
       
-      return data.inviteToken as string; // Returns the invite token
+      return data.inviteToken as string; // Returns the invite code
     },
     onSuccess: (inviteCode) => {
       queryClient.invalidateQueries({ queryKey: ['org-invites'] });
