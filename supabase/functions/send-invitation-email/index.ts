@@ -28,10 +28,33 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("Sending invitation email:", { orgId, email, role, organizationName });
 
-    // Create Supabase client to get organization details if not provided
+    // Get the authenticated user from the request
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
+    // Create Supabase clients
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Client with user's auth token to get their ID
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    // Get the authenticated user
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      console.error('Error getting user:', userError);
+      throw new Error('User not authenticated');
+    }
+    
+    console.log("Authenticated user:", user.id);
+    
+    // Service role client for privileged operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let orgName = organizationName;
     if (!orgName) {
@@ -43,12 +66,13 @@ const handler = async (req: Request): Promise<Response> => {
       orgName = org?.name || 'the organization';
     }
 
-    // Create an invitation code in the database
+    // Create an invitation code in the database (pass user ID for permission check)
     const { data: inviteData, error: inviteError } = await supabase.rpc('org_create_invite', {
       p_org_id: orgId,
       p_role: role,
       p_max_uses: 1, // Single use for email invitations
-      p_expires_interval: '7 days'
+      p_expires_interval: '7 days',
+      p_created_by: user.id // Pass the authenticated user's ID
     });
 
     if (inviteError) {
@@ -108,7 +132,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      messageId: emailResponse.data?.id 
+      messageId: emailResponse.data?.id,
+      inviteCode: inviteCode
     }), {
       status: 200,
       headers: {
