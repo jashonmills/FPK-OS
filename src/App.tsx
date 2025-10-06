@@ -27,13 +27,14 @@ const BetaAccessGate = lazy(() => import('@/components/beta/BetaAccessGate'));
 
 // Organization public pages
 const OrganizationSignup = lazy(() => import("./pages/OrganizationSignup"));
-const JoinOrganization = lazy(() => import("./pages/JoinOrganization"));
+const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
 const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
 const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
+const OrgInviteDebug = lazy(() => import("./pages/organizations/OrgInviteDebug"));
 const ReceivedInvitationsPage = lazy(() => import("./pages/organizations/ReceivedInvitationsPage"));
 const InviteMembersPage = lazy(() => import("./pages/org/InviteMembersPage"));
 const InviteManagement = lazy(() => import("./pages/organizations/InviteManagement"));
@@ -234,8 +235,8 @@ const App: React.FC = () => {
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
-          <Route path="/join" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
-          <Route path="/join/:code" element={<LazyRoute><JoinOrganization /></LazyRoute>} />
+          <Route path="/join" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
+          <Route path="/join/:code" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
 
           {/* Standalone AI Study Coach Chat Route - Public Access */}
           <Route path="/ai-study-coach/chat-only" element={
@@ -641,6 +642,15 @@ const App: React.FC = () => {
               <LazyRoute>
                 <OrgPageLayout>
                   <ReceivedInvitationsPage />
+                </OrgPageLayout>
+              </LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/org/:orgId/invite-debug" element={
+            <RouteProtector>
+              <LazyRoute>
+                <OrgPageLayout>
+                  <OrgInviteDebug />
                 </OrgPageLayout>
               </LazyRoute>
             </RouteProtector>

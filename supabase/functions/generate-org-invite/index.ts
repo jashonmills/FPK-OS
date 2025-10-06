@@ -209,8 +209,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const inviterName = inviterProfile?.full_name || user.email?.split('@')[0] || 'A team member';
 
-    // Generate invite URL
-    const inviteUrl = `https://fpkuniversity.com/join?token=${inviteToken}`;
+    // Generate invite URL - FIX: Use /org/join instead of /join
+    const inviteUrl = `https://fpkuniversity.com/org/join?token=${inviteToken}`;
 
     // Format expiration date nicely
     const expiryDate = new Date(expiresAt).toLocaleDateString('en-US', {

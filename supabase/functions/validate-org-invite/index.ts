@@ -38,8 +38,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Validating invite token: ${token.substring(0, 8)}...`);
 
-    // Fetch invite with organization details
-    const { data: invite, error: inviteError } = await supabase
+    // Try to find invite in user_invites first (email invitations)
+    let invite: any = null;
+    let isCodeInvite = false;
+
+    const { data: emailInvite, error: emailError } = await supabase
       .from('user_invites')
       .select(`
         id,
@@ -61,14 +64,60 @@ const handler = async (req: Request): Promise<Response> => {
         )
       `)
       .eq('invite_token', token)
-      .single();
+      .maybeSingle();
 
-    if (inviteError || !invite) {
-      console.log("Invite not found:", inviteError);
+    if (emailInvite) {
+      invite = emailInvite;
+      console.log("Found email invitation");
+    } else {
+      // Try org_invites table (code invitations)
+      const { data: codeInvite, error: codeError } = await supabase
+        .from('org_invites')
+        .select(`
+          id,
+          code,
+          org_id,
+          created_at,
+          expires_at,
+          uses_count,
+          max_uses,
+          role,
+          metadata,
+          organizations (
+            id,
+            name,
+            description,
+            logo_url,
+            plan
+          )
+        `)
+        .eq('code', token)
+        .maybeSingle();
+
+      if (codeInvite) {
+        invite = {
+          id: codeInvite.id,
+          invite_token: codeInvite.code,
+          invited_email: null, // Code invites don't have specific email
+          org_id: codeInvite.org_id,
+          created_at: codeInvite.created_at,
+          expires_at: codeInvite.expires_at,
+          is_used: codeInvite.uses_count >= codeInvite.max_uses,
+          role: codeInvite.role,
+          metadata: codeInvite.metadata,
+          organizations: codeInvite.organizations
+        };
+        isCodeInvite = true;
+        console.log("Found code invitation");
+      }
+    }
+
+    if (!invite) {
+      console.log("Invite not found in either table");
       return new Response(
         JSON.stringify({ 
           valid: false, 
-          error: "Invalid invitation link" 
+          error: "Invalid invitation link or code" 
         }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
