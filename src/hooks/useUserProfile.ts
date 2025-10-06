@@ -41,7 +41,7 @@ class ProfileManager {
     });
   }
 
-  async loadProfile(toast?: any): Promise<Profile | null> {
+  async loadProfile(): Promise<Profile | null> {
     // If already loading, return existing promise
     if (this.loadingPromise) {
       return this.loadingPromise;
@@ -55,7 +55,7 @@ class ProfileManager {
     this.loading = true;
     this.notify();
 
-    this.loadingPromise = this.fetchProfile(toast);
+    this.loadingPromise = this.fetchProfile();
     const result = await this.loadingPromise;
     
     this.loading = false;
@@ -65,7 +65,7 @@ class ProfileManager {
     return result;
   }
 
-  private async fetchProfile(toast?: any): Promise<Profile | null> {
+  private async fetchProfile(): Promise<Profile | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -82,14 +82,7 @@ class ProfileManager {
         .maybeSingle();
 
       if (error) {
-        console.error('Error loading profile:', error);
-        if (toast) {
-          toast({
-            title: "Error",
-            description: "Failed to load profile data.",
-            variant: "destructive",
-          });
-        }
+        console.error('❌ ProfileManager: Error loading profile:', error);
         return null;
       }
 
@@ -155,8 +148,8 @@ class ProfileManager {
           .single();
 
         if (createError) {
-          // Don't show toast for duplicate errors - just fetch the existing profile
-          console.warn('Error during profile upsert:', createError);
+          // Silently handle errors and try to fetch existing profile
+          console.warn('⚠️ ProfileManager: Error during profile upsert (likely already exists):', createError.message);
           
           // Try one more time to fetch the profile
           const { data: finalFetch } = await supabase
@@ -166,20 +159,13 @@ class ProfileManager {
             .maybeSingle();
           
           if (finalFetch) {
-            console.log('📊 ProfileManager: Successfully fetched profile after upsert error');
+            console.log('✅ ProfileManager: Successfully fetched existing profile');
             this.profile = finalFetch;
             return finalFetch;
           }
           
-          // Only show toast if we truly couldn't get the profile
-          console.error('Failed to create or fetch profile:', createError);
-          if (toast) {
-            toast({
-              title: "Error",
-              description: "Failed to load profile data.",
-              variant: "destructive",
-            });
-          }
+          // Log error but don't show toast - this prevents spam on navigation
+          console.error('❌ ProfileManager: Could not create or fetch profile');
           return null;
         }
 
@@ -192,14 +178,7 @@ class ProfileManager {
         return data;
       }
     } catch (error) {
-      console.error('Error in ProfileManager.fetchProfile:', error);
-      if (toast) {
-        toast({
-          title: "Error",
-          description: "Failed to load profile data.",
-          variant: "destructive",
-        });
-      }
+      console.error('❌ ProfileManager: Exception in fetchProfile:', error);
       return null;
     }
   }
@@ -335,7 +314,7 @@ export const useUserProfile = () => {
   };
 
   const refetch = () => {
-    return profileManager.loadProfile(toast);
+    return profileManager.loadProfile();
   };
 
   return {
