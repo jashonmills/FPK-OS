@@ -9445,7 +9445,7 @@ export type Database = {
         Returns: boolean
       }
       user_is_org_member: {
-        Args: { org_id: string }
+        Args: { check_user_id: string; org_id: string } | { org_id: string }
         Returns: boolean
       }
       user_is_org_member_direct: {
