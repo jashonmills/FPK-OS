@@ -17,17 +17,18 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get Supabase client with user's auth
+    // Get Supabase clients
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const authHeader = req.headers.get("Authorization")!;
     
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    // Client for auth verification
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const jwt = authHeader?.replace('Bearer ', '') || '';
 
     // Verify user is authenticated
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication error:", userError);
       return new Response(
@@ -40,6 +41,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log(`Accept invite request from user: ${user.id} (${user.email})`);
+
+    // Use service role client for admin operations (bypasses RLS)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Parse request body
     const { token }: AcceptInviteRequest = await req.json();

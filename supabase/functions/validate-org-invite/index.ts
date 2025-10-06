@@ -17,11 +17,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get Supabase client (no auth required for validation)
+    // Use service role key to bypass RLS for validation
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Parse request body
     const { token }: ValidateInviteRequest = await req.json();
