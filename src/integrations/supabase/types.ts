@@ -9198,6 +9198,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_expired_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cleanup_type: string
+          deleted_count: number
+          table_name: string
+        }[]
+      }
       create_data_subject_request: {
         Args: {
           p_data_categories?: string[]
