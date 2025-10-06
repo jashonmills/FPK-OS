@@ -246,7 +246,18 @@ const Login = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Check if there's a pending invitation
+      const pendingInvitation = localStorage.getItem('pendingInvitation');
+      const returnUrl = location.state?.returnUrl;
+      
+      // Set email redirect to handle both confirmation and invitation flows
+      let emailRedirectUrl = `${getSiteUrl()}/auth/confirm`;
+      if (pendingInvitation && returnUrl) {
+        // Store the return URL in the email redirect so it persists after confirmation
+        emailRedirectUrl = `${getSiteUrl()}/auth/confirm?returnUrl=${encodeURIComponent(returnUrl)}`;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
         options: {
@@ -254,24 +265,41 @@ const Login = () => {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${getSiteUrl()}/auth/confirm`
+          emailRedirectTo: emailRedirectUrl
         }
       });
 
       if (error) {
+        console.error('Signup error:', error);
         setError(error.message);
         return;
       }
 
-      toast({
-        title: tString('accountCreated'),
-        description: tString('checkEmail'),
-      });
-      
-      // For signup, we handle the return URL after email confirmation
-      // The user will be redirected via the emailRedirectTo URL
+      // If email confirmation is disabled, user is immediately authenticated
+      if (data?.session && data?.user) {
+        console.log('✅ User signed up and auto-confirmed, checking for pending invitation');
+        
+        // Check for pending invitation and redirect immediately
+        if (pendingInvitation) {
+          console.log('✅ Found pending invitation, redirecting to join flow');
+          setTimeout(() => {
+            navigate(`/join?code=${pendingInvitation}`, { replace: true });
+          }, 500);
+        } else if (returnUrl) {
+          navigate(returnUrl, { replace: true });
+        } else {
+          navigate('/dashboard/learner', { replace: true });
+        }
+      } else {
+        // Email confirmation required
+        toast({
+          title: tString('accountCreated'),
+          description: tString('checkEmail'),
+        });
+      }
       
     } catch (err) {
+      console.error('Unexpected signup error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

@@ -56,9 +56,11 @@ export const EmailConfirm = () => {
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
-          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
-          if (pendingInviteCode) {
-            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          const pendingInvitation = localStorage.getItem('pendingInvitation') || localStorage.getItem('pendingInviteCode');
+          if (pendingInvitation) {
+            localStorage.removeItem('pendingInvitation');
+            localStorage.removeItem('pendingInviteCode');
+            setTimeout(() => navigate(`/join?code=${pendingInvitation}`, { replace: true }), 1500);
           } else {
             setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           }
@@ -79,9 +81,11 @@ export const EmailConfirm = () => {
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
-          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
-          if (pendingInviteCode) {
-            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          const pendingInvitation = localStorage.getItem('pendingInvitation') || localStorage.getItem('pendingInviteCode');
+          if (pendingInvitation) {
+            localStorage.removeItem('pendingInvitation');
+            localStorage.removeItem('pendingInviteCode');
+            setTimeout(() => navigate(`/join?code=${pendingInvitation}`, { replace: true }), 1500);
           } else {
             setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           }
@@ -106,9 +110,11 @@ export const EmailConfirm = () => {
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
-          const pendingInviteCode = localStorage.getItem('pendingInviteCode');
-          if (pendingInviteCode) {
-            setTimeout(() => navigate(`/join?code=${pendingInviteCode}`, { replace: true }), 1500);
+          const pendingInvitation = localStorage.getItem('pendingInvitation') || localStorage.getItem('pendingInviteCode');
+          if (pendingInvitation) {
+            localStorage.removeItem('pendingInvitation');
+            localStorage.removeItem('pendingInviteCode');
+            setTimeout(() => navigate(`/join?code=${pendingInvitation}`, { replace: true }), 1500);
           } else {
             setTimeout(() => navigate('/dashboard/learner', { replace: true }), 1500);
           }
