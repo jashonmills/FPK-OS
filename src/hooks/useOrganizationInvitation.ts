@@ -38,8 +38,8 @@ export function useOrganizationInvitation() {
   const { switchOrganization } = useSafeOrgContext();
   const queryClient = useQueryClient();
 
-  const joinWithCode = async (inviteCode: string): Promise<JoinOrganizationResult> => {
-    if (!inviteCode.trim()) {
+  const joinWithCode = async (inviteToken: string): Promise<JoinOrganizationResult> => {
+    if (!inviteToken.trim()) {
       toast({
         title: "Invalid Code",
         description: "Please enter a valid invitation code.",
@@ -63,50 +63,56 @@ export function useOrganizationInvitation() {
         return { success: false, error: "User not authenticated" };
       }
 
-      console.log('Attempting to join organization with code:', inviteCode.trim());
+      console.log('Attempting to join organization with token:', inviteToken.trim());
       console.log('User ID:', user.id);
 
-      const { data, error } = await supabase.rpc('accept_invite', {
-        p_code: inviteCode.trim()
+      // Call the new token-based edge function
+      const { data, error } = await supabase.functions.invoke('accept-org-invite', {
+        body: { token: inviteToken.trim() }
       });
 
       console.log('Accept invite response:', { data, error });
 
       if (error) {
-        console.error('Database error joining organization:', error);
-        throw error;
+        console.error('Error accepting invite:', error);
+        throw new Error(error.message || 'Failed to join organization');
       }
 
-      const result = data as unknown as JoinOrganizationResult;
-      
-      if (result?.success && result.org_id) {
-        // Invalidate user organizations query to refetch updated data
-        await queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
-        
-        toast({
-          title: "Successfully Joined!",
-          description: "You have been added to the organization.",
-        });
-        
-        // Switch to the organization context properly
-        switchOrganization(result.org_id);
-        
-        return result;
-      } else {
-        const errorMessage = result?.error || 'Failed to join organization';
-        throw new Error(errorMessage);
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'Failed to join organization');
       }
+
+      const result: JoinOrganizationResult = {
+        success: true,
+        org_id: data.org_id,
+        role: data.role
+      };
+      
+      // Invalidate user organizations query to refetch updated data
+      await queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      await queryClient.invalidateQueries({ queryKey: ['org-members'] });
+      await queryClient.invalidateQueries({ queryKey: ['user-invites'] });
+      
+      toast({
+        title: "Successfully Joined!",
+        description: `You have been added to ${data.organization_name || 'the organization'}.`,
+      });
+      
+      // Switch to the organization context properly
+      switchOrganization(result.org_id!);
+      
+      return result;
     } catch (error: any) {
       console.error('Error joining organization:', error);
       let errorMessage = error.message || "Please check your invitation code and try again.";
       
       // Provide more specific error messages
-      if (error.message?.includes('null value in column "user_id"')) {
-        errorMessage = "Authentication error. Please refresh the page and try again.";
-      } else if (error.message?.includes('Invalid or expired invite code')) {
+      if (error.message?.includes('Invalid or expired')) {
         errorMessage = "This invitation code is invalid or has expired.";
       } else if (error.message?.includes('already a member')) {
         errorMessage = "You are already a member of this organization.";
+      } else if (error.message?.includes('Authentication')) {
+        errorMessage = "Authentication error. Please refresh the page and try again.";
       }
       
       toast({
