@@ -679,7 +679,6 @@ const App: React.FC = () => {
           
           {/* Public Routes */}
           <Route path="/organization-signup" element={<LazyRoute><OrganizationSignup /></LazyRoute>} />
-          <Route path="/join" element={<LazyRoute><OrgJoinPage /></LazyRoute>} />
           <Route path="/o/:orgSlug" element={<LazyRoute><OrgLanding /></LazyRoute>} />
           <Route path="/subscription-success" element={<LazyRoute><SubscriptionSuccess /></LazyRoute>} />
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
