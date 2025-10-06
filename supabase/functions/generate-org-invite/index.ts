@@ -22,7 +22,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get authorization header
+    // Get Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get authorization header and extract JWT
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -31,20 +37,11 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get Supabase client with user's auth
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    // Extract JWT from "Bearer <token>"
+    const jwt = authHeader.replace('Bearer ', '');
     
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-
-    // Verify user is authenticated
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // Verify user is authenticated by passing JWT to getUser
+    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       console.error("Authentication error:", userError);
       return new Response(
