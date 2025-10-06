@@ -4,6 +4,8 @@ import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Users, CheckCircle, XCircle } from 'lucide-react';
 
@@ -13,9 +15,10 @@ export function JoinOrganization() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { joinWithCode, isJoining } = useOrganizationInvitation();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'ready'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'ready' | 'input'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [joinResult, setJoinResult] = useState<{ org_id?: string; role?: string }>({});
+  const [manualCode, setManualCode] = useState('');
 
   // Get invitation code from either URL params or query params
   const code = codeFromParams || searchParams.get('code') || searchParams.get('token');
@@ -24,9 +27,9 @@ export function JoinOrganization() {
     console.log('JoinOrganization: code =', code, 'user =', !!user);
     
     if (!code) {
-      console.log('JoinOrganization: No code provided');
-      setStatus('error');
-      setErrorMessage('No invitation code provided. Please use the link from your invitation email or contact your organization administrator.');
+      console.log('JoinOrganization: No code provided, showing input form');
+      // Show input form for manual code entry
+      setStatus('input');
       return;
     }
 
@@ -60,6 +63,14 @@ export function JoinOrganization() {
       setStatus('error');
       setErrorMessage(result.error || 'Failed to join organization');
     }
+  };
+
+  const handleManualCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualCode.trim()) return;
+
+    // Navigate to the same page with the code as a query parameter
+    navigate(`/join?code=${manualCode.trim()}`, { replace: true });
   };
 
   if (status === 'loading') {
@@ -125,6 +136,65 @@ export function JoinOrganization() {
             >
               Go to Dashboard
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show input form when no code is provided
+  if (status === 'input') {
+    return (
+      <div className="container max-w-md mx-auto mt-8">
+        <Card>
+          <CardHeader className="text-center">
+            <Users className="h-16 w-16 text-primary mx-auto mb-4" />
+            <CardTitle className="text-2xl">Join an Organization</CardTitle>
+            <CardDescription>
+              Enter your invitation code to join an organization
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleManualCodeSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="inviteCode">Invitation Code</Label>
+                <Input
+                  id="inviteCode"
+                  value={manualCode}
+                  onChange={(e) => setManualCode(e.target.value)}
+                  placeholder="Enter your invitation code"
+                  required
+                  className="text-center text-lg tracking-wider"
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  You should have received this code via email from your instructor or organization administrator
+                </p>
+              </div>
+              
+              <Button 
+                type="submit"
+                disabled={!manualCode.trim() || isJoining}
+                className="w-full"
+              >
+                {isJoining ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Continue'
+                )}
+              </Button>
+
+              <Button 
+                type="button"
+                onClick={() => navigate('/login')} 
+                variant="outline" 
+                className="w-full"
+              >
+                Back to Login
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
