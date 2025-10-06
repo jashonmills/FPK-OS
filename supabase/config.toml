@@ -98,3 +98,12 @@ verify_jwt = false
 
 [functions.google-text-to-speech]
 verify_jwt = false
+
+[functions.generate-org-invite]
+verify_jwt = true
+
+[functions.validate-org-invite]
+verify_jwt = false
+
+[functions.accept-org-invite]
+verify_jwt = true
