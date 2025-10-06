@@ -94,7 +94,22 @@ class ProfileManager {
       }
 
       if (!data) {
-        console.log('📊 ProfileManager: No profile found, creating default profile');
+        console.log('📊 ProfileManager: No profile found, attempting to create or fetch existing');
+        
+        // First try to fetch again - the profile might have been created by a trigger
+        const { data: retryData, error: retryError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (retryData) {
+          console.log('📊 ProfileManager: Found existing profile on retry:', retryData);
+          this.profile = retryData;
+          return retryData;
+        }
+        
+        // If still not found, create a default profile
         const defaultProfile: ProfileUpdate = {
           full_name: user.user_metadata?.full_name || '',
           display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '',
@@ -140,26 +155,28 @@ class ProfileManager {
           .single();
 
         if (createError) {
-          // If it's a duplicate key error, try to fetch the existing profile
-          if (createError.code === '23505') {
-            console.log('📊 ProfileManager: Profile already exists, fetching it');
-            const { data: existingProfile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', user.id)
-              .single();
-            
-            if (existingProfile) {
-              this.profile = existingProfile;
-              return existingProfile;
-            }
+          // Don't show toast for duplicate errors - just fetch the existing profile
+          console.warn('Error during profile upsert:', createError);
+          
+          // Try one more time to fetch the profile
+          const { data: finalFetch } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+          
+          if (finalFetch) {
+            console.log('📊 ProfileManager: Successfully fetched profile after upsert error');
+            this.profile = finalFetch;
+            return finalFetch;
           }
           
-          console.error('Error creating profile:', createError);
+          // Only show toast if we truly couldn't get the profile
+          console.error('Failed to create or fetch profile:', createError);
           if (toast) {
             toast({
               title: "Error",
-              description: "Failed to create profile.",
+              description: "Failed to load profile data.",
               variant: "destructive",
             });
           }
@@ -253,11 +270,12 @@ export const useUserProfile = () => {
       setLoading(isLoading);
     });
 
-    // Load profile if not already loaded
-    profileManager.loadProfile(toast);
+    // Load profile - don't pass toast to avoid showing errors on every navigation
+    // The ProfileManager will cache the result
+    profileManager.loadProfile();
 
     return unsubscribe;
-  }, [toast]);
+  }, []);
 
   // Sync language when profile loads
   useEffect(() => {
