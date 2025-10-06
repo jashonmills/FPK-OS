@@ -144,7 +144,7 @@ export default function EnhancedAuth() {
     setIsLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback${inviteData ? `?invite=${inviteData.invitation_code}` : ''}`;
+      const redirectUrl = `${window.location.origin}/auth/confirm?email=${encodeURIComponent(email)}${inviteData ? `&invite=${inviteData.invitation_code}` : ''}`;
       
       const { error } = await supabase.auth.signUp({
         email,

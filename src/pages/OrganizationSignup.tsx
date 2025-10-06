@@ -117,7 +117,7 @@ export default function OrganizationSignup() {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
           },
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+          emailRedirectTo: `${window.location.origin}/auth/confirm?email=${encodeURIComponent(signUpData.email)}`
         }
       });
 

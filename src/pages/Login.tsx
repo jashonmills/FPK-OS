@@ -250,11 +250,10 @@ const Login = () => {
       const pendingInvitation = localStorage.getItem('pendingInvitation');
       const returnUrl = location.state?.returnUrl;
       
-      // Set email redirect to handle both confirmation and invitation flows
-      let emailRedirectUrl = `${getSiteUrl()}/auth/confirm`;
+      // Set email redirect to handle confirmation with email for resend functionality
+      let emailRedirectUrl = `${getSiteUrl()}/auth/confirm?email=${encodeURIComponent(signUpData.email)}`;
       if (pendingInvitation && returnUrl) {
-        // Store the return URL in the email redirect so it persists after confirmation
-        emailRedirectUrl = `${getSiteUrl()}/auth/confirm?returnUrl=${encodeURIComponent(returnUrl)}`;
+        emailRedirectUrl = `${getSiteUrl()}/auth/confirm?email=${encodeURIComponent(signUpData.email)}&returnUrl=${encodeURIComponent(returnUrl)}`;
       }
 
       const { data, error } = await supabase.auth.signUp({

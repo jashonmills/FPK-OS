@@ -134,8 +134,41 @@ export const EmailConfirm = () => {
     confirmEmail();
   }, [searchParams, navigate]);
 
+  const [isResending, setIsResending] = useState(false);
+
   const handleRetry = () => {
     navigate('/login', { replace: true });
+  };
+
+  const handleResendEmail = async () => {
+    setIsResending(true);
+    try {
+      // Get email from URL params or prompt user
+      const email = searchParams.get('email');
+      if (!email) {
+        setError('Unable to resend - email address not found. Please try signing up again.');
+        setIsResending(false);
+        return;
+      }
+
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
+      });
+
+      if (resendError) throw resendError;
+
+      setError('Verification email resent! Please check your inbox and spam folder.');
+      setStatus('loading');
+    } catch (err: any) {
+      logger.auth('Failed to resend verification email', { error: err.message });
+      setError(`Failed to resend email: ${err.message}`);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   if (status === 'loading') {
@@ -186,12 +219,34 @@ export const EmailConfirm = () => {
           </Alert>
           
           <div className="space-y-2">
+            {searchParams.get('email') && (
+              <Button 
+                onClick={handleResendEmail} 
+                variant="outline"
+                className="w-full"
+                disabled={isResending}
+              >
+                {isResending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Resending...
+                  </>
+                ) : (
+                  'Resend Verification Email'
+                )}
+              </Button>
+            )}
             <Button onClick={handleRetry} className="w-full">
               Back to Login
             </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Try signing up again or contact support if the problem persists.
-            </p>
+            <div className="text-sm text-muted-foreground text-center space-y-1">
+              <p>Common issues:</p>
+              <ul className="list-disc list-inside text-xs">
+                <li>Check your spam/junk folder</li>
+                <li>Link may have expired (valid for 1 hour)</li>
+                <li>Email may take a few minutes to arrive</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
