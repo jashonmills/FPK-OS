@@ -21,9 +21,21 @@ const OrgJoinPage = () => {
 
   // Handle authentication and invitation detection
   useEffect(() => {
+    console.log('[OrgJoinPage] Component mounted', {
+      pathname: window.location.pathname,
+      search: window.location.search,
+      loading,
+      authenticated: !!user
+    });
+
     // Load invitation from URL
     const tokenFromUrl = searchParams.get('token');
     const codeFromUrl = searchParams.get('code');
+    
+    console.log('[OrgJoinPage] Extracted params', {
+      tokenFromUrl: tokenFromUrl ? `${tokenFromUrl.substring(0, 8)}...` : null,
+      codeFromUrl
+    });
     
     if (tokenFromUrl || codeFromUrl) {
       setInviteValue(tokenFromUrl || codeFromUrl || '');
