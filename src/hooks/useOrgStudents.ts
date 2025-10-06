@@ -37,26 +37,101 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
   const { data: students = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-students', orgId, searchQuery],
     queryFn: async () => {
-      let query = supabase
+      // Fetch profile-only students from org_students table
+      let orgStudentsQuery = supabase
         .from('org_students')
         .select('*')
         .eq('org_id', orgId)
         .order('created_at', { ascending: false });
 
       if (searchQuery) {
-        query = query.or(
+        orgStudentsQuery = orgStudentsQuery.or(
           `full_name.ilike.%${searchQuery}%,student_id.ilike.%${searchQuery}%,parent_email.ilike.%${searchQuery}%`
         );
       }
 
-      const { data, error } = await query;
+      const { data: orgStudentsData, error: orgStudentsError } = await orgStudentsQuery;
 
-      if (error) {
-        console.error('Error fetching org students:', error);
-        throw error;
+      if (orgStudentsError) {
+        console.error('Error fetching org students:', orgStudentsError);
+        throw orgStudentsError;
       }
 
-      return data as OrgStudent[];
+      // Fetch students with active accounts from org_members + profiles
+      let orgMembersQuery = supabase
+        .from('org_members')
+        .select(`
+          id,
+          user_id,
+          org_id,
+          role,
+          status,
+          joined_at,
+          profiles:user_id (
+            id,
+            full_name,
+            display_name
+          )
+        `)
+        .eq('org_id', orgId)
+        .eq('role', 'student')
+        .order('joined_at', { ascending: false });
+
+      const { data: orgMembersData, error: orgMembersError } = await orgMembersQuery;
+
+      if (orgMembersError) {
+        console.error('Error fetching org members:', orgMembersError);
+        throw orgMembersError;
+      }
+
+      // Map org_members to OrgStudent format
+      const memberStudents: OrgStudent[] = (orgMembersData || [])
+        .filter((member: any) => member.profiles) // Only include if profile exists
+        .map((member: any) => ({
+          id: member.id,
+          org_id: member.org_id,
+          full_name: member.profiles.full_name || member.profiles.display_name || 'Unknown Student',
+          grade_level: undefined,
+          student_id: undefined,
+          date_of_birth: undefined,
+          parent_email: undefined,
+          emergency_contact: undefined,
+          notes: undefined,
+          status: member.status === 'active' ? 'active' : 'inactive',
+          linked_user_id: member.user_id, // Mark as linked
+          created_by: member.user_id,
+          created_at: member.joined_at,
+          updated_at: member.joined_at,
+        }));
+
+      // Filter member students by search query if provided
+      const filteredMemberStudents = searchQuery
+        ? memberStudents.filter((student) =>
+            student.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : memberStudents;
+
+      // Map org_students data to OrgStudent type
+      const mappedOrgStudents: OrgStudent[] = (orgStudentsData || []).map((student: any) => ({
+        ...student,
+        emergency_contact: student.emergency_contact as Record<string, any> | undefined,
+      }));
+
+      // Combine both sources, prioritizing org_students (profile-only) first
+      const allStudents = [...mappedOrgStudents, ...filteredMemberStudents];
+
+      // Remove duplicates by linked_user_id (if a student exists in both tables, keep org_students version)
+      const uniqueStudents = allStudents.reduce((acc, student) => {
+        const existingIndex = acc.findIndex(
+          (s) => s.linked_user_id && s.linked_user_id === student.linked_user_id
+        );
+        if (existingIndex === -1) {
+          acc.push(student);
+        }
+        return acc;
+      }, [] as OrgStudent[]);
+
+      return uniqueStudents;
     },
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
