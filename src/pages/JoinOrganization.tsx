@@ -15,6 +15,7 @@ export function JoinOrganization() {
   const { joinWithCode, isJoining } = useOrganizationInvitation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'ready'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  const [joinResult, setJoinResult] = useState<{ org_id?: string; role?: string }>({});
 
   // Get invitation code from either URL params or query params
   const code = codeFromParams || searchParams.get('code') || searchParams.get('token');
@@ -23,16 +24,17 @@ export function JoinOrganization() {
     console.log('JoinOrganization: code =', code, 'user =', !!user);
     
     if (!code) {
-      console.log('JoinOrganization: No code provided, redirecting to join form');
-      navigate('/join', { replace: true });
+      console.log('JoinOrganization: No code provided');
+      setStatus('error');
+      setErrorMessage('No invitation code provided. Please use the link from your invitation email or contact your organization administrator.');
       return;
     }
 
     if (!user) {
-      console.log('JoinOrganization: User not authenticated, redirecting to auth');
-      // Redirect to sign up/login with the invitation code stored
+      console.log('JoinOrganization: User not authenticated, redirecting to login');
+      // Redirect to login with the invitation code stored
       localStorage.setItem('pendingInvitation', code);
-      navigate('/auth', { 
+      navigate('/login', { 
         state: { 
           returnUrl: `/join?code=${code}` 
         } 
@@ -47,11 +49,12 @@ export function JoinOrganization() {
   const handleAcceptInvitation = async () => {
     const result = await joinWithCode(code || '');
     
-    if (result.success) {
+    if (result.success && result.org_id) {
+      setJoinResult(result);
       setStatus('success');
-      // Navigation is handled by the hook
+      // Redirect to the organization they just joined
       setTimeout(() => {
-        navigate('/dashboard/learner');
+        navigate(`/org/${result.org_id}`, { replace: true });
       }, 2000);
     } else {
       setStatus('error');
@@ -85,10 +88,14 @@ export function JoinOrganization() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground mb-4">
-              Redirecting to your dashboard...
+              Redirecting to your organization...
             </p>
-            <Button onClick={() => navigate('/dashboard/instructor')} className="w-full">
-              Go to Dashboard
+            <Button 
+              onClick={() => joinResult.org_id && navigate(`/org/${joinResult.org_id}`)} 
+              className="w-full" 
+              disabled={!joinResult.org_id}
+            >
+              Go to Organization
             </Button>
           </CardContent>
         </Card>
