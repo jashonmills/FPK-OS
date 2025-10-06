@@ -5043,6 +5043,7 @@ export type Database = {
           code: string | null
           created_at: string
           created_by: string
+          deprecated: boolean | null
           email: string | null
           expires_at: string
           id: string
@@ -5058,6 +5059,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           created_by: string
+          deprecated?: boolean | null
           email?: string | null
           expires_at?: string
           id?: string
@@ -5073,6 +5075,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           created_by?: string
+          deprecated?: boolean | null
           email?: string | null
           expires_at?: string
           id?: string
@@ -8555,6 +8558,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_invites: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          invite_token: string
+          invited_email: string
+          is_used: boolean
+          metadata: Json
+          org_id: string
+          role: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          invite_token: string
+          invited_email: string
+          is_used?: boolean
+          metadata?: Json
+          org_id: string
+          role: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          invite_token?: string
+          invited_email?: string
+          is_used?: boolean
+          metadata?: Json
+          org_id?: string
+          role?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_module_progress: {
         Row: {
