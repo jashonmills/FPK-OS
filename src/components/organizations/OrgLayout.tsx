@@ -62,14 +62,17 @@ function OrgLayoutContent() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{
-        backgroundImage: `url(${getBackgroundImage()})`
-      }}
-    >
+    <div className="min-h-screen">
+      {/* Fixed background layer */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+        style={{
+          backgroundImage: `url(${getBackgroundImage()})`
+        }}
+      />
+      
       {/* Background overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none -z-10" />
       
       {/* Fixed Header */}
       <OrgHeader />
