@@ -8,7 +8,7 @@ import { Send, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
 
 const OrgJoinPage = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const OrgJoinPage = () => {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const [inviteCode, setInviteCode] = useState('');
-  const [isJoining, setIsJoining] = useState(false);
+  const { joinWithCode, isJoining } = useOrganizationInvitation();
 
   // Check authentication and get code from URL parameters
   useEffect(() => {
@@ -60,52 +60,8 @@ const OrgJoinPage = () => {
       return;
     }
 
-    setIsJoining(true);
-    try {
-      const { data, error } = await supabase.rpc('accept_invite', {
-        p_code: inviteCode.trim()
-      });
-
-      if (error) throw error;
-
-      const result = data as any;
-      if (result?.success) {
-        toast({
-          title: "Successfully Joined!",
-          description: "You have been added to the organization.",
-        });
-        
-        // Route based on role
-        const role = result.role;
-        if (role === 'owner' || role === 'instructor') {
-          navigate(`/dashboard/instructor?org=${result.org_id}`);
-        } else {
-          navigate(`/dashboard/learner?org=${result.org_id}`);
-        }
-      } else {
-        throw new Error(result?.error || 'Failed to join organization');
-      }
-    } catch (error: any) {
-      console.error('Error joining organization:', error);
-      
-      let errorMessage = "Please check your invitation code and try again.";
-      
-      if (error.message?.includes('Invalid or expired')) {
-        errorMessage = "This invitation code is invalid or has expired.";
-      } else if (error.message?.includes('already a member')) {
-        errorMessage = "You are already a member of this organization.";
-      } else if (error.message?.includes('maximum capacity')) {
-        errorMessage = "This organization has reached its member limit.";
-      }
-      
-      toast({
-        title: "Failed to Join",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsJoining(false);
-    }
+    // Use the hook which handles everything including navigation
+    await joinWithCode(inviteCode.trim());
   };
 
   // Show loading while checking authentication
