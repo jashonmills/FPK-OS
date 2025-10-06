@@ -182,8 +182,7 @@
     @apply bg-background text-foreground overflow-x-hidden;
     transition: all 0.2s ease;
     line-height: var(--mobile-line-height);
-    height: 100%;
-    overflow-y: hidden;
+    min-height: 100%;
   }
 
   @media (min-width: 768px) {
