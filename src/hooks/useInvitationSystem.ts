@@ -17,7 +17,7 @@ export interface AcceptInviteResult {
   organization_name?: string;
 }
 
-// Hook for sending email invitations
+// Hook for sending email invitations (Updated to use new token-based system)
 export function useEmailInvitation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -28,8 +28,8 @@ export function useEmailInvitation() {
       email: string;
       role?: 'student' | 'instructor';
     }) => {
-      // Call edge function directly instead of deprecated RPC
-      const { data, error } = await supabase.functions.invoke('send-invitation-email', {
+      // Call new token-based edge function
+      const { data, error } = await supabase.functions.invoke('generate-org-invite', {
         body: {
           orgId,
           email,
@@ -39,12 +39,16 @@ export function useEmailInvitation() {
 
       if (error) throw error;
       
-      // Edge function returns { success, messageId }
       if (!data?.success) {
         throw new Error(data?.error || 'Failed to send invitation');
       }
       
-      return { success: true, invite_code: data.inviteCode } as InvitationResult;
+      return { 
+        success: true, 
+        invite_code: data.inviteToken,
+        invite_url: data.inviteUrl,
+        expires_at: data.expiresAt
+      } as InvitationResult;
     },
     onSuccess: (data) => {
       if (data.success) {
@@ -53,6 +57,7 @@ export function useEmailInvitation() {
           description: "The invitation email has been sent successfully.",
         });
         queryClient.invalidateQueries({ queryKey: ['org-invites'] });
+        queryClient.invalidateQueries({ queryKey: ['user-invites'] });
       } else {
         throw new Error(data.error || 'Failed to send invitation');
       }
@@ -68,24 +73,30 @@ export function useEmailInvitation() {
   });
 }
 
-// Hook for accepting invitations
+// Hook for accepting invitations (Updated to use new token-based system)
 export function useAcceptInvitation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (inviteCode: string) => {
-      const { data, error } = await supabase.rpc('accept_invite', {
-        p_code: inviteCode
+    mutationFn: async (inviteToken: string) => {
+      // Call new token-based edge function
+      const { data, error } = await supabase.functions.invoke('accept-org-invite', {
+        body: { token: inviteToken }
       });
 
       if (error) throw error;
-      return data as unknown as AcceptInviteResult;
+      
+      if (!data?.success) {
+        throw new Error(data?.error || 'Failed to accept invitation');
+      }
+      
+      return data as AcceptInviteResult;
     },
     onSuccess: (data) => {
       if (data.success) {
         toast({
           title: "Welcome!",
-          description: `You have successfully joined ${data.organization_name}.`,
+          description: `You have successfully joined ${data.organization_name || 'the organization'}.`,
         });
       } else {
         throw new Error(data.error || 'Failed to accept invitation');
