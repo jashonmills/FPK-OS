@@ -19,19 +19,13 @@ export function IEPDocumentViewer({ documents }: IEPDocumentViewerProps) {
   }
 
   const handleDownload = (document: IEPDocument) => {
-    // Create a link element and trigger download
-    const link = window.document.createElement('a');
-    link.href = document.file_url;
-    link.download = document.file_name;
-    link.target = '_blank';
-    window.document.body.appendChild(link);
-    link.click();
-    window.document.body.removeChild(link);
+    // Note: Current schema doesn't have file_url
+    console.warn('Download functionality not available - file_url not in schema');
   };
 
   const handleView = (document: IEPDocument) => {
-    // Open document in new tab
-    window.open(document.file_url, '_blank');
+    // Note: Current schema doesn't have file_url
+    console.warn('View functionality not available - file_url not in schema');
   };
 
   return (
@@ -42,22 +36,19 @@ export function IEPDocumentViewer({ documents }: IEPDocumentViewerProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="h-4 w-4 text-muted-foreground" />
-                <h4 className="font-medium">{doc.file_name}</h4>
-                {doc.document_category && (
-                  <Badge variant="outline" className="text-xs">
-                    {doc.document_category}
-                  </Badge>
-                )}
+                <h4 className="font-medium">{doc.document_name}</h4>
               </div>
               
               <div className="text-sm text-muted-foreground space-y-1">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-3 w-3" />
-                  Uploaded: {new Date(doc.upload_date).toLocaleDateString()}
+                  Created: {new Date(doc.created_at).toLocaleDateString()}
                 </div>
-                <div>
-                  Type: {doc.file_type.toUpperCase()}
-                </div>
+                {doc.medical_information && (
+                  <div className="mt-2 text-xs italic">
+                    {doc.medical_information}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -65,8 +56,9 @@ export function IEPDocumentViewer({ documents }: IEPDocumentViewerProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleView(doc)}
+                disabled
                 className="gap-1"
+                title="View not available - awaiting file storage integration"
               >
                 <Eye className="h-3 w-3" />
                 View
@@ -74,8 +66,9 @@ export function IEPDocumentViewer({ documents }: IEPDocumentViewerProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleDownload(doc)}
+                disabled
                 className="gap-1"
+                title="Download not available - awaiting file storage integration"
               >
                 <Download className="h-3 w-3" />
                 Download

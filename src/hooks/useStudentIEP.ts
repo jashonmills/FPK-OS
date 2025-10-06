@@ -65,14 +65,10 @@ export interface StudentIEPData {
 
 export interface IEPDocument {
   id: string;
-  entity_id: string;
-  entity_type: string;
-  file_name: string;
-  file_type: string;
-  file_url: string;
-  document_category: string | null;
-  upload_date: string;
-  uploaded_by: string;
+  user_id: string | null;
+  document_name: string;
+  medical_information: string | null;
+  created_at: string;
 }
 
 export function useStudentIEP(orgId: string, studentId: string) {
@@ -100,59 +96,55 @@ export function useStudentIEP(orgId: string, studentId: string) {
         return null; // No IEP found
       }
 
-      // Get documents for this IEP plan
-      const { data: documents, error: docsError } = await supabase
+      // Get documents for this IEP plan (note: using iep_documents table which has different schema)
+      const { data: documents } = await supabase
         .from('iep_documents')
         .select('*')
-        .eq('entity_type', 'iep_plan')
-        .eq('entity_id', mostRecentIEP.id)
-        .order('upload_date', { ascending: false });
-
-      if (docsError) {
-        console.error('Error fetching IEP documents:', docsError);
-        // Don't throw here, just log the error
-      }
+        .eq('user_id', studentId);
 
       // Get goals for this IEP plan
-      const { data: goals, error: goalsError } = await supabase
+      const { data: goals } = await supabase
         .from('iep_goals')
         .select('*')
         .eq('iep_plan_id', mostRecentIEP.id)
         .order('domain', { ascending: true });
 
-      if (goalsError) {
-        console.error('Error fetching IEP goals:', goalsError);
-      }
-
       // Get services for this IEP plan
-      const { data: services, error: servicesError } = await supabase
+      const { data: services } = await supabase
         .from('iep_services')
         .select('*')
         .eq('iep_plan_id', mostRecentIEP.id)
         .order('service_type', { ascending: true });
 
-      if (servicesError) {
-        console.error('Error fetching IEP services:', servicesError);
-      }
-
       // Get accommodations for this IEP plan
-      const { data: accommodations, error: accommodationsError } = await supabase
+      const { data: accommodations } = await supabase
         .from('iep_accommodations')
         .select('*')
         .eq('iep_plan_id', mostRecentIEP.id)
         .order('accommodation_type', { ascending: true });
 
-      if (accommodationsError) {
-        console.error('Error fetching IEP accommodations:', accommodationsError);
-      }
-
-      return {
-        ...mostRecentIEP,
+      // Build the result explicitly to match StudentIEPData type
+      const result: StudentIEPData = {
+        id: mostRecentIEP.id,
+        student_id: mostRecentIEP.student_id,
+        org_id: mostRecentIEP.org_id,
+        jurisdiction: mostRecentIEP.jurisdiction,
+        status: mostRecentIEP.status,
+        referral_reason: mostRecentIEP.referral_reason,
+        suspected_disability_categories: mostRecentIEP.suspected_disability_categories,
+        completion_percentage: mostRecentIEP.completion_percentage,
+        current_step: mostRecentIEP.current_step,
+        cycle_start_date: mostRecentIEP.cycle_start_date,
+        cycle_end_date: mostRecentIEP.cycle_end_date,
+        created_at: mostRecentIEP.created_at,
+        updated_at: mostRecentIEP.updated_at,
         documents: documents || [],
         goals: goals || [],
         services: services || [],
         accommodations: accommodations || []
-      } as StudentIEPData;
+      };
+
+      return result;
     },
     enabled: !!(orgId && studentId),
     staleTime: 1000 * 60 * 5, // 5 minutes
