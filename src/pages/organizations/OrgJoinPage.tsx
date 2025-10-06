@@ -15,74 +15,52 @@ const OrgJoinPage = () => {
   const { toast } = useToast();
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
-  const [inviteCode, setInviteCode] = useState('');
-  const [inviteType, setInviteType] = useState<'code' | 'token' | null>(null);
-  const { joinWithCode, joinWithToken, isJoining } = useOrganizationInvitation();
+  const [inviteValue, setInviteValue] = useState('');
+  const [isFromEmail, setIsFromEmail] = useState(false);
+  const { joinOrganization, isJoining } = useOrganizationInvitation();
 
-  // Check authentication and get code/token from URL parameters
+  // Handle authentication and invitation detection
   useEffect(() => {
     if (!loading && !user) {
-      // Store the invite code/token and redirect to login
-      const codeFromUrl = searchParams.get('code');
+      // Store the invite value and redirect to login
       const tokenFromUrl = searchParams.get('token');
-      const inviteValue = tokenFromUrl || codeFromUrl;
+      const codeFromUrl = searchParams.get('code');
+      const invite = tokenFromUrl || codeFromUrl;
       
-      if (inviteValue) {
-        localStorage.setItem('pendingInviteCode', inviteValue);
-        localStorage.setItem('pendingInviteType', tokenFromUrl ? 'token' : 'code');
+      if (invite) {
+        localStorage.setItem('pendingInvite', invite);
+        localStorage.setItem('pendingInviteSource', tokenFromUrl ? 'email' : 'code');
       }
       
-      const paramName = tokenFromUrl ? 'token' : 'code';
       navigate('/auth', { 
-        state: { 
-          returnUrl: '/org/join' + (inviteValue ? `?${paramName}=${inviteValue}` : '') 
-        } 
+        state: { returnUrl: `/org/join${invite ? `?${tokenFromUrl ? 'token' : 'code'}=${invite}` : ''}` } 
       });
       return;
     }
 
-    // Get code/token from URL parameters on mount
-    const codeFromUrl = searchParams.get('code');
+    // Load invitation from URL or localStorage
     const tokenFromUrl = searchParams.get('token');
+    const codeFromUrl = searchParams.get('code');
     
-    if (tokenFromUrl) {
-      setInviteCode(tokenFromUrl);
-      setInviteType('token');
-    } else if (codeFromUrl) {
-      setInviteCode(codeFromUrl);
-      setInviteType('code');
+    if (tokenFromUrl || codeFromUrl) {
+      setInviteValue(tokenFromUrl || codeFromUrl || '');
+      setIsFromEmail(!!tokenFromUrl);
     } else {
-      // Check if there's a pending invite from localStorage
-      const pendingCode = localStorage.getItem('pendingInviteCode');
-      const pendingType = localStorage.getItem('pendingInviteType') as 'code' | 'token' | null;
+      const pending = localStorage.getItem('pendingInvite');
+      const source = localStorage.getItem('pendingInviteSource');
       
-      if (pendingCode && pendingType) {
-        setInviteCode(pendingCode);
-        setInviteType(pendingType);
-        localStorage.removeItem('pendingInviteCode');
-        localStorage.removeItem('pendingInviteType');
+      if (pending) {
+        setInviteValue(pending);
+        setIsFromEmail(source === 'email');
+        localStorage.removeItem('pendingInvite');
+        localStorage.removeItem('pendingInviteSource');
       }
     }
   }, [searchParams, navigate, user, loading]);
 
   const handleJoinOrganization = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!inviteCode.trim()) {
-      toast({
-        title: "Invalid Input",
-        description: "Please enter a valid invitation code or token.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Route to appropriate handler based on invite type
-    if (inviteType === 'token') {
-      await joinWithToken(inviteCode.trim());
-    } else {
-      await joinWithCode(inviteCode.trim());
-    }
+    await joinOrganization(inviteValue.trim());
   };
 
   // Show loading while checking authentication
@@ -125,38 +103,46 @@ const OrgJoinPage = () => {
       {/* Join Form */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            {inviteType === 'token' ? 'Email Invitation' : 'Invitation Code'}
-          </CardTitle>
+          <CardTitle>Join Organization</CardTitle>
           <CardDescription>
-            {inviteType === 'token' 
+            {isFromEmail 
               ? 'Confirm your email invitation to join the organization'
-              : 'Enter the code you received from the organization'
+              : 'Enter your invitation code or paste the link from your email'
             }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleJoinOrganization} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="inviteCode">
-                {inviteType === 'token' ? 'Token' : 'Code'}
-              </Label>
+              <Label htmlFor="inviteValue">Invitation Code or Token</Label>
               <Input
-                id="inviteCode"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                placeholder={inviteType === 'token' ? 'Email invitation token' : 'Enter invitation code'}
-                disabled={isJoining || inviteType === 'token'}
+                id="inviteValue"
+                value={inviteValue}
+                onChange={(e) => setInviteValue(e.target.value)}
+                placeholder="Enter invitation code or token"
+                disabled={isJoining || (isFromEmail && !!inviteValue)}
                 className="text-center font-mono"
               />
+              {isFromEmail && inviteValue && (
+                <p className="text-xs text-muted-foreground text-center">
+                  ✓ Email invitation detected
+                </p>
+              )}
             </div>
 
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isJoining || !inviteCode.trim()}
+              disabled={isJoining || !inviteValue.trim()}
             >
-              {isJoining ? 'Joining...' : (inviteType === 'token' ? 'Accept Invitation' : 'Join Organization')}
+              {isJoining ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Joining...
+                </>
+              ) : (
+                'Join Organization'
+              )}
             </Button>
           </form>
         </CardContent>
