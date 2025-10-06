@@ -321,7 +321,7 @@ const OrgHub = () => {
                   navigate('/org/invitations');
                 } else {
                   // For personal mode, show join organization functionality
-                  navigate('/join');
+                  navigate('/org/join');
                 }
               }}>
           <CardHeader>

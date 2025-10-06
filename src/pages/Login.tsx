@@ -138,7 +138,7 @@ const Login = () => {
         
         if (pendingInvitation) {
           localStorage.removeItem('pendingInvitation');
-          navigate(`/join/${pendingInvitation}`, { replace: true });
+          navigate(`/org/join?code=${pendingInvitation}`, { replace: true });
           return;
         }
       }
@@ -282,7 +282,7 @@ const Login = () => {
         if (pendingInvitation) {
           console.log('✅ Found pending invitation, redirecting to join flow');
           setTimeout(() => {
-            navigate(`/join?code=${pendingInvitation}`, { replace: true });
+            navigate(`/org/join?code=${pendingInvitation}`, { replace: true });
           }, 500);
         } else if (returnUrl) {
           navigate(returnUrl, { replace: true });
@@ -563,7 +563,7 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/80 hover:text-white text-sm"
-              onClick={() => navigate('/join')}
+              onClick={() => navigate('/org/join')}
             >
               Have an Invite Code?
             </Button>
