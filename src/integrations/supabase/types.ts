@@ -9361,20 +9361,13 @@ export type Database = {
         Returns: undefined
       }
       org_create_invite: {
-        Args:
-          | {
-              p_created_by?: string
-              p_expires_interval?: string
-              p_max_uses?: number
-              p_org_id: string
-              p_role: string
-            }
-          | {
-              p_expires_interval?: unknown
-              p_max_uses?: number
-              p_org_id: string
-              p_role: string
-            }
+        Args: {
+          p_created_by?: string
+          p_expires_interval?: string
+          p_max_uses?: number
+          p_org_id: string
+          p_role: string
+        }
         Returns: string
       }
       org_decrement_seats_if_needed: {
