@@ -126,16 +126,35 @@ class ProfileManager {
           learning_styles: []
         };
 
+        // Use UPSERT to avoid duplicate key errors if profile was created by trigger
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: user.id,
             ...defaultProfile
+          }, {
+            onConflict: 'id',
+            ignoreDuplicates: false
           })
           .select()
           .single();
 
         if (createError) {
+          // If it's a duplicate key error, try to fetch the existing profile
+          if (createError.code === '23505') {
+            console.log('📊 ProfileManager: Profile already exists, fetching it');
+            const { data: existingProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+            
+            if (existingProfile) {
+              this.profile = existingProfile;
+              return existingProfile;
+            }
+          }
+          
           console.error('Error creating profile:', createError);
           if (toast) {
             toast({

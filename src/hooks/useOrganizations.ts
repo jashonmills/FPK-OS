@@ -10,47 +10,61 @@ export function useOrganizations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch user's organizations
+  // Fetch user's organizations (both owned and member of)
   const { data: organizations, isLoading, error } = useQuery({
-    queryKey: ['organizations', user?.id],
+    queryKey: ['user-organizations', user?.id],
     queryFn: async (): Promise<Organization[]> => {
       if (!user) return [];
 
-      const { data, error } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('owner_id', user.id)
-        .order('created_at', { ascending: false });
+      // Fetch organizations where user is owner OR member
+      const { data: memberOrgs, error: memberError } = await supabase
+        .from('org_members')
+        .select(`
+          org_id,
+          role,
+          status,
+          organizations (*)
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'active');
 
-      if (error) {
-        console.error('Error fetching organizations:', error);
-        throw error;
+      if (memberError) {
+        console.error('Error fetching member organizations:', memberError);
+        throw memberError;
       }
 
-      // Transform data to match our interface, handling missing fields gracefully
-      return data.map((org: any) => ({
-        id: org.id,
-        name: org.name,
-        description: org.description || undefined,
-        owner_id: org.owner_id,
-        plan: org.plan,
-        seat_cap: org.seat_cap,
-        seats_used: org.seats_used || 0,
-        instructors_used: org.instructors_used || 0,
-        instructor_limit: org.instructor_limit || 5,
-        brand_primary: org.brand_primary,
-        brand_accent: org.brand_accent,
-        logo_url: org.logo_url,
-        slug: org.slug,
-        is_suspended: org.is_suspended,
-        suspended_at: org.suspended_at,
-        suspended_by: org.suspended_by,
-        suspended_reason: org.suspended_reason,
-        status: org.status || 'active',
-        created_by: org.created_by,
-        created_at: org.created_at,
-        updated_at: org.updated_at,
-      }));
+      // Extract and transform organization data
+      const orgs = memberOrgs
+        .filter(m => m.organizations)
+        .map((m: any) => {
+          const org = m.organizations;
+          return {
+            id: org.id,
+            name: org.name,
+            description: org.description || undefined,
+            owner_id: org.owner_id,
+            plan: org.plan,
+            seat_cap: org.seat_cap,
+            seats_used: org.seats_used || 0,
+            instructors_used: org.instructors_used || 0,
+            instructor_limit: org.instructor_limit || 5,
+            brand_primary: org.brand_primary,
+            brand_accent: org.brand_accent,
+            logo_url: org.logo_url,
+            slug: org.slug,
+            is_suspended: org.is_suspended,
+            suspended_at: org.suspended_at,
+            suspended_by: org.suspended_by,
+            suspended_reason: org.suspended_reason,
+            status: org.status || 'active',
+            created_by: org.created_by,
+            created_at: org.created_at,
+            updated_at: org.updated_at,
+            user_role: m.role, // Add the user's role in this org
+          };
+        });
+
+      return orgs;
     },
     enabled: !!user,
   });
@@ -113,8 +127,8 @@ export function useOrganizations() {
     },
     onSuccess: (data) => {
       // Invalidate both organization query caches
-      queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-organizations'] });
       toast({
         title: "Organization Created!",
         description: `${data.name} has been created successfully with ${data.plan} access.`,
@@ -154,8 +168,8 @@ export function useOrganizations() {
     },
     onSuccess: () => {
       // Invalidate both organization query caches
-      queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-organizations'] });
       toast({
         title: "Organization Updated",
         description: "Organization has been updated successfully.",
@@ -191,8 +205,8 @@ export function useOrganizations() {
     },
     onSuccess: (orgId) => {
       // Invalidate both organization query caches
-      queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-organizations'] });
       
       toast({
         title: "Organization Deleted",
