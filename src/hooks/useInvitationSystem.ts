@@ -28,14 +28,23 @@ export function useEmailInvitation() {
       email: string;
       role?: 'student' | 'instructor';
     }) => {
-      const { data, error } = await supabase.rpc('send_organization_invitation', {
-        p_org_id: orgId,
-        p_email: email,
-        p_role: role
+      // Call edge function directly instead of deprecated RPC
+      const { data, error } = await supabase.functions.invoke('send-invitation-email', {
+        body: {
+          orgId,
+          email,
+          role
+        }
       });
 
       if (error) throw error;
-      return data as unknown as InvitationResult;
+      
+      // Edge function returns { success, messageId }
+      if (!data?.success) {
+        throw new Error(data?.error || 'Failed to send invitation');
+      }
+      
+      return { success: true, invite_code: data.inviteCode } as InvitationResult;
     },
     onSuccess: (data) => {
       if (data.success) {

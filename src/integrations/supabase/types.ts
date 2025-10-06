@@ -9411,10 +9411,6 @@ export type Database = {
         }
         Returns: Json
       }
-      send_organization_invitation: {
-        Args: { p_email: string; p_org_id: string; p_role?: string }
-        Returns: Json
-      }
       track_usage: {
         Args: {
           p_feature_type: string
@@ -9467,6 +9463,10 @@ export type Database = {
       user_org_role: {
         Args: { org_id: string }
         Returns: Database["public"]["Enums"]["member_role"]
+      }
+      validate_iep_invite: {
+        Args: { p_code: string }
+        Returns: Json
       }
       validate_legal_basis: {
         Args: {
