@@ -63,45 +63,41 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         .select('id, user_id, org_id, role, status, joined_at')
         .eq('org_id', orgId)
         .eq('role', 'student')
-        .order('joined_at', { ascending: false });
+        .order('joined_at', { ascending: false});
 
       if (orgMembersError) {
         console.error('Error fetching org members:', orgMembersError);
         throw orgMembersError;
       }
 
-      // Fetch profiles for all member user IDs
-      const memberUserIds = (orgMembersData || []).map((m: any) => m.user_id);
-      let profilesData: any[] = [];
-      
-      if (memberUserIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name, display_name')
-          .in('id', memberUserIds);
+      // Use RPC function to get student data with email fallback
+      const { data: studentActivityData, error: activityError } = await supabase
+        .rpc('get_org_student_activity_heatmap', { p_org_id: orgId });
 
-        if (profilesError) {
-          console.error('Error fetching profiles:', profilesError);
-        } else {
-          profilesData = profiles || [];
-        }
+      if (activityError) {
+        console.error('Error fetching student activity data:', activityError);
       }
 
-      // Create a map of user_id to profile
-      const profileMap = new Map(profilesData.map((p: any) => [p.id, p]));
+      // Create a map of user_id to student info from activity data
+      const activityMap = new Map(
+        (studentActivityData || []).map((s: any) => [s.student_id, {
+          name: s.student_name || 'Unknown Student',
+          email: s.student_email
+        }])
+      );
 
       // Map org_members to OrgStudent format
       const memberStudents: OrgStudent[] = (orgMembersData || [])
         .map((member: any) => {
-          const profile = profileMap.get(member.user_id);
+          const activityInfo = activityMap.get(member.user_id);
           return {
             id: member.id,
             org_id: member.org_id,
-            full_name: profile?.full_name || profile?.display_name || 'Unknown Student',
+            full_name: activityInfo?.name || activityInfo?.email || 'Unknown Student',
             grade_level: undefined,
             student_id: undefined,
             date_of_birth: undefined,
-            parent_email: undefined,
+            parent_email: activityInfo?.email,
             emergency_contact: undefined,
             notes: undefined,
             status: member.status === 'active' ? 'active' : 'inactive',
