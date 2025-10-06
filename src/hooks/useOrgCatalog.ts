@@ -95,39 +95,136 @@ export function useOrgCatalog() {
     queryFn: async (): Promise<OrgCatalogResponse> => {
       console.log('useOrgCatalog - Fetching catalog for org:', orgId);
 
-      // Fetch platform courses (global, published)
-      const { data: platformCourses, error: platformError } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('course_visibility', 'global')
-        .eq('status', 'published')
-        .order('title', { ascending: true });
-
-      if (platformError) {
-        console.error('Error fetching platform courses:', platformError);
-        throw platformError;
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('No authenticated user');
       }
 
-      // Fetch org courses (for this org, published)
-      const { data: orgCourses, error: orgError } = await supabase
-        .from('org_courses')
-        .select('*')
+      // Check user's role in the organization
+      const { data: memberData, error: memberError } = await supabase
+        .from('org_members')
+        .select('role')
         .eq('org_id', orgId)
-        .eq('status', 'published')
-        .order('title', { ascending: true });
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
 
-      if (orgError) {
-        console.error('Error fetching org courses:', orgError);
-        throw orgError;
+      if (memberError) {
+        console.error('Error fetching member role:', memberError);
+        throw memberError;
       }
 
-      console.log('useOrgCatalog - Platform courses:', platformCourses?.length || 0);
-      console.log('useOrgCatalog - Org courses:', orgCourses?.length || 0);
+      const isStudent = memberData?.role === 'student';
+      console.log('useOrgCatalog - User role:', memberData?.role, 'isStudent:', isStudent);
 
-      return {
-        platform: mapPlatformCoursesToCards(platformCourses || []),
-        org: mapOrgCoursesToCards(orgCourses || [], orgId)
-      };
+      if (isStudent) {
+        // For students, only fetch assigned courses
+        const { data: assignedTargets, error: assignmentError } = await supabase
+          .from('org_assignment_targets')
+          .select(`
+            assignment_id,
+            org_assignments!inner (
+              resource_id,
+              type
+            )
+          `)
+          .eq('target_id', user.id)
+          .eq('target_type', 'user');
+
+        if (assignmentError) {
+          console.error('Error fetching student assignments:', assignmentError);
+          throw assignmentError;
+        }
+
+        // Extract unique course IDs from assignments
+        const courseIds = new Set<string>();
+
+        assignedTargets?.forEach(target => {
+          const assignment = target.org_assignments;
+          if (assignment.type === 'course') {
+            courseIds.add(assignment.resource_id);
+          }
+        });
+
+        console.log('useOrgCatalog - Assigned course IDs:', courseIds.size);
+
+        // Fetch assigned courses from both tables
+        let platformCourses: PlatformCourse[] = [];
+        let orgCourses: OrgCourse[] = [];
+
+        if (courseIds.size > 0) {
+          // Try platform courses first
+          const { data: platformData, error: platformError } = await supabase
+            .from('courses')
+            .select('*')
+            .in('id', Array.from(courseIds))
+            .eq('status', 'published')
+            .order('title', { ascending: true });
+
+          if (platformError) {
+            console.error('Error fetching assigned platform courses:', platformError);
+          } else {
+            platformCourses = platformData || [];
+          }
+
+          // Try org courses
+          const { data: orgData, error: orgError } = await supabase
+            .from('org_courses')
+            .select('*')
+            .in('id', Array.from(courseIds))
+            .eq('org_id', orgId)
+            .eq('status', 'published')
+            .order('title', { ascending: true });
+
+          if (orgError) {
+            console.error('Error fetching assigned org courses:', orgError);
+          } else {
+            orgCourses = orgData || [];
+          }
+        }
+
+        console.log('useOrgCatalog - Found platform courses:', platformCourses.length);
+        console.log('useOrgCatalog - Found org courses:', orgCourses.length);
+
+        return {
+          platform: mapPlatformCoursesToCards(platformCourses),
+          org: mapOrgCoursesToCards(orgCourses, orgId)
+        };
+      } else {
+        // For instructors/owners, fetch all courses
+        const { data: platformCourses, error: platformError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('course_visibility', 'global')
+          .eq('status', 'published')
+          .order('title', { ascending: true });
+
+        if (platformError) {
+          console.error('Error fetching platform courses:', platformError);
+          throw platformError;
+        }
+
+        const { data: orgCourses, error: orgError } = await supabase
+          .from('org_courses')
+          .select('*')
+          .eq('org_id', orgId)
+          .eq('status', 'published')
+          .order('title', { ascending: true });
+
+        if (orgError) {
+          console.error('Error fetching org courses:', orgError);
+          throw orgError;
+        }
+
+        console.log('useOrgCatalog - Platform courses:', platformCourses?.length || 0);
+        console.log('useOrgCatalog - Org courses:', orgCourses?.length || 0);
+
+        return {
+          platform: mapPlatformCoursesToCards(platformCourses || []),
+          org: mapOrgCoursesToCards(orgCourses || [], orgId)
+        };
+      }
     },
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes

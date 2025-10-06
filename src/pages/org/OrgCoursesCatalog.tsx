@@ -586,41 +586,16 @@ export default function OrgCoursesCatalog() {
                 </div>
               )}
               
-              {/* Separator */}
-              {assignments.length > 0 && <Separator />}
-              
-              {/* Available Platform Courses */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Star className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold">Available Platform Courses</h2>
-                  <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
+              {/* Empty state when no courses assigned */}
+              {assignments.length === 0 && (
+                <div className="text-center py-12 bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg">
+                  <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-semibold mb-2">No Courses Assigned Yet</h3>
+                  <p className="text-muted-foreground">
+                    Your instructor will assign courses for you to access here.
+                  </p>
                 </div>
-                
-                {filteredPlatformCourses.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No platform courses available.</p>
-                  </div>
-                ) : (
-                  <div className={cn(
-                    viewType === 'grid' 
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      : viewType === 'list'
-                      ? "space-y-4"
-                      : "space-y-1",
-                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
-                  )}>
-                    {filteredPlatformCourses.map((course) => (
-                      <EnhancedCourseCard
-                        key={course.id}
-                        course={toCourseCardModel(course)}
-                        actions={createCourseActions(false)}
-                        viewType={viewType}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              )}
             </>
           ) : (
             <>
