@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -37,6 +38,73 @@ export function useOrganizationInvitation() {
   const { toast } = useToast();
   const { switchOrganization } = useSafeOrgContext();
   const queryClient = useQueryClient();
+
+  const joinWithToken = async (token: string): Promise<JoinOrganizationResult> => {
+    setIsJoining(true);
+    
+    try {
+      // Validate the token first
+      const { data: validateData, error: validateError } = await supabase.functions.invoke(
+        'validate-org-invite',
+        { body: { token } }
+      );
+
+      if (validateError || !validateData?.valid) {
+        toast({
+          title: "Invalid Invitation",
+          description: validateData?.error || "This invitation link is invalid or has expired.",
+          variant: "destructive",
+        });
+        return { success: false, error: validateData?.error || "Invalid invitation" };
+      }
+
+      // Accept the invitation
+      const { data: acceptData, error: acceptError } = await supabase.functions.invoke(
+        'accept-org-invite',
+        { body: { token } }
+      );
+
+      if (acceptError || !acceptData?.success) {
+        toast({
+          title: "Failed to Join",
+          description: acceptData?.error || "Unable to accept invitation. Please try again.",
+          variant: "destructive",
+        });
+        return { success: false, error: acceptData?.error || "Failed to accept invitation" };
+      }
+
+      // Invalidate relevant queries
+      await queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      await queryClient.invalidateQueries({ queryKey: ['org-members'] });
+      await queryClient.invalidateQueries({ queryKey: ['user-invites'] });
+      
+      toast({
+        title: "Welcome!",
+        description: `You've successfully joined ${validateData.organizationName}`,
+      });
+
+      // Switch to the new organization
+      if (switchOrganization && acceptData.org_id) {
+        switchOrganization(acceptData.org_id);
+      }
+      
+      return {
+        success: true,
+        org_id: acceptData.org_id,
+        role: acceptData.role
+      };
+    } catch (error) {
+      console.error('Error joining with token:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+      return { success: false, error: "Unexpected error" };
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   const joinWithCode = async (inviteToken: string): Promise<JoinOrganizationResult> => {
     if (!inviteToken.trim()) {
@@ -129,6 +197,7 @@ export function useOrganizationInvitation() {
 
   return {
     joinWithCode,
+    joinWithToken,
     isJoining
   };
 }

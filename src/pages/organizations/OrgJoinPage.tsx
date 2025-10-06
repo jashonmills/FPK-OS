@@ -16,34 +16,51 @@ const OrgJoinPage = () => {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const [inviteCode, setInviteCode] = useState('');
-  const { joinWithCode, isJoining } = useOrganizationInvitation();
+  const [inviteType, setInviteType] = useState<'code' | 'token' | null>(null);
+  const { joinWithCode, joinWithToken, isJoining } = useOrganizationInvitation();
 
-  // Check authentication and get code from URL parameters
+  // Check authentication and get code/token from URL parameters
   useEffect(() => {
     if (!loading && !user) {
-      // Store the invite code and redirect to login
-      const codeFromUrl = searchParams.get('code') || searchParams.get('token');
-      if (codeFromUrl) {
-        localStorage.setItem('pendingInviteCode', codeFromUrl);
+      // Store the invite code/token and redirect to login
+      const codeFromUrl = searchParams.get('code');
+      const tokenFromUrl = searchParams.get('token');
+      const inviteValue = tokenFromUrl || codeFromUrl;
+      
+      if (inviteValue) {
+        localStorage.setItem('pendingInviteCode', inviteValue);
+        localStorage.setItem('pendingInviteType', tokenFromUrl ? 'token' : 'code');
       }
+      
+      const paramName = tokenFromUrl ? 'token' : 'code';
       navigate('/auth', { 
         state: { 
-          returnUrl: '/org/join' + (codeFromUrl ? `?code=${codeFromUrl}` : '') 
+          returnUrl: '/org/join' + (inviteValue ? `?${paramName}=${inviteValue}` : '') 
         } 
       });
       return;
     }
 
-    // Get code from URL parameters on mount
-    const codeFromUrl = searchParams.get('code') || searchParams.get('token');
-    if (codeFromUrl) {
+    // Get code/token from URL parameters on mount
+    const codeFromUrl = searchParams.get('code');
+    const tokenFromUrl = searchParams.get('token');
+    
+    if (tokenFromUrl) {
+      setInviteCode(tokenFromUrl);
+      setInviteType('token');
+    } else if (codeFromUrl) {
       setInviteCode(codeFromUrl);
+      setInviteType('code');
     } else {
-      // Check if there's a pending invite code from localStorage
+      // Check if there's a pending invite from localStorage
       const pendingCode = localStorage.getItem('pendingInviteCode');
-      if (pendingCode) {
+      const pendingType = localStorage.getItem('pendingInviteType') as 'code' | 'token' | null;
+      
+      if (pendingCode && pendingType) {
         setInviteCode(pendingCode);
+        setInviteType(pendingType);
         localStorage.removeItem('pendingInviteCode');
+        localStorage.removeItem('pendingInviteType');
       }
     }
   }, [searchParams, navigate, user, loading]);
@@ -53,15 +70,19 @@ const OrgJoinPage = () => {
     
     if (!inviteCode.trim()) {
       toast({
-        title: "Invalid Code",
-        description: "Please enter a valid invitation code.",
+        title: "Invalid Input",
+        description: "Please enter a valid invitation code or token.",
         variant: "destructive",
       });
       return;
     }
 
-    // Use the hook which handles everything including navigation
-    await joinWithCode(inviteCode.trim());
+    // Route to appropriate handler based on invite type
+    if (inviteType === 'token') {
+      await joinWithToken(inviteCode.trim());
+    } else {
+      await joinWithCode(inviteCode.trim());
+    }
   };
 
   // Show loading while checking authentication
@@ -104,21 +125,28 @@ const OrgJoinPage = () => {
       {/* Join Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Invitation Code</CardTitle>
+          <CardTitle>
+            {inviteType === 'token' ? 'Email Invitation' : 'Invitation Code'}
+          </CardTitle>
           <CardDescription>
-            Enter the code you received from the organization
+            {inviteType === 'token' 
+              ? 'Confirm your email invitation to join the organization'
+              : 'Enter the code you received from the organization'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleJoinOrganization} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="inviteCode">Code</Label>
+              <Label htmlFor="inviteCode">
+                {inviteType === 'token' ? 'Token' : 'Code'}
+              </Label>
               <Input
                 id="inviteCode"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
-                placeholder="Enter invitation code"
-                disabled={isJoining}
+                placeholder={inviteType === 'token' ? 'Email invitation token' : 'Enter invitation code'}
+                disabled={isJoining || inviteType === 'token'}
                 className="text-center font-mono"
               />
             </div>
@@ -128,7 +156,7 @@ const OrgJoinPage = () => {
               className="w-full" 
               disabled={isJoining || !inviteCode.trim()}
             >
-              {isJoining ? 'Joining...' : 'Join Organization'}
+              {isJoining ? 'Joining...' : (inviteType === 'token' ? 'Accept Invitation' : 'Join Organization')}
             </Button>
           </form>
         </CardContent>
