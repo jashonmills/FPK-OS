@@ -38,10 +38,31 @@ const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
 export function OrgProvider({ children, orgId }: { children: React.ReactNode; orgId?: string }) {
   const { user } = useAuth();
-  const { data: rawOrganizations = [], isLoading } = useUserOrganizations();
+  const { data: rawOrganizations = [], isLoading, error } = useUserOrganizations();
   const navigate = useNavigate();
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
+
+  // Log organization loading state for debugging
+  useEffect(() => {
+    console.log('🏢 [OrgContext] Organization state:', {
+      isLoading,
+      hasError: !!error,
+      error: error?.message,
+      organizationsCount: rawOrganizations?.length || 0,
+      organizations: rawOrganizations?.map(o => ({
+        id: o.organization_id,
+        name: o.organizations.name,
+        role: o.role
+      })),
+      activeOrgId,
+      currentOrg: currentOrg ? {
+        id: currentOrg.organization_id,
+        name: currentOrg.organizations.name,
+        role: currentOrg.role
+      } : null
+    });
+  }, [rawOrganizations, isLoading, error, activeOrgId, currentOrg]);
 
   // Sanitize organization names to remove any error text
   const organizations = useMemo(() => {

@@ -356,46 +356,22 @@ export type Database = {
         Row: {
           action: string
           id: string
-          ip_address: unknown | null
-          legal_basis: string | null
-          new_values: Json | null
-          old_values: Json | null
-          purpose: string | null
-          record_id: string | null
-          session_id: string | null
-          table_name: string
-          timestamp: string
-          user_agent: string | null
+          table_name: string | null
+          timestamp: string | null
           user_id: string | null
         }
         Insert: {
           action: string
           id?: string
-          ip_address?: unknown | null
-          legal_basis?: string | null
-          new_values?: Json | null
-          old_values?: Json | null
-          purpose?: string | null
-          record_id?: string | null
-          session_id?: string | null
-          table_name: string
-          timestamp?: string
-          user_agent?: string | null
+          table_name?: string | null
+          timestamp?: string | null
           user_id?: string | null
         }
         Update: {
           action?: string
           id?: string
-          ip_address?: unknown | null
-          legal_basis?: string | null
-          new_values?: Json | null
-          old_values?: Json | null
-          purpose?: string | null
-          record_id?: string | null
-          session_id?: string | null
-          table_name?: string
-          timestamp?: string
-          user_agent?: string | null
+          table_name?: string | null
+          timestamp?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -2776,37 +2752,25 @@ export type Database = {
       }
       iep_documents: {
         Row: {
-          document_category: string | null
-          entity_id: string
-          entity_type: string
-          file_name: string
-          file_type: string
-          file_url: string
+          created_at: string | null
+          document_name: string
           id: string
-          upload_date: string
-          uploaded_by: string
+          medical_information: string | null
+          user_id: string | null
         }
         Insert: {
-          document_category?: string | null
-          entity_id: string
-          entity_type: string
-          file_name: string
-          file_type: string
-          file_url: string
+          created_at?: string | null
+          document_name: string
           id?: string
-          upload_date?: string
-          uploaded_by: string
+          medical_information?: string | null
+          user_id?: string | null
         }
         Update: {
-          document_category?: string | null
-          entity_id?: string
-          entity_type?: string
-          file_name?: string
-          file_type?: string
-          file_url?: string
+          created_at?: string | null
+          document_name?: string
           id?: string
-          upload_date?: string
-          uploaded_by?: string
+          medical_information?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -8087,6 +8051,33 @@ export type Database = {
           local_event_type?: string
           synced_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      therapy_notes: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          session_date: string
+          therapist_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          session_date: string
+          therapist_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          session_date?: string
+          therapist_name?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
