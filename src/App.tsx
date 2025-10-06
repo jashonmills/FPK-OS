@@ -630,9 +630,7 @@ const App: React.FC = () => {
           } />
           <Route path="/org/join" element={
             <LazyRoute>
-              <OrgPageLayout>
-                <OrgJoinPage />
-              </OrgPageLayout>
+              <OrgJoinPage />
             </LazyRoute>
           } />
           <Route path="/org/invitations" element={

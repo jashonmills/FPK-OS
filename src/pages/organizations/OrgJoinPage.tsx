@@ -82,24 +82,35 @@ const OrgJoinPage = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/org')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Simple standalone header */}
+      <header className="border-b bg-card/50 backdrop-blur-sm">
+        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/lovable-uploads/logo.png" alt="FPK University" className="h-10 w-10" />
+            <div>
+              <h1 className="text-xl font-bold">FPK University</h1>
+              <p className="text-xs text-muted-foreground">Join Organization</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/org')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
+      </header>
 
-      <div className="text-center">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-2">
-          <Send className="h-8 w-8" />
-          Join Organization
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Enter your invitation code to join an organization.
-        </p>
-      </div>
+      {/* Main content */}
+      <main className="container max-w-md mx-auto px-4 py-8 space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
+            <Send className="h-8 w-8" />
+            Join Organization
+          </h2>
+          <p className="text-muted-foreground mt-2">
+            Enter your invitation code to join an organization.
+          </p>
+        </div>
 
       {/* Join Form */}
       <Card>
@@ -170,15 +181,16 @@ const OrgJoinPage = () => {
         </Alert>
       </div>
 
-      {/* Alternative Actions */}
-      <div className="text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
-          Don't have an organization yet?
-        </p>
-        <Button variant="outline" onClick={() => navigate('/org/create')}>
-          Create Your Own Organization
-        </Button>
-      </div>
+        {/* Alternative Actions */}
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Don't have an organization yet?
+          </p>
+          <Button variant="outline" onClick={() => navigate('/org/create')}>
+            Create Your Own Organization
+          </Button>
+        </div>
+      </main>
     </div>
   );
 };
