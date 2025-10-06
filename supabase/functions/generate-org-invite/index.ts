@@ -216,62 +216,125 @@ const handler = async (req: Request): Promise<Response> => {
         subject: `You're invited to join ${org.name} on FPK University`,
         html: `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join ${org.name} on FPK University</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 40px 20px; text-align: center;">
-      <h1 style="color: white; margin: 0 0 10px 0; font-size: 28px; font-weight: 700;">You're Invited!</h1>
-      <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 18px;">Join ${org.name} on FPK University</p>
-    </div>
-    
-    <!-- Body -->
-    <div style="padding: 40px 30px;">
-      <p style="font-size: 16px; color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
-        Hi there! 👋
-      </p>
-      <p style="font-size: 16px; color: #374151; line-height: 1.6; margin: 0 0 30px 0;">
-        <strong>${inviterName}</strong> has invited you to join <strong>${org.name}</strong> as a <strong>${role}</strong> on FPK University.
-      </p>
-      
-      <!-- CTA Button -->
-      <div style="text-align: center; margin: 40px 0;">
-        <a href="${inviteUrl}" 
-           style="background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 18px; display: inline-block; box-shadow: 0 4px 6px rgba(124, 58, 237, 0.3);">
-          Accept Invitation →
-        </a>
-      </div>
-      
-      <!-- Info Box -->
-      <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 30px 0;">
-        <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">
-          📧 This invitation was sent to: <strong>${email}</strong><br>
-          ⏰ Expires: <strong>${expiryDate}</strong><br>
-          🔒 This link can only be used once
-        </p>
-      </div>
-      
-      <!-- Fallback Link -->
-      <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 30px 0 0 0; line-height: 1.4;">
-        Button not working? Copy this link:<br>
-        <a href="${inviteUrl}" style="color: #7c3aed; word-break: break-all; font-size: 11px;">${inviteUrl}</a>
-      </p>
-    </div>
-    
-    <!-- Footer -->
-    <div style="text-align: center; padding: 20px; border-top: 1px solid #e5e7eb;">
-      <p style="font-size: 12px; color: #9ca3af; margin: 0 0 10px 0;">
-        If you weren't expecting this email, you can safely ignore it.
-      </p>
-      <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-        <a href="https://fpkuniversity.com" style="color: #7c3aed; text-decoration: none;">FPK University</a>
-      </p>
-    </div>
-  </div>
+<body style="margin: 0; padding: 0; background-color: #f6f9fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f6f9fc;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden;">
+          <!-- Header with Gradient -->
+          <tr>
+            <td style="padding: 48px 40px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <h1 style="margin: 0 0 8px 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
+                FPK University
+              </h1>
+              <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 500;">
+                You're Invited!
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 48px 40px;">
+              <p style="margin: 0 0 8px 0; color: #1a202c; font-size: 24px; font-weight: 600; line-height: 1.3;">
+                Join ${org.name}
+              </p>
+              
+              <p style="margin: 0 0 24px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                <strong>${inviterName}</strong> has invited you to join <strong>${org.name}</strong> as a <strong>${role}</strong>.
+              </p>
+              
+              <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                Click the button below to accept your invitation and start your learning journey on FPK University.
+              </p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" style="margin: 0 auto 32px auto;">
+                <tr>
+                  <td align="center" style="border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);">
+                    <a href="${inviteUrl}" 
+                       style="display: inline-block; padding: 18px 48px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 18px; letter-spacing: 0.3px;">
+                      Accept Invitation →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Info Card -->
+              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(to right, #f7fafc, #edf2f7); border-radius: 8px; border-left: 4px solid #667eea;">
+                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 4px 0;">
+                      <p style="margin: 0; color: #4a5568; font-size: 14px; line-height: 1.8;">
+                        📧 <strong>Invitation sent to:</strong> ${email}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0;">
+                      <p style="margin: 0; color: #4a5568; font-size: 14px; line-height: 1.8;">
+                        👤 <strong>Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0;">
+                      <p style="margin: 0; color: #4a5568; font-size: 14px; line-height: 1.8;">
+                        ⏰ <strong>Expires:</strong> ${expiryDate}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0;">
+                      <p style="margin: 0; color: #4a5568; font-size: 14px; line-height: 1.8;">
+                        🔒 <strong>Security:</strong> Single-use link
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <!-- Expiration Warning -->
+              <div style="margin: 24px 0 32px 0; padding: 20px; background-color: #fffbeb; border-radius: 8px; border: 1px solid #fbbf24;">
+                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6; text-align: center;">
+                  <strong>⚠️ This invitation expires in 7 days.</strong><br>
+                  <span style="font-size: 13px;">Please accept it soon to secure your access.</span>
+                </p>
+              </div>
+              
+              <!-- Alternative Link -->
+              <div style="padding: 20px 0; border-top: 1px solid #e2e8f0;">
+                <p style="margin: 0 0 12px 0; color: #718096; font-size: 13px; text-align: center;">
+                  Having trouble with the button? Copy and paste this link:
+                </p>
+                <p style="margin: 0; color: #667eea; font-size: 12px; word-break: break-all; text-align: center; font-family: 'Courier New', monospace; background-color: #f7fafc; padding: 12px; border-radius: 4px;">
+                  ${inviteUrl}
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 40px; border-top: 1px solid #e2e8f0; background-color: #fafbfc;">
+              <p style="margin: 0 0 12px 0; color: #718096; font-size: 14px; line-height: 1.6; text-align: center;">
+                If you weren't expecting this invitation, you can safely ignore this email.
+              </p>
+              <p style="margin: 0; color: #a0aec0; font-size: 12px; text-align: center;">
+                © ${new Date().getFullYear()} <a href="https://fpkuniversity.com" style="color: #667eea; text-decoration: none;">FPK University</a>. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
         `,
