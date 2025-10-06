@@ -43,8 +43,24 @@ const handler = async (req: Request): Promise<Response> => {
       orgName = org?.name || 'the organization';
     }
 
-    // Generate invitation link
-    const inviteUrl = `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}.lovableproject.com/join?org=${orgId}&email=${encodeURIComponent(email)}`;
+    // Create an invitation code in the database
+    const { data: inviteData, error: inviteError } = await supabase.rpc('org_create_invite', {
+      p_org_id: orgId,
+      p_role: role,
+      p_max_uses: 1, // Single use for email invitations
+      p_expires_interval: '7 days'
+    });
+
+    if (inviteError) {
+      console.error('Error creating invite code:', inviteError);
+      throw new Error('Failed to create invitation code');
+    }
+
+    const inviteCode = inviteData as string;
+    
+    // Generate invitation link with the code
+    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://fpkuniversity.com';
+    const inviteUrl = `${baseUrl}/join?code=${inviteCode}`;
 
     const emailResponse = await resend.emails.send({
       from: "FPK University <noreply@fpkuniversity.com>",

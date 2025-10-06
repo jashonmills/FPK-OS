@@ -26,9 +26,9 @@ const OrgJoinPage = () => {
       if (codeFromUrl) {
         localStorage.setItem('pendingInviteCode', codeFromUrl);
       }
-      navigate('/login', { 
+      navigate('/auth', { 
         state: { 
-          returnUrl: '/join' + (codeFromUrl ? `?code=${codeFromUrl}` : '') 
+          returnUrl: '/org/join' + (codeFromUrl ? `?code=${codeFromUrl}` : '') 
         } 
       });
       return;

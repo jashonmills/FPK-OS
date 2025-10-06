@@ -29,10 +29,14 @@ export function JoinOrganization() {
     }
 
     if (!user) {
-      console.log('JoinOrganization: User not authenticated, redirecting to login');
+      console.log('JoinOrganization: User not authenticated, redirecting to auth');
       // Redirect to sign up/login with the invitation code stored
       localStorage.setItem('pendingInvitation', code);
-      navigate('/login?redirect=join-organization');
+      navigate('/auth', { 
+        state: { 
+          returnUrl: `/join?code=${code}` 
+        } 
+      });
       return;
     }
 
@@ -51,6 +55,7 @@ export function JoinOrganization() {
       }, 2000);
     } else {
       setStatus('error');
+      setErrorMessage(result.error || 'Failed to join organization');
     }
   };
 
