@@ -20,13 +20,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get authorization header and extract JWT
+    // Get authorization header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -34,6 +28,18 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Get Supabase client with JWT in global headers for RLS
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { 
+        headers: { 
+          Authorization: authHeader 
+        } 
+      }
+    });
 
     // Extract JWT from "Bearer <token>"
     const jwt = authHeader.replace('Bearer ', '');
