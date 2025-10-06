@@ -12,6 +12,16 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { 
   Building2, 
   Users, 
@@ -19,10 +29,12 @@ import {
   ArrowUpRight, 
   UserMinus,
   Calendar,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
+import { useOrganizations } from '@/hooks/useOrganizations';
 import { useToast } from '@/hooks/use-toast';
 import { useUserOrganizations } from '@/hooks/useUserOrganization';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -31,7 +43,9 @@ const OrgHub = () => {
   const { data: organizations = [], isLoading } = useUserOrganizations();
   const navigate = useNavigate();
   const { joinWithCode, isJoining } = useOrganizationInvitation();
+  const { deleteOrganization, isDeleting } = useOrganizations();
   const [inviteCode, setInviteCode] = useState('');
+  const [orgToDelete, setOrgToDelete] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const switchOrganization = (orgId: string) => {
@@ -62,6 +76,17 @@ const OrgHub = () => {
       title: "Feature Coming Soon",
       description: "Leave organization functionality will be available soon.",
     });
+  };
+
+  const handleDeleteOrganization = async () => {
+    if (!orgToDelete) return;
+    
+    try {
+      await deleteOrganization(orgToDelete);
+      setOrgToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete organization:', error);
+    }
   };
 
   if (isLoading) {
@@ -143,7 +168,16 @@ const OrgHub = () => {
                           <ArrowUpRight className="h-4 w-4 mr-1" />
                           Open
                         </Button>
-                        {org.role !== 'owner' && (
+                        {org.role === 'owner' ? (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setOrgToDelete(org.organization_id)}
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        ) : (
                           <Button
                             size="sm"
                             variant="outline"
@@ -196,7 +230,17 @@ const OrgHub = () => {
                             <ArrowUpRight className="h-4 w-4 mr-1" />
                             Open
                           </Button>
-                          {org.role !== 'owner' && (
+                          {org.role === 'owner' ? (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => setOrgToDelete(org.organization_id)}
+                              disabled={isDeleting}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
+                          ) : (
                             <Button
                               size="sm"
                               variant="outline"
@@ -299,6 +343,29 @@ const OrgHub = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!orgToDelete} onOpenChange={(open) => !open && setOrgToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Organization?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the organization
+              and remove all members, invitations, and associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteOrganization}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Organization'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

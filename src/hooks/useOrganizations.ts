@@ -170,14 +170,54 @@ export function useOrganizations() {
     },
   });
 
+  // Delete organization mutation
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: async (organizationId: string) => {
+      if (!user) throw new Error('User not authenticated');
+
+      // Delete the organization (cascade deletes will handle members, invites, etc.)
+      const { error } = await supabase
+        .from('organizations')
+        .delete()
+        .eq('id', organizationId)
+        .eq('owner_id', user.id); // Ensure user owns the organization
+
+      if (error) {
+        console.error('Error deleting organization:', error);
+        throw error;
+      }
+
+      return organizationId;
+    },
+    onSuccess: (orgId) => {
+      // Invalidate both organization query caches
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['user-organizations'] });
+      
+      toast({
+        title: "Organization Deleted",
+        description: "The organization and all its data have been permanently deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete organization",
+        variant: "destructive"
+      });
+    },
+  });
+
   return {
     organizations: organizations || [],
     isLoading,
     error,
     createOrganization: createOrganizationMutation.mutate,
     updateOrganization: updateOrganizationMutation.mutate,
+    deleteOrganization: deleteOrganizationMutation.mutate,
     isCreating: createOrganizationMutation.isPending,
     isUpdating: updateOrganizationMutation.isPending,
+    isDeleting: deleteOrganizationMutation.isPending,
   };
 }
 
