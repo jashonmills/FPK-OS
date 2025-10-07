@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,99 +30,38 @@ import {
   BookOpen,
   Target,
   Filter,
-  Upload
+  Upload,
+  Edit
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
 import { ImportStudentsCSV } from '@/components/students/ImportStudentsCSV';
+import { EditStudentDialog } from '@/components/students/EditStudentDialog';
+import { useOrgStudents, type OrgStudent } from '@/hooks/useOrgStudents';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
-
-interface OrgMember {
-  id: string;
-  org_id: string;
-  user_id: string;
-  role: string;
-  status: string;
-  created_at: string;
-  profiles: {
-    id: string;
-    email: string;
-    full_name?: string;
-    avatar_url?: string;
-  };
-}
 
 export default function StudentsPage() {
   const { currentOrg, getUserRole } = useOrgContext();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const userRole = getUserRole();
   const orgId = assertOrg();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<OrgMember | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
+  const [editingStudent, setEditingStudent] = useState<OrgStudent | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
 
-  // Fetch organization members
-  const { data: members = [], isLoading } = useQuery({
-    queryKey: ['org-members', orgId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('org_members')
-        .select('*')
-        .eq('org_id', orgId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching org members:', error);
-        throw error;
-      }
-
-      // For now, return basic member data without profiles
-      return data.map(member => ({
-        ...member,
-        profiles: {
-          id: member.user_id,
-          email: 'user@example.com',
-          full_name: 'User Name',
-          avatar_url: undefined
-        }
-      })) as OrgMember[];
-    },
-    staleTime: 1000 * 60 * 2,
-  });
-
-  // Remove member mutation
-  const removeMemberMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('org_members')
-        .delete()
-        .eq('org_id', orgId)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['org-members'] });
-      toast({
-        title: "Success",
-        description: "Member removed from organization.",
-      });
-    },
-    onError: (error) => {
-      console.error('Error removing member:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove member.",
-        variant: "destructive",
-      });
-    },
-  });
+  // Use the proper hook for students
+  const { 
+    students, 
+    isLoading, 
+    updateStudent, 
+    deleteStudent,
+    isUpdating 
+  } = useOrgStudents(orgId, searchQuery);
 
   if (!currentOrg) {
     return (
@@ -139,22 +75,31 @@ export default function StudentsPage() {
   }
 
   const canManageMembers = userRole === 'owner' || userRole === 'instructor';
-  const students = members.filter(member => member.role === 'student');
-  const instructors = members.filter(member => member.role === 'instructor');
   
-  const filteredStudents = students.filter(student => 
-    student.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.profiles?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStudents = searchQuery 
+    ? students.filter(student => 
+        student.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.parent_email?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : students;
 
   const getInitials = (name?: string, email?: string) => {
-    if (name) {
+    if (name && name !== 'Unknown Student') {
       return name.split(' ').map(n => n[0]).join('').toUpperCase();
     }
     if (email) {
       return email.substring(0, 2).toUpperCase();
     }
     return 'U';
+  };
+
+  const handleUpdateStudent = (data: Partial<OrgStudent> & { id: string }) => {
+    updateStudent(data);
+    setEditingStudent(null);
+  };
+
+  const handleDeleteStudent = (studentId: string) => {
+    deleteStudent(studentId);
   };
 
   return (
@@ -215,25 +160,25 @@ export default function StudentsPage() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Instructors</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">With Accounts</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{instructors.length}</div>
-            <p className="text-xs text-purple-200">
-              Active instructors
+            <div className="text-2xl font-bold text-white">{students.filter(s => s.linked_user_id).length}</div>
+            <p className="text-xs text-white/80">
+              Can log in to platform
             </p>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Active Members</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Profile Only</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{members.length}</div>
-            <p className="text-xs text-purple-200">All roles combined</p>
+            <div className="text-2xl font-bold text-white">{students.filter(s => !s.linked_user_id).length}</div>
+            <p className="text-xs text-white/80">Awaiting activation</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -259,21 +204,21 @@ export default function StudentsPage() {
       </div>
 
       {/* Students List */}
-      <OrgCard>
+      <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
           <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
-          <OrgCardDescription className="text-purple-200">Manage your organization's students</OrgCardDescription>
+          <OrgCardDescription className="text-white/80">Manage your organization's students</OrgCardDescription>
         </OrgCardHeader>
         <OrgCardContent>
           {isLoading ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Loading students...</p>
+              <p className="text-white/70">Loading students...</p>
             </div>
           ) : filteredStudents.length === 0 ? (
             <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Students Found</h3>
-              <p className="text-muted-foreground mb-4">
+              <Users className="h-12 w-12 text-white/60 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-white">No Students Found</h3>
+              <p className="text-white/80 mb-4">
                 {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
               </p>
               {canManageMembers && !searchQuery && (
@@ -282,7 +227,6 @@ export default function StudentsPage() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Secondary invite button clicked');
                     setShowInviteDialog(true);
                   }}
                 >
@@ -294,50 +238,66 @@ export default function StudentsPage() {
           ) : (
             <div className="space-y-4">
               {filteredStudents.map((student) => (
-                <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={student.id} className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/5">
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={student.profiles?.avatar_url} />
-                      <AvatarFallback>
-                        {getInitials(student.profiles?.full_name, student.profiles?.email)}
+                      <AvatarFallback className="bg-white/10 text-white">
+                        {getInitials(student.full_name, student.parent_email)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">
-                        {student.profiles?.full_name || 'Unnamed User'}
+                      <div className="font-medium text-white">
+                        {student.full_name || 'Unnamed Student'}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                      <div className="text-sm text-white/70 flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        {student.profiles?.email}
+                        {student.parent_email || 'No email'}
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary">{student.role}</Badge>
-                    <Badge variant="outline" className="text-xs">
+                    {student.grade_level && (
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                        Grade {student.grade_level}
+                      </Badge>
+                    )}
+                    {student.linked_user_id ? (
+                      <Badge variant="outline" className="bg-green-500/20 text-green-100 border-green-400/30">
+                        Active Account
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-500/20 text-yellow-100 border-yellow-400/30">
+                        Profile Only
+                      </Badge>
+                    )}
+                    <Badge variant="outline" className="text-xs text-white/70 border-white/20">
                       <Calendar className="h-3 w-3 mr-1" />
                       {new Date(student.created_at).toLocaleDateString()}
                     </Badge>
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="bg-transparent hover:bg-white/10">
+                        <Button variant="ghost" size="sm" className="bg-transparent hover:bg-white/10 text-white">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-card dark:bg-card border border-border z-50">
+                        <DropdownMenuItem onClick={() => setEditingStudent(student)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Profile
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setSelectedStudent(student)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Progress
                         </DropdownMenuItem>
                         {canManageMembers && (
                           <DropdownMenuItem
-                            onClick={() => removeMemberMutation.mutate(student.user_id)}
+                            onClick={() => handleDeleteStudent(student.id)}
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Remove from Org
+                            Remove Student
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -350,18 +310,26 @@ export default function StudentsPage() {
         </OrgCardContent>
       </OrgCard>
 
+      {/* Edit Student Dialog */}
+      <EditStudentDialog
+        open={!!editingStudent}
+        onOpenChange={(open) => !open && setEditingStudent(null)}
+        onSubmit={handleUpdateStudent}
+        student={editingStudent}
+        isLoading={isUpdating}
+      />
+
       {/* Student Detail Sheet */}
       <Sheet open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
         <SheetContent className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src={selectedStudent?.profiles?.avatar_url} />
-                <AvatarFallback>
-                  {getInitials(selectedStudent?.profiles?.full_name, selectedStudent?.profiles?.email)}
+                <AvatarFallback className="bg-primary/20 text-primary">
+                  {getInitials(selectedStudent?.full_name, selectedStudent?.parent_email)}
                 </AvatarFallback>
               </Avatar>
-              {selectedStudent?.profiles?.full_name || 'Student Details'}
+              {selectedStudent?.full_name || 'Student Details'}
             </SheetTitle>
             <SheetDescription>
               View student progress and activity
@@ -375,7 +343,7 @@ export default function StudentsPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    {selectedStudent.profiles?.email}
+                    {selectedStudent.parent_email || 'No email'}
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -389,34 +357,8 @@ export default function StudentsPage() {
                   <BookOpen className="h-4 w-4" />
                   Course Progress
                 </h3>
-                <div className="space-y-3">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Introduction to Programming</span>
-                      <Badge variant="secondary">85%</Badge>
-                    </div>
-                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Web Development Basics</span>
-                      <Badge variant="default">100%</Badge>
-                    </div>
-                    <div className="w-full bg-transparent rounded-full h-2 border border-white/20">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate(`/dashboard/instructor/students/${selectedStudent?.user_id}/progress`)}
-                    className="w-full mt-3"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Detailed Progress
-                  </Button>
+                <div className="text-sm text-muted-foreground">
+                  No course data available yet
                 </div>
               </div>
               
@@ -425,15 +367,8 @@ export default function StudentsPage() {
                   <Target className="h-4 w-4" />
                   Active Goals
                 </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                    <span className="text-sm">Complete Programming Fundamentals</span>
-                    <Badge variant="secondary">75%</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                    <span className="text-sm">Build First Web Application</span>
-                    <Badge variant="outline">30%</Badge>
-                  </div>
+                <div className="text-sm text-muted-foreground">
+                  No goals assigned yet
                 </div>
               </div>
             </div>

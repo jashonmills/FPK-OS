@@ -70,7 +70,7 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         throw orgMembersError;
       }
 
-      // Use RPC function to get student data with email fallback
+      // Get student data with email fallback
       const { data: studentActivityData, error: activityError } = await supabase
         .rpc('get_org_student_activity_heatmap', { p_org_id: orgId });
 
@@ -86,12 +86,27 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         }])
       );
 
-      // Map org_members to OrgStudent format
-      const memberStudents: OrgStudent[] = (orgMembersData || [])
-        .map((member: any) => {
+      // For each org_member, check if they have a profile in org_students
+      const memberStudents: OrgStudent[] = [];
+      
+      for (const member of (orgMembersData || [])) {
+        // Check if this user has a profile in org_students
+        const existingProfile = (orgStudentsData || []).find(
+          (s: any) => s.linked_user_id === member.user_id
+        );
+        
+        if (existingProfile) {
+          // Use the org_students profile data
+          memberStudents.push({
+            ...existingProfile,
+            status: existingProfile.status as 'active' | 'inactive' | 'graduated',
+            emergency_contact: existingProfile.emergency_contact as Record<string, any> | undefined,
+          });
+        } else {
+          // Student has account but no profile yet - show basic info
           const activityInfo = activityMap.get(member.user_id);
-          return {
-            id: member.id,
+          memberStudents.push({
+            id: `member-${member.id}`, // Temporary ID marker
             org_id: member.org_id,
             full_name: activityInfo?.name || activityInfo?.email || 'Unknown Student',
             grade_level: undefined,
@@ -101,12 +116,13 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
             emergency_contact: undefined,
             notes: undefined,
             status: member.status === 'active' ? 'active' : 'inactive',
-            linked_user_id: member.user_id, // Mark as linked
+            linked_user_id: member.user_id,
             created_by: member.user_id,
             created_at: member.joined_at,
             updated_at: member.joined_at,
-          };
-        });
+          });
+        }
+      }
 
       // Filter member students by search query if provided
       const filteredMemberStudents = searchQuery
@@ -115,27 +131,17 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           )
         : memberStudents;
 
-      // Map org_students data to OrgStudent type
-      const mappedOrgStudents: OrgStudent[] = (orgStudentsData || []).map((student: any) => ({
-        ...student,
-        emergency_contact: student.emergency_contact as Record<string, any> | undefined,
-      }));
+      // Get profile-only students (not linked to any account)
+      const profileOnlyStudents = (orgStudentsData || [])
+        .filter((s: any) => !s.linked_user_id)
+        .map((student: any) => ({
+          ...student,
+          status: student.status as 'active' | 'inactive' | 'graduated',
+          emergency_contact: student.emergency_contact as Record<string, any> | undefined,
+        }));
 
-      // Combine both sources, prioritizing org_students (profile-only) first
-      const allStudents = [...mappedOrgStudents, ...filteredMemberStudents];
-
-      // Remove duplicates by linked_user_id (if a student exists in both tables, keep org_students version)
-      const uniqueStudents = allStudents.reduce((acc, student) => {
-        const existingIndex = acc.findIndex(
-          (s) => s.linked_user_id && s.linked_user_id === student.linked_user_id
-        );
-        if (existingIndex === -1) {
-          acc.push(student);
-        }
-        return acc;
-      }, [] as OrgStudent[]);
-
-      return uniqueStudents;
+      // Combine: profile-only first, then member students
+      return [...profileOnlyStudents, ...filteredMemberStudents];
     },
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -179,21 +185,79 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
       
       console.log('Updating student:', { id, linked_user_id, updates });
       
-      // For students from org_students table (profile-only or with linked accounts)
-      const { data, error } = await supabase
-        .from('org_students')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      // Check if this is a member-student (has linked_user_id)
+      if (linked_user_id) {
+        // Check if profile exists in org_students
+        const { data: existingProfile } = await supabase
+          .from('org_students')
+          .select('id')
+          .eq('org_id', orgId)
+          .eq('linked_user_id', linked_user_id)
+          .maybeSingle();
+        
+        if (existingProfile) {
+          // Update existing profile
+          const { data, error } = await supabase
+            .from('org_students')
+            .update(updates)
+            .eq('id', existingProfile.id)
+            .select()
+            .single();
 
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
+          if (error) {
+            console.error('Update existing profile error:', error);
+            throw error;
+          }
+          
+          console.log('Updated existing profile:', data);
+          return data;
+        } else {
+          // Create new profile for this member
+          const { data: currentUser } = await supabase.auth.getUser();
+          
+          const { data, error } = await supabase
+            .from('org_students')
+            .insert({
+              org_id: orgId,
+              linked_user_id: linked_user_id,
+              created_by: currentUser.user?.id || linked_user_id,
+              status: 'active',
+              full_name: updates.full_name || '',
+              grade_level: updates.grade_level || null,
+              student_id: updates.student_id || null,
+              date_of_birth: updates.date_of_birth || null,
+              parent_email: updates.parent_email || null,
+              emergency_contact: updates.emergency_contact || null,
+              notes: updates.notes || null,
+            } as any)
+            .select()
+            .single();
+
+          if (error) {
+            console.error('Create new profile error:', error);
+            throw error;
+          }
+          
+          console.log('Created new profile:', data);
+          return data;
+        }
+      } else {
+        // Profile-only student (no account) - direct update
+        const { data, error } = await supabase
+          .from('org_students')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Update profile-only error:', error);
+          throw error;
+        }
+        
+        console.log('Updated profile-only:', data);
+        return data;
       }
-      
-      console.log('Update successful:', data);
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-students', orgId] });
