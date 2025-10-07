@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DetailedAnalyticsModal } from '@/components/organizations/DetailedAnalyticsModal';
 import { Loader2 } from 'lucide-react';
 import { 
   Users, 
@@ -27,6 +28,7 @@ export default function OrgPortalHome() {
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
   const [showProgressModal, setShowProgressModal] = useState(false);
+  const [showDetailedAnalytics, setShowDetailedAnalytics] = useState(false);
   
   // Role-based statistics loading
   const isStudent = currentOrg?.role === 'student';
@@ -518,7 +520,7 @@ export default function OrgPortalHome() {
                 className="flex-1"
                 onClick={() => {
                   setShowProgressModal(false);
-                  navigate(`/dashboard/learner/analytics-debug`);
+                  setShowDetailedAnalytics(true);
                 }}
               >
                 <TrendingUp className="h-4 w-4 mr-2" />
@@ -528,6 +530,15 @@ export default function OrgPortalHome() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Detailed Analytics Modal */}
+      {isStudent && currentOrg?.organization_id && (
+        <DetailedAnalyticsModal 
+          open={showDetailedAnalytics}
+          onOpenChange={setShowDetailedAnalytics}
+          organizationId={currentOrg.organization_id}
+        />
+      )}
     </div>
   );
 }

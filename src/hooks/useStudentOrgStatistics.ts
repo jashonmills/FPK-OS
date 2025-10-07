@@ -37,8 +37,8 @@ export function useStudentOrgStatistics(organizationId?: string) {
       try {
         // Get student's course enrollments in the organization
         const { data: enrollments } = await supabase
-          .from('course_progress')
-          .select('course_id, percent')
+          .from('interactive_course_enrollments')
+          .select('course_id, course_title, completion_percentage, total_time_spent_minutes, last_accessed_at, completed_at')
           .eq('user_id', user.id)
           .eq('org_id', organizationId);
 
@@ -53,9 +53,9 @@ export function useStudentOrgStatistics(organizationId?: string) {
 
         const myEnrollments = enrollments?.length || 0;
         const myProgress = enrollments?.length > 0 
-          ? Math.round(enrollments.reduce((sum, e) => sum + (e.percent || 0), 0) / enrollments.length)
+          ? Math.round(enrollments.reduce((sum, e) => sum + (e.completion_percentage || 0), 0) / enrollments.length)
           : 0;
-        const completedCourses = enrollments?.filter(e => (e.percent || 0) >= 100).length || 0;
+        const completedCourses = enrollments?.filter(e => (e.completion_percentage || 0) >= 100).length || 0;
 
         return {
           myEnrollments,
