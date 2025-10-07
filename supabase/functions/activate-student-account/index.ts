@@ -103,13 +103,18 @@ serve(async (req) => {
     const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
     const finalDestination = `${origin}/org/${orgSlug}/student-portal`;
     
-    // Use the Auth Bridge page on fpkuniversity.com as the callback
-    const bridgeUrl = `https://fpkuniversity.com/auth/callback?redirect_uri=${encodeURIComponent(finalDestination)}`;
+    // Determine redirect URL based on environment
+    // Use auth bridge only on Lovable preview, direct redirect on production
+    const isLovablePreview = origin.includes('lovableproject.com');
+    const redirectTo = isLovablePreview 
+      ? `${origin}/auth/callback?redirect_uri=${encodeURIComponent(finalDestination)}`
+      : finalDestination;
     
     console.log('[activate-student-account] Redirect configuration:', {
       origin,
+      isLovablePreview,
       finalDestination,
-      bridgeUrl
+      redirectTo
     });
     // If student has a linked user, generate session
     if (linked_user_id) {
@@ -117,7 +122,7 @@ serve(async (req) => {
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: bridgeUrl
+          redirectTo: redirectTo
         }
       });
 
@@ -178,12 +183,12 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Use the already-declared bridgeUrl from above
+    // Use the redirectTo URL configured above
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail,
       options: {
-        redirectTo: bridgeUrl
+        redirectTo: redirectTo
       }
     });
 
