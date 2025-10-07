@@ -28,15 +28,15 @@ export function AdminModeToggle({ mode, onModeChange, className }: AdminModeTogg
       value: 'educational' as AdminMode,
       label: 'Educational Assistant',
       icon: GraduationCap,
-      tooltip: 'General educational knowledge and curriculum support',
+      tooltip: 'Educational knowledge, teaching strategies, and curriculum development',
       badge: 'Knowledge',
       badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
     },
     {
       value: 'org_data' as AdminMode,
-      label: 'Org Assistant',
+      label: 'Org Data Assistant',
       icon: BarChart3,
-      tooltip: 'Organization data analysis and management',
+      tooltip: 'Expert on students, courses, analytics, groups, goals, notes, IEP, and settings',
       badge: 'Data',
       badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
     }

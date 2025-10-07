@@ -40,14 +40,16 @@ export function AdminAIAssistant({ userId, orgId }: AdminAIAssistantProps) {
         <AlertDescription>
           {adminMode === 'educational' ? (
             <>
-              <strong>Educational Assistant:</strong> Access general educational knowledge, 
-              curriculum development support, teaching strategies, and subject matter expertise.
+              <strong>Educational Assistant:</strong> Access comprehensive educational knowledge, 
+              teaching strategies, curriculum development guidance, and subject matter expertise 
+              for your instructional needs.
             </>
           ) : (
             <>
-              <strong>Org Assistant:</strong> Analyze organization data, manage students, 
-              monitor progress, and get administrative insights. Answers are based on your 
-              organization's actual data.
+              <strong>Org Data Assistant:</strong> Your expert on all organizational data including 
+              students, courses, analytics, groups, goals, notes, and IEP information. I can answer 
+              questions about student progress, platform usage, and provide data-driven insights 
+              based on your organization's actual data.
             </>
           )}
         </AlertDescription>

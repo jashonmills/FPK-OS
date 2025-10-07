@@ -74,13 +74,13 @@ export function ModeOnboarding({ onComplete, userRole = 'student' }: ModeOnboard
                   <p className="text-sm text-muted-foreground">
                     <strong>Quick answers when you need them.</strong> {isStudent 
                       ? 'Ask me anything! Use me as your go-to resource for direct answers, research help, and study tips.'
-                      : 'Ask me anything! Get administrative support, teaching strategies, educational resources, and organizational guidance.'
+                      : 'Ask me anything about your organization! Get insights on students, courses, analytics, groups, goals, notes, and platform features.'
                     }
                   </p>
                   <div className="text-xs text-muted-foreground mt-2">
                     💡 Perfect for: {isStudent 
                       ? 'Quick questions, research, study strategies'
-                      : 'Quick questions, administrative tasks, teaching strategies'
+                      : 'Student data queries, course information, analytics insights, organizational management'
                     }
                   </div>
                 </div>
@@ -95,16 +95,16 @@ export function ModeOnboarding({ onComplete, userRole = 'student' }: ModeOnboard
                   <p className="text-sm text-muted-foreground">
                     <strong>{isStudent 
                       ? 'Deep learning through guided questions.'
-                      : 'Deep guidance through structured support.'
+                      : 'Educational expertise and curriculum support.'
                     }</strong> {isStudent 
                       ? "Ready for a deep dive? I'll guide you with questions to help you master topics yourself. It's a workout for your brain!"
-                      : "Ready for comprehensive assistance? I'll guide you through complex topics with detailed, step-by-step support for your organization's needs."
+                      : "Access comprehensive educational knowledge, teaching strategies, curriculum development guidance, and subject matter expertise for your instructional needs."
                     }
                   </p>
                   <div className="text-xs text-muted-foreground mt-2">
                     🎯 Perfect for: {isStudent 
                       ? 'Mastering concepts, exam prep, deep understanding'
-                      : 'Professional development, curriculum planning, strategic guidance'
+                      : 'Lesson planning, teaching methods, curriculum design, educational theory'
                     }
                   </div>
                 </div>

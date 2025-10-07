@@ -60,26 +60,52 @@ export async function fetchOrgData(userId: string, orgId: string | undefined, qu
     // Check for student/member related queries
     if (questionLower.includes('student') || questionLower.includes('member') || 
         questionLower.includes('user') || questionLower.includes('learner')) {
+      // Fetch org_members (students with accounts)
       const { data: members } = await supabase
         .from('org_members')
         .select(`
           id,
+          user_id,
           role,
           status,
-          joined_at,
-          profiles:user_id (
-            display_name,
-            email
-          )
+          joined_at
         `)
         .eq('org_id', orgId)
         .order('joined_at', { ascending: false })
         .limit(100);
 
-      if (members) {
-        fetchedData.members = members;
-        fetchedData.dataTypes.push('members');
-        fetchedData.memberCount = members.length;
+      // Fetch org_students (profile-only students)
+      const { data: profileStudents } = await supabase
+        .from('org_students')
+        .select(`
+          id,
+          student_name,
+          date_of_birth,
+          grade_level,
+          email,
+          phone,
+          created_at
+        `)
+        .eq('org_id', orgId)
+        .limit(100);
+
+      // Fetch enrollments and progress for students
+      if (members && members.length > 0) {
+        const memberIds = members.map(m => m.user_id);
+        const { data: enrollments } = await supabase
+          .from('interactive_course_enrollments')
+          .select('user_id, course_id, course_title, completion_percentage, last_accessed_at')
+          .in('user_id', memberIds);
+
+        fetchedData.studentEnrollments = enrollments || [];
+      }
+
+      if (members || profileStudents) {
+        fetchedData.members = members || [];
+        fetchedData.profileOnlyStudents = profileStudents || [];
+        fetchedData.dataTypes.push('students');
+        fetchedData.totalStudentCount = (members?.length || 0) + (profileStudents?.length || 0);
+        fetchedData.activeStudents = members?.filter(m => m.status === 'active' && m.role === 'student').length || 0;
       }
     }
 
@@ -139,19 +165,184 @@ export async function fetchOrgData(userId: string, orgId: string | undefined, qu
       fetchedData.dataTypes.push('assignment_guidance');
     }
 
-    // Check for analytics queries
+    // Check for analytics/dashboard queries
     if (questionLower.includes('analytic') || questionLower.includes('report') || 
-        questionLower.includes('performance') || questionLower.includes('metric')) {
+        questionLower.includes('performance') || questionLower.includes('metric') ||
+        questionLower.includes('dashboard') || questionLower.includes('overview')) {
       const { data: analytics } = await supabase
         .from('analytics_metrics')
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(50);
 
-      if (analytics) {
-        fetchedData.analytics = analytics;
+      // Get activity log for recent activity
+      const { data: recentActivity } = await supabase
+        .from('activity_log')
+        .select('event, created_at, user_id, metadata')
+        .eq('org_id', orgId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (analytics || recentActivity) {
+        fetchedData.analytics = analytics || [];
+        fetchedData.recentActivity = recentActivity || [];
         fetchedData.dataTypes.push('analytics');
       }
+    }
+
+    // Check for group queries
+    if (questionLower.includes('group') || questionLower.includes('cohort')) {
+      const { data: groups } = await supabase
+        .from('org_groups')
+        .select(`
+          id,
+          name,
+          created_at
+        `)
+        .eq('org_id', orgId);
+
+      // Get group membership counts
+      if (groups && groups.length > 0) {
+        const groupIds = groups.map(g => g.id);
+        const { data: memberships } = await supabase
+          .from('org_group_members')
+          .select('group_id, user_id')
+          .in('group_id', groupIds);
+
+        const groupMemberCounts = memberships?.reduce((acc: any, m: any) => {
+          acc[m.group_id] = (acc[m.group_id] || 0) + 1;
+          return acc;
+        }, {});
+
+        fetchedData.groups = groups.map(g => ({
+          ...g,
+          memberCount: groupMemberCounts?.[g.id] || 0
+        }));
+        fetchedData.dataTypes.push('groups');
+      }
+    }
+
+    // Check for goal queries
+    if (questionLower.includes('goal') || questionLower.includes('objective') ||
+        questionLower.includes('target')) {
+      const { data: goals } = await supabase
+        .from('org_goals')
+        .select(`
+          id,
+          title,
+          description,
+          status,
+          progress_percentage,
+          target_date,
+          created_at,
+          student_id
+        `)
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (goals) {
+        fetchedData.goals = goals;
+        fetchedData.dataTypes.push('goals');
+        fetchedData.activeGoalsCount = goals.filter(g => g.status === 'active').length;
+        fetchedData.completedGoalsCount = goals.filter(g => g.status === 'completed').length;
+      }
+    }
+
+    // Check for note queries
+    if (questionLower.includes('note') || questionLower.includes('annotation')) {
+      const { data: notes } = await supabase
+        .from('org_notes')
+        .select(`
+          id,
+          title,
+          content,
+          category,
+          visibility_scope,
+          created_at,
+          created_by
+        `)
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (notes) {
+        fetchedData.notes = notes;
+        fetchedData.dataTypes.push('notes');
+        fetchedData.notesCount = notes.length;
+      }
+    }
+
+    // Check for IEP queries  
+    if (questionLower.includes('iep') || questionLower.includes('education plan') ||
+        questionLower.includes('individualized')) {
+      const { data: iepDocs } = await supabase
+        .from('iep_documents')
+        .select(`
+          id,
+          document_name,
+          created_at,
+          user_id
+        `)
+        .limit(50);
+
+      if (iepDocs) {
+        fetchedData.iepDocuments = iepDocs;
+        fetchedData.dataTypes.push('iep');
+        fetchedData.iepCount = iepDocs.length;
+      }
+    }
+
+    // Check for course/curriculum queries
+    if (questionLower.includes('course') || questionLower.includes('curriculum') ||
+        questionLower.includes('lesson') || questionLower.includes('module')) {
+      // Get course assignments
+      const { data: courseAssignments } = await supabase
+        .from('org_course_assignments')
+        .select(`
+          id,
+          course_id,
+          due_date,
+          created_at,
+          student_ids
+        `)
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      // Get available courses
+      const { data: courses } = await supabase
+        .from('courses')
+        .select('id, title, description, level, duration_minutes')
+        .eq('organization_id', orgId)
+        .limit(100);
+
+      if (courseAssignments || courses) {
+        fetchedData.courseAssignments = courseAssignments || [];
+        fetchedData.availableCourses = courses || [];
+        fetchedData.dataTypes.push('courses');
+      }
+    }
+
+    // Check for settings queries
+    if (questionLower.includes('setting') || questionLower.includes('config') ||
+        questionLower.includes('preference') || questionLower.includes('feature')) {
+      const { data: branding } = await supabase
+        .from('org_branding')
+        .select('*')
+        .eq('org_id', orgId)
+        .single();
+
+      fetchedData.settings = {
+        branding: branding,
+        features: {
+          aiAssistantEnabled: true,
+          analyticsEnabled: true,
+          iepManagementEnabled: true,
+          groupManagementEnabled: true
+        }
+      };
+      fetchedData.dataTypes.push('settings');
     }
 
     return fetchedData;
