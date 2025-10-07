@@ -618,9 +618,7 @@ export function EnhancedCourseCard({
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size={isMobile ? "sm" : "sm"} className={cn("flex-shrink-0", isMobile ? "h-8 w-8 p-0" : "h-9 w-9 p-0")}>
-                  <MoreVertical className={cn(isMobile ? "h-3 w-3" : "h-4 w-4")} />
-                </Button>
+                
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 {canManageOrg() && actions.onAssignToStudents && <>
