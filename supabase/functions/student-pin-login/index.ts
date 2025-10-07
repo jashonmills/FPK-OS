@@ -119,12 +119,14 @@ serve(async (req) => {
 
     // If student has a linked user account, create a session
     if (linked_user_id) {
-      // Generate a session token for the user
+      // Generate session with redirect through our edge function
+      const callbackUrl = `${origin}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+      
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: `${origin}${redirectUrl}`
+          redirectTo: callbackUrl
         }
       });
 
@@ -147,14 +149,11 @@ serve(async (req) => {
         });
 
       // Return the magic link properties so client can verify the hash
-      // Append redirect URL as query parameter to auth link
-      const authUrl = new URL(sessionData.properties.action_link);
-      authUrl.searchParams.set('next', encodeURIComponent(`${origin}${redirectUrl}`));
-
+      // Return the auth link (already includes our callback redirect)
       return new Response(
         JSON.stringify({
           success: true,
-          auth_link: authUrl.toString(),
+          auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
           redirect_url: redirectUrl
@@ -189,12 +188,14 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate session link for new user
+    // Generate session link with redirect through our edge function
+    const callbackUrl = `${origin}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+    
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail,
       options: {
-        redirectTo: `${origin}${redirectUrl}`
+        redirectTo: callbackUrl
       }
     });
 
@@ -218,14 +219,11 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Login successful');
 
-    // Append redirect URL as query parameter to auth link
-    const authUrl = new URL(sessionData.properties.action_link);
-    authUrl.searchParams.set('next', encodeURIComponent(`${origin}${redirectUrl}`));
-
+    // Return the auth link (already includes our callback redirect)
     return new Response(
       JSON.stringify({
         success: true,
-        auth_link: authUrl.toString(),
+        auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
         redirect_url: redirectUrl

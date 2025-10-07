@@ -34,18 +34,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Handle student login redirects after authentication
-        if (event === 'SIGNED_IN' && session) {
-          const storedRedirect = localStorage.getItem('student_login_redirect');
-          if (storedRedirect) {
-            localStorage.removeItem('student_login_redirect');
-            console.log('useAuth: Redirecting to stored URL:', storedRedirect);
-            setTimeout(() => {
-              window.location.href = storedRedirect;
-            }, 100);
-          }
-        }
       }
     );
 
@@ -56,19 +44,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
-      // Check for student redirect on initial load (in case SIGNED_IN event doesn't fire)
-      if (session?.user) {
-        const storedRedirect = localStorage.getItem('student_login_redirect');
-        if (storedRedirect) {
-          console.log('useAuth: Found stored redirect on initial load:', storedRedirect);
-          localStorage.removeItem('student_login_redirect');
-          setTimeout(() => {
-            console.log('useAuth: Executing redirect to:', storedRedirect);
-            window.location.href = storedRedirect;
-          }, 500);
-        }
-      }
     }).catch((err) => {
       console.error('useAuth: Error getting initial session:', err);
       setLoading(false);

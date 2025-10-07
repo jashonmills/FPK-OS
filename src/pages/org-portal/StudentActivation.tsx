@@ -173,7 +173,7 @@ export default function StudentActivation() {
           description: 'Redirecting to your dashboard...'
         });
 
-        // Navigate to the auth link which will authenticate and redirect
+        // Navigate to the auth link which will authenticate and redirect via edge function
         setTimeout(() => {
           window.location.href = data.auth_link;
         }, 500);

@@ -116,12 +116,6 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Store the intended redirect URL before authenticating (backup)
-      const redirectUrl = data.redirect_url || `/org/${orgSlug}/student-portal`;
-      localStorage.setItem('student_login_redirect', redirectUrl);
-      
-      console.log('[StudentPinLogin] Stored redirect URL:', redirectUrl);
-
       // Login successful - use the auth link to authenticate
       if (data.auth_link) {
         toast({
@@ -129,15 +123,16 @@ export default function StudentPinLogin() {
           description: 'Redirecting to your dashboard...'
         });
         
-        // Navigate to the auth link which includes 'next' parameter for redirect
+        // Navigate to the auth link which will authenticate and redirect via edge function
         window.location.href = data.auth_link;
       } else {
         // Fallback redirect
         toast({
           title: 'Login Successful',
-          description: 'Redirecting to your dashboard...'
+          description: 'Redirecting...'
         });
         
+        const redirectUrl = data.redirect_url || `/org/${orgSlug}/student-portal`;
         navigate(redirectUrl);
       }
     } catch (error) {
