@@ -63,6 +63,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { TransparentTile } from '@/components/ui/transparent-tile';
 import { supabase } from '@/integrations/supabase/client';
+import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 
 const InviteMembersPage = () => {
   const { orgId } = useParams<{ orgId: string }>();
@@ -79,6 +80,9 @@ const InviteMembersPage = () => {
   
   // Join code state
   const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  
+  // Manual add staff state
+  const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
   
   // Hooks
   const { invites, createInvite, deleteInvite, generateInviteUrl, isCreating, isDeleting } = useOrgInvites();
@@ -418,6 +422,34 @@ const InviteMembersPage = () => {
               )}
             </CardContent>
           </TransparentTile>
+
+          {/* Manual Add Staff - Only for org owners/instructors */}
+          {canManageOrg() && (
+            <TransparentTile>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5" />
+                  Add Staff Manually
+                </CardTitle>
+                <CardDescription>
+                  Directly add instructors, aides, or viewers to your organization without sending an invite.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() => setManualAddDialogOpen(true)}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Staff Member
+                </Button>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Staff members will receive a welcome email with instructions to set up their account.
+                </p>
+              </CardContent>
+            </TransparentTile>
+          )}
         </div>
 
         {/* Right Column - Current State */}
@@ -543,6 +575,16 @@ const InviteMembersPage = () => {
           You can revoke access or change roles anytime in Members & Roles.
         </AlertDescription>
       </Alert>
+
+      {/* Manual Staff Add Dialog */}
+      <ManualStaffAddDialog
+        open={manualAddDialogOpen}
+        onOpenChange={setManualAddDialogOpen}
+        organizationId={orgId!}
+        onSuccess={() => {
+          // Refresh members list if needed
+        }}
+      />
 
       {/* Footer Hint */}
       <div className="text-center py-4">
