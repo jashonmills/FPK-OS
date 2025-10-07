@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Check, Loader2, AlertCircle, UserCheck } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useToast } from '@/hooks/use-toast';
+import { OrgBanner } from '@/components/branding/OrgBanner';
 
 export default function StudentActivation() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -185,10 +186,11 @@ export default function StudentActivation() {
 
   if (validating) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-orange-500 mx-auto mb-4" />
-          <p className="text-gray-600">Validating activation link...</p>
+      <div className="min-h-screen relative flex items-center justify-center">
+        <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+        <div className="relative z-10 text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg mx-auto mb-4" />
+          <p className="text-white drop-shadow-lg">Validating activation link...</p>
         </div>
       </div>
     );
@@ -196,8 +198,9 @@ export default function StudentActivation() {
 
   if (!tokenValid) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
-        <div className="w-full max-w-md">
+      <div className="min-h-screen relative flex flex-col items-center justify-center p-4">
+        <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+        <div className="relative z-10 w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-red-100">
             <div className="text-center">
               <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -221,26 +224,34 @@ export default function StudentActivation() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
-      <div className="w-full max-w-md">
-        {/* Logo Section */}
-        <div className="text-center mb-8">
-          {branding?.logo_url ? (
-            <img 
-              src={branding.logo_url} 
-              alt={`${orgName} logo`}
-              className="h-20 mx-auto mb-4 object-contain"
-            />
-          ) : (
-            <div className="w-20 h-20 mx-auto mb-4 bg-orange-500/10 rounded-full flex items-center justify-center">
-              <UserCheck className="w-10 h-10 text-orange-500" />
+    <div className="min-h-screen relative">
+      {/* Full-screen background */}
+      <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">
+        {/* Orange transparent banner at top */}
+        <div className="w-full max-w-4xl mx-auto mb-8">
+          <div className="bg-orange-500/80 backdrop-blur-md rounded-lg shadow-lg p-6">
+            <div className="flex items-center">
+              {branding?.logo_url && (
+                <img 
+                  src={branding.logo_url} 
+                  alt={`${orgName} logo`}
+                  className="h-16 sm:h-20 md:h-24 object-contain mr-6"
+                />
+              )}
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                  {orgName}
+                </h1>
+                <p className="text-white/90 text-sm sm:text-base drop-shadow-md">Activate Your Account</p>
+              </div>
             </div>
-          )}
-          <h1 className="text-2xl font-bold text-gray-900">
-            {orgName}
-          </h1>
-          <p className="text-gray-600 mt-1">Activate Your Account</p>
+          </div>
         </div>
+      
+        <div className="w-full max-w-md mx-auto">
 
         {/* Activation Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
@@ -345,8 +356,9 @@ export default function StudentActivation() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500">
+        <div className="text-center mt-6 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block shadow-md">
           <p>Powered by FPK University</p>
+        </div>
         </div>
       </div>
     </div>

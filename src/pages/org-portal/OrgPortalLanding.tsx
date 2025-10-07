@@ -63,7 +63,7 @@ export default function OrgPortalLanding() {
       <div className="min-h-screen relative flex items-center justify-center">
         <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
         <div className="relative z-10">
-          <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
         </div>
       </div>
     );
@@ -76,10 +76,10 @@ export default function OrgPortalLanding() {
       
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">
-        {/* Banner at top */}
+        {/* Orange transparent banner at top */}
         <div className="w-full max-w-4xl mx-auto mb-8">
-          <OrgBanner className="h-24 sm:h-32 md:h-40 rounded-lg overflow-hidden shadow-lg" overlay={false}>
-            <div className="h-full flex items-center px-6">
+          <div className="bg-orange-500/80 backdrop-blur-md rounded-lg shadow-lg p-6">
+            <div className="flex items-center">
               {branding?.logo_url && (
                 <img 
                   src={branding.logo_url} 
@@ -94,16 +94,16 @@ export default function OrgPortalLanding() {
                 <p className="text-white/90 text-sm sm:text-base drop-shadow-md">Beta Plan Organization</p>
               </div>
             </div>
-          </OrgBanner>
+          </div>
         </div>
         
         <div className="w-full max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg inline-block">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg inline-block shadow-lg">
               {orgName}
             </h1>
-            <p className="text-lg text-gray-700 mt-4 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block">
+            <p className="text-lg text-gray-700 mt-4 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block shadow-md">
               Student Portal
             </p>
           </div>
