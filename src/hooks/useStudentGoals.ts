@@ -60,10 +60,17 @@ export function useStudentGoals(organizationId?: string) {
         .select('id, org_id')
         .eq('linked_user_id', user.id);
 
+      console.log('🎯 useStudentGoals - Student records:', { 
+        userId: user.id, 
+        studentRecords, 
+        studentError,
+        organizationId 
+      });
+
       if (studentError) throw studentError;
 
       if (!studentRecords || studentRecords.length === 0) {
-        console.log('No student records found for user');
+        console.log('❌ No student records found for user');
         setGoals([]);
         setIsLoading(false);
         return;
@@ -96,6 +103,15 @@ export function useStudentGoals(organizationId?: string) {
       }
 
       const { data: goalsData, error: goalsError } = await query;
+
+      console.log('🎯 useStudentGoals - Goals query result:', { 
+        goalsData, 
+        goalsError,
+        studentIds,
+        organizationId 
+      });
+
+      if (goalsError) throw goalsError;
 
       // Fetch progress for these goals
       const goalIds = (goalsData || []).map(g => g.id);

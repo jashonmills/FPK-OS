@@ -144,6 +144,19 @@ export default function GoalsPage() {
   const canManageGoals = userRole === 'owner' || userRole === 'instructor';
   const isStudent = userRole === 'student';
   
+  console.log('🎯 Goals Page Debug:', {
+    userRole,
+    isStudent,
+    currentUserStudentRecord,
+    totalGoals: goals.length,
+    goalsData: goals.map(g => ({
+      id: g.id,
+      title: g.title,
+      student_id: g.student_id,
+      status: g.status
+    }))
+  });
+  
   const filteredGoals = goals.filter(goal => {
     // Filter by student if user is a student
     const matchesStudent = !isStudent || 
@@ -154,6 +167,15 @@ export default function GoalsPage() {
                          goal.category.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = filterStatus === 'all' || goal.status === filterStatus;
+    
+    console.log('🔍 Filtering goal:', {
+      goalTitle: goal.title,
+      goalStudentId: goal.student_id,
+      matchesStudent,
+      matchesSearch,
+      matchesStatus,
+      willShow: matchesStudent && matchesSearch && matchesStatus
+    });
     
     return matchesStudent && matchesSearch && matchesStatus;
   });
