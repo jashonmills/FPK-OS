@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { OrgCard as Card, OrgCardContent as CardContent, OrgCardDescription as CardDescription, OrgCardHeader as CardHeader, OrgCardTitle as CardTitle } from '@/components/organizations/OrgCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
 import { 
   Users, 
@@ -25,6 +26,7 @@ export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
   
   // Role-based statistics loading
   const isStudent = currentOrg?.role === 'student';
@@ -383,18 +385,10 @@ export default function OrgPortalHome() {
                 <Button 
                   variant="outline" 
                   className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => setShowProgressModal(true)}
                 >
                   <TrendingUp className="h-4 w-4" />
                   <span>My Progress</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate('/study')}
-                >
-                  <Award className="h-4 w-4" />
-                  <span>Study Hub</span>
                 </Button>
               </>
             ) : (
@@ -420,6 +414,120 @@ export default function OrgPortalHome() {
           </div>
         </CardContent>
       </Card>
+
+      {/* My Progress Modal */}
+      <Dialog open={showProgressModal} onOpenChange={setShowProgressModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              My Learning Progress
+            </DialogTitle>
+            <DialogDescription>
+              Your personal learning progress in this organization
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 mt-4">
+            {/* Overview Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="text-2xl font-bold">{studentStats?.myEnrollments || 0}</div>
+                <div className="text-sm text-muted-foreground">Enrollments</div>
+              </div>
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="text-2xl font-bold">{studentStats?.completedCourses || 0}</div>
+                <div className="text-sm text-muted-foreground">Completed</div>
+              </div>
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="text-2xl font-bold">{studentStats?.myGoals || 0}</div>
+                <div className="text-sm text-muted-foreground">Active Goals</div>
+              </div>
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="text-2xl font-bold">{Math.round(studentStats?.myProgress || 0)}%</div>
+                <div className="text-sm text-muted-foreground">Avg Progress</div>
+              </div>
+            </div>
+
+            {/* Overall Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">Overall Progress</span>
+                <span className="text-muted-foreground">{Math.round(studentStats?.myProgress || 0)}%</span>
+              </div>
+              <Progress value={studentStats?.myProgress || 0} className="h-2" />
+            </div>
+
+            {/* Course Progress Details */}
+            {studentStats?.myEnrollments > 0 ? (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm">Course Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Total Courses</span>
+                    <span className="font-medium">{studentStats.myEnrollments}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">In Progress</span>
+                    <span className="font-medium">
+                      {(studentStats.myEnrollments || 0) - (studentStats.completedCourses || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Completed</span>
+                    <span className="font-medium">{studentStats.completedCourses}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-muted-foreground">Active Goals</span>
+                    <span className="font-medium">{studentStats.myGoals}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No courses enrolled yet</p>
+                <p className="text-sm mt-2">Start by viewing available courses</p>
+                <Button 
+                  className="mt-4"
+                  onClick={() => {
+                    setShowProgressModal(false);
+                    navigate(`/org/${currentOrg?.organization_id}/courses`);
+                  }}
+                >
+                  View Courses
+                </Button>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            <div className="flex gap-2 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setShowProgressModal(false);
+                  navigate(`/org/${currentOrg?.organization_id}/courses`);
+                }}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                My Courses
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setShowProgressModal(false);
+                  navigate(`/dashboard/learner/analytics-debug`);
+                }}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Detailed Analytics
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
