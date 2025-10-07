@@ -106,11 +106,17 @@ export function StudentsTable({
                   </Avatar>
                   <div>
                     <div className="font-medium">{student.full_name}</div>
-                    {student.date_of_birth && (
-                      <div className="text-sm text-muted-foreground">
-                        Born {format(parseISO(student.date_of_birth), 'MMM d, yyyy')}
-                      </div>
-                    )}
+                    {student.date_of_birth && (() => {
+                      try {
+                        return (
+                          <div className="text-sm text-muted-foreground">
+                            Born {format(parseISO(student.date_of_birth), 'MMM d, yyyy')}
+                          </div>
+                        );
+                      } catch {
+                        return null;
+                      }
+                    })()}
                   </div>
                 </div>
               </TableCell>
