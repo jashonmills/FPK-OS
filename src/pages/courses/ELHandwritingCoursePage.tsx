@@ -115,7 +115,11 @@ const ELHandwritingCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/el-handwriting/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/el-handwriting/${lessonId}?org=${orgParam}`
+      : `/courses/el-handwriting/${lessonId}`;
+    navigate(url);
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
@@ -124,7 +128,11 @@ const ELHandwritingCoursePage: React.FC = () => {
 
   const handleBackToCourseOverview = useCallback(() => {
     setCurrentLesson(null);
-    navigate('/courses/el-handwriting');
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/el-handwriting?org=${orgParam}`
+      : '/courses/el-handwriting';
+    navigate(url);
   }, [navigate]);
 
   const handleDashboard = useCallback(() => {
