@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { LogIn, Loader2 } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
+import { OrgBanner } from '@/components/branding/OrgBanner';
 
 export default function OrgPortalLanding() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -59,35 +60,53 @@ export default function OrgPortalLanding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      <div className="min-h-screen relative flex items-center justify-center">
+        <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+        <div className="relative z-10">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
-      <div className="w-full max-w-md">
-        {/* Logo Section */}
-        <div className="text-center mb-8">
-          {branding?.logo_url ? (
-            <img 
-              src={branding.logo_url} 
-              alt={`${orgName} logo`}
-              className="h-24 mx-auto mb-4 object-contain"
-            />
-          ) : (
-            <div className="w-24 h-24 mx-auto mb-4 bg-orange-500/10 rounded-full flex items-center justify-center">
-              <LogIn className="w-12 h-12 text-orange-500" />
+    <div className="min-h-screen relative">
+      {/* Full-screen background */}
+      <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">
+        {/* Banner at top */}
+        <div className="w-full max-w-4xl mx-auto mb-8">
+          <OrgBanner className="h-24 sm:h-32 md:h-40 rounded-lg overflow-hidden shadow-lg" overlay={false}>
+            <div className="h-full flex items-center px-6">
+              {branding?.logo_url && (
+                <img 
+                  src={branding.logo_url} 
+                  alt={`${orgName} logo`}
+                  className="h-16 sm:h-20 md:h-24 object-contain mr-6"
+                />
+              )}
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                  Welcome to {orgName}
+                </h1>
+                <p className="text-white/90 text-sm sm:text-base drop-shadow-md">Beta Plan Organization</p>
+              </div>
             </div>
-          )}
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {orgName}
-          </h1>
-          <p className="text-lg text-gray-600">
-            Student Portal
-          </p>
+          </OrgBanner>
         </div>
+        
+        <div className="w-full max-w-md mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg inline-block">
+              {orgName}
+            </h1>
+            <p className="text-lg text-gray-700 mt-4 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block">
+              Student Portal
+            </p>
+          </div>
 
         {/* Welcome Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
@@ -116,9 +135,10 @@ export default function OrgPortalLanding() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500">
-          <p>Powered by FPK University</p>
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-gray-600 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block">
+            <p>Powered by FPK University</p>
+          </div>
         </div>
       </div>
     </div>

@@ -57,7 +57,7 @@ export function OrgBanner({
   return (
     <div 
       className={cn(
-        'relative bg-center bg-no-repeat bg-contain',
+        'relative bg-center bg-no-repeat bg-cover',
         className
       )}
       style={{ 

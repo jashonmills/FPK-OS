@@ -134,8 +134,8 @@ export default function StudentPinLogin() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <OrgBanner className="fixed inset-0 bg-cover" overlay={true} overlayOpacity={0.3} />
+      <div className="min-h-screen relative flex items-center justify-center">
+        <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
         <div className="relative z-10">
           <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
         </div>
@@ -145,44 +145,49 @@ export default function StudentPinLogin() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Full-screen background banner */}
-      <OrgBanner className="fixed inset-0 bg-cover" overlay={true} overlayOpacity={0.3} />
+      {/* Full-screen background */}
+      <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
       
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">
         {/* Banner at top */}
-        <div className="w-full mb-4">
-          <OrgBanner className="h-24 sm:h-32 rounded-lg overflow-hidden shadow-lg" overlay={false} />
+        <div className="w-full max-w-4xl mx-auto mb-8">
+          <OrgBanner className="h-24 sm:h-32 md:h-40 rounded-lg overflow-hidden shadow-lg" overlay={false}>
+            <div className="h-full flex items-center px-6">
+              {branding?.logo_url && (
+                <img 
+                  src={branding.logo_url} 
+                  alt={`${orgName} logo`}
+                  className="h-16 sm:h-20 md:h-24 object-contain mr-6"
+                />
+              )}
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                  Welcome to {orgName}
+                </h1>
+                <p className="text-white/90 text-sm sm:text-base drop-shadow-md">Beta Plan Organization</p>
+              </div>
+            </div>
+          </OrgBanner>
         </div>
         
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mx-auto">
         {/* Back Button */}
         <Button
           variant="ghost"
           onClick={() => navigate(`/${orgSlug}`)}
-          className="mb-4"
+          className="mb-4 bg-white/90 hover:bg-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Portal
         </Button>
 
-        {/* Logo Section */}
+        {/* Header */}
         <div className="text-center mb-8">
-          {branding?.logo_url ? (
-            <img 
-              src={branding.logo_url} 
-              alt={`${orgName} logo`}
-              className="h-20 mx-auto mb-4 object-contain"
-            />
-          ) : (
-            <div className="w-20 h-20 mx-auto mb-4 bg-orange-500/10 rounded-full flex items-center justify-center">
-              <LogIn className="w-10 h-10 text-orange-500" />
-            </div>
-          )}
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg inline-block">
             {orgName}
           </h1>
-          <p className="text-gray-600 mt-1">Student Login</p>
+          <p className="text-gray-700 mt-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded inline-block">Student Login</p>
         </div>
 
         {/* Login Form */}
