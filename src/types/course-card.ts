@@ -7,6 +7,7 @@ export interface CourseCard {
   duration_minutes?: number;
   difficulty_level?: string;
   tags?: string[];
+  slug?: string;
   
   // Course metadata
   source: 'platform' | 'builder' | 'scorm' | 'native';
