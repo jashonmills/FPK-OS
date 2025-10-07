@@ -147,10 +147,14 @@ serve(async (req) => {
         });
 
       // Return the magic link properties so client can verify the hash
+      // Append redirect URL as query parameter to auth link
+      const authUrl = new URL(sessionData.properties.action_link);
+      authUrl.searchParams.set('next', encodeURIComponent(`${origin}${redirectUrl}`));
+
       return new Response(
         JSON.stringify({
           success: true,
-          auth_link: sessionData.properties.action_link,
+          auth_link: authUrl.toString(),
           student_id,
           org_id,
           redirect_url: redirectUrl
@@ -214,10 +218,14 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Login successful');
 
+    // Append redirect URL as query parameter to auth link
+    const authUrl = new URL(sessionData.properties.action_link);
+    authUrl.searchParams.set('next', encodeURIComponent(`${origin}${redirectUrl}`));
+
     return new Response(
       JSON.stringify({
         success: true,
-        auth_link: sessionData.properties.action_link,
+        auth_link: authUrl.toString(),
         student_id,
         org_id,
         redirect_url: redirectUrl

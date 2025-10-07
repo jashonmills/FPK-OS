@@ -166,21 +166,28 @@ export default function StudentActivation() {
         return;
       }
 
-      // Store the intended redirect URL from the response
-      if (data.redirect_url) {
-        localStorage.setItem('student_login_redirect', data.redirect_url);
+      // Activation successful - use the auth link to authenticate
+      if (data.auth_link) {
+        toast({
+          title: 'Account Activated!',
+          description: 'Redirecting to your dashboard...'
+        });
+
+        // Navigate to the auth link which will authenticate and redirect
+        setTimeout(() => {
+          window.location.href = data.auth_link;
+        }, 500);
+      } else {
+        // Fallback to login page if no auth link
+        toast({
+          title: 'Account Activated!',
+          description: 'Redirecting to login...'
+        });
+
+        setTimeout(() => {
+          navigate(`/${orgSlug}/login`);
+        }, 1500);
       }
-
-      // Activation successful
-      toast({
-        title: 'Account Activated!',
-        description: 'Your account has been activated successfully. Redirecting to login...'
-      });
-
-      // Redirect to login page
-      setTimeout(() => {
-        navigate(`/${orgSlug}/login`);
-      }, 1500);
     } catch (error) {
       console.error('Activation error:', error);
       setError('An unexpected error occurred. Please try again.');

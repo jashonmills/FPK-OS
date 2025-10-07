@@ -194,10 +194,15 @@ serve(async (req) => {
 
     console.log('[activate-student-account] Activation and user creation successful');
 
+    // Append redirect URL as query parameter to auth link
+    const authUrl = new URL(sessionData.properties.action_link);
+    authUrl.searchParams.set('next', encodeURIComponent(`${origin}${redirectUrl}`));
+
     return new Response(
       JSON.stringify({
         success: true,
         session: sessionData,
+        auth_link: authUrl.toString(),
         student_id,
         org_id,
         redirect_url: redirectUrl

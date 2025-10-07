@@ -116,7 +116,7 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Store the intended redirect URL before authenticating
+      // Store the intended redirect URL before authenticating (backup)
       const redirectUrl = data.redirect_url || `/org/${orgSlug}/student-portal`;
       localStorage.setItem('student_login_redirect', redirectUrl);
       
@@ -129,8 +129,7 @@ export default function StudentPinLogin() {
           description: 'Redirecting to your dashboard...'
         });
         
-        // Navigate to the auth link which will authenticate the user
-        // The redirect will be handled by useAuth and Index page after authentication
+        // Navigate to the auth link which includes 'next' parameter for redirect
         window.location.href = data.auth_link;
       } else {
         // Fallback redirect
