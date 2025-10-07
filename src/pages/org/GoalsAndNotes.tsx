@@ -236,7 +236,7 @@ function NoteCard({ note, student, isStudent, onView, onEdit }: {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-white/20 text-white hover:border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 onView();
