@@ -7,7 +7,7 @@ export interface OrgMember {
   role: 'owner' | 'instructor' | 'student';
   status: 'active' | 'inactive' | 'pending';
   joined_at: string;
-  id?: string; // For compatibility with existing code
+  id?: string;
   last_activity?: string;
   progress?: number;
   courses_completed?: number;
@@ -17,6 +17,11 @@ export interface OrgMember {
     display_name?: string;
     email?: string;
     avatar_url?: string;
+    phone_number?: string;
+    phone_extension?: string;
+    subject_taught?: string;
+    job_title?: string;
+    department?: string;
   };
 }
 
@@ -37,11 +42,16 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
             display_name,
             full_name,
             email,
-            avatar_url
+            avatar_url,
+            phone_number,
+            phone_extension,
+            subject_taught,
+            job_title,
+            department
           )
         `)
-        .eq('org_id', orgId)
-        .eq('status', 'active');
+        .eq('org_id', orgId);
+        // Removed the .eq('status', 'active') filter to show all members including pending
 
       if (roleFilter) {
         query = query.eq('role', roleFilter as 'owner' | 'instructor' | 'student');
@@ -74,6 +84,11 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
             display_name: displayName,
             email: profile?.email,
             avatar_url: profile?.avatar_url,
+            phone_number: profile?.phone_number,
+            phone_extension: profile?.phone_extension,
+            subject_taught: profile?.subject_taught,
+            job_title: profile?.job_title,
+            department: profile?.department,
           }
         };
       }) as OrgMember[];

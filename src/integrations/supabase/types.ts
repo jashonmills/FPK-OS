@@ -5895,21 +5895,26 @@ export type Database = {
           created_at: string | null
           current_streak: number | null
           date_format: string | null
+          department: string | null
           display_name: string | null
           dual_language_enabled: boolean | null
           email_notifications: Json | null
           font_family: string | null
           full_name: string | null
           id: string
+          job_title: string | null
           last_activity_date: string | null
           learning_styles: string[] | null
           line_spacing: number | null
           onboarding_completed: boolean | null
           pending_role: string | null
+          phone_extension: string | null
+          phone_number: string | null
           primary_language: string | null
           push_notifications_enabled: boolean | null
           signup_completed: boolean | null
           speech_to_text_enabled: boolean | null
+          subject_taught: string | null
           text_size: number | null
           time_format: string | null
           timezone: string | null
@@ -5929,21 +5934,26 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          department?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
           id: string
+          job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
           pending_role?: string | null
+          phone_extension?: string | null
+          phone_number?: string | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
           signup_completed?: boolean | null
           speech_to_text_enabled?: boolean | null
+          subject_taught?: string | null
           text_size?: number | null
           time_format?: string | null
           timezone?: string | null
@@ -5963,21 +5973,26 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          department?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
           pending_role?: string | null
+          phone_extension?: string | null
+          phone_number?: string | null
           primary_language?: string | null
           push_notifications_enabled?: boolean | null
           signup_completed?: boolean | null
           speech_to_text_enabled?: boolean | null
+          subject_taught?: string | null
           text_size?: number | null
           time_format?: string | null
           timezone?: string | null

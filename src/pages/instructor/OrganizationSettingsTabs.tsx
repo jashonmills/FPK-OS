@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar } from 'lucide-react';
+import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgBranding, useUpdateOrgBranding, useUploadBrandingFile } from '@/hooks/useOrgBranding';
 import { useOrgInvites } from '@/hooks/useOrgInvites';
@@ -27,6 +27,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
+import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
+import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -68,6 +71,11 @@ export default function OrganizationSettingsTabs() {
   const [joinCodeCopied, setJoinCodeCopied] = useState(false);
   const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
   const { invites, createInvite, deleteInvite, generateInviteUrl, isCreating, isDeleting } = useOrgInvites();
+  
+  // Members state
+  const { members, isLoading: membersLoading, refetch: refetchMembers } = useOrgMembers();
+  const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
+  const [memberProfileOpen, setMemberProfileOpen] = useState(false);
 
   if (!currentOrg) {
     return (
@@ -252,6 +260,10 @@ export default function OrganizationSettingsTabs() {
           <TabsTrigger value="invites" className="flex items-center gap-2">
             <UserPlus className="h-4 w-4" />
             Invite Members
+          </TabsTrigger>
+          <TabsTrigger value="members" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Members
           </TabsTrigger>
         </TabsList>
 
@@ -842,9 +854,134 @@ export default function OrganizationSettingsTabs() {
               toast({
                 title: 'Staff member added successfully',
               });
+              refetchMembers(); // Refresh members list
             }}
           />
         </TabsContent>
+
+        {/* Members Tab */}
+        <TabsContent value="members" className="space-y-6">
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+            <OrgCardHeader>
+              <OrgCardTitle className="flex items-center gap-2 text-white">
+                <Users className="h-5 w-5" />
+                Organization Members
+              </OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
+                View and manage all members in your organization
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent>
+              {membersLoading ? (
+                <div className="text-center py-8">
+                  <RefreshCw className="h-8 w-8 text-white/70 mx-auto mb-4 animate-spin" />
+                  <p className="text-white/80">Loading members...</p>
+                </div>
+              ) : members && members.length > 0 ? (
+                <div className="space-y-3">
+                  {members.map((member) => {
+                    const getInitials = (name: string) => {
+                      return name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2);
+                    };
+
+                    const getRoleBadgeColor = (role: string) => {
+                      switch (role) {
+                        case 'owner':
+                          return 'bg-purple-500/20 text-purple-300 border-purple-400/30';
+                        case 'instructor':
+                          return 'bg-blue-500/20 text-blue-300 border-blue-400/30';
+                        case 'instructor-aide':
+                          return 'bg-cyan-500/20 text-cyan-300 border-cyan-400/30';
+                        case 'student':
+                          return 'bg-green-500/20 text-green-300 border-green-400/30';
+                        default:
+                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
+                      }
+                    };
+
+                    const getStatusBadgeColor = (status: string) => {
+                      switch (status) {
+                        case 'active':
+                          return 'bg-green-500/20 text-green-300 border-green-400/30';
+                        case 'pending':
+                          return 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30';
+                        case 'inactive':
+                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
+                        default:
+                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
+                      }
+                    };
+
+                    return (
+                      <div 
+                        key={member.user_id} 
+                        className="flex items-center justify-between p-4 border border-white/30 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <Avatar className="h-12 w-12 border-2 border-white/20">
+                            <AvatarImage src={member.profiles?.avatar_url} />
+                            <AvatarFallback className="bg-orange-500 text-white">
+                              {getInitials(member.display_name || member.full_name || 'User')}
+                            </AvatarFallback>
+                          </Avatar>
+                          
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-semibold truncate">
+                              {member.full_name || member.display_name || 'Unnamed User'}
+                            </h4>
+                            <p className="text-sm text-white/70 truncate">
+                              {member.profiles?.email || 'No email'}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <Badge className={getRoleBadgeColor(member.role)}>
+                                {member.role.charAt(0).toUpperCase() + member.role.slice(1).replace('-', ' ')}
+                              </Badge>
+                              <Badge className={getStatusBadgeColor(member.status)}>
+                                {member.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setMemberProfileOpen(true);
+                          }}
+                          className="shrink-0"
+                        >
+                          <UserCircle className="h-4 w-4 mr-2" />
+                          View Profile
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-white/70 mx-auto mb-4" />
+                  <p className="text-white/80">
+                    No members found. Invite members to get started.
+                  </p>
+                </div>
+              )}
+            </OrgCardContent>
+          </OrgCard>
+        </TabsContent>
+
+        {/* Member Profile Dialog */}
+        <MemberProfileDialog
+          member={selectedMember}
+          open={memberProfileOpen}
+          onOpenChange={setMemberProfileOpen}
+        />
       </Tabs>
     </div>
   );
