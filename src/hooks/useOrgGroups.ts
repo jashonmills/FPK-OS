@@ -45,12 +45,11 @@ export function useOrgGroups() {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: async (groupData: { name: string; description?: string }) => {
+    mutationFn: async (groupData: { name: string }) => {
       const { data, error } = await supabase
         .from('org_groups')
         .insert({
           name: groupData.name,
-          description: groupData.description,
           org_id: orgId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         })
@@ -78,12 +77,11 @@ export function useOrgGroups() {
   });
 
   const updateGroupMutation = useMutation({
-    mutationFn: async (groupData: { id: string; name: string; description?: string }) => {
+    mutationFn: async (groupData: { id: string; name: string }) => {
       const { data, error } = await supabase
         .from('org_groups')
         .update({
           name: groupData.name,
-          description: groupData.description,
         })
         .eq('id', groupData.id)
         .eq('org_id', orgId)

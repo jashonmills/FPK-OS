@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { Users } from 'lucide-react';
 
@@ -16,7 +15,6 @@ interface CreateGroupDialogProps {
 export function CreateGroupDialog({ open, onOpenChange, trigger }: CreateGroupDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   
   const { createGroup, isCreating } = useOrgGroups();
 
@@ -38,12 +36,10 @@ export function CreateGroupDialog({ open, onOpenChange, trigger }: CreateGroupDi
     try {
       await createGroup({
         name: name.trim(),
-        description: description.trim() || undefined,
       });
       
       // Reset form
       setName('');
-      setDescription('');
       handleOpenChange(false);
     } catch (error) {
       console.error('Failed to create group:', error);
@@ -77,17 +73,6 @@ export function CreateGroupDialog({ open, onOpenChange, trigger }: CreateGroupDi
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter group name"
               required
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the purpose of this group..."
-              rows={3}
             />
           </div>
 
