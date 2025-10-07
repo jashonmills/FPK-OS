@@ -56,9 +56,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Check for student redirect on initial load (in case SIGNED_IN event doesn't fire)
+      if (session?.user) {
+        const storedRedirect = localStorage.getItem('student_login_redirect');
+        if (storedRedirect) {
+          console.log('useAuth: Found stored redirect on initial load:', storedRedirect);
+          localStorage.removeItem('student_login_redirect');
+          setTimeout(() => {
+            console.log('useAuth: Executing redirect to:', storedRedirect);
+            window.location.href = storedRedirect;
+          }, 500);
+        }
+      }
     }).catch((err) => {
       console.error('useAuth: Error getting initial session:', err);
-      setLoading(false); // Still set loading to false even on error
+      setLoading(false);
     });
 
     return () => {
