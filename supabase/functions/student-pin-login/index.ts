@@ -114,13 +114,18 @@ serve(async (req) => {
       .single();
 
     const orgSlug = orgData?.slug || org_id;
+    const redirectUrl = `/org/${orgSlug}/student-portal`;
+    const origin = req.headers.get('origin') || Deno.env.get('SUPABASE_URL') || 'https://fpkuniversity.com';
 
     // If student has a linked user account, create a session
     if (linked_user_id) {
       // Generate a session token for the user
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
-        email: `student-${student_id}@portal.fpkuniversity.com`
+        email: `student-${student_id}@portal.fpkuniversity.com`,
+        options: {
+          redirectTo: `${origin}${redirectUrl}`
+        }
       });
 
       if (sessionError || !sessionData?.properties?.hashed_token) {
@@ -148,7 +153,7 @@ serve(async (req) => {
           auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
-          redirect_url: `/org/${orgSlug}/student-portal`
+          redirect_url: redirectUrl
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -183,7 +188,10 @@ serve(async (req) => {
     // Generate session link for new user
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email: tempEmail
+      email: tempEmail,
+      options: {
+        redirectTo: `${origin}${redirectUrl}`
+      }
     });
 
     if (sessionError || !sessionData?.properties?.hashed_token) {
@@ -212,7 +220,7 @@ serve(async (req) => {
         auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
-        redirect_url: `/org/${orgSlug}/student-portal`
+        redirect_url: redirectUrl
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

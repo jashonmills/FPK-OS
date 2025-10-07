@@ -88,13 +88,24 @@ serve(async (req) => {
 
     console.log('[activate-student-account] Activation successful, student_id:', student_id);
 
+    // Get organization slug for proper redirect
+    const { data: orgData } = await supabaseAdmin
+      .from('organizations')
+      .select('slug')
+      .eq('id', org_id)
+      .single();
+
+    const orgSlug = orgData?.slug || org_id;
+    const origin = req.headers.get('origin') || Deno.env.get('SUPABASE_URL') || 'https://fpkuniversity.com';
+    const redirectUrl = `/org/${orgSlug}/student-portal`;
+
     // If student has a linked user, generate session
     if (linked_user_id) {
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: `${req.headers.get('origin')}/students/dashboard?org=${org_id}`
+          redirectTo: `${origin}${redirectUrl}`
         }
       });
 
@@ -122,7 +133,7 @@ serve(async (req) => {
           session: sessionData,
           student_id,
           org_id,
-          redirect_url: `/students/dashboard?org=${org_id}`
+          redirect_url: redirectUrl
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -159,7 +170,7 @@ serve(async (req) => {
       type: 'magiclink',
       email: tempEmail,
       options: {
-        redirectTo: `${req.headers.get('origin')}/students/dashboard?org=${org_id}`
+        redirectTo: `${origin}${redirectUrl}`
       }
     });
 
@@ -189,7 +200,7 @@ serve(async (req) => {
         session: sessionData,
         student_id,
         org_id,
-        redirect_url: `/students/dashboard?org=${org_id}`
+        redirect_url: redirectUrl
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
