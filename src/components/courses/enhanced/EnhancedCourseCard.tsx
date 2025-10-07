@@ -164,6 +164,17 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                   }
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  {canManageOrg() && actions.onAssignToStudents && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => actions.onAssignToStudents(course.id, course.title)}
+                      className="h-8 px-3 text-xs"
+                    >
+                      <UserPlus className="h-3 w-3 mr-1" />
+                      Assign
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
@@ -186,6 +197,15 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
+                      {canManageOrg() && actions.onAssignToStudents && (
+                        <>
+                          <DropdownMenuItem onClick={() => actions.onAssignToStudents(course.id, course.title)}>
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Assign to Students
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
                       {isPlatformCourse && (
                         <>
                           {actions.onDuplicateToOrg && (
@@ -239,12 +259,6 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                       <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
                         <Tag className="h-4 w-4 mr-2" />
                         Add to Collection
-                      </DropdownMenuItem>
-                    )}
-                    {canManageOrg() && (
-                      <DropdownMenuItem onClick={() => actions.onAssignToStudents?.(course.id, course.title)}>
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Assign to Students
                       </DropdownMenuItem>
                     )}
                     {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
@@ -336,6 +350,17 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                     : course.status.replace('_', ' ')
                   }
                 </div>
+                {canManageOrg() && actions.onAssignToStudents && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => actions.onAssignToStudents(course.id, course.title)}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <UserPlus className="h-3 w-3 mr-1" />
+                    Assign
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -358,6 +383,15 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    {canManageOrg() && actions.onAssignToStudents && (
+                      <>
+                        <DropdownMenuItem onClick={() => actions.onAssignToStudents(course.id, course.title)}>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Assign to Students
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     {isPlatformCourse && (
                       <>
                         {actions.onDuplicateToOrg && (
@@ -411,12 +445,6 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                       <DropdownMenuItem onClick={() => actions.onAddToCollection(course.id)}>
                         <Tag className="h-4 w-4 mr-2" />
                         Add to Collection
-                      </DropdownMenuItem>
-                    )}
-                    {canManageOrg() && (
-                      <DropdownMenuItem onClick={() => actions.onAssignToStudents?.(course.id, course.title)}>
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Assign to Students
                       </DropdownMenuItem>
                     )}
                     {(canPublish || canUnpublish) && <DropdownMenuSeparator />}
@@ -575,6 +603,17 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
 
             {/* Actions - Bottom right */}
             <div className="flex items-center gap-2 mt-4 pt-3 border-t">
+              {canManageOrg() && actions.onAssignToStudents && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => actions.onAssignToStudents(course.id, course.title)}
+                >
+                  <UserPlus className="h-4 w-4 mr-1" />
+                  Assign
+                </Button>
+              )}
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -599,6 +638,16 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  {canManageOrg() && actions.onAssignToStudents && (
+                    <>
+                      <DropdownMenuItem onClick={() => actions.onAssignToStudents(course.id, course.title)}>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Assign to Students
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  
                   {/* Same dropdown content as grid view */}
                   {isPlatformCourse && (
                     <>
@@ -856,6 +905,24 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
           isMobile ? "p-2" : "p-3"
         )}>
           {/* Primary Actions */}
+          {canManageOrg() && actions.onAssignToStudents && (
+            <Button
+              variant="secondary"
+              size={isMobile ? "sm" : "sm"}
+              onClick={() => actions.onAssignToStudents(course.id, course.title)}
+              className={cn(
+                "flex-1 min-w-0",
+                isMobile ? "h-8 px-2 text-xs" : "h-9"
+              )}
+            >
+              <UserPlus className={cn(
+                "mr-1 flex-shrink-0",
+                isMobile ? "h-3 w-3" : "h-4 w-4"
+              )} />
+              <span className="truncate">Assign</span>
+            </Button>
+          )}
+          
           <Button
             variant="outline"
             size={isMobile ? "sm" : "sm"}
@@ -904,6 +971,16 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              {canManageOrg() && actions.onAssignToStudents && (
+                <>
+                  <DropdownMenuItem onClick={() => actions.onAssignToStudents(course.id, course.title)}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Assign to Students
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              
               {/* Platform Course Actions */}
               {isPlatformCourse && (
                 <>
