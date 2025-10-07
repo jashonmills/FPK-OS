@@ -313,7 +313,7 @@ export default function StudentsManagementNew() {
           open={showActivationDialog}
           onOpenChange={setShowActivationDialog}
           student={selectedStudent}
-          orgSlug={orgId!}
+          orgSlug={currentOrg?.organizations?.slug || orgId!}
         />
       </div>
     </PageShell>

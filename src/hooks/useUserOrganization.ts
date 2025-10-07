@@ -8,6 +8,7 @@ export interface UserOrganizationMembership {
   organizations: {
     id: string;
     name: string;
+    slug: string;
     plan: string;
     subscription_tier: string;
   };
@@ -52,7 +53,7 @@ export function useUserOrganizations() {
       
       const { data: organizations, error: orgsError } = await supabase
         .from('organizations')
-        .select('id, name, plan')
+        .select('id, name, slug, plan')
         .in('id', orgIds);
 
       if (orgsError) {
@@ -81,6 +82,7 @@ export function useUserOrganizations() {
           organizations: {
             id: org?.id || '',
             name: org?.name || 'Unknown Organization',
+            slug: org?.slug || '',
             plan: org?.plan || '',
             subscription_tier: org?.plan || ''
           }
