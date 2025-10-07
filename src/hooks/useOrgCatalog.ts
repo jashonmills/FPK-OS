@@ -154,11 +154,17 @@ export function useOrgCatalog() {
         let orgCourses: OrgCourse[] = [];
 
         if (courseIds.size > 0) {
-          // Try platform courses first
+          const courseIdArray = Array.from(courseIds);
+          
+          // Separate UUID format (org courses) from text format (platform courses)
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const uuidCourseIds = courseIdArray.filter(id => uuidRegex.test(id));
+          
+          // Try platform courses first (all course IDs)
           const { data: platformData, error: platformError } = await supabase
             .from('courses')
             .select('*')
-            .in('id', Array.from(courseIds))
+            .in('id', courseIdArray)
             .eq('status', 'published')
             .order('title', { ascending: true });
 
@@ -168,19 +174,21 @@ export function useOrgCatalog() {
             platformCourses = platformData || [];
           }
 
-          // Try org courses
-          const { data: orgData, error: orgError } = await supabase
-            .from('org_courses')
-            .select('*')
-            .in('id', Array.from(courseIds))
-            .eq('org_id', orgId)
-            .eq('status', 'published')
-            .order('title', { ascending: true });
+          // Try org courses only with UUID format IDs
+          if (uuidCourseIds.length > 0) {
+            const { data: orgData, error: orgError } = await supabase
+              .from('org_courses')
+              .select('*')
+              .in('id', uuidCourseIds)
+              .eq('org_id', orgId)
+              .eq('status', 'published')
+              .order('title', { ascending: true });
 
-          if (orgError) {
-            console.error('Error fetching assigned org courses:', orgError);
-          } else {
-            orgCourses = orgData || [];
+            if (orgError) {
+              console.error('Error fetching assigned org courses:', orgError);
+            } else {
+              orgCourses = orgData || [];
+            }
           }
         }
 
