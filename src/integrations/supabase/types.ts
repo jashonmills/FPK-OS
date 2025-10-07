@@ -9370,7 +9370,9 @@ export type Database = {
         Returns: Json
       }
       get_student_analytics: {
-        Args: { p_user_id?: string }
+        Args:
+          | { p_org_id: string; p_student_id: string }
+          | { p_user_id?: string }
         Returns: Json
       }
       get_user_subscription_status: {
