@@ -14,9 +14,8 @@ import {
   Award
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgStatistics } from '@/hooks/useOrgStatistics';
 import { useStudentOrgStatistics } from '@/hooks/useStudentOrgStatistics';
-import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
+import { useComprehensiveOrgAnalytics } from '@/hooks/useComprehensiveOrgAnalytics';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
@@ -29,18 +28,16 @@ export default function OrgPortalHome() {
   
   // Role-based statistics loading
   const isStudent = currentOrg?.role === 'student';
-  const { data: adminStats, isLoading: adminStatsLoading, error: adminStatsError } = useOrgStatistics(
+  const { analytics, isLoading: analyticsLoading, error: analyticsError } = useComprehensiveOrgAnalytics(
     isStudent ? undefined : currentOrg?.organization_id
   );
   const { data: studentStats, isLoading: studentStatsLoading, error: studentStatsError } = useStudentOrgStatistics(
     isStudent ? currentOrg?.organization_id : undefined
   );
-  const { analytics, isLoading: analyticsLoading } = useOrgAnalytics();
 
-  // Use appropriate statistics based on role
-  const statistics = isStudent ? studentStats : adminStats;
-  const statsLoading = isStudent ? studentStatsLoading : adminStatsLoading;
-  const statsError = isStudent ? studentStatsError : adminStatsError;
+  // Use appropriate loading state
+  const statsLoading = isStudent ? studentStatsLoading : analyticsLoading;
+  const statsError = isStudent ? studentStatsError : analyticsError;
 
   if (!currentOrg) {
     return (
@@ -63,7 +60,7 @@ export default function OrgPortalHome() {
     );
   }
 
-  if (statsLoading || analyticsLoading) {
+  if (statsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -114,32 +111,32 @@ export default function OrgPortalHome() {
     },
   ] : [
     { 
-      label: 'Active Students', 
-      value: (adminStats?.studentCount || 0).toString(), 
+      label: 'Total Students', 
+      value: (analytics?.totalStudents || 0).toString(), 
       icon: Users, 
       color: 'text-blue-600' 
     },
     { 
       label: 'Course Assignments', 
-      value: (adminStats?.courseAssignments || 0).toString(), 
+      value: (analytics?.courseAssignments || 0).toString(), 
       icon: BookOpen, 
       color: 'text-green-600' 
     },
     { 
       label: 'Active Goals', 
-      value: (adminStats?.activeGoals || 0).toString(), 
+      value: (analytics?.activeGoals || 0).toString(), 
       icon: Target, 
       color: 'text-purple-600' 
     },
     { 
       label: 'Completion Rate', 
-      value: `${adminStats?.completionRate || 0}%`, 
+      value: `${analytics?.completionRate || 0}%`, 
       icon: TrendingUp, 
       color: 'text-orange-600' 
     },
   ];
 
-  const recentActivity = isStudent ? (studentStats?.recentActivity || []) : [];
+  const recentActivity = isStudent ? (studentStats?.recentActivity || []) : (analytics?.recentActivity || []);
 
   return (
     <div className="space-y-6">
@@ -263,10 +260,10 @@ export default function OrgPortalHome() {
                 <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
                   <div className="text-center text-white/70">
                     <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                    {adminStats && adminStats.studentCount > 0 ? (
+                    {analytics && analytics.totalStudents > 0 ? (
                       <>
                         <p className="text-sm">Progress Tracking</p>
-                        <p className="text-xs">Current progress: {Math.round(adminStats.averageProgress || 0)}%</p>
+                        <p className="text-xs">Current progress: {Math.round(analytics.averageProgress || 0)}%</p>
                       </>
                     ) : (
                       <>
@@ -280,15 +277,15 @@ export default function OrgPortalHome() {
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-sm text-white/70">Current Progress</div>
-                    <div className="text-xl font-bold text-white">{Math.round(adminStats?.averageProgress || 0)}%</div>
+                    <div className="text-xl font-bold text-white">{Math.round(analytics?.averageProgress || 0)}%</div>
                   </div>
                   <div>
                     <div className="text-sm text-white/70">Active Students</div>
-                    <div className="text-xl font-bold text-white">{adminStats?.activeMembers || 0}</div>
+                    <div className="text-xl font-bold text-white">{analytics?.activeStudents || 0}</div>
                   </div>
                   <div>
                     <div className="text-sm text-white/70">Total Students</div>
-                    <div className="text-xl font-bold text-white">{adminStats?.studentCount || 0}</div>
+                    <div className="text-xl font-bold text-white">{analytics?.totalStudents || 0}</div>
                   </div>
                 </div>
               </div>
@@ -309,13 +306,13 @@ export default function OrgPortalHome() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-white">Weekly Engagement</span>
                     <Badge variant="default" className="bg-white/20 text-white border-white/30">
-                      {Math.round(adminStats?.averageProgress || 0)}%
+                      {Math.round(analytics?.averageProgress || 0)}%
                     </Badge>
                   </div>
                   <div className="w-full bg-white/20 rounded-full h-2">
                     <div 
                       className="bg-purple-400 h-2 rounded-full"
-                      style={{ width: `${Math.round(adminStats?.averageProgress || 0)}%` }}
+                      style={{ width: `${Math.round(analytics?.averageProgress || 0)}%` }}
                     />
                   </div>
                 </div>
@@ -324,13 +321,13 @@ export default function OrgPortalHome() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-white">Course Completion</span>
                     <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      {adminStats?.completionRate || 0}%
+                      {analytics?.completionRate || 0}%
                     </Badge>
                   </div>
                   <div className="w-full bg-white/20 rounded-full h-2">
                     <div 
                       className="bg-green-400 h-2 rounded-full"
-                      style={{ width: `${adminStats?.completionRate || 0}%` }}
+                      style={{ width: `${analytics?.completionRate || 0}%` }}
                     />
                   </div>
                 </div>
