@@ -76,7 +76,7 @@ export default function GoalsAndNotes() {
           </div>
 
           {/* Filters */}
-          <OrgCard>
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
@@ -121,11 +121,11 @@ export default function GoalsAndNotes() {
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : filteredNotes.length === 0 ? (
-            <OrgCard>
+            <OrgCard className="bg-orange-500/65 border-orange-400/50">
               <OrgCardContent className="p-12 text-center">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Notes Yet</h3>
-                <p className="text-muted-foreground mb-4">
+                <FileText className="h-12 w-12 text-white/60 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2 text-white">No Notes Yet</h3>
+                <p className="text-white/80 mb-4">
                   Start documenting student progress and important observations
                 </p>
                 <Button disabled={isCreating}>
@@ -139,22 +139,22 @@ export default function GoalsAndNotes() {
               {filteredNotes.map((note) => {
                 const student = students.find(s => s.id === note.student_id);
                 return (
-                  <OrgCard key={note.id}>
+                  <OrgCard key={note.id} className="bg-orange-500/65 border-orange-400/50">
                     <OrgCardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <OrgCardTitle>{note.title}</OrgCardTitle>
-                          <OrgCardDescription>
+                          <OrgCardTitle className="text-white">{note.title}</OrgCardTitle>
+                          <OrgCardDescription className="text-white/80">
                             {note.content || 'No content'}
                           </OrgCardDescription>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
                           Edit
                         </Button>
                       </div>
                     </OrgCardHeader>
                     <OrgCardContent>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-4 text-sm text-white/70">
                         <span>{new Date(note.created_at).toLocaleDateString()}</span>
                         {student && (
                           <>

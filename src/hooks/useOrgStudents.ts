@@ -177,59 +177,23 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
     mutationFn: async (updateData: Partial<OrgStudent> & { id: string }) => {
       const { id, linked_user_id, org_id: studentOrgId, created_by, created_at, updated_at, ...updates } = updateData;
       
-      // Check if this student has a linked user account (from org_members)
-      if (linked_user_id) {
-        // For students with accounts, check if they have a profile in org_students
-        const { data: existingStudent } = await supabase
-          .from('org_students')
-          .select('id')
-          .eq('org_id', orgId)
-          .eq('linked_user_id', linked_user_id)
-          .maybeSingle();
+      console.log('Updating student:', { id, linked_user_id, updates });
+      
+      // For students from org_students table (profile-only or with linked accounts)
+      const { data, error } = await supabase
+        .from('org_students')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
 
-        const { data: currentUser } = await supabase.auth.getUser();
-        
-        if (existingStudent) {
-          // Update existing record
-          const { data, error } = await supabase
-            .from('org_students')
-            .update(updates)
-            .eq('id', existingStudent.id)
-            .select()
-            .single();
-
-          if (error) throw error;
-          return data;
-        } else {
-          // Create new profile record for this student
-          const insertData: any = {
-            org_id: orgId,
-            linked_user_id: linked_user_id,
-            created_by: currentUser.user?.id,
-            ...updates,
-          };
-
-          const { data, error } = await supabase
-            .from('org_students')
-            .insert(insertData)
-            .select()
-            .single();
-
-          if (error) throw error;
-          return data;
-        }
-      } else {
-        // For profile-only students, regular update
-        const { data, error } = await supabase
-          .from('org_students')
-          .update(updates)
-          .eq('id', id)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
       }
+      
+      console.log('Update successful:', data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-students', orgId] });

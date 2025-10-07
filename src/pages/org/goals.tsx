@@ -301,43 +301,43 @@ export default function GoalsPage() {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-4">
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium">Active Goals</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Active Goals</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold">{activeGoals.length}</div>
-            <p className="text-xs text-muted-foreground">In progress</p>
+            <div className="text-2xl font-bold text-white">{activeGoals.length}</div>
+            <p className="text-xs text-white/80">In progress</p>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium">Completed</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Completed</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold">{completedGoals.length}</div>
-            <p className="text-xs text-muted-foreground">Successfully achieved</p>
+            <div className="text-2xl font-bold text-white">{completedGoals.length}</div>
+            <p className="text-xs text-white/80">Successfully achieved</p>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium">Average Progress</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Average Progress</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold">{Math.round(totalProgress)}%</div>
-            <p className="text-xs text-muted-foreground">Across all goals</p>
+            <div className="text-2xl font-bold text-white">{Math.round(totalProgress)}%</div>
+            <p className="text-xs text-white/80">Across all goals</p>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard>
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium">Total Students</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium text-white">Total Students</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold">{studentsWithGoals}</div>
-            <p className="text-xs text-muted-foreground">With assigned goals</p>
+            <div className="text-2xl font-bold text-white">{studentsWithGoals}</div>
+            <p className="text-xs text-white/80">With assigned goals</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -387,12 +387,12 @@ export default function GoalsPage() {
             {filteredGoals.map((goal) => {
               const student = students.find(s => s.id === goal.student_id);
               return (
-              <OrgCard key={goal.id} className="hover:shadow-md transition-shadow">
+              <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50 hover:shadow-md transition-shadow">
                 <OrgCardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <OrgCardTitle className="text-lg line-clamp-1">{goal.title}</OrgCardTitle>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <OrgCardTitle className="text-lg line-clamp-1 text-white">{goal.title}</OrgCardTitle>
                         <Badge 
                           variant="outline" 
                           className={`text-xs ${getPriorityColor(goal.priority)}`}
@@ -411,9 +411,9 @@ export default function GoalsPage() {
                           {goal.status}
                         </Badge>
                       </div>
-                      <OrgCardDescription className="line-clamp-2">
-                        {goal.description || 'No description provided'}
-                      </OrgCardDescription>
+                        <OrgCardDescription className="line-clamp-2 text-white/80">
+                          {goal.description || 'No description provided'}
+                        </OrgCardDescription>
                     </div>
                     {canManageGoals && (
                       <DropdownMenu>
@@ -441,32 +441,32 @@ export default function GoalsPage() {
                   </div>
                 </OrgCardHeader>
                 <OrgCardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span>{goal.progress_percentage || 0}%</span>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="text-white/70">Progress</span>
+                          <span className="text-white">{goal.progress_percentage || 0}%</span>
+                        </div>
+                        <Progress value={goal.progress_percentage || 0} className="h-2" />
                       </div>
-                      <Progress value={goal.progress_percentage || 0} className="h-2" />
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          <span>{student?.full_name || 'Unknown Student'}</span>
+                      
+                      <div className="flex items-center justify-between text-sm text-white/70">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{student?.full_name || 'Unknown Student'}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>{goal.status}</span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          <span>{goal.status}</span>
+                          <Clock className="h-3 w-3" />
+                          <span>{new Date(goal.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{new Date(goal.created_at).toLocaleDateString()}</span>
-                      </div>
                     </div>
-                  </div>
                 </OrgCardContent>
               </OrgCard>
               );
