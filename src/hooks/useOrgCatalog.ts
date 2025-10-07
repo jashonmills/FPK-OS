@@ -15,6 +15,7 @@ interface PlatformCourse {
   status: string;
   source?: string;
   discoverable?: boolean;
+  slug?: string;
 }
 
 interface OrgCourse {
@@ -54,7 +55,8 @@ function mapPlatformCoursesToCards(courses: PlatformCourse[]): CourseCard[] {
       discoverable: course.discoverable || false,
       source_table: 'courses',
       badges,
-      route: `/course/${course.id}`
+      route: `/course/${course.id}`,
+      slug: course.slug
     };
   });
 }

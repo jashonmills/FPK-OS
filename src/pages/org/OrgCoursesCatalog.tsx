@@ -126,7 +126,8 @@ export default function OrgCoursesCatalog() {
       },
       onStart: (courseId: string) => {
         // For students, "Start Course" navigates directly to the course
-        goToCourse(courseId);
+        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+        goToCourse(courseId, course?.slug);
       }
       };
     }
