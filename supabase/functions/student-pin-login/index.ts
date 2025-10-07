@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+import { compare } from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -46,27 +46,36 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Hash the PIN for comparison
-    const pinHash = await bcrypt.hash(pin);
+    // Fetch student record to get stored PIN hash
+    const { data: students, error: fetchError } = await supabaseAdmin
+      .from('org_students')
+      .select('id, pin_hash, linked_user_id, activation_status')
+      .eq('org_id', org_id)
+      .ilike('full_name', full_name)
+      .single();
 
-    // Validate student credentials using database function
-    const { data: validationData, error: validationError } = await supabaseAdmin
-      .rpc('validate_student_pin', {
-        p_org_id: org_id,
-        p_full_name: full_name,
-        p_pin_hash: pinHash
-      });
-
-    if (validationError) {
-      console.error('[student-pin-login] Validation error:', validationError);
+    if (fetchError || !students) {
+      console.error('[student-pin-login] Student not found:', fetchError);
       return new Response(
-        JSON.stringify({ error: 'Authentication failed' }),
+        JSON.stringify({ error: 'Invalid name or PIN' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!validationData || validationData.length === 0 || !validationData[0].is_valid) {
-      console.log('[student-pin-login] Invalid credentials');
+    // Check if account is activated
+    if (students.activation_status !== 'activated' || !students.pin_hash) {
+      console.log('[student-pin-login] Account not activated');
+      return new Response(
+        JSON.stringify({ error: 'Account not activated. Please complete activation first.' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify PIN using bcrypt compare
+    const isValidPin = await compare(pin, students.pin_hash);
+
+    if (!isValidPin) {
+      console.log('[student-pin-login] Invalid PIN');
       
       // Log failed login attempt
       await supabaseAdmin
@@ -74,7 +83,7 @@ serve(async (req) => {
         .insert({
           event: 'student_pin_login_failed',
           org_id,
-          metadata: { full_name }
+          metadata: { full_name, student_id: students.id }
         });
 
       return new Response(
@@ -83,7 +92,8 @@ serve(async (req) => {
       );
     }
 
-    const { student_id, linked_user_id } = validationData[0];
+    const student_id = students.id;
+    const linked_user_id = students.linked_user_id;
 
     console.log('[student-pin-login] Valid credentials, student_id:', student_id);
 
