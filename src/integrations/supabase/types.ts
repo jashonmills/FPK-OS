@@ -3414,6 +3414,7 @@ export type Database = {
           enrolled_at: string
           id: string
           last_accessed_at: string | null
+          org_id: string | null
           total_time_spent_minutes: number | null
           updated_at: string
           user_id: string
@@ -3427,6 +3428,7 @@ export type Database = {
           enrolled_at?: string
           id?: string
           last_accessed_at?: string | null
+          org_id?: string | null
           total_time_spent_minutes?: number | null
           updated_at?: string
           user_id: string
@@ -3440,11 +3442,20 @@ export type Database = {
           enrolled_at?: string
           id?: string
           last_accessed_at?: string | null
+          org_id?: string | null
           total_time_spent_minutes?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "interactive_course_enrollments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       interactive_course_sessions: {
         Row: {
@@ -3454,6 +3465,7 @@ export type Database = {
           id: string
           interactions: Json | null
           lesson_id: number | null
+          org_id: string | null
           page_views: number | null
           session_end: string | null
           session_start: string
@@ -3467,6 +3479,7 @@ export type Database = {
           id?: string
           interactions?: Json | null
           lesson_id?: number | null
+          org_id?: string | null
           page_views?: number | null
           session_end?: string | null
           session_start?: string
@@ -3480,13 +3493,22 @@ export type Database = {
           id?: string
           interactions?: Json | null
           lesson_id?: number | null
+          org_id?: string | null
           page_views?: number | null
           session_end?: string | null
           session_start?: string
           session_type?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "interactive_course_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       interactive_learning_paths: {
         Row: {
@@ -3577,6 +3599,7 @@ export type Database = {
           interactions_count: number | null
           lesson_id: number
           lesson_title: string
+          org_id: string | null
           scroll_depth_percentage: number | null
           started_at: string
           time_spent_seconds: number | null
@@ -3593,6 +3616,7 @@ export type Database = {
           interactions_count?: number | null
           lesson_id: number
           lesson_title: string
+          org_id?: string | null
           scroll_depth_percentage?: number | null
           started_at?: string
           time_spent_seconds?: number | null
@@ -3609,13 +3633,22 @@ export type Database = {
           interactions_count?: number | null
           lesson_id?: number
           lesson_title?: string
+          org_id?: string | null
           scroll_depth_percentage?: number | null
           started_at?: string
           time_spent_seconds?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "interactive_lesson_analytics_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_base_files: {
         Row: {

@@ -1,5 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveOrgId } from '@/lib/org/context';
 
 export const trackKnowledgeBaseUsage = async (
   query: string, 
@@ -86,7 +86,8 @@ export const trackBookQuizSession = async (
 export const trackDailyActivity = async (
   activityType: 'study' | 'reading' | 'chat' | 'notes' | 'goals' | 'quiz',
   durationMinutes: number = 0,
-  userId?: string
+  userId?: string,
+  orgId?: string
 ) => {
   if (!userId) return;
 
@@ -105,6 +106,21 @@ export const trackDailyActivity = async (
       }, {
         onConflict: 'user_id,activity_date,activity_type'
       });
+    
+    // Also track in activity_log for organization analytics
+    if (orgId) {
+      await supabase
+        .from('activity_log')
+        .insert({
+          user_id: userId,
+          org_id: orgId,
+          event: `${activityType}_activity`,
+          metadata: {
+            duration_minutes: durationMinutes,
+            activity_date: today
+          }
+        });
+    }
   } catch (error) {
     console.error('Error tracking daily activity:', error);
   }

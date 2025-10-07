@@ -53,6 +53,7 @@ const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
 const Goals = lazy(() => import("./pages/dashboard/Goals"));
 const Settings = lazy(() => import("./pages/dashboard/Settings"));
 const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
+const AnalyticsDebug = lazy(() => import("./pages/dashboard/AnalyticsDebug"));
 const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
 const FlashcardManagerPage = lazy(() => import("./pages/dashboard/FlashcardManagerPage"));
 const LiveLearningHub = lazy(() => import("./pages/dashboard/LiveLearningHub"));
@@ -264,6 +265,7 @@ const App: React.FC = () => {
             <Route path="learner/gamification" element={<LazyRoute><Gamification /></LazyRoute>} />
             <Route path="learner/settings" element={<LazyRoute><Settings /></LazyRoute>} />
             <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />
+            <Route path="learner/analytics-debug" element={<LazyRoute><AnalyticsDebug /></LazyRoute>} />
             <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={<LazyRoute><LiveLearningHub /></LazyRoute>} />

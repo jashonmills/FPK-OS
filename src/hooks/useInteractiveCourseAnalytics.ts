@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { trackDailyActivity } from '@/utils/analyticsTracking';
+import { getActiveOrgId } from '@/lib/org/context';
 import type { Json } from '@/integrations/supabase/types';
 
 interface InteractionData {
@@ -34,6 +35,9 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
   const [currentSession, setCurrentSession] = useState<InteractiveCourseSession | null>(null);
   const [currentLessonAnalytics, setCurrentLessonAnalytics] = useState<LessonAnalytics | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  
+  // Get organization context
+  const orgId = getActiveOrgId();
 
   // Start course session - with loading protection
   const startCourseSession = useCallback(async (sessionType: 'overview' | 'lesson' | 'completion', lessonId?: number) => {
@@ -69,13 +73,14 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           session_start: sessionStart.toISOString(),
           session_type: sessionType,
           page_views: 1,
-          interactions: []
+          interactions: [],
+          org_id: orgId // Add organization context
         });
 
       clearTimeout(timeoutId);
 
       // Track daily activity (non-blocking)
-      trackDailyActivity('study', 0, user.id).catch(err => 
+      trackDailyActivity('study', 0, user.id, orgId).catch(err => 
         console.warn('Daily activity tracking failed:', err)
       );
     } catch (error) {
@@ -122,7 +127,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
       }, user.id).catch(err => console.warn('Analytics tracking failed:', err));
 
       // Track daily activity (non-blocking)
-      trackDailyActivity('study', durationMinutes, user.id).catch(err => 
+      trackDailyActivity('study', durationMinutes, user.id, orgId).catch(err => 
         console.warn('Daily activity tracking failed:', err)
       );
     } catch (error) {
@@ -162,7 +167,8 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           time_spent_seconds: 0,
           engagement_score: 0,
           scroll_depth_percentage: 0,
-          interactions_count: 0
+          interactions_count: 0,
+          org_id: orgId // Add organization context
         });
 
       // Track lesson start event
@@ -212,7 +218,7 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
       }, user.id);
 
       // Track daily activity
-      await trackDailyActivity('study', timeSpentMinutes, user.id);
+      await trackDailyActivity('study', timeSpentMinutes, user.id, orgId);
     } catch (error) {
       console.error('Error completing lesson analytics:', error);
     }
@@ -275,7 +281,8 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           enrolled_at: new Date().toISOString(),
           last_accessed_at: new Date().toISOString(),
           completion_percentage: 0,
-          total_time_spent_minutes: 0
+          total_time_spent_minutes: 0,
+          org_id: orgId // Add organization context
         }, {
           onConflict: 'user_id,course_id'
         });
