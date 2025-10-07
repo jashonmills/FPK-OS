@@ -15,6 +15,10 @@ export interface OrgStudent {
   notes?: string;
   status: 'active' | 'inactive' | 'graduated';
   linked_user_id?: string;
+  pin_hash?: string;
+  activation_token?: string;
+  activation_status?: 'pending' | 'activated' | 'expired';
+  token_expires_at?: string;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -100,6 +104,7 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           memberStudents.push({
             ...existingProfile,
             status: existingProfile.status as 'active' | 'inactive' | 'graduated',
+            activation_status: existingProfile.activation_status as 'pending' | 'activated' | 'expired' | undefined,
             emergency_contact: existingProfile.emergency_contact as Record<string, any> | undefined,
           });
         } else {
@@ -137,6 +142,7 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         .map((student: any) => ({
           ...student,
           status: student.status as 'active' | 'inactive' | 'graduated',
+          activation_status: student.activation_status as 'pending' | 'activated' | 'expired' | undefined,
           emergency_contact: student.emergency_contact as Record<string, any> | undefined,
         }));
 

@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Users, UserPlus, Download } from "lucide-react";
 import { useOrgStudents } from "@/hooks/useOrgStudents";
 import { useOrgMembers } from "@/hooks/useOrgMembers";
+import { useOrgContext } from "@/components/organizations/OrgContext";
 import { AddStudentDialog } from "@/components/students/AddStudentDialog";
 import { EditStudentDialog } from "@/components/students/EditStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
+import { GenerateActivationLinkDialog } from "@/components/students/GenerateActivationLinkDialog";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
 import InviteStudentDialog from "@/components/instructor/InviteStudentDialog";
@@ -29,7 +31,9 @@ export default function StudentsManagementNew() {
   const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
   const [showImportCSV, setShowImportCSV] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [showActivationDialog, setShowActivationDialog] = useState(false);
   const isMobile = useIsMobile();
+  const { currentOrg } = useOrgContext();
 
   const {
     students,
@@ -78,6 +82,11 @@ export default function StudentsManagementNew() {
   const handleSendInvite = (student: any) => {
     // TODO: Implement invite functionality
     toast.info("Invite functionality coming soon");
+  };
+
+  const handleGenerateActivationLink = (student: OrgStudent) => {
+    setSelectedStudent(student);
+    setShowActivationDialog(true);
   };
 
   const handleBulkImport = () => {
@@ -266,6 +275,7 @@ export default function StudentsManagementNew() {
                   onEditStudent={handleEditStudent}
                   onDeleteStudent={handleDeleteStudent}
                   onSendInvite={handleSendInvite}
+                  onGenerateActivationLink={handleGenerateActivationLink}
                 />
               )}
             </div>
@@ -297,6 +307,13 @@ export default function StudentsManagementNew() {
           open={showInviteDialog}
           onOpenChange={setShowInviteDialog}
           organizationId={orgId!}
+        />
+
+        <GenerateActivationLinkDialog
+          open={showActivationDialog}
+          onOpenChange={setShowActivationDialog}
+          student={selectedStudent}
+          orgSlug={orgId!}
         />
       </div>
     </PageShell>
