@@ -19,7 +19,7 @@ export function GroupCard({ group }: GroupCardProps) {
   };
 
   return (
-    <Card className="bg-orange-500/10 border-orange-400/20 hover:bg-orange-500/15 transition-colors">
+    <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
