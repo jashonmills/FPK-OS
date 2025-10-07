@@ -119,6 +119,8 @@ export default function StudentPinLogin() {
       // Store the intended redirect URL before authenticating
       const redirectUrl = data.redirect_url || `/org/${orgSlug}/student-portal`;
       localStorage.setItem('student_login_redirect', redirectUrl);
+      
+      console.log('[StudentPinLogin] Stored redirect URL:', redirectUrl);
 
       // Login successful - use the auth link to authenticate
       if (data.auth_link) {
@@ -126,13 +128,10 @@ export default function StudentPinLogin() {
           title: 'Login Successful',
           description: 'Redirecting to your dashboard...'
         });
-
-        // Add redirectTo parameter to the magic link
-        const url = new URL(data.auth_link);
-        url.searchParams.set('redirectTo', redirectUrl);
         
         // Navigate to the auth link which will authenticate the user
-        window.location.href = url.toString();
+        // The redirect will be handled by useAuth and Index page after authentication
+        window.location.href = data.auth_link;
       } else {
         // Fallback redirect
         toast({
