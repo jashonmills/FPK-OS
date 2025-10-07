@@ -71,7 +71,7 @@ export function useStudentAssignments(orgId?: string) {
 
       const groupIds: string[] = groupMemberships?.map(m => m.group_id) || [];
 
-      // Build group assignments query
+      // Build group assignments query (without org_groups join)
       let groupAssignmentsQuery = supabase
         .from('org_assignment_targets')
         .select(`
@@ -90,10 +90,6 @@ export function useStudentAssignments(orgId?: string) {
             resource_id,
             org_id,
             created_at
-          ),
-          org_groups!inner (
-            id,
-            name
           )
         `)
         .eq('target_type', 'group');
@@ -127,6 +123,24 @@ export function useStudentAssignments(orgId?: string) {
 
       const directData = directResult.data || [];
       const groupData = groupResult.data || [];
+
+      // Fetch group names for group assignments
+      const groupTargetIds = groupData.map((item: any) => item.target_id);
+      let groupNames: Record<string, string> = {};
+      
+      if (groupTargetIds.length > 0) {
+        const { data: groups } = await supabase
+          .from('org_groups')
+          .select('id, name')
+          .in('id', groupTargetIds);
+        
+        if (groups) {
+          groupNames = groups.reduce((acc, group) => {
+            acc[group.id] = group.name;
+            return acc;
+          }, {} as Record<string, string>);
+        }
+      }
 
       // Transform and combine both direct and group assignments
       const allAssignments = [
@@ -168,7 +182,7 @@ export function useStudentAssignments(orgId?: string) {
           completed_at: item.completed_at,
           due_at: item.due_at,
         },
-        groupName: item.org_groups?.name
+        groupName: groupNames[item.target_id]
       }))
       ] as StudentAssignment[];
 
