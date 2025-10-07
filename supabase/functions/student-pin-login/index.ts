@@ -115,13 +115,14 @@ serve(async (req) => {
 
     const orgSlug = orgData?.slug || org_id;
     const redirectUrl = `/org/${orgSlug}/student-portal`;
-    const origin = req.headers.get('origin') || Deno.env.get('SUPABASE_URL') || 'https://fpkuniversity.com';
+    const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
+    
+    // Build callback URL using Supabase project URL (where edge functions are hosted)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
+    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
 
     // If student has a linked user account, create a session
     if (linked_user_id) {
-      // Generate session with redirect through our edge function
-      const callbackUrl = `${origin}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
-      
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
@@ -188,8 +189,9 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate session link with redirect through our edge function
-    const callbackUrl = `${origin}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+    // Build callback URL using Supabase project URL (where edge functions are hosted)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
+    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
     
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',

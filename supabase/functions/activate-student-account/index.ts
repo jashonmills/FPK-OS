@@ -165,8 +165,9 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate session with redirect through our edge function
-    const callbackUrl = `${origin}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+    // Build callback URL using Supabase project URL (where edge functions are hosted)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
+    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
     
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
