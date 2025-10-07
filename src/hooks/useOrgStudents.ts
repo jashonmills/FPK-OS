@@ -136,9 +136,10 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           )
         : memberStudents;
 
-      // Get profile-only students (not linked to any account)
-      const profileOnlyStudents = (orgStudentsData || [])
-        .filter((s: any) => !s.linked_user_id)
+      // Get students from org_students that aren't already in memberStudents
+      const memberUserIds = new Set(memberStudents.map(s => s.linked_user_id).filter(Boolean));
+      const remainingOrgStudents = (orgStudentsData || [])
+        .filter((s: any) => !s.linked_user_id || !memberUserIds.has(s.linked_user_id))
         .map((student: any) => ({
           ...student,
           status: student.status as 'active' | 'inactive' | 'graduated',
@@ -146,8 +147,8 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           emergency_contact: student.emergency_contact as Record<string, any> | undefined,
         }));
 
-      // Combine: profile-only first, then member students
-      return [...profileOnlyStudents, ...filteredMemberStudents];
+      // Combine: remaining org_students first, then member students
+      return [...remainingOrgStudents, ...filteredMemberStudents];
     },
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
