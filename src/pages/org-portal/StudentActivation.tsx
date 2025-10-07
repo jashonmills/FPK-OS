@@ -166,6 +166,11 @@ export default function StudentActivation() {
         return;
       }
 
+      // Store the intended redirect URL from the response
+      if (data.redirect_url) {
+        localStorage.setItem('student_login_redirect', data.redirect_url);
+      }
+
       // Activation successful
       toast({
         title: 'Account Activated!',

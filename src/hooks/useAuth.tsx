@@ -34,6 +34,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Handle student login redirects after authentication
+        if (event === 'SIGNED_IN' && session) {
+          const storedRedirect = localStorage.getItem('student_login_redirect');
+          if (storedRedirect) {
+            localStorage.removeItem('student_login_redirect');
+            console.log('useAuth: Redirecting to stored URL:', storedRedirect);
+            setTimeout(() => {
+              window.location.href = storedRedirect;
+            }, 100);
+          }
+        }
       }
     );
 
