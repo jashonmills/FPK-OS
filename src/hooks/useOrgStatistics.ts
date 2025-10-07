@@ -36,7 +36,8 @@ export function useOrgStatistics(organizationId?: string) {
           averageProgress: parseFloat((data as any)?.averageProgress) || 0,
           courseAssignments: parseInt((data as any)?.courseAssignments) || 0,
           activeGoals: parseInt((data as any)?.activeGoals) || 0,
-          completionRate: parseFloat((data as any)?.completionRate) || 0
+          completionRate: parseFloat((data as any)?.completionRate) || 0,
+          iepCount: parseInt((data as any)?.iepCount) || 0
         };
       } catch (error) {
         console.error('Failed to fetch organization statistics:', error);
@@ -65,7 +66,8 @@ export function useOrgStatistics(organizationId?: string) {
       averageProgress: 0,
       courseAssignments: 0,
       activeGoals: 0,
-      completionRate: 0
+      completionRate: 0,
+      iepCount: 0
     },
     isLoading,
     error,

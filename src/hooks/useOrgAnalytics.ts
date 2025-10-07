@@ -35,8 +35,11 @@ export function useOrgAnalytics(organizationId?: string) {
           averageProgress: parseFloat((data as any)?.averageProgress) || 0,
           totalLearningHours: parseFloat((data as any)?.totalLearningHours) || 0,
           goalsCompleted: parseInt((data as any)?.goalsCompleted) || 0,
+          groupCount: parseInt((data as any)?.groupCount) || 0,
+          notesCount: parseInt((data as any)?.notesCount) || 0,
           recentActivity: (data as any)?.recentActivity || [],
-          topPerformers: (data as any)?.topPerformers || []
+          topPerformers: (data as any)?.topPerformers || [],
+          iepSummary: (data as any)?.iepSummary || {}
         };
       } catch (error) {
         console.error('Failed to fetch organization analytics:', error);
