@@ -247,6 +247,112 @@ export default function OrgPortalHome() {
         </Card>
       </div>
 
+      {/* Analytics Section - Only show for admin/instructors */}
+      {!isStudent && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Progress Trend */}
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader>
+              <CardTitle className="text-white">Learning Progress Trend</CardTitle>
+              <CardDescription className="text-white/80">
+                Average completion percentage over the last 6 months
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-white/70">
+                    <TrendingUp className="w-12 h-12 mx-auto mb-2" />
+                    {adminStats && adminStats.studentCount > 0 ? (
+                      <>
+                        <p className="text-sm">Progress Tracking</p>
+                        <p className="text-xs">Current progress: {Math.round(adminStats.averageProgress || 0)}%</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm">No Progress Data</p>
+                        <p className="text-xs">Invite students to see progress trends</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-sm text-white/70">Current Progress</div>
+                    <div className="text-xl font-bold text-white">{Math.round(adminStats?.averageProgress || 0)}%</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Active Students</div>
+                    <div className="text-xl font-bold text-white">{adminStats?.activeMembers || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Total Students</div>
+                    <div className="text-xl font-bold text-white">{adminStats?.studentCount || 0}</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Engagement Metrics */}
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader>
+              <CardTitle className="text-white">Student Engagement</CardTitle>
+              <CardDescription className="text-white/80">
+                Weekly engagement metrics and activity levels
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Weekly Engagement</span>
+                    <Badge variant="default" className="bg-white/20 text-white border-white/30">
+                      {Math.round(adminStats?.averageProgress || 0)}%
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-purple-400 h-2 rounded-full"
+                      style={{ width: `${Math.round(adminStats?.averageProgress || 0)}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Course Completion</span>
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      {adminStats?.completionRate || 0}%
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-green-400 h-2 rounded-full"
+                      style={{ width: `${adminStats?.completionRate || 0}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white">Assignment Submission</span>
+                    <Badge variant="outline" className="bg-white/20 text-white border-white/30">0%</Badge>
+                  </div>
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                      className="bg-blue-400 h-2 rounded-full"
+                      style={{ width: '0%' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <Card className="bg-orange-500/65 border-orange-400/50">
         <CardHeader>
@@ -272,7 +378,7 @@ export default function OrgPortalHome() {
                 <Button 
                   variant="outline" 
                   className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
                 >
                   <Target className="h-4 w-4" />
                   <span>My Goals</span>
@@ -297,13 +403,6 @@ export default function OrgPortalHome() {
             ) : (
               <>
                 <Button 
-                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/invite`)}
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Invite Members</span>
-                </Button>
-                <Button 
                   variant="outline" 
                   className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
                   onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
@@ -314,18 +413,10 @@ export default function OrgPortalHome() {
                 <Button 
                   variant="outline" 
                   className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals`)}
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
                 >
                   <Target className="h-4 w-4" />
                   <span>Create Goal</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/analytics`)}
-                >
-                  <Award className="h-4 w-4" />
-                  <span>View Reports</span>
                 </Button>
               </>
             )}

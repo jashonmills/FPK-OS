@@ -81,37 +81,14 @@ export function OrgNavigation() {
       roles: ['owner', 'instructor'],
     },
     {
-      href: `/org/${currentOrg.organization_id}/goals`,
-      label: 'Goals',
+      href: `/org/${currentOrg.organization_id}/goals-notes`,
+      label: 'Goals & Notes',
       icon: Target,
-    },
-    {
-      href: `/org/${currentOrg.organization_id}/notes`,
-      label: 'Notes',
-      icon: FileText,
     },
     {
       href: `/org/${currentOrg.organization_id}/ai-coach`,
       label: currentOrg.role === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
-    },
-    {
-      href: `/org/${currentOrg.organization_id}/analytics`,
-      label: 'Analytics',
-      icon: BarChart3,
-      roles: ['owner', 'instructor'],
-    },
-    {
-      href: `/org/${currentOrg.organization_id}/invite`,
-      label: 'Invite Members',
-      icon: UserPlus,
-      roles: ['owner', 'instructor'],
-    },
-    {
-      href: `/org/${currentOrg.organization_id}/branding`,
-      label: 'Branding',
-      icon: Palette,
-      roles: ['owner', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/website`,

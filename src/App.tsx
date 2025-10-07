@@ -104,10 +104,12 @@ const Assignments = lazy(() => import("./pages/org/assignments"));
 const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
 const AssignmentsDashboard = lazy(() => import("./pages/student/AssignmentsDashboard"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
-const GoalsManagement = lazy(() => import("./pages/instructor/GoalsManagement"));
-const NotesManagement = lazy(() => import("./pages/instructor/NotesManagement"));
+const GoalsManagement = lazy(() => import("./pages/org/goals"));
+const NotesManagementNew = lazy(() => import("./pages/instructor/NotesManagementNew"));
+const GoalsAndNotes = lazy(() => import("./pages/org/GoalsAndNotes"));
 const OrgAIStudyCoach = lazy(() => import("./pages/org/AIStudyCoach"));
 const AnalyticsOverview = lazy(() => import("./pages/instructor/AnalyticsOverview"));
+const OrgSettingsTabs = lazy(() => import("./pages/instructor/OrganizationSettingsTabs"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
 const UserSubscription = lazy(() => import("./pages/dashboard/UserSubscription"));
 const SubscriptionSuccess = lazy(() => import("./pages/dashboard/SubscriptionSuccess"));
@@ -281,7 +283,7 @@ const App: React.FC = () => {
             <Route path="instructor/courses" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path="instructor/assignments" element={<LazyRoute><AssignmentsManagement /></LazyRoute>} />
             <Route path="instructor/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
-            <Route path="instructor/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
+            <Route path="instructor/notes" element={<LazyRoute><NotesManagementNew /></LazyRoute>} />
             <Route path="instructor/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
             <Route path="instructor/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             
@@ -670,15 +672,11 @@ const App: React.FC = () => {
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
-            <Route path=":orgId/goals" element={<LazyRoute><GoalsManagement /></LazyRoute>} />
-            <Route path=":orgId/notes" element={<LazyRoute><NotesManagement /></LazyRoute>} />
+            <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
             <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
-            <Route path=":orgId/analytics" element={<LazyRoute><AnalyticsOverview /></LazyRoute>} />
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
-            <Route path=":orgId/invite" element={<LazyRoute><InviteMembersPage /></LazyRoute>} />
-            <Route path=":orgId/branding" element={<LazyRoute><OrgBrandingSettings /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />
-            <Route path=":orgId/settings" element={<LazyRoute><OrgSettings /></LazyRoute>} />
+            <Route path=":orgId/settings" element={<LazyRoute><OrgSettingsTabs /></LazyRoute>} />
             <Route path=":orgId/settings/invites" element={<LazyRoute><InviteManagement /></LazyRoute>} />
           </Route>
           
